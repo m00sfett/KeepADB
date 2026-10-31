@@ -26,11 +26,15 @@ import java.util.Locale;
  *   <li>A readable untrusted or blocked network switches off at once. An unreadable identity is
  *       checked again after {@link KeepADBNetworkTrustPrompt#IDENTITY_RECHECK_DELAYS_MS} (as in
  *       #872), so the few seconds of an access-point roam trigger nothing.</li>
- *   <li>A session the user switched on manually stays on while the phone is on the access point
+ *   <li>A session the user switched on manually in KeepADB (app, tile, widget, notification,
+ *       USB handover action) stays on while the phone is on the access point
  *       (readable BSSID) it was switched on at. Any other readable access point -- trusted ones
  *       included --, a lost Wi-Fi or Wireless Debugging going off ends that exemption for good.
  *       An unreadable identity never proves the same access point: a manual enable on it grants
- *       no exemption, and while the identity is unreadable an existing one does not apply.</li>
+ *       no exemption, and while the identity is unreadable an existing one does not apply. A
+ *       restart of the Keep-Alive service ends an older exemption ({@link #onObservationResumed}).
+ *       Switching Wireless Debugging on in Android's own settings is not a KeepADB action and
+ *       grants no exemption (decision on the Codex review).</li>
  *   <li>The OFF write ({@link KeepADB#applyPolicyOff}) records no user intent, so Keep-Alive
  *       re-enables as usual once the network is trusted. Every condition is re-checked inside
  *       the toggle lock immediately before the write.</li>
@@ -92,15 +96,42 @@ final class KeepADBUntrustedShutdown {
     static void onManualToggleApplied(Context context, boolean on) {
         Context app = context.getApplicationContext();
         // Only a readable access point can carry an exemption (see the class javadoc).
-        KeepADBPreferences.setUntrustedShutdownManualBssid(app, on ? currentBssidOrNull(app) : null);
+        String bssid = on ? currentBssidOrNull(app) : null;
+        if (bssid == null) {
+            KeepADBPreferences.clearUntrustedShutdownManualBssid(app);
+        } else {
+            KeepADBPreferences.setUntrustedShutdownManualBssid(app, bssid, scheduler.elapsedRealtimeMs());
+        }
         if (on) cancelRecheck();
     }
 
     /** Wi-Fi lost or Wireless Debugging observed off: a manual exemption ends here. */
     static void onSessionEnded(Context context) {
         Context app = context.getApplicationContext();
-        KeepADBPreferences.setUntrustedShutdownManualBssid(app, null);
+        KeepADBPreferences.clearUntrustedShutdownManualBssid(app);
         cancelRecheck();
+    }
+
+    /**
+     * A tap may itself start the service, so an exemption recorded this recently belongs to the
+     * session that is starting now.
+     */
+    static final long OBSERVATION_RESUME_GRACE_MS = 10_000L;
+
+    /**
+     * Codex review: called when the Keep-Alive service (re)starts. While it did not run, a lost
+     * Wi-Fi or Wireless Debugging going off went unobserved, so an exemption recorded before this
+     * start can no longer prove that its session is still the same one; it is cleared. A record
+     * from before a reboot (elapsed realtime ahead of now) is cleared as well.
+     */
+    static void onObservationResumed(Context context) {
+        Context app = context.getApplicationContext();
+        if (KeepADBPreferences.getUntrustedShutdownManualBssid(app) == null) return;
+        long at = KeepADBPreferences.getUntrustedShutdownManualAt(app);
+        long now = scheduler.elapsedRealtimeMs();
+        if (at < 0 || at > now || now - at > OBSERVATION_RESUME_GRACE_MS) {
+            KeepADBPreferences.clearUntrustedShutdownManualBssid(app);
+        }
     }
 
     /** The conditions every decision and the final write depend on, apart from the network. */
@@ -139,7 +170,7 @@ final class KeepADBUntrustedShutdown {
         if (recorded == null) return;
         String current = currentBssidOrNull(app);
         if (recorded.isEmpty() || (current != null && !recorded.equals(current))) {
-            KeepADBPreferences.setUntrustedShutdownManualBssid(app, null);
+            KeepADBPreferences.clearUntrustedShutdownManualBssid(app);
         }
     }
 

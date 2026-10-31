@@ -62,7 +62,7 @@ reason for each documented here.
 |---|---|---|
 | `last_desired_on` | on | Stores the last explicit on/off intent; it is not a switch. On a new installation it does not trigger anything on its own: the service and boot receivers first require `keep_alive_enabled`, USB handover first requires its mode (default `off`), and enabling Keep-Alive writes the “on” intent. An “off” default would instead affect existing installations that enabled Keep-Alive before this key existed and would silently disable their recovery |
 
-`untrusted_shutdown_manual_bssid` (#864) is absent until Wireless debugging is switched on manually; it records the access point of that manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and is cleared when Wi-Fi is lost or Wireless debugging goes off. Bookkeeping, not a setting.
+`untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wireless debugging is switched on manually in KeepADB on a readable access point; they record that access point and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wireless debugging goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
 
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit
 confirmation in the Force dialog; it contains the duration and expiry for that decision.

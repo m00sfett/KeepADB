@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Wygodniejsze przy sieciach mesh i wzmacniaczach. Nazwę łatwo podrobić.</string>
     <string name="networks_comfort_no_effect">Bez efektu, dopóki obowiązuje dotychczasowe ustawienie „We wszystkich sieciach Wi-Fi”.</string>
     <string name="untrusted_shutdown_title">Wyłączaj w niezaufanych sieciach Wi-Fi</string>
-    <string name="untrusted_shutdown_hint">Gdy Keep-Alive jest włączony, KeepADB wyłącza debugowanie bezprzewodowe w sieci Wi-Fi, która nie jest zaufana, jest zablokowana lub nie da się jej rozpoznać, zamiast tylko powiadamiać. Sesja włączona przez Ciebie pozostaje aktywna w tej sieci. Tryb wymuszony to wstrzymuje.</string>
+    <string name="untrusted_shutdown_hint">Gdy Keep-Alive jest włączony, KeepADB wyłącza debugowanie bezprzewodowe w sieci Wi-Fi, która nie jest zaufana, jest zablokowana lub nie da się jej rozpoznać, zamiast tylko powiadamiać. Sesja włączona przez Ciebie w KeepADB pozostaje aktywna przy tym routerze Wi-Fi. Tryb wymuszony to wstrzymuje.</string>
     <string name="untrusted_shutdown_channel_name">Wyłączanie w niezaufanych sieciach Wi-Fi</string>
     <string name="untrusted_shutdown_channel_desc">Informuje, gdy KeepADB wyłączył debugowanie bezprzewodowe w niezaufanej sieci Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Debugowanie bezprzewodowe wyłączone</string>

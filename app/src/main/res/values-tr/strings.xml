@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Mesh ve tekrarlayıcılarda daha rahat. Bir ad kolayca taklit edilebilir.</string>
     <string name="networks_comfort_no_effect">Önceki “Tüm Wi-Fi ağlarında” ayarı geçerli olduğu sürece etkisi yoktur.</string>
     <string name="untrusted_shutdown_title">Güvenilmeyen Wi-Fi\'de kapat</string>
-    <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Kablosuz Hata Ayıklama\'yı kapatır. Kendin açtığın bir oturum o Wi-Fi\'de açık kalır. Zorunlu mod bunu askıya alır.</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Kablosuz Hata Ayıklama\'yı kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
     <string name="untrusted_shutdown_channel_name">Güvenilmeyen Wi-Fi\'de kapatma</string>
     <string name="untrusted_shutdown_channel_desc">KeepADB güvenilmeyen bir Wi-Fi\'de Kablosuz Hata Ayıklama\'yı kapattığında bildirir.</string>
     <string name="untrusted_shutdown_off_title">Kablosuz Hata Ayıklama kapatıldı</string>

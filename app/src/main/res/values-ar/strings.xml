@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">أكثر راحة مع شبكات Mesh والمكرِّرات. يسهل تقليد الاسم.</string>
     <string name="networks_comfort_no_effect">لا تأثير له ما دام الإعداد السابق «في جميع شبكات Wi-Fi» ساريًا.</string>
     <string name="untrusted_shutdown_title">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
-    <string name="untrusted_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB تصحيح الأخطاء اللاسلكي في شبكة Wi-Fi غير موثوقة أو محظورة أو لا يمكن التعرف عليها، بدلًا من الاكتفاء بإشعارك. الجلسة التي شغّلتها بنفسك تبقى مفعّلة في تلك الشبكة. الوضع الإجباري يعلّق ذلك.</string>
+    <string name="untrusted_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB تصحيح الأخطاء اللاسلكي في شبكة Wi-Fi غير موثوقة أو محظورة أو لا يمكن التعرف عليها، بدلًا من الاكتفاء بإشعارك. الجلسة التي شغّلتها بنفسك في KeepADB تبقى مفعّلة عند نقطة الاتصال تلك. الوضع الإجباري يعلّق ذلك.</string>
     <string name="untrusted_shutdown_channel_name">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
     <string name="untrusted_shutdown_channel_desc">يُعلمك عندما يوقف KeepADB تصحيح الأخطاء اللاسلكي في شبكة Wi-Fi غير موثوقة.</string>
     <string name="untrusted_shutdown_off_title">تم إيقاف تصحيح الأخطاء اللاسلكي</string>

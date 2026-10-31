@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Plus pratique avec le mesh et les répéteurs. Un nom est facile à imiter.</string>
     <string name="networks_comfort_no_effect">Sans effet tant que l’ancien réglage « Dans tous les réseaux Wi-Fi » s’applique.</string>
     <string name="untrusted_shutdown_title">Désactiver sur un Wi-Fi non approuvé</string>
-    <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive le débogage sans fil sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même reste active sur ce Wi-Fi. Le mode forcé suspend ce comportement.</string>
+    <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive le débogage sans fil sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même dans KeepADB reste active sur ce point d’accès. Le mode forcé suspend ce comportement.</string>
     <string name="untrusted_shutdown_channel_name">Désactivation sur Wi-Fi non approuvé</string>
     <string name="untrusted_shutdown_channel_desc">Vous prévient lorsque KeepADB a désactivé le débogage sans fil sur un Wi-Fi non approuvé.</string>
     <string name="untrusted_shutdown_off_title">Débogage sans fil désactivé</string>

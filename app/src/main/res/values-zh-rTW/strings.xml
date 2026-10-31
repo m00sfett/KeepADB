@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">對 Mesh 和中繼器更方便。名稱很容易被冒用。</string>
     <string name="networks_comfort_no_effect">在沿用舊設定「在所有 Wi-Fi 網路中」期間不生效。</string>
     <string name="untrusted_shutdown_title">在未信任的 Wi-Fi 上關閉</string>
-    <string name="untrusted_shutdown_hint">Keep-Alive 開啟時，如果 Wi-Fi 未信任、已封鎖或無法識別，KeepADB 會關閉無線偵錯，而不只是通知你。你自己開啟的工作階段在該 Wi-Fi 上保持開啟。強制模式下暫停此功能。</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive 開啟時，如果 Wi-Fi 未信任、已封鎖或無法識別，KeepADB 會關閉無線偵錯，而不只是通知你。你在 KeepADB 中自己開啟的工作階段在該 Wi-Fi 基地台上保持開啟。強制模式下暫停此功能。</string>
     <string name="untrusted_shutdown_channel_name">在未信任的 Wi-Fi 上關閉</string>
     <string name="untrusted_shutdown_channel_desc">當 KeepADB 在未信任的 Wi-Fi 上關閉無線偵錯時通知你。</string>
     <string name="untrusted_shutdown_off_title">已關閉無線偵錯</string>

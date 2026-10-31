@@ -178,6 +178,9 @@ public class KeepADBService extends Service {
         // automatic re-enable backoff, so a restart (whether user-initiated or after the system
         // killed the process) always gets a clean, un-blocked first attempt.
         KeepADB.resetAutomaticEnableBackoff();
+        // #864: what happened while no service observed it is unknown; an older manual exemption
+        // from the untrusted-Wi-Fi shutdown ends here.
+        KeepADBUntrustedShutdown.onObservationResumed(this);
         KeepADBUsbReceiver.refresh(this);
         long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
         if (lastHeartbeat > 0) {

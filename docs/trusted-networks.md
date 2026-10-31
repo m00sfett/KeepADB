@@ -98,7 +98,10 @@ identified, instead of only notifying:
   stays on that access point. Any other access point (a trusted one too), a lost Wi-Fi or Wireless
   debugging going off ends that exemption for good; returning to the first access point does not
   revive it. An unreadable identity cannot prove the same access point: switching on there grants
-  no exemption, and while the identity is unreadable an existing exemption does not apply.
+  no exemption, and while the identity is unreadable an existing exemption does not apply. Only
+  switching on in KeepADB (app, tile, widget, notification, USB handover action) counts; switching
+  on in Android's own settings grants no exemption. A restart of the Keep-Alive service ends an
+  exemption recorded before it, because what happened while nothing observed it is unknown.
 - **Force mode** suspends the policy while it runs.
 - **Recheck before writing:** every condition is checked again immediately before the OFF write, so
   a stale event cannot switch off a session that has become trusted meanwhile.

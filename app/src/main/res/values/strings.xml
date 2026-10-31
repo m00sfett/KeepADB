@@ -327,7 +327,7 @@
     <string name="networks_comfort_hint">More convenient with mesh and repeaters. A name is easy to imitate.</string>
     <string name="networks_comfort_no_effect">No effect while the previous setting “In all Wi-Fi networks” applies.</string>
     <string name="untrusted_shutdown_title">Turn off on untrusted Wi-Fi</string>
-    <string name="untrusted_shutdown_hint">While Keep-Alive is on, KeepADB turns Wireless Debugging off in a Wi-Fi that is not trusted, is blocked or cannot be identified, instead of only notifying you. A session you turned on yourself stays on in that Wi-Fi. Force mode suspends this.</string>
+    <string name="untrusted_shutdown_hint">While Keep-Alive is on, KeepADB turns Wireless Debugging off in a Wi-Fi that is not trusted, is blocked or cannot be identified, instead of only notifying you. A session you turned on yourself in KeepADB stays on at that access point. Force mode suspends this.</string>
     <string name="untrusted_shutdown_channel_name">Untrusted Wi-Fi shutdown</string>
     <string name="untrusted_shutdown_channel_desc">Tells you when KeepADB turned Wireless Debugging off on an untrusted Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Wireless Debugging turned off</string>

@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Más cómodo con mesh y repetidores. Un nombre es fácil de imitar.</string>
     <string name="networks_comfort_no_effect">Sin efecto mientras se aplique el ajuste anterior «En todas las redes Wi-Fi».</string>
     <string name="untrusted_shutdown_title">Desactivar en redes Wi-Fi no fiables</string>
-    <string name="untrusted_shutdown_hint">Mientras Keep-Alive está activo, KeepADB desactiva la depuración inalámbrica en una red Wi-Fi que no es de confianza, está bloqueada o no se puede identificar, en lugar de solo avisarte. Una sesión que activaste tú mismo sigue activa en esa red. El modo forzado lo suspende.</string>
+    <string name="untrusted_shutdown_hint">Mientras Keep-Alive está activo, KeepADB desactiva la depuración inalámbrica en una red Wi-Fi que no es de confianza, está bloqueada o no se puede identificar, en lugar de solo avisarte. Una sesión que activaste tú mismo en KeepADB sigue activa en ese punto de acceso. El modo forzado lo suspende.</string>
     <string name="untrusted_shutdown_channel_name">Desactivación en redes Wi-Fi no fiables</string>
     <string name="untrusted_shutdown_channel_desc">Te avisa cuando KeepADB desactivó la depuración inalámbrica en una red Wi-Fi no fiable.</string>
     <string name="untrusted_shutdown_off_title">Depuración inalámbrica desactivada</string>

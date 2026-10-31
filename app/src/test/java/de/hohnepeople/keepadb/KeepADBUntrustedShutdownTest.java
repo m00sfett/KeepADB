@@ -365,6 +365,34 @@ public class KeepADBUntrustedShutdownTest {
         assertEquals(Collections.singletonList(false), inner.writes);
     }
 
+    /** Codex review round 3: a service restart ends an exemption recorded before the gap. */
+    @Test
+    public void serviceRestartEndsAnOlderExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        scheduler.advanceBy(KeepADBUntrustedShutdown.OBSERVATION_RESUME_GRACE_MS + 1);
+
+        KeepADBUntrustedShutdown.onObservationResumed(context);
+
+        assertFalse(KeepADBUntrustedShutdown.isManuallyExempt(context));
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        assertEquals(Arrays.asList(true, false), gateway.writes);
+    }
+
+    /** The tap that starts the service keeps its own, fresh exemption. */
+    @Test
+    public void serviceStartRightAfterTheManualTapKeepsTheExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        scheduler.advanceBy(1_000L);
+
+        KeepADBUntrustedShutdown.onObservationResumed(context);
+
+        assertTrue(KeepADBUntrustedShutdown.isManuallyExempt(context));
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();

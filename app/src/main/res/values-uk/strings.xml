@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Зручніше з mesh і репітерами. Назву легко підробити.</string>
     <string name="networks_comfort_no_effect">Не діє, поки застосовується попереднє налаштування «У всіх мережах Wi-Fi».</string>
     <string name="untrusted_shutdown_title">Вимикати в недовірених мережах Wi-Fi</string>
-    <string name="untrusted_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає бездротове налагодження в мережі Wi-Fi, яка не є довіреною, заблокована або не може бути визначена, а не лише сповіщає вас. Сеанс, який ви ввімкнули самі, залишається ввімкненим у цій мережі. Примусовий режим призупиняє це.</string>
+    <string name="untrusted_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає бездротове налагодження в мережі Wi-Fi, яка не є довіреною, заблокована або не може бути визначена, а не лише сповіщає вас. Сеанс, який ви ввімкнули самі в KeepADB, залишається ввімкненим біля цього роутера Wi-Fi. Примусовий режим призупиняє це.</string>
     <string name="untrusted_shutdown_channel_name">Вимкнення в недовірених мережах Wi-Fi</string>
     <string name="untrusted_shutdown_channel_desc">Повідомляє, коли KeepADB вимкнув бездротове налагодження в недовіреній мережі Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Бездротове налагодження вимкнено</string>

@@ -188,7 +188,7 @@ public class KeepADBDefaultsAuditTest {
             "events", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
             "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
-            "untrusted_shutdown_manual_bssid")));
+            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at")));
 
     @Before
     public void setUp() {

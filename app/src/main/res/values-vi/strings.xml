@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Tiện hơn với mesh và bộ lặp. Tên rất dễ bị giả mạo.</string>
     <string name="networks_comfort_no_effect">Không có tác dụng khi cài đặt cũ “Trong mọi mạng Wi-Fi” còn áp dụng.</string>
     <string name="untrusted_shutdown_title">Tắt trên Wi-Fi không tin cậy</string>
-    <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật vẫn được giữ trên Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
+    <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
     <string name="untrusted_shutdown_channel_name">Tắt trên Wi-Fi không tin cậy</string>
     <string name="untrusted_shutdown_channel_desc">Thông báo khi KeepADB đã tắt Gỡ lỗi không dây trên Wi-Fi không tin cậy.</string>
     <string name="untrusted_shutdown_off_title">Đã tắt Gỡ lỗi không dây</string>

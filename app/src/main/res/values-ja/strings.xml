@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">メッシュやリピーターでは便利です。名前は簡単にまねできます。</string>
     <string name="networks_comfort_no_effect">以前の設定「すべての Wi-Fi ネットワークで」が有効な間は、効果がありません。</string>
     <string name="untrusted_shutdown_title">信頼していないWi-Fiでオフにする</string>
-    <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなくワイヤレスデバッグをオフにします。自分でオンにしたセッションは、そのWi-Fiではオンのままです。強制モード中は停止します。</string>
+    <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなくワイヤレスデバッグをオフにします。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。</string>
     <string name="untrusted_shutdown_channel_name">信頼していないWi-Fiでのオフ</string>
     <string name="untrusted_shutdown_channel_desc">信頼していないWi-FiでKeepADBがワイヤレスデバッグをオフにしたときに通知します。</string>
     <string name="untrusted_shutdown_off_title">ワイヤレスデバッグをオフにしました</string>

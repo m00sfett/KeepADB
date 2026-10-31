@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Lebih praktis untuk mesh dan repeater. Nama mudah ditiru.</string>
     <string name="networks_comfort_no_effect">Tidak berpengaruh selama pengaturan sebelumnya “Di semua jaringan Wi-Fi” berlaku.</string>
     <string name="untrusted_shutdown_title">Matikan di Wi-Fi yang tidak dipercaya</string>
-    <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri tetap aktif di Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
+    <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
     <string name="untrusted_shutdown_channel_name">Pematian di Wi-Fi tidak dipercaya</string>
     <string name="untrusted_shutdown_channel_desc">Memberi tahu saat KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya.</string>
     <string name="untrusted_shutdown_off_title">Debugging Nirkabel dimatikan</string>

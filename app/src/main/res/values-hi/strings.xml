@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">मेश और रिपीटर के साथ ज़्यादा सुविधाजनक। नाम की नकल करना आसान है।</string>
     <string name="networks_comfort_no_effect">पहले वाली सेटिंग “सभी Wi-Fi नेटवर्क में” लागू रहने तक इसका कोई असर नहीं है।</string>
     <string name="untrusted_shutdown_title">गैर-भरोसेमंद Wi-Fi पर बंद करें</string>
-    <string name="untrusted_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB ऐसे Wi-Fi पर वायरलेस डीबगिंग बंद कर देता है जो भरोसेमंद नहीं है, ब्लॉक है या पहचाना नहीं जा सकता, केवल सूचना देने के बजाय। जो सत्र आपने स्वयं चालू किया है, वह उस Wi-Fi पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है।</string>
+    <string name="untrusted_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB ऐसे Wi-Fi पर वायरलेस डीबगिंग बंद कर देता है जो भरोसेमंद नहीं है, ब्लॉक है या पहचाना नहीं जा सकता, केवल सूचना देने के बजाय। जो सत्र आपने KeepADB में स्वयं चालू किया है, वह उसी Wi-Fi राउटर पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है।</string>
     <string name="untrusted_shutdown_channel_name">गैर-भरोसेमंद Wi-Fi पर बंद करना</string>
     <string name="untrusted_shutdown_channel_desc">बताता है जब KeepADB ने गैर-भरोसेमंद Wi-Fi पर वायरलेस डीबगिंग बंद की।</string>
     <string name="untrusted_shutdown_off_title">वायरलेस डीबगिंग बंद की गई</string>

@@ -320,7 +320,7 @@
     <string name="networks_comfort_hint">Handiger bij mesh en repeaters. Een naam is makkelijk na te bootsen.</string>
     <string name="networks_comfort_no_effect">Geen effect zolang de vorige instelling ‘In alle wifi-netwerken’ geldt.</string>
     <string name="untrusted_shutdown_title">Uitschakelen op niet-vertrouwde wifi</string>
-    <string name="untrusted_shutdown_hint">Zolang Keep-Alive aan staat, schakelt KeepADB draadloze foutopsporing uit op wifi die niet vertrouwd, geblokkeerd of niet herkenbaar is, in plaats van je alleen te waarschuwen. Een sessie die je zelf hebt aangezet, blijft op die wifi aan. De geforceerde modus schort dit op.</string>
+    <string name="untrusted_shutdown_hint">Zolang Keep-Alive aan staat, schakelt KeepADB draadloze foutopsporing uit op wifi die niet vertrouwd, geblokkeerd of niet herkenbaar is, in plaats van je alleen te waarschuwen. Een sessie die je zelf in KeepADB hebt aangezet, blijft op dat wifi-punt aan. De geforceerde modus schort dit op.</string>
     <string name="untrusted_shutdown_channel_name">Uitschakelen op niet-vertrouwde wifi</string>
     <string name="untrusted_shutdown_channel_desc">Meldt wanneer KeepADB draadloze foutopsporing heeft uitgeschakeld op niet-vertrouwde wifi.</string>
     <string name="untrusted_shutdown_off_title">Draadloze foutopsporing uitgeschakeld</string>

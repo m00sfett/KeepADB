@@ -23,6 +23,8 @@ final class KeepADBPreferences {
     private static final String KEY_UNTRUSTED_SHUTDOWN = "untrusted_shutdown_enabled";
     /** #864: the Wi-Fi identity a manual enable was made on ("" when unreadable), or absent. */
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID = "untrusted_shutdown_manual_bssid";
+    /** #864: elapsed-realtime millis when that manual exemption was recorded. */
+    private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT = "untrusted_shutdown_manual_at";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
     private static final String KEY_WEBHOOK_ALERTS_SHOWN = "register_webhook_alerts_shown";
     private static final String KEY_APP_LANGUAGE = "app_language";
@@ -413,22 +415,32 @@ final class KeepADBPreferences {
     }
 
     /**
-     * #864: the BSSID a manual enable was made on ("" for an unreadable identity), or null when
-     * no manual exemption is recorded.
+     * #864: the readable BSSID a manual enable was made on, or null when no manual exemption is
+     * recorded.
      */
     static String getUntrustedShutdownManualBssid(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, null);
     }
 
-    /** @param bssid the identity to record, "" for unreadable, or null to clear the exemption. */
-    static void setUntrustedShutdownManualBssid(Context context, String bssid) {
+    /** Clears the manual exemption. */
+    static void clearUntrustedShutdownManualBssid(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (bssid == null) {
-            prefs.edit().remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID).apply();
-        } else {
-            prefs.edit().putString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, bssid).apply();
-        }
+        prefs.edit().remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID)
+                .remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT).apply();
+    }
+
+    /** Records the manual exemption for {@code bssid} at elapsed-realtime {@code atElapsedMs}. */
+    static void setUntrustedShutdownManualBssid(Context context, String bssid, long atElapsedMs) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, bssid)
+                .putLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, atElapsedMs).apply();
+    }
+
+    /** Elapsed-realtime millis of the recorded manual exemption, or -1 without one. */
+    static long getUntrustedShutdownManualAt(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, -1L);
     }
 
     /** Epoch-millis of the first failed report of the current failure episode, or 0 without one. */
