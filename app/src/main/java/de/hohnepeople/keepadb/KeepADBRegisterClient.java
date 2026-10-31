@@ -270,24 +270,7 @@ final class KeepADBRegisterClient {
             // One attempt only: a failure ends this series at once instead of retrying.
             postRetryNumber = KeepADBPreferences.getWebhookRetryCount(appContext);
         }
-        EXECUTOR.execute(() -> {
-            if (opGen != currentOpGeneration) return;
-            // Codex review: adbd may have rotated its port without a network callback, and the
-            // cached endpoint is only re-verified asynchronously. Never report an address that
-            // does not answer; the endpoint health check reports the new one itself.
-            if (!endpointProbe.isReachable(endpoint)) {
-                synchronized (KeepADBRegisterClient.class) {
-                    if (opGen == currentOpGeneration) {
-                        wlanUpdateInFlight = false;
-                        seriesExhausted = true;
-                    }
-                }
-                KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
-                        "method=post reason=endpoint_unreachable reattempt=true");
-                return;
-            }
-            performUpdateTransaction(appContext, targetUrl, endpoint, opGen);
-        });
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen, true);
     }
 
     /** #881: reachability check of the cached endpoint before an episode re-attempt. */
@@ -295,7 +278,7 @@ final class KeepADBRegisterClient {
         boolean isReachable(String endpoint);
     }
 
-    private static final int REATTEMPT_PROBE_TIMEOUT_MS = 400;
+    private static final int REATTEMPT_PROBE_WAIT_MILLIS = 400;
     private static volatile EndpointProbe endpointProbe = KeepADBRegisterClient::probeEndpoint;
 
     static void setEndpointProbeForTesting(EndpointProbe probe) {
@@ -311,7 +294,7 @@ final class KeepADBRegisterClient {
         if (host.startsWith("[") && host.endsWith("]")) host = host.substring(1, host.length() - 1);
         try {
             int port = Integer.parseInt(endpoint.substring(colon + 1));
-            return KeepADBEndpoint.isPortReachable(host, port, REATTEMPT_PROBE_TIMEOUT_MS);
+            return KeepADBEndpoint.isPortReachable(host, port, REATTEMPT_PROBE_WAIT_MILLIS);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -345,8 +328,30 @@ final class KeepADBRegisterClient {
     }
 
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint, long opGen) {
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen, false);
+    }
+
+    /**
+     * @param probeFirst #881: probe the endpoint before reporting it. Codex review: adbd may have
+     *         rotated its port without a network callback, and the cached endpoint is only
+     *         re-verified asynchronously. An episode re-attempt never reports an address that does
+     *         not answer; the endpoint health check reports the new one itself.
+     */
+    private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint,
+            long opGen, boolean probeFirst) {
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
+            if (probeFirst && !endpointProbe.isReachable(endpoint)) {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentOpGeneration) {
+                        wlanUpdateInFlight = false;
+                        seriesExhausted = true;
+                    }
+                }
+                KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
+                        "method=post reason=endpoint_unreachable reattempt=true");
+                return;
+            }
             performUpdateTransaction(appContext, targetUrl, endpoint, opGen);
         });
     }
