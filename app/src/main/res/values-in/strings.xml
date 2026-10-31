@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Percayai juga berdasarkan nama Wi-Fi</string>
     <string name="networks_comfort_hint">Lebih praktis untuk mesh dan repeater. Nama mudah ditiru.</string>
     <string name="networks_comfort_no_effect">Tidak berpengaruh selama pengaturan sebelumnya “Di semua jaringan Wi-Fi” berlaku.</string>
+    <string name="untrusted_shutdown_title">Matikan di Wi-Fi yang tidak dipercaya</string>
+    <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri tetap aktif di Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
+    <string name="untrusted_shutdown_channel_name">Pematian di Wi-Fi tidak dipercaya</string>
+    <string name="untrusted_shutdown_channel_desc">Memberi tahu saat KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya.</string>
+    <string name="untrusted_shutdown_off_title">Debugging Nirkabel dimatikan</string>
+    <string name="untrusted_shutdown_off_text">Wi-Fi saat ini tidak dipercaya atau tidak dapat dikenali. Keep-Alive menyalakannya lagi di Wi-Fi yang dipercaya.</string>
+    <string name="untrusted_shutdown_failed_title">Tidak dapat mematikan Debugging Nirkabel</string>
+    <string name="untrusted_shutdown_failed_text">Wi-Fi saat ini tidak dipercaya, tetapi gagal mematikan Debugging Nirkabel. Matikan secara manual.</string>
     <string name="networks_level">Tingkat perlindungan: %1$s</string>
     <string name="networks_force_note">Selama mode paksa aktif, jaringan yang dipercaya dan yang diblokir tidak berlaku. Setelahnya berlaku lagi.</string>
     <string name="networks_section_current">Jaringan saat ini</string>

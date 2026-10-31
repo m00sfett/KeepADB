@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Довіряти також за назвою Wi-Fi</string>
     <string name="networks_comfort_hint">Зручніше з mesh і репітерами. Назву легко підробити.</string>
     <string name="networks_comfort_no_effect">Не діє, поки застосовується попереднє налаштування «У всіх мережах Wi-Fi».</string>
+    <string name="untrusted_shutdown_title">Вимикати в недовірених мережах Wi-Fi</string>
+    <string name="untrusted_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає бездротове налагодження в мережі Wi-Fi, яка не є довіреною, заблокована або не може бути визначена, а не лише сповіщає вас. Сеанс, який ви ввімкнули самі, залишається ввімкненим у цій мережі. Примусовий режим призупиняє це.</string>
+    <string name="untrusted_shutdown_channel_name">Вимкнення в недовірених мережах Wi-Fi</string>
+    <string name="untrusted_shutdown_channel_desc">Повідомляє, коли KeepADB вимкнув бездротове налагодження в недовіреній мережі Wi-Fi.</string>
+    <string name="untrusted_shutdown_off_title">Бездротове налагодження вимкнено</string>
+    <string name="untrusted_shutdown_off_text">Поточна мережа Wi-Fi не є довіреною або не може бути визначена. Keep-Alive знову ввімкне його в довіреній мережі Wi-Fi.</string>
+    <string name="untrusted_shutdown_failed_title">Не вдалося вимкнути бездротове налагодження</string>
+    <string name="untrusted_shutdown_failed_text">Поточна мережа Wi-Fi не є довіреною, але вимкнути бездротове налагодження не вдалося. Вимкніть його вручну.</string>
     <string name="networks_level">Рівень захисту: %1$s</string>
     <string name="networks_force_note">Поки ввімкнено примусовий режим, довірені та заблоковані мережі не діють. Після його завершення вони знову діють.</string>
     <string name="networks_section_current">Поточна мережа</string>

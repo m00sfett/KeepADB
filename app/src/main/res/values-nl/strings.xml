@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Ook vertrouwen op wifi-naam</string>
     <string name="networks_comfort_hint">Handiger bij mesh en repeaters. Een naam is makkelijk na te bootsen.</string>
     <string name="networks_comfort_no_effect">Geen effect zolang de vorige instelling ‘In alle wifi-netwerken’ geldt.</string>
+    <string name="untrusted_shutdown_title">Uitschakelen op niet-vertrouwde wifi</string>
+    <string name="untrusted_shutdown_hint">Zolang Keep-Alive aan staat, schakelt KeepADB draadloze foutopsporing uit op wifi die niet vertrouwd, geblokkeerd of niet herkenbaar is, in plaats van je alleen te waarschuwen. Een sessie die je zelf hebt aangezet, blijft op die wifi aan. De geforceerde modus schort dit op.</string>
+    <string name="untrusted_shutdown_channel_name">Uitschakelen op niet-vertrouwde wifi</string>
+    <string name="untrusted_shutdown_channel_desc">Meldt wanneer KeepADB draadloze foutopsporing heeft uitgeschakeld op niet-vertrouwde wifi.</string>
+    <string name="untrusted_shutdown_off_title">Draadloze foutopsporing uitgeschakeld</string>
+    <string name="untrusted_shutdown_off_text">De huidige wifi is niet vertrouwd of niet herkenbaar. Keep-Alive zet het weer aan op vertrouwde wifi.</string>
+    <string name="untrusted_shutdown_failed_title">Draadloze foutopsporing kon niet worden uitgeschakeld</string>
+    <string name="untrusted_shutdown_failed_text">De huidige wifi is niet vertrouwd, maar het uitschakelen van draadloze foutopsporing is mislukt. Schakel het zelf uit.</string>
     <string name="networks_level">Beveiligingsniveau: %1$s</string>
     <string name="networks_force_note">Zolang de geforceerde modus aan staat, gelden vertrouwde en geblokkeerde netwerken niet. Daarna gelden ze weer.</string>
     <string name="networks_section_current">Huidig netwerk</string>

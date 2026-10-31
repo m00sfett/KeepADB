@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Considera affidabile anche in base al nome Wi-Fi</string>
     <string name="networks_comfort_hint">Più comodo con mesh e ripetitori. Un nome è facile da imitare.</string>
     <string name="networks_comfort_no_effect">Nessun effetto finché vale l’impostazione precedente «In tutte le reti Wi-Fi».</string>
+    <string name="untrusted_shutdown_title">Disattiva su Wi-Fi non affidabili</string>
+    <string name="untrusted_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva il debug wireless su una rete Wi-Fi non affidabile, bloccata o non identificabile, invece di limitarsi ad avvisarti. Una sessione che hai attivato tu resta attiva su quella rete. La modalità forzata sospende questo comportamento.</string>
+    <string name="untrusted_shutdown_channel_name">Disattivazione su Wi-Fi non affidabili</string>
+    <string name="untrusted_shutdown_channel_desc">Ti avvisa quando KeepADB ha disattivato il debug wireless su una rete Wi-Fi non affidabile.</string>
+    <string name="untrusted_shutdown_off_title">Debug wireless disattivato</string>
+    <string name="untrusted_shutdown_off_text">La rete Wi-Fi attuale non è affidabile o non è identificabile. Keep-Alive lo riattiva su una rete Wi-Fi affidabile.</string>
+    <string name="untrusted_shutdown_failed_title">Impossibile disattivare il debug wireless</string>
+    <string name="untrusted_shutdown_failed_text">La rete Wi-Fi attuale non è affidabile, ma la disattivazione del debug wireless non è riuscita. Disattivalo manualmente.</string>
     <string name="networks_level">Livello di protezione: %1$s</string>
     <string name="networks_force_note">Finché la modalità forzata è attiva, le reti affidabili e i blocchi non si applicano. Dopo tornano in vigore.</string>
     <string name="networks_section_current">Rete attuale</string>

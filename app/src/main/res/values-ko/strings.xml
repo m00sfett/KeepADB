@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Wi-Fi 이름으로도 신뢰</string>
     <string name="networks_comfort_hint">메시와 리피터에서 더 편리합니다. 이름은 쉽게 흉내 낼 수 있습니다.</string>
     <string name="networks_comfort_no_effect">이전 설정 “모든 Wi-Fi 네트워크에서”가 적용되는 동안에는 효과가 없습니다.</string>
+    <string name="untrusted_shutdown_title">신뢰하지 않는 Wi-Fi에서 끄기</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 신뢰하지 않거나 차단되었거나 식별할 수 없는 Wi-Fi에서 알림만 보내는 대신 무선 디버깅을 끕니다. 직접 켠 세션은 해당 Wi-Fi에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다.</string>
+    <string name="untrusted_shutdown_channel_name">신뢰하지 않는 Wi-Fi에서 끄기</string>
+    <string name="untrusted_shutdown_channel_desc">KeepADB가 신뢰하지 않는 Wi-Fi에서 무선 디버깅을 껐을 때 알립니다.</string>
+    <string name="untrusted_shutdown_off_title">무선 디버깅이 꺼졌습니다</string>
+    <string name="untrusted_shutdown_off_text">현재 Wi-Fi는 신뢰하지 않거나 식별할 수 없습니다. 신뢰하는 Wi-Fi에서는 Keep-Alive가 다시 켭니다.</string>
+    <string name="untrusted_shutdown_failed_title">무선 디버깅을 끌 수 없습니다</string>
+    <string name="untrusted_shutdown_failed_text">현재 Wi-Fi는 신뢰하지 않지만 무선 디버깅을 끄지 못했습니다. 직접 끄세요.</string>
     <string name="networks_level">보호 수준: %1$s</string>
     <string name="networks_force_note">강제 모드가 켜져 있는 동안에는 신뢰한 네트워크와 차단한 네트워크가 적용되지 않습니다. 끝나면 다시 적용됩니다.</string>
     <string name="networks_section_current">현재 네트워크</string>

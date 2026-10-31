@@ -338,6 +338,8 @@ public class KeepADBService extends Service {
         // read) instead of skipping straight to the "already on" health check on an unconfirmed
         // value.
         if (Boolean.TRUE.equals(KeepADB.isEnabledOrNull(this, "service_heartbeat"))) {
+            // #864: bounds the exposure when no network callback fires (e.g. switched on later).
+            KeepADBUntrustedShutdown.evaluate(this, "service_heartbeat");
             KeepADBEndpointCoordinator.verifyEndpointHealth(this);
             return;
         }
@@ -390,6 +392,10 @@ public class KeepADBService extends Service {
                     Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(KeepADBService.this, "content_observer");
                     KeepADBDiagnostics.event(KeepADBService.this, "state_observed", "content_observer",
                             "changed", "adbWifi=" + adbEnabledOrNull);
+                    if (Boolean.FALSE.equals(adbEnabledOrNull)) {
+                        // #864: the session ended, so does a manual exemption from the shutdown.
+                        KeepADBUntrustedShutdown.onSessionEnded(KeepADBService.this);
+                    }
                     if (Boolean.TRUE.equals(adbEnabledOrNull)) {
                         // #496: the readback now reflects "on" -- e.g. the user confirmed
                         // Android's pairing dialog independently -- so the automatic-enable
@@ -531,6 +537,8 @@ public class KeepADBService extends Service {
                         Log.d(TAG, "Ignoring network loss while another Wi-Fi network remains");
                         return;
                     }
+                    // #864: a manual exemption from the untrusted-network shutdown ends with Wi-Fi.
+                    KeepADBUntrustedShutdown.onSessionEnded(KeepADBService.this);
                     // #310: unconditional, and ahead of the foregroundReady gate -- a pending
                     // automatic enable can outlive foreground promotion state, and losing the
                     // network invalidates it either way.
@@ -655,12 +663,15 @@ public class KeepADBService extends Service {
      * out only after the connection eventually dropped and the silent auto re-enable block hit.
      * This fires from the network callback regardless of that decision, reusing the exact same
      * throttled prompt in {@link KeepADBNetworkTrustPrompt} -- so it never re-alerts for an
-     * access point (or identity-unavailable state) already answered or recently shown, and never
-     * disables anything on its own; it is purely a notification.
+     * access point (or identity-unavailable state) already answered or recently shown. The prompt
+     * itself never disables anything; only the opt-in #864 policy ({@link
+     * KeepADBUntrustedShutdown}) may, and it is off by default.
      */
     private void checkNetworkTrustWhileActive() {
         KeepADBWarningState.observe(this);
         if (!foregroundReady) return;
+        // #864: the optional shutdown policy re-derives every condition itself.
+        KeepADBUntrustedShutdown.evaluate(this, "network_callback");
         // #582: an unreadable value skips this check the same way a confirmed "off" already did --
         // there is nothing to warn about on a state that is not positively known to be "on".
         if (!Boolean.TRUE.equals(KeepADB.isEnabledOrNull(this, "network_callback"))) return;

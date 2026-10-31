@@ -62,8 +62,10 @@ Wireless debugging is a separate layer: Android authenticates paired hosts and e
 connection with TLS, so imitating an access point identifier does not by itself grant an ADB shell.
 
 Network trust gates **automatic** enabling and recovery only. When Wireless debugging is already
-on and the phone moves to a network that is not trusted, KeepADB shows a notice; it does not switch
-Wireless debugging off. An optional shutdown on untrusted networks is a separate proposal (#864).
+on and the phone moves to a network that is not trusted, KeepADB shows a notice; by default it does
+not switch Wireless debugging off. The opt-in setting "Turn off on untrusted Wi-Fi" (#864) does, while
+Keep-Alive runs: it is a best-effort reaction to network callbacks and the one-minute heartbeat, not
+an instantaneous guarantee, and a failed write is reported rather than hidden.
 Checking the connection's security type in addition to the BSSID is being evaluated in #860; such a
 check could detect some downgrades (for example WPA3 to WPA2 or to an open network), but it would
 still not prove that an access point is genuine.

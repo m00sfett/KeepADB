@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Wi-Fi名でも信頼する</string>
     <string name="networks_comfort_hint">メッシュやリピーターでは便利です。名前は簡単にまねできます。</string>
     <string name="networks_comfort_no_effect">以前の設定「すべての Wi-Fi ネットワークで」が有効な間は、効果がありません。</string>
+    <string name="untrusted_shutdown_title">信頼していないWi-Fiでオフにする</string>
+    <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなくワイヤレスデバッグをオフにします。自分でオンにしたセッションは、そのWi-Fiではオンのままです。強制モード中は停止します。</string>
+    <string name="untrusted_shutdown_channel_name">信頼していないWi-Fiでのオフ</string>
+    <string name="untrusted_shutdown_channel_desc">信頼していないWi-FiでKeepADBがワイヤレスデバッグをオフにしたときに通知します。</string>
+    <string name="untrusted_shutdown_off_title">ワイヤレスデバッグをオフにしました</string>
+    <string name="untrusted_shutdown_off_text">現在のWi-Fiは信頼されていないか、識別できません。信頼済みのWi-FiではKeep-Aliveが再びオンにします。</string>
+    <string name="untrusted_shutdown_failed_title">ワイヤレスデバッグをオフにできませんでした</string>
+    <string name="untrusted_shutdown_failed_text">現在のWi-Fiは信頼されていませんが、ワイヤレスデバッグをオフにできませんでした。手動でオフにしてください。</string>
     <string name="networks_level">保護レベル：%1$s</string>
     <string name="networks_force_note">強制モードがオンの間は、信頼済みやブロック中のネットワークは適用されません。終了後に再び適用されます。</string>
     <string name="networks_section_current">現在のネットワーク</string>

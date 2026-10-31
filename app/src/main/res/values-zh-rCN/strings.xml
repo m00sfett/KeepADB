@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">同时按 Wi-Fi 名称信任</string>
     <string name="networks_comfort_hint">对 Mesh 和中继器更方便。名称很容易被冒用。</string>
     <string name="networks_comfort_no_effect">在沿用旧设置“在所有 Wi-Fi 网络中”期间不生效。</string>
+    <string name="untrusted_shutdown_title">在未信任的 Wi-Fi 上关闭</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive 开启时，如果 Wi-Fi 未信任、已被屏蔽或无法识别，KeepADB 会关闭无线调试，而不只是通知你。你自己开启的会话在该 Wi-Fi 上保持开启。强制模式下暂停此功能。</string>
+    <string name="untrusted_shutdown_channel_name">在未信任的 Wi-Fi 上关闭</string>
+    <string name="untrusted_shutdown_channel_desc">当 KeepADB 在未信任的 Wi-Fi 上关闭无线调试时通知你。</string>
+    <string name="untrusted_shutdown_off_title">已关闭无线调试</string>
+    <string name="untrusted_shutdown_off_text">当前 Wi-Fi 未信任或无法识别。在已信任的 Wi-Fi 上，Keep-Alive 会重新开启它。</string>
+    <string name="untrusted_shutdown_failed_title">无法关闭无线调试</string>
+    <string name="untrusted_shutdown_failed_text">当前 Wi-Fi 未信任，但关闭无线调试失败。请手动关闭。</string>
     <string name="networks_level">保护级别：%1$s</string>
     <string name="networks_force_note">强制模式开启期间，已信任和已拦截的网络均不生效，结束后会重新生效。</string>
     <string name="networks_section_current">当前网络</string>

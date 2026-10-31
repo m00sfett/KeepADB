@@ -603,6 +603,11 @@ final class KeepADB {
             if (on && !isManualSource(source)) {
                 recordAutomaticAttemptAndScheduleConfirmation(appContext, source, token);
             }
+            if (isManualSource(source)) {
+                // #864: a manual enable on this Wi-Fi exempts it from the untrusted-network
+                // shutdown until the network changes; a manual disable ends the exemption.
+                KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on);
+            }
             surfaces.refreshAll(appContext);
             return ToggleResult.APPLIED;
         } catch (SecurityException e) {
@@ -614,6 +619,52 @@ final class KeepADB {
             surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
             return ToggleResult.SECURITY_EXCEPTION;
         }
+    }
+
+    /**
+     * #864: the OFF write of the untrusted-network shutdown policy. Unlike {@link #setEnabled} it
+     * records no intent: the user's last explicit intent stays "on", so Keep-Alive is neither
+     * stopped nor treated as switched off by the user, and re-enables once the network is trusted
+     * again. {@code guard} re-checks the whole policy inside the lock, immediately before the
+     * write, so a stale trigger cannot switch off a session that has become legitimate meanwhile.
+     * While any toggle intent is still pending nothing is written: that intent is newer evidence,
+     * and the next trigger decides again.
+     */
+    static synchronized ToggleResult applyPolicyOff(Context ctx, String source, EnableGuard guard) {
+        Context appContext = ctx.getApplicationContext();
+        if (!hasPermission(appContext)) {
+            KeepADBDiagnostics.event(appContext, "policy_off", source, "failed",
+                    "reason=permission_missing");
+            return ToggleResult.PERMISSION_MISSING;
+        }
+        if (pendingToggleRunnable != null) {
+            KeepADBDiagnostics.event(appContext, "policy_off", source, "skipped",
+                    "reason=toggle_pending");
+            return pendingToggleManual ? ToggleResult.MANUAL_INTENT_PENDING : ToggleResult.SUPERSEDED;
+        }
+        if (guard != null && !guard.stillApplies(appContext)) {
+            KeepADBDiagnostics.event(appContext, "policy_off", source, "cancelled",
+                    "reason=preconditions_changed");
+            return ToggleResult.GUARD_ABORTED;
+        }
+        try {
+            if (!gateway.write(appContext, false)) {
+                KeepADBDiagnostics.event(appContext, "policy_off", source, "failed",
+                        "reason=write_rejected");
+                return ToggleResult.WRITE_REJECTED;
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying policy off", e);
+            KeepADBDiagnostics.event(appContext, "policy_off", source, "failed",
+                    "reason=security_exception");
+            return ToggleResult.SECURITY_EXCEPTION;
+        }
+        Boolean actualOrNull = isEnabledOrNull(appContext, source);
+        KeepADBDiagnostics.event(appContext, "policy_off", source,
+                Boolean.FALSE.equals(actualOrNull) ? "success" : "state_mismatch",
+                "actual=" + actualOrNull);
+        surfaces.refreshAll(appContext);
+        return ToggleResult.APPLIED;
     }
 
     /**

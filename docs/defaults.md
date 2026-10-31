@@ -30,6 +30,7 @@ changes here; #765 documents them and protects them against unnoticed changes (s
 | Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (convenience switch, available only in “Balanced”) |
 | Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; available only through the previous network-card switch |
 | USB handover | `usb_wlan_handover_mode` | `off` | Plugging in does not enable anything or offer an action; an unknown saved value is treated as `off` | Safe |
+| Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wireless debugging that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
 | Notification details | `notification_details_enabled` | off | Network name, BSSID, and USB profile are omitted from notifications so they do not appear on the lock screen | Safe (#592) |
 | Wi-Fi and access-point observation | `wifi_aps_feature_enabled` | off | No recording; since #769 there is no UI or new recording, and since #788 no code reads or writes the key. An earlier saved value remains unchanged. The old observation history (`bssid_history_*`) is discarded once during update since #778 (marker `observation_history_discarded`, bookkeeping only, not a setting) | Safe (#507, #769) |
@@ -60,6 +61,8 @@ reason for each documented here.
 | Key | Default | Reason |
 |---|---|---|
 | `last_desired_on` | on | Stores the last explicit on/off intent; it is not a switch. On a new installation it does not trigger anything on its own: the service and boot receivers first require `keep_alive_enabled`, USB handover first requires its mode (default `off`), and enabling Keep-Alive writes the “on” intent. An “off” default would instead affect existing installations that enabled Keep-Alive before this key existed and would silently disable their recovery |
+
+`untrusted_shutdown_manual_bssid` (#864) is absent until Wireless debugging is switched on manually; it records the access point of that manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and is cleared when Wi-Fi is lost or Wireless debugging goes off. Bookkeeping, not a setting.
 
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit
 confirmation in the Force dialog; it contains the duration and expiry for that decision.

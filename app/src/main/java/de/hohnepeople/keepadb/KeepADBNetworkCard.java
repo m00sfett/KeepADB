@@ -72,6 +72,8 @@ final class KeepADBNetworkCard {
     private final TextView networkPrivacyHint;
     private final TextView networkLevelLine;
     private final Switch trustByNameToggle;
+
+    private final Switch untrustedShutdownToggle;
     private final TextView comfortNoEffect;
     private final TextView backgroundLocationStatus;
     private final TextView networkDetectionNow;
@@ -112,6 +114,7 @@ final class KeepADBNetworkCard {
         networkPrivacyHint = activity.findViewById(R.id.network_privacy_hint);
         networkLevelLine = activity.findViewById(R.id.network_level_line);
         trustByNameToggle = activity.findViewById(R.id.settings_trust_by_name_toggle);
+        untrustedShutdownToggle = activity.findViewById(R.id.settings_untrusted_shutdown_toggle);
         comfortNoEffect = activity.findViewById(R.id.network_comfort_no_effect);
         backgroundLocationStatus = activity.findViewById(R.id.settings_background_location_status);
         networkDetectionNow = activity.findViewById(R.id.network_detection_now);
@@ -142,6 +145,17 @@ final class KeepADBNetworkCard {
             KeepADBTrustedNetwork.setTrustByNameEnabled(activity, enabled);
             KeepADBDiagnostics.event(activity, "user_action", "settings_network",
                     enabled ? "enable" : "disable", "trust_by_name");
+            onChange.run();
+        });
+
+        // #864: opt-in shutdown on an untrusted Wi-Fi. Applied at once, so switching it on while
+        // already on an untrusted network does not wait for the next network callback.
+        untrustedShutdownToggle.setOnClickListener(v -> {
+            boolean enabled = untrustedShutdownToggle.isChecked();
+            KeepADBPreferences.setUntrustedShutdownEnabled(activity, enabled);
+            KeepADBDiagnostics.event(activity, "user_action", "settings_network",
+                    enabled ? "enable" : "disable", "untrusted_shutdown");
+            if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
             onChange.run();
         });
     }
@@ -327,6 +341,7 @@ final class KeepADBNetworkCard {
         networkLevelLine.setText(activity.getString(R.string.networks_level,
                 KeepADBForceNotice.levelLabel(activity)));
         trustByNameToggle.setChecked(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        untrustedShutdownToggle.setChecked(KeepADBPreferences.isUntrustedShutdownEnabled(activity));
         comfortNoEffect.setVisibility(KeepADBTrustedNetwork.getProtectionLevel(activity)
                 == KeepADBTrustedNetwork.ProtectionLevel.LEGACY_ALL_WIFI
                 ? View.VISIBLE : View.GONE);

@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Faire aussi confiance selon le nom Wi-Fi</string>
     <string name="networks_comfort_hint">Plus pratique avec le mesh et les répéteurs. Un nom est facile à imiter.</string>
     <string name="networks_comfort_no_effect">Sans effet tant que l’ancien réglage « Dans tous les réseaux Wi-Fi » s’applique.</string>
+    <string name="untrusted_shutdown_title">Désactiver sur un Wi-Fi non approuvé</string>
+    <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive le débogage sans fil sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même reste active sur ce Wi-Fi. Le mode forcé suspend ce comportement.</string>
+    <string name="untrusted_shutdown_channel_name">Désactivation sur Wi-Fi non approuvé</string>
+    <string name="untrusted_shutdown_channel_desc">Vous prévient lorsque KeepADB a désactivé le débogage sans fil sur un Wi-Fi non approuvé.</string>
+    <string name="untrusted_shutdown_off_title">Débogage sans fil désactivé</string>
+    <string name="untrusted_shutdown_off_text">Le Wi-Fi actuel n’est pas approuvé ou ne peut pas être identifié. Keep-Alive le réactive sur un Wi-Fi approuvé.</string>
+    <string name="untrusted_shutdown_failed_title">Impossible de désactiver le débogage sans fil</string>
+    <string name="untrusted_shutdown_failed_text">Le Wi-Fi actuel n’est pas approuvé, mais la désactivation du débogage sans fil a échoué. Désactivez-le manuellement.</string>
     <string name="networks_level">Niveau de protection : %1$s</string>
     <string name="networks_force_note">Tant que le mode forcé est actif, les réseaux approuvés et les blocages ne s’appliquent pas. Ils s’appliquent de nouveau ensuite.</string>
     <string name="networks_section_current">Réseau actuel</string>
