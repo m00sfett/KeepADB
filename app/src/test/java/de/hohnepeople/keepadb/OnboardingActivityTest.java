@@ -610,6 +610,53 @@ public class OnboardingActivityTest {
         }
     }
 
+    private OnboardingActivity webhookStepWith(String typed) {
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class,
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.WEBHOOK)).setup();
+        controllers.add(controller);
+        ((android.widget.EditText) controller.get().findViewById(R.id.settings_webhook_url)).setText(typed);
+        return controller.get();
+    }
+
+    /** #888 (s20 beta test): "Next" saves a typed URL like "Save URL" and switches sync on. */
+    @Test
+    public void nextSavesATypedWebhookUrlAndEnablesSync() {
+        OnboardingActivity assistant = webhookStepWith("https://example.org/register/s20");
+
+        click(assistant, R.id.onboarding_next);
+
+        assertEquals("https://example.org/register/s20", KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue(assistant.isFinishing());
+    }
+
+    /** #888: an invalid URL is not discarded: the step stays open with the error. */
+    @Test
+    public void nextKeepsTheStepOpenOnAnInvalidWebhookUrl() {
+        OnboardingActivity assistant = webhookStepWith("not a url");
+
+        click(assistant, R.id.onboarding_next);
+
+        assertFalse(assistant.isFinishing());
+        assertEquals(View.VISIBLE, assistant.findViewById(R.id.settings_webhook_error).getVisibility());
+        assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
+    }
+
+    /** #888: an unchanged URL of a webhook switched off on purpose is not switched back on. */
+    @Test
+    public void nextLeavesAnUnchangedUrlOfADisabledWebhookOff() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "https://example.org/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        OnboardingActivity assistant = webhookStepWith("https://example.org/register/s20");
+
+        click(assistant, R.id.onboarding_next);
+
+        assertTrue(assistant.isFinishing());
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
+    }
+
     @Test
     @Config(qualifiers = "w840dp-h900dp")
     public void legacyAndForceStayOutsideTheNormalProtectionComparison() {

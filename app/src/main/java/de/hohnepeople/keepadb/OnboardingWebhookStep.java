@@ -16,9 +16,11 @@ import android.widget.TextView;
  * so URL validation, the cleartext warning and the save, enable and clear paths are the same code,
  * not a copy.
  *
- * <p>Like the other action steps it writes through its own buttons, at once, and nothing else: "Next"
- * and "Skip" never save, enable or clear anything, a half-typed URL included. There is no default
- * URL; the webhook belongs to this installation alone (#64).
+ * <p>Like the other action steps it writes through its own buttons, at once. #888: with the keyboard
+ * open the "Save URL" button is out of view, so "Next" applies a typed URL that differs from the
+ * stored one exactly like "Save URL" (which also switches sync on); an invalid one keeps the step
+ * open with the usual error. "Skip" writes nothing, and an empty or unchanged field changes nothing.
+ * There is no default URL; the webhook belongs to this installation alone (#64).
  */
 final class OnboardingWebhookStep extends OnboardingStep {
     private KeepADBWebhookForm form;
@@ -81,7 +83,12 @@ final class OnboardingWebhookStep extends OnboardingStep {
         return view;
     }
 
-    /** Everything the form wrote is already stored; "Next" has nothing left to write. */
+    @Override
+    boolean beforeNext() {
+        return form == null || form.applyTypedUrl();
+    }
+
+    /** Everything the form wrote is already stored, including a URL applied by {@link #beforeNext}. */
     @Override
     void commit(Context context) {}
 
