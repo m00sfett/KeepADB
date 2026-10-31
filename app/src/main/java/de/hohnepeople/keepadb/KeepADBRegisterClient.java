@@ -108,8 +108,8 @@ final class KeepADBRegisterClient {
      * #866: the current POST series -- the URL/endpoint pair whose report is queued, running,
      * waiting for its next retry or, once {@link #seriesExhausted}, given up on. A repeated call for
      * the same pair joins the series instead of dispatching a parallel POST or postponing the
-     * scheduled retry. Only a different pair, a network event (#867) or a configuration change
-     * starts a new series.
+     * scheduled retry. Only a different pair, a network event (#867), an explicit user action
+     * (#869) or a configuration change starts a new series.
      */
     private static String seriesUrl = null;
     private static String seriesEndpoint = null;
@@ -207,17 +207,54 @@ final class KeepADBRegisterClient {
         synchronized (KeepADBRegisterClient.class) {
             if (pendingResync != self) return;
             pendingResync = null;
-            if (!enabled || endpoint == null || targetUrl == null || targetUrl.trim().isEmpty()) {
-                return;
-            }
-            ensureStateInitializedLocked(appContext);
-            if (wlanUpdateInFlight || pendingPostRetry != null
-                    || currentOpGeneration != generationBefore) {
-                return;
-            }
-            opGen = startSeriesLocked(targetUrl, endpoint);
+            opGen = startResyncSeriesLocked(appContext, enabled, targetUrl, endpoint, generationBefore);
+            if (opGen == 0L) return;
         }
         dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+    }
+
+    /**
+     * #869: an explicit user action -- saving the webhook URL in Settings, also unchanged -- reports
+     * the current endpoint at once, even when the series for it was already given up on. Ordinary
+     * refreshes keep joining an exhausted series; only this call restarts it. Like the debounced
+     * resync it joins a POST that is running or a retry that is scheduled, so it neither sends a
+     * parallel POST nor postpones that retry; a debounced resync still waiting is replaced by it.
+     */
+    static void requestResyncNow(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
+        long generationBefore = currentOpGeneration;
+        String endpoint = currentCoordinatorEndpoint();
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingResync != null) {
+                mainHandler().removeCallbacks(pendingResync);
+                pendingResync = null;
+            }
+            opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
+            if (opGen == 0L) return;
+        }
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+    }
+
+    /**
+     * #867/#869: caller must hold the class monitor. Starts a series that reports the endpoint
+     * again, or returns 0 when there is nothing to report, a POST is running or a retry is
+     * scheduled (joined), or a newer operation made the endpoint read before the monitor stale.
+     */
+    private static long startResyncSeriesLocked(Context appContext, boolean enabled,
+            String targetUrl, String endpoint, long generationBefore) {
+        if (!enabled || endpoint == null || targetUrl == null || targetUrl.trim().isEmpty()) {
+            return 0L;
+        }
+        ensureStateInitializedLocked(appContext);
+        if (wlanUpdateInFlight || pendingPostRetry != null
+                || currentOpGeneration != generationBefore) {
+            return 0L;
+        }
+        return startSeriesLocked(targetUrl, endpoint);
     }
 
     /** #866: caller must hold the class monitor. Starts a new POST series and returns its opGen. */
@@ -251,6 +288,10 @@ final class KeepADBRegisterClient {
     /**
      * #866: caller must hold the class monitor. Schedules the next retry of a failed POST once that
      * attempt has completed, or marks the series exhausted after the selected number of retries.
+     *
+     * <p>#870: deliberately a main-thread timer on uptime, unlike the alert's alarm. The series is
+     * short and bounded, and a retry that waits through deep sleep loses nothing: the network event
+     * on wake-up (#867) starts a fresh report anyway.
      */
     private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
             long opGen) {
