@@ -1,0 +1,2 @@
+Optional for Android 12 and later: KeepADB can check that a trusted Wi-Fi access point has not dropped to weaker security before it turns Wireless Debugging on automatically.
+Webhook reports also retry after an app restart, and a manual switch-on that Android reverted no longer exempts a network from the untrusted-Wi-Fi shutdown.

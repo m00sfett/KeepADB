@@ -17,11 +17,20 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.13` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.14` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.14] - Unreleased
+
+### Added
+- **Optional security check of trusted access points (#860):** a new setting in the network section, off by default and shown on Android 12 and later, compares the connection's security tier (`WifiInfo.getCurrentSecurityType`, via `KeepADBNetworkSecurity`) with the tier recorded when the access point was trusted. Tiers are open/OWE/WEP < Personal (PSK, SAE, WAPI-PSK, DPP) < Enterprise, so PSK on a WPA2/WPA3 transition access point is not a downgrade (s20 mesh data point). Every explicit trust of the access point the phone is on records the baseline per BSSID (`trusted_network_<id>_security`), and trusting again re-confirms it; mesh siblings trusted from elsewhere get none. With the check on, a lower or unreadable tier on an entry with a baseline yields the new decision `SECURITY_MISMATCH`: no automatic enable, a prompt that explains the security change, and the decision dialog and the Networks list treat the access point as undecided so it can be trusted again. Blocks and force mode keep their precedence, a trusted name does not override it, and entries without a baseline, Android 11 and manual controls are unchanged. Defense in depth, not authentication; documented in `docs/trusted-networks.md` and `SECURITY.md`. User decisions on #860.
+
+### Fixed
+- **Webhook re-attempt after a process restart (#884):** the #881 re-attempt only ran while the in-memory series was marked exhausted, so after a restart during a persisted failure episode with an unchanged endpoint it never started. The absence of any series now counts as given up on as well.
+- **No untrusted-Wi-Fi exemption for an enable that did not stick (#880):** a manual ON write that Android accepted but reverted recorded the #864 exemption for the access point, which a later enable in Android's own settings could inherit. The exemption is now recorded only unless the readback shows Wireless debugging off; an unreadable readback keeps the previous behavior.
 
 ## [1.10.13] - Unreleased
 
