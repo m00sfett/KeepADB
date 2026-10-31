@@ -1,0 +1,1 @@
+New optional setting: turn Wireless Debugging off automatically on Wi-Fi networks you have not trusted. It is off by default. A session you switch on yourself stays on in that Wi-Fi, and Force mode pauses the rule.
