@@ -214,7 +214,8 @@ final class KeepADBUsbProfileEditor {
             // profile summaries.
             LinearLayout actionRow = new LinearLayout(activity);
             actionRow.setGravity(android.view.Gravity.END);
-            Button edit = new Button(activity);
+            // #895: the app's secondary button, not the platform default.
+            Button edit = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             edit.setText(R.string.usb_profile_edit_button);
             edit.setContentDescription(activity.getString(
                     R.string.usb_profile_edit_action_accessibility, profile.name));
@@ -223,7 +224,7 @@ final class KeepADBUsbProfileEditor {
                 dialogHolder[0].dismiss();
                 showEditDialog(profile);
             });
-            Button delete = new Button(activity);
+            Button delete = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             delete.setText(R.string.usb_profile_delete_button);
             delete.setContentDescription(activity.getString(
                     R.string.usb_profile_delete_action_accessibility, profile.name));
@@ -232,7 +233,10 @@ final class KeepADBUsbProfileEditor {
                 dialogHolder[0].dismiss();
                 showDeleteDialog(profile);
             });
-            actionRow.addView(edit);
+            LinearLayout.LayoutParams editParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            editParams.setMarginEnd(Math.round(8 * activity.getResources().getDisplayMetrics().density));
+            actionRow.addView(edit, editParams);
             actionRow.addView(delete);
 
             LinearLayout row = new LinearLayout(activity);

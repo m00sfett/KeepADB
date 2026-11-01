@@ -202,37 +202,38 @@
                     android:layout_marginBottom="12dp"
                     android:visibility="gone" />
 
+                <!-- Feedback after a warning card was closed: a calm panel, undo first. -->
                 <LinearLayout
                     android:id="@+id/warning_feedback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_panel"
                     android:orientation="vertical"
                     android:visibility="gone">
-
                     <TextView
                         android:id="@+id/warning_feedback_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:focusable="true"
                         android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif"
+                        android:lineSpacingExtra="3dp"
                         android:textColor="@color/night_text"
-                        android:textSize="16sp" />
-
+                        android:textSize="14sp" />
                     <Button
                         android:id="@+id/warning_undo"
-                        android:layout_width="match_parent"
+                        style="@style/Widget.KeepADB.Button.Primary"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:minHeight="48dp"
+                        android:layout_marginTop="12dp"
                         android:text="@string/warnings_undo" />
-
                     <Button
                         android:id="@+id/warning_mute"
-                        android:layout_width="match_parent"
+                        style="@style/Widget.KeepADB.Button.Secondary"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:minHeight="48dp"
                         android:text="@string/warnings_mute" />
                 </LinearLayout>
 

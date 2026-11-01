@@ -735,12 +735,13 @@ public class MainActivity extends Activity {
             content.addView(choice, params);
             choices.add(choice);
         }
-        Button apply = new Button(this);
+        // #896: the app's primary button (muted while nothing is selected), not the platform default.
+        Button apply = new Button(this, null, 0, R.style.Widget_KeepADB_Button_Primary);
         apply.setText(R.string.warnings_mute_selected);
-        apply.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
         apply.setEnabled(false);
-        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(-1, -2);
-        params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(-2, -2);
+        params.topMargin = (int) (16 * getResources().getDisplayMetrics().density);
+        params.gravity = android.view.Gravity.END;
         content.addView(apply, params);
         for (android.widget.CheckBox choice : choices) choice.setOnCheckedChangeListener((button, checked) -> {
             boolean any = false;

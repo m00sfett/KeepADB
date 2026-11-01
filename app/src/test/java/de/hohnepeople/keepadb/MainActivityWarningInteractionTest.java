@@ -146,6 +146,9 @@ public class MainActivityWarningInteractionTest {
         Button review = findButton((ViewGroup) list.findViewById(android.R.id.content),
                 list.getString(R.string.home_warning_action_review));
         assertNotNull(review);
+        // #897 (Codex review): the reused card hides its close button here; forward focus must
+        // not point at it.
+        assertEquals(View.NO_ID, review.getNextFocusForwardId());
         review.performClick();
         Intent target = shadowOf(list).getNextStartedActivity();
         assertEquals(SettingsActivity.class.getName(), target.getComponent().getClassName());

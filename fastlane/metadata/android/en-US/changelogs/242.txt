@@ -1,0 +1,2 @@
+The security warnings screen and the warning feedback on the home screen now match the rest of the app.
+All buttons use the app's own look; disabled buttons are clearly shown as disabled.

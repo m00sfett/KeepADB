@@ -111,6 +111,9 @@ public class PrivacyToggleTitleBarsTest {
                 if (file.getFileName().toString().equals("activity_onboarding.xml")) continue;
                 // #823: the main view header is limited to at most 2 buttons; privacy toggle lives in the settings menu.
                 if (file.getFileName().toString().equals("activity_main.xml")) continue;
+                // #897: the warnings screen lists warning reasons and mute switches only, never a
+                // network name or address.
+                if (file.getFileName().toString().equals("activity_warnings.xml")) continue;
                 if (xml.contains("@color/banner_red") && xml.contains("@+id/header_bar")) {
                     redBars++;
                     assertTrue(file.getFileName() + " has a red header bar and needs the eye",

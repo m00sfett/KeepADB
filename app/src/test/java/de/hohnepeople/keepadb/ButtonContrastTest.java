@@ -150,32 +150,55 @@ public class ButtonContrastTest {
         int bannerRed = context.getColor(R.color.banner_red);
         int mutedRed = context.getColor(R.color.muted_red);
 
-        // Default state
-        drawable.setState(new int[]{});
-        int defaultColor = extractSolidColor(drawable.getCurrent(), new int[]{});
+        // #895: a real button always carries its enabled flag; an empty state set is disabled.
+        int[] enabledState = new int[]{android.R.attr.state_enabled};
+        drawable.setState(enabledState);
+        int defaultColor = extractSolidColor(drawable.getCurrent(), enabledState);
         assertEquals(bannerRed, defaultColor);
         assertTrue(contrastRatio(titleYellow, defaultColor) >= 4.5);
 
         // Focused state
-        int[] focusedState = new int[]{android.R.attr.state_focused};
+        int[] focusedState = new int[]{android.R.attr.state_enabled, android.R.attr.state_focused};
         drawable.setState(focusedState);
         int focusedColor = extractSolidColor(drawable.getCurrent(), focusedState);
         assertEquals(mutedRed, focusedColor);
         assertTrue(contrastRatio(titleYellow, focusedColor) >= 4.5);
 
         // Pressed state
-        int[] pressedState = new int[]{android.R.attr.state_pressed};
+        int[] pressedState = new int[]{android.R.attr.state_enabled, android.R.attr.state_pressed};
         drawable.setState(pressedState);
         int pressedColor = extractSolidColor(drawable.getCurrent(), pressedState);
         assertEquals(mutedRed, pressedColor);
         assertTrue(contrastRatio(titleYellow, pressedColor) >= 4.5);
 
         // Focused and pressed state
-        int[] focusedPressedState = new int[]{android.R.attr.state_focused, android.R.attr.state_pressed};
+        int[] focusedPressedState = new int[]{android.R.attr.state_enabled, android.R.attr.state_focused,
+                android.R.attr.state_pressed};
         drawable.setState(focusedPressedState);
         int focusedPressedColor = extractSolidColor(drawable.getCurrent(), focusedPressedState);
         assertEquals(mutedRed, focusedPressedColor);
         assertTrue(contrastRatio(titleYellow, focusedPressedColor) >= 4.5);
+
+        // #895: disabled, the surface goes dark and the label muted, still readable.
+        drawable.setState(new int[]{});
+        int disabledColor = extractSolidColor(drawable.getCurrent(), new int[]{});
+        assertEquals(context.getColor(R.color.panel), disabledColor);
+        int disabledText = context.getColorStateList(R.color.btn_text_primary)
+                .getColorForState(new int[]{}, 0);
+        assertEquals(context.getColor(R.color.night_muted), disabledText);
+        assertTrue(contrastRatio(disabledText, disabledColor) >= 4.5);
+
+        // Codex review: disabled wins over a focus or press the button still carries.
+        for (int[] state : new int[][]{{android.R.attr.state_focused},
+                {android.R.attr.state_pressed},
+                {android.R.attr.state_focused, android.R.attr.state_pressed}}) {
+            for (int background : new int[]{R.drawable.bg_btn_primary, R.drawable.bg_btn_secondary}) {
+                Drawable button = context.getDrawable(background);
+                button.setState(state);
+                assertEquals(context.getColor(R.color.panel),
+                        extractSolidColor(button.getCurrent(), state));
+            }
+        }
     }
 
     @Test
@@ -237,8 +260,9 @@ public class ButtonContrastTest {
             Drawable bg = button.getBackground();
             if (bg instanceof StateListDrawable) {
                 // If it resolves to banner_red in default state, it is bg_btn_primary
-                bg.setState(new int[]{});
-                int color = extractSolidColor(bg.getCurrent(), new int[]{});
+                int[] enabled = new int[]{android.R.attr.state_enabled};
+                bg.setState(enabled);
+                int color = extractSolidColor(bg.getCurrent(), enabled);
                 if (color == context.getColor(R.color.banner_red)) {
                     int textColor = button.getCurrentTextColor();
                     assertEquals("Button " + resourceName(button) + " must use title_yellow text color",
