@@ -588,13 +588,7 @@
     <string name="settings_webhook_retry_count_value">重試次數：%1$d</string>
     <string name="webhook_alert_channel_name">Webhook 警告</string>
     <string name="webhook_alert_channel_desc">Webhook 回報持續失敗時發出警告</string>
-    <string name="webhook_alert_title">Webhook 回報未送達</string>
-    <string name="webhook_alert_text_failed">最近的 Webhook 回報失敗了。</string>
-    <string name="webhook_alert_text_since">自 %1$s 以來未觀察到成功的回報。</string>
-    <string name="webhook_alert_text_never">尚未觀察到成功的回報。</string>
-    <string name="webhook_alert_text_scope">這僅描述 KeepADB 的回報，並不表示網路或伺服器已中斷。</string>
-    <string name="settings_webhook_freshness_toggle">顯示上次成功的回報</string>
-    <string name="settings_webhook_freshness_subtext">一分鐘內沒有成功的回報時顯示警告，一小時後再提醒一次；之後在回報成功之前不再提醒。開啟後，也會顯示上次回報成功的時間。</string>
+    <string name="webhook_alert_title">新的 ADB 連接埠未回報</string>
     <string name="settings_webhook_vpn_hint">你的 Webhook 是否經由 Tailscale 或 NetBird 等 VPN 應用程式傳送?請一併將該應用程式排除在電池最佳化之外,否則 Android 可能在待機時凍結它,回報將無法送達。</string>
     <string name="settings_webhook_vpn_battery_button">電池設定</string>
     <string name="settings_webhook_vpn_settings_button">VPN 設定</string>
@@ -618,4 +612,11 @@
     <string name="report_history_outcome_error">錯誤:%1$s</string>
     <string name="settings_webhook_history_button">回報紀錄</string>
     <string name="settings_webhook_history_subtext">KeepADB 最近 24 小時回報的內容,包括端點與結果。只保存在此裝置上。</string>
+    <string name="webhook_alert_text_intro">KeepADB 無法將目前端點回報給你的 Webhook。那裡可能仍是舊連接埠。</string>
+    <string name="webhook_alert_status_since">自 %1$s 起中斷 · 上次回報 %2$s</string>
+    <string name="webhook_alert_status_never">自 %1$s 起中斷 · 尚無成功回報</string>
+    <string name="webhook_alert_text_recovery">KeepADB 會繼續嘗試。一旦回報送達,此通知會自動消失。</string>
+    <string name="webhook_alert_text_vpn">如果你的 Webhook 經由 VPN 應用程式傳送,請將該應用程式排除在電池最佳化之外。</string>
+    <string name="webhook_alert_action_battery">電池提示</string>
+    <string name="webhook_alert_action_report_now">立即回報</string>
 </resources>

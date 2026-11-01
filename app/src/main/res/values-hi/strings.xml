@@ -589,13 +589,7 @@
     <string name="settings_webhook_retry_count_value">दोबारा प्रयास: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook चेतावनियाँ</string>
     <string name="webhook_alert_channel_desc">Webhook रिपोर्ट लगातार विफल होने पर चेतावनी देता है</string>
-    <string name="webhook_alert_title">Webhook रिपोर्ट नहीं पहुँच रही हैं</string>
-    <string name="webhook_alert_text_failed">पिछली Webhook रिपोर्ट विफल रहीं।</string>
-    <string name="webhook_alert_text_since">%1$s के बाद से कोई सफल रिपोर्ट नहीं देखी गई।</string>
-    <string name="webhook_alert_text_never">अभी तक कोई सफल रिपोर्ट नहीं देखी गई।</string>
-    <string name="webhook_alert_text_scope">यह केवल KeepADB की रिपोर्ट के बारे में है, यह नहीं कि नेटवर्क या सर्वर बंद है।</string>
-    <string name="settings_webhook_freshness_toggle">पिछली सफल रिपोर्ट बताएँ</string>
-    <string name="settings_webhook_freshness_subtext">सफल रिपोर्ट के बिना एक मिनट बाद चेतावनी दिखती है, और एक घंटे बाद एक बार याद दिलाया जाता है; उसके बाद कोई रिपोर्ट सफल होने तक कुछ नहीं दिखता। चालू होने पर यह भी बताया जाता है कि पिछली बार रिपोर्ट कब सफल हुई।</string>
+    <string name="webhook_alert_title">नया ADB पोर्ट रिपोर्ट नहीं हुआ</string>
     <string name="settings_webhook_vpn_hint">क्या आपका webhook Tailscale या NetBird जैसे किसी VPN ऐप से होकर चलता है? उस ऐप को भी बैटरी ऑप्टिमाइज़ेशन से बाहर रखें, वरना Android उसे स्टैंडबाय में रोक सकता है और रिपोर्ट नहीं पहुँचेंगी।</string>
     <string name="settings_webhook_vpn_battery_button">बैटरी सेटिंग</string>
     <string name="settings_webhook_vpn_settings_button">VPN सेटिंग</string>
@@ -619,4 +613,11 @@
     <string name="report_history_outcome_error">त्रुटि: %1$s</string>
     <string name="settings_webhook_history_button">रिपोर्ट इतिहास</string>
     <string name="settings_webhook_history_subtext">KeepADB ने पिछले 24 घंटों में क्या रिपोर्ट किया, एंडपॉइंट और नतीजों के साथ। इसी डिवाइस पर रहता है।</string>
+    <string name="webhook_alert_text_intro">KeepADB मौजूदा एंडपॉइंट को आपके webhook तक रिपोर्ट नहीं कर सका। वहाँ शायद अभी भी पुराना पोर्ट दिख रहा है।</string>
+    <string name="webhook_alert_status_since">%1$s से बाधित · आखिरी रिपोर्ट %2$s</string>
+    <string name="webhook_alert_status_never">%1$s से बाधित · अभी तक कोई सफल रिपोर्ट नहीं</string>
+    <string name="webhook_alert_text_recovery">KeepADB कोशिश करता रहेगा। कोई रिपोर्ट पहुँचते ही यह सूचना अपने आप हट जाएगी।</string>
+    <string name="webhook_alert_text_vpn">अगर आपका webhook किसी VPN ऐप से होकर चलता है, तो उसे बैटरी ऑप्टिमाइज़ेशन से बाहर रखें।</string>
+    <string name="webhook_alert_action_battery">बैटरी सुझाव</string>
+    <string name="webhook_alert_action_report_now">अभी रिपोर्ट करें</string>
 </resources>

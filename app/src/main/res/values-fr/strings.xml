@@ -590,13 +590,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_webhook_retry_count_value">Tentatives : %1$d</string>
     <string name="webhook_alert_channel_name">Alertes du webhook</string>
     <string name="webhook_alert_channel_desc">Avertit lorsque les signalements du webhook échouent de manière répétée</string>
-    <string name="webhook_alert_title">Les signalements du webhook ne passent pas</string>
-    <string name="webhook_alert_text_failed">Les derniers signalements du webhook ont échoué.</string>
-    <string name="webhook_alert_text_since">Aucun signalement réussi observé depuis %1$s.</string>
-    <string name="webhook_alert_text_never">Aucun signalement réussi observé pour l\'instant.</string>
-    <string name="webhook_alert_text_scope">Cela décrit uniquement les signalements de KeepADB, pas une panne du réseau ou du serveur.</string>
-    <string name="settings_webhook_freshness_toggle">Indiquer le dernier signalement réussi</string>
-    <string name="settings_webhook_freshness_subtext">L\'alerte apparaît après une minute sans signalement réussi, avec un rappel après une heure ; ensuite, elle reste silencieuse jusqu\'à ce qu\'un signalement réussisse. Si cette option est activée, elle indique aussi quand un signalement a réussi pour la dernière fois.</string>
+    <string name="webhook_alert_title">Nouveau port ADB non signalé</string>
     <string name="settings_webhook_vpn_hint">Votre webhook passe-t-il par une app VPN comme Tailscale ou NetBird ? Excluez aussi cette app de l\'optimisation de la batterie. Sinon, Android peut la geler en veille et les signalements n\'arriveront pas.</string>
     <string name="settings_webhook_vpn_battery_button">Réglages batterie</string>
     <string name="settings_webhook_vpn_settings_button">Réglages VPN</string>
@@ -620,4 +614,11 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="report_history_outcome_error">erreur : %1$s</string>
     <string name="settings_webhook_history_button">Historique des signalements</string>
     <string name="settings_webhook_history_subtext">Ce que KeepADB a signalé au cours des dernières 24 heures, avec points de terminaison et résultats. Reste sur cet appareil.</string>
+    <string name="webhook_alert_text_intro">KeepADB n\'a pas pu signaler le point de terminaison actuel à votre webhook. Il indique peut-être encore un ancien port.</string>
+    <string name="webhook_alert_status_since">Perturbé depuis %1$s · dernier signalement %2$s</string>
+    <string name="webhook_alert_status_never">Perturbé depuis %1$s · aucun signalement réussi pour l\'instant</string>
+    <string name="webhook_alert_text_recovery">KeepADB continue d\'essayer. Cette notification disparaît d\'elle-même dès qu\'un signalement passe.</string>
+    <string name="webhook_alert_text_vpn">Si votre webhook passe par une app VPN, excluez-la de l\'optimisation de la batterie.</string>
+    <string name="webhook_alert_action_battery">Conseils batterie</string>
+    <string name="webhook_alert_action_report_now">Signaler maintenant</string>
 </resources>

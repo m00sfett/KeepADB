@@ -26,6 +26,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
     /** #870: the webhook alert's next check. Only re-reads the persisted failure episode. */
     static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
+    /** #893: "Report now" on the webhook alert: one user-triggered report, no polling. */
+    static final String ACTION_WEBHOOK_REPORT_NOW = "de.hohnepeople.keepadb.ACTION_WEBHOOK_REPORT_NOW";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -48,6 +50,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             KeepADBForceMode.restore(context);
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
+        } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {
+            KeepADBRegisterClient.requestResyncNow(context.getApplicationContext());
         }
     }
 

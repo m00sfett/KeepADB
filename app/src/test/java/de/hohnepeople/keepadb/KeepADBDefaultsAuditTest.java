@@ -164,8 +164,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.getWebhookRetryProfile(c)),
             new Setting("register_webhook_retry_count", Kind.CONVENIENCE, 4, 1,
                     c -> KeepADBPreferences.getWebhookRetryCount(c)),
-            new Setting("register_webhook_freshness_warning", Kind.CONVENIENCE, true, false,
-                    c -> KeepADBPreferences.isWebhookFreshnessWarningEnabled(c)),
             // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
             new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
                     c -> KeepADBPreferences.isAdviceBannerVisible(c)),

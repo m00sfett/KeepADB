@@ -589,13 +589,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_webhook_retry_count_value">Wiederholungen: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook-Warnungen</string>
     <string name="webhook_alert_channel_desc">Warnt, wenn Webhook-Meldungen dauerhaft fehlschlagen</string>
-    <string name="webhook_alert_title">Webhook-Meldungen kommen nicht an</string>
-    <string name="webhook_alert_text_failed">Die letzten Webhook-Meldungen sind fehlgeschlagen.</string>
-    <string name="webhook_alert_text_since">Seit %1$s wurde keine erfolgreiche Meldung beobachtet.</string>
-    <string name="webhook_alert_text_never">Bisher wurde keine erfolgreiche Meldung beobachtet.</string>
-    <string name="webhook_alert_text_scope">Das beschreibt nur die Meldungen von KeepADB, nicht, ob Netz oder Server ausgefallen sind.</string>
-    <string name="settings_webhook_freshness_toggle">Letzte erfolgreiche Meldung nennen</string>
-    <string name="settings_webhook_freshness_subtext">Die Warnung erscheint nach einer Minute ohne erfolgreiche Meldung, mit einer Erinnerung nach einer Stunde; danach bleibt es still, bis eine Meldung gelingt. Ist dies an, nennt sie auch, wann zuletzt eine Meldung gelang.</string>
+    <string name="webhook_alert_title">Neuer ADB-Port nicht gemeldet</string>
     <string name="settings_webhook_vpn_hint">Läuft dein Webhook über eine VPN-App wie Tailscale oder NetBird? Nimm auch diese App von der Akkuoptimierung aus. Sonst kann Android sie im Standby einfrieren und Meldungen kommen nicht an.</string>
     <string name="settings_webhook_vpn_battery_button">Akku-Einstellungen</string>
     <string name="settings_webhook_vpn_settings_button">VPN-Einstellungen</string>
@@ -619,4 +613,11 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="report_history_outcome_error">Fehler: %1$s</string>
     <string name="settings_webhook_history_button">Meldeverlauf</string>
     <string name="settings_webhook_history_subtext">Was KeepADB in den letzten 24 Stunden gemeldet hat, mit Endpunkten und Ergebnissen. Bleibt auf diesem Gerät.</string>
+    <string name="webhook_alert_text_intro">KeepADB konnte den aktuellen Endpunkt nicht an deinen Webhook melden. Dort steht womöglich noch ein alter Port.</string>
+    <string name="webhook_alert_status_since">Gestört seit %1$s · zuletzt gemeldet %2$s</string>
+    <string name="webhook_alert_status_never">Gestört seit %1$s · noch keine erfolgreiche Meldung</string>
+    <string name="webhook_alert_text_recovery">KeepADB versucht es weiter. Diese Meldung verschwindet von selbst, sobald eine Meldung durchkommt.</string>
+    <string name="webhook_alert_text_vpn">Läuft dein Webhook über eine VPN-App, nimm sie von der Akkuoptimierung aus.</string>
+    <string name="webhook_alert_action_battery">Akku-Tipps</string>
+    <string name="webhook_alert_action_report_now">Jetzt melden</string>
 </resources>

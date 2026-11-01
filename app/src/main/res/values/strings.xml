@@ -596,13 +596,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_webhook_retry_count_value">Retries: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook warnings</string>
     <string name="webhook_alert_channel_desc">Warns when webhook reports keep failing</string>
-    <string name="webhook_alert_title">Webhook reports are not getting through</string>
-    <string name="webhook_alert_text_failed">The last webhook reports failed.</string>
-    <string name="webhook_alert_text_since">No successful report observed since %1$s.</string>
-    <string name="webhook_alert_text_never">No successful report observed yet.</string>
-    <string name="webhook_alert_text_scope">This only describes KeepADB\'s reports, not whether the network or the server is down.</string>
-    <string name="settings_webhook_freshness_toggle">Name the last successful report</string>
-    <string name="settings_webhook_freshness_subtext">The warning appears after one minute without a successful report, with one reminder after an hour; then it stays quiet until a report succeeds. When this is on, it also names when a report last succeeded.</string>
+    <string name="webhook_alert_title">New ADB port not reported</string>
     <string name="settings_webhook_vpn_hint">Does your webhook run through a VPN app such as Tailscale or NetBird? Exempt that app from battery optimization too. Otherwise Android may freeze it in standby and reports won\'t get through.</string>
     <string name="settings_webhook_vpn_battery_button">Battery settings</string>
     <string name="settings_webhook_vpn_settings_button">VPN settings</string>
@@ -626,4 +620,11 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="report_history_outcome_error">error: %1$s</string>
     <string name="settings_webhook_history_button">Report history</string>
     <string name="settings_webhook_history_subtext">What KeepADB reported in the last 24 hours, with endpoints and results. Stays on this device.</string>
+    <string name="webhook_alert_text_intro">KeepADB could not report the current endpoint to your webhook. It may still list an old port.</string>
+    <string name="webhook_alert_status_since">Disrupted since %1$s · last reported %2$s</string>
+    <string name="webhook_alert_status_never">Disrupted since %1$s · no successful report yet</string>
+    <string name="webhook_alert_text_recovery">KeepADB keeps trying. This notification disappears by itself once a report gets through.</string>
+    <string name="webhook_alert_text_vpn">If your webhook runs through a VPN app, exempt it from battery optimization.</string>
+    <string name="webhook_alert_action_battery">Battery tips</string>
+    <string name="webhook_alert_action_report_now">Report now</string>
 </resources>

@@ -588,13 +588,7 @@
     <string name="settings_webhook_retry_count_value">재시도 횟수: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook 경고</string>
     <string name="webhook_alert_channel_desc">Webhook 보고가 계속 실패하면 경고합니다</string>
-    <string name="webhook_alert_title">Webhook 보고가 전달되지 않습니다</string>
-    <string name="webhook_alert_text_failed">최근 Webhook 보고가 실패했습니다.</string>
-    <string name="webhook_alert_text_since">%1$s 이후 성공한 보고가 확인되지 않았습니다.</string>
-    <string name="webhook_alert_text_never">아직 성공한 보고가 확인되지 않았습니다.</string>
-    <string name="webhook_alert_text_scope">이는 KeepADB의 보고에 대한 설명일 뿐, 네트워크나 서버가 중단되었는지를 나타내지 않습니다.</string>
-    <string name="settings_webhook_freshness_toggle">마지막 성공 보고 표시</string>
-    <string name="settings_webhook_freshness_subtext">성공한 보고 없이 1분이 지나면 경고가 표시되고, 1시간 후 한 번 다시 알립니다. 그 후에는 보고가 성공할 때까지 알리지 않습니다. 켜면 마지막으로 보고가 성공한 시각도 표시합니다.</string>
+    <string name="webhook_alert_title">새 ADB 포트가 보고되지 않음</string>
     <string name="settings_webhook_vpn_hint">Webhook이 Tailscale이나 NetBird 같은 VPN 앱을 거치나요? 그 앱도 배터리 최적화에서 제외하세요. 그렇지 않으면 Android가 대기 중에 앱을 멈춰 보고가 전달되지 않을 수 있습니다.</string>
     <string name="settings_webhook_vpn_battery_button">배터리 설정</string>
     <string name="settings_webhook_vpn_settings_button">VPN 설정</string>
@@ -618,4 +612,11 @@
     <string name="report_history_outcome_error">오류: %1$s</string>
     <string name="settings_webhook_history_button">보고 기록</string>
     <string name="settings_webhook_history_subtext">KeepADB가 최근 24시간 동안 보고한 내용과 엔드포인트, 결과입니다. 이 기기에만 저장됩니다.</string>
+    <string name="webhook_alert_text_intro">KeepADB가 현재 엔드포인트를 Webhook에 보고하지 못했습니다. 이전 포트가 그대로 남아 있을 수 있습니다.</string>
+    <string name="webhook_alert_status_since">%1$s부터 장애 · 마지막 보고 %2$s</string>
+    <string name="webhook_alert_status_never">%1$s부터 장애 · 아직 성공한 보고 없음</string>
+    <string name="webhook_alert_text_recovery">KeepADB가 계속 시도합니다. 보고가 전달되면 이 알림은 자동으로 사라집니다.</string>
+    <string name="webhook_alert_text_vpn">Webhook이 VPN 앱을 거친다면 그 앱을 배터리 최적화에서 제외하세요.</string>
+    <string name="webhook_alert_action_battery">배터리 팁</string>
+    <string name="webhook_alert_action_report_now">지금 보고</string>
 </resources>

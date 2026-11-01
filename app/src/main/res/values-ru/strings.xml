@@ -591,13 +591,7 @@
     <string name="settings_webhook_retry_count_value">Повторы: %1$d</string>
     <string name="webhook_alert_channel_name">Предупреждения Webhook</string>
     <string name="webhook_alert_channel_desc">Предупреждает, если отчёты Webhook продолжают не доходить</string>
-    <string name="webhook_alert_title">Отчёты Webhook не доходят</string>
-    <string name="webhook_alert_text_failed">Последние отчёты Webhook не удались.</string>
-    <string name="webhook_alert_text_since">С %1$s не было замечено ни одного успешного отчёта.</string>
-    <string name="webhook_alert_text_never">Успешных отчётов пока не замечено.</string>
-    <string name="webhook_alert_text_scope">Это описывает только отчёты KeepADB, а не то, недоступны ли сеть или сервер.</string>
-    <string name="settings_webhook_freshness_toggle">Указывать последний успешный отчёт</string>
-    <string name="settings_webhook_freshness_subtext">Предупреждение появляется через минуту без успешного отчёта, напоминание — через час; затем ничего не появляется, пока отчёт не будет успешным. Если включено, также указывается время последнего успешного отчёта.</string>
+    <string name="webhook_alert_title">Новый порт ADB не передан</string>
     <string name="settings_webhook_vpn_hint">Ваш webhook работает через VPN-приложение, например Tailscale или NetBird? Исключите и его из оптимизации батареи. Иначе Android может заморозить его в режиме ожидания, и отчёты не дойдут.</string>
     <string name="settings_webhook_vpn_battery_button">Настройки батареи</string>
     <string name="settings_webhook_vpn_settings_button">Настройки VPN</string>
@@ -621,4 +615,11 @@
     <string name="report_history_outcome_error">ошибка: %1$s</string>
     <string name="settings_webhook_history_button">История отчётов</string>
     <string name="settings_webhook_history_subtext">Что KeepADB отправлял за последние 24 часа: конечные точки и результаты. Хранится только на этом устройстве.</string>
+    <string name="webhook_alert_text_intro">KeepADB не смог передать текущую конечную точку в ваш webhook. Там, возможно, всё ещё указан старый порт.</string>
+    <string name="webhook_alert_status_since">Сбой с %1$s · последний отчёт %2$s</string>
+    <string name="webhook_alert_status_never">Сбой с %1$s · успешных отчётов пока нет</string>
+    <string name="webhook_alert_text_recovery">KeepADB продолжает попытки. Это уведомление исчезнет само, как только отчёт дойдёт.</string>
+    <string name="webhook_alert_text_vpn">Если webhook работает через VPN-приложение, исключите его из оптимизации батареи.</string>
+    <string name="webhook_alert_action_battery">Советы по батарее</string>
+    <string name="webhook_alert_action_report_now">Отправить сейчас</string>
 </resources>

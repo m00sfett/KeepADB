@@ -588,13 +588,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_webhook_retry_count_value">Percobaan ulang: %1$d</string>
     <string name="webhook_alert_channel_name">Peringatan Webhook</string>
     <string name="webhook_alert_channel_desc">Memperingatkan saat laporan Webhook terus gagal</string>
-    <string name="webhook_alert_title">Laporan Webhook tidak sampai</string>
-    <string name="webhook_alert_text_failed">Laporan Webhook terakhir gagal.</string>
-    <string name="webhook_alert_text_since">Tidak ada laporan berhasil yang teramati sejak %1$s.</string>
-    <string name="webhook_alert_text_never">Belum ada laporan berhasil yang teramati.</string>
-    <string name="webhook_alert_text_scope">Ini hanya menjelaskan laporan KeepADB, bukan apakah jaringan atau server sedang mati.</string>
-    <string name="settings_webhook_freshness_toggle">Sebutkan laporan berhasil terakhir</string>
-    <string name="settings_webhook_freshness_subtext">Peringatan muncul setelah satu menit tanpa laporan berhasil, dengan satu pengingat setelah satu jam; setelah itu tetap diam sampai ada laporan yang berhasil. Jika aktif, peringatan juga menyebutkan kapan laporan terakhir berhasil.</string>
+    <string name="webhook_alert_title">Port ADB baru belum dilaporkan</string>
     <string name="settings_webhook_vpn_hint">Apakah webhook Anda berjalan melalui aplikasi VPN seperti Tailscale atau NetBird? Kecualikan juga aplikasi itu dari pengoptimalan baterai. Jika tidak, Android dapat membekukannya saat siaga dan laporan tidak akan sampai.</string>
     <string name="settings_webhook_vpn_battery_button">Setelan baterai</string>
     <string name="settings_webhook_vpn_settings_button">Setelan VPN</string>
@@ -618,4 +612,11 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="report_history_outcome_error">galat: %1$s</string>
     <string name="settings_webhook_history_button">Riwayat laporan</string>
     <string name="settings_webhook_history_subtext">Apa yang dilaporkan KeepADB dalam 24 jam terakhir, beserta endpoint dan hasilnya. Tetap di perangkat ini.</string>
+    <string name="webhook_alert_text_intro">KeepADB tidak dapat melaporkan endpoint saat ini ke webhook Anda. Mungkin masih tercantum port lama.</string>
+    <string name="webhook_alert_status_since">Terganggu sejak %1$s · terakhir dilaporkan %2$s</string>
+    <string name="webhook_alert_status_never">Terganggu sejak %1$s · belum ada laporan yang berhasil</string>
+    <string name="webhook_alert_text_recovery">KeepADB terus mencoba. Notifikasi ini hilang sendiri begitu laporan berhasil terkirim.</string>
+    <string name="webhook_alert_text_vpn">Jika webhook Anda berjalan melalui aplikasi VPN, kecualikan aplikasi itu dari pengoptimalan baterai.</string>
+    <string name="webhook_alert_action_battery">Tips baterai</string>
+    <string name="webhook_alert_action_report_now">Laporkan sekarang</string>
 </resources>

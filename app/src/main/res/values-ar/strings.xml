@@ -593,13 +593,7 @@
     <string name="settings_webhook_retry_count_value">مرات إعادة المحاولة: %1$d</string>
     <string name="webhook_alert_channel_name">تحذيرات Webhook</string>
     <string name="webhook_alert_channel_desc">يحذّر عندما تستمر تقارير Webhook في الفشل</string>
-    <string name="webhook_alert_title">تقارير Webhook لا تصل</string>
-    <string name="webhook_alert_text_failed">فشلت آخر تقارير Webhook.</string>
-    <string name="webhook_alert_text_since">لم يُرصد أي تقرير ناجح منذ %1$s.</string>
-    <string name="webhook_alert_text_never">لم يُرصد أي تقرير ناجح بعد.</string>
-    <string name="webhook_alert_text_scope">يصف هذا تقارير KeepADB فقط، ولا يبيّن ما إذا كانت الشبكة أو الخادم متوقفين.</string>
-    <string name="settings_webhook_freshness_toggle">ذكر آخر تقرير ناجح</string>
-    <string name="settings_webhook_freshness_subtext">يظهر التحذير بعد دقيقة بلا تقرير ناجح، مع تذكير واحد بعد ساعة؛ ثم يبقى صامتًا حتى ينجح تقرير. عند تفعيل هذا الخيار، يذكر أيضًا متى نجح آخر تقرير.</string>
+    <string name="webhook_alert_title">لم يتم الإبلاغ عن منفذ ADB الجديد</string>
     <string name="settings_webhook_vpn_hint">هل يعمل الـ Webhook عبر تطبيق VPN مثل Tailscale أو NetBird؟ استثنِ هذا التطبيق أيضًا من تحسين البطارية، وإلا فقد يجمّده Android في وضع الاستعداد ولن تصل الرسائل.</string>
     <string name="settings_webhook_vpn_battery_button">إعدادات البطارية</string>
     <string name="settings_webhook_vpn_settings_button">إعدادات VPN</string>
@@ -623,4 +617,11 @@
     <string name="report_history_outcome_error">خطأ: %1$s</string>
     <string name="settings_webhook_history_button">سجل الرسائل</string>
     <string name="settings_webhook_history_subtext">ما أبلغ عنه KeepADB خلال آخر 24 ساعة، مع نقاط النهاية والنتائج. يبقى على هذا الجهاز.</string>
+    <string name="webhook_alert_text_intro">تعذّر على KeepADB الإبلاغ عن نقطة النهاية الحالية إلى الـ Webhook. قد يعرض منفذًا قديمًا.</string>
+    <string name="webhook_alert_status_since">متعطل منذ %1$s · آخر إبلاغ %2$s</string>
+    <string name="webhook_alert_status_never">متعطل منذ %1$s · لا يوجد إبلاغ ناجح بعد</string>
+    <string name="webhook_alert_text_recovery">يواصل KeepADB المحاولة. يختفي هذا الإشعار تلقائيًا بمجرد وصول إبلاغ.</string>
+    <string name="webhook_alert_text_vpn">إذا كان الـ Webhook يعمل عبر تطبيق VPN، فاستثنِه من تحسين البطارية.</string>
+    <string name="webhook_alert_action_battery">نصائح البطارية</string>
+    <string name="webhook_alert_action_report_now">أبلغ الآن</string>
 </resources>

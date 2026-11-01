@@ -590,13 +590,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="settings_webhook_retry_count_value">Reintentos: %1$d</string>
     <string name="webhook_alert_channel_name">Avisos del webhook</string>
     <string name="webhook_alert_channel_desc">Avisa cuando los informes del webhook siguen fallando</string>
-    <string name="webhook_alert_title">Los informes del webhook no llegan</string>
-    <string name="webhook_alert_text_failed">Los últimos informes del webhook fallaron.</string>
-    <string name="webhook_alert_text_since">No se ha observado ningún informe correcto desde %1$s.</string>
-    <string name="webhook_alert_text_never">Aún no se ha observado ningún informe correcto.</string>
-    <string name="webhook_alert_text_scope">Esto solo describe los informes de KeepADB, no si la red o el servidor están caídos.</string>
-    <string name="settings_webhook_freshness_toggle">Indicar el último informe correcto</string>
-    <string name="settings_webhook_freshness_subtext">El aviso aparece tras un minuto sin un informe correcto, con un recordatorio después de una hora; luego no vuelve a avisar hasta que un informe tenga éxito. Si está activado, también indica cuándo tuvo éxito el último informe.</string>
+    <string name="webhook_alert_title">Nuevo puerto ADB sin avisar</string>
     <string name="settings_webhook_vpn_hint">¿Tu webhook pasa por una app de VPN como Tailscale o NetBird? Excluye también esa app de la optimización de batería. Si no, Android puede congelarla en reposo y los avisos no llegarán.</string>
     <string name="settings_webhook_vpn_battery_button">Ajustes de batería</string>
     <string name="settings_webhook_vpn_settings_button">Ajustes de VPN</string>
@@ -620,4 +614,11 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="report_history_outcome_error">fallo: %1$s</string>
     <string name="settings_webhook_history_button">Historial de avisos</string>
     <string name="settings_webhook_history_subtext">Lo que KeepADB avisó en las últimas 24 horas, con puntos finales y resultados. Se queda en este dispositivo.</string>
+    <string name="webhook_alert_text_intro">KeepADB no pudo avisar del punto final actual a tu webhook. Puede que aún muestre un puerto antiguo.</string>
+    <string name="webhook_alert_status_since">Fallando desde %1$s · último aviso %2$s</string>
+    <string name="webhook_alert_status_never">Fallando desde %1$s · aún ningún aviso correcto</string>
+    <string name="webhook_alert_text_recovery">KeepADB sigue intentándolo. Esta notificación desaparece sola en cuanto llegue un aviso.</string>
+    <string name="webhook_alert_text_vpn">Si tu webhook pasa por una app de VPN, exclúyela de la optimización de batería.</string>
+    <string name="webhook_alert_action_battery">Consejos de batería</string>
+    <string name="webhook_alert_action_report_now">Avisar ahora</string>
 </resources>
