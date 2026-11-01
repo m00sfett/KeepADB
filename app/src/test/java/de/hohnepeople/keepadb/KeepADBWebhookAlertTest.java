@@ -244,6 +244,21 @@ public class KeepADBWebhookAlertTest {
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, reportNow.getAction());
     }
 
+    /** #893 (Codex review): a retry waiting for its timer is sent at once, not joined. */
+    @Test
+    public void reportNowSendsAScheduledRetryImmediately() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+
+        new KeepADBReceiver().onReceive(context, new Intent(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("the pending retry goes out without waiting for its delay", before + 1,
+                transport.recordedRequests.size());
+    }
+
     /** #893: "Report now" sends one report, and its success clears the alert. */
     @Test
     public void reportNowSendsOneReportAndItsSuccessClearsTheAlert() {

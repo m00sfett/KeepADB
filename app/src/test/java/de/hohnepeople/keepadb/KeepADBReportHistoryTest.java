@@ -141,6 +141,30 @@ public class KeepADBReportHistoryTest {
         assertFalse(stored.contains("register/s20"));
     }
 
+    /** Codex review: the DELETE at the previous URL after a URL change is recorded as well. */
+    @Test
+    public void urlChangeRecordsTheUnregisterAtTheOldUrl() throws Exception {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://old.example/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 42631);
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://new.example/register/s20");
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 42632);
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        boolean unregister = false;
+        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
+            if (entry.event == KeepADBReportHistory.Event.UNREGISTER
+                    && "192.168.178.24:42631".equals(entry.endpoint)) {
+                unregister = true;
+            }
+        }
+        assertTrue("the old registration's DELETE must be in the history", unregister);
+    }
+
     @Test
     public void rowDetailsNameTheEndpointTheResultAndTheRetry() {
         Context activity = Robolectric.buildActivity(ReportHistoryActivity.class).setup().get();

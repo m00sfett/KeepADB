@@ -51,7 +51,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
         } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {
-            KeepADBRegisterClient.requestResyncNow(context.getApplicationContext());
+            KeepADBRegisterClient.reportNowFromAlert(context.getApplicationContext());
         }
     }
 

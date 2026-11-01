@@ -246,6 +246,25 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #893 (Codex review): "Report now" on the webhook alert. A retry that is only waiting for its
+     * timer is sent at once instead of being joined, so the tap always causes an attempt; a POST
+     * that is already running is joined (it is the attempt). Otherwise like {@link
+     * #requestResyncNow}.
+     */
+    static void reportNowFromAlert(Context context) {
+        if (context == null) return;
+        synchronized (KeepADBRegisterClient.class) {
+            Runnable retry = pendingPostRetry;
+            if (retry != null && !wlanUpdateInFlight) {
+                mainHandler().removeCallbacks(retry);
+                mainHandler().post(retry);
+                return;
+            }
+        }
+        requestResyncNow(context);
+    }
+
+    /**
      * #881: called on the service heartbeat. While a failure episode lasts and the retry series
      * has been given up on, nothing else reports until the endpoint or the default network
      * changes, which left s20 unreported for about two hours. This sends one report at most every
@@ -559,7 +578,15 @@ final class KeepADBRegisterClient {
             if (!shouldAttemptPendingCleanup(context, url)) {
                 continue;
             }
-            if (sanitizedUrl != null && deleteEndpoint(sanitizedUrl)) {
+            boolean deleted = false;
+            if (sanitizedUrl != null) {
+                lastTransportOutcome = "unknown";
+                deleted = deleteEndpoint(sanitizedUrl);
+                // #892 (Codex review): a deferred cleanup is an unregister attempt as well; its
+                // endpoint is no longer known, and the URL is never recorded.
+                KeepADBReportHistory.unregister(context, "", deleted, lastTransportOutcome, 0);
+            }
+            if (deleted) {
                 removePendingCleanupsForResource(context, sanitizedUrl);
             } else {
                 recordPendingCleanupFailure(context, url);
@@ -680,7 +707,11 @@ final class KeepADBRegisterClient {
         // If URL changed and a prior local report exists, try DELETE at the old URL first
         String unfinishedCleanupUrl = null;
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
-            if (deleteEndpoint(oldUrl)) {
+            lastTransportOutcome = "unknown";
+            boolean oldDeleted = deleteEndpoint(oldUrl);
+            // #892 (Codex review): the DELETE at the previous URL belongs in the history too.
+            KeepADBReportHistory.unregister(context, oldEndpoint, oldDeleted, lastTransportOutcome, 0);
+            if (oldDeleted) {
                 // Clear the matching local report snapshot after the DELETE request reports
                 // success. The single-threaded executor prevents a later transaction from
                 // overlapping this update.
