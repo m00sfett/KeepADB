@@ -178,7 +178,8 @@ public class KeepADBDefaultsAuditTest {
     private static final Set<String> RECORD_KEYS = Collections.unmodifiableSet(new TreeSet<>(Arrays.asList(
             "register_webhook_last_reported", "register_webhook_last_endpoint",
             "register_webhook_last_url", "register_webhook_last_status",
-            "register_webhook_last_success_at", "register_webhook_pending_cleanup",
+            "register_webhook_last_success_at", "register_webhook_last_success_url",
+            "register_webhook_pending_cleanup",
             "register_webhook_pending_cleanup_retry_state", "service_last_heartbeat",
             "register_webhook_failure_since", "register_webhook_alerts_shown",
             "trusted_network_next_id", "trusted_network_ids", "trusted_network_mode_initialized",

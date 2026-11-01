@@ -757,9 +757,14 @@ final class KeepADBRegisterClient {
         // POST to new target URL
         final String cleanupToRemember = unfinishedCleanupUrl;
         boolean failingBefore = isReportFailing(context);
+        int retry;
+        synchronized (KeepADBRegisterClient.class) {
+            // Codex review: a new series may reset the counter while this request is in flight.
+            retry = postRetryNumber;
+        }
         lastTransportOutcome = "unknown";
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, false);
+        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry);
         if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
@@ -843,13 +848,17 @@ final class KeepADBRegisterClient {
 
         boolean failingBefore = isReportFailing(context);
         String endpointToDelete;
+        int retry;
         synchronized (KeepADBRegisterClient.class) {
             endpointToDelete = lastRegisteredEndpoint;
+            // Codex review: captured before the request, and only for the endpoint-loss series;
+            // its counter outlives the series, and an explicit unregister is none of its retries.
+            retry = endpointLoss ? markUnavailableRetryAttempts : 0;
         }
         lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
         recordReportOutcome(context, "delete", endpointToDelete, cleanupCompleted, failingBefore,
-                opGen, endpointLoss);
+                opGen, retry);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -1180,17 +1189,9 @@ final class KeepADBRegisterClient {
      * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
      */
     private static void recordReportOutcome(Context context, String method, String endpoint,
-            boolean ok, boolean failingBefore, long opGen, boolean endpointLoss) {
-        int retry;
+            boolean ok, boolean failingBefore, long opGen, int retry) {
         boolean superseded;
         synchronized (KeepADBRegisterClient.class) {
-            // Codex review: the endpoint-loss counter outlives its series; a user's explicit
-            // unregister is not one of its retries.
-            if ("delete".equals(method)) {
-                retry = endpointLoss ? markUnavailableRetryAttempts : 0;
-            } else {
-                retry = postRetryNumber;
-            }
             superseded = opGen != currentOpGeneration;
         }
         // #892: every attempt goes into the local history, routine successes included; the

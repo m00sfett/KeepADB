@@ -82,6 +82,7 @@ public class KeepADBWebhookAlertTest {
     private void clearPreferences() {
         Context ctx = ApplicationProvider.getApplicationContext();
         ctx.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
+        KeepADBReportHistory.clear(ctx);
     }
 
     /** Moves the alert clock and the main looper together and delivers a due alert alarm. */
@@ -240,6 +241,49 @@ public class KeepADBWebhookAlertTest {
 
         assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
         assertTrue(KeepADBWebhookAlert.text(english).contains("no successful report yet"));
+    }
+
+    /** Codex review: a late success from the previous URL is not the new URL's success. */
+    @Test
+    public void aLateSuccessFromThePreviousUrlIsNotClaimedForTheNewOne() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        assertTrue("back at the URL that accepted it, the success counts again",
+                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+    }
+
+    /** Codex review: the retry number is the one sent, even if a new series starts meanwhile. */
+    @Test
+    public void aRetryKeepsItsNumberWhenANewSeriesStartsWhileItIsInFlight() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+        java.util.concurrent.atomic.AtomicBoolean started =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        transport.setRequestCallback(request -> {
+            if (transport.recordedRequests.size() > before && started.compareAndSet(false, true)) {
+                KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":42000");
+                KeepADBRegisterClient.updateEndpointAsync(context, HOST, 42000);
+            }
+        });
+
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertTrue("precondition: the retry went out", started.get());
+        boolean retryRecorded = false;
+        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
+            if (entry.event == KeepADBReportHistory.Event.REPORT && entry.retry == 1) {
+                retryRecorded = true;
+            }
+        }
+        assertTrue("the in-flight retry keeps its number in the history", retryRecorded);
     }
 
     /** #893: system time, two actions, a tap that keeps the alert and opens the history. */

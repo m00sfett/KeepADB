@@ -15,6 +15,8 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
     /** #734: epoch-millis of the last SUCCESSFUL report only; never touched by failures or deregistration. */
     private static final String KEY_WEBHOOK_LAST_SUCCESS_AT = "register_webhook_last_success_at";
+    /** #893 (Codex review): the URL that accepted the success at {@link #KEY_WEBHOOK_LAST_SUCCESS_AT}. */
+    private static final String KEY_WEBHOOK_LAST_SUCCESS_URL = "register_webhook_last_success_url";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
     private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
     private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
@@ -193,21 +195,11 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String sanitized = sanitizeWebhookUrl(url);
-        String next = sanitized == null ? "" : sanitized.trim();
-        SharedPreferences.Editor editor = prefs.edit();
-        if (next.isEmpty()) {
-            editor.remove(KEY_REGISTER_URL);
+        if (sanitized == null || sanitized.trim().isEmpty()) {
+            prefs.edit().remove(KEY_REGISTER_URL).apply();
         } else {
-            editor.putString(KEY_REGISTER_URL, next);
+            prefs.edit().putString(KEY_REGISTER_URL, sanitized.trim()).apply();
         }
-        // #893 (Codex review): a success belongs to the URL that accepted it. Replacing a URL
-        // leaves the new destination without one; 0 (not a removed key) also keeps the legacy
-        // fallback from answering. A first URL has no earlier success to drop.
-        String previous = prefs.getString(KEY_REGISTER_URL, "");
-        if (!previous.isEmpty() && !next.equals(previous)) {
-            editor.putLong(KEY_WEBHOOK_LAST_SUCCESS_AT, 0L);
-        }
-        editor.apply();
         KeepADBWarningState.observe(context);
     }
 
@@ -224,6 +216,15 @@ final class KeepADBPreferences {
      */
     static long getWebhookLastSuccessAt(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        // #893 (Codex review): a success belongs to the URL that accepted it, so a replaced
+        // destination, a late answer from the previous one or an older version's leftover does
+        // not show up as a success for the current URL. Older records name their URL only in the
+        // last report snapshot; without either, nothing can be compared.
+        String owner = prefs.getString(KEY_WEBHOOK_LAST_SUCCESS_URL,
+                prefs.getString(KEY_WEBHOOK_LAST_URL, null));
+        if (owner != null && !owner.trim().equals(prefs.getString(KEY_REGISTER_URL, ""))) {
+            return 0L;
+        }
         if (prefs.contains(KEY_WEBHOOK_LAST_SUCCESS_AT)) {
             return prefs.getLong(KEY_WEBHOOK_LAST_SUCCESS_AT, 0L);
         }
@@ -345,6 +346,11 @@ final class KeepADBPreferences {
             editor.putLong(KEY_WEBHOOK_LAST_REPORTED, now);
             if (WEBHOOK_STATUS_SUCCESS.equals(status)) {
                 editor.putLong(KEY_WEBHOOK_LAST_SUCCESS_AT, now);
+                if (sanitizedUrl == null) {
+                    editor.remove(KEY_WEBHOOK_LAST_SUCCESS_URL);
+                } else {
+                    editor.putString(KEY_WEBHOOK_LAST_SUCCESS_URL, sanitizedUrl.trim());
+                }
             }
         }
         editor.apply();
