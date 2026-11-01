@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 final class KeepADBHttpTransport implements KeepADBRegisterClient.HttpTransport {
     // Same tag as before the extraction, so existing log filters keep matching.
     private static final String TAG = "KeepADBRegisterClient";
-    private static final int TIMEOUT_MS = 2000;
+    static final int TIMEOUT_MS = 2000;
 
     @Override
     public boolean postJson(String targetUrl, String payload, String logLabel) {

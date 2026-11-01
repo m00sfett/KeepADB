@@ -41,6 +41,8 @@ final class KeepADBWebhookAlert {
     static final long REMINDER_AFTER_MS = 60L * 60L * 1000L;
     static final int MAX_ALERTS_PER_EPISODE = 2;
     private static final int REQUEST_CODE_CHECK_ALARM = 5;
+    private static final int REQUEST_CODE_BATTERY_TIPS = 51;
+    private static final int REQUEST_CODE_REPORT_NOW = 52;
 
     private static Handler mainHandler;
     private static volatile Long nowForTesting;
@@ -140,27 +142,42 @@ final class KeepADBWebhookAlert {
     }
 
     /**
-     * The warning text. With the freshness warning on it names the last successful report (or
-     * that none was seen); off, it only states that reports failed. Either way it ends with the
-     * scope note, so it never reads as a verdict on the network or the server.
+     * #893: the warning text. It says what is known (the current endpoint could not be reported,
+     * so the register may still list an old port), since when and when a report last got through,
+     * that KeepADB keeps trying and that the warning clears itself, and one next step. It never
+     * reads as a verdict on the network or the server, and it names no endpoint.
      */
     static String text(Context context) {
-        String first;
-        if (KeepADBPreferences.isWebhookFreshnessWarningEnabled(context)) {
-            long successAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
-            first = successAt > 0L
-                    ? context.getString(R.string.webhook_alert_text_since, formatTime(context, successAt))
-                    : context.getString(R.string.webhook_alert_text_never);
-        } else {
-            first = context.getString(R.string.webhook_alert_text_failed);
-        }
-        return first + "\n" + context.getString(R.string.webhook_alert_text_scope);
+        return context.getString(R.string.webhook_alert_text_intro) + "\n"
+                + statusLine(context) + "\n"
+                + context.getString(R.string.webhook_alert_text_recovery) + "\n"
+                + context.getString(R.string.webhook_alert_text_vpn);
     }
 
+    /** "Disrupted since … · last reported …", or the variant without a successful report. */
+    static String statusLine(Context context) {
+        long since = KeepADBPreferences.getWebhookFailureSince(context);
+        String sinceText = formatTime(context, since > 0L ? since : now());
+        long successAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
+        return successAt > 0L
+                ? context.getString(R.string.webhook_alert_status_since, sinceText,
+                        formatTime(context, successAt))
+                : context.getString(R.string.webhook_alert_status_never, sinceText);
+    }
+
+    /** The time alone for today, with the date otherwise. */
     private static String formatTime(Context context, long epochMillis) {
-        java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance(
-                java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT,
-                context.getResources().getConfiguration().getLocales().get(0));
+        java.util.Locale locale = context.getResources().getConfiguration().getLocales().get(0);
+        java.util.Calendar then = java.util.Calendar.getInstance();
+        then.setTimeInMillis(epochMillis);
+        java.util.Calendar today = java.util.Calendar.getInstance();
+        today.setTimeInMillis(now());
+        boolean sameDay = then.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR)
+                && then.get(java.util.Calendar.DAY_OF_YEAR) == today.get(java.util.Calendar.DAY_OF_YEAR);
+        java.text.DateFormat format = sameDay
+                ? java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, locale)
+                : java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM,
+                        java.text.DateFormat.SHORT, locale);
         return format.format(new java.util.Date(epochMillis));
     }
 
@@ -177,18 +194,35 @@ final class KeepADBWebhookAlert {
 
         String title = localized.getString(R.string.webhook_alert_title);
         String text = text(localized);
+        // #893: a tap opens the report history, which shows what was tried and what happened.
         PendingIntent open = PendingIntent.getActivity(localized, NOTIFICATION_ID,
-                new Intent(localized, MainActivity.class),
+                ReportHistoryActivity.intent(localized),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent batteryTips = PendingIntent.getActivity(localized, REQUEST_CODE_BATTERY_TIPS,
+                new Intent(localized, SettingsActivity.class)
+                        .putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK_VPN_HINT, true),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent reportNow = PendingIntent.getBroadcast(localized, REQUEST_CODE_REPORT_NOW,
+                new Intent(localized, KeepADBReceiver.class)
+                        .setAction(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new Notification.Builder(localized, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
-                .setContentText(text)
+                .setContentText(localized.getString(R.string.webhook_alert_text_intro))
                 .setStyle(new Notification.BigTextStyle().bigText(text))
+                // #893: the system shows when the warning arrived; the text says since when.
+                .setShowWhen(true)
+                .setWhen(now())
                 .setContentIntent(open)
-                .setAutoCancel(true)
-                // The scope note and the time carry no endpoint or URL; the public version still
-                // keeps the lock screen to the title.
+                // A tap must not hide a problem that is still there; swiping it away stays allowed.
+                .setAutoCancel(false)
+                .addAction(new Notification.Action.Builder(null,
+                        localized.getString(R.string.webhook_alert_action_battery), batteryTips).build())
+                .addAction(new Notification.Action.Builder(null,
+                        localized.getString(R.string.webhook_alert_action_report_now), reportNow).build())
+                // The text carries no endpoint or URL; the public version still keeps the lock
+                // screen to the title.
                 .setPublicVersion(new Notification.Builder(localized, CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_keepadb)
                         .setContentTitle(title)

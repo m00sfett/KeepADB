@@ -17,11 +17,25 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.15` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.16` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.16] - Unreleased
+
+### Added
+- **VPN battery hint (#891):** found in the s20 webhook outage of 2026-11-01 (Samsung froze the VPN app carrying the webhook route in light idle while KeepADB kept Wireless Debugging alive). The shared webhook form (Settings and setup assistant) shows a calm hint while sync is on: a VPN app such as Tailscale or NetBird needs the same battery exemption, with shortcuts to the system battery optimization list (`ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS`) and the VPN settings, each with fallbacks. The onboarding battery row adds one sentence while sync is on. Product names appear in text only: no package query, no detection, manifest unchanged (user decision: compatible with #877). The home warning card shows only its title, so it got no extra sentence.
+- **Report history (#892):** a new screen, opened from the webhook section in Settings and by tapping the webhook alert, lists endpoint changes and every report/unregister attempt of the last 24 hours, newest first: time to the second, endpoint, HTTP status or error class (timeout, refused, host not found), retry n of m (both taken when the request is sent, so a series restarting meanwhile does not erase it). Stored in its own app-private preference file (`keepadb_report_history`, at most 300 entries, pruned by age and count, expired entries also leave the file on the service heartbeat and on every read (Codex review), repeated endpoint states recorded once; a lost endpoint is recorded, with its host:port, only when a known one is cleared, on every clearing path, before its report or DELETE is queued; Codex review), never the webhook URL. DELETEs at a previous URL after a URL change and deferred cleanups are recorded too, a deferred cleanup with its retry n of 3, an explicit unregister (webhook switched off) always as a first attempt (Codex review). Full addresses with a notice line on top, masked while the privacy mode is on; Clear history; no share or export path, the diagnostics export is unchanged.
+
+### Changed
+- **Webhook alert explains itself (#893):** new title "Current ADB port not reported" (also right when the port did not change, e.g. after a resync; Codex review) and text: the current endpoint could not be reported and the register may still list an old port; an always-present "Disrupted since … · last reported …" line (the success time is stored with the URL that accepted it, so a replaced destination, a late answer from the previous one or an older leftover whose URL is unknown is not shown for the current URL; Codex review); KeepADB keeps trying and the alert disappears by itself once a report gets through; the VPN battery tip. The system time is shown (`setShowWhen`), a tap opens the report history and no longer dismisses the alert (swiping still does), and two actions were added: "Battery tips" (Settings at the #891 hint) and "Report now" (one attempt, no polling: a retry waiting for its timer is sent at once, a running POST is joined, a waiting debounced resync is dropped, and the receiver keeps the process alive via `goAsync` until the attempt is done, for at most 28 seconds: long enough for every due cleanup DELETE, a DELETE at a previous URL and the POST itself, each with its 2 s connect and read timeouts, and inside the 60 s window of a background broadcast; Codex review). The text names no endpoint; the lock screen keeps the title only.
+
+### Removed
+- **Freshness switch of the webhook alert (#893):** "Name the last successful report" (`register_webhook_freshness_warning`, #868) is gone because the alert now always names both times; a stored value is ignored.
+
+Version note: user decision of 2026-11-01 to ship these as a patch bump, like the earlier 1.10.x feature candidates.
 
 ## [1.10.15] - Unreleased
 

@@ -104,9 +104,11 @@ public class KeepADBNotificationWebhookStatusTest {
     public void existingInstallWithoutSuccessKeyFallsBackToReportedTimeWhenEndpointStored() {
         enableWebhook();
         long legacyAt = 1_700_000_000_000L;
-        // Legacy state: no register_webhook_last_success_at, only the old shared timestamp.
+        // Legacy state: no register_webhook_last_success_at, only the old shared timestamp. A real
+        // report snapshot always names its URL as well (#893: an unknown URL claims no success).
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
-                .putLong("register_webhook_last_reported", legacyAt).commit();
+                .putLong("register_webhook_last_reported", legacyAt)
+                .putString("register_webhook_last_url", URL).commit();
         assertFalse(context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .contains("register_webhook_last_success_at"));
         KeepADBPreferences.setWebhookLastReportedEndpoint(context, HOST + ":" + PORT);
@@ -116,6 +118,15 @@ public class KeepADBNotificationWebhookStatusTest {
         String text = bigText(postCard());
         assertTrue(text, text.contains(context.getString(
                 R.string.notification_text_webhook_synced, format(legacyAt))));
+    }
+
+    /** #893 (Codex review): a stored success time whose URL cannot be identified is not claimed. */
+    @Test
+    public void successTimeWithoutAnyKnownUrlIsNotClaimed() {
+        enableWebhook();
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putLong("register_webhook_last_success_at", 1_700_000_000_000L).commit();
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
     }
 
     @Test

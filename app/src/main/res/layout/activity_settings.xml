@@ -616,6 +616,38 @@
                 android:visibility="gone">
                 <include layout="@layout/view_webhook_form" />
 
+                <!-- #892: the local report history; Settings only, not the assistant. -->
+                <LinearLayout
+                    android:id="@+id/settings_webhook_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:minHeight="48dp"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_webhook_history_button"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_webhook_history_subtext"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
                 <!-- #866: retry series for a failed report; Settings only, not the assistant. -->
                 <TextView
                     android:layout_width="match_parent"
@@ -701,27 +733,6 @@
                         android:textColor="@color/title_yellow"
                         android:textSize="14sp" />
                 </LinearLayout>
-
-                <!-- #868: freshness wording of the webhook warning. -->
-                <Switch
-                    android:id="@+id/settings_webhook_freshness_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_webhook_freshness_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_webhook_freshness_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
 

@@ -80,7 +80,8 @@ public class KeepADBHttpTransportContractTest {
     public void everyRequestKeepsTheHttpConfigurationAndReleasesTheConnection() throws IOException {
         String code = withoutComments(read(SOURCE_DIRECTORY + ADAPTER));
 
-        assertEquals(1, count(code, "private static final int TIMEOUT_MS = 2000;"));
+        // Package-private since #893: the report-now hold is derived from it.
+        assertEquals(1, count(code, "    static final int TIMEOUT_MS = 2000;"));
         assertEquals("redirects are disabled for POST and DELETE", 2,
                 count(code, "conn.setInstanceFollowRedirects(false);"));
         assertEquals("redirects are never enabled", 0, count(code, "FollowRedirects(true"));

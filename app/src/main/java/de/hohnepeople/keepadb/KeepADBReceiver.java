@@ -4,7 +4,11 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handles explicit KeepADB broadcast actions (such as the notification disable action).
@@ -26,6 +30,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
     /** #870: the webhook alert's next check. Only re-reads the persisted failure episode. */
     static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
+    /** #893: "Report now" on the webhook alert: one user-triggered report, no polling. */
+    static final String ACTION_WEBHOOK_REPORT_NOW = "de.hohnepeople.keepadb.ACTION_WEBHOOK_REPORT_NOW";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -48,7 +54,34 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             KeepADBForceMode.restore(context);
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
+        } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {
+            // Codex review: keep the process alive until the attempt is done, also without a
+            // running foreground service.
+            PendingResult pending = goAsync();
+            handleReportNowAction(context.getApplicationContext(), () -> {
+                if (pending != null) pending.finish();
+            });
         }
+    }
+
+    /**
+     * Codex review: at most this long the broadcast stays open. Before the report's POST, every due
+     * cleanup DELETE and the DELETE at a previous URL can run, each with its connect and read
+     * timeout; the hold covers that worst case plus a margin, so the POST is dispatched while the
+     * process is still kept alive. The notification action is a background broadcast (no
+     * FLAG_RECEIVER_FOREGROUND), whose window is 60 s; the hold stays well below it.
+     */
+    static final long REPORT_NOW_MAX_HOLD_MS =
+            (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * 2L * KeepADBHttpTransport.TIMEOUT_MS
+                    + 4_000L;
+
+    static void handleReportNowAction(Context app, Runnable finishBroadcast) {
+        AtomicBoolean finished = new AtomicBoolean(false);
+        Runnable finish = () -> {
+            if (finished.compareAndSet(false, true)) finishBroadcast.run();
+        };
+        new Handler(Looper.getMainLooper()).postDelayed(finish, REPORT_NOW_MAX_HOLD_MS);
+        KeepADBRegisterClient.reportNowFromAlert(app, finish);
     }
 
     /**

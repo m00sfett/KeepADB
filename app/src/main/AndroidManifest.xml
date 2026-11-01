@@ -64,6 +64,11 @@
             android:name=".NetworkListActivity"
             android:exported="false" />
 
+        <!-- #892: the local report history, opened from the Settings and the webhook alert. -->
+        <activity
+            android:name=".ReportHistoryActivity"
+            android:exported="false" />
+
         <!-- #766: the "Trust this network?" decision, opened from the "new Wi-Fi" prompt
              notification. A dialog over the app, not in recents, and deliberately without any of
              the lock-screen flags: Android asks for the unlock before it opens, so the Wi-Fi name

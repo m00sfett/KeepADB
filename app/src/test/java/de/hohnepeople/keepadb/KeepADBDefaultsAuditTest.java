@@ -164,8 +164,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.getWebhookRetryProfile(c)),
             new Setting("register_webhook_retry_count", Kind.CONVENIENCE, 4, 1,
                     c -> KeepADBPreferences.getWebhookRetryCount(c)),
-            new Setting("register_webhook_freshness_warning", Kind.CONVENIENCE, true, false,
-                    c -> KeepADBPreferences.isWebhookFreshnessWarningEnabled(c)),
             // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
             new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
                     c -> KeepADBPreferences.isAdviceBannerVisible(c)),
@@ -180,7 +178,8 @@ public class KeepADBDefaultsAuditTest {
     private static final Set<String> RECORD_KEYS = Collections.unmodifiableSet(new TreeSet<>(Arrays.asList(
             "register_webhook_last_reported", "register_webhook_last_endpoint",
             "register_webhook_last_url", "register_webhook_last_status",
-            "register_webhook_last_success_at", "register_webhook_pending_cleanup",
+            "register_webhook_last_success_at", "register_webhook_last_success_url",
+            "register_webhook_pending_cleanup",
             "register_webhook_pending_cleanup_retry_state", "service_last_heartbeat",
             "register_webhook_failure_since", "register_webhook_alerts_shown",
             "trusted_network_next_id", "trusted_network_ids", "trusted_network_mode_initialized",
@@ -188,7 +187,7 @@ public class KeepADBDefaultsAuditTest {
             "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             "wifi_aps_feature_enabled", "blocked_network_entries",
-            "events", "location_permission_requested", "location_asked", "notification_permission_requested",
+            "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
             "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
             "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at")));

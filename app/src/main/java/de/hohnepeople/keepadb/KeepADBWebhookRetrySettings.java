@@ -7,8 +7,8 @@ import android.widget.TextView;
 /**
  * #866: the two retry selectors of the webhook card in {@link SettingsActivity} -- the delay
  * profile and the number of retries per series. A change only affects series that fail after it;
- * a scheduled retry keeps its delay. Also owns the #868 switch for the freshness wording of the
- * webhook warning, which belongs to the same report outcome.
+ * a scheduled retry keeps its delay. (#893 removed the #868 freshness switch: the warning now
+ * always names when the disruption started and when a report last got through.)
  */
 final class KeepADBWebhookRetrySettings {
     private static final String[] PROFILES = {
@@ -25,7 +25,6 @@ final class KeepADBWebhookRetrySettings {
     private final Activity activity;
     private final TextView timingText;
     private final TextView countText;
-    private final android.widget.Switch freshnessToggle;
     private AlertDialog activeDialog;
 
     KeepADBWebhookRetrySettings(Activity activity) {
@@ -36,9 +35,6 @@ final class KeepADBWebhookRetrySettings {
                 .setOnClickListener(v -> showTimingDialog());
         activity.findViewById(R.id.settings_webhook_retry_count_selector)
                 .setOnClickListener(v -> showCountDialog());
-        this.freshnessToggle = activity.findViewById(R.id.settings_webhook_freshness_toggle);
-        freshnessToggle.setOnClickListener(v -> KeepADBPreferences.setWebhookFreshnessWarningEnabled(
-                activity, freshnessToggle.isChecked()));
     }
 
     void refreshVisual() {
@@ -50,7 +46,6 @@ final class KeepADBWebhookRetrySettings {
         countText.setText(count);
         selectorRow(countText).setContentDescription(
                 activity.getString(R.string.settings_webhook_retry_count_label) + ": " + count);
-        freshnessToggle.setChecked(KeepADBPreferences.isWebhookFreshnessWarningEnabled(activity));
     }
 
     /** The selector row around a value text: it, not the text, is the focusable control. */

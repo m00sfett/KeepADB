@@ -54,7 +54,6 @@ reason for each documented here.
 | App language | `app_language` | empty (system language) | No security impact |
 | Webhook retry timing | `register_webhook_retry_profile` | standard (5, 15, 30, 60 s) | Only used while webhook sync is on and a report failed; bounded, no polling (#866). After a given-up series, one single re-attempt at most every 15 minutes while the failure lasts (#881) |
 | Webhook retries | `register_webhook_retry_count` | 4 | The hard maximum per series; fewer retries are a user choice (#866) |
-| Webhook freshness wording | `register_webhook_freshness_warning` | on | The warning then names when a report last succeeded; it never claims that the network or server is down. Off keeps the warning but only says that reports failed (#868) |
 | Home-screen advice card | `advice_banner_visible` | visible | “Do not show again” flag; display only. The flags for the other cards (`notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible`) were removed in #764 and are cleared on first start |
 
 ### Not a setting
@@ -66,6 +65,12 @@ reason for each documented here.
 `trusted_network_<id>_security` (#860) is absent until the access point of that trust entry is trusted while the phone is connected to it on Android 12 or later; it records the security tier seen then, is replaced when the access point is trusted again and removed with the entry. Bookkeeping, not a setting.
 
 `untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wireless debugging is switched on manually in KeepADB on a readable access point; they record that access point and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wireless debugging goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
+
+The webhook warning has no wording switch any more (#893): it always names when the disruption
+started and when a report last got through. A stored `register_webhook_freshness_warning` from an
+older version is ignored. The report history (#892) lives in its own app-private file
+`keepadb_report_history` (key `entries`): the last 24 hours, at most 300 entries, never the webhook
+URL. It is record data, not a setting, and is empty on a new installation.
 
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit
 confirmation in the Force dialog; it contains the duration and expiry for that decision.

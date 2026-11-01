@@ -30,7 +30,7 @@ import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNotificationManager;
 
 /**
- * #868: at most two warnings per continuous failure episode, with truthful freshness wording.
+ * #868: at most two warnings per continuous failure episode; #893: text, actions and tap target.
  * #870: the next check is an allow-while-idle alarm, and only a posted alert counts.
  */
 @RunWith(RobolectricTestRunner.class)
@@ -82,6 +82,7 @@ public class KeepADBWebhookAlertTest {
     private void clearPreferences() {
         Context ctx = ApplicationProvider.getApplicationContext();
         ctx.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
+        KeepADBReportHistory.clear(ctx);
     }
 
     /** Moves the alert clock and the main looper together and delivers a due alert alarm. */
@@ -200,38 +201,231 @@ public class KeepADBWebhookAlertTest {
         assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
     }
 
+    /** #893: the text explains state, timing and next step without claiming an outage. */
     @Test
-    public void freshnessTextNamesOnlyWhatWasObserved() {
+    public void textNamesTheDisruptionTheLastSuccessAndTheNextStep() {
         Context english = KeepADBLocaleHelper.wrapContext(context);
-        String scope = english.getString(R.string.webhook_alert_text_scope);
+        KeepADBPreferences.setWebhookFailureEpisode(context, START, 0);
 
         String never = KeepADBWebhookAlert.text(english);
-        assertTrue(never.startsWith(english.getString(R.string.webhook_alert_text_never)));
-        assertTrue(never.endsWith(scope));
+        assertTrue(never.startsWith(english.getString(R.string.webhook_alert_text_intro)));
+        assertTrue(never, never.contains("no successful report yet"));
+        assertTrue(never.contains(english.getString(R.string.webhook_alert_text_recovery)));
+        assertTrue(never.endsWith(english.getString(R.string.webhook_alert_text_vpn)));
 
         KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
                 KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
         String since = KeepADBWebhookAlert.text(english);
-        String marked = english.getString(R.string.webhook_alert_text_since, "\u0000");
-        assertTrue(since, since.startsWith(marked.substring(0, marked.indexOf('\u0000'))));
-        assertFalse(since.startsWith(english.getString(R.string.webhook_alert_text_never)));
+        assertTrue(since, since.contains("Disrupted since ") && since.contains(" · last reported "));
 
-        KeepADBPreferences.setWebhookFreshnessWarningEnabled(context, false);
-        String failed = KeepADBWebhookAlert.text(english);
-        assertTrue(failed.startsWith(english.getString(R.string.webhook_alert_text_failed)));
-        assertTrue(failed.endsWith(scope));
-
-        for (String text : new String[] {never, since, failed}) {
+        for (String text : new String[] {never, since}) {
             String lower = text.toLowerCase(Locale.ROOT);
-            assertFalse("must not claim an outage: " + text,
-                    lower.contains("is down") && !lower.contains("whether"));
+            assertFalse("must not claim an outage: " + text, lower.contains("is down"));
             assertFalse("must not claim unreachability: " + text, lower.contains("unreachable"));
+            assertFalse("must name no endpoint: " + text, text.contains(HOST));
         }
     }
 
+    /** Codex review: a success at a previous webhook URL is not claimed for the new one. */
     @Test
-    public void freshnessWarningDefaultsToOn() {
-        assertTrue(KeepADBPreferences.isWebhookFreshnessWarningEnabled(context));
+    public void aUrlChangeDropsTheLastSuccessOfThePreviousDestination() {
+        Context english = KeepADBLocaleHelper.wrapContext(context);
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        assertTrue("the same URL keeps its success",
+                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
+        KeepADBPreferences.setWebhookFailureEpisode(context, START, 0);
+
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertTrue(KeepADBWebhookAlert.text(english).contains("no successful report yet"));
+    }
+
+    /** Codex review: a late success from the previous URL is not the new URL's success. */
+    @Test
+    public void aLateSuccessFromThePreviousUrlIsNotClaimedForTheNewOne() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        assertTrue("back at the URL that accepted it, the success counts again",
+                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+    }
+
+    /** Codex review: the retry number is the one sent, even if a new series starts meanwhile. */
+    @Test
+    public void aRetryKeepsItsNumberWhenANewSeriesStartsWhileItIsInFlight() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+        java.util.concurrent.atomic.AtomicBoolean started =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        transport.setRequestCallback(request -> {
+            if (transport.recordedRequests.size() > before && started.compareAndSet(false, true)) {
+                KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":42000");
+                KeepADBRegisterClient.updateEndpointAsync(context, HOST, 42000);
+            }
+        });
+
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertTrue("precondition: the retry went out", started.get());
+        boolean retryRecorded = false;
+        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
+            if (entry.event == KeepADBReportHistory.Event.REPORT && entry.retry == 1) {
+                retryRecorded = true;
+            }
+        }
+        assertTrue("the in-flight retry keeps its number in the history", retryRecorded);
+    }
+
+    /** Codex review: the retry budget recorded is the one in effect when the request was sent. */
+    @Test
+    public void aRetryKeepsItsBudgetWhenTheSettingChangesWhileItIsInFlight() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+        transport.setRequestCallback(request -> {
+            if (transport.recordedRequests.size() > before) {
+                KeepADBPreferences.setWebhookRetryCount(context, 2);
+            }
+        });
+
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        KeepADBReportHistory.Entry retry = null;
+        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
+            if (entry.event == KeepADBReportHistory.Event.REPORT && entry.retry == 1) retry = entry;
+        }
+        assertNotNull("precondition: the first retry was recorded", retry);
+        assertEquals("sent as retry 1 of 4", 4, retry.maxRetries);
+    }
+
+    /** #893: system time, two actions, a tap that keeps the alert and opens the history. */
+    @Test
+    public void alertShowsItsTimeKeepsOnTapAndOffersBothActions() {
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        Notification posted = alert();
+        assertNotNull(posted);
+        assertTrue("the arrival time is shown", posted.extras.getBoolean(Notification.EXTRA_SHOW_WHEN));
+        assertEquals("a tap must not dismiss a problem that is still there", 0,
+                posted.flags & Notification.FLAG_AUTO_CANCEL);
+        assertEquals(2, posted.actions.length);
+        Intent tap = Shadows.shadowOf(posted.contentIntent).getSavedIntent();
+        assertEquals(ReportHistoryActivity.class.getName(), tap.getComponent().getClassName());
+        Intent tips = Shadows.shadowOf(posted.actions[0].actionIntent).getSavedIntent();
+        assertTrue(tips.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK_VPN_HINT, false));
+        Intent reportNow = Shadows.shadowOf(posted.actions[1].actionIntent).getSavedIntent();
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, reportNow.getAction());
+    }
+
+    /**
+     * #893 (Codex review): the hold outlasts every request that can run before the report's POST
+     * (all due cleanups plus the DELETE at a previous URL), and stays inside the 60 s window of
+     * the background broadcast the notification action sends.
+     */
+    @Test
+    public void reportNowHoldCoversTheRequestsBeforeThePostWithinTheBroadcastWindow() {
+        long perRequest = 2L * KeepADBHttpTransport.TIMEOUT_MS;
+        long beforeAndIncludingPost = (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * perRequest;
+        assertTrue("the POST is dispatched before the broadcast is released",
+                KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS > beforeAndIncludingPost);
+        assertTrue("and the hold stays well inside the background window",
+                KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS <= 30_000L);
+
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        Intent reportNow = Shadows.shadowOf(alert().actions[1].actionIntent).getSavedIntent();
+        assertEquals("a background broadcast, not one with the 10 s foreground window", 0,
+                reportNow.getFlags() & Intent.FLAG_RECEIVER_FOREGROUND);
+    }
+
+    /** #893 (Codex review): a retry waiting for its timer is sent at once, not joined. */
+    @Test
+    public void reportNowSendsAScheduledRetryImmediately() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+
+        new KeepADBReceiver().onReceive(context, new Intent(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("the pending retry goes out without waiting for its delay", before + 1,
+                transport.recordedRequests.size());
+    }
+
+    /** #893 (Codex review): a debounced resync waiting next to the retry adds no second POST. */
+    @Test
+    public void reportNowDropsAWaitingDebouncedResync() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        KeepADBRegisterClient.requestResyncAsync(context);
+        int before = transport.recordedRequests.size();
+        transport.setPostSuccess(true);
+
+        new KeepADBReceiver().onReceive(context, new Intent(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("one tap, one request", before + 1, transport.recordedRequests.size());
+    }
+
+    /** #893: "Report now" sends one report, and its success clears the alert. */
+    @Test
+    public void reportNowSendsOneReportAndItsSuccessClearsTheAlert() {
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        assertNotNull(alert());
+        int before = transport.recordedRequests.size();
+        transport.setPostSuccess(true);
+
+        new KeepADBReceiver().onReceive(context, new Intent(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("exactly one request", before + 1, transport.recordedRequests.size());
+        assertNull("success removes the warning", alert());
+    }
+
+    /** Codex review: a slow report never holds the broadcast past its window, and finishes once. */
+    @Test
+    public void reportNowReleasesTheBroadcastAfterTheHoldLimitAndOnlyOnce() throws Exception {
+        failReport();
+        transport.setPostSuccess(true);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        transport.setRequestCallback(request -> {
+            try {
+                release.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        java.util.concurrent.atomic.AtomicInteger finishes =
+                new java.util.concurrent.atomic.AtomicInteger();
+
+        KeepADBReceiver.handleReportNowAction(context, finishes::incrementAndGet);
+        ShadowLooper.idleMainLooper();
+        assertEquals("still waiting for the report", 0, finishes.get());
+        ShadowLooper.idleMainLooper(KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS, TimeUnit.MILLISECONDS);
+        assertEquals("released by the hold limit", 1, finishes.get());
+
+        release.countDown();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        assertEquals("the late completion does not finish twice", 1, finishes.get());
     }
 
     @Test

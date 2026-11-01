@@ -15,10 +15,11 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
     /** #734: epoch-millis of the last SUCCESSFUL report only; never touched by failures or deregistration. */
     private static final String KEY_WEBHOOK_LAST_SUCCESS_AT = "register_webhook_last_success_at";
+    /** #893 (Codex review): the URL that accepted the success at {@link #KEY_WEBHOOK_LAST_SUCCESS_AT}. */
+    private static final String KEY_WEBHOOK_LAST_SUCCESS_URL = "register_webhook_last_success_url";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
     private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
     private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
-    private static final String KEY_WEBHOOK_FRESHNESS_WARNING = "register_webhook_freshness_warning";
     /** #864: opt-in policy that turns Wireless Debugging off on an untrusted Wi-Fi; default off. */
     private static final String KEY_UNTRUSTED_SHUTDOWN = "untrusted_shutdown_enabled";
     /** #864: the Wi-Fi identity a manual enable was made on ("" when unreadable), or absent. */
@@ -215,6 +216,15 @@ final class KeepADBPreferences {
      */
     static long getWebhookLastSuccessAt(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        // #893 (Codex review): a success belongs to the URL that accepted it, so a replaced
+        // destination, a late answer from the previous one or an older version's leftover does
+        // not show up as a success for the current URL. Older records name their URL only in the
+        // last report snapshot; a time whose URL is not known at all is not claimed either.
+        String owner = prefs.getString(KEY_WEBHOOK_LAST_SUCCESS_URL,
+                prefs.getString(KEY_WEBHOOK_LAST_URL, null));
+        if (owner == null || !owner.trim().equals(prefs.getString(KEY_REGISTER_URL, ""))) {
+            return 0L;
+        }
         if (prefs.contains(KEY_WEBHOOK_LAST_SUCCESS_AT)) {
             return prefs.getLong(KEY_WEBHOOK_LAST_SUCCESS_AT, 0L);
         }
@@ -336,6 +346,11 @@ final class KeepADBPreferences {
             editor.putLong(KEY_WEBHOOK_LAST_REPORTED, now);
             if (WEBHOOK_STATUS_SUCCESS.equals(status)) {
                 editor.putLong(KEY_WEBHOOK_LAST_SUCCESS_AT, now);
+                if (sanitizedUrl == null) {
+                    editor.remove(KEY_WEBHOOK_LAST_SUCCESS_URL);
+                } else {
+                    editor.putString(KEY_WEBHOOK_LAST_SUCCESS_URL, sanitizedUrl.trim());
+                }
             }
         }
         editor.apply();
@@ -391,17 +406,6 @@ final class KeepADBPreferences {
     }
 
     // ---- #868: warnings for a continuous period without a successful report. ----
-
-    /** Whether the warning names the age of the last successful report; on by default. */
-    static boolean isWebhookFreshnessWarningEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_WEBHOOK_FRESHNESS_WARNING, true);
-    }
-
-    static void setWebhookFreshnessWarningEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(KEY_WEBHOOK_FRESHNESS_WARNING, enabled).apply();
-    }
 
     /** #864: whether Wireless Debugging is turned off on an untrusted Wi-Fi; off by default. */
     static boolean isUntrustedShutdownEnabled(Context context) {

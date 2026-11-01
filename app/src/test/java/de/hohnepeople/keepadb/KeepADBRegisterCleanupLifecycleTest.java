@@ -1291,6 +1291,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
     private static final class FakeContext extends android.content.ContextWrapper {
         private final CountingPreferences preferences = new CountingPreferences();
+        // #892: the report history has its own file; its writes are not snapshot transactions.
+        private final CountingPreferences otherFiles = new CountingPreferences();
 
         FakeContext() {
             super(null);
@@ -1303,7 +1305,7 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         @Override
         public android.content.SharedPreferences getSharedPreferences(String name, int mode) {
-            return preferences;
+            return "keepadb_report_history".equals(name) ? otherFiles : preferences;
         }
     }
 
