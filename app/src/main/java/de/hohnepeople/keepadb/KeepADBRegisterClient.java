@@ -707,7 +707,7 @@ final class KeepADBRegisterClient {
         boolean failingBefore = isReportFailing(context);
         lastTransportOutcome = "unknown";
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        recordReportOutcome(context, "post", posted, failingBefore, opGen);
+        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen);
         if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
@@ -785,9 +785,14 @@ final class KeepADBRegisterClient {
         }
 
         boolean failingBefore = isReportFailing(context);
+        String endpointToDelete;
+        synchronized (KeepADBRegisterClient.class) {
+            endpointToDelete = lastRegisteredEndpoint;
+        }
         lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
-        recordReportOutcome(context, "delete", cleanupCompleted, failingBefore, opGen);
+        recordReportOutcome(context, "delete", endpointToDelete, cleanupCompleted, failingBefore,
+                opGen);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -1113,19 +1118,31 @@ final class KeepADBRegisterClient {
     /**
      * #881: a diagnostics event for every failed primary report and for the success that ends a
      * failure episode, so an episode can be explained afterwards (timeout, refused, unknown host,
-     * HTTP status). Routine successes add nothing, which keeps a successful report one
-     * preference write (#317). No URL and no endpoint.
+     * HTTP status). Routine successes add no diagnostics event, and the event carries no URL and
+     * no endpoint. #892: every attempt also goes into the separate, app-private report history,
+     * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
      */
-    private static void recordReportOutcome(Context context, String method, boolean ok,
-            boolean failingBefore, long opGen) {
-        if (ok && !failingBefore) return;
+    private static void recordReportOutcome(Context context, String method, String endpoint,
+            boolean ok, boolean failingBefore, long opGen) {
         int retry;
+        boolean superseded;
         synchronized (KeepADBRegisterClient.class) {
-            // A success of a superseded transaction ends nothing: the newer operation owns the
-            // report status (Codex review).
-            if (ok && opGen != currentOpGeneration) return;
             retry = "delete".equals(method) ? markUnavailableRetryAttempts : postRetryNumber;
+            superseded = opGen != currentOpGeneration;
         }
+        // #892: every attempt goes into the local history, routine successes included; the
+        // endpoint is kept for that local view, the URL never.
+        String outcome = lastTransportOutcome;
+        if ("delete".equals(method)) {
+            KeepADBReportHistory.unregister(context, endpoint, ok, outcome, retry);
+        } else {
+            KeepADBReportHistory.report(context, endpoint, ok, outcome, retry,
+                    KeepADBPreferences.getWebhookRetryCount(context));
+        }
+        if (ok && !failingBefore) return;
+        // A success of a superseded transaction ends nothing: the newer operation owns the
+        // report status (Codex review).
+        if (ok && superseded) return;
         KeepADBDiagnostics.event(context, "register_report", "webhook", ok ? "success" : "failed",
                 "method=" + method + " " + lastTransportOutcome + " retry=" + retry);
     }

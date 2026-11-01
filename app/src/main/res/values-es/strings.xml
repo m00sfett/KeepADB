@@ -601,4 +601,23 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="settings_webhook_vpn_battery_button">Ajustes de batería</string>
     <string name="settings_webhook_vpn_settings_button">Ajustes de VPN</string>
     <string name="onboarding_perm_battery_vpn_note">Si tu webhook pasa por una app de VPN, excluye también esa app de la optimización de batería.</string>
+    <string name="report_history_title">Historial de avisos</string>
+    <string name="report_history_notice">Contiene las direcciones IP y los puertos completos de tus conexiones. Ten cuidado al compartir capturas de pantalla. El historial abarca las últimas 24 horas y se queda en este dispositivo.</string>
+    <string name="report_history_empty">Ningún aviso ni cambio de punto final en las últimas 24 horas.</string>
+    <string name="report_history_clear">Borrar historial</string>
+    <string name="report_history_cleared_toast">Historial borrado</string>
+    <string name="report_history_event_endpoint_found">Punto final encontrado</string>
+    <string name="report_history_event_endpoint_lost">Punto final ya no disponible</string>
+    <string name="report_history_event_report_ok">Avisado al webhook</string>
+    <string name="report_history_event_report_failed">Aviso fallido</string>
+    <string name="report_history_event_unregister_ok">Baja en el webhook realizada</string>
+    <string name="report_history_event_unregister_failed">Baja fallida</string>
+    <string name="report_history_retry">Reintento %1$d de %2$d</string>
+    <string name="report_history_retry_open">Reintento %1$d</string>
+    <string name="report_history_outcome_timeout">tiempo agotado</string>
+    <string name="report_history_outcome_refused">conexión rechazada</string>
+    <string name="report_history_outcome_unknown_host">host no encontrado</string>
+    <string name="report_history_outcome_error">fallo: %1$s</string>
+    <string name="settings_webhook_history_button">Historial de avisos</string>
+    <string name="settings_webhook_history_subtext">Lo que KeepADB avisó en las últimas 24 horas, con puntos finales y resultados. Se queda en este dispositivo.</string>
 </resources>

@@ -518,6 +518,7 @@ final class KeepADBEndpointCoordinator {
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
                         "host=" + host + " port=" + port);
+                KeepADBReportHistory.endpointFound(appContext, KeepADBEndpoint.formatEndpoint(host, port));
                 postSurfaceRefresh(appContext);
             }
 
@@ -551,6 +552,7 @@ final class KeepADBEndpointCoordinator {
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
                         "no_live_endpoint");
+                KeepADBReportHistory.endpointLost(appContext);
                 postSurfaceRefresh(appContext);
             }
         }, activeDiscoveryOwner == GLOBAL_DISCOVERY_OWNER);

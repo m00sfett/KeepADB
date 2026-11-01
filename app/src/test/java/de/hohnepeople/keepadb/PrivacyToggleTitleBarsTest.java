@@ -118,7 +118,7 @@ public class PrivacyToggleTitleBarsTest {
                 }
             }
         }
-        assertEquals("settings, network list", 2, redBars);
+        assertEquals("settings, network list, report history", 3, redBars);
         assertTrue(new File(layouts.toFile(), "view_privacy_toggle.xml").isFile());
     }
 

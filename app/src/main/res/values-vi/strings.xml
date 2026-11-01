@@ -599,4 +599,23 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_webhook_vpn_battery_button">Cài đặt pin</string>
     <string name="settings_webhook_vpn_settings_button">Cài đặt VPN</string>
     <string name="onboarding_perm_battery_vpn_note">Nếu webhook chạy qua một ứng dụng VPN, hãy loại cả ứng dụng đó khỏi tối ưu hóa pin.</string>
+    <string name="report_history_title">Lịch sử báo cáo</string>
+    <string name="report_history_notice">Chứa đầy đủ địa chỉ IP và cổng của các kết nối. Hãy cẩn thận khi chia sẻ ảnh chụp màn hình. Lịch sử gồm 24 giờ gần nhất và chỉ lưu trên thiết bị này.</string>
+    <string name="report_history_empty">Không có báo cáo hay thay đổi điểm cuối nào trong 24 giờ qua.</string>
+    <string name="report_history_clear">Xóa lịch sử</string>
+    <string name="report_history_cleared_toast">Đã xóa lịch sử</string>
+    <string name="report_history_event_endpoint_found">Đã tìm thấy điểm cuối</string>
+    <string name="report_history_event_endpoint_lost">Điểm cuối không còn khả dụng</string>
+    <string name="report_history_event_report_ok">Đã báo cáo tới webhook</string>
+    <string name="report_history_event_report_failed">Báo cáo thất bại</string>
+    <string name="report_history_event_unregister_ok">Đã hủy đăng ký khỏi webhook</string>
+    <string name="report_history_event_unregister_failed">Hủy đăng ký thất bại</string>
+    <string name="report_history_retry">Thử lại %1$d/%2$d</string>
+    <string name="report_history_retry_open">Thử lại %1$d</string>
+    <string name="report_history_outcome_timeout">hết thời gian chờ</string>
+    <string name="report_history_outcome_refused">kết nối bị từ chối</string>
+    <string name="report_history_outcome_unknown_host">không tìm thấy máy chủ</string>
+    <string name="report_history_outcome_error">lỗi: %1$s</string>
+    <string name="settings_webhook_history_button">Lịch sử báo cáo</string>
+    <string name="settings_webhook_history_subtext">Những gì KeepADB đã báo cáo trong 24 giờ qua, kèm điểm cuối và kết quả. Chỉ lưu trên thiết bị này.</string>
 </resources>

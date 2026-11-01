@@ -599,4 +599,23 @@
     <string name="settings_webhook_vpn_battery_button">バッテリー設定</string>
     <string name="settings_webhook_vpn_settings_button">VPN 設定</string>
     <string name="onboarding_perm_battery_vpn_note">Webhook が VPN アプリを経由している場合は、そのアプリもバッテリーの最適化から除外してください。</string>
+    <string name="report_history_title">報告履歴</string>
+    <string name="report_history_notice">接続の完全な IP アドレスとポートが含まれます。スクリーンショットを共有するときは注意してください。履歴は直近 24 時間分で、この端末内にのみ保存されます。</string>
+    <string name="report_history_empty">直近 24 時間に報告やエンドポイントの変更はありません。</string>
+    <string name="report_history_clear">履歴を消去</string>
+    <string name="report_history_cleared_toast">履歴を消去しました</string>
+    <string name="report_history_event_endpoint_found">エンドポイントを検出</string>
+    <string name="report_history_event_endpoint_lost">エンドポイントが利用できなくなりました</string>
+    <string name="report_history_event_report_ok">Webhook に報告しました</string>
+    <string name="report_history_event_report_failed">報告に失敗しました</string>
+    <string name="report_history_event_unregister_ok">Webhook から登録解除しました</string>
+    <string name="report_history_event_unregister_failed">登録解除に失敗しました</string>
+    <string name="report_history_retry">再試行 %1$d / %2$d</string>
+    <string name="report_history_retry_open">再試行 %1$d</string>
+    <string name="report_history_outcome_timeout">タイムアウト</string>
+    <string name="report_history_outcome_refused">接続を拒否されました</string>
+    <string name="report_history_outcome_unknown_host">ホストが見つかりません</string>
+    <string name="report_history_outcome_error">エラー: %1$s</string>
+    <string name="settings_webhook_history_button">報告履歴</string>
+    <string name="settings_webhook_history_subtext">KeepADB が直近 24 時間に報告した内容(エンドポイントと結果)。この端末内にのみ保存されます。</string>
 </resources>

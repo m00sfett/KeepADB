@@ -599,4 +599,23 @@
     <string name="settings_webhook_vpn_battery_button">電池設定</string>
     <string name="settings_webhook_vpn_settings_button">VPN 設定</string>
     <string name="onboarding_perm_battery_vpn_note">如果你的 Webhook 經由 VPN 應用程式傳送,請一併將該應用程式排除在電池最佳化之外。</string>
+    <string name="report_history_title">回報紀錄</string>
+    <string name="report_history_notice">包含你的連線的完整 IP 位址與連接埠。分享螢幕截圖時請注意。紀錄涵蓋最近 24 小時,只保存在此裝置上。</string>
+    <string name="report_history_empty">最近 24 小時內沒有回報或端點變更。</string>
+    <string name="report_history_clear">清除紀錄</string>
+    <string name="report_history_cleared_toast">紀錄已清除</string>
+    <string name="report_history_event_endpoint_found">已找到端點</string>
+    <string name="report_history_event_endpoint_lost">端點已無法使用</string>
+    <string name="report_history_event_report_ok">已回報給 Webhook</string>
+    <string name="report_history_event_report_failed">回報失敗</string>
+    <string name="report_history_event_unregister_ok">已從 Webhook 取消登記</string>
+    <string name="report_history_event_unregister_failed">取消登記失敗</string>
+    <string name="report_history_retry">第 %1$d 次重試(共 %2$d 次)</string>
+    <string name="report_history_retry_open">第 %1$d 次重試</string>
+    <string name="report_history_outcome_timeout">逾時</string>
+    <string name="report_history_outcome_refused">連線遭拒</string>
+    <string name="report_history_outcome_unknown_host">找不到主機</string>
+    <string name="report_history_outcome_error">錯誤:%1$s</string>
+    <string name="settings_webhook_history_button">回報紀錄</string>
+    <string name="settings_webhook_history_subtext">KeepADB 最近 24 小時回報的內容,包括端點與結果。只保存在此裝置上。</string>
 </resources>

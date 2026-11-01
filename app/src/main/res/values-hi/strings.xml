@@ -600,4 +600,23 @@
     <string name="settings_webhook_vpn_battery_button">बैटरी सेटिंग</string>
     <string name="settings_webhook_vpn_settings_button">VPN सेटिंग</string>
     <string name="onboarding_perm_battery_vpn_note">अगर आपका webhook किसी VPN ऐप से होकर चलता है, तो उस ऐप को भी बैटरी ऑप्टिमाइज़ेशन से बाहर रखें।</string>
+    <string name="report_history_title">रिपोर्ट इतिहास</string>
+    <string name="report_history_notice">इसमें आपके कनेक्शन के पूरे IP पते और पोर्ट हैं। स्क्रीनशॉट शेयर करते समय सावधान रहें। इतिहास पिछले 24 घंटों का है और इसी डिवाइस पर रहता है।</string>
+    <string name="report_history_empty">पिछले 24 घंटों में कोई रिपोर्ट या एंडपॉइंट बदलाव नहीं।</string>
+    <string name="report_history_clear">इतिहास मिटाएँ</string>
+    <string name="report_history_cleared_toast">इतिहास मिटा दिया गया</string>
+    <string name="report_history_event_endpoint_found">एंडपॉइंट मिला</string>
+    <string name="report_history_event_endpoint_lost">एंडपॉइंट अब उपलब्ध नहीं</string>
+    <string name="report_history_event_report_ok">webhook को रिपोर्ट किया</string>
+    <string name="report_history_event_report_failed">रिपोर्ट विफल</string>
+    <string name="report_history_event_unregister_ok">webhook से पंजीकरण हटाया</string>
+    <string name="report_history_event_unregister_failed">पंजीकरण हटाना विफल</string>
+    <string name="report_history_retry">दोबारा प्रयास %1$d / %2$d</string>
+    <string name="report_history_retry_open">दोबारा प्रयास %1$d</string>
+    <string name="report_history_outcome_timeout">समय समाप्त</string>
+    <string name="report_history_outcome_refused">कनेक्शन अस्वीकार</string>
+    <string name="report_history_outcome_unknown_host">होस्ट नहीं मिला</string>
+    <string name="report_history_outcome_error">त्रुटि: %1$s</string>
+    <string name="settings_webhook_history_button">रिपोर्ट इतिहास</string>
+    <string name="settings_webhook_history_subtext">KeepADB ने पिछले 24 घंटों में क्या रिपोर्ट किया, एंडपॉइंट और नतीजों के साथ। इसी डिवाइस पर रहता है।</string>
 </resources>

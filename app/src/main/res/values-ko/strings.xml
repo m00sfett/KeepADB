@@ -599,4 +599,23 @@
     <string name="settings_webhook_vpn_battery_button">배터리 설정</string>
     <string name="settings_webhook_vpn_settings_button">VPN 설정</string>
     <string name="onboarding_perm_battery_vpn_note">Webhook이 VPN 앱을 거친다면 그 앱도 배터리 최적화에서 제외하세요.</string>
+    <string name="report_history_title">보고 기록</string>
+    <string name="report_history_notice">연결의 전체 IP 주소와 포트가 포함되어 있습니다. 스크린샷을 공유할 때 주의하세요. 기록은 최근 24시간 분량이며 이 기기에만 저장됩니다.</string>
+    <string name="report_history_empty">최근 24시간 동안 보고나 엔드포인트 변경이 없습니다.</string>
+    <string name="report_history_clear">기록 지우기</string>
+    <string name="report_history_cleared_toast">기록을 지웠습니다</string>
+    <string name="report_history_event_endpoint_found">엔드포인트 발견</string>
+    <string name="report_history_event_endpoint_lost">엔드포인트를 더 이상 사용할 수 없음</string>
+    <string name="report_history_event_report_ok">Webhook에 보고함</string>
+    <string name="report_history_event_report_failed">보고 실패</string>
+    <string name="report_history_event_unregister_ok">Webhook에서 등록 해제함</string>
+    <string name="report_history_event_unregister_failed">등록 해제 실패</string>
+    <string name="report_history_retry">재시도 %1$d/%2$d</string>
+    <string name="report_history_retry_open">재시도 %1$d</string>
+    <string name="report_history_outcome_timeout">시간 초과</string>
+    <string name="report_history_outcome_refused">연결 거부됨</string>
+    <string name="report_history_outcome_unknown_host">호스트를 찾을 수 없음</string>
+    <string name="report_history_outcome_error">오류: %1$s</string>
+    <string name="settings_webhook_history_button">보고 기록</string>
+    <string name="settings_webhook_history_subtext">KeepADB가 최근 24시간 동안 보고한 내용과 엔드포인트, 결과입니다. 이 기기에만 저장됩니다.</string>
 </resources>

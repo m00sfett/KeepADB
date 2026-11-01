@@ -601,4 +601,23 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_webhook_vpn_battery_button">Réglages batterie</string>
     <string name="settings_webhook_vpn_settings_button">Réglages VPN</string>
     <string name="onboarding_perm_battery_vpn_note">Si votre webhook passe par une app VPN, excluez aussi cette app de l\'optimisation de la batterie.</string>
+    <string name="report_history_title">Historique des signalements</string>
+    <string name="report_history_notice">Contient les adresses IP et ports complets de vos connexions. Attention en partageant des captures d\'écran. L\'historique couvre les dernières 24 heures et reste sur cet appareil.</string>
+    <string name="report_history_empty">Aucun signalement ni changement de point de terminaison au cours des dernières 24 heures.</string>
+    <string name="report_history_clear">Effacer l\'historique</string>
+    <string name="report_history_cleared_toast">Historique effacé</string>
+    <string name="report_history_event_endpoint_found">Point de terminaison trouvé</string>
+    <string name="report_history_event_endpoint_lost">Point de terminaison plus disponible</string>
+    <string name="report_history_event_report_ok">Signalé au webhook</string>
+    <string name="report_history_event_report_failed">Échec du signalement</string>
+    <string name="report_history_event_unregister_ok">Désinscrit du webhook</string>
+    <string name="report_history_event_unregister_failed">Échec de la désinscription</string>
+    <string name="report_history_retry">Nouvel essai %1$d sur %2$d</string>
+    <string name="report_history_retry_open">Nouvel essai %1$d</string>
+    <string name="report_history_outcome_timeout">délai dépassé</string>
+    <string name="report_history_outcome_refused">connexion refusée</string>
+    <string name="report_history_outcome_unknown_host">hôte introuvable</string>
+    <string name="report_history_outcome_error">erreur : %1$s</string>
+    <string name="settings_webhook_history_button">Historique des signalements</string>
+    <string name="settings_webhook_history_subtext">Ce que KeepADB a signalé au cours des dernières 24 heures, avec points de terminaison et résultats. Reste sur cet appareil.</string>
 </resources>

@@ -599,4 +599,23 @@
     <string name="settings_webhook_vpn_battery_button">电池设置</string>
     <string name="settings_webhook_vpn_settings_button">VPN 设置</string>
     <string name="onboarding_perm_battery_vpn_note">如果你的 Webhook 通过 VPN 应用传输,请同时将该应用排除在电池优化之外。</string>
+    <string name="report_history_title">报告记录</string>
+    <string name="report_history_notice">包含你的连接的完整 IP 地址和端口。分享截图时请注意。记录涵盖最近 24 小时,仅保存在此设备上。</string>
+    <string name="report_history_empty">最近 24 小时内没有报告或端点变更。</string>
+    <string name="report_history_clear">清除记录</string>
+    <string name="report_history_cleared_toast">记录已清除</string>
+    <string name="report_history_event_endpoint_found">已找到端点</string>
+    <string name="report_history_event_endpoint_lost">端点已不可用</string>
+    <string name="report_history_event_report_ok">已报告给 Webhook</string>
+    <string name="report_history_event_report_failed">报告失败</string>
+    <string name="report_history_event_unregister_ok">已从 Webhook 注销</string>
+    <string name="report_history_event_unregister_failed">注销失败</string>
+    <string name="report_history_retry">第 %1$d 次重试(共 %2$d 次)</string>
+    <string name="report_history_retry_open">第 %1$d 次重试</string>
+    <string name="report_history_outcome_timeout">超时</string>
+    <string name="report_history_outcome_refused">连接被拒绝</string>
+    <string name="report_history_outcome_unknown_host">找不到主机</string>
+    <string name="report_history_outcome_error">错误:%1$s</string>
+    <string name="settings_webhook_history_button">报告记录</string>
+    <string name="settings_webhook_history_subtext">KeepADB 最近 24 小时报告的内容,包括端点和结果。仅保存在此设备上。</string>
 </resources>

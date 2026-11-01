@@ -601,4 +601,23 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_webhook_vpn_battery_button">Impostazioni batteria</string>
     <string name="settings_webhook_vpn_settings_button">Impostazioni VPN</string>
     <string name="onboarding_perm_battery_vpn_note">Se il tuo webhook passa da un\'app VPN, escludi anche quell\'app dall\'ottimizzazione della batteria.</string>
+    <string name="report_history_title">Cronologia segnalazioni</string>
+    <string name="report_history_notice">Contiene indirizzi IP e porte completi delle tue connessioni. Attenzione quando condividi screenshot. La cronologia copre le ultime 24 ore e resta su questo dispositivo.</string>
+    <string name="report_history_empty">Nessuna segnalazione o cambio di endpoint nelle ultime 24 ore.</string>
+    <string name="report_history_clear">Cancella cronologia</string>
+    <string name="report_history_cleared_toast">Cronologia cancellata</string>
+    <string name="report_history_event_endpoint_found">Endpoint trovato</string>
+    <string name="report_history_event_endpoint_lost">Endpoint non più disponibile</string>
+    <string name="report_history_event_report_ok">Segnalato al webhook</string>
+    <string name="report_history_event_report_failed">Segnalazione non riuscita</string>
+    <string name="report_history_event_unregister_ok">Rimosso dal webhook</string>
+    <string name="report_history_event_unregister_failed">Rimozione non riuscita</string>
+    <string name="report_history_retry">Tentativo %1$d di %2$d</string>
+    <string name="report_history_retry_open">Tentativo %1$d</string>
+    <string name="report_history_outcome_timeout">tempo scaduto</string>
+    <string name="report_history_outcome_refused">connessione rifiutata</string>
+    <string name="report_history_outcome_unknown_host">host non trovato</string>
+    <string name="report_history_outcome_error">errore: %1$s</string>
+    <string name="settings_webhook_history_button">Cronologia segnalazioni</string>
+    <string name="settings_webhook_history_subtext">Cosa ha segnalato KeepADB nelle ultime 24 ore, con endpoint e risultati. Resta su questo dispositivo.</string>
 </resources>

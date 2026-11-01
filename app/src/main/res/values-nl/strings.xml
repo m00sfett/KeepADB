@@ -600,4 +600,23 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_webhook_vpn_battery_button">Batterij-instellingen</string>
     <string name="settings_webhook_vpn_settings_button">VPN-instellingen</string>
     <string name="onboarding_perm_battery_vpn_note">Loopt je webhook via een VPN-app, zonder die app dan ook uit van batterijoptimalisatie.</string>
+    <string name="report_history_title">Meldingsgeschiedenis</string>
+    <string name="report_history_notice">Bevat volledige IP-adressen en poorten van je verbindingen. Let op bij het delen van screenshots. De geschiedenis beslaat de laatste 24 uur en blijft op dit apparaat.</string>
+    <string name="report_history_empty">Geen meldingen of eindpuntwijzigingen in de laatste 24 uur.</string>
+    <string name="report_history_clear">Geschiedenis wissen</string>
+    <string name="report_history_cleared_toast">Geschiedenis gewist</string>
+    <string name="report_history_event_endpoint_found">Eindpunt gevonden</string>
+    <string name="report_history_event_endpoint_lost">Eindpunt niet meer beschikbaar</string>
+    <string name="report_history_event_report_ok">Gemeld aan webhook</string>
+    <string name="report_history_event_report_failed">Melding mislukt</string>
+    <string name="report_history_event_unregister_ok">Afgemeld bij webhook</string>
+    <string name="report_history_event_unregister_failed">Afmelden mislukt</string>
+    <string name="report_history_retry">Nieuwe poging %1$d van %2$d</string>
+    <string name="report_history_retry_open">Nieuwe poging %1$d</string>
+    <string name="report_history_outcome_timeout">time-out</string>
+    <string name="report_history_outcome_refused">verbinding geweigerd</string>
+    <string name="report_history_outcome_unknown_host">host niet gevonden</string>
+    <string name="report_history_outcome_error">fout: %1$s</string>
+    <string name="settings_webhook_history_button">Meldingsgeschiedenis</string>
+    <string name="settings_webhook_history_subtext">Wat KeepADB de laatste 24 uur heeft gemeld, met eindpunten en resultaten. Blijft op dit apparaat.</string>
 </resources>

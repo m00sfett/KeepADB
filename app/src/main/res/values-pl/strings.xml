@@ -602,4 +602,23 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_webhook_vpn_battery_button">Ustawienia baterii</string>
     <string name="settings_webhook_vpn_settings_button">Ustawienia VPN</string>
     <string name="onboarding_perm_battery_vpn_note">Jeśli webhook działa przez aplikację VPN, wyłącz również dla niej optymalizację baterii.</string>
+    <string name="report_history_title">Historia zgłoszeń</string>
+    <string name="report_history_notice">Zawiera pełne adresy IP i porty Twoich połączeń. Uważaj, udostępniając zrzuty ekranu. Historia obejmuje ostatnie 24 godziny i pozostaje na tym urządzeniu.</string>
+    <string name="report_history_empty">Brak zgłoszeń i zmian punktu końcowego w ciągu ostatnich 24 godzin.</string>
+    <string name="report_history_clear">Wyczyść historię</string>
+    <string name="report_history_cleared_toast">Historia wyczyszczona</string>
+    <string name="report_history_event_endpoint_found">Znaleziono punkt końcowy</string>
+    <string name="report_history_event_endpoint_lost">Punkt końcowy niedostępny</string>
+    <string name="report_history_event_report_ok">Zgłoszono do webhooka</string>
+    <string name="report_history_event_report_failed">Zgłoszenie nieudane</string>
+    <string name="report_history_event_unregister_ok">Wyrejestrowano z webhooka</string>
+    <string name="report_history_event_unregister_failed">Wyrejestrowanie nieudane</string>
+    <string name="report_history_retry">Ponowienie %1$d z %2$d</string>
+    <string name="report_history_retry_open">Ponowienie %1$d</string>
+    <string name="report_history_outcome_timeout">przekroczono limit czasu</string>
+    <string name="report_history_outcome_refused">połączenie odrzucone</string>
+    <string name="report_history_outcome_unknown_host">nie znaleziono hosta</string>
+    <string name="report_history_outcome_error">błąd: %1$s</string>
+    <string name="settings_webhook_history_button">Historia zgłoszeń</string>
+    <string name="settings_webhook_history_subtext">Co KeepADB zgłosił w ciągu ostatnich 24 godzin, z punktami końcowymi i wynikami. Pozostaje na tym urządzeniu.</string>
 </resources>

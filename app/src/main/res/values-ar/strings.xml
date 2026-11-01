@@ -604,4 +604,23 @@
     <string name="settings_webhook_vpn_battery_button">إعدادات البطارية</string>
     <string name="settings_webhook_vpn_settings_button">إعدادات VPN</string>
     <string name="onboarding_perm_battery_vpn_note">إذا كان الـ Webhook يعمل عبر تطبيق VPN، فاستثنِ هذا التطبيق أيضًا من تحسين البطارية.</string>
+    <string name="report_history_title">سجل الرسائل</string>
+    <string name="report_history_notice">يحتوي على عناوين IP والمنافذ الكاملة لاتصالاتك. انتبه عند مشاركة لقطات الشاشة. يشمل السجل آخر 24 ساعة ويبقى على هذا الجهاز.</string>
+    <string name="report_history_empty">لا توجد رسائل أو تغييرات في نقطة النهاية خلال آخر 24 ساعة.</string>
+    <string name="report_history_clear">مسح السجل</string>
+    <string name="report_history_cleared_toast">تم مسح السجل</string>
+    <string name="report_history_event_endpoint_found">تم العثور على نقطة النهاية</string>
+    <string name="report_history_event_endpoint_lost">نقطة النهاية لم تعد متاحة</string>
+    <string name="report_history_event_report_ok">تم الإبلاغ إلى الـ Webhook</string>
+    <string name="report_history_event_report_failed">فشل الإبلاغ</string>
+    <string name="report_history_event_unregister_ok">تم إلغاء التسجيل من الـ Webhook</string>
+    <string name="report_history_event_unregister_failed">فشل إلغاء التسجيل</string>
+    <string name="report_history_retry">إعادة المحاولة %1$d من %2$d</string>
+    <string name="report_history_retry_open">إعادة المحاولة %1$d</string>
+    <string name="report_history_outcome_timeout">انتهت المهلة</string>
+    <string name="report_history_outcome_refused">تم رفض الاتصال</string>
+    <string name="report_history_outcome_unknown_host">لم يتم العثور على المضيف</string>
+    <string name="report_history_outcome_error">خطأ: %1$s</string>
+    <string name="settings_webhook_history_button">سجل الرسائل</string>
+    <string name="settings_webhook_history_subtext">ما أبلغ عنه KeepADB خلال آخر 24 ساعة، مع نقاط النهاية والنتائج. يبقى على هذا الجهاز.</string>
 </resources>

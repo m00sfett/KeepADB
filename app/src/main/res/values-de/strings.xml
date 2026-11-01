@@ -600,4 +600,23 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_webhook_vpn_battery_button">Akku-Einstellungen</string>
     <string name="settings_webhook_vpn_settings_button">VPN-Einstellungen</string>
     <string name="onboarding_perm_battery_vpn_note">Läuft dein Webhook über eine VPN-App, nimm auch diese App von der Akkuoptimierung aus.</string>
+    <string name="report_history_title">Meldeverlauf</string>
+    <string name="report_history_notice">Enthält vollständige IP-Adressen und Ports deiner Verbindungen. Vorsicht beim Teilen von Screenshots. Der Verlauf umfasst die letzten 24 Stunden und bleibt auf diesem Gerät.</string>
+    <string name="report_history_empty">Keine Meldungen oder Endpunktwechsel in den letzten 24 Stunden.</string>
+    <string name="report_history_clear">Verlauf löschen</string>
+    <string name="report_history_cleared_toast">Verlauf gelöscht</string>
+    <string name="report_history_event_endpoint_found">Endpunkt gefunden</string>
+    <string name="report_history_event_endpoint_lost">Endpunkt nicht mehr verfügbar</string>
+    <string name="report_history_event_report_ok">An Webhook gemeldet</string>
+    <string name="report_history_event_report_failed">Meldung fehlgeschlagen</string>
+    <string name="report_history_event_unregister_ok">Beim Webhook abgemeldet</string>
+    <string name="report_history_event_unregister_failed">Abmeldung fehlgeschlagen</string>
+    <string name="report_history_retry">Wiederholung %1$d von %2$d</string>
+    <string name="report_history_retry_open">Wiederholung %1$d</string>
+    <string name="report_history_outcome_timeout">Zeitüberschreitung</string>
+    <string name="report_history_outcome_refused">Verbindung abgelehnt</string>
+    <string name="report_history_outcome_unknown_host">Host nicht gefunden</string>
+    <string name="report_history_outcome_error">Fehler: %1$s</string>
+    <string name="settings_webhook_history_button">Meldeverlauf</string>
+    <string name="settings_webhook_history_subtext">Was KeepADB in den letzten 24 Stunden gemeldet hat, mit Endpunkten und Ergebnissen. Bleibt auf diesem Gerät.</string>
 </resources>

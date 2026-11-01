@@ -600,4 +600,23 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_webhook_vpn_battery_button">Pil ayarları</string>
     <string name="settings_webhook_vpn_settings_button">VPN ayarları</string>
     <string name="onboarding_perm_battery_vpn_note">Webhook\'unuz bir VPN uygulaması üzerinden çalışıyorsa o uygulamayı da pil optimizasyonundan hariç tutun.</string>
+    <string name="report_history_title">Bildirim geçmişi</string>
+    <string name="report_history_notice">Bağlantılarınızın tam IP adreslerini ve bağlantı noktalarını içerir. Ekran görüntüsü paylaşırken dikkatli olun. Geçmiş son 24 saati kapsar ve bu cihazda kalır.</string>
+    <string name="report_history_empty">Son 24 saatte bildirim veya uç nokta değişikliği yok.</string>
+    <string name="report_history_clear">Geçmişi temizle</string>
+    <string name="report_history_cleared_toast">Geçmiş temizlendi</string>
+    <string name="report_history_event_endpoint_found">Uç nokta bulundu</string>
+    <string name="report_history_event_endpoint_lost">Uç nokta artık kullanılamıyor</string>
+    <string name="report_history_event_report_ok">Webhook\'a bildirildi</string>
+    <string name="report_history_event_report_failed">Bildirim başarısız</string>
+    <string name="report_history_event_unregister_ok">Webhook kaydı silindi</string>
+    <string name="report_history_event_unregister_failed">Kayıt silme başarısız</string>
+    <string name="report_history_retry">Yeniden deneme %1$d/%2$d</string>
+    <string name="report_history_retry_open">Yeniden deneme %1$d</string>
+    <string name="report_history_outcome_timeout">zaman aşımı</string>
+    <string name="report_history_outcome_refused">bağlantı reddedildi</string>
+    <string name="report_history_outcome_unknown_host">ana makine bulunamadı</string>
+    <string name="report_history_outcome_error">hata: %1$s</string>
+    <string name="settings_webhook_history_button">Bildirim geçmişi</string>
+    <string name="settings_webhook_history_subtext">KeepADB\'nin son 24 saatte bildirdikleri, uç noktalar ve sonuçlarla. Bu cihazda kalır.</string>
 </resources>

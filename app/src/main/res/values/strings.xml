@@ -607,4 +607,23 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_webhook_vpn_battery_button">Battery settings</string>
     <string name="settings_webhook_vpn_settings_button">VPN settings</string>
     <string name="onboarding_perm_battery_vpn_note">If your webhook runs through a VPN app, exempt that app from battery optimization too.</string>
+    <string name="report_history_title">Report history</string>
+    <string name="report_history_notice">Contains full IP addresses and ports of your connections. Take care when sharing screenshots. The history covers the last 24 hours and stays on this device.</string>
+    <string name="report_history_empty">No reports or endpoint changes in the last 24 hours.</string>
+    <string name="report_history_clear">Clear history</string>
+    <string name="report_history_cleared_toast">History cleared</string>
+    <string name="report_history_event_endpoint_found">Endpoint found</string>
+    <string name="report_history_event_endpoint_lost">Endpoint no longer available</string>
+    <string name="report_history_event_report_ok">Reported to webhook</string>
+    <string name="report_history_event_report_failed">Report failed</string>
+    <string name="report_history_event_unregister_ok">Unregistered from webhook</string>
+    <string name="report_history_event_unregister_failed">Unregistering failed</string>
+    <string name="report_history_retry">Retry %1$d of %2$d</string>
+    <string name="report_history_retry_open">Retry %1$d</string>
+    <string name="report_history_outcome_timeout">timed out</string>
+    <string name="report_history_outcome_refused">connection refused</string>
+    <string name="report_history_outcome_unknown_host">host not found</string>
+    <string name="report_history_outcome_error">error: %1$s</string>
+    <string name="settings_webhook_history_button">Report history</string>
+    <string name="settings_webhook_history_subtext">What KeepADB reported in the last 24 hours, with endpoints and results. Stays on this device.</string>
 </resources>
