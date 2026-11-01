@@ -285,8 +285,8 @@
     <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
     <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
-    <string name="settings_website_link">HohnePeople.de</string>
-    <string name="settings_website_link_accessibility">Ouvrir HohnePeople.de dans le navigateur</string>
+    <string name="settings_website_link">keepadb.roteson.de</string>
+    <string name="settings_website_link_accessibility">Ouvrir keepadb.roteson.de dans le navigateur</string>
     <string name="settings_no_browser_found">Aucune application trouvée pour ouvrir ce lien.</string>
     <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
     <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>

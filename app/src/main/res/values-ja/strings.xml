@@ -285,8 +285,8 @@
     <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
     <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
     <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
-    <string name="settings_website_link">HohnePeople.de</string>
-    <string name="settings_website_link_accessibility">ブラウザでHohnePeople.deを開く</string>
+    <string name="settings_website_link">keepadb.roteson.de</string>
+    <string name="settings_website_link_accessibility">ブラウザでkeepadb.roteson.deを開く</string>
     <string name="settings_no_browser_found">このリンクを開けるアプリが見つかりません。</string>
     <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
     <string name="status_off_keep_alive_blocked_untrusted">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>

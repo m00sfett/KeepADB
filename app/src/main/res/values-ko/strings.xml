@@ -285,8 +285,8 @@
     <string name="settings_advice_banner_toggle">보안 및 네트워크 안내 표시</string>
     <string name="settings_advice_banner_subtext">메인 화면 상단에 보안 경고 배너를 표시합니다.</string>
     <string name="settings_license_line">GNU Affero General Public License v3(AGPLv3)에 따라 라이선스가 부여됨</string>
-    <string name="settings_website_link">HohnePeople.de</string>
-    <string name="settings_website_link_accessibility">브라우저에서 HohnePeople.de 열기</string>
+    <string name="settings_website_link">keepadb.roteson.de</string>
+    <string name="settings_website_link_accessibility">브라우저에서 keepadb.roteson.de 열기</string>
     <string name="settings_no_browser_found">이 링크를 열 수 있는 앱을 찾을 수 없습니다.</string>
     <string name="status_off_keep_alive_waiting">무선 디버깅 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
     <string name="status_off_keep_alive_blocked_untrusted">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>

@@ -285,8 +285,8 @@
     <string name="settings_advice_banner_toggle">सुरक्षा और नेटवर्क सलाह दिखाएं</string>
     <string name="settings_advice_banner_subtext">मुख्य स्क्रीन के शीर्ष पर एक सुरक्षा चेतावनी बैनर दिखाता है।</string>
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
-    <string name="settings_website_link">HohnePeople.de</string>
-    <string name="settings_website_link_accessibility">ब्राउज़र में HohnePeople.de खोलें</string>
+    <string name="settings_website_link">keepadb.roteson.de</string>
+    <string name="settings_website_link_accessibility">ब्राउज़र में keepadb.roteson.de खोलें</string>
     <string name="settings_no_browser_found">इस लिंक को खोलने के लिए कोई ऐप नहीं मिला।</string>
     <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
