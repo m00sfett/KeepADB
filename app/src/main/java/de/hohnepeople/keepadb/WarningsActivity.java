@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-/** Scrollable security reasons and the explicit, reversible per-reason mute controls. */
+/**
+ * Scrollable security reasons and the explicit, reversible per-reason mute controls. #897: the
+ * header bar of the other secondary screens, each reason as a home-style warning card, the mutes
+ * in one panel.
+ */
 public final class WarningsActivity extends Activity {
     static final String EXTRA_MUTES = "warning_mutes";
     private LinearLayout content;
@@ -28,31 +32,14 @@ public final class WarningsActivity extends Activity {
             returnReason = saved.getString("warning_return_reason");
             reviewing = saved.getBoolean("warning_reviewing");
         }
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(getColor(R.color.ground));
-        LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.VERTICAL);
-        header.setPadding(dp(16), dp(8), dp(16), dp(8));
-        Button back = new Button(this);
-        back.setText(R.string.back);
-        back.setMinHeight(dp(48));
-        back.setOnClickListener(v -> finish());
-        header.addView(back);
-        heading = label(getIntent().getBooleanExtra(EXTRA_MUTES, false)
-                ? getString(R.string.warnings_muted) : getString(R.string.warnings_title));
-        heading.setTextSize(22);
-        heading.setAccessibilityHeading(true);
-        header.addView(heading);
-        root.addView(header);
-        ScrollView scroll = new ScrollView(this);
-        content = new LinearLayout(this);
-        content.setPadding(dp(16), dp(8), dp(16), dp(16));
-        content.setOrientation(LinearLayout.VERTICAL);
-        scroll.addView(content);
-        root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        setContentView(root);
-        KeepADBWindowInsets.apply(getWindow(), header, scroll);
+        setContentView(R.layout.activity_warnings);
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        heading = findViewById(R.id.warnings_heading);
+        heading.setText(getIntent().getBooleanExtra(EXTRA_MUTES, false)
+                ? R.string.warnings_muted : R.string.warnings_title);
+        content = findViewById(R.id.warnings_content);
+        KeepADBWindowInsets.apply(getWindow(), findViewById(R.id.header_bar),
+                findViewById(R.id.warnings_scroll));
     }
     @Override protected void onResume() {
         super.onResume();
@@ -72,18 +59,20 @@ public final class WarningsActivity extends Activity {
     private int dp(int value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
-    private TextView label(String text) {
+    /** Body copy in the card text style; {@code muted} for secondary notes. */
+    private TextView label(String text, boolean muted) {
         TextView label = new TextView(this);
         label.setText(text);
-        label.setTextSize(16);
-        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(muted ? 13 : 14);
+        label.setLineSpacing(dp(3), 1f);
+        label.setTextColor(getColor(muted ? R.color.night_muted : R.color.night_text));
         label.setFocusable(true);
         return label;
     }
-    private void spaced(View view) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
-        params.topMargin = dp(8);
-        content.addView(view, params);
+    private void add(LinearLayout parent, View view, int width, int topMarginDp) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, -2);
+        params.topMargin = dp(topMarginDp);
+        parent.addView(view, params);
     }
     private void focus(View view) {
         view.setFocusable(true);
@@ -95,21 +84,32 @@ public final class WarningsActivity extends Activity {
         KeepADBWarningState.Snapshot snapshot = KeepADBWarningState.observe(this);
         View returnTarget = heading;
         if (getIntent().getBooleanExtra(EXTRA_MUTES, false)) {
-            spaced(label(getString(R.string.warnings_muted_hint)));
+            add(content, label(getString(R.string.warnings_muted_hint), false), -1, 0);
+            LinearLayout panel = new LinearLayout(this);
+            panel.setOrientation(LinearLayout.VERTICAL);
+            panel.setBackgroundResource(R.drawable.bg_panel);
+            add(content, panel, -1, 16);
+            boolean first = true;
             for (KeepADBWarningState.Reason reason : KeepADBWarningState.Reason.values()) {
                 if (!reason.mutable) continue;
                 boolean muted = snapshot.muted.contains(reason);
                 Switch control = new Switch(this);
                 control.setText(reason.label);
-                control.setTextSize(16);
-                control.setTextColor(getColor(R.color.night_text));
+                // The Settings toggle look.
+                control.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                        android.graphics.Typeface.NORMAL));
+                control.setTextSize(17);
+                control.setTextColor(getColor(R.color.text_yellow));
                 control.setMinHeight(dp(48));
                 control.setChecked(muted);
                 control.setEnabled(muted || snapshot.active.contains(reason));
                 control.setStateDescription(getString(muted ? R.string.warnings_muted_state
                         : R.string.warnings_unmuted_state));
-                spaced(control);
-                if (!control.isEnabled()) spaced(label(getString(R.string.warnings_inactive)));
+                add(panel, control, -1, first ? 0 : 8);
+                first = false;
+                if (!control.isEnabled()) {
+                    add(panel, label(getString(R.string.warnings_inactive), true), -1, 0);
+                }
                 control.setOnClickListener(v -> {
                     KeepADBWarningState.mute(this, reason, control.isChecked());
                     returnReason = reason.id;
@@ -118,9 +118,8 @@ public final class WarningsActivity extends Activity {
                 });
                 if (reason.id.equals(returnReason)) returnTarget = control;
             }
-            Button reset = new Button(this);
+            Button reset = new Button(this, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             reset.setText(R.string.warnings_reset);
-            reset.setMinHeight(dp(48));
             reset.setEnabled(!snapshot.muted.isEmpty());
             reset.setOnClickListener(v -> {
                 KeepADBWarningState.resetMutes(this);
@@ -128,17 +127,28 @@ public final class WarningsActivity extends Activity {
                 reviewing = true;
                 render();
             });
-            spaced(reset);
+            LinearLayout.LayoutParams resetParams = new LinearLayout.LayoutParams(-2, -2);
+            resetParams.topMargin = dp(16);
+            resetParams.gravity = android.view.Gravity.END;
+            content.addView(reset, resetParams);
         } else {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            boolean first = true;
             for (KeepADBWarningState.Reason reason : snapshot.security()) {
-                TextView text = label(getString(reason.label));
-                spaced(text);
-                Button review = new Button(this);
+                // The home warning card, without its text line and close button: here the
+                // reason is the whole message, and closing belongs to the home screen.
+                View card = inflater.inflate(R.layout.view_home_warning, content, false);
+                TextView text = card.findViewById(R.id.home_warning_title);
+                text.setText(reason.label);
+                text.setFocusable(true);
+                card.findViewById(R.id.home_warning_text).setVisibility(View.GONE);
+                card.findViewById(R.id.home_warning_dismiss).setVisibility(View.GONE);
+                Button review = card.findViewById(R.id.home_warning_action);
                 review.setText(R.string.home_warning_action_review);
                 review.setContentDescription(getString(R.string.home_warning_action_review)
                         + ": " + getString(reason.label));
-                review.setMinHeight(dp(48));
-                spaced(review);
+                add(content, card, -1, first ? 0 : 12);
+                first = false;
                 review.setOnClickListener(v -> {
                     returnReason = reason.id;
                     reviewing = true;
@@ -146,7 +156,9 @@ public final class WarningsActivity extends Activity {
                 });
                 if (reason.id.equals(returnReason)) returnTarget = text;
             }
-            if (snapshot.security().isEmpty()) spaced(label(getString(R.string.warnings_none)));
+            if (snapshot.security().isEmpty()) {
+                add(content, label(getString(R.string.warnings_none), true), -1, 0);
+            }
         }
         if (reviewing) {
             reviewing = false;
