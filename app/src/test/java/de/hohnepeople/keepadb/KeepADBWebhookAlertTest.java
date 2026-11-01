@@ -259,6 +259,24 @@ public class KeepADBWebhookAlertTest {
                 transport.recordedRequests.size());
     }
 
+    /** #893 (Codex review): a debounced resync waiting next to the retry adds no second POST. */
+    @Test
+    public void reportNowDropsAWaitingDebouncedResync() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        KeepADBRegisterClient.requestResyncAsync(context);
+        int before = transport.recordedRequests.size();
+        transport.setPostSuccess(true);
+
+        new KeepADBReceiver().onReceive(context, new Intent(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("one tap, one request", before + 1, transport.recordedRequests.size());
+    }
+
     /** #893: "Report now" sends one report, and its success clears the alert. */
     @Test
     public void reportNowSendsOneReportAndItsSuccessClearsTheAlert() {

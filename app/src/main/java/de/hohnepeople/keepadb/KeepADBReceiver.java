@@ -51,7 +51,12 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
         } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {
-            KeepADBRegisterClient.reportNowFromAlert(context.getApplicationContext());
+            // Codex review: keep the process alive until the attempt is done, also without a
+            // running foreground service.
+            PendingResult pending = goAsync();
+            KeepADBRegisterClient.reportNowFromAlert(context.getApplicationContext(), () -> {
+                if (pending != null) pending.finish();
+            });
         }
     }
 

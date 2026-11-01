@@ -248,20 +248,36 @@ final class KeepADBRegisterClient {
     /**
      * #893 (Codex review): "Report now" on the webhook alert. A retry that is only waiting for its
      * timer is sent at once instead of being joined, so the tap always causes an attempt; a POST
-     * that is already running is joined (it is the attempt). Otherwise like {@link
-     * #requestResyncNow}.
+     * that is already running is joined (it is the attempt), and a debounced resync still waiting
+     * is dropped so one tap never sends two requests. Otherwise like {@link #requestResyncNow}.
+     *
+     * @param onDone runs on the register executor once the attempt this tap caused or joined has
+     *         finished, so the receiver can keep the process alive until then ({@code goAsync}).
      */
-    static void reportNowFromAlert(Context context) {
-        if (context == null) return;
+    static void reportNowFromAlert(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+        boolean firedRetry = false;
         synchronized (KeepADBRegisterClient.class) {
             Runnable retry = pendingPostRetry;
             if (retry != null && !wlanUpdateInFlight) {
+                if (pendingResync != null) {
+                    mainHandler().removeCallbacks(pendingResync);
+                    pendingResync = null;
+                }
                 mainHandler().removeCallbacks(retry);
                 mainHandler().post(retry);
-                return;
+                firedRetry = true;
             }
         }
-        requestResyncNow(context);
+        if (!firedRetry) requestResyncNow(context);
+        if (onDone != null) {
+            // Queued behind the retry on the main thread, then behind its transaction on the
+            // single register executor.
+            mainHandler().post(() -> EXECUTOR.execute(onDone));
+        }
     }
 
     /**
