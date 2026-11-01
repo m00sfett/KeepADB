@@ -17,11 +17,42 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`1.11.0` is the stable release candidate that follows `v1.8.38`; it is released once the tag `v1.11.0` exists. It combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.11.0] - 2026-11-01
+
+Stable release candidate after `v1.8.38` (#899). It contains no code change of its own on top of
+1.10.18; it bundles the candidates `1.9.1` through `1.10.18` below. Minor bump by project decision
+(Tobias, 2026-11-01): the sum of these changes together with the first public release since
+`v1.8.38` justifies a new minor version instead of another 1.10.x patch. versionCode 244 stays above
+the beta `v1.10.15-beta.2` (240), so beta users receive the update.
+
+### Summary since 1.8.38
+- **Setup and home screen:** a setup assistant (Keep-Alive, protection level, permissions, trusted
+  Wi-Fi, notification details, optional webhook) and a home screen that only shows real problems as
+  closable warning cards, with the security warnings screen behind the warning triangle and
+  per-reason mutes in Settings.
+- **Network protection:** a Networks list to trust, block and name Wi-Fi access points; fresh
+  installs re-enable Wireless Debugging only at trusted access points; optional Force mode, optional
+  auto-off on untrusted Wi-Fi and an optional access-point security check (Android 12+). Optional
+  "Allow all the time" location access keeps network identity readable after background starts
+  (`ACCESS_BACKGROUND_LOCATION`, `FOREGROUND_SERVICE_LOCATION`, both new since 1.8.38).
+- **Privacy and security:** connection details are hidden from notifications and the lock screen by
+  default, switching on from the tile or the USB notification requires an unlocked device, network
+  trust requires device authentication, device-to-device transfer of settings is blocked and logcat
+  and diagnostics redact addresses.
+- **Webhook register sync:** paced retries (also after restarts and network changes), a clear failure
+  warning with Report now and battery hints, and a 24-hour report history; no VPN-specific checks.
+- **Interface:** two-column layout on wide screens, app-styled buttons with a visible disabled state,
+  accessibility and contrast fixes; the website and feedback links open keepadb.roteson.de.
+
+### Changed
+- **Version:** versionName `1.11.0`, versionCode 244; Fastlane note `244.txt` summarizes everything
+  since 1.8.38 within the F-Droid limit.
 
 ## [1.10.18] - Unreleased
 
