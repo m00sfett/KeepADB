@@ -214,7 +214,8 @@ final class KeepADBEndpointCoordinator {
      */
     private static void recordEndpointLostLocked(Context context) {
         if (currentHost == null || context == null) return;
-        KeepADBReportHistory.endpointLost(context.getApplicationContext());
+        KeepADBReportHistory.endpointLost(context.getApplicationContext(),
+                KeepADBEndpoint.formatEndpoint(currentHost, currentPort));
     }
 
     static synchronized void invalidateEndpoint(Context context) {

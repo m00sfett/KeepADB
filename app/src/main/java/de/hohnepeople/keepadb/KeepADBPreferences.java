@@ -219,10 +219,10 @@ final class KeepADBPreferences {
         // #893 (Codex review): a success belongs to the URL that accepted it, so a replaced
         // destination, a late answer from the previous one or an older version's leftover does
         // not show up as a success for the current URL. Older records name their URL only in the
-        // last report snapshot; without either, nothing can be compared.
+        // last report snapshot; a time whose URL is not known at all is not claimed either.
         String owner = prefs.getString(KEY_WEBHOOK_LAST_SUCCESS_URL,
                 prefs.getString(KEY_WEBHOOK_LAST_URL, null));
-        if (owner != null && !owner.trim().equals(prefs.getString(KEY_REGISTER_URL, ""))) {
+        if (owner == null || !owner.trim().equals(prefs.getString(KEY_REGISTER_URL, ""))) {
             return 0L;
         }
         if (prefs.contains(KEY_WEBHOOK_LAST_SUCCESS_AT)) {

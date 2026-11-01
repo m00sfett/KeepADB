@@ -82,8 +82,10 @@ final class KeepADBReportHistory {
         add(context, new Entry(now(), Event.ENDPOINT_FOUND, endpoint, true, "", 0, NO_MAX));
     }
 
-    static void endpointLost(Context context) {
-        add(context, new Entry(now(), Event.ENDPOINT_LOST, "", true, "", 0, NO_MAX));
+    /** {@code endpoint}: the host:port that disappeared (Codex review), so the row names it. */
+    static void endpointLost(Context context, String endpoint) {
+        add(context, new Entry(now(), Event.ENDPOINT_LOST, endpoint == null ? "" : endpoint, true,
+                "", 0, NO_MAX));
     }
 
     /** A POST of {@code endpoint}; {@code retry} 0 is the first attempt of the series. */

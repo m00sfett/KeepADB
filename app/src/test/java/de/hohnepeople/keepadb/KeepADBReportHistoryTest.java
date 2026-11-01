@@ -114,8 +114,8 @@ public class KeepADBReportHistoryTest {
 
     @Test
     public void repeatedEndpointStatesAreRecordedOnce() {
-        KeepADBReportHistory.endpointLost(context);
-        KeepADBReportHistory.endpointLost(context);
+        KeepADBReportHistory.endpointLost(context, "a:0");
+        KeepADBReportHistory.endpointLost(context, "a:0");
         KeepADBReportHistory.endpointFound(context, "a:1");
         KeepADBReportHistory.report(context, "a:1", true, "http=200", 0, 4);
         KeepADBReportHistory.endpointFound(context, "a:1");
@@ -253,8 +253,18 @@ public class KeepADBReportHistoryTest {
             from++;
         }
         assertTrue(deletes >= 3);
+        int helper = source.indexOf("private static void recordEndpointLostLocked(");
+        assertTrue("the lost row names the cleared endpoint", source.substring(helper,
+                source.indexOf("\n    }", helper)).contains("formatEndpoint(currentHost, currentPort)"));
         assertEquals("exactly the one guarded entry point writes the lost row", 1,
                 source.split("KeepADBReportHistory\\.endpointLost\\(", -1).length - 1);
+    }
+
+    /** Codex review: a loss row names the endpoint that disappeared. */
+    @Test
+    public void aLossRowNamesTheEndpointThatDisappeared() {
+        KeepADBReportHistory.endpointLost(context, "192.168.178.24:42631");
+        assertEquals("192.168.178.24:42631", KeepADBReportHistory.entries(context).get(0).endpoint);
     }
 
     /** Codex review: a discovery that fails without a known endpoint records no loss. */
