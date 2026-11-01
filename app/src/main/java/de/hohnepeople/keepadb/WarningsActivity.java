@@ -145,6 +145,8 @@ public final class WarningsActivity extends Activity {
                 card.findViewById(R.id.home_warning_text).setVisibility(View.GONE);
                 card.findViewById(R.id.home_warning_dismiss).setVisibility(View.GONE);
                 Button review = card.findViewById(R.id.home_warning_action);
+                // The card's forward focus leads to the close button hidden above (Codex review).
+                review.setNextFocusForwardId(View.NO_ID);
                 review.setText(R.string.home_warning_action_review);
                 review.setContentDescription(getString(R.string.home_warning_action_review)
                         + ": " + getString(reason.label));
