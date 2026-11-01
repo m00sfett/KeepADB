@@ -17,11 +17,18 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.16` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.17` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.17] - Unreleased
+
+### Changed
+- **App-styled buttons everywhere (#895):** shared styles `Widget.KeepADB.Button.Primary` / `.Secondary` carry the values of the buttons spelled out in the layouts (plus a 48dp minimum width for the touch target) and serve buttons built in code (`new Button(context, null, 0, style)`). `bg_btn_primary` / `bg_btn_secondary` gained a disabled state (dark surface, muted red border) and the styles a muted label color, so a disabled button no longer looks enabled. Applied to "Muted warnings" in Settings and to Edit/Delete in the USB profile list. A contract test (`ButtonStyleContractTest`) fails on any layout button without a background or style and on any code-built button without an app style or button background; `ButtonContrastTest` now checks the enabled state explicitly (an empty state set is the disabled state) and the disabled contrast; `PrivacyToggleTitleBarsTest` exempts the warnings screen, which shows no network name or address.
+- **Home warning feedback (#896):** after closing a warning card, the feedback sits in a calm panel (`bg_panel`) with "Undo" as primary and "Do not show again" as secondary button instead of two full-width platform-default gray buttons; the same in all six `activity_main.xml` variants. The "Mute selected reasons" button of the follow-up dialog uses the primary style (muted until a reason is selected). Behavior unchanged.
+- **Security warnings screen (#897):** `WarningsActivity` uses a layout with the header bar of the other secondary screens (back arrow, yellow condensed title) instead of a gray "Back" button. Each reason is a home-style warning card (icon, title, primary "Review"); the mute switches sit in one panel in the Settings toggle style with the inactive note muted below; "Reset all mutes" is a secondary button, visibly disabled when nothing is muted. Behavior, focus return and accessibility labels unchanged.
 
 ## [1.10.16] - Unreleased
 
