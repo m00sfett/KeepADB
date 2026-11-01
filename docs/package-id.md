@@ -22,7 +22,7 @@ move changes URLs only (Settings, feedback link, and store metadata), not the ap
   next regular release through the `release-fdroid` cycle (issue #754).
 - At release time, change `WebSite:` in
   `fdroiddata/metadata/de.hohnepeople.keepadb.yml` from
-  `https://hohnepeople.de/keepadb` to `https://keepadb.roteson.de`. As of 2026-10-05, the
+  `https://hohnepeople.de/keepadb` to `https://keepadb.roteson.de`. As of 2026-11-01, the
   entry still points to hohnepeople.de.
 - Older installed versions (through 1.8.38) will continue opening hohnepeople.de; that site
   redirects to the new website. For the TLS chain note, see issue #749.

@@ -53,6 +53,39 @@ public class SettingsWebLinkTest {
         assertEquals("ab", uri.getQueryParameter("deviceInfo"));
     }
 
+    /** #900: the visible link text and its spoken label name the host the link opens. */
+    @Test
+    public void websiteLinkTextNamesTheOpenedHostInEveryLanguage() throws java.io.IOException {
+        String host = Uri.parse(SettingsActivity.WEBSITE_URL).getHost();
+        java.nio.file.Path directory = java.nio.file.Paths.get("").toAbsolutePath();
+        while (!java.nio.file.Files.exists(directory.resolve("settings.gradle"))) {
+            directory = directory.getParent();
+        }
+        java.util.List<java.nio.file.Path> files;
+        try (java.util.stream.Stream<java.nio.file.Path> walk =
+                java.nio.file.Files.walk(directory.resolve("app/src/main/res"))) {
+            files = walk.filter(path -> path.getFileName().toString().equals("strings.xml"))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        java.util.regex.Pattern link = java.util.regex.Pattern.compile(
+                "<string name=\"settings_website_link(_accessibility)?\">([^<]*)</string>");
+        int checked = 0;
+        for (java.nio.file.Path file : files) {
+            java.util.regex.Matcher matcher = link.matcher(new String(
+                    java.nio.file.Files.readAllBytes(file), java.nio.charset.StandardCharsets.UTF_8));
+            while (matcher.find()) {
+                checked++;
+                String where = file.getParent().getFileName() + " " + matcher.group(0);
+                if (matcher.group(1) == null) {
+                    assertEquals(where, host, matcher.group(2));
+                } else {
+                    assertTrue(where, matcher.group(2).contains(host));
+                }
+            }
+        }
+        assertTrue("link texts found: " + checked, checked >= 2);
+    }
+
     @Test
     public void websiteLinkWithoutHandlerShowsToastInsteadOfCrashing() {
         Application app = RuntimeEnvironment.getApplication();

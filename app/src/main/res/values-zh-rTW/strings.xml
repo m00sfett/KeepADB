@@ -285,8 +285,8 @@
     <string name="settings_advice_banner_toggle">顯示安全與網路提示</string>
     <string name="settings_advice_banner_subtext">在主畫面頂部顯示安全警告橫幅。</string>
     <string name="settings_license_line">依 GNU Affero 通用公共授權條款第三版（AGPLv3）授權</string>
-    <string name="settings_website_link">HohnePeople.de</string>
-    <string name="settings_website_link_accessibility">在瀏覽器中開啟 HohnePeople.de</string>
+    <string name="settings_website_link">keepadb.roteson.de</string>
+    <string name="settings_website_link_accessibility">在瀏覽器中開啟 keepadb.roteson.de</string>
     <string name="settings_no_browser_found">找不到可開啟此連結的應用程式。</string>
     <string name="status_off_keep_alive_waiting">無線偵錯已關閉 – Keep-Alive 正在等待網路</string>
     <string name="status_off_keep_alive_blocked_untrusted">無線偵錯已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路未信任</string>
