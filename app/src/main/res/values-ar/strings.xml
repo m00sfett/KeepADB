@@ -593,7 +593,7 @@
     <string name="settings_webhook_retry_count_value">مرات إعادة المحاولة: %1$d</string>
     <string name="webhook_alert_channel_name">تحذيرات Webhook</string>
     <string name="webhook_alert_channel_desc">يحذّر عندما تستمر تقارير Webhook في الفشل</string>
-    <string name="webhook_alert_title">لم يتم الإبلاغ عن منفذ ADB الجديد</string>
+    <string name="webhook_alert_title">لم يتم الإبلاغ عن منفذ ADB الحالي</string>
     <string name="settings_webhook_vpn_hint">هل يعمل الـ Webhook عبر تطبيق VPN مثل Tailscale أو NetBird؟ استثنِ هذا التطبيق أيضًا من تحسين البطارية، وإلا فقد يجمّده Android في وضع الاستعداد ولن تصل الرسائل.</string>
     <string name="settings_webhook_vpn_battery_button">إعدادات البطارية</string>
     <string name="settings_webhook_vpn_settings_button">إعدادات VPN</string>

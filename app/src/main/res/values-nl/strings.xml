@@ -589,7 +589,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_webhook_retry_count_value">Herhalingen: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook-waarschuwingen</string>
     <string name="webhook_alert_channel_desc">Waarschuwt wanneer webhookmeldingen blijven mislukken</string>
-    <string name="webhook_alert_title">Nieuwe ADB-poort niet gemeld</string>
+    <string name="webhook_alert_title">Huidige ADB-poort niet gemeld</string>
     <string name="settings_webhook_vpn_hint">Loopt je webhook via een VPN-app zoals Tailscale of NetBird? Zonder die app dan ook uit van batterijoptimalisatie. Anders kan Android hem in stand-by bevriezen en komen meldingen niet aan.</string>
     <string name="settings_webhook_vpn_battery_button">Batterij-instellingen</string>
     <string name="settings_webhook_vpn_settings_button">VPN-instellingen</string>

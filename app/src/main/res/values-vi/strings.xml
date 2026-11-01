@@ -588,7 +588,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_webhook_retry_count_value">Số lần thử lại: %1$d</string>
     <string name="webhook_alert_channel_name">Cảnh báo Webhook</string>
     <string name="webhook_alert_channel_desc">Cảnh báo khi báo cáo Webhook liên tục thất bại</string>
-    <string name="webhook_alert_title">Chưa báo cáo cổng ADB mới</string>
+    <string name="webhook_alert_title">Chưa báo cáo cổng ADB hiện tại</string>
     <string name="settings_webhook_vpn_hint">Webhook của bạn có chạy qua một ứng dụng VPN như Tailscale hoặc NetBird không? Hãy loại cả ứng dụng đó khỏi tối ưu hóa pin. Nếu không, Android có thể đóng băng nó khi ở chế độ chờ và báo cáo sẽ không đến nơi.</string>
     <string name="settings_webhook_vpn_battery_button">Cài đặt pin</string>
     <string name="settings_webhook_vpn_settings_button">Cài đặt VPN</string>

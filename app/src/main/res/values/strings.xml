@@ -596,7 +596,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_webhook_retry_count_value">Retries: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook warnings</string>
     <string name="webhook_alert_channel_desc">Warns when webhook reports keep failing</string>
-    <string name="webhook_alert_title">New ADB port not reported</string>
+    <string name="webhook_alert_title">Current ADB port not reported</string>
     <string name="settings_webhook_vpn_hint">Does your webhook run through a VPN app such as Tailscale or NetBird? Exempt that app from battery optimization too. Otherwise Android may freeze it in standby and reports won\'t get through.</string>
     <string name="settings_webhook_vpn_battery_button">Battery settings</string>
     <string name="settings_webhook_vpn_settings_button">VPN settings</string>

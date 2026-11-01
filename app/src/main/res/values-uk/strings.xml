@@ -591,7 +591,7 @@
     <string name="settings_webhook_retry_count_value">Повтори: %1$d</string>
     <string name="webhook_alert_channel_name">Попередження Webhook</string>
     <string name="webhook_alert_channel_desc">Попереджає, якщо звіти Webhook і далі не доходять</string>
-    <string name="webhook_alert_title">Новий порт ADB не передано</string>
+    <string name="webhook_alert_title">Поточний порт ADB не передано</string>
     <string name="settings_webhook_vpn_hint">Ваш webhook працює через VPN-застосунок, наприклад Tailscale чи NetBird? Вимкніть і для нього оптимізацію батареї. Інакше Android може заморозити його в режимі очікування, і звіти не дійдуть.</string>
     <string name="settings_webhook_vpn_battery_button">Налаштування батареї</string>
     <string name="settings_webhook_vpn_settings_button">Налаштування VPN</string>

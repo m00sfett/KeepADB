@@ -588,7 +588,7 @@
     <string name="settings_webhook_retry_count_value">重试次数：%1$d</string>
     <string name="webhook_alert_channel_name">Webhook 警告</string>
     <string name="webhook_alert_channel_desc">Webhook 报告持续失败时发出警告</string>
-    <string name="webhook_alert_title">新的 ADB 端口未报告</string>
+    <string name="webhook_alert_title">当前 ADB 端口未报告</string>
     <string name="settings_webhook_vpn_hint">你的 Webhook 是否通过 Tailscale 或 NetBird 等 VPN 应用传输?请同时将该应用排除在电池优化之外,否则 Android 可能在待机时冻结它,报告将无法送达。</string>
     <string name="settings_webhook_vpn_battery_button">电池设置</string>
     <string name="settings_webhook_vpn_settings_button">VPN 设置</string>

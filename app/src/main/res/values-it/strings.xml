@@ -590,7 +590,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_webhook_retry_count_value">Tentativi: %1$d</string>
     <string name="webhook_alert_channel_name">Avvisi del webhook</string>
     <string name="webhook_alert_channel_desc">Avvisa quando le segnalazioni del webhook continuano a non riuscire</string>
-    <string name="webhook_alert_title">Nuova porta ADB non segnalata</string>
+    <string name="webhook_alert_title">Porta ADB attuale non segnalata</string>
     <string name="settings_webhook_vpn_hint">Il tuo webhook passa da un\'app VPN come Tailscale o NetBird? Escludi anche quell\'app dall\'ottimizzazione della batteria. Altrimenti Android può congelarla in standby e le segnalazioni non arrivano.</string>
     <string name="settings_webhook_vpn_battery_button">Impostazioni batteria</string>
     <string name="settings_webhook_vpn_settings_button">Impostazioni VPN</string>

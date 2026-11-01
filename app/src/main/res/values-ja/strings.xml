@@ -588,7 +588,7 @@
     <string name="settings_webhook_retry_count_value">再試行回数: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook の警告</string>
     <string name="webhook_alert_channel_desc">Webhook の報告が失敗し続けると警告します</string>
-    <string name="webhook_alert_title">新しい ADB ポートを報告できていません</string>
+    <string name="webhook_alert_title">現在の ADB ポートを報告できていません</string>
     <string name="settings_webhook_vpn_hint">Webhook は Tailscale や NetBird などの VPN アプリを経由していますか?そのアプリもバッテリーの最適化から除外してください。除外しないと、Android がスタンバイ中にアプリを停止し、報告が届かなくなることがあります。</string>
     <string name="settings_webhook_vpn_battery_button">バッテリー設定</string>
     <string name="settings_webhook_vpn_settings_button">VPN 設定</string>

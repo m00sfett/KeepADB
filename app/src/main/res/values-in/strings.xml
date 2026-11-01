@@ -588,7 +588,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_webhook_retry_count_value">Percobaan ulang: %1$d</string>
     <string name="webhook_alert_channel_name">Peringatan Webhook</string>
     <string name="webhook_alert_channel_desc">Memperingatkan saat laporan Webhook terus gagal</string>
-    <string name="webhook_alert_title">Port ADB baru belum dilaporkan</string>
+    <string name="webhook_alert_title">Port ADB saat ini belum dilaporkan</string>
     <string name="settings_webhook_vpn_hint">Apakah webhook Anda berjalan melalui aplikasi VPN seperti Tailscale atau NetBird? Kecualikan juga aplikasi itu dari pengoptimalan baterai. Jika tidak, Android dapat membekukannya saat siaga dan laporan tidak akan sampai.</string>
     <string name="settings_webhook_vpn_battery_button">Setelan baterai</string>
     <string name="settings_webhook_vpn_settings_button">Setelan VPN</string>

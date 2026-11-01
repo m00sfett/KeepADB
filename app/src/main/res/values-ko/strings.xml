@@ -588,7 +588,7 @@
     <string name="settings_webhook_retry_count_value">재시도 횟수: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook 경고</string>
     <string name="webhook_alert_channel_desc">Webhook 보고가 계속 실패하면 경고합니다</string>
-    <string name="webhook_alert_title">새 ADB 포트가 보고되지 않음</string>
+    <string name="webhook_alert_title">현재 ADB 포트가 보고되지 않음</string>
     <string name="settings_webhook_vpn_hint">Webhook이 Tailscale이나 NetBird 같은 VPN 앱을 거치나요? 그 앱도 배터리 최적화에서 제외하세요. 그렇지 않으면 Android가 대기 중에 앱을 멈춰 보고가 전달되지 않을 수 있습니다.</string>
     <string name="settings_webhook_vpn_battery_button">배터리 설정</string>
     <string name="settings_webhook_vpn_settings_button">VPN 설정</string>

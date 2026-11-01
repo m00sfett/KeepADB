@@ -589,7 +589,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_webhook_retry_count_value">Wiederholungen: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook-Warnungen</string>
     <string name="webhook_alert_channel_desc">Warnt, wenn Webhook-Meldungen dauerhaft fehlschlagen</string>
-    <string name="webhook_alert_title">Neuer ADB-Port nicht gemeldet</string>
+    <string name="webhook_alert_title">Aktueller ADB-Port nicht gemeldet</string>
     <string name="settings_webhook_vpn_hint">Läuft dein Webhook über eine VPN-App wie Tailscale oder NetBird? Nimm auch diese App von der Akkuoptimierung aus. Sonst kann Android sie im Standby einfrieren und Meldungen kommen nicht an.</string>
     <string name="settings_webhook_vpn_battery_button">Akku-Einstellungen</string>
     <string name="settings_webhook_vpn_settings_button">VPN-Einstellungen</string>

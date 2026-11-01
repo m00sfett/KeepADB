@@ -589,7 +589,7 @@
     <string name="settings_webhook_retry_count_value">दोबारा प्रयास: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook चेतावनियाँ</string>
     <string name="webhook_alert_channel_desc">Webhook रिपोर्ट लगातार विफल होने पर चेतावनी देता है</string>
-    <string name="webhook_alert_title">नया ADB पोर्ट रिपोर्ट नहीं हुआ</string>
+    <string name="webhook_alert_title">मौजूदा ADB पोर्ट रिपोर्ट नहीं हुआ</string>
     <string name="settings_webhook_vpn_hint">क्या आपका webhook Tailscale या NetBird जैसे किसी VPN ऐप से होकर चलता है? उस ऐप को भी बैटरी ऑप्टिमाइज़ेशन से बाहर रखें, वरना Android उसे स्टैंडबाय में रोक सकता है और रिपोर्ट नहीं पहुँचेंगी।</string>
     <string name="settings_webhook_vpn_battery_button">बैटरी सेटिंग</string>
     <string name="settings_webhook_vpn_settings_button">VPN सेटिंग</string>

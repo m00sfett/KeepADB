@@ -591,7 +591,7 @@
     <string name="settings_webhook_retry_count_value">Повторы: %1$d</string>
     <string name="webhook_alert_channel_name">Предупреждения Webhook</string>
     <string name="webhook_alert_channel_desc">Предупреждает, если отчёты Webhook продолжают не доходить</string>
-    <string name="webhook_alert_title">Новый порт ADB не передан</string>
+    <string name="webhook_alert_title">Текущий порт ADB не передан</string>
     <string name="settings_webhook_vpn_hint">Ваш webhook работает через VPN-приложение, например Tailscale или NetBird? Исключите и его из оптимизации батареи. Иначе Android может заморозить его в режиме ожидания, и отчёты не дойдут.</string>
     <string name="settings_webhook_vpn_battery_button">Настройки батареи</string>
     <string name="settings_webhook_vpn_settings_button">Настройки VPN</string>

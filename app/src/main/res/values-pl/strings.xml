@@ -591,7 +591,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_webhook_retry_count_value">Ponowienia: %1$d</string>
     <string name="webhook_alert_channel_name">Ostrzeżenia Webhook</string>
     <string name="webhook_alert_channel_desc">Ostrzega, gdy zgłoszenia Webhook stale się nie udają</string>
-    <string name="webhook_alert_title">Nowy port ADB nie został zgłoszony</string>
+    <string name="webhook_alert_title">Bieżący port ADB nie został zgłoszony</string>
     <string name="settings_webhook_vpn_hint">Czy Twój webhook działa przez aplikację VPN, np. Tailscale lub NetBird? Wyłącz również dla niej optymalizację baterii. W przeciwnym razie Android może ją zamrozić w trybie czuwania i zgłoszenia nie dotrą.</string>
     <string name="settings_webhook_vpn_battery_button">Ustawienia baterii</string>
     <string name="settings_webhook_vpn_settings_button">Ustawienia VPN</string>

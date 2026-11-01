@@ -589,7 +589,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_webhook_retry_count_value">Yeniden deneme: %1$d</string>
     <string name="webhook_alert_channel_name">Webhook uyarıları</string>
     <string name="webhook_alert_channel_desc">Webhook bildirimleri başarısız olmaya devam ettiğinde uyarır</string>
-    <string name="webhook_alert_title">Yeni ADB bağlantı noktası bildirilmedi</string>
+    <string name="webhook_alert_title">Mevcut ADB bağlantı noktası bildirilmedi</string>
     <string name="settings_webhook_vpn_hint">Webhook\'unuz Tailscale veya NetBird gibi bir VPN uygulaması üzerinden mi çalışıyor? O uygulamayı da pil optimizasyonundan hariç tutun. Aksi halde Android onu bekleme modunda dondurabilir ve bildirimler ulaşmaz.</string>
     <string name="settings_webhook_vpn_battery_button">Pil ayarları</string>
     <string name="settings_webhook_vpn_settings_button">VPN ayarları</string>
