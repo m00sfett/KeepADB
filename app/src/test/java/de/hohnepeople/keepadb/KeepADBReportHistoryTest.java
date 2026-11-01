@@ -179,6 +179,27 @@ public class KeepADBReportHistoryTest {
         assertTrue("the old registration's DELETE must be in the history", unregister);
     }
 
+    /** Codex review: a user's unregister after failed endpoint-loss DELETEs is not their retry. */
+    @Test
+    public void anExplicitUnregisterIsNotCountedAsAnEndpointLossRetry() throws Exception {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://reg.example/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 42631);
+        KeepADBRegisterClientResetRule.awaitIdle();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        KeepADBReportHistory.Entry newest = KeepADBReportHistory.entries(context).get(0);
+        assertEquals(KeepADBReportHistory.Event.UNREGISTER, newest.event);
+        assertEquals("a fresh user-requested unregister starts at zero", 0, newest.retry);
+    }
+
     /** Codex review: deferred cleanup DELETEs carry their retry number and the attempt budget. */
     @Test
     public void deferredCleanupRetriesAreNumbered() {

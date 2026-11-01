@@ -531,7 +531,7 @@ final class KeepADBRegisterClient {
         EXECUTOR.execute(() -> {
             try {
                 if (opGen != currentOpGeneration) return;
-                performDeleteTransaction(appContext, targetUrl, opGen);
+                performDeleteTransaction(appContext, targetUrl, opGen, true);
             } finally {
                 // #576 part C: only release the coalescing gate if it still points at this exact
                 // dispatch -- a newer markUnavailableAsync call may already have overwritten it
@@ -561,7 +561,7 @@ final class KeepADBRegisterClient {
 
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
-            performDeleteTransaction(appContext, targetUrl, opGen);
+            performDeleteTransaction(appContext, targetUrl, opGen, false);
         });
     }
 
@@ -759,7 +759,7 @@ final class KeepADBRegisterClient {
         boolean failingBefore = isReportFailing(context);
         lastTransportOutcome = "unknown";
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen);
+        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, false);
         if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
@@ -819,7 +819,12 @@ final class KeepADBRegisterClient {
         }
     }
 
-    private static void performDeleteTransaction(Context context, String targetUrl, long opGen) {
+    /**
+     * {@code endpointLoss}: the DELETE belongs to the #562 endpoint-loss series, whose failures
+     * count as retries in the #892 history; an explicit unregister always starts at zero.
+     */
+    private static void performDeleteTransaction(Context context, String targetUrl, long opGen,
+            boolean endpointLoss) {
         flushPendingCleanups(context);
 
         String urlToDelete;
@@ -844,7 +849,7 @@ final class KeepADBRegisterClient {
         lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
         recordReportOutcome(context, "delete", endpointToDelete, cleanupCompleted, failingBefore,
-                opGen);
+                opGen, endpointLoss);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -1175,11 +1180,17 @@ final class KeepADBRegisterClient {
      * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
      */
     private static void recordReportOutcome(Context context, String method, String endpoint,
-            boolean ok, boolean failingBefore, long opGen) {
+            boolean ok, boolean failingBefore, long opGen, boolean endpointLoss) {
         int retry;
         boolean superseded;
         synchronized (KeepADBRegisterClient.class) {
-            retry = "delete".equals(method) ? markUnavailableRetryAttempts : postRetryNumber;
+            // Codex review: the endpoint-loss counter outlives its series; a user's explicit
+            // unregister is not one of its retries.
+            if ("delete".equals(method)) {
+                retry = endpointLoss ? markUnavailableRetryAttempts : 0;
+            } else {
+                retry = postRetryNumber;
+            }
             superseded = opGen != currentOpGeneration;
         }
         // #892: every attempt goes into the local history, routine successes included; the
