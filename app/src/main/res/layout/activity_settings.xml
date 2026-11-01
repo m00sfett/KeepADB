@@ -1022,10 +1022,10 @@
 
                 <Button
                     android:id="@+id/settings_muted_warnings"
-                    android:layout_width="match_parent"
+                    style="@style/Widget.KeepADB.Button.Secondary"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="16dp"
                     android:text="@string/warnings_muted" />
                 <!-- Notification Section (#470/#510: grouped under "Sonstiges"; #521: directly
                      visible inside the outer body, no longer its own collapsible sub-card) -->

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Label color of the secondary button; muted while the button is disabled. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/night_muted" android:state_enabled="false" />
+    <item android:color="@color/text_yellow" />
+</selector>

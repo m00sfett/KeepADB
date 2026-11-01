@@ -3,4 +3,29 @@
     <style name="MainContentContainer">
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
+
+    <!-- The app's two button looks, for buttons built in code (new Button(context, null, 0,
+         style)) and for layouts that want them in one line. Same values as the buttons spelled
+         out in the layouts. -->
+    <style name="Widget.KeepADB.Button" parent="android:Widget.Material.Button">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.KeepADB.Button.Primary">
+        <item name="android:background">@drawable/bg_btn_primary</item>
+        <item name="android:textColor">@color/btn_text_primary</item>
+    </style>
+
+    <style name="Widget.KeepADB.Button.Secondary">
+        <item name="android:background">@drawable/bg_btn_secondary</item>
+        <item name="android:textColor">@color/btn_text_secondary</item>
+    </style>
 </resources>
