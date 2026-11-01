@@ -65,11 +65,15 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Codex review: at most this long the broadcast stays open. Due cleanup DELETEs can run before
-     * the report, each with its own timeout, and the system kills a broadcast held past its window.
-     * The report itself keeps running on the register executor after that.
+     * Codex review: at most this long the broadcast stays open. Before the report's POST, every due
+     * cleanup DELETE and the DELETE at a previous URL can run, each with its connect and read
+     * timeout; the hold covers that worst case plus a margin, so the POST is dispatched while the
+     * process is still kept alive. The notification action is a background broadcast (no
+     * FLAG_RECEIVER_FOREGROUND), whose window is 60 s; the hold stays well below it.
      */
-    static final long REPORT_NOW_MAX_HOLD_MS = 8_000L;
+    static final long REPORT_NOW_MAX_HOLD_MS =
+            (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * 2L * KeepADBHttpTransport.TIMEOUT_MS
+                    + 4_000L;
 
     static void handleReportNowAction(Context app, Runnable finishBroadcast) {
         AtomicBoolean finished = new AtomicBoolean(false);

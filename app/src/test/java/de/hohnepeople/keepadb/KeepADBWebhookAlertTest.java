@@ -328,6 +328,27 @@ public class KeepADBWebhookAlertTest {
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, reportNow.getAction());
     }
 
+    /**
+     * #893 (Codex review): the hold outlasts every request that can run before the report's POST
+     * (all due cleanups plus the DELETE at a previous URL), and stays inside the 60 s window of
+     * the background broadcast the notification action sends.
+     */
+    @Test
+    public void reportNowHoldCoversTheRequestsBeforeThePostWithinTheBroadcastWindow() {
+        long perRequest = 2L * KeepADBHttpTransport.TIMEOUT_MS;
+        long beforeAndIncludingPost = (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * perRequest;
+        assertTrue("the POST is dispatched before the broadcast is released",
+                KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS > beforeAndIncludingPost);
+        assertTrue("and the hold stays well inside the background window",
+                KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS <= 30_000L);
+
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        Intent reportNow = Shadows.shadowOf(alert().actions[1].actionIntent).getSavedIntent();
+        assertEquals("a background broadcast, not one with the 10 s foreground window", 0,
+                reportNow.getFlags() & Intent.FLAG_RECEIVER_FOREGROUND);
+    }
+
     /** #893 (Codex review): a retry waiting for its timer is sent at once, not joined. */
     @Test
     public void reportNowSendsAScheduledRetryImmediately() {
