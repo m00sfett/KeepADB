@@ -762,9 +762,12 @@ final class KeepADBRegisterClient {
             // Codex review: a new series may reset the counter while this request is in flight.
             retry = postRetryNumber;
         }
+        // Codex review: the budget in effect when the request is sent, not after its answer.
+        int maxRetries = KeepADBPreferences.getWebhookRetryCount(context);
         lastTransportOutcome = "unknown";
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry);
+        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry,
+                maxRetries);
         if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
@@ -858,7 +861,7 @@ final class KeepADBRegisterClient {
         lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
         recordReportOutcome(context, "delete", endpointToDelete, cleanupCompleted, failingBefore,
-                opGen, retry);
+                opGen, retry, KeepADBReportHistory.NO_MAX);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -1189,7 +1192,7 @@ final class KeepADBRegisterClient {
      * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
      */
     private static void recordReportOutcome(Context context, String method, String endpoint,
-            boolean ok, boolean failingBefore, long opGen, int retry) {
+            boolean ok, boolean failingBefore, long opGen, int retry, int maxRetries) {
         boolean superseded;
         synchronized (KeepADBRegisterClient.class) {
             superseded = opGen != currentOpGeneration;
@@ -1200,8 +1203,7 @@ final class KeepADBRegisterClient {
         if ("delete".equals(method)) {
             KeepADBReportHistory.unregister(context, endpoint, ok, outcome, retry);
         } else {
-            KeepADBReportHistory.report(context, endpoint, ok, outcome, retry,
-                    KeepADBPreferences.getWebhookRetryCount(context));
+            KeepADBReportHistory.report(context, endpoint, ok, outcome, retry, maxRetries);
         }
         if (ok && !failingBefore) return;
         // A success of a superseded transaction ends nothing: the newer operation owns the

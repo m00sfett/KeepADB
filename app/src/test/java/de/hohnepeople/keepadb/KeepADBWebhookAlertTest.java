@@ -286,6 +286,29 @@ public class KeepADBWebhookAlertTest {
         assertTrue("the in-flight retry keeps its number in the history", retryRecorded);
     }
 
+    /** Codex review: the retry budget recorded is the one in effect when the request was sent. */
+    @Test
+    public void aRetryKeepsItsBudgetWhenTheSettingChangesWhileItIsInFlight() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        int before = transport.recordedRequests.size();
+        transport.setRequestCallback(request -> {
+            if (transport.recordedRequests.size() > before) {
+                KeepADBPreferences.setWebhookRetryCount(context, 2);
+            }
+        });
+
+        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        KeepADBReportHistory.Entry retry = null;
+        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
+            if (entry.event == KeepADBReportHistory.Event.REPORT && entry.retry == 1) retry = entry;
+        }
+        assertNotNull("precondition: the first retry was recorded", retry);
+        assertEquals("sent as retry 1 of 4", 4, retry.maxRetries);
+    }
+
     /** #893: system time, two actions, a tap that keeps the alert and opens the history. */
     @Test
     public void alertShowsItsTimeKeepsOnTapAndOffersBothActions() {
