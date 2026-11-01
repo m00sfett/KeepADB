@@ -74,6 +74,20 @@ public class KeepADBReportHistoryTest {
         assertEquals(1, KeepADBReportHistory.entries(context).size());
     }
 
+    /** Codex review: expired entries leave the stored file, not only the shown list. */
+    @Test
+    public void expiredEntriesAreRemovedFromDiskWithoutANewRecord() {
+        KeepADBReportHistory.report(context, "192.168.178.24:42631", true, "http=200", 0, 4);
+        KeepADBReportHistory.setNowForTesting(T0 + KeepADBReportHistory.MAX_AGE_MS + 1);
+
+        KeepADBReportHistory.pruneStored(context);
+
+        String stored = context.getSharedPreferences("keepadb_report_history", Context.MODE_PRIVATE)
+                .getString("entries", null);
+        assertTrue("no expired endpoint may stay on disk",
+                stored == null || !stored.contains("192.168.178.24"));
+    }
+
     @Test
     public void theCapKeepsTheNewestEntries() {
         for (int i = 0; i < KeepADBReportHistory.MAX_ENTRIES + 25; i++) {

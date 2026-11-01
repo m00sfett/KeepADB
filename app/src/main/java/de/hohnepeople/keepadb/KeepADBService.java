@@ -340,6 +340,8 @@ public class KeepADBService extends Service {
         KeepADBDiagnostics.snapshot(this);
         // #881: a sparse webhook re-attempt while a failure episode lasts (at most every 15 min).
         KeepADBRegisterClient.reattemptStaleEpisode(this);
+        // #892: expired report history entries leave the disk even while nothing new is recorded.
+        KeepADBReportHistory.pruneStored(this);
         // #582: an unreadable value is not treated as "on" -- it falls through to
         // recheckAndEnable() below, which re-derives every gate itself (including its own safe
         // read) instead of skipping straight to the "already on" health check on an unconfirmed

@@ -294,6 +294,35 @@ public class KeepADBWebhookAlertTest {
         assertNull("success removes the warning", alert());
     }
 
+    /** Codex review: a slow report never holds the broadcast past its window, and finishes once. */
+    @Test
+    public void reportNowReleasesTheBroadcastAfterTheHoldLimitAndOnlyOnce() throws Exception {
+        failReport();
+        transport.setPostSuccess(true);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        transport.setRequestCallback(request -> {
+            try {
+                release.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        java.util.concurrent.atomic.AtomicInteger finishes =
+                new java.util.concurrent.atomic.AtomicInteger();
+
+        KeepADBReceiver.handleReportNowAction(context, finishes::incrementAndGet);
+        ShadowLooper.idleMainLooper();
+        assertEquals("still waiting for the report", 0, finishes.get());
+        ShadowLooper.idleMainLooper(KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS, TimeUnit.MILLISECONDS);
+        assertEquals("released by the hold limit", 1, finishes.get());
+
+        release.countDown();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        assertEquals("the late completion does not finish twice", 1, finishes.get());
+    }
+
     @Test
     public void lostEndpointEndsTheEpisode() {
         failReport();

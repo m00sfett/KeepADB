@@ -96,13 +96,35 @@ final class KeepADBReportHistory {
         add(context, new Entry(now(), Event.UNREGISTER, endpoint, ok, outcome, retry, NO_MAX));
     }
 
-    /** Newest first, already pruned to the last 24 hours. */
+    /** Newest first, already pruned to the last 24 hours; expired entries are dropped from disk too. */
     static List<Entry> entries(Context context) {
         if (context == null) return Collections.emptyList();
         synchronized (KeepADBReportHistory.class) {
-            List<Entry> list = prune(read(prefs(context)), now());
+            List<Entry> list = pruneStored(context);
             Collections.reverse(list);
             return list;
+        }
+    }
+
+    /**
+     * Codex review: drops expired entries from the stored history, not only from what is shown,
+     * so full endpoints do not outlive the 24 hours while nothing new is recorded. Writes only
+     * when something was dropped. Returns the kept entries, oldest first.
+     */
+    static List<Entry> pruneStored(Context context) {
+        if (context == null) return new ArrayList<>();
+        synchronized (KeepADBReportHistory.class) {
+            SharedPreferences prefs = prefs(context);
+            List<Entry> stored = read(prefs);
+            List<Entry> kept = prune(stored, now());
+            if (kept.size() != stored.size()) {
+                if (kept.isEmpty()) {
+                    prefs.edit().remove(KEY_ENTRIES).apply();
+                } else {
+                    prefs.edit().putString(KEY_ENTRIES, serialize(kept)).apply();
+                }
+            }
+            return kept;
         }
     }
 

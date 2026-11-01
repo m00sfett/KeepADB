@@ -4,7 +4,11 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handles explicit KeepADB broadcast actions (such as the notification disable action).
@@ -54,10 +58,26 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             // Codex review: keep the process alive until the attempt is done, also without a
             // running foreground service.
             PendingResult pending = goAsync();
-            KeepADBRegisterClient.reportNowFromAlert(context.getApplicationContext(), () -> {
+            handleReportNowAction(context.getApplicationContext(), () -> {
                 if (pending != null) pending.finish();
             });
         }
+    }
+
+    /**
+     * Codex review: at most this long the broadcast stays open. Due cleanup DELETEs can run before
+     * the report, each with its own timeout, and the system kills a broadcast held past its window.
+     * The report itself keeps running on the register executor after that.
+     */
+    static final long REPORT_NOW_MAX_HOLD_MS = 8_000L;
+
+    static void handleReportNowAction(Context app, Runnable finishBroadcast) {
+        AtomicBoolean finished = new AtomicBoolean(false);
+        Runnable finish = () -> {
+            if (finished.compareAndSet(false, true)) finishBroadcast.run();
+        };
+        new Handler(Looper.getMainLooper()).postDelayed(finish, REPORT_NOW_MAX_HOLD_MS);
+        KeepADBRegisterClient.reportNowFromAlert(app, finish);
     }
 
     /**
