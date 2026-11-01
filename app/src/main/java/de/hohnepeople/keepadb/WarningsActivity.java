@@ -99,7 +99,8 @@ public final class WarningsActivity extends Activity {
                 control.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
                         android.graphics.Typeface.NORMAL));
                 control.setTextSize(17);
-                control.setTextColor(getColor(R.color.text_yellow));
+                // Yellow while it can be switched, muted like a disabled button when it cannot.
+                control.setTextColor(getColorStateList(R.color.btn_text_secondary));
                 control.setMinHeight(dp(48));
                 control.setChecked(muted);
                 control.setEnabled(muted || snapshot.active.contains(reason));
