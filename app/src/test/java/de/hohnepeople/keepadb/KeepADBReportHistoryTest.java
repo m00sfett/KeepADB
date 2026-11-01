@@ -179,6 +179,29 @@ public class KeepADBReportHistoryTest {
         assertTrue("the old registration's DELETE must be in the history", unregister);
     }
 
+    /** Codex review: deferred cleanup DELETEs carry their retry number and the attempt budget. */
+    @Test
+    public void deferredCleanupRetriesAreNumbered() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://old.example/register/s20");
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        for (long now : new long[] {1_000L, 31_000L, 91_000L}) {
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        }
+
+        List<KeepADBReportHistory.Entry> entries = KeepADBReportHistory.entries(context);
+        assertEquals(3, entries.size());
+        for (int i = 0; i < 3; i++) {
+            KeepADBReportHistory.Entry entry = entries.get(2 - i);
+            assertEquals(KeepADBReportHistory.Event.UNREGISTER, entry.event);
+            assertEquals(i + 1, entry.retry);
+            assertEquals(PendingCleanupRetryRepository.MAX_ATTEMPTS, entry.maxRetries);
+        }
+    }
+
     @Test
     public void rowDetailsNameTheEndpointTheResultAndTheRetry() {
         Context activity = Robolectric.buildActivity(ReportHistoryActivity.class).setup().get();

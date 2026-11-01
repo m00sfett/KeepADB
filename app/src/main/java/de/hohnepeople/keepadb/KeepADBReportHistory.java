@@ -93,7 +93,12 @@ final class KeepADBReportHistory {
     }
 
     static void unregister(Context context, String endpoint, boolean ok, String outcome, int retry) {
-        add(context, new Entry(now(), Event.UNREGISTER, endpoint, ok, outcome, retry, NO_MAX));
+        unregister(context, endpoint, ok, outcome, retry, NO_MAX);
+    }
+
+    static void unregister(Context context, String endpoint, boolean ok, String outcome, int retry,
+            int maxRetries) {
+        add(context, new Entry(now(), Event.UNREGISTER, endpoint, ok, outcome, retry, maxRetries));
     }
 
     /** Newest first, already pruned to the last 24 hours; expired entries are dropped from disk too. */

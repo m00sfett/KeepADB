@@ -197,12 +197,12 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertFalse("the in-memory #562 gate must stay on the monotonic clock",
                 gateClock.contains("currentTimeMillis"));
         assertTrue("the persisted record is handed the wall clock and nothing else",
-                bodyOf(client, "private static boolean shouldAttemptPendingCleanup(")
+                bodyOf(client, "private static PendingCleanupRetryRepository.RetryState duePendingCleanup(")
                         .contains("pendingCleanupNow()"));
         assertTrue(bodyOf(client, "private static void recordPendingCleanupFailure(")
                 .contains("pendingCleanupNow()"));
         assertFalse("the persisted record must not use the #562 gate's clock",
-                bodyOf(client, "private static boolean shouldAttemptPendingCleanup(")
+                bodyOf(client, "private static PendingCleanupRetryRepository.RetryState duePendingCleanup(")
                         .contains("markUnavailableNow()"));
         assertFalse(bodyOf(client, "private static void recordPendingCleanupFailure(")
                 .contains("markUnavailableNow()"));

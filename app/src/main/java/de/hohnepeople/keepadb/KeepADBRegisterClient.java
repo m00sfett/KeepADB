@@ -591,16 +591,20 @@ final class KeepADBRegisterClient {
                 removePendingCleanupsForResource(context, sanitizedUrl);
                 continue;
             }
-            if (!shouldAttemptPendingCleanup(context, url)) {
+            PendingCleanupRetryRepository.RetryState due = duePendingCleanup(context, url);
+            if (due == null) {
                 continue;
             }
             boolean deleted = false;
             if (sanitizedUrl != null) {
+                // The first DELETE ran with the URL change; every deferred attempt is a retry.
+                int retry = due.attempts + 1;
                 lastTransportOutcome = "unknown";
                 deleted = deleteEndpoint(sanitizedUrl);
                 // #892 (Codex review): a deferred cleanup is an unregister attempt as well; its
                 // endpoint is no longer known, and the URL is never recorded.
-                KeepADBReportHistory.unregister(context, "", deleted, lastTransportOutcome, 0);
+                KeepADBReportHistory.unregister(context, "", deleted, lastTransportOutcome, retry,
+                        PendingCleanupRetryRepository.MAX_ATTEMPTS);
             }
             if (deleted) {
                 removePendingCleanupsForResource(context, sanitizedUrl);
@@ -617,19 +621,20 @@ final class KeepADBRegisterClient {
      * The retry record and its numbers live in {@link PendingCleanupRetryRepository} (#701); this
      * client keeps the decision when an entry is attempted or discarded, and the clock.
      */
-    private static boolean shouldAttemptPendingCleanup(Context context, String entry) {
+    private static PendingCleanupRetryRepository.RetryState duePendingCleanup(Context context,
+            String entry) {
         long now = pendingCleanupNow();
         PendingCleanupRetryRepository.RetryState state =
                 PendingCleanupRetryRepository.read(context, entry, now);
         if (state.isExpired(now)) {
             discardPendingCleanup(context, entry, "expired");
-            return false;
+            return null;
         }
         if (state.isExhausted()) {
             discardPendingCleanup(context, entry, "attempt_limit");
-            return false;
+            return null;
         }
-        return state.isDue(now);
+        return state.isDue(now) ? state : null;
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {
