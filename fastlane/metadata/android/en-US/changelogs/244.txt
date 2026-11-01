@@ -1,0 +1,6 @@
+Everything since 1.8.38:
+• Setup assistant and a calmer home screen that only shows real problems.
+• Networks list: trust, block and name Wi-Fi access points. New installs re-enable only at trusted ones. Optional Force mode and auto-off on untrusted Wi-Fi.
+• Privacy: details hidden on the lock screen; unlock needed to switch on.
+• Webhook sync retries, warns clearly and keeps a report history.
+• Clearer warnings, wide-screen layout, app-styled buttons, accessibility fixes.
