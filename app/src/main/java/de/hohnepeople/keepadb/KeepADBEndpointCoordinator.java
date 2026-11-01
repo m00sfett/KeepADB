@@ -511,6 +511,10 @@ final class KeepADBEndpointCoordinator {
                     retryAttempt = 0;
                     cancelRetryLocked();
                     KeepADBNotification.renderEndpoint(appContext, host, port);
+                    // #892 (Codex review): recorded before the report is queued, so the history
+                    // never shows the report ahead of the endpoint it was for.
+                    KeepADBReportHistory.endpointFound(appContext,
+                            KeepADBEndpoint.formatEndpoint(host, port));
                     KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);
                     if (endpointListener != null) {
                         endpointListener.onEndpoint(host, port);
@@ -518,7 +522,6 @@ final class KeepADBEndpointCoordinator {
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
                         "host=" + host + " port=" + port);
-                KeepADBReportHistory.endpointFound(appContext, KeepADBEndpoint.formatEndpoint(host, port));
                 postSurfaceRefresh(appContext);
             }
 
@@ -545,6 +548,8 @@ final class KeepADBEndpointCoordinator {
                     } else {
                         KeepADBNotification.remove(appContext);
                     }
+                    // #892 (Codex review): before the DELETE is queued, as for a found endpoint.
+                    KeepADBReportHistory.endpointLost(appContext);
                     KeepADBRegisterClient.markUnavailableAsync(appContext);
                     if (endpointListener != null) {
                         endpointListener.onUnavailable();
@@ -552,7 +557,6 @@ final class KeepADBEndpointCoordinator {
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
                         "no_live_endpoint");
-                KeepADBReportHistory.endpointLost(appContext);
                 postSurfaceRefresh(appContext);
             }
         }, activeDiscoveryOwner == GLOBAL_DISCOVERY_OWNER);

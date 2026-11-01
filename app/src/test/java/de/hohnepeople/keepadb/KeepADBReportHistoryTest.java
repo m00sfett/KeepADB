@@ -223,6 +223,29 @@ public class KeepADBReportHistoryTest {
         }
     }
 
+    /**
+     * Codex review: the history shows append order, so an endpoint change must be appended before
+     * the webhook work for it is queued; otherwise a fast executor writes the report row first.
+     * Discovery cannot practically be driven to a resolved endpoint here, hence the source order.
+     */
+    @Test
+    public void endpointChangesAreRecordedBeforeTheirWebhookWorkIsQueued() throws Exception {
+        java.nio.file.Path dir = java.nio.file.Paths.get("").toAbsolutePath();
+        while (dir != null && !java.nio.file.Files.exists(dir.resolve("settings.gradle"))) {
+            dir = dir.getParent();
+        }
+        String source = new String(java.nio.file.Files.readAllBytes(dir.resolve(
+                "app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        int found = source.indexOf("KeepADBReportHistory.endpointFound(");
+        int update = source.indexOf("KeepADBRegisterClient.updateEndpointAsync(", found - 2000);
+        int lost = source.indexOf("KeepADBReportHistory.endpointLost(");
+        int unavailable = source.indexOf("KeepADBRegisterClient.markUnavailableAsync(", lost - 2000);
+        assertTrue(found > 0 && lost > 0);
+        assertTrue("endpointFound before updateEndpointAsync", found < update);
+        assertTrue("endpointLost before markUnavailableAsync", lost < unavailable);
+    }
+
     @Test
     public void rowDetailsNameTheEndpointTheResultAndTheRetry() {
         Context activity = Robolectric.buildActivity(ReportHistoryActivity.class).setup().get();
