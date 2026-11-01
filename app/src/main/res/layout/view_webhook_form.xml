@@ -137,14 +137,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:gravity="end"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
+            <!-- Stacked full width: side by side, long labels (e.g. German) broke mid-word. -->
             <Button
                 android:id="@+id/settings_webhook_vpn_battery"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_btn_secondary"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
@@ -159,7 +159,7 @@
 
             <Button
                 android:id="@+id/settings_webhook_vpn_settings"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_btn_secondary"
                 android:fontFamily="sans-serif-condensed"
