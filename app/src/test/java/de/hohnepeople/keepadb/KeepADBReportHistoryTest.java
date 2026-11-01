@@ -239,11 +239,39 @@ public class KeepADBReportHistoryTest {
                 java.nio.charset.StandardCharsets.UTF_8);
         int found = source.indexOf("KeepADBReportHistory.endpointFound(");
         int update = source.indexOf("KeepADBRegisterClient.updateEndpointAsync(", found - 2000);
-        int lost = source.indexOf("KeepADBReportHistory.endpointLost(");
-        int unavailable = source.indexOf("KeepADBRegisterClient.markUnavailableAsync(", lost - 2000);
-        assertTrue(found > 0 && lost > 0);
+        assertTrue(found > 0);
         assertTrue("endpointFound before updateEndpointAsync", found < update);
-        assertTrue("endpointLost before markUnavailableAsync", lost < unavailable);
+        // Every DELETE for a lost endpoint is preceded, in its own method, by the lost row.
+        int from = 0;
+        int deletes = 0;
+        while ((from = source.indexOf("KeepADBRegisterClient.markUnavailableAsync(", from)) >= 0) {
+            int method = Math.max(source.lastIndexOf("static synchronized void ", from),
+                    source.lastIndexOf("public void onUnavailable()", from));
+            assertTrue("lost row before the DELETE at offset " + from,
+                    source.substring(method, from).contains("recordEndpointLostLocked("));
+            deletes++;
+            from++;
+        }
+        assertTrue(deletes >= 3);
+        assertEquals("exactly the one guarded entry point writes the lost row", 1,
+                source.split("KeepADBReportHistory\\.endpointLost\\(", -1).length - 1);
+    }
+
+    /** Codex review: a discovery that fails without a known endpoint records no loss. */
+    @Test
+    public void clearingWithoutAKnownEndpointRecordsNoLoss() {
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADBEndpointCoordinator.invalidateEndpoint(context);
+        assertTrue(KeepADBReportHistory.entries(context).isEmpty());
+    }
+
+    /** Codex review: an expired endpoint row never swallows a new identical one. */
+    @Test
+    public void anExpiredEndpointRowDoesNotSuppressTheSameNewEvent() {
+        KeepADBReportHistory.endpointFound(context, "a:1");
+        KeepADBReportHistory.setNowForTesting(T0 + KeepADBReportHistory.MAX_AGE_MS + 1);
+        KeepADBReportHistory.endpointFound(context, "a:1");
+        assertEquals(1, KeepADBReportHistory.entries(context).size());
     }
 
     @Test

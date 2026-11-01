@@ -144,7 +144,8 @@ final class KeepADBReportHistory {
         if (context == null || entry.event == null) return;
         synchronized (KeepADBReportHistory.class) {
             SharedPreferences prefs = prefs(context);
-            List<Entry> list = read(prefs);
+            // Codex review: pruned first, so an expired endpoint row cannot swallow a new one.
+            List<Entry> list = prune(read(prefs), entry.timeMs);
             // Discovery retries repeat the same endpoint state; one line per change is enough.
             if (isEndpointEvent(entry.event) && !list.isEmpty()) {
                 Entry last = lastEndpointEntry(list);

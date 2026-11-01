@@ -207,6 +207,16 @@ final class KeepADBEndpointCoordinator {
         endpointListener = null;
     }
 
+    /**
+     * #892 (Codex review): a lost endpoint goes into the report history only when a known endpoint
+     * is actually cleared, on every clearing path, and before its DELETE is queued. A failed first
+     * discovery without a prior endpoint records nothing. Caller holds the class monitor.
+     */
+    private static void recordEndpointLostLocked(Context context) {
+        if (currentHost == null || context == null) return;
+        KeepADBReportHistory.endpointLost(context.getApplicationContext());
+    }
+
     static synchronized void invalidateEndpoint(Context context) {
         KeepADBDiagnostics.event(context, "endpoint_invalidated", "network", "success", "cached_endpoint_cleared");
         cancelRetryLocked();
@@ -217,6 +227,7 @@ final class KeepADBEndpointCoordinator {
         if (endpoint != null) {
             endpoint.stop();
         }
+        recordEndpointLostLocked(context);
         currentHost = null;
         currentPort = 0;
         currentEndpointVerifiedAtMs = 0;
@@ -349,6 +360,7 @@ final class KeepADBEndpointCoordinator {
                 KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
                         "stale_invalidated", "host=" + host + " port=" + port);
                 resetReachableConfirmed();
+                recordEndpointLostLocked(appContext);
                 currentHost = null;
                 currentPort = 0;
                 currentEndpointVerifiedAtMs = 0;
@@ -532,6 +544,7 @@ final class KeepADBEndpointCoordinator {
                     // Every endpoint-state mutation must bump this token at its mutation site,
                     // independent of caller-side bumps.
                     endpointVerificationToken++;
+                    recordEndpointLostLocked(appContext);
                     currentHost = null;
                     currentPort = 0;
                     currentEndpointVerifiedAtMs = 0;
@@ -548,8 +561,6 @@ final class KeepADBEndpointCoordinator {
                     } else {
                         KeepADBNotification.remove(appContext);
                     }
-                    // #892 (Codex review): before the DELETE is queued, as for a found endpoint.
-                    KeepADBReportHistory.endpointLost(appContext);
                     KeepADBRegisterClient.markUnavailableAsync(appContext);
                     if (endpointListener != null) {
                         endpointListener.onUnavailable();
@@ -609,6 +620,7 @@ final class KeepADBEndpointCoordinator {
             endpoint.stop();
             endpoint = null;
         }
+        recordEndpointLostLocked(appContext);
         currentHost = null;
         currentPort = 0;
         currentEndpointVerifiedAtMs = 0;
@@ -630,6 +642,7 @@ final class KeepADBEndpointCoordinator {
             endpoint.stop();
             endpoint = null;
         }
+        recordEndpointLostLocked(context);
         currentHost = null;
         currentPort = 0;
         currentEndpointVerifiedAtMs = 0;
