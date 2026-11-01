@@ -1,0 +1,3 @@
+The webhook warning now says what is wrong, since when, that it clears itself, and offers Report now and Battery tips.
+New Report history in Settings shows endpoints and report results of the last 24 hours.
+A hint helps exempt the VPN app carrying your webhook from battery optimization.
