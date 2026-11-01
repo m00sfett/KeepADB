@@ -193,11 +193,21 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String sanitized = sanitizeWebhookUrl(url);
-        if (sanitized == null || sanitized.trim().isEmpty()) {
-            prefs.edit().remove(KEY_REGISTER_URL).apply();
+        String next = sanitized == null ? "" : sanitized.trim();
+        SharedPreferences.Editor editor = prefs.edit();
+        if (next.isEmpty()) {
+            editor.remove(KEY_REGISTER_URL);
         } else {
-            prefs.edit().putString(KEY_REGISTER_URL, sanitized.trim()).apply();
+            editor.putString(KEY_REGISTER_URL, next);
         }
+        // #893 (Codex review): a success belongs to the URL that accepted it. Replacing a URL
+        // leaves the new destination without one; 0 (not a removed key) also keeps the legacy
+        // fallback from answering. A first URL has no earlier success to drop.
+        String previous = prefs.getString(KEY_REGISTER_URL, "");
+        if (!previous.isEmpty() && !next.equals(previous)) {
+            editor.putLong(KEY_WEBHOOK_LAST_SUCCESS_AT, 0L);
+        }
+        editor.apply();
         KeepADBWarningState.observe(context);
     }
 

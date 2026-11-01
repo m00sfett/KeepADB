@@ -225,6 +225,23 @@ public class KeepADBWebhookAlertTest {
         }
     }
 
+    /** Codex review: a success at a previous webhook URL is not claimed for the new one. */
+    @Test
+    public void aUrlChangeDropsTheLastSuccessOfThePreviousDestination() {
+        Context english = KeepADBLocaleHelper.wrapContext(context);
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        assertTrue("the same URL keeps its success",
+                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
+        KeepADBPreferences.setWebhookFailureEpisode(context, START, 0);
+
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertTrue(KeepADBWebhookAlert.text(english).contains("no successful report yet"));
+    }
+
     /** #893: system time, two actions, a tap that keeps the alert and opens the history. */
     @Test
     public void alertShowsItsTimeKeepsOnTapAndOffersBothActions() {
