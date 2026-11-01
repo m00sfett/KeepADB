@@ -111,4 +111,67 @@
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <!-- #891: a calm hint while the webhook is on; the VPN app carrying it needs the same battery
+         exemption as KeepADB. Product names appear in the text only, nothing is detected. -->
+    <LinearLayout
+        android:id="@+id/settings_webhook_vpn_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel_advice"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/settings_webhook_vpn_hint_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="@string/settings_webhook_vpn_hint"
+            android:textColor="@color/night_text"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/settings_webhook_vpn_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_btn_secondary"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/settings_webhook_vpn_battery_button"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/settings_webhook_vpn_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_secondary"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/settings_webhook_vpn_settings_button"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
 </merge>

@@ -598,4 +598,8 @@
     <string name="webhook_alert_text_scope">Это описывает только отчёты KeepADB, а не то, недоступны ли сеть или сервер.</string>
     <string name="settings_webhook_freshness_toggle">Указывать последний успешный отчёт</string>
     <string name="settings_webhook_freshness_subtext">Предупреждение появляется через минуту без успешного отчёта, напоминание — через час; затем ничего не появляется, пока отчёт не будет успешным. Если включено, также указывается время последнего успешного отчёта.</string>
+    <string name="settings_webhook_vpn_hint">Ваш webhook работает через VPN-приложение, например Tailscale или NetBird? Исключите и его из оптимизации батареи. Иначе Android может заморозить его в режиме ожидания, и отчёты не дойдут.</string>
+    <string name="settings_webhook_vpn_battery_button">Настройки батареи</string>
+    <string name="settings_webhook_vpn_settings_button">Настройки VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">Если webhook работает через VPN-приложение, исключите и его из оптимизации батареи.</string>
 </resources>

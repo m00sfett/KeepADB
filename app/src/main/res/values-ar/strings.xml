@@ -600,4 +600,8 @@
     <string name="webhook_alert_text_scope">يصف هذا تقارير KeepADB فقط، ولا يبيّن ما إذا كانت الشبكة أو الخادم متوقفين.</string>
     <string name="settings_webhook_freshness_toggle">ذكر آخر تقرير ناجح</string>
     <string name="settings_webhook_freshness_subtext">يظهر التحذير بعد دقيقة بلا تقرير ناجح، مع تذكير واحد بعد ساعة؛ ثم يبقى صامتًا حتى ينجح تقرير. عند تفعيل هذا الخيار، يذكر أيضًا متى نجح آخر تقرير.</string>
+    <string name="settings_webhook_vpn_hint">هل يعمل الـ Webhook عبر تطبيق VPN مثل Tailscale أو NetBird؟ استثنِ هذا التطبيق أيضًا من تحسين البطارية، وإلا فقد يجمّده Android في وضع الاستعداد ولن تصل الرسائل.</string>
+    <string name="settings_webhook_vpn_battery_button">إعدادات البطارية</string>
+    <string name="settings_webhook_vpn_settings_button">إعدادات VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">إذا كان الـ Webhook يعمل عبر تطبيق VPN، فاستثنِ هذا التطبيق أيضًا من تحسين البطارية.</string>
 </resources>

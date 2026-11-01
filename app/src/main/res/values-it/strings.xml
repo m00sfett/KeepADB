@@ -597,4 +597,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="webhook_alert_text_scope">Questo descrive solo le segnalazioni di KeepADB, non se la rete o il server sono fuori servizio.</string>
     <string name="settings_webhook_freshness_toggle">Indica l\'ultima segnalazione riuscita</string>
     <string name="settings_webhook_freshness_subtext">L\'avviso compare dopo un minuto senza segnalazioni riuscite, con un promemoria dopo un\'ora; poi resta in silenzio finché una segnalazione non riesce. Se attivo, indica anche quando una segnalazione è riuscita l\'ultima volta.</string>
+    <string name="settings_webhook_vpn_hint">Il tuo webhook passa da un\'app VPN come Tailscale o NetBird? Escludi anche quell\'app dall\'ottimizzazione della batteria. Altrimenti Android può congelarla in standby e le segnalazioni non arrivano.</string>
+    <string name="settings_webhook_vpn_battery_button">Impostazioni batteria</string>
+    <string name="settings_webhook_vpn_settings_button">Impostazioni VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">Se il tuo webhook passa da un\'app VPN, escludi anche quell\'app dall\'ottimizzazione della batteria.</string>
 </resources>

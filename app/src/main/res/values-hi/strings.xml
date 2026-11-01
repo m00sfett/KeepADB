@@ -596,4 +596,8 @@
     <string name="webhook_alert_text_scope">यह केवल KeepADB की रिपोर्ट के बारे में है, यह नहीं कि नेटवर्क या सर्वर बंद है।</string>
     <string name="settings_webhook_freshness_toggle">पिछली सफल रिपोर्ट बताएँ</string>
     <string name="settings_webhook_freshness_subtext">सफल रिपोर्ट के बिना एक मिनट बाद चेतावनी दिखती है, और एक घंटे बाद एक बार याद दिलाया जाता है; उसके बाद कोई रिपोर्ट सफल होने तक कुछ नहीं दिखता। चालू होने पर यह भी बताया जाता है कि पिछली बार रिपोर्ट कब सफल हुई।</string>
+    <string name="settings_webhook_vpn_hint">क्या आपका webhook Tailscale या NetBird जैसे किसी VPN ऐप से होकर चलता है? उस ऐप को भी बैटरी ऑप्टिमाइज़ेशन से बाहर रखें, वरना Android उसे स्टैंडबाय में रोक सकता है और रिपोर्ट नहीं पहुँचेंगी।</string>
+    <string name="settings_webhook_vpn_battery_button">बैटरी सेटिंग</string>
+    <string name="settings_webhook_vpn_settings_button">VPN सेटिंग</string>
+    <string name="onboarding_perm_battery_vpn_note">अगर आपका webhook किसी VPN ऐप से होकर चलता है, तो उस ऐप को भी बैटरी ऑप्टिमाइज़ेशन से बाहर रखें।</string>
 </resources>

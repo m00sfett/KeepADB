@@ -596,4 +596,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="webhook_alert_text_scope">Dit beschrijft alleen de meldingen van KeepADB, niet of het netwerk of de server uitgevallen is.</string>
     <string name="settings_webhook_freshness_toggle">Laatste geslaagde melding noemen</string>
     <string name="settings_webhook_freshness_subtext">De waarschuwing verschijnt na een minuut zonder geslaagde melding, met één herinnering na een uur; daarna blijft het stil tot een melding slaagt. Als dit aan staat, noemt ze ook wanneer een melding voor het laatst slaagde.</string>
+    <string name="settings_webhook_vpn_hint">Loopt je webhook via een VPN-app zoals Tailscale of NetBird? Zonder die app dan ook uit van batterijoptimalisatie. Anders kan Android hem in stand-by bevriezen en komen meldingen niet aan.</string>
+    <string name="settings_webhook_vpn_battery_button">Batterij-instellingen</string>
+    <string name="settings_webhook_vpn_settings_button">VPN-instellingen</string>
+    <string name="onboarding_perm_battery_vpn_note">Loopt je webhook via een VPN-app, zonder die app dan ook uit van batterijoptimalisatie.</string>
 </resources>

@@ -597,4 +597,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="webhook_alert_text_scope">Isto descreve apenas os relatórios do KeepADB, não se a rede ou o servidor estão fora do ar.</string>
     <string name="settings_webhook_freshness_toggle">Indicar o último relatório bem-sucedido</string>
     <string name="settings_webhook_freshness_subtext">O aviso aparece após um minuto sem relatório bem-sucedido, com um lembrete após uma hora; depois fica em silêncio até um relatório ter sucesso. Quando ativado, também indica quando um relatório teve sucesso pela última vez.</string>
+    <string name="settings_webhook_vpn_hint">O seu webhook passa por um app de VPN como Tailscale ou NetBird? Exclua também esse app da otimização de bateria. Caso contrário, o Android pode congelá-lo em espera e os relatórios não chegam.</string>
+    <string name="settings_webhook_vpn_battery_button">Configurações de bateria</string>
+    <string name="settings_webhook_vpn_settings_button">Configurações de VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">Se o seu webhook passa por um app de VPN, exclua também esse app da otimização de bateria.</string>
 </resources>

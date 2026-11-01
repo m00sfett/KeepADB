@@ -596,4 +596,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="webhook_alert_text_scope">Das beschreibt nur die Meldungen von KeepADB, nicht, ob Netz oder Server ausgefallen sind.</string>
     <string name="settings_webhook_freshness_toggle">Letzte erfolgreiche Meldung nennen</string>
     <string name="settings_webhook_freshness_subtext">Die Warnung erscheint nach einer Minute ohne erfolgreiche Meldung, mit einer Erinnerung nach einer Stunde; danach bleibt es still, bis eine Meldung gelingt. Ist dies an, nennt sie auch, wann zuletzt eine Meldung gelang.</string>
+    <string name="settings_webhook_vpn_hint">Läuft dein Webhook über eine VPN-App wie Tailscale oder NetBird? Nimm auch diese App von der Akkuoptimierung aus. Sonst kann Android sie im Standby einfrieren und Meldungen kommen nicht an.</string>
+    <string name="settings_webhook_vpn_battery_button">Akku-Einstellungen</string>
+    <string name="settings_webhook_vpn_settings_button">VPN-Einstellungen</string>
+    <string name="onboarding_perm_battery_vpn_note">Läuft dein Webhook über eine VPN-App, nimm auch diese App von der Akkuoptimierung aus.</string>
 </resources>

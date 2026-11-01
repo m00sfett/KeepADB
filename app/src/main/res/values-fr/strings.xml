@@ -597,4 +597,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="webhook_alert_text_scope">Cela décrit uniquement les signalements de KeepADB, pas une panne du réseau ou du serveur.</string>
     <string name="settings_webhook_freshness_toggle">Indiquer le dernier signalement réussi</string>
     <string name="settings_webhook_freshness_subtext">L\'alerte apparaît après une minute sans signalement réussi, avec un rappel après une heure ; ensuite, elle reste silencieuse jusqu\'à ce qu\'un signalement réussisse. Si cette option est activée, elle indique aussi quand un signalement a réussi pour la dernière fois.</string>
+    <string name="settings_webhook_vpn_hint">Votre webhook passe-t-il par une app VPN comme Tailscale ou NetBird ? Excluez aussi cette app de l\'optimisation de la batterie. Sinon, Android peut la geler en veille et les signalements n\'arriveront pas.</string>
+    <string name="settings_webhook_vpn_battery_button">Réglages batterie</string>
+    <string name="settings_webhook_vpn_settings_button">Réglages VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">Si votre webhook passe par une app VPN, excluez aussi cette app de l\'optimisation de la batterie.</string>
 </resources>

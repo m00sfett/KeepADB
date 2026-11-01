@@ -603,4 +603,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="webhook_alert_text_scope">This only describes KeepADB\'s reports, not whether the network or the server is down.</string>
     <string name="settings_webhook_freshness_toggle">Name the last successful report</string>
     <string name="settings_webhook_freshness_subtext">The warning appears after one minute without a successful report, with one reminder after an hour; then it stays quiet until a report succeeds. When this is on, it also names when a report last succeeded.</string>
+    <string name="settings_webhook_vpn_hint">Does your webhook run through a VPN app such as Tailscale or NetBird? Exempt that app from battery optimization too. Otherwise Android may freeze it in standby and reports won\'t get through.</string>
+    <string name="settings_webhook_vpn_battery_button">Battery settings</string>
+    <string name="settings_webhook_vpn_settings_button">VPN settings</string>
+    <string name="onboarding_perm_battery_vpn_note">If your webhook runs through a VPN app, exempt that app from battery optimization too.</string>
 </resources>

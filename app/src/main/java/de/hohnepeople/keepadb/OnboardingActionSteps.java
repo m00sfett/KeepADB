@@ -187,6 +187,10 @@ final class OnboardingActionSteps {
                             false, v -> KeepADBBatteryOptimization.openSettings(host)));
                 }
             }
+            // #891: the VPN app that carries the webhook needs the same exemption.
+            if (KeepADBPreferences.isRegisterWebhookEnabled(host)) {
+                row.addView(muted(host.getString(R.string.onboarding_perm_battery_vpn_note)));
+            }
 
             announceChanges(status);
             lastStatus.clear();

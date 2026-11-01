@@ -595,4 +595,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="webhook_alert_text_scope">Điều này chỉ mô tả các báo cáo của KeepADB, không cho biết mạng hay máy chủ có bị sập hay không.</string>
     <string name="settings_webhook_freshness_toggle">Nêu báo cáo thành công gần nhất</string>
     <string name="settings_webhook_freshness_subtext">Cảnh báo xuất hiện sau một phút không có báo cáo thành công, nhắc lại một lần sau một giờ; sau đó im lặng cho đến khi có báo cáo thành công. Khi bật, cảnh báo cũng nêu thời điểm báo cáo thành công gần nhất.</string>
+    <string name="settings_webhook_vpn_hint">Webhook của bạn có chạy qua một ứng dụng VPN như Tailscale hoặc NetBird không? Hãy loại cả ứng dụng đó khỏi tối ưu hóa pin. Nếu không, Android có thể đóng băng nó khi ở chế độ chờ và báo cáo sẽ không đến nơi.</string>
+    <string name="settings_webhook_vpn_battery_button">Cài đặt pin</string>
+    <string name="settings_webhook_vpn_settings_button">Cài đặt VPN</string>
+    <string name="onboarding_perm_battery_vpn_note">Nếu webhook chạy qua một ứng dụng VPN, hãy loại cả ứng dụng đó khỏi tối ưu hóa pin.</string>
 </resources>

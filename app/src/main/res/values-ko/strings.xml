@@ -595,4 +595,8 @@
     <string name="webhook_alert_text_scope">이는 KeepADB의 보고에 대한 설명일 뿐, 네트워크나 서버가 중단되었는지를 나타내지 않습니다.</string>
     <string name="settings_webhook_freshness_toggle">마지막 성공 보고 표시</string>
     <string name="settings_webhook_freshness_subtext">성공한 보고 없이 1분이 지나면 경고가 표시되고, 1시간 후 한 번 다시 알립니다. 그 후에는 보고가 성공할 때까지 알리지 않습니다. 켜면 마지막으로 보고가 성공한 시각도 표시합니다.</string>
+    <string name="settings_webhook_vpn_hint">Webhook이 Tailscale이나 NetBird 같은 VPN 앱을 거치나요? 그 앱도 배터리 최적화에서 제외하세요. 그렇지 않으면 Android가 대기 중에 앱을 멈춰 보고가 전달되지 않을 수 있습니다.</string>
+    <string name="settings_webhook_vpn_battery_button">배터리 설정</string>
+    <string name="settings_webhook_vpn_settings_button">VPN 설정</string>
+    <string name="onboarding_perm_battery_vpn_note">Webhook이 VPN 앱을 거친다면 그 앱도 배터리 최적화에서 제외하세요.</string>
 </resources>

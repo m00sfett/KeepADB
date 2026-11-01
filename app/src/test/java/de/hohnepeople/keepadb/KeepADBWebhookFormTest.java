@@ -166,6 +166,35 @@ public class KeepADBWebhookFormTest {
                 View.VISIBLE, warning.getVisibility());
     }
 
+    /** #891: the VPN battery hint follows the enabled flag and opens only system screens. */
+    @Test
+    public void vpnBatteryHintIsShownOnlyWhileTheWebhookIsEnabled() {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> { });
+        View hint = activity.findViewById(R.id.settings_webhook_vpn_hint);
+
+        form.refreshVisual();
+        assertEquals("Hint must stay hidden while the webhook is off", View.GONE, hint.getVisibility());
+
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        form.refreshVisual();
+        assertEquals(View.VISIBLE, hint.getVisibility());
+
+        activity.findViewById(R.id.settings_webhook_vpn_battery).performClick();
+        android.content.Intent battery = org.robolectric.Shadows.shadowOf(activity).getNextStartedActivity();
+        assertEquals(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS,
+                battery.getAction());
+        assertEquals("No package may be addressed: KeepADB detects no VPN product",
+                null, battery.getData());
+        activity.findViewById(R.id.settings_webhook_vpn_settings).performClick();
+        assertEquals(android.provider.Settings.ACTION_VPN_SETTINGS,
+                org.robolectric.Shadows.shadowOf(activity).getNextStartedActivity().getAction());
+
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, false);
+        form.refreshVisual();
+        assertEquals(View.GONE, hint.getVisibility());
+    }
+
     /**
      * #595 AC2, save side of the empty-input rules: with the webhook disabled, saving an empty
      * (whitespace-only) field is an explicit "forget the URL" and succeeds.

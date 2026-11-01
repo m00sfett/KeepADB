@@ -37,4 +37,31 @@ final class KeepADBBatteryOptimization {
             }
         }
     }
+
+    /**
+     * #891: the system list of all apps' battery optimization, where the user can exempt the VPN
+     * app that carries the webhook. KeepADB names no product and queries no package; it only opens
+     * the system screen, falling back to the battery saver and then the general settings.
+     */
+    static void openOptimizationList(Activity activity) {
+        startFirst(activity, Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS,
+                Settings.ACTION_BATTERY_SAVER_SETTINGS, Settings.ACTION_SETTINGS);
+    }
+
+    /** #891: the system VPN settings, which list the installed VPN apps. */
+    static void openVpnSettings(Activity activity) {
+        startFirst(activity, Settings.ACTION_VPN_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS,
+                Settings.ACTION_SETTINGS);
+    }
+
+    private static void startFirst(Activity activity, String... actions) {
+        for (String action : actions) {
+            try {
+                activity.startActivity(new Intent(action));
+                return;
+            } catch (ActivityNotFoundException | SecurityException ignored) {
+                // Try the next, more general screen.
+            }
+        }
+    }
 }

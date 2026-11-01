@@ -36,6 +36,8 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     public static final String EXTRA_FOCUS_DETAILS = "focus_notification_details";
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
+    /** #891/#893: the webhook alert's "Battery tips" action lands on the VPN battery hint. */
+    public static final String EXTRA_FOCUS_WEBHOOK_VPN_HINT = "focus_webhook_vpn_hint";
     public static final String EXTRA_FOCUS_MISC = "focus_misc";
     // The menu opens the card heading; the existing Keep-Alive entry keeps its level-row target.
     public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
@@ -300,6 +302,15 @@ public class SettingsActivity extends Activity {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
                     R.id.settings_webhook_arrow);
             focusWarningTarget(findViewById(R.id.settings_webhook_url));
+        }
+        if (consumeFocus(EXTRA_FOCUS_WEBHOOK_VPN_HINT)) {
+            focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
+                    R.id.settings_webhook_arrow);
+            // Hidden while the webhook is off; the expanded section is the target then.
+            View hint = findViewById(R.id.settings_webhook_vpn_hint);
+            if (hint.getVisibility() == View.VISIBLE) {
+                focusWarningTarget(findViewById(R.id.settings_webhook_vpn_hint_text));
+            }
         }
         if (consumeFocus(EXTRA_FOCUS_DETAILS)) {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow);

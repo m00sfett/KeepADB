@@ -596,4 +596,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="webhook_alert_text_scope">Bu yalnızca KeepADB bildirimlerini açıklar; ağın veya sunucunun çalışmadığını göstermez.</string>
     <string name="settings_webhook_freshness_toggle">Son başarılı bildirimi göster</string>
     <string name="settings_webhook_freshness_subtext">Uyarı, başarılı bildirim olmadan bir dakika geçince görünür, bir saat sonra bir kez hatırlatılır; ardından bir bildirim başarılı olana kadar sessiz kalır. Açıksa son başarılı bildirimin zamanını da gösterir.</string>
+    <string name="settings_webhook_vpn_hint">Webhook\'unuz Tailscale veya NetBird gibi bir VPN uygulaması üzerinden mi çalışıyor? O uygulamayı da pil optimizasyonundan hariç tutun. Aksi halde Android onu bekleme modunda dondurabilir ve bildirimler ulaşmaz.</string>
+    <string name="settings_webhook_vpn_battery_button">Pil ayarları</string>
+    <string name="settings_webhook_vpn_settings_button">VPN ayarları</string>
+    <string name="onboarding_perm_battery_vpn_note">Webhook\'unuz bir VPN uygulaması üzerinden çalışıyorsa o uygulamayı da pil optimizasyonundan hariç tutun.</string>
 </resources>

@@ -595,4 +595,8 @@
     <string name="webhook_alert_text_scope">これは KeepADB の報告についてのみ示すもので、ネットワークやサーバーの停止を示すものではありません。</string>
     <string name="settings_webhook_freshness_toggle">最後に成功した報告を表示</string>
     <string name="settings_webhook_freshness_subtext">成功した報告がないまま 1 分たつと警告が表示され、1 時間後に 1 回だけ再通知されます。その後は報告が成功するまで通知しません。オンにすると、最後に報告が成功した日時も表示します。</string>
+    <string name="settings_webhook_vpn_hint">Webhook は Tailscale や NetBird などの VPN アプリを経由していますか?そのアプリもバッテリーの最適化から除外してください。除外しないと、Android がスタンバイ中にアプリを停止し、報告が届かなくなることがあります。</string>
+    <string name="settings_webhook_vpn_battery_button">バッテリー設定</string>
+    <string name="settings_webhook_vpn_settings_button">VPN 設定</string>
+    <string name="onboarding_perm_battery_vpn_note">Webhook が VPN アプリを経由している場合は、そのアプリもバッテリーの最適化から除外してください。</string>
 </resources>

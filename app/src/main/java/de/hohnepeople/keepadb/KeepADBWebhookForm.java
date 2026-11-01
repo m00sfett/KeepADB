@@ -41,6 +41,7 @@ final class KeepADBWebhookForm {
     private final EditText urlInput;
     private final TextView error;
     private final TextView cleartextWarning;
+    private final View vpnHint;
 
     private boolean draftInitialized;
 
@@ -67,6 +68,11 @@ final class KeepADBWebhookForm {
         this.urlInput = urlInput;
         this.error = error;
         this.cleartextWarning = cleartextWarning;
+        this.vpnHint = root.findViewById(R.id.settings_webhook_vpn_hint);
+        root.findViewById(R.id.settings_webhook_vpn_battery).setOnClickListener(
+                v -> KeepADBBatteryOptimization.openOptimizationList(activity));
+        root.findViewById(R.id.settings_webhook_vpn_settings).setOnClickListener(
+                v -> KeepADBBatteryOptimization.openVpnSettings(activity));
 
         // The field wraps long text and the hint at large font sizes (#791); a URL never holds a
         // line break, so Enter must not add one.
@@ -141,6 +147,8 @@ final class KeepADBWebhookForm {
     void refreshVisual() {
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(activity);
         toggle.setChecked(webhookEnabled);
+        // #891: the VPN battery hint only matters while reports are actually sent.
+        vpnHint.setVisibility(webhookEnabled ? View.VISIBLE : View.GONE);
 
         String urlToCheck = (urlInput != null && urlInput.getText() != null)
                 ? urlInput.getText().toString().trim()
@@ -174,6 +182,7 @@ final class KeepADBWebhookForm {
         KeepADBPreferences.setRegisterWebhookUrl(activity, validUrl);
         KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
         toggle.setChecked(true);
+        vpnHint.setVisibility(View.VISIBLE);
         KeepADBEndpointCoordinator.refresh(activity);
         Toast.makeText(activity, R.string.settings_webhook_enabled_toast, Toast.LENGTH_SHORT).show();
     }
