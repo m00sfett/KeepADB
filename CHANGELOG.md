@@ -23,6 +23,13 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [Unreleased]
+
+### Documentation
+
+- `docs/package-id.md` no longer says that the F-Droid entry still points to hohnepeople.de; it
+  records the 1.11.0 links and the fdroiddata merge request !55473 for the `WebSite` change.
+
 ## [1.11.0] - 2026-11-01
 
 Stable release candidate after `v1.8.38` (#899). It contains no code change of its own on top of
