@@ -61,6 +61,7 @@ the beta `v1.10.15-beta.2` (240), so beta users receive the update.
 
 ### Documentation
 - `docs/package-id.md`: the F-Droid `WebSite:` status is dated 2026-11-01 (still `https://hohnepeople.de/keepadb`, changed in the fdroiddata merge request of the next stable release).
+- F-Droid store screenshots (`fastlane/metadata/android/en-US/images/phoneScreenshots/`): the single outdated screenshot is replaced by 8 current 1.11.0 screenshots (home, Quick Settings tile, new-Wi-Fi notification, setup help, background location, webhook step, trust prompt, networks list), emulator demo data only (#903).
 
 ## [1.10.17] - Unreleased
 
