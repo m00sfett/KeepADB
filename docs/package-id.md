@@ -20,9 +20,9 @@ move changes URLs only (Settings, feedback link, and store metadata), not the ap
 
 - New links (`https://keepadb.roteson.de` and feedback under `/feedback`) ship with `v1.11.0`
   (issue #754).
-- `WebSite:` in `fdroiddata/metadata/de.hohnepeople.keepadb.yml` changes from
-  `https://hohnepeople.de/keepadb` to `https://keepadb.roteson.de` with fdroiddata merge request
-  !55473, submitted on 2026-11-02 after the `v1.11.0` release.
+- fdroiddata merge request !55473, submitted on 2026-11-02 after the `v1.11.0` release, proposes
+  changing `WebSite:` in `fdroiddata/metadata/de.hohnepeople.keepadb.yml` from
+  `https://hohnepeople.de/keepadb` to `https://keepadb.roteson.de`.
 - Older installed versions (through 1.8.38) will continue opening hohnepeople.de; that site
   redirects to the new website. For the TLS chain note, see issue #749.
 
