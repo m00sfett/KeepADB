@@ -5,7 +5,7 @@ elapsed time, process ID, Android SDK level, event type, trigger, result, and a 
 
 ## View and share
 
-Under **Settings → Diagnostics & maintenance → Export diagnostics**, Android's share sheet opens
+Under **Settings → Diagnostics & Maintenance → Export diagnostics**, Android's share sheet opens
 a text export. KeepADB does not upload diagnostics automatically. An export leaves the app only
 after you select a destination. For a temporary live excerpt, use Android Logcat:
 
@@ -25,7 +25,7 @@ that is the subject of the diagnosis.
 
 In an export, a valid BSSID shows only its first three-octet block (the OUI, or manufacturer
 identifier); the remaining three blocks are masked. Invalid BSSID values and SSIDs are masked
-entirely. **Settings → Diagnostics & maintenance → Report a bug or translation** opens an editable
+entirely. **Settings → Diagnostics & Maintenance → Report a problem or translation** opens an editable
 report draft. If diagnostics are inserted there, the draft also masks the host and port and fully
 masks BSSID and SSID values.
 
