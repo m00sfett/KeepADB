@@ -8,7 +8,7 @@ Features:
 * Endpoint discovery through Android NSD/mDNS (_adb-tls-connect._tcp); timing depends on network conditions
 * Optional HTTP(S) webhook, disabled by default, for verified Wifi-ADB endpoints
 * Configurable status notification, endpoint display, and privacy mode to hide addresses in the app
-* Networks list to trust, block, and name Wi-Fi access points; optional time-limited Force mode
+* Networks list to trust, block, and name Wi-Fi access points; optional Force mode, for a chosen time or until you end it
 * 19 interface languages and right-to-left layout support
 * No advertising, analytics, tracking, or third-party runtime libraries
 
