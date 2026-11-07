@@ -158,7 +158,7 @@ forms and one tap target.
 - **Tap:** opens the “Trust this network?” dialog (`NetworkDecisionActivity`: a dialog screen,
   absent from the recent-apps list and never shown over the lock screen). It shows the Wi-Fi name
   and access-point BSSID, masked while the app privacy switch is on (#904; a “Show” button in the
-  dialog lifts that for the dialog until it is left), and offers: Trust, “Block this access
+  dialog lifts that for the dialog until it is left or the screen stops), and offers: Trust, “Block this access
   point only,” “Always block Wi-Fi name…” (unavailable if the name is hidden or unreadable), and
   “Decide later.” If the convenience switch is on, a note explains that other access points with
   this name will also be accepted. The dialog is built as a reusable view
@@ -254,7 +254,8 @@ the switch has no effect and the list says so.
 **Privacy (app switch, #904).** It replaces the entire list with a placeholder. No views or
 descriptions with Wi-Fi names or BSSIDs are built, including the embedded decision view (#766).
 The Settings count (“3 trusted · 1 blocked”) becomes “Hidden.” “Show” in the placeholder lifts
-this for the screen until it is left; it does not change the switch.
+this for the list until the screen stops; it does not change the switch. In the setup assistant
+the same “Show” belongs to the network page only and ends when the page changes.
 
 **Limit.** A block can affect only a network whose name or address is readable. If the network
 cannot be read and the previous “All Wi-Fi networks” setting is active, KeepADB continues enabling

@@ -36,12 +36,18 @@ are retrospective issue-version records and were never published as separate rel
 - **App switch with a per-screen “Show”:** the app switch is the former `privacy_mode_enabled`
   (key and stored value unchanged; the eye in the title bars and the header menu flip it). A
   deliberate “Show” (Networks list placeholder, assistant and dialog decision view, webhook field,
-  USB profile list) lifts the mask for that screen only; it ends when the screen stops, is
-  recreated, or the switch is turned on again, and never changes the stored switch. The setup
+  USB profile dialog) lifts the mask for that one part only (a scope: the list, the assistant
+  page, the dialog, the field), never for the rest of the screen; it ends when that part ends
+  (assistant page change, dialog dismissed), the screen stops or is recreated, or the switch is
+  turned on again, and never changes the stored switch. Home screen, Settings network card,
+  report history, the Settings USB line and shared diagnostics are eye-only and read the stored
+  switch alone. A still-open unmasked USB dialog is closed when the screen stops, the webhook
+  field is masked again on return. Webhook host names are masked in the privacy display; an IPv4
+  address keeps its first octet and the port stays visible in the app (decision). The setup
   assistant and the “Trust this network?” dialog no longer show the name and BSSID unmasked in
   privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
   them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the
-  privacy mode off for good; it now reveals the screen only.
+  privacy mode off for good; it now reveals the list only.
 - **Webhook field and USB profiles masked:** with the app switch on, the saved webhook URL appears
   with its host masked and a “Show” instead of the editable field; the USB host profile list shows
   numbered profiles with masked addresses, hides “Edit” until “Show”, and the Settings line names
@@ -61,6 +67,9 @@ are retrospective issue-version records and were never published as separate rel
   the first page of the assistant or in the Settings. They can appear on the lock screen if
   Android shows sensitive content there. Documented in `SECURITY.md`, `docs/defaults.md` and the
   README.
+- **A posted trust notice follows the switch at once:** turning the notification switch on replaces
+  an already posted “new Wi-Fi” notice (name, BSSID, Allow/Block buttons) by the neutral form, or
+  removes it when it cannot be posted again.
 - **Nothing is loosened for existing installations:** once, at the first start
   (`KeepADBApplication` → `KeepADBPreferences.migratePrivacySplit`, pattern of #760), the
   notification switch is derived from `notification_details_enabled` (absent or `false` = details

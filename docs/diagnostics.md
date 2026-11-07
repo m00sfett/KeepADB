@@ -27,8 +27,8 @@ In an export, a valid BSSID shows only its first three-octet block (the OUI, or 
 identifier); the remaining three blocks are masked. Invalid BSSID values and SSIDs are masked
 entirely. **Settings → Diagnostics & Maintenance → Report a problem or translation** opens an editable
 report draft. If diagnostics are inserted there, the draft also masks the host and port and fully
-masks BSSID and SSID values. While the app privacy switch masks the Settings screen (#904, and no
-“Show” was chosen on it), **Share diagnostics** applies the same full redaction of host, port,
+masks BSSID and SSID values. While the app privacy switch is on (#904; the Settings screen has no
+“Show” for it), **Share diagnostics** applies the same full redaction of host, port,
 BSSID and SSID to the exported text.
 
 Logcat has Android's own retention period. A diagnostics export may still contain private network
