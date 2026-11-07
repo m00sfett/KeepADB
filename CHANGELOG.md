@@ -23,6 +23,75 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.4] - Unreleased
+
+### Changed
+- **Privacy is three independent opt-in switches (#904):** the single privacy mode is split by
+  area, each switch masking only its own: **app** (every screen and dialog: setup assistant, trust
+  decision, Networks list, report history, webhook field, USB host profiles, shared diagnostics,
+  toasts), **notifications** (every KeepADB notification, lock screen included) and **widgets**
+  (the home-screen widget and the Quick Settings tile). While a switch is on, no unmasked Wi-Fi
+  name, BSSID, IP address or port appears in its area; notifications and widgets omit the data and
+  have no reveal. All three are off on a new installation (`docs/defaults.md`).
+- **App switch with a per-screen “Show”:** the app switch is the former `privacy_mode_enabled`
+  (key and stored value unchanged; the eye in the title bars and the header menu flip it). A
+  deliberate “Show” (Networks list placeholder, assistant and dialog decision view, webhook field,
+  USB profile list) lifts the mask for that screen only; it ends when the screen stops, is
+  recreated, or the switch is turned on again, and never changes the stored switch. The setup
+  assistant and the “Trust this network?” dialog no longer show the name and BSSID unmasked in
+  privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
+  them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the
+  privacy mode off for good; it now reveals the screen only.
+- **Webhook field and USB profiles masked:** with the app switch on, the saved webhook URL appears
+  with its host masked and a “Show” instead of the editable field; the USB host profile list shows
+  numbered profiles with masked addresses, hides “Edit” until “Show”, and the Settings line names
+  no profile. “Share diagnostics” redacts host, port, BSSID and SSID like the feedback draft.
+- **Setup assistant:** the three switches sit on the intro page below the intro text (also in the
+  variant for existing installations), before any step shows data; they write at once. The
+  “Lock screen” step is removed (5 steps instead of 6): its question is the notification switch.
+- **Settings:** the “Show connection details in notifications” row is replaced by a “Privacy”
+  section with the three switches.
+
+### Security
+- **Deliberate weakening for new installations (#904, decision of 2026-11-07):** the former opt-in
+  “notification details” (#592) hid port, IP address, USB profile, Wi-Fi name and BSSID in
+  notifications by default. The new notification switch is opt-in like the other two and off by
+  default, so a **new** installation shows these details (and the “new Wi-Fi” notice has its
+  Allow/Block buttons, which still require an unlocked device) until the switch is turned on, on
+  the first page of the assistant or in the Settings. They can appear on the lock screen if
+  Android shows sensitive content there. Documented in `SECURITY.md`, `docs/defaults.md` and the
+  README.
+- **Nothing is loosened for existing installations:** once, at the first start
+  (`KeepADBApplication` → `KeepADBPreferences.migratePrivacySplit`, pattern of #760), the
+  notification switch is derived from `notification_details_enabled` (absent or `false` = details
+  were hidden, so it becomes **on**; `true` = off) and the widget switch is turned on when the old
+  privacy mode was on. The widget and the tile showed the port or host before regardless of the
+  old privacy mode (the tile masked the host); the derived widget switch keeps that surface at
+  least as quiet as before. `privacy_split_initialized` is bookkeeping. The retired key stays
+  stored, unread.
+
+### Fixed
+- The widget showed the port and the tile a host masked only by the app privacy mode, and the
+  main notification followed the app privacy mode as well; the widget and the tile now follow the
+  widget switch, the notifications their own switch, so no area is hidden or shown by another
+  area's switch.
+
+### Removed
+- `LessSecure.NOTIFICATION_DETAILS` and the home-screen less-secure mark for details in
+  notifications: they are the default now, not a deviation. The warning reason id stays in
+  `KeepADBWarningState.Reason` (never active) so a stored warning state remains valid.
+- Strings `settings_notification_details_toggle/_subtext`, `onboarding_details_*` and
+  `menu_item_privacy_mode` (source and all 18 locales); new strings `privacy_*`, `usb_profile_hidden_numbered`,
+  and a reworded `onboarding_network_privacy_note`, translated into all 18 locales.
+
+### Testing
+- New `KeepADBPrivacySplitTest` (migration matrix: new installation, existing with the old privacy
+  mode on/off, existing with `notification_details_enabled` absent/on/off, idempotence, the
+  assistant's existing-install check), `KeepADBPrivacyAreasTest` (masking per area, independence of
+  the switches, per-screen “Show”) and `OnboardingPrivacySwitchesTest` (intro page);
+  `KeepADBDefaultsAuditTest` and the notification, warning and assistant tests follow the new
+  defaults.
+
 ## [1.11.3] - Unreleased
 
 ### Added
