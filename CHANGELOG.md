@@ -29,6 +29,14 @@ are retrospective issue-version records and were never published as separate rel
 
 - `docs/package-id.md` no longer says that the F-Droid entry still points to hohnepeople.de; it
   records the 1.11.0 links and the fdroiddata merge request !55473 for the `WebSite` change.
+- The F-Droid store description no longer claims that fresh installs leave trusted-network
+  filtering off; since #760 they re-enable Wireless Debugging automatically only at trusted access
+  points. The feature list names the Networks list and Force mode instead of the removed Wi-Fi
+  observation (#769). Takes effect in the catalog with the next stable release.
+- `docs/diagnostics.md` and `SECURITY.md` quote the current Settings labels ("Diagnostics &
+  Maintenance", "Report a problem or translation", "Also trust by Wi-Fi name").
+- The documentation index links `docs/warning-display-state.md`; the release status records
+  `1.11.0` as released.
 
 ## [1.11.0] - 2026-11-01
 
