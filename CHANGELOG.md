@@ -28,7 +28,8 @@ are retrospective issue-version records and were never published as separate rel
 ### Documentation
 
 - `docs/package-id.md` no longer says that the F-Droid entry still points to hohnepeople.de; it
-  records the 1.11.0 links and the fdroiddata merge request !55473 for the `WebSite` change.
+  records the 1.11.0 links and the fdroiddata merge request !55473 (merged 2026-11-02) for the
+  `WebSite` change.
 - The F-Droid store description no longer claims that fresh installs leave trusted-network
   filtering off; since #760 they re-enable Wireless Debugging automatically only at trusted access
   points. The feature list names the Networks list and Force mode instead of the removed Wi-Fi
