@@ -171,6 +171,24 @@ public class MainActivityWarningInteractionTest {
         assertTrue(KeepADBWarningState.observe(context).visible.contains(KeepADBWarningState.Card.LESS_SECURE));
         assertTrue(KeepADBWarningState.observe(context).security().contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
     }
+    /** #905: the multi-reason mute dialog keeps the dialog inset for its list and primary button. */
+    @Test public void muteDialogKeepsTheDialogInsetOnBothSides() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        activity.findViewById(R.id.warning_mute).performClick();
+        android.app.Dialog dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog();
+        assertNotNull("two reasons open the choice dialog", dialog);
+        Button apply = findButton((ViewGroup) dialog.getWindow().getDecorView(),
+                activity.getString(R.string.warnings_mute_selected));
+        assertNotNull(apply);
+        View content = (View) apply.getParent();
+        int inset = (int) (24 * activity.getResources().getDisplayMetrics().density);
+        assertEquals(inset, content.getPaddingLeft());
+        assertEquals(inset, content.getPaddingRight());
+    }
     @Test public void headerCountAndListContainEverySecurityReasonDespiteCardLimit() {
         shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);

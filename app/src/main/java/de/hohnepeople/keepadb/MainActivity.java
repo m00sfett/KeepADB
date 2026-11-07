@@ -723,6 +723,10 @@ public class MainActivity extends Activity {
         // A scrolling native list, with no default selections, can grow with the font size.
         android.widget.LinearLayout content = new android.widget.LinearLayout(this);
         content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        // #905: a custom view gets no dialog inset of its own; use the title's 24 dp so the list
+        // and the primary button keep the same margin as the title and the Cancel button.
+        int inset = (int) (24 * getResources().getDisplayMetrics().density);
+        content.setPadding(inset, 0, inset, 0);
         android.widget.ScrollView scroll = new android.widget.ScrollView(this);
         scroll.addView(content);
         java.util.List<android.widget.CheckBox> choices = new java.util.ArrayList<>();
