@@ -35,6 +35,8 @@ public class KeepADBSwipeDismissLayout extends LinearLayout {
     private float downX;
     private float downY;
     private boolean swiping;
+    /** Set by {@link #resetSwipe()}: the rest of the current gesture is ignored. */
+    private boolean gestureCancelled;
 
     public KeepADBSwipeDismissLayout(Context context) {
         this(context, null);
@@ -51,8 +53,14 @@ public class KeepADBSwipeDismissLayout extends LinearLayout {
         this.listener = listener;
     }
 
-    /** Puts the panel back in place, for example before it is shown for another closed card. */
+    /**
+     * Puts the panel back in place and drops a running swipe: the pending swipe-out animation is
+     * cancelled (its end action, the dismissal, then never runs) and the remaining events of the
+     * current gesture are ignored. Call it before the panel shows another closed card, when it is
+     * hidden, and when its activity is destroyed.
+     */
     public void resetSwipe() {
+        gestureCancelled = true;
         animate().cancel();
         setTranslationX(0f);
         setAlpha(1f);
@@ -66,9 +74,11 @@ public class KeepADBSwipeDismissLayout extends LinearLayout {
                 downX = event.getRawX();
                 downY = event.getRawY();
                 swiping = false;
+                gestureCancelled = false;
                 trackVelocity(event, true);
                 return false;
             case MotionEvent.ACTION_MOVE:
+                if (gestureCancelled) return false;
                 trackVelocity(event, false);
                 return startsSwipe(event);
             case MotionEvent.ACTION_UP:
@@ -87,9 +97,11 @@ public class KeepADBSwipeDismissLayout extends LinearLayout {
                 downX = event.getRawX();
                 downY = event.getRawY();
                 swiping = false;
+                gestureCancelled = false;
                 trackVelocity(event, true);
                 return true;
             case MotionEvent.ACTION_MOVE:
+                if (gestureCancelled) return true;
                 trackVelocity(event, false);
                 if (!swiping) startsSwipe(event);
                 if (swiping) {
@@ -99,6 +111,10 @@ public class KeepADBSwipeDismissLayout extends LinearLayout {
                 }
                 return true;
             case MotionEvent.ACTION_UP:
+                if (gestureCancelled) {
+                    recycleVelocity();
+                    return true;
+                }
                 trackVelocity(event, false);
                 if (swiping) finishSwipe(event.getRawX() - downX);
                 else if (Math.abs(event.getRawX() - downX) < touchSlop) performClick();

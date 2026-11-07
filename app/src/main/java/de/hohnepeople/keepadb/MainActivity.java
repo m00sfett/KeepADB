@@ -249,6 +249,8 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         View feedbackBar = findViewById(R.id.warning_feedback);
         if (feedbackBar != null) feedbackBar.removeCallbacks(expireWarningFeedback);
+        // #906: a swipe-out animation still running must not dismiss anything after destruction.
+        if (feedbackBar instanceof KeepADBSwipeDismissLayout) ((KeepADBSwipeDismissLayout) feedbackBar).resetSwipe();
         if (settingsMenu != null) {
             settingsMenu.dismiss();
             settingsMenu = null;
@@ -640,6 +642,8 @@ public class MainActivity extends Activity {
         KeepADBWarningState.Snapshot shown = warningSnapshot;
         close.setOnClickListener(v -> {
             if (!KeepADBWarningState.dismiss(this, kind, shown)) return;
+            // #906: a swipe of the previous bar still animating must not dismiss this new one.
+            ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback)).resetSwipe();
             dismissedCard = kind;
             dismissedSnapshot = shown;
             renderWarnings();

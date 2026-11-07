@@ -32,7 +32,9 @@ are retrospective issue-version records and were never published as separate rel
   same as the accessibility action "Dismiss". The timeout is unchanged (10 seconds, longer if the
   accessibility settings ask for more time, #889). New `KeepADBSwipeDismissLayout` replaces the
   bar's `LinearLayout` in all six `activity_main.xml` variants; `MainActivityWarningInteractionTest`
-  covers swipe, counterexamples and the accessibility action.
+  covers swipe, counterexamples and the accessibility action. A swipe-out still animating never
+  dismisses the bar of a card closed meanwhile or runs after the activity is destroyed, and a
+  timeout during a drag leaves no offset for the next bar (review findings, with regression tests).
 
 ## [1.11.2] - Unreleased
 

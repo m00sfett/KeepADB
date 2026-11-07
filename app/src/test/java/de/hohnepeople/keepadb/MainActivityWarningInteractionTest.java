@@ -139,6 +139,61 @@ public class MainActivityWarningInteractionTest {
         assertTrue("short sideways drag", visible(activity, R.id.warning_feedback));
         assertEquals(0f, bar.getTranslationX(), 0.5f);
     }
+    private static void touch(View view, int action, float x, long t) {
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, action, x, 10f, 0));
+    }
+    /** Two closable cards: "less secure" (notification details) and "limited" (battery). */
+    private MainActivity openWithTwoClosableCards() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        shadowOf((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+                .setIgnoringBatteryOptimizations(context.getPackageName(), false);
+        MainActivity activity = open().get();
+        assertTrue(visible(activity, R.id.warning_less_secure));
+        assertTrue(visible(activity, R.id.warning_limited));
+        return activity;
+    }
+    /** #906 review: a swipe-out still animating must not dismiss the bar of a card closed meanwhile. */
+    @Test public void runningSwipeOutDoesNotDismissTheBarOfANewlyClosedCard() {
+        MainActivity activity = openWithTwoClosableCards();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        long t = android.os.SystemClock.uptimeMillis();
+        touch(bar, android.view.MotionEvent.ACTION_DOWN, 10f, t);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 160f, t + 40);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 310f, t + 80);
+        touch(bar, android.view.MotionEvent.ACTION_UP, 310f, t + 120);
+        close(activity, R.id.warning_limited);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertTrue("the new card's bar stays", visible(activity, R.id.warning_feedback));
+        assertEquals(activity.getString(R.string.warnings_closed,
+                        activity.getString(R.string.home_warning_limited_title)),
+                ((android.widget.TextView) activity.findViewById(R.id.warning_feedback_text)).getText().toString());
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
+    /** #906 review: when the timeout hides the bar mid-drag, the rest of the gesture leaves no offset. */
+    @Test public void timeoutDuringADragLeavesNoOffsetForTheNextBar() {
+        MainActivity activity = openWithTwoClosableCards();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        long t = android.os.SystemClock.uptimeMillis();
+        touch(bar, android.view.MotionEvent.ACTION_DOWN, 10f, t);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 80f, t + 40);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(
+                MainActivity.WARNING_FEEDBACK_TIMEOUT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertFalse(visible(activity, R.id.warning_feedback));
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 200f, t + 80);
+        touch(bar, android.view.MotionEvent.ACTION_UP, 200f, t + 120);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        close(activity, R.id.warning_limited);
+        assertTrue(visible(activity, R.id.warning_feedback));
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
     /** #906: screen-reader users get an equivalent "Dismiss" action. */
     @Test public void feedbackBarOffersAnAccessibleDismissAction() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
