@@ -237,7 +237,7 @@ public class KeepADBPreferencesTest {
 
     /** #483: with the privacy toggle on, addresses are masked and ports stay readable. */
     @Test
-    public void testPrivacyModeOnMasksAddressesButKeepsPortsAndHostnames() {
+    public void testPrivacyModeOnMasksAddressesButKeepsPortsAndMasksTheWebhookHostName() {
         FakeContext context = new FakeContext();
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
@@ -249,7 +249,8 @@ public class KeepADBPreferencesTest {
         assertEquals("http://100.*.*.*:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
-        assertEquals("https://register.example:50829/register/s20",
+        // #904: a registered name in the webhook address is masked too; the port stays.
+        assertEquals("https://***:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "https://register.example:50829/register/s20"));
     }

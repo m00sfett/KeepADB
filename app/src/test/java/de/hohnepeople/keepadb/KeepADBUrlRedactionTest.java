@@ -245,4 +245,35 @@ public class KeepADBUrlRedactionTest {
         assertEquals("http://[***]:50829/register/s20?***", KeepADBUrlRedaction.forDisplay(legacy));
         assertEquals("http://[***]:50829", KeepADBUrlRedaction.forLog(legacy));
     }
+
+    // ---- privacy display (#904): host names are masked, the IPv4 first octet and the port stay ----
+
+    @Test
+    public void thePrivacyDisplayMasksARegisteredNameButKeepsPortAndPath() {
+        assertEquals("https://***/register/s20",
+                KeepADBUrlRedaction.forDisplay("https://private-host.example/register/s20", true));
+        assertEquals("http://***:8443/hook?***",
+                KeepADBUrlRedaction.forDisplay("http://phone.tailnet.ts.net:8443/hook?t=1", true));
+        assertEquals("a trailing dot does not smuggle the name through", "http://***/x",
+                KeepADBUrlRedaction.forDisplay("http://register.example./x", true));
+    }
+
+    @Test
+    public void thePrivacyDisplayKeepsTheAcceptedAppExceptionOfTheFirstOctetAndThePort() {
+        assertEquals("http://100.*.*.*:50829/register/s20",
+                KeepADBUrlRedaction.forDisplay("http://100.111.111.21:50829/register/s20", true));
+        assertEquals("http://[***]:50829/x",
+                KeepADBUrlRedaction.forDisplay("http://[fe80::1]:50829/x", true));
+    }
+
+    @Test
+    public void theOtherRenderingsStillKeepTheRegisteredName() {
+        // Counter-check of the test above: only the privacy display changed.
+        assertEquals("https://private-host.example/register/s20",
+                KeepADBUrlRedaction.forDisplay("https://private-host.example/register/s20"));
+        assertEquals("https://private-host.example/register/s20",
+                KeepADBUrlRedaction.forDisplay("https://private-host.example/register/s20", false));
+        assertEquals("https://private-host.example",
+                KeepADBUrlRedaction.forLog("https://private-host.example/register/s20"));
+    }
 }
