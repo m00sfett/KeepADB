@@ -98,6 +98,117 @@ public class MainActivityWarningInteractionTest {
         assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
         assertTrue(visible(activity, R.id.btn_security_warnings));
     }
+    private static void drag(View view, float dx, float dy, long stepMs) {
+        long t = android.os.SystemClock.uptimeMillis();
+        float x = 10f, y = 10f;
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0));
+        for (int step = 1; step <= 5; step++) {
+            view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t + step * stepMs,
+                    android.view.MotionEvent.ACTION_MOVE, x + dx * step / 5f, y + dy * step / 5f, 0));
+        }
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t + 6 * stepMs,
+                android.view.MotionEvent.ACTION_UP, x + dx, y + dy, 0));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+    /** #906: swiping the bar sideways removes it before its timeout; the card stays closed. */
+    @Test public void swipingTheFeedbackBarAwayDismissesItEarlyAndKeepsTheCardClosed() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        drag(bar, 300f, 0f, 40L);
+        assertFalse(visible(activity, R.id.warning_feedback));
+        assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
+        assertTrue("no mute was recorded", KeepADBWarningState.observe(context).security()
+                .contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
+        // Hidden again, the bar is back in place for the next closed card.
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
+    /** #906 counterexamples: a vertical scroll or a short drag leaves the bar in place. */
+    @Test public void verticalOrShortDragsDoNotDismissTheFeedbackBar() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        drag(bar, 0f, 300f, 40L);
+        assertTrue("vertical", visible(activity, R.id.warning_feedback));
+        drag(bar, 60f, 0f, 200L);
+        assertTrue("short sideways drag", visible(activity, R.id.warning_feedback));
+        assertEquals(0f, bar.getTranslationX(), 0.5f);
+    }
+    private static void touch(View view, int action, float x, long t) {
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, action, x, 10f, 0));
+    }
+    /** Two closable cards: "less secure" (notification details) and "limited" (battery). */
+    private MainActivity openWithTwoClosableCards() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        shadowOf((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+                .setIgnoringBatteryOptimizations(context.getPackageName(), false);
+        MainActivity activity = open().get();
+        assertTrue(visible(activity, R.id.warning_less_secure));
+        assertTrue(visible(activity, R.id.warning_limited));
+        return activity;
+    }
+    /** #906 review: a swipe-out still animating must not dismiss the bar of a card closed meanwhile. */
+    @Test public void runningSwipeOutDoesNotDismissTheBarOfANewlyClosedCard() {
+        MainActivity activity = openWithTwoClosableCards();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        long t = android.os.SystemClock.uptimeMillis();
+        touch(bar, android.view.MotionEvent.ACTION_DOWN, 10f, t);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 160f, t + 40);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 310f, t + 80);
+        touch(bar, android.view.MotionEvent.ACTION_UP, 310f, t + 120);
+        close(activity, R.id.warning_limited);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertTrue("the new card's bar stays", visible(activity, R.id.warning_feedback));
+        assertEquals(activity.getString(R.string.warnings_closed,
+                        activity.getString(R.string.home_warning_limited_title)),
+                ((android.widget.TextView) activity.findViewById(R.id.warning_feedback_text)).getText().toString());
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
+    /** #906 review: when the timeout hides the bar mid-drag, the rest of the gesture leaves no offset. */
+    @Test public void timeoutDuringADragLeavesNoOffsetForTheNextBar() {
+        MainActivity activity = openWithTwoClosableCards();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        long t = android.os.SystemClock.uptimeMillis();
+        touch(bar, android.view.MotionEvent.ACTION_DOWN, 10f, t);
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 80f, t + 40);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(
+                MainActivity.WARNING_FEEDBACK_TIMEOUT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertFalse(visible(activity, R.id.warning_feedback));
+        touch(bar, android.view.MotionEvent.ACTION_MOVE, 200f, t + 80);
+        touch(bar, android.view.MotionEvent.ACTION_UP, 200f, t + 120);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        close(activity, R.id.warning_limited);
+        assertTrue(visible(activity, R.id.warning_feedback));
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
+    /** #906: screen-reader users get an equivalent "Dismiss" action. */
+    @Test public void feedbackBarOffersAnAccessibleDismissAction() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        android.view.accessibility.AccessibilityNodeInfo info = bar.createAccessibilityNodeInfo();
+        assertTrue(info.isDismissable());
+        assertTrue(info.getActionList().contains(
+                android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_DISMISS));
+        assertTrue(bar.performAccessibilityAction(
+                android.view.accessibility.AccessibilityNodeInfo.ACTION_DISMISS, null));
+        assertFalse(visible(activity, R.id.warning_feedback));
+        assertFalse(visible(activity, R.id.warning_less_secure));
+    }
     @Test public void triangleActivatesOnFirstTouchAfterReturningFocusAndClosingAnotherCard() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         ActivityController<MainActivity> controller = open();
@@ -170,6 +281,24 @@ public class MainActivityWarningInteractionTest {
         details.performClick();
         assertTrue(KeepADBWarningState.observe(context).visible.contains(KeepADBWarningState.Card.LESS_SECURE));
         assertTrue(KeepADBWarningState.observe(context).security().contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
+    }
+    /** #905: the multi-reason mute dialog keeps the dialog inset for its list and primary button. */
+    @Test public void muteDialogKeepsTheDialogInsetOnBothSides() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        activity.findViewById(R.id.warning_mute).performClick();
+        android.app.Dialog dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog();
+        assertNotNull("two reasons open the choice dialog", dialog);
+        Button apply = findButton((ViewGroup) dialog.getWindow().getDecorView(),
+                activity.getString(R.string.warnings_mute_selected));
+        assertNotNull(apply);
+        View content = (View) apply.getParent();
+        int inset = (int) (24 * activity.getResources().getDisplayMetrics().density);
+        assertEquals(inset, content.getPaddingLeft());
+        assertEquals(inset, content.getPaddingRight());
     }
     @Test public void headerCountAndListContainEverySecurityReasonDespiteCardLimit() {
         shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);

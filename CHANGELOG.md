@@ -17,11 +17,38 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.11.1` below is an unreleased candidate. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.11.1` and later sections below are unreleased candidates. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.11.3] - Unreleased
+
+### Added
+- **Swipe away the warning feedback bar (#906):** after closing a warning card, the bar ("Warning
+  card closed", Undo, Do not show again) can be swiped sideways to remove it at once; a short or
+  vertical drag leaves it in place. The card stays closed and nothing is muted. TalkBack offers the
+  same as the accessibility action "Dismiss". The timeout is unchanged (10 seconds, longer if the
+  accessibility settings ask for more time, #889). New `KeepADBSwipeDismissLayout` replaces the
+  bar's `LinearLayout` in all six `activity_main.xml` variants; `MainActivityWarningInteractionTest`
+  covers swipe, counterexamples and the accessibility action. A swipe-out still animating never
+  dismisses the bar of a card closed meanwhile or runs after the activity is destroyed, and a
+  timeout during a drag leaves no offset for the next bar (review findings, with regression tests).
+
+## [1.11.2] - Unreleased
+
+### Fixed
+- **Mute dialog inset (#905):** the "Do not show again" dialog for several reasons used a custom
+  view without the dialog's content inset, so "Mute selected reasons" reached the right edge of the
+  dialog. The list and the button now keep the 24 dp inset of the title.
+  `MainActivityWarningInteractionTest` checks the inset on both sides.
+
+### Changed
+- **CI:** workflow actions moved to their Node 24 majors (`actions/checkout@v7`,
+  `actions/setup-java@v6`, `gradle/actions/setup-gradle@v5`, `softprops/action-gh-release@v3`),
+  which removes the Node 20 deprecation warning. `setup-gradle` stays on v5: v6 moves caching into a
+  proprietary component with separate terms of use.
 
 ## [1.11.1] - Unreleased
 

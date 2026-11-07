@@ -103,6 +103,9 @@ public class MainActivity extends Activity {
         warningLessSecure = findViewById(R.id.warning_less_secure);
         warningPaused = findViewById(R.id.warning_paused);
         warningLimited = findViewById(R.id.warning_limited);
+        // #906: swiping the feedback bar away ends it early, like its timeout; the card stays closed.
+        ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback))
+                .setOnDismissListener(expireWarningFeedback::run);
         adviceBanner = findViewById(R.id.advice_banner);
         forceWarningPanel = findViewById(R.id.force_warning_panel);
         forceWarningText = findViewById(R.id.force_warning_text);
@@ -246,6 +249,8 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         View feedbackBar = findViewById(R.id.warning_feedback);
         if (feedbackBar != null) feedbackBar.removeCallbacks(expireWarningFeedback);
+        // #906: a swipe-out animation still running must not dismiss anything after destruction.
+        if (feedbackBar instanceof KeepADBSwipeDismissLayout) ((KeepADBSwipeDismissLayout) feedbackBar).resetSwipe();
         if (settingsMenu != null) {
             settingsMenu.dismiss();
             settingsMenu = null;
@@ -637,6 +642,8 @@ public class MainActivity extends Activity {
         KeepADBWarningState.Snapshot shown = warningSnapshot;
         close.setOnClickListener(v -> {
             if (!KeepADBWarningState.dismiss(this, kind, shown)) return;
+            // #906: a swipe of the previous bar still animating must not dismiss this new one.
+            ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback)).resetSwipe();
             dismissedCard = kind;
             dismissedSnapshot = shown;
             renderWarnings();
@@ -692,6 +699,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.warning_feedback).setVisibility(dismissedCard == null ? View.GONE : View.VISIBLE);
         if (dismissedCard == null) {
             findViewById(R.id.warning_feedback).removeCallbacks(expireWarningFeedback);
+            // #906: put a swiped-away bar back in place while hidden, never during a drag.
+            ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback)).resetSwipe();
             return;
         }
         TextView feedback = findViewById(R.id.warning_feedback_text);
@@ -723,6 +732,10 @@ public class MainActivity extends Activity {
         // A scrolling native list, with no default selections, can grow with the font size.
         android.widget.LinearLayout content = new android.widget.LinearLayout(this);
         content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        // #905: a custom view gets no dialog inset of its own; use the title's 24 dp so the list
+        // and the primary button keep the same margin as the title and the Cancel button.
+        int inset = (int) (24 * getResources().getDisplayMetrics().density);
+        content.setPadding(inset, 0, inset, 0);
         android.widget.ScrollView scroll = new android.widget.ScrollView(this);
         scroll.addView(content);
         java.util.List<android.widget.CheckBox> choices = new java.util.ArrayList<>();

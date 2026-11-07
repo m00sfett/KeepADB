@@ -1,0 +1,1 @@
+After closing a warning card, you can swipe the feedback bar away to remove it at once. Screen readers offer the same as a “Dismiss” action.
