@@ -103,6 +103,9 @@ public class MainActivity extends Activity {
         warningLessSecure = findViewById(R.id.warning_less_secure);
         warningPaused = findViewById(R.id.warning_paused);
         warningLimited = findViewById(R.id.warning_limited);
+        // #906: swiping the feedback bar away ends it early, like its timeout; the card stays closed.
+        ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback))
+                .setOnDismissListener(expireWarningFeedback::run);
         adviceBanner = findViewById(R.id.advice_banner);
         forceWarningPanel = findViewById(R.id.force_warning_panel);
         forceWarningText = findViewById(R.id.force_warning_text);
@@ -692,6 +695,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.warning_feedback).setVisibility(dismissedCard == null ? View.GONE : View.VISIBLE);
         if (dismissedCard == null) {
             findViewById(R.id.warning_feedback).removeCallbacks(expireWarningFeedback);
+            // #906: put a swiped-away bar back in place while hidden, never during a drag.
+            ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback)).resetSwipe();
             return;
         }
         TextView feedback = findViewById(R.id.warning_feedback_text);

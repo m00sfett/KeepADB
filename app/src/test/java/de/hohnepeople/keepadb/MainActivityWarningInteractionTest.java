@@ -98,6 +98,62 @@ public class MainActivityWarningInteractionTest {
         assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
         assertTrue(visible(activity, R.id.btn_security_warnings));
     }
+    private static void drag(View view, float dx, float dy, long stepMs) {
+        long t = android.os.SystemClock.uptimeMillis();
+        float x = 10f, y = 10f;
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0));
+        for (int step = 1; step <= 5; step++) {
+            view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t + step * stepMs,
+                    android.view.MotionEvent.ACTION_MOVE, x + dx * step / 5f, y + dy * step / 5f, 0));
+        }
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t + 6 * stepMs,
+                android.view.MotionEvent.ACTION_UP, x + dx, y + dy, 0));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+    /** #906: swiping the bar sideways removes it before its timeout; the card stays closed. */
+    @Test public void swipingTheFeedbackBarAwayDismissesItEarlyAndKeepsTheCardClosed() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        drag(bar, 300f, 0f, 40L);
+        assertFalse(visible(activity, R.id.warning_feedback));
+        assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
+        assertTrue("no mute was recorded", KeepADBWarningState.observe(context).security()
+                .contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
+        // Hidden again, the bar is back in place for the next closed card.
+        assertEquals(0f, bar.getTranslationX(), 0f);
+        assertEquals(1f, bar.getAlpha(), 0f);
+    }
+    /** #906 counterexamples: a vertical scroll or a short drag leaves the bar in place. */
+    @Test public void verticalOrShortDragsDoNotDismissTheFeedbackBar() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        bar.layout(0, 0, 400, 200);
+        drag(bar, 0f, 300f, 40L);
+        assertTrue("vertical", visible(activity, R.id.warning_feedback));
+        drag(bar, 60f, 0f, 200L);
+        assertTrue("short sideways drag", visible(activity, R.id.warning_feedback));
+        assertEquals(0f, bar.getTranslationX(), 0.5f);
+    }
+    /** #906: screen-reader users get an equivalent "Dismiss" action. */
+    @Test public void feedbackBarOffersAnAccessibleDismissAction() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        View bar = activity.findViewById(R.id.warning_feedback);
+        android.view.accessibility.AccessibilityNodeInfo info = bar.createAccessibilityNodeInfo();
+        assertTrue(info.isDismissable());
+        assertTrue(info.getActionList().contains(
+                android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_DISMISS));
+        assertTrue(bar.performAccessibilityAction(
+                android.view.accessibility.AccessibilityNodeInfo.ACTION_DISMISS, null));
+        assertFalse(visible(activity, R.id.warning_feedback));
+        assertFalse(visible(activity, R.id.warning_less_secure));
+    }
     @Test public void triangleActivatesOnFirstTouchAfterReturningFocusAndClosingAnotherCard() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         ActivityController<MainActivity> controller = open();

@@ -23,6 +23,17 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.3] - Unreleased
+
+### Added
+- **Swipe away the warning feedback bar (#906):** after closing a warning card, the bar ("Warning
+  card closed", Undo, Do not show again) can be swiped sideways to remove it at once; a short or
+  vertical drag leaves it in place. The card stays closed and nothing is muted. TalkBack offers the
+  same as the accessibility action "Dismiss". The timeout is unchanged (10 seconds, longer if the
+  accessibility settings ask for more time, #889). New `KeepADBSwipeDismissLayout` replaces the
+  bar's `LinearLayout` in all six `activity_main.xml` variants; `MainActivityWarningInteractionTest`
+  covers swipe, counterexamples and the accessibility action.
+
 ## [1.11.2] - Unreleased
 
 ### Fixed

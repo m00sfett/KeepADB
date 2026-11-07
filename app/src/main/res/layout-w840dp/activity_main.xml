@@ -203,7 +203,7 @@
                     android:visibility="gone" />
 
                 <!-- Feedback after a warning card was closed: a calm panel, undo first. -->
-                <LinearLayout
+                <de.hohnepeople.keepadb.KeepADBSwipeDismissLayout
                     android:id="@+id/warning_feedback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -235,7 +235,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/warnings_mute" />
-                </LinearLayout>
+                </de.hohnepeople.keepadb.KeepADBSwipeDismissLayout>
 
                 <!-- #820: security & network advice banner placed above switches and below warnings. -->
                 <LinearLayout
