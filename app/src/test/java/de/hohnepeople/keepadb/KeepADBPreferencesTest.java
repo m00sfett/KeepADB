@@ -255,6 +255,22 @@ public class KeepADBPreferencesTest {
                         context, "https://register.example:50829/register/s20"));
     }
 
+    /** #904: the app display masks a registered name in every host rendering; off, nothing changes. */
+    @Test
+    public void testPrivacyModeMasksRegisteredNamesInEndpointAndHostRenderings() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
+        assertEquals("phone.tailnet.ts.net:41234",
+                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+        assertEquals("phone.tailnet.ts.net",
+                KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
+
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        assertEquals("***:41234",
+                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+        assertEquals("***", KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
+    }
+
     /** #483: masking is display-only — the stored originals must survive a toggle round trip. */
     @Test
     public void testPrivacyModeDoesNotAlterStoredValues() {

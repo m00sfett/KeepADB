@@ -70,12 +70,29 @@ public class KeepADBAddressMaskTest {
     // --- Hostnames ---------------------------------------------------------
 
     @Test
-    public void hostnamesAreNeverMasked() {
-        assertEquals("register.example", KeepADBAddressMask.maskHost("register.example"));
-        assertEquals("phone-register.local",
-                KeepADBAddressMask.maskHost("phone-register.local"));
-        assertEquals("register.example:50829",
+    public void registeredNamesAreMaskedAndThePortStays() {
+        // #904, decision of 2026-11-08: one rule for every host -- a name identifies the user's
+        // network or server as well as an address does.
+        assertEquals("***", KeepADBAddressMask.maskHost("register.example"));
+        assertEquals("***", KeepADBAddressMask.maskHost("phone-register.local"));
+        assertEquals("***", KeepADBAddressMask.maskHost("phone.tailnet.ts.net"));
+        assertEquals("a bare name without a dot is a name too", "***",
+                KeepADBAddressMask.maskHost("moosphone"));
+        assertEquals("legacy hexadecimal IPv4 notation is not readable as a name either", "***",
+                KeepADBAddressMask.maskHost("0xC0A80001"));
+        assertEquals("***:50829",
                 KeepADBAddressMask.maskEndpointForDisplay("register.example:50829"));
+        assertEquals("***:41234",
+                KeepADBAddressMask.maskEndpointForDisplay("phone.tailnet.ts.net:41234"));
+        assertEquals("***", KeepADBAddressMask.maskEndpointForDisplay("moosphone"));
+    }
+
+    @Test
+    public void addressesKeepTheirRuleNextToTheNameRule() {
+        // Counter-check of the test above: only names changed.
+        assertEquals("192.*.*.*:5555", KeepADBAddressMask.maskEndpointForDisplay("192.168.1.100:5555"));
+        assertEquals("[fe80:***]:50829",
+                KeepADBAddressMask.maskEndpointForDisplay("[fe80::1%wlan0]:50829"));
     }
 
     @Test

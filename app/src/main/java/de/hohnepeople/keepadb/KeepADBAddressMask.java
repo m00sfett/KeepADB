@@ -19,8 +19,11 @@ import java.util.Locale;
  *       {@link #MASKED} : {@code fe80::1%wlan0} becomes {@code fe80:***}. A zone id is part of the
  *       masked remainder. An address that starts with {@code ::} has no first group to show and
  *       becomes {@link #MASKED} alone.</li>
- *   <li><b>Registered name (DNS host)</b> — unchanged. Explicitly out of scope per the same user
- *       decision: a hostname is not an address of the user's local network.</li>
+ *   <li><b>Registered name (DNS host, Tailnet name)</b> — {@link #MASKED} since #904 (user
+ *       decision of 2026-11-08, replacing the earlier decision to leave names readable): a name
+ *       identifies the user's network or server as well as an address does. This is the one
+ *       rule for every host the app shows with the privacy mode on, the webhook address
+ *       ({@link KeepADBUrlRedaction#forDisplay(String, boolean)}) included.</li>
  *   <li><b>Port</b> — always kept. "Did it report to :50829?" has to stay answerable.</li>
  * </ul>
  *
@@ -36,7 +39,7 @@ final class KeepADBAddressMask {
     private KeepADBAddressMask() {}
 
     /**
-     * Masks a bare host (no port, no scheme). Hostnames pass through unchanged.
+     * Masks a bare host (no port, no scheme). Hostnames become {@link #MASKED}.
      *
      * @param host may be {@code null}, a hostname, an IPv4 literal, or an IPv6 literal with or
      *             without surrounding brackets and with or without a zone id.
@@ -55,8 +58,10 @@ final class KeepADBAddressMask {
 
         if (trimmed.indexOf(':') >= 0) return maskIpv6(trimmed);
 
-        // Registered name: kept by explicit user decision.
-        return trimmed;
+        // Registered name (DNS host, Tailnet name, legacy IPv4 notation): masked since #904, user
+        // decision of 2026-11-08. A name identifies the user's network or server as well as an
+        // address does.
+        return MASKED;
     }
 
     /**

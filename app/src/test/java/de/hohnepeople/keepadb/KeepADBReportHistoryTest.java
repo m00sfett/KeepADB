@@ -294,6 +294,13 @@ public class KeepADBReportHistoryTest {
                 ReportHistoryActivity.details(activity, entry, false));
         assertFalse("Privacy mode masks the host",
                 ReportHistoryActivity.details(activity, entry, true).contains("192.168.178.24"));
+        // #904: a registered name (Tailnet name) is masked like an address; the port stays.
+        KeepADBReportHistory.Entry named = new KeepADBReportHistory.Entry(T0,
+                KeepADBReportHistory.Event.REPORT, "phone.tailnet.ts.net:42631", true,
+                "http=200", 0, 0);
+        assertEquals("***:42631 · HTTP 200", ReportHistoryActivity.details(activity, named, true));
+        assertEquals("phone.tailnet.ts.net:42631 · HTTP 200",
+                ReportHistoryActivity.details(activity, named, false));
         assertEquals("HTTP 200", ReportHistoryActivity.outcomeLabel(activity, "http=200"));
         assertEquals("", ReportHistoryActivity.outcomeLabel(activity, "unknown"));
     }

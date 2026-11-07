@@ -42,8 +42,11 @@ are retrospective issue-version records and were never published as separate rel
   turned on again, and never changes the stored switch. Home screen, Settings network card,
   report history, the Settings USB line and shared diagnostics are eye-only and read the stored
   switch alone. A still-open unmasked USB dialog is closed when the screen stops, the webhook
-  field is masked again on return. Webhook host names are masked in the privacy display; an IPv4
-  address keeps its first octet and the port stays visible in the app (decision). The setup
+  field is masked again on return. Every host name (DNS or Tailnet name: webhook address,
+  endpoint rows, report history, USB profile hosts) is masked as `***` in the privacy display
+  (`KeepADBAddressMask.maskHost`, user decision of 2026-11-08; the log lines that use it are
+  stricter for names, never weaker); an IPv4 address keeps its first octet and the port stays
+  visible in the app (decision). The setup
   assistant and the “Trust this network?” dialog no longer show the name and BSSID unmasked in
   privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
   them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the

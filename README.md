@@ -48,7 +48,8 @@ privacy, diagnostics export, and optional webhook synchronization. Three optiona
 in notifications, and in widgets and the Quick Settings tile; they do not change the endpoint sent
 by an enabled webhook. Notifications and widgets omit the port as well; inside the app, an IPv4
 address keeps its first number and the port stays visible (for example `192.*.*.*:41234`), while
-names, BSSIDs, IPv6 addresses and webhook host names are masked.
+names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names, in endpoint rows,
+report history, USB profiles and the webhook address) are masked as `***`.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
 points. Existing installations keep their previous setting, including “All Wi-Fi networks.” Change

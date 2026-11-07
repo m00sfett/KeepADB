@@ -102,7 +102,8 @@ KeepADB has three independent privacy switches, all opt-in and off on a new inst
 one for the screens and dialogs of the app, one for notifications, one for widgets and the Quick
 Settings tile. A switch masks Wi-Fi names, access point addresses and IP addresses in its own
 area only. The notification and widget switches omit them and the port entirely. The app switch
-masks names, BSSIDs, IPv6 addresses and host names (also in the webhook address); **by decision,
+masks names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names alike, shown as
+`***`, in endpoint rows, report history, USB profiles and the webhook address); **by decision,
 inside the app an IPv4 address keeps its first number and the port stays visible**
 (`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
 has a “Show”. It lifts the mask for one part of one screen (the Networks list, the assistant's

@@ -194,6 +194,17 @@ public class KeepADBAppPrivacySurfacesTest {
         plain.pause().stop().destroy();
     }
 
+    @Test
+    public void aHostNameInAProfileAddressIsMaskedLikeEveryOtherHost() {
+        KeepADBUsbProfile.Profile named = new KeepADBUsbProfile.Profile(1, PROFILE,
+                "laptop.tailnet.ts.net", PROFILE_HOST, PROFILE_REMOTE);
+        String masked = named.maskedDetails();
+        assertEquals("***" + " · " + "***" + " · " + "***", masked);
+        KeepADBUsbProfile.Profile address = new KeepADBUsbProfile.Profile(2, PROFILE, PROFILE_IP,
+                "", "");
+        assertEquals("an address keeps its first number", "10.*.*.*", address.maskedDetails());
+    }
+
     // --- Shared diagnostics ----------------------------------------------------------------------
 
     @Test
