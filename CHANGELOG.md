@@ -41,6 +41,9 @@ be added and raise the version again before the next release.
   Maintenance", "Report a problem or translation", "Also trust by Wi-Fi name").
 - The documentation index links `docs/warning-display-state.md`; the release status records
   `1.11.0` as released.
+- `CONTRIBUTING.md` adds a documentation check before every stable release: store texts against
+  current defaults, the Fastlane changelog, the CHANGELOG release status, quoted Settings labels,
+  the docs index, and external references.
 
 ## [1.11.0] - 2026-11-01
 
