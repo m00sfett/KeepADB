@@ -127,8 +127,8 @@ public class KeepADBAddressMaskTest {
     }
 
     @Test
-    public void privacyOnLeavesWebhookHostnamesReadable() {
-        assertEquals("https://register.example:50829/register/s20",
+    public void privacyOnMasksWebhookHostnamesSince904() {
+        assertEquals("https://***:50829/register/s20",
                 KeepADBUrlRedaction.forDisplay("https://register.example:50829/register/s20", true));
     }
 
