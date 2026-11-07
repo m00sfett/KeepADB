@@ -43,8 +43,10 @@ command in the app while the permission is missing.
   network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
 
 Settings also include local USB host profiles, optional USB-to-Wi-Fi ADB handover, notification
-privacy, diagnostics export, and optional webhook synchronization. Privacy mode hides network
-addresses in the interface; it does not change the endpoint sent by an enabled webhook.
+privacy, diagnostics export, and optional webhook synchronization. Three optional privacy switches
+(first page of the setup assistant, also in Settings) hide Wi-Fi names, addresses and ports in the
+app, in notifications, and in widgets and the Quick Settings tile; they do not change the endpoint
+sent by an enabled webhook.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
 points. Existing installations keep their previous setting, including “All Wi-Fi networks.” Change
@@ -70,8 +72,9 @@ local opt-in rule, and the boundary between the app sender and an external recei
 
 ## Privacy and security
 
-KeepADB sends no analytics or crash reports. Network addresses in notifications are hidden by
-default. Diagnostic history is not transmitted automatically; an export is shared only after you
+KeepADB sends no analytics or crash reports. The privacy switches are off by default, so a new
+installation shows network addresses in notifications; turn on “Hide in notifications” to keep
+them off the lock screen. Diagnostic history is not transmitted automatically; an export is shared only after you
 select a destination in Android. The [security policy](SECURITY.md) and
 [documentation index](docs/README.md) explain webhook, network-trust, and lock-screen behavior.
 

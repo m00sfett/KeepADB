@@ -21,6 +21,11 @@ network default was the only exception (“All Wi-Fi networks”, `all_wifi`); #
 `MODE_ALL_WIFI` describes the state before #760 and is no longer accurate. No default therefore
 changes here; #765 documents them and protects them against unnoticed changes (see “Evidence”).
 
+**Exception since #904:** connection details in notifications were hidden by default (#592) and
+are shown by default now, because the three privacy switches are uniformly opt-in (user decision of
+2026-11-07). That is the one deliberate step away from the safest value; see “Privacy switches”
+below for what existing installations keep.
+
 ### Settings with a security impact
 
 | Setting | Key | Default | Effect | Assessment |
@@ -33,7 +38,6 @@ changes here; #765 documents them and protects them against unnoticed changes (s
 | Check Wi-Fi security of trusted access points | `trusted_network_security_check` | off | Trusted access points are matched by address only, as before | Off by user decision (#860): an opt-in hardening for Android 12 and later; existing trust entries are never tightened silently |
 | Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wireless debugging that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
-| Notification details | `notification_details_enabled` | off | Network name, BSSID, and USB profile are omitted from notifications so they do not appear on the lock screen | Safe (#592) |
 | Wi-Fi and access-point observation | `wifi_aps_feature_enabled` | off | No recording; since #769 there is no UI or new recording, and since #788 no code reads or writes the key. An earlier saved value remains unchanged. The old observation history (`bssid_history_*`) is discarded once during update since #778 (marker `observation_history_discarded`, bookkeeping only, not a setting) | Safe (#507, #769) |
 
 Lists that inform a decision start empty: there are no trusted access points, name matches, blocks,
@@ -46,11 +50,13 @@ reason for each documented here.
 
 | Setting | Key | Default | Reason |
 |---|---|---|---|
-| Privacy mode | `privacy_mode_enabled` | off | User decision (#758): remains optional and off, and is not part of onboarding. It hides display text only and does not protect an action |
+| Privacy: in the app | `privacy_mode_enabled` | off | User decision (#758, #904): the former single privacy mode, key and meaning unchanged. Masks Wi-Fi names, BSSIDs, IP addresses and the webhook host on every screen and dialog; a “Show” lifts it for one screen until it is left. It hides display text only and does not protect an action |
+| Privacy: in notifications | `notification_privacy_enabled` | off | User decision (#904, 2026-11-07): replaces the opt-in “Notification details” (`notification_details_enabled`, #592) with the opposite polarity. Off means port, IP address, USB profile, Wi-Fi name and BSSID appear in notifications, and the notice about a new Wi-Fi has its two buttons. This is a deliberate weakening of #592 for new installations; the safe choice is one switch away, also on the first page of the setup assistant. Existing installations keep their behavior (see “Privacy switches” below) |
+| Privacy: in widgets and the tile | `widget_privacy_enabled` | off | User decision (#904): the widget and the Quick Settings tile show the state only, without the port or the host. Off means they show them. It takes precedence over any per-widget “hide details” option |
 | Hide notification | `hide_notification_enabled` | off | The visible ongoing notification shows that the service is running; hiding it is a deliberate choice |
 | Keep display on | `keep_display_on_enabled` | off | Convenience with battery cost; turning it on adds no protection |
 | USB notification | `usb_notification_enabled` | off | Opt-in; the following switch has no effect while this is off |
-| Profile in USB notification | `usb_profile_notification_enabled` | on | Controls only the USB notification layout (profile row and actions); its contents remain hidden by `notification_details_enabled` (“Profile hidden”). Changing this to “off” for installations that have never saved the key would silently change what their USB notification shows without protecting anything |
+| Profile in USB notification | `usb_profile_notification_enabled` | on | Controls only the USB notification layout (profile row and actions); its contents are hidden by `notification_privacy_enabled` when that is on (“Profile hidden”). Changing this to “off” for installations that have never saved the key would silently change what their USB notification shows without protecting anything |
 | App language | `app_language` | empty (system language) | No security impact |
 | Webhook retry timing | `register_webhook_retry_profile` | standard (5, 15, 30, 60 s) | Only used while webhook sync is on and a report failed; bounded, no polling (#866). After a given-up series, one single re-attempt at most every 15 minutes while the failure lasts (#881) |
 | Webhook retries | `register_webhook_retry_count` | 4 | The hard maximum per series; fewer retries are a user choice (#866) |
@@ -72,6 +78,26 @@ older version is ignored. The report history (#892) lives in its own app-private
 `keepadb_report_history` (key `entries`): the last 24 hours, at most 300 entries, never the webhook
 URL. It is record data, not a setting, and is empty on a new installation.
 
+### Privacy switches (#904)
+
+The single privacy mode is three independent opt-in switches. A new installation has all three
+off. Two of them are derived once for installations that already exist, so nothing is loosened:
+
+| Stored before the update | App (`privacy_mode_enabled`) | Notifications (`notification_privacy_enabled`) | Widgets (`widget_privacy_enabled`) |
+|---|---|---|---|
+| Nothing (new installation) | off | off | off |
+| Existing, `notification_details_enabled` absent or `false` (the old default: details hidden) | unchanged | **on** | on if the old privacy mode was on, else off |
+| Existing, `notification_details_enabled` = `true` | unchanged | off | on if the old privacy mode was on, else off |
+
+The derivation follows the pattern of #760: `KeepADBApplication` calls
+`KeepADBPreferences.migratePrivacySplit` before any component of the process writes a preference
+(that is the only moment “nothing stored” identifies a new installation), persists the result and
+the marker `privacy_split_initialized` once, and never touches the keys again. The marker is
+bookkeeping, not a setting. On a new installation only the marker is written, no setting key. The
+retired key `notification_details_enabled` stays in place, unread after the migration, so an older
+app that is installed again still finds it. The three switches write at once when changed, in the
+Settings and on the first page of the setup assistant; they are not part of “Next” or “Later”.
+
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit
 confirmation in the Force dialog; it contains the duration and expiry for that decision.
 `force_expired_notice_pending` is `false` when there is no expiry and tracks only a pending
@@ -79,7 +105,8 @@ expiry notification. `force_expired_reason` is absent unless Force mode ended ea
 holds only the reason (`safety`, #773) until the notice is delivered. All three keys are runtime
 data, not alternate defaults.
 
-The setup assistant (#761, #828) creates three keys, all bookkeeping rather than settings:
+The setup assistant (#761, #828) creates three keys, all bookkeeping rather than settings (the
+privacy marker of #904 is excluded from the check that decides “existing installation”):
 `onboarding_completed_version` is absent until the assistant is closed with “Later” or “Done”
 (then it contains the assistant version); `onboarding_existing_install` records once whether
 settings were already saved at first launch (only then does the intro show “New security
@@ -107,7 +134,7 @@ data are transferred through backup or when changing devices.
 | State | Behavior |
 |---|---|
 | Nothing saved (new installation or reset) | Defaults above |
-| A value is saved and is more permissive than the default (for example, Keep-Alive on, `all_wifi`, webhook on, details on) | Preserved; nothing is tightened |
+| A value is saved and is more permissive than the default (for example, Keep-Alive on, `all_wifi`, webhook on) | Preserved; nothing is tightened |
 | A value is saved and is stricter than a convenience default (for example, card hidden, profile notification off) | Preserved; nothing is relaxed |
 | A value explicitly saved as the default | Remains saved |
 | Corrupt value (`usb_wlan_handover_mode`, `trusted_network_mode`) | Read as a safe value (`off`, `allowlist`) |
@@ -122,7 +149,8 @@ and recorded in the changelog.
 `KeepADBDefaultsAuditTest` is the executable version of this table:
 
 - Each setting reads its default when no value is saved; reading writes nothing except the
-  one-time network-mode flag.
+  one-time network-mode flag (and the one-time privacy marker of #904, which the application
+  writes at its first start).
 - The table is complete: adding a preference key in the source that appears neither here nor in
   the test's data-key list fails the build, as does a table key removed from the source. Every
   setting key must appear in this document.

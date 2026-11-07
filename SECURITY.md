@@ -75,13 +75,14 @@ the same BSSID and security tier passes.
 Network trust controls automatic recovery. The tile and other manual controls do not approve a new
 network identity. A locked device must be unlocked before enabling Wireless debugging through the
 Quick Settings tile or USB notification; turning it off through the tile remains possible from the
-lock screen. Approving a network through a notification also requires an unlocked device. When
-notification details are hidden, the notice has no action buttons; tapping it opens KeepADB's
-“Trust this network?” dialog and shows the network name so the user can make an informed decision.
-The dialog shows the name even in privacy mode, because the user must know which network is being
-trusted. It never shows the name on a locked display: the dialog appears only after unlocking and
-checks the screen lock itself. Dismissing the notice does not make a decision; the same network is
-not prompted again for at least 24 hours.
+lock screen. Approving a network through a notification also requires an unlocked device. While the
+notification privacy switch is on, the notice has no action buttons; tapping it opens KeepADB's
+“Trust this network?” dialog, where the user can see the network name to make an informed
+decision. While the app privacy switch is on, the dialog masks the name and address until the user
+chooses “Show” in it; the reveal lasts only until the dialog is left. It never shows the name on a
+locked display: the dialog appears only after unlocking and checks the screen lock itself.
+Dismissing the notice does not make a decision; the same network is not prompted again for at
+least 24 hours.
 
 ## Security-relevant interaction rules
 
@@ -93,13 +94,23 @@ if the state is not confirmed, KeepADB waits instead of repeatedly trying to ena
 A locked device must be unlocked before enabling Wireless debugging through the Quick Settings
 tile or a USB handover notification. Turning it off through the tile remains possible from the lock
 screen. Approving an unknown network through a notice also requires unlocking and shows the access
-point name in KeepADB when Android hides notification details.
+point name in KeepADB when the notification privacy switch is on.
 
 ## Notifications, webhook, and local data
 
-Network addresses and access point names are hidden in notifications by default. A setting can
-show connection details; whether Android displays sensitive notification content on the lock screen
-also depends on Android's own settings.
+KeepADB has three independent privacy switches, all opt-in and off on a new installation (#904):
+one for the screens and dialogs of the app, one for notifications, one for widgets and the Quick
+Settings tile. A switch masks Wi-Fi names, access point addresses, IP addresses and ports in its
+own area only; the notification and widget switches omit them entirely, and only the app switch
+has a per-screen “Show”.
+
+**Change in #904 (deliberate):** earlier versions hid connection details in notifications by
+default (#592); a new installation now shows them until the notification switch is turned on, and
+they can then appear on the lock screen if Android shows sensitive notification content there. The
+choice sits on the first page of the setup assistant and in the Settings. An installation that
+updated from an earlier version keeps its behavior: details stay hidden unless it had turned them
+on. The privacy switches are display settings; they do not change what an enabled webhook sends or
+which network may enable Wireless debugging.
 
 Webhook traffic is off by default and goes only to the URL entered by the user. The
 [webhook contract](docs/webhook-register.md) describes the payload created by the app code and
