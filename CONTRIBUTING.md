@@ -78,6 +78,24 @@ are byte-identical. A tag prefixed with `v` can trigger the real release workflo
 one only after explicit release approval. A release publishes artifacts and starts the planned
 F-Droid path.
 
+## Documentation check before a stable release
+
+Store metadata and documentation ship with the release tag, so fix drift before tagging, not after.
+Check each point against the code of the release commit:
+
+1. `fastlane/metadata/android/en-US/full_description.txt` and `short_description.txt` describe the
+   current features and the security defaults recorded in `docs/defaults.md` (network rule,
+   Keep-Alive, webhook, notification details). Remove features that no longer exist.
+2. `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` summarizes the user-visible
+   changes since the last stable release.
+3. `CHANGELOG.md`: the release-status paragraph and the section heading describe the version being
+   released, and no released version is still called a candidate.
+4. Every Settings path or label quoted in `README.md`, `SECURITY.md`, and `docs/` matches
+   `app/src/main/res/values/strings.xml`.
+5. `docs/README.md` links every file under `docs/`.
+6. Statements about external state (F-Droid metadata, merge requests, website links in
+   `docs/package-id.md`) are current.
+
 ## Pull requests
 
 - Keep each change focused on one clear purpose.

@@ -17,22 +17,37 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release candidate that follows `v1.8.38`; it is released once the tag `v1.11.0` exists. It combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.11.1` below is an unreleased candidate. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
-## [Unreleased]
+## [1.11.1] - Unreleased
+
+Documentation-only candidate after `v1.11.0` (versionCode 245); not published. Later changes may
+be added and raise the version again before the next release.
 
 ### Documentation
 
 - `docs/package-id.md` no longer says that the F-Droid entry still points to hohnepeople.de; it
-  records the 1.11.0 links and the fdroiddata merge request !55473 for the `WebSite` change.
+  records the 1.11.0 links and the fdroiddata merge request !55473 (merged 2026-11-02) for the
+  `WebSite` change.
+- The F-Droid store description no longer claims that fresh installs leave trusted-network
+  filtering off; since #760 they re-enable Wireless Debugging automatically only at trusted access
+  points. The feature list names the Networks list and Force mode instead of the removed Wi-Fi
+  observation (#769). Takes effect in the catalog with the next stable release.
+- `docs/diagnostics.md` and `SECURITY.md` quote the current Settings labels ("Diagnostics &
+  Maintenance", "Report a problem or translation", "Also trust by Wi-Fi name").
+- The documentation index links `docs/warning-display-state.md`; the release status records
+  `1.11.0` as released.
+- `CONTRIBUTING.md` adds a documentation check before every stable release: store texts against
+  current defaults, the Fastlane changelog, the CHANGELOG release status, quoted Settings labels,
+  the docs index, and external references.
 
 ## [1.11.0] - 2026-11-01
 
-Stable release candidate after `v1.8.38` (#899). It contains no code change of its own on top of
+Stable release after `v1.8.38` (#899). It contains no code change of its own on top of
 1.10.18; it bundles the candidates `1.9.1` through `1.10.18` below. Minor bump by project decision
 (Tobias, 2026-11-01): the sum of these changes together with the first public release since
 `v1.8.38` justifies a new minor version instead of another 1.10.x patch. versionCode 244 stays above

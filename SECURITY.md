@@ -43,7 +43,7 @@ their remaining limits are documented in the
 [trusted-networks guide](docs/trusted-networks.md) and
 [measurement summary](docs/trusted-networks-measurement.md).
 
-The **Also trust by Wi-Fi name (SSID)** switch is a separate, disabled-by-default extension.
+The **Also trust by Wi-Fi name** switch (SSID matching) is a separate, disabled-by-default extension.
 Because unrelated access points can advertise the same user-chosen name, this rule is weaker than
 trusting an individual BSSID. KeepADB shows this warning next to the option.
 

@@ -30,6 +30,8 @@
   payload and outgoing app request.
 - [Diagnostics export](../app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnostics.java):
   local buffer, journal, and export redaction.
+- [Warning display state](warning-display-state.md): how home-screen warning cards are
+  acknowledged, muted, and shown again (`KeepADBWarningState`, `KeepADBHomeWarnings`).
 - [Settings screen](../app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java) and
   [saved preferences](../app/src/main/java/de/hohnepeople/keepadb/KeepADBPreferences.java):
   user actions and app-local options. `SettingsActivity` owns the screen and Android lifecycle,

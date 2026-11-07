@@ -1,0 +1,1 @@
+Corrected store description: on new installations KeepADB re-enables Wireless Debugging automatically only at trusted access points. Documentation updates, no app changes.
