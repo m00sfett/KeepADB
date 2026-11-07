@@ -49,6 +49,9 @@ final class KeepADBPrivacySwitches {
             // posted again.
             KeepADBUsbReceiver.refresh(activity);
             KeepADBEndpointCoordinator.refresh(activity);
+            // A "new Wi-Fi" notice already posted with the name, the BSSID and buttons is
+            // replaced (or removed) now, not at its next posting.
+            if (want) KeepADBNetworkTrustPrompt.applyNotificationPrivacy(activity);
         });
         widgets.setOnClickListener(v -> {
             boolean want = widgets.isChecked();

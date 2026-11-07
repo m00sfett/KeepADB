@@ -444,6 +444,59 @@ public class KeepADBAppPrivacySurfacesTest {
         controller.pause().stop().destroy();
     }
 
+    // --- A posted trust notice follows the notification switch at once ---------------------------------------
+
+    @Test
+    public void turningNotificationPrivacyOnReplacesAPostedTrustNoticeByTheNeutralForm() {
+        shadowOf((android.app.Application) context).grantPermissions(
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:77");
+        assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(context));
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        android.app.Notification before = shadowOf(manager)
+                .getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+        assertEquals("Control: the posted notice has the Allow and Block buttons", 2,
+                before.actions.length);
+        assertTrue(String.valueOf(before.extras.getCharSequence(android.app.Notification.EXTRA_TEXT))
+                .contains("Cafe-WLAN"));
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.privacy_switch_notifications).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(context));
+        android.app.Notification after = shadowOf(manager)
+                .getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+        assertNotNull("the notice is still there, in the neutral form", after);
+        assertTrue("no buttons", after.actions == null || after.actions.length == 0);
+        KeepADBNotificationTextScan.assertMentionsNone(after, "Cafe-WLAN", "aa:bb:cc:dd:ee:77",
+                "AA:BB:CC:DD:EE:77");
+        Intent tap = shadowOf(after.contentIntent).getSavedIntent();
+        assertEquals("it still opens the decision for the same access point", "aa:bb:cc:dd:ee:77",
+                tap.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aNeutralPostedTrustNoticeIsLeftAloneWhenTheSwitchTurnsOn() {
+        shadowOf((android.app.Application) context).grantPermissions(
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+        connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:77");
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        android.app.Notification before = shadowOf(manager)
+                .getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+
+        KeepADBNetworkTrustPrompt.applyNotificationPrivacy(context);
+
+        assertEquals(before, shadowOf(manager).getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+    }
+
     // --- Helpers ---------------------------------------------------------------------------------
 
     /** The text of every view that is actually shown (a gone view and its subtree are skipped). */
