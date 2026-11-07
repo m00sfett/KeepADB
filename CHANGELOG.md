@@ -87,10 +87,15 @@ are retrospective issue-version records and were never published as separate rel
 ### Testing
 - New `KeepADBPrivacySplitTest` (migration matrix: new installation, existing with the old privacy
   mode on/off, existing with `notification_details_enabled` absent/on/off, idempotence, the
-  assistant's existing-install check), `KeepADBPrivacyAreasTest` (masking per area, independence of
-  the switches, per-screen “Show”) and `OnboardingPrivacySwitchesTest` (intro page);
-  `KeepADBDefaultsAuditTest` and the notification, warning and assistant tests follow the new
-  defaults.
+  assistant's existing-install check), `KeepADBApplicationTest` (first start, per-screen reveal and
+  its end), `KeepADBAppPrivacySurfacesTest` (webhook field, USB profiles, shared diagnostics),
+  `OnboardingPrivacySwitchesTest` (intro page, the assistant respecting the switches) and, in
+  `KeepADBMultiStateContractTest`, one test that turns each switch on alone and checks that only
+  its own area (app, notification, widget, tile) loses the endpoint. `KeepADBDefaultsAuditTest`,
+  the decision, Networks list, assistant, notification and warning tests follow the new defaults.
+  Each new test was checked against a deliberate violation (mask never applied, notification
+  following the app switch, a loosening migration, widget or tile ignoring their switch, reveal
+  not ended on stop, intro without switches, unredacted export, raw host names) and went red.
 
 ## [1.11.3] - Unreleased
 
