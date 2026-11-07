@@ -455,6 +455,35 @@ public class KeepADBAppPrivacySurfacesTest {
         controller.pause().stop().destroy();
     }
 
+    @Test
+    public void theDeleteConfirmationOfARevealedProfileIsClosedWhenTheScreenStops() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.networks_hidden_show)).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.usb_profile_delete_button)).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("Control: the confirmation quotes the revealed name",
+                visibleText(activity.getActiveDeleteProfileDialog().getWindow().getDecorView())
+                        .contains(PROFILE));
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("the confirmation is closed", null, activity.getActiveDeleteProfileDialog());
+        assertEquals("the profile is not deleted", 1, KeepADBUsbProfile.getProfiles(context).size());
+        controller.pause().stop().destroy();
+    }
+
     // --- A posted trust notice follows the notification switch at once ---------------------------------------
 
     @Test

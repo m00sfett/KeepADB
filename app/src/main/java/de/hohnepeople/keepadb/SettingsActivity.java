@@ -633,6 +633,10 @@ public class SettingsActivity extends Activity {
         return usbProfileEditor.getActiveEditDialog();
     }
 
+    AlertDialog getActiveDeleteProfileDialog() {
+        return usbProfileEditor.getActiveDeleteDialog();
+    }
+
     AlertDialog getActiveSwitchProfileDialog() {
         return usbProfileEditor.getActiveSwitchDialog();
     }

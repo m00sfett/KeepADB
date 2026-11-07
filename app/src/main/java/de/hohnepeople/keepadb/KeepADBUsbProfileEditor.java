@@ -139,9 +139,10 @@ final class KeepADBUsbProfileEditor {
 
     /**
      * #904: the screen stopped, which ends every "Show". A dialog that still holds what the
-     * reveal made readable (the unmasked profile list, the edit form of a saved profile) would
-     * show it again on return without a new "Show", so it is closed instead; the edit draft goes
-     * with it. A masked list and the form of a new profile hold nothing to hide and stay.
+     * reveal made readable (the unmasked profile list, the edit form of a saved profile, the delete
+     * confirmation that quotes the profile name) would show it again on return without a new
+     * "Show", so it is closed instead; the edit draft goes with it. A masked list and the form of
+     * a new profile hold nothing to hide and stay.
      */
     void onScreenStopped() {
         if (!KeepADBPreferences.isAppPrivacyEnabled(activity)) return;
@@ -151,6 +152,9 @@ final class KeepADBUsbProfileEditor {
         }
         if (activeEditDialog != null && activeEditId != null) {
             activeEditDialog.dismiss();
+        }
+        if (activeDeleteDialog != null) {
+            activeDeleteDialog.dismiss();
         }
     }
 
