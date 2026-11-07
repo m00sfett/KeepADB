@@ -171,10 +171,10 @@ public class KeepADBNotificationRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setNotificationHidden(context, true);
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         // #597: this test is about the notification-hidden interaction, not about connection
         // details -- opt in so the endpoint text it asserts on is actually present.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -193,15 +193,19 @@ public class KeepADBNotificationRobolectricTest {
         assertTrue(content.contains("192.168.1.50"));
     }
 
+    /**
+     * #904: the notification has a switch of its own. The app switch masks the screens of the app
+     * and must neither mask nor hide the notification (the areas are independent), and the other
+     * way round (see {@link #notificationHidesPortAndIpWhenNotificationPrivacyIsOn}).
+     */
     @Test
-    public void notificationMasksEndpointWhenPrivacyModeIsEnabled() throws Exception {
+    public void theAppSwitchDoesNotTouchTheNotification() throws Exception {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        // #597: this test is about privacy-mode masking, not about connection details -- opt in
-        // so the (masked) endpoint text it asserts on is actually present.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -214,24 +218,22 @@ public class KeepADBNotificationRobolectricTest {
         assertNotNull(notification);
         String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
         assertTrue(content.contains("39123"));
-        assertTrue(content.contains("192.*.*.*"));
-        assertFalse(content.contains("192.168.1.50"));
+        assertTrue(content.contains("192.168.1.50"));
     }
 
-    // --- #597: main notification port/IP gated behind notification_details_enabled -----------
+    // --- #597/#904: main notification port/IP follows the notification privacy switch ----------
 
     /**
-     * #597: connection details in the persistent main notification are opt-in, default off, and
-     * gated behind the same {@code notification_details_enabled} preference #592 introduced for
-     * the USB and trust-prompt notifications -- fresh prefs (default) must show neither the port
-     * nor the IP anywhere on the notification, only the neutral status text.
+     * #597/#904: while the notification privacy switch is on, neither the port nor the IP appear
+     * anywhere on the persistent main notification, only the neutral status text. The other two
+     * switches stay off here, so this is the notification switch's doing.
      */
     @Test
-    public void notificationHidesPortAndIpByDefault() throws Exception {
+    public void notificationHidesPortAndIpWhenNotificationPrivacyIsOn() throws Exception {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        assertFalse("details must be off by default", KeepADBPreferences.isNotificationDetailsEnabled(context));
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -249,16 +251,17 @@ public class KeepADBNotificationRobolectricTest {
     }
 
     /**
-     * #597: with the opt-in on, the main notification must reproduce the previous, always-shown
-     * behavior exactly -- "Port &lt;port&gt; @ &lt;ip&gt;" -- so this is also the counter-proof
-     * for the test above: a fix that hid the endpoint unconditionally would fail this one.
+     * #597/#904: on a new installation (all switches off, nothing set here) the main notification
+     * shows "Port &lt;port&gt; @ &lt;ip&gt;" -- the counter-proof for the test above: a fix that
+     * hid the endpoint unconditionally would fail this one.
      */
     @Test
-    public void notificationShowsPortAndIpWhenDetailsEnabled() throws Exception {
+    public void notificationShowsPortAndIpOnANewInstallation() throws Exception {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        assertFalse("a new installation does not hide details in notifications",
+                KeepADBPreferences.isNotificationPrivacyEnabled(context));
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -289,14 +292,14 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         KeepADBEndpointCoordinator.refresh(context);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         Notification offNotification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull("A publicVersion must be set for the lock screen", offNotification.publicVersion);
         assertPublicVersionMentionsNeither(offNotification, "39123", "192.168.1.50");
 
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBEndpointCoordinator.refresh(context);
         Notification onNotification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull("A publicVersion must be set for the lock screen", onNotification.publicVersion);

@@ -39,6 +39,9 @@ final class KeepADBWebhookForm {
 
     private final Switch toggle;
     private final EditText urlInput;
+    /** #904: stands in for {@link #urlInput} while the app privacy switch masks the URL. */
+    private final TextView urlMasked;
+    private final android.widget.Button urlShow;
     private final TextView error;
     private final TextView cleartextWarning;
     private final View vpnHint;
@@ -66,6 +69,12 @@ final class KeepADBWebhookForm {
         android.widget.Button clear = root.findViewById(R.id.settings_webhook_clear);
         this.toggle = toggle;
         this.urlInput = urlInput;
+        this.urlMasked = root.findViewById(R.id.settings_webhook_url_masked);
+        this.urlShow = root.findViewById(R.id.settings_webhook_url_show);
+        KeepADBPrivacy.bindShowButton(urlShow, () -> {
+            refreshVisual();
+            onChange.run();
+        });
         this.error = error;
         this.cleartextWarning = cleartextWarning;
         this.vpnHint = root.findViewById(R.id.settings_webhook_vpn_hint);
@@ -137,6 +146,23 @@ final class KeepADBWebhookForm {
         }
     }
 
+    /**
+     * #904: while the app privacy switch is on and the screen has no "Show", the field is replaced
+     * by the saved URL with its host masked (the shared display rule of {@link
+     * KeepADBUrlRedaction#forDisplay(String, boolean)}) and a "Show" button. An empty field and a
+     * field the user is typing in stay as they are: there is nothing saved to hide, or it is the
+     * user's own input.
+     */
+    private void refreshUrlMask() {
+        String typed = urlInput.getText() == null ? "" : urlInput.getText().toString().trim();
+        boolean mask = KeepADBNetworkDisplay.hidden(activity) && !typed.isEmpty()
+                && !urlInput.hasFocus();
+        urlInput.setVisibility(mask ? View.GONE : View.VISIBLE);
+        urlMasked.setVisibility(mask ? View.VISIBLE : View.GONE);
+        urlShow.setVisibility(mask ? View.VISIBLE : View.GONE);
+        urlMasked.setText(mask ? KeepADBUrlRedaction.forDisplay(typed, true) : "");
+    }
+
     /** Call from {@code SettingsActivity#onSaveInstanceState}. */
     void saveState(Bundle outState) {
         outState.putString(STATE_WEBHOOK_DRAFT_URL,
@@ -149,6 +175,8 @@ final class KeepADBWebhookForm {
         toggle.setChecked(webhookEnabled);
         // #891: the VPN battery hint only matters while reports are actually sent.
         vpnHint.setVisibility(webhookEnabled ? View.VISIBLE : View.GONE);
+
+        refreshUrlMask();
 
         String urlToCheck = (urlInput != null && urlInput.getText() != null)
                 ? urlInput.getText().toString().trim()

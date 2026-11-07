@@ -72,7 +72,7 @@ final class KeepADBSettingsMenu {
     static List<MenuItem> buildMenuItems() {
         List<MenuItem> menu = new ArrayList<>();
         menu.add(new MenuItem(ID_LANGUAGE, R.string.menu_item_language));
-        menu.add(new MenuItem(ID_PRIVACY_MODE, R.string.menu_item_privacy_mode, false, true));
+        menu.add(new MenuItem(ID_PRIVACY_MODE, R.string.privacy_app_title, false, true));
         menu.add(MenuItem.divider(ID_DIVIDER_1));
         menu.add(new MenuItem(ID_ALL_SETTINGS, R.string.menu_item_all_settings));
         menu.add(MenuItem.divider(ID_DIVIDER_2));
@@ -137,11 +137,10 @@ final class KeepADBSettingsMenu {
         if (item.isDivider) return;
 
         if (item.id == ID_PRIVACY_MODE) {
-            boolean want = !KeepADBPreferences.isPrivacyModeEnabled(activity);
+            boolean want = !KeepADBPreferences.isAppPrivacyEnabled(activity);
             KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable", "privacy_mode_toggle");
-            KeepADBPreferences.setPrivacyModeEnabled(activity, want);
-            KeepADBEndpointCoordinator.refresh(activity);
-            KeepADBTileService.requestRefresh(activity);
+            KeepADBPreferences.setAppPrivacyEnabled(activity, want);
+            KeepADBPrivacy.concealAgain(activity);
             activity.refreshUiAndComponents();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
@@ -286,7 +285,7 @@ final class KeepADBSettingsMenu {
             title.setText(item.titleResId);
 
             if (item.isCheckable) {
-                boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(activity);
+                boolean enabled = KeepADBPreferences.isAppPrivacyEnabled(activity);
                 checkbox.setVisibility(View.VISIBLE);
                 checkbox.setChecked(enabled);
                 String stateText = activity.getString(enabled

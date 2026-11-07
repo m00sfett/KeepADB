@@ -52,6 +52,8 @@ public class KeepADBMultiStateContractTest {
                 android.Manifest.permission.POST_NOTIFICATIONS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
+        // A new installation as the application leaves it (#904): only the privacy marker.
+        KeepADBPreferences.migratePrivacySplit(context);
         KeepADBNetwork.resetForTesting();
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -148,7 +150,7 @@ public class KeepADBMultiStateContractTest {
     public void everySurfaceRendersAnEnabledConnectedStateAtRuntime() throws Exception {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         int endpointPort = openEndpointServer();
         seedEndpoint("127.0.0.1", endpointPort);
 
@@ -173,21 +175,119 @@ public class KeepADBMultiStateContractTest {
         stopTileService(tileService);
     }
 
+    /** #904: the tile follows the widget switch only; the app switch has no say there. */
     @Test
-    public void connectedTileMasksEndpointWhenPrivacyModeIsEnabled() throws Exception {
+    public void connectedTileShowsTheEndpointWhateverTheAppSwitchSaysAndTheWidgetSwitchIsOff()
+            throws Exception {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         int endpointPort = openEndpointServer();
         seedEndpoint("127.0.0.1", endpointPort);
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
         tileService.onStartListening();
 
         assertEquals(context.getString(R.string.tile_state_connected_format,
-                        "127.*.*.*", endpointPort), tileService.getQsTile().getSubtitle());
+                        "127.0.0.1", endpointPort), tileService.getQsTile().getSubtitle());
         stopTileService(tileService);
+    }
+
+    @Test
+    public void connectedTileShowsOnlyTheStateWhenTheWidgetSwitchIsOn() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        int endpointPort = openEndpointServer();
+        seedEndpoint("127.0.0.1", endpointPort);
+        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+
+        assertEquals(context.getString(R.string.tile_state_connected),
+                tileService.getQsTile().getSubtitle());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void connectedWidgetShowsThePortUnlessTheWidgetSwitchIsOn() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        int endpointPort = openEndpointServer();
+        seedEndpoint("127.0.0.1", endpointPort);
+        // The other two switches do not reach the widget.
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+        assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
+
+        assertEquals(context.getString(R.string.widget_text_connected_format, endpointPort),
+                widgetText(renderWidget()));
+
+        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
+        String text = widgetText(renderWidget());
+        assertEquals(context.getString(R.string.widget_text_on), text);
+        assertFalse(text, text.contains(String.valueOf(endpointPort)));
+    }
+
+    /**
+     * #904: each switch masks its own area only. One switch on, the other two off: exactly the
+     * matching surface loses the endpoint, the other three keep showing it. The counter-proof for
+     * every single-switch test above and in the notification tests: a switch wired to the wrong
+     * area (or one that hid everything) fails one of the three rows.
+     */
+    @Test
+    public void eachPrivacySwitchHidesTheEndpointInItsOwnAreaOnly() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        int endpointPort = openEndpointServer();
+        seedEndpoint("127.0.0.1", endpointPort);
+
+        for (String only : new String[] {"app", "notifications", "widgets"}) {
+            KeepADBPreferences.setAppPrivacyEnabled(context, "app".equals(only));
+            KeepADBPreferences.setNotificationPrivacyEnabled(context, "notifications".equals(only));
+            KeepADBPreferences.setWidgetPrivacyEnabled(context, "widgets".equals(only));
+
+            // App: a screen of the app masks the address.
+            android.app.Activity screen = Robolectric.buildActivity(NetworkListActivity.class,
+                    NetworkListActivity.intent(context)).setup().get();
+            assertEquals(only + ": app area", "app".equals(only),
+                    KeepADBNetworkDisplay.hidden(screen));
+            assertEquals(only + ": app area text", "app".equals(only) ? "127.*.*.*" : "127.0.0.1",
+                    KeepADBPreferences.maskHostForDisplay(screen, "127.0.0.1"));
+
+            // Notifications: the persistent notification.
+            KeepADBEndpointCoordinator.refresh(context);
+            android.app.Notification notification = shadowOf(
+                    context.getSystemService(android.app.NotificationManager.class))
+                    .getNotification(KeepADBNotification.NOTIFICATION_ID);
+            String notificationText = String.valueOf(notification.extras.getCharSequence(
+                    android.app.Notification.EXTRA_TEXT));
+            assertEquals(only + ": notification area " + notificationText,
+                    !"notifications".equals(only), notificationText.contains("127.0.0.1")
+                            && notificationText.contains(String.valueOf(endpointPort)));
+            if ("notifications".equals(only)) {
+                KeepADBNotificationTextScan.assertMentionsNone(notification, "127.0.0.1",
+                        String.valueOf(endpointPort));
+            }
+
+            // Widgets: the widget and the tile.
+            assertEquals(only + ": widget", "widgets".equals(only)
+                    ? context.getString(R.string.widget_text_on)
+                    : context.getString(R.string.widget_text_connected_format, endpointPort),
+                    widgetText(renderWidget()));
+            KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                    .create().get();
+            tileService.onStartListening();
+            assertEquals(only + ": tile", "widgets".equals(only)
+                    ? context.getString(R.string.tile_state_connected)
+                    : context.getString(R.string.tile_state_connected_format, "127.0.0.1", endpointPort),
+                    tileService.getQsTile().getSubtitle());
+            stopTileService(tileService);
+        }
     }
 
     @Test

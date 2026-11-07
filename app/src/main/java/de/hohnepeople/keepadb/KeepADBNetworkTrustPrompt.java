@@ -443,12 +443,13 @@ final class KeepADBNetworkTrustPrompt {
             return false;
         }
         ensureChannel(localized, manager);
-        // #592: network name and BSSID only go into the notification when the user opted in.
+        // #592/#904: network name and BSSID go into the notification unless the notification privacy
+        // switch is on.
         // #598/#766: without the opt-in the user could not see which network an action would
         // affect, so that mode has no action buttons at all (F3 of #758): the neutral text points
         // to the app, and tapping the notification opens the decision dialog, which names the
         // network before anything can be trusted or blocked (see decisionIntent).
-        boolean details = KeepADBPreferences.isNotificationDetailsEnabled(context);
+        boolean details = !KeepADBPreferences.isNotificationPrivacyEnabled(context);
         String displayBssid = bssid.toUpperCase(Locale.ROOT);
         String displayLabel = label != null && label.equalsIgnoreCase(bssid)
                 ? displayBssid : label;

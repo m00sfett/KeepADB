@@ -58,6 +58,15 @@
     <string name="action_settings">Instellingen</string>
     <string name="privacy_toggle_enable_accessibility">Privacymodus inschakelen (netwerkadressen verbergen)</string>
     <string name="privacy_toggle_disable_accessibility">Privacymodus uitschakelen (netwerkadressen tonen)</string>
+    <string name="privacy_switches_title">Privacy</string>
+    <string name="privacy_switches_hint">Optioneel, standaard staat alles uit. Elke schakelaar verbergt wifi-namen, adressen en poorten alleen in zijn eigen gebied.</string>
+    <string name="privacy_app_title">Verbergen in de app</string>
+    <string name="privacy_app_body">Maskeert wifi-namen, access point-adressen, IP-adressen en de webhookhost op elk scherm en in elke dialoog. “Tonen” maakt ze zichtbaar tot je het scherm verlaat.</string>
+    <string name="privacy_notifications_title">Verbergen in meldingen</string>
+    <string name="privacy_notifications_body">Meldingen tonen alleen de status, zonder poort, IP-adres, USB-profiel of wifi-naam. Een melding over een nieuw wifi-netwerk heeft dan geen knoppen en opent de app. Zolang dit uit staat, kunnen deze gegevens ook op het vergrendelscherm verschijnen.</string>
+    <string name="privacy_widgets_title">Verbergen in widgets en de tegel</string>
+    <string name="privacy_widgets_body">De widget op het startscherm en de tegel in de snelle instellingen tonen alleen de status, zonder de poort of een adres.</string>
+    <string name="usb_profile_hidden_numbered">Profiel %1$d</string>
     <string name="title_settings">Instellingen</string>
     <string name="settings_section_general">Algemeen</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Permanente melding</string>
     <string name="settings_hide_notification_subtext">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.</string>
     <string name="settings_hide_notification_subtext_keepalive">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
-    <string name="settings_notification_details_toggle">Verbindingsdetails in meldingen tonen</string>
-    <string name="settings_notification_details_subtext">Toont de poort en het IP-adres in de blijvende statusmelding, het USB-hostprofiel (naam, IP, host) en de naam en BSSID van nieuwe wifi-netwerken in meldingen. Als dit aan staat, kunnen deze details ook op het vergrendelscherm zichtbaar zijn. Als het uit staat, zie je ze alleen in de app.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>
@@ -496,12 +503,6 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_protection_keep_alive_off">Geldt zodra Keep-Alive aan staat.</string>
     <string name="onboarding_customize_show">Aanpassen ▾</string>
     <string name="onboarding_customize_hide">Aanpassen ▴</string>
-    <string name="onboarding_details_title">Vergrendelscherm</string>
-    <string name="onboarding_details_question">Moeten meldingen adressen en wifi-namen tonen?</string>
-    <string name="onboarding_details_off_body">Meldingen tonen alleen de status. Geen adressen, geen wifi-namen.</string>
-    <string name="onboarding_details_on_body">Toont IP-adres en poort, het USB-profiel en de namen van nieuwe wifi-netwerken in meldingen. Afhankelijk van de Android-instellingen ook op het vergrendelscherm.</string>
-    <string name="onboarding_details_value_on">Details zichtbaar</string>
-    <string name="onboarding_details_value_off">Geen details</string>
     <string name="onboarding_summary_title">Instellen voltooid</string>
     <string name="onboarding_summary_hint">Tik op een regel om die te wijzigen. Je kunt alles later wijzigen onder Instellingen → Installatieassistent.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive staat uit. Je kunt het altijd inschakelen op het startscherm.</string>
@@ -532,7 +533,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_perm_force_note">Weer nodig zodra de geforceerde modus eindigt.</string>
     <string name="onboarding_network_title">Vertrouwde wifi</string>
     <string name="onboarding_network_question">Moet KeepADB het wifi-netwerk vertrouwen waarmee je nu verbonden bent?</string>
-    <string name="onboarding_network_privacy_note">In de privacymodus wordt de naam alleen hier en bij het vertrouwen van een netwerk getoond.</string>
+    <string name="onboarding_network_privacy_note">Privacy staat aan: de naam en het adres blijven verborgen tot je op “Tonen” tikt.</string>
     <string name="onboarding_network_open_list">Wijzigen in de lijst Netwerken</string>
     <string name="onboarding_webhook_question">Optioneel. Meldt het huidige adres van draadloos foutopsporen aan een eigen server, bijvoorbeeld in je thuisnetwerk of vpn. De meeste mensen hebben dit niet nodig. Er wordt niets opgeslagen tot je op “URL opslaan” tikt.</string>
     <string name="onboarding_protection_force_title">Maximaal comfortabel (geforceerde modus)</string>
@@ -555,7 +556,6 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Taal</string>
-    <string name="menu_item_privacy_mode">Privacymodus</string>
     <string name="menu_item_all_settings">Alle instellingen</string>
 
     <!-- #826: warning display controls. -->

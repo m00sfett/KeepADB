@@ -58,6 +58,15 @@
     <string name="action_settings">設定</string>
     <string name="privacy_toggle_enable_accessibility">プライバシーモードを有効にする（ネットワークアドレスを非表示）</string>
     <string name="privacy_toggle_disable_accessibility">プライバシーモードを無効にする（ネットワークアドレスを表示）</string>
+    <string name="privacy_switches_title">プライバシー</string>
+    <string name="privacy_switches_hint">任意です。初期設定はすべてオフです。各スイッチは、それぞれの領域でのみ Wi-Fi 名、アドレス、ポートを非表示にします。</string>
+    <string name="privacy_app_title">アプリ内で非表示</string>
+    <string name="privacy_app_body">すべての画面とダイアログで、Wi-Fi 名、アクセスポイントのアドレス、IP アドレス、Webhook のホストをマスクします。「表示」を押すと、その画面を離れるまで表示されます。</string>
+    <string name="privacy_notifications_title">通知で非表示</string>
+    <string name="privacy_notifications_body">通知には状態のみを表示し、ポート、IP アドレス、USB プロファイル、Wi-Fi 名は含めません。新しい Wi-Fi の通知にはボタンがなくなり、アプリが開きます。オフの間は、これらの詳細がロック画面にも表示されることがあります。</string>
+    <string name="privacy_widgets_title">ウィジェットとタイルで非表示</string>
+    <string name="privacy_widgets_body">ホーム画面のウィジェットとクイック設定タイルには状態のみを表示し、ポートやアドレスは表示しません。</string>
+    <string name="usb_profile_hidden_numbered">プロファイル %1$d</string>
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細は下で別に設定し、アドレスやネットワーク名が表示される場合があります。</string>
     <string name="settings_hide_notification_subtext_keepalive">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細は下で別に設定し、アドレスやネットワーク名が表示される場合があります。\n\nKeep-Alive が有効な間は、Android がフォアグラウンドサービスの通知を必要とするため、スイッチは操作できません。Keep-Alive をオフにすると保存済みの選択が再び適用されます。</string>
-    <string name="settings_notification_details_toggle">通知に接続の詳細を表示</string>
-    <string name="settings_notification_details_subtext">常駐ステータス通知のポートと IP アドレス、USB ホストプロファイル（名前、IP、ホスト）、新しい Wi-Fi ネットワークの名前および BSSID を通知に表示します。オンにすると、これらの詳細がロック画面にも表示される場合があります。オフの場合はアプリ内にのみ表示されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -496,12 +503,6 @@
     <string name="onboarding_protection_keep_alive_off">Keep-Aliveがオンのときに適用されます。</string>
     <string name="onboarding_customize_show">カスタマイズ ▾</string>
     <string name="onboarding_customize_hide">カスタマイズ ▴</string>
-    <string name="onboarding_details_title">ロック画面</string>
-    <string name="onboarding_details_question">通知にアドレスやWi-Fi名を表示しますか？</string>
-    <string name="onboarding_details_off_body">通知には状態だけを表示します。アドレスもWi-Fi名も表示しません。</string>
-    <string name="onboarding_details_on_body">通知にIPアドレスとポート、USBプロファイル、新しいWi-Fiネットワークの名前を表示します。Androidの設定によってはロック画面にも表示されます。</string>
-    <string name="onboarding_details_value_on">詳細を表示</string>
-    <string name="onboarding_details_value_off">詳細なし</string>
     <string name="onboarding_summary_title">設定が完了しました</string>
     <string name="onboarding_summary_hint">変更するには行をタップします。すべて、あとから［設定］→［セットアップアシスタント］で変更できます。</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Aliveはオフです。ホーム画面でいつでもオンにできます。</string>
@@ -532,7 +533,7 @@
     <string name="onboarding_perm_force_note">強制モードの終了後に再び必要になります。</string>
     <string name="onboarding_network_title">信頼する Wi-Fi</string>
     <string name="onboarding_network_question">現在接続している Wi-Fi を KeepADB で信頼しますか？</string>
-    <string name="onboarding_network_privacy_note">プライバシーモードでは、名前はここと信頼するときにのみ表示されます。</string>
+    <string name="onboarding_network_privacy_note">プライバシーがオンです。「表示」をタップするまで、名前とアドレスは非表示のままです。</string>
     <string name="onboarding_network_open_list">ネットワーク一覧で変更</string>
     <string name="onboarding_webhook_question">任意です。ワイヤレスデバッグの現在のアドレスを、たとえば自宅のネットワークやVPN内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
     <string name="onboarding_protection_force_title">最大の利便性(強制モード)</string>
@@ -555,7 +556,6 @@
     <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">言語</string>
-    <string name="menu_item_privacy_mode">プライバシーモード</string>
     <string name="menu_item_all_settings">すべての設定</string>
 
     <!-- #826: warning display controls. -->

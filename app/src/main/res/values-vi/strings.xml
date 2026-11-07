@@ -58,6 +58,15 @@
     <string name="action_settings">Cài đặt</string>
     <string name="privacy_toggle_enable_accessibility">Bật chế độ riêng tư (ẩn địa chỉ mạng)</string>
     <string name="privacy_toggle_disable_accessibility">Tắt chế độ riêng tư (hiện địa chỉ mạng)</string>
+    <string name="privacy_switches_title">Quyền riêng tư</string>
+    <string name="privacy_switches_hint">Tùy chọn, mặc định tắt hết. Mỗi công tắc chỉ ẩn tên Wi-Fi, địa chỉ và cổng trong khu vực của riêng nó.</string>
+    <string name="privacy_app_title">Ẩn trong ứng dụng</string>
+    <string name="privacy_app_body">Che tên Wi-Fi, địa chỉ điểm truy cập, địa chỉ IP và máy chủ webhook trên mọi màn hình và mọi hộp thoại. “Hiển thị” sẽ hiện chúng cho đến khi bạn rời màn hình.</string>
+    <string name="privacy_notifications_title">Ẩn trong thông báo</string>
+    <string name="privacy_notifications_body">Thông báo chỉ hiện trạng thái, không có cổng, địa chỉ IP, hồ sơ USB hay tên Wi-Fi. Khi đó thông báo về Wi-Fi mới không có nút và sẽ mở ứng dụng. Khi tùy chọn này tắt, các chi tiết đó cũng có thể xuất hiện trên màn hình khóa.</string>
+    <string name="privacy_widgets_title">Ẩn trong tiện ích và ô</string>
+    <string name="privacy_widgets_body">Tiện ích trên màn hình chính và ô Cài đặt nhanh chỉ hiện trạng thái, không có cổng hoặc địa chỉ.</string>
+    <string name="usb_profile_hidden_numbered">Hồ sơ %1$d</string>
     <string name="title_settings">Cài đặt</string>
     <string name="settings_section_general">Chung</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
     <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.</string>
     <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
-    <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
-    <string name="settings_notification_details_subtext">Hiển thị cổng và địa chỉ IP trong thông báo trạng thái thường trực, hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -496,12 +503,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_protection_keep_alive_off">Áp dụng khi Keep-Alive bật.</string>
     <string name="onboarding_customize_show">Tùy chỉnh ▾</string>
     <string name="onboarding_customize_hide">Tùy chỉnh ▴</string>
-    <string name="onboarding_details_title">Màn hình khóa</string>
-    <string name="onboarding_details_question">Thông báo có nên hiện địa chỉ và tên Wi-Fi không?</string>
-    <string name="onboarding_details_off_body">Thông báo chỉ hiện trạng thái. Không có địa chỉ, không có tên Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Hiện địa chỉ IP và cổng, hồ sơ USB và tên các mạng Wi-Fi mới trong thông báo. Tùy cài đặt Android, cũng có thể hiện trên màn hình khóa.</string>
-    <string name="onboarding_details_value_on">Hiện chi tiết</string>
-    <string name="onboarding_details_value_off">Không chi tiết</string>
     <string name="onboarding_summary_title">Đã thiết lập xong</string>
     <string name="onboarding_summary_hint">Chạm vào một dòng để thay đổi. Bạn có thể đổi mọi thứ sau trong Cài đặt → Trình hướng dẫn thiết lập.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive đang tắt. Bạn có thể bật bất cứ lúc nào trên màn hình chính.</string>
@@ -532,7 +533,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_perm_force_note">Sẽ cần lại sau khi chế độ buộc kết thúc.</string>
     <string name="onboarding_network_title">Wi-Fi tin cậy</string>
     <string name="onboarding_network_question">KeepADB có nên tin cậy mạng Wi-Fi bạn đang kết nối không?</string>
-    <string name="onboarding_network_privacy_note">Ở chế độ riêng tư, tên chỉ hiện ở đây và khi bạn tin cậy một mạng.</string>
+    <string name="onboarding_network_privacy_note">Quyền riêng tư đang bật: tên và địa chỉ vẫn bị ẩn cho đến khi bạn chạm “Hiển thị”.</string>
     <string name="onboarding_network_open_list">Đổi trong danh sách Mạng</string>
     <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Gỡ lỗi không dây tới máy chủ riêng của bạn, ví dụ trong mạng gia đình hoặc VPN của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
     <string name="onboarding_protection_force_title">Tiện nhất (chế độ cưỡng chế)</string>
@@ -555,7 +556,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Ngôn ngữ</string>
-    <string name="menu_item_privacy_mode">Chế độ riêng tư</string>
     <string name="menu_item_all_settings">Tất cả cài đặt</string>
 
     <!-- #826: warning display controls. -->

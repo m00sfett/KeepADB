@@ -36,10 +36,12 @@ import java.util.Set;
  * the dialogs of this class only change what is already saved (stop trusting, block, lift a block,
  * rename).
  *
- * <p><strong>Privacy mode.</strong> While it is on, nothing of the list is built at all: the page
- * shows a placeholder and no view and no content description holds a Wi-Fi name or an address. The
- * embedded decision view, which shows the name on purpose (#766), is only bound while the privacy
- * mode is off. The glossary and the comfort switch carry no network data and stay.
+ * <p><strong>Privacy (#904).</strong> While the app privacy switch is on and the screen has no
+ * "Show", nothing of the list is built at all: the page shows a placeholder and no view and no
+ * content description holds a Wi-Fi name or an address. "Show" lifts that for this screen until it
+ * is left; it does not change the switch. The glossary and the comfort switch carry no network
+ * data and stay. The assistant's current-network card (see {@link #renderCurrentForAssistant})
+ * masks its name and address the same way and offers the same "Show".
  */
 final class NetworkListRenderer {
 
@@ -140,8 +142,9 @@ final class NetworkListRenderer {
      * no section heading (the step has its title), no tap-to-change on a decided network (the
      * assistant answers a question, it does not edit the list; a blocked network offers the way to
      * the list instead), and a "check again" button where the state depends on the user acting
-     * elsewhere (no Wi-Fi, not readable). The name and the address are shown even while the
-     * privacy mode is on: the step is the deliberate exception of #758, like the decision itself.
+     * elsewhere (no Wi-Fi, not readable). #904: the name and the address are masked while the app
+     * privacy switch is on, with a deliberate "Show" for this screen; the former exception of
+     * #758 is gone.
      */
     void renderCurrentForAssistant() {
         assistantMode = true;
@@ -246,9 +249,9 @@ final class NetworkListRenderer {
         card.addView(text(activity.getString(R.string.networks_hidden_text), 13, R.color.night_muted));
         Button show = stackedButton(activity.getString(R.string.networks_hidden_show), false,
                 v -> {
-                    // The same as the eye in the title bar: one switch, one effect.
-                    View eye = activity.findViewById(R.id.btn_toggle_privacy_mode);
-                    if (eye != null) eye.performClick();
+                    // #904: "Show" reveals this screen until it is left; the switch stays on.
+                    KeepADBPrivacy.reveal(activity);
+                    onChanged.run();
                 });
         card.addView(show);
         root.addView(card);
@@ -331,8 +334,8 @@ final class NetworkListRenderer {
     }
 
     private void addReadableCurrent(LinearLayout card, KeepADBNetworkList.Current current) {
-        String name = current.ssid == null
-                ? activity.getString(R.string.wifi_aps_ssid_unknown) : current.ssid;
+        // #904: masked while the app privacy switch is on and the screen has no "Show".
+        String name = KeepADBNetworkDisplay.ssid(activity, current.ssid, null);
         KeepADBNetworkList.Row row = current.row;
         int band = KeepADBAccessPointBand.bandOf(frequencies, current.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, current.bssid, band);
@@ -343,6 +346,14 @@ final class NetworkListRenderer {
         boolean decide = current.status == KeepADBNetworkList.Status.UNKNOWN
                 || current.status == KeepADBNetworkList.Status.TRUSTED_BY_NAME
                 || current.legacyOnly;
+        if (KeepADBNetworkDisplay.hidden(activity) && !decide) {
+            // A decision view brings its own "Show"; a card without one needs this.
+            card.addView(stackedButton(activity.getString(R.string.networks_hidden_show), false,
+                    v -> {
+                        KeepADBPrivacy.reveal(activity);
+                        onChanged.run();
+                    }));
+        }
         switch (current.status) {
             case BLOCKED:
                 card.addView(text(reasonText(current.reason, current.ssid, row != null
@@ -375,6 +386,12 @@ final class NetworkListRenderer {
                         @Override
                         public void onDecideLater() {
                             // Hidden in this host; nothing to do.
+                        }
+
+                        @Override
+                        public void onRevealed() {
+                            // The card around the view shows the name and the address as well.
+                            onChanged.run();
                         }
                     });
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -754,7 +771,7 @@ final class NetworkListRenderer {
     private String reasonText(KeepADBNetworkList.Reason reason, String ssid, boolean trustedStored) {
         if (reason == KeepADBNetworkList.Reason.NAME && ssid != null) {
             return activity.getString(trustedStored ? R.string.networks_reason_name_trusted
-                    : R.string.networks_reason_name, ssid);
+                    : R.string.networks_reason_name, KeepADBNetworkDisplay.quoted(activity, ssid));
         }
         return activity.getString(R.string.networks_reason_access_point);
     }

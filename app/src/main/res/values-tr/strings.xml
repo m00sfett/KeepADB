@@ -58,6 +58,15 @@
     <string name="action_settings">Ayarlar</string>
     <string name="privacy_toggle_enable_accessibility">Gizlilik modunu etkinleştir (ağ adreslerini gizle)</string>
     <string name="privacy_toggle_disable_accessibility">Gizlilik modunu devre dışı bırak (ağ adreslerini göster)</string>
+    <string name="privacy_switches_title">Gizlilik</string>
+    <string name="privacy_switches_hint">İsteğe bağlı, varsayılan olarak hepsi kapalı. Her anahtar Wi-Fi adlarını, adresleri ve bağlantı noktalarını yalnızca kendi alanında gizler.</string>
+    <string name="privacy_app_title">Uygulamada gizle</string>
+    <string name="privacy_app_body">Wi-Fi adlarını, erişim noktası adreslerini, IP adreslerini ve webhook ana bilgisayarını her ekranda ve her iletişim kutusunda maskeler. “Göster” bunları ekrandan ayrılana kadar görünür yapar.</string>
+    <string name="privacy_notifications_title">Bildirimlerde gizle</string>
+    <string name="privacy_notifications_body">Bildirimler yalnızca durumu gösterir; bağlantı noktası, IP adresi, USB profili veya Wi-Fi adı olmaz. Yeni bir Wi-Fi ile ilgili bildirimde bu durumda düğme bulunmaz ve uygulamayı açar. Bu kapalıyken bu ayrıntılar kilit ekranında da görünebilir.</string>
+    <string name="privacy_widgets_title">Widget’larda ve karoda gizle</string>
+    <string name="privacy_widgets_body">Ana ekran widget’ı ve Hızlı Ayarlar karosu yalnızca durumu gösterir; bağlantı noktası veya adres olmaz.</string>
+    <string name="usb_profile_hidden_numbered">Profil %1$d</string>
     <string name="title_settings">Ayarlar</string>
     <string name="settings_section_general">Genel</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
     <string name="settings_hide_notification_subtext">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.</string>
     <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
-    <string name="settings_notification_details_toggle">Bildirimlerde bağlantı ayrıntılarını göster</string>
-    <string name="settings_notification_details_subtext">Kalıcı durum bildirimindeki bağlantı noktasını ve IP adresini, USB ana bilgisayar profilini (ad, IP, ana bilgisayar) ve yeni Wi-Fi ağlarının adını ve BSSID değerini bildirimlerde gösterir. Açıkken bu ayrıntılar kilit ekranında da görünebilir. Kapalıyken yalnızca uygulamada gösterilir.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
     <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
@@ -496,12 +503,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_protection_keep_alive_off">Keep-Alive açıldığında geçerli olur.</string>
     <string name="onboarding_customize_show">Özelleştir ▾</string>
     <string name="onboarding_customize_hide">Özelleştir ▴</string>
-    <string name="onboarding_details_title">Kilit ekranı</string>
-    <string name="onboarding_details_question">Bildirimlerde adresler ve Wi-Fi adları gösterilsin mi?</string>
-    <string name="onboarding_details_off_body">Bildirimler yalnızca durumu gösterir. Adres yok, Wi-Fi adı yok.</string>
-    <string name="onboarding_details_on_body">Bildirimlerde IP adresini ve bağlantı noktasını, USB profilini ve yeni Wi-Fi ağlarının adlarını gösterir. Android ayarlarına göre kilit ekranında da görünebilir.</string>
-    <string name="onboarding_details_value_on">Ayrıntılar gösteriliyor</string>
-    <string name="onboarding_details_value_off">Ayrıntı yok</string>
     <string name="onboarding_summary_title">Kurulum tamamlandı</string>
     <string name="onboarding_summary_hint">Değiştirmek için bir satıra dokunun. Her şeyi daha sonra Ayarlar → Kurulum sihirbazı bölümünden değiştirebilirsiniz.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive kapalı. İstediğiniz zaman ana ekrandan açabilirsiniz.</string>
@@ -532,7 +533,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_perm_force_note">Zorlama modu bittikten sonra yeniden gerekir.</string>
     <string name="onboarding_network_title">Güvenilir Wi-Fi</string>
     <string name="onboarding_network_question">KeepADB şu anda bağlı olduğunuz Wi-Fi ağına güvensin mi?</string>
-    <string name="onboarding_network_privacy_note">Gizlilik modunda ad yalnızca burada ve bir ağa güvenirken gösterilir.</string>
+    <string name="onboarding_network_privacy_note">Gizlilik açık: ad ve adres, “Göster”e dokunana kadar gizli kalır.</string>
     <string name="onboarding_network_open_list">Ağlar listesinde değiştir</string>
     <string name="onboarding_webhook_question">İsteğe bağlı. Kablosuz hata ayıklamanın geçerli adresini, örneğin ev ağındaki ya da VPN’indeki kendi sunucuna bildirir. Çoğu kişinin buna ihtiyacı yoktur. “URL’yi Kaydet” düğmesine dokunana kadar hiçbir şey kaydedilmez.</string>
     <string name="onboarding_protection_force_title">En rahat (zorunlu mod)</string>
@@ -555,7 +556,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Dil</string>
-    <string name="menu_item_privacy_mode">Gizlilik modu</string>
     <string name="menu_item_all_settings">Tüm ayarlar</string>
 
     <!-- #826: warning display controls. -->

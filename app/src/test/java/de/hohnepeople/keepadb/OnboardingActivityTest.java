@@ -54,7 +54,7 @@ public class OnboardingActivityTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         KeepADBOnboarding.setAutoStartEnabledForTesting(true);
     }
@@ -68,7 +68,7 @@ public class OnboardingActivityTest {
                 // Already finished.
             }
         }
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         KeepADBForceMode.resetForTesting();
     }
@@ -120,14 +120,14 @@ public class OnboardingActivityTest {
     @Test
     public void newInstallNextOnEveryStepStoresWhatLaterStores() {
         Map<String, String> later = runNewInstall(false);
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         Map<String, String> walkedThrough = runNewInstall(true);
 
         assertEquals("Next without input must store exactly what Later stores", later, walkedThrough);
         assertEquals("false", walkedThrough.get(KeepADBPreferences.KEY_ONBOARDING_EXISTING_INSTALL));
         assertFalse("no setting key is written by a step", walkedThrough.containsKey("keep_alive_enabled"));
-        assertFalse(walkedThrough.containsKey(KeepADBPreferences.KEY_NOTIFICATION_DETAILS_ENABLED));
+        assertFalse(walkedThrough.containsKey(KeepADBPreferences.KEY_NOTIFICATION_PRIVACY_ENABLED));
     }
 
     @Test
@@ -137,8 +137,6 @@ public class OnboardingActivityTest {
         assertEquals("Off", checkedTitle(assistant)); // F2: Keep-Alive preselected Off
         click(assistant, R.id.onboarding_next); // to protection
         assertEquals(context.getString(R.string.force_level_maximum), checkedTitle(assistant));
-        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS); // past permissions and Wi-Fi
-        assertEquals("Off", checkedTitle(assistant));
     }
 
     @Test
@@ -148,15 +146,13 @@ public class OnboardingActivityTest {
         cards(assistant).get(1).performClick(); // Keep-Alive: On
         click(assistant, R.id.onboarding_next);
         cards(assistant).get(1).performClick(); // Balanced
-        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS);
-        cards(assistant).get(1).performClick(); // details: On
+        advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK); // past permissions and Wi-Fi
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next); // Done
 
         assertTrue(KeepADBPreferences.isKeepAliveEnabled(context));
         assertEquals(KeepADBTrustedNetwork.ProtectionLevel.BALANCED,
                 KeepADBTrustedNetwork.getProtectionLevel(context));
-        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(context));
     }
 
     private Map<String, String> runNewInstall(boolean walkThrough) {
@@ -200,7 +196,7 @@ public class OnboardingActivityTest {
     @Test
     public void existingInstallNextWithoutInputLeavesEveryKeyUnchanged() {
         for (int variant = 0; variant < 3; variant++) {
-            prefs().edit().clear().commit();
+            resetPrefs();
             KeepADB.resetForTesting();
             seedExisting(variant);
             OnboardingActivity assistant = startHandedOver();
@@ -222,7 +218,7 @@ public class OnboardingActivityTest {
 
     @Test
     public void existingInstallChangedCardIsStoredAndKeepsTheOldLists() {
-        seedExisting(0); // all Wi-Fi, details on, webhook over http
+        seedExisting(0); // all Wi-Fi, webhook over http
         OnboardingActivity assistant = startHandedOver();
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next); // protection: legacy card is preselected
@@ -231,15 +227,13 @@ public class OnboardingActivityTest {
         assertEquals(context.getString(R.string.force_level_legacy_all), title(protection.get(0)));
         assertTrue(protection.get(0).isActivated());
         protection.get(1).performClick(); // Maximum security
-        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS);
-        cards(assistant).get(0).performClick(); // details: Off
+        advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK);
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next);
 
         assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
         assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
                 KeepADBTrustedNetwork.getProtectionLevel(context));
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
         assertTrue("Keep-Alive was not touched", KeepADBPreferences.isKeepAliveEnabled(context));
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
         assertEquals("the name list stays stored", 1, KeepADBTrustedNetwork.getSsidEntries(context).size());
@@ -267,30 +261,32 @@ public class OnboardingActivityTest {
     // ---- Markings ------------------------------------------------------------------------------------
 
     @Test
-    public void lessSecureIsMarkedForExactlyTheFourListedValues() {
+    public void lessSecureIsMarkedForExactlyTheThreeListedValues() {
         assertTrue("defaults carry no mark", KeepADBOnboarding.lessSecure(context).isEmpty());
 
         // Values the concept does NOT list must stay unmarked.
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBPreferences.setRegisterWebhookUrl(context, "https://example.org/register/x");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         assertTrue(KeepADBOnboarding.lessSecure(context).isEmpty());
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://example.org/register/x");
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         assertTrue("a disabled webhook sends nothing", KeepADBOnboarding.lessSecure(context).isEmpty());
-        prefs().edit().clear().commit();
+        resetPrefs();
 
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         assertEquals(List.of(KeepADBOnboarding.LessSecure.PROTECTION_ALL_WIFI),
                 KeepADBOnboarding.lessSecure(context));
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
 
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
-        assertEquals(List.of(KeepADBOnboarding.LessSecure.NOTIFICATION_DETAILS),
-                KeepADBOnboarding.lessSecure(context));
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        // #904: details in notifications are the default now and no longer marked, whichever way
+        // the notification privacy switch stands.
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
+        assertTrue(KeepADBOnboarding.lessSecure(context).isEmpty());
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+        assertTrue(KeepADBOnboarding.lessSecure(context).isEmpty());
 
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://example.org/register/x");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
@@ -306,24 +302,20 @@ public class OnboardingActivityTest {
 
     @Test
     public void badgesFollowTheStoredValueOnTheCards() {
-        // All Wi-Fi + details on: both cards carry "Less secure", the neutral cards do not.
+        // All Wi-Fi: its card carries "Less secure", the neutral cards do not.
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         OnboardingActivity protection = start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION));
         assertEquals(List.of("Less secure", "Recommended", "", "Not recommended"), badges(protection));
-        OnboardingActivity details = start(
-                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
-        assertEquals(List.of("Recommended", "Less secure"), badges(details));
 
         // Balanced and the name list are a note, never "Less secure".
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
         assertEquals(List.of("Recommended", "Note", "Not recommended"), badges(start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
 
         // The previous name list is a note as well: its card carries "Note", not "Less secure".
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADBTrustedNetwork.addSsid(context, "Garten");
         KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
         assertEquals(KeepADBTrustedNetwork.ProtectionLevel.LEGACY_NAME_LIST,
@@ -332,7 +324,7 @@ public class OnboardingActivityTest {
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
 
         // Defaults: nothing is marked less secure on any step.
-        prefs().edit().clear().commit();
+        resetPrefs();
         for (KeepADBOnboarding.Step step : KeepADBOnboarding.Step.values()) {
             for (String badge : badges(start(OnboardingActivity.stepIntent(context, step)))) {
                 assertFalse(step.id, "Less secure".equals(badge));
@@ -348,7 +340,7 @@ public class OnboardingActivityTest {
         assertTrue(allText(assistant).contains(
                 context.getString(R.string.onboarding_intro_less_secure)));
 
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         OnboardingActivity fresh = startHandedOver();
         assertEquals(context.getString(R.string.onboarding_intro_title_new,
@@ -388,7 +380,7 @@ public class OnboardingActivityTest {
     @Test
     public void singleStepModeWorksForEveryStep() {
         for (KeepADBOnboarding.Step step : KeepADBOnboarding.Step.values()) {
-            prefs().edit().clear().commit();
+            resetPrefs();
             OnboardingStep expected = null;
             for (OnboardingStep candidate : OnboardingActivity.buildSteps()) {
                 if (candidate.id == step) expected = candidate;
@@ -461,7 +453,7 @@ public class OnboardingActivityTest {
     @Test
     public void theCloseButtonOfASingleStepDoesNotMarkTheAssistantClosed() {
         OnboardingActivity single = start(
-                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION));
         click(single, R.id.onboarding_close);
         assertTrue(single.isFinishing());
         assertEquals(0, KeepADBPreferences.getOnboardingCompletedVersion(context));
@@ -470,18 +462,20 @@ public class OnboardingActivityTest {
     @Test
     public void singleStepDoneStoresTheChoiceAndBackDoesNot() {
         OnboardingActivity done = start(
-                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
-        cards(done).get(1).performClick();
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION));
+        cards(done).get(1).performClick(); // Balanced
         click(done, R.id.onboarding_next);
-        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(context));
+        assertEquals(KeepADBTrustedNetwork.ProtectionLevel.BALANCED,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
 
-        prefs().edit().clear().commit();
+        resetPrefs();
         OnboardingActivity back = start(
-                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION));
         cards(back).get(1).performClick();
         back.onBackPressed();
         assertTrue(back.isFinishing());
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
+        assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
     }
 
     @Test
@@ -678,9 +672,9 @@ public class OnboardingActivityTest {
 
     @Test
     @Config(qualifiers = "w599dp-h900dp")
-    public void protectionAndDetailsKeepTheirPendingChoicesAcrossTheWideBoundary() {
+    public void protectionKeepsItsPendingChoiceAcrossTheWideBoundary() {
         for (KeepADBOnboarding.Step step : new KeepADBOnboarding.Step[] {
-                KeepADBOnboarding.Step.PROTECTION, KeepADBOnboarding.Step.DETAILS}) {
+                KeepADBOnboarding.Step.PROTECTION}) {
             RuntimeEnvironment.setQualifiers("w599dp-h900dp");
             ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
                     OnboardingActivity.class, OnboardingActivity.stepIntent(context, step)).setup();
@@ -693,7 +687,6 @@ public class OnboardingActivityTest {
             assertComparison(controller.get(), 840);
             assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
                     KeepADBTrustedNetwork.getProtectionLevel(context));
-            assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
         }
     }
 
@@ -719,7 +712,7 @@ public class OnboardingActivityTest {
                         String where = width + "dp, " + fontScale + ", page " + page;
                         assertInside(root, 0, pixels, where);
                         View task = assistant.findViewById(R.id.onboarding_page);
-                        boolean comparison = page == 1 || page == 2 || page == 5;
+                        boolean comparison = page == 1 || page == 2;
                         int maximum = Math.round((comparison ? 840 : 640) * density);
                         assertTrue(where + ": bounded task", task.getWidth() <= maximum);
                         View viewport = assistant.findViewById(R.id.onboarding_scroll);
@@ -812,6 +805,16 @@ public class OnboardingActivityTest {
                 assertInside(group.getChildAt(i), left - view.getScrollX(), width, where);
             }
         }
+    }
+
+    /**
+     * A new installation as the application leaves it at its first start: nothing stored but the
+     * marker of the privacy migration (#904). Clearing alone would drop that marker, and the first
+     * read of a privacy switch would then migrate the half-built state as an "existing" one.
+     */
+    private void resetPrefs() {
+        prefs().edit().clear().commit();
+        KeepADBPreferences.migratePrivacySplit(context);
     }
 
     private SharedPreferences prefs() {
@@ -931,7 +934,6 @@ public class OnboardingActivityTest {
             KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
             KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
             prefs().edit().putBoolean("keep_alive_enabled", true)
-                    .putBoolean(KeepADBPreferences.KEY_NOTIFICATION_DETAILS_ENABLED, true)
                     .commit();
             KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
             KeepADBPreferences.setRegisterWebhookEnabled(context, true);

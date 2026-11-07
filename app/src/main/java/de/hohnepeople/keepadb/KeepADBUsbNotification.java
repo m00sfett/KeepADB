@@ -101,7 +101,7 @@ final class KeepADBUsbNotification {
                 // lock screen shows instead. #592: Android only redacts while sensitive lock-screen
                 // content is hidden -- with it allowed (as on the s20), the private card below is
                 // shown and publicVersion is ignored, so the profile summary itself is gated behind
-                // KeepADBPreferences#isNotificationDetailsEnabled. publicVersion is set once here,
+                // KeepADBPreferences#isNotificationPrivacyEnabled. publicVersion is set once here,
                 // before either branch adds its own contentText/actions, so every branch -- with
                 // or without a profile notification, with or without the handover action, and the
                 // error text -- carries it as best effort.
@@ -121,9 +121,9 @@ final class KeepADBUsbNotification {
             // screen whenever sensitive lock-screen content is allowed, ignoring publicVersion.
             String profileText = selected == null
                     ? context.getString(R.string.usb_notification_no_profile)
-                    : KeepADBPreferences.isNotificationDetailsEnabled(context)
-                            ? selected.summary()
-                            : context.getString(R.string.usb_notification_profile_hidden);
+                    : KeepADBPreferences.isNotificationPrivacyEnabled(context)
+                            ? context.getString(R.string.usb_notification_profile_hidden)
+                            : selected.summary();
             contentText = (handoverActionVisible && lastHandoverActionFailed)
                     ? handoverErrorText(context)
                     : profileText;

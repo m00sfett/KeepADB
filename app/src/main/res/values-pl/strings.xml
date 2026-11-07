@@ -58,6 +58,15 @@
     <string name="action_settings">Ustawienia</string>
     <string name="privacy_toggle_enable_accessibility">Włącz tryb prywatności (ukryj adresy sieciowe)</string>
     <string name="privacy_toggle_disable_accessibility">Wyłącz tryb prywatności (pokaż adresy sieciowe)</string>
+    <string name="privacy_switches_title">Prywatność</string>
+    <string name="privacy_switches_hint">Opcjonalnie, domyślnie wszystko wyłączone. Każdy przełącznik ukrywa nazwy Wi-Fi, adresy i porty tylko w swoim obszarze.</string>
+    <string name="privacy_app_title">Ukryj w aplikacji</string>
+    <string name="privacy_app_body">Maskuje nazwy Wi-Fi, adresy punktów dostępowych, adresy IP i host webhooka na każdym ekranie i w każdym oknie dialogowym. „Pokaż” odsłania je do opuszczenia ekranu.</string>
+    <string name="privacy_notifications_title">Ukryj w powiadomieniach</string>
+    <string name="privacy_notifications_body">Powiadomienia pokazują tylko stan, bez portu, adresu IP, profilu USB i nazwy Wi-Fi. Powiadomienie o nowej sieci Wi-Fi nie ma wtedy przycisków i otwiera aplikację. Gdy ta opcja jest wyłączona, te szczegóły mogą pojawiać się także na ekranie blokady.</string>
+    <string name="privacy_widgets_title">Ukryj w widżetach i kafelku</string>
+    <string name="privacy_widgets_body">Widżet na ekranie głównym i kafelek szybkich ustawień pokazują tylko stan, bez portu i adresu.</string>
+    <string name="usb_profile_hidden_numbered">Profil %1$d</string>
     <string name="title_settings">Ustawienia</string>
     <string name="settings_section_general">Ogólne</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
     <string name="settings_hide_notification_subtext">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.</string>
     <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
-    <string name="settings_notification_details_toggle">Pokazuj szczegóły połączenia w powiadomieniach</string>
-    <string name="settings_notification_details_subtext">Wyświetla port i adres IP w trwałym powiadomieniu o stanie, profil hosta USB (nazwę, IP, hosta) oraz nazwę i BSSID nowych sieci Wi-Fi w powiadomieniach. Po włączeniu te szczegóły mogą być widoczne także na ekranie blokady. Po wyłączeniu są widoczne tylko w aplikacji.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
     <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>
@@ -496,12 +503,6 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_protection_keep_alive_off">Obowiązuje po włączeniu Keep-Alive.</string>
     <string name="onboarding_customize_show">Dostosuj ▾</string>
     <string name="onboarding_customize_hide">Dostosuj ▴</string>
-    <string name="onboarding_details_title">Ekran blokady</string>
-    <string name="onboarding_details_question">Czy powiadomienia mają pokazywać adresy i nazwy Wi-Fi?</string>
-    <string name="onboarding_details_off_body">Powiadomienia pokazują tylko stan. Bez adresów i nazw Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Pokazuje w powiadomieniach adres IP i port, profil USB oraz nazwy nowych sieci Wi-Fi. Zależnie od ustawień Androida także na ekranie blokady.</string>
-    <string name="onboarding_details_value_on">Szczegóły widoczne</string>
-    <string name="onboarding_details_value_off">Bez szczegółów</string>
     <string name="onboarding_summary_title">Konfiguracja zakończona</string>
     <string name="onboarding_summary_hint">Dotknij wiersza, aby go zmienić. Wszystko możesz zmienić później w Ustawienia → Kreator konfiguracji.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive jest wyłączone. Możesz je włączyć w dowolnej chwili na ekranie głównym.</string>
@@ -532,7 +533,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_perm_force_note">Znów potrzebne po zakończeniu trybu wymuszonego.</string>
     <string name="onboarding_network_title">Zaufana sieć Wi-Fi</string>
     <string name="onboarding_network_question">Czy KeepADB ma ufać sieci Wi-Fi, z którą jesteś teraz połączony?</string>
-    <string name="onboarding_network_privacy_note">W trybie prywatności nazwa jest pokazywana tylko tutaj i przy nadawaniu zaufania.</string>
+    <string name="onboarding_network_privacy_note">Prywatność jest włączona: nazwa i adres pozostają ukryte, dopóki nie dotkniesz „Pokaż”.</string>
     <string name="onboarding_network_open_list">Zmień na liście Sieci</string>
     <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres debugowania bezprzewodowego do własnego serwera, na przykład w Twojej sieci domowej lub VPN. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
     <string name="onboarding_protection_force_title">Maksymalna wygoda (tryb wymuszony)</string>
@@ -555,7 +556,6 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Język</string>
-    <string name="menu_item_privacy_mode">Tryb prywatności</string>
     <string name="menu_item_all_settings">Wszystkie ustawienia</string>
 
     <!-- #826: warning display controls. -->

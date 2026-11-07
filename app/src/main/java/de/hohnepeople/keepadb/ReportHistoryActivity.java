@@ -62,7 +62,7 @@ public class ReportHistoryActivity extends Activity {
                 .setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
         findViewById(R.id.report_history_clear)
                 .setVisibility(entries.isEmpty() ? View.GONE : View.VISIBLE);
-        boolean mask = KeepADBPreferences.isPrivacyModeEnabled(this);
+        boolean mask = KeepADBNetworkDisplay.hidden(this);
         java.text.DateFormat time = timeFormat(this);
         int pad = (int) (10 * getResources().getDisplayMetrics().density);
         for (KeepADBReportHistory.Entry entry : entries) {

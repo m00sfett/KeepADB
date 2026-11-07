@@ -62,7 +62,8 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
-    private Switch notificationDetailsToggle;
+    /** #904: the block with the three privacy switches. */
+    private View privacySwitches;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
     private Switch usbNotificationToggle;
@@ -177,16 +178,8 @@ public class SettingsActivity extends Activity {
             refresh();
         });
 
-        notificationDetailsToggle = findViewById(R.id.settings_notification_details_toggle);
-        notificationDetailsToggle.setOnClickListener(v -> {
-            KeepADBPreferences.setNotificationDetailsEnabled(this, notificationDetailsToggle.isChecked());
-            // #592: re-render a currently visible USB card right away; a trust prompt already on
-            // screen keeps its text until it is posted again.
-            KeepADBUsbReceiver.refresh(this);
-            // #597: re-render the persistent main notification right away too -- same reasoning,
-            // it also gates its port/IP text behind this preference now.
-            KeepADBEndpointCoordinator.refresh(this);
-        });
+        privacySwitches = findViewById(R.id.privacy_switches);
+        KeepADBPrivacySwitches.bind(this, privacySwitches, this::refresh);
 
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
         keepDisplayOnToggle.setOnClickListener(v ->
@@ -316,7 +309,7 @@ public class SettingsActivity extends Activity {
         }
         if (consumeFocus(EXTRA_FOCUS_DETAILS)) {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow);
-            focusWarningTarget(findViewById(R.id.settings_notification_details_toggle));
+            focusWarningTarget(findViewById(R.id.privacy_switch_notifications));
         }
         if (consumeFocus(EXTRA_FOCUS_MISC)) {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body,
@@ -668,7 +661,7 @@ public class SettingsActivity extends Activity {
                     : R.string.settings_hide_notification_subtext);
         }
 
-        notificationDetailsToggle.setChecked(KeepADBPreferences.isNotificationDetailsEnabled(this));
+        KeepADBPrivacySwitches.refresh(this, privacySwitches);
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 
@@ -679,7 +672,10 @@ public class SettingsActivity extends Activity {
         KeepADBUsbProfile.Profile selectedProfile = KeepADBUsbProfile.getSelected(this);
         usbProfileSummary.setText(selectedProfile == null
                 ? getString(R.string.usb_profile_none)
-                : getString(R.string.usb_profile_selected, selectedProfile.summary()));
+                // #904: name and addresses follow the app privacy switch.
+                : getString(R.string.usb_profile_selected, KeepADBNetworkDisplay.hidden(this)
+                        ? getString(R.string.usb_notification_profile_hidden)
+                        : selectedProfile.summary()));
         usbProfileAction.setText(KeepADBUsbProfile.getProfiles(this).isEmpty()
                 ? R.string.usb_profile_create_button : R.string.usb_profile_switch_button);
 

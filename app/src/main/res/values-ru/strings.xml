@@ -58,6 +58,15 @@
     <string name="action_settings">Настройки</string>
     <string name="privacy_toggle_enable_accessibility">Включить режим конфиденциальности (скрыть сетевые адреса)</string>
     <string name="privacy_toggle_disable_accessibility">Выключить режим конфиденциальности (показать сетевые адреса)</string>
+    <string name="privacy_switches_title">Конфиденциальность</string>
+    <string name="privacy_switches_hint">Необязательно, по умолчанию всё выключено. Каждый переключатель скрывает имена Wi-Fi, адреса и порты только в своей области.</string>
+    <string name="privacy_app_title">Скрывать в приложении</string>
+    <string name="privacy_app_body">Маскирует имена Wi-Fi, адреса точек доступа, IP-адреса и хост вебхука на каждом экране и в каждом диалоге. «Показать» открывает их, пока вы не покинете экран.</string>
+    <string name="privacy_notifications_title">Скрывать в уведомлениях</string>
+    <string name="privacy_notifications_body">Уведомления показывают только состояние, без порта, IP-адреса, профиля USB и имени Wi-Fi. Сообщение о новой сети Wi-Fi тогда не содержит кнопок и открывает приложение. Пока параметр выключен, эти сведения могут появляться и на экране блокировки.</string>
+    <string name="privacy_widgets_title">Скрывать в виджетах и плитке</string>
+    <string name="privacy_widgets_body">Виджет на главном экране и плитка быстрых настроек показывают только состояние, без порта и адреса.</string>
+    <string name="usb_profile_hidden_numbered">Профиль %1$d</string>
     <string name="title_settings">Настройки</string>
     <string name="settings_section_general">Общие</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Постоянное уведомление</string>
     <string name="settings_hide_notification_subtext">Показывает состояние отладки и быстрый доступ в уведомлениях. Выключение скрывает только это уведомление; Keep-Alive, виджеты и плитка быстрых настроек продолжают работать. Детали подключения настраиваются отдельно ниже и могут показывать адреса и названия сетей.</string>
     <string name="settings_hide_notification_subtext_keepalive">Показывает состояние отладки и быстрый доступ в уведомлениях. Выключение скрывает только это уведомление; Keep-Alive, виджеты и плитка быстрых настроек продолжают работать. Детали подключения настраиваются отдельно ниже и могут показывать адреса и названия сетей.\n\nПри активном Keep-Alive Android требует это уведомление для службы переднего плана. Переключатель заблокирован. После выключения Keep-Alive снова применяется сохранённый выбор.</string>
-    <string name="settings_notification_details_toggle">Показывать сведения о подключении в уведомлениях</string>
-    <string name="settings_notification_details_subtext">Показывает порт и IP-адрес в постоянном уведомлении о состоянии, профиль USB-хоста (имя, IP, хост), а также имя и BSSID новых сетей Wi-Fi в уведомлениях. Если включено, эти сведения могут быть видны и на экране блокировки. Если выключено, они отображаются только в приложении.</string>
     <string name="settings_section_display">Экран</string>
     <string name="settings_keep_display_on_toggle">Не выключать экран, пока KeepADB на переднем плане</string>
     <string name="settings_keep_display_on_subtext">Экран остаётся включённым только пока это приложение открыто. При выходе из приложения экран гаснет как обычно.</string>
@@ -496,12 +503,6 @@
     <string name="onboarding_protection_keep_alive_off">Действует, когда Keep-Alive включён.</string>
     <string name="onboarding_customize_show">Настроить ▾</string>
     <string name="onboarding_customize_hide">Настроить ▴</string>
-    <string name="onboarding_details_title">Экран блокировки</string>
-    <string name="onboarding_details_question">Показывать ли в уведомлениях адреса и имена Wi-Fi?</string>
-    <string name="onboarding_details_off_body">Уведомления показывают только состояние. Без адресов и имён Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Показывает в уведомлениях IP-адрес и порт, профиль USB и имена новых сетей Wi-Fi. В зависимости от настроек Android также на экране блокировки.</string>
-    <string name="onboarding_details_value_on">Сведения показаны</string>
-    <string name="onboarding_details_value_off">Без сведений</string>
     <string name="onboarding_summary_title">Настройка завершена</string>
     <string name="onboarding_summary_hint">Нажмите строку, чтобы изменить её. Всё можно изменить позже в разделе «Настройки» → «Помощник настройки».</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive выключен. Его можно включить в любой момент на главном экране.</string>
@@ -532,7 +533,7 @@
     <string name="onboarding_perm_force_note">Снова понадобится после окончания принудительного режима.</string>
     <string name="onboarding_network_title">Доверенная сеть Wi-Fi</string>
     <string name="onboarding_network_question">Должен ли KeepADB доверять сети Wi-Fi, к которой вы подключены сейчас?</string>
-    <string name="onboarding_network_privacy_note">В режиме конфиденциальности имя показывается только здесь и при выдаче доверия.</string>
+    <string name="onboarding_network_privacy_note">Конфиденциальность включена: имя и адрес остаются скрытыми, пока вы не нажмёте «Показать».</string>
     <string name="onboarding_network_open_list">Изменить в списке сетей</string>
     <string name="onboarding_webhook_question">Необязательно. Сообщает текущий адрес беспроводной отладки вашему собственному серверу, например в вашей домашней сети или VPN. Большинству это не нужно. Ничего не сохраняется, пока вы не нажмёте «Сохранить URL».</string>
     <string name="onboarding_protection_force_title">Максимальное удобство (принудительный режим)</string>
@@ -555,7 +556,6 @@
     <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Язык</string>
-    <string name="menu_item_privacy_mode">Режим конфиденциальности</string>
     <string name="menu_item_all_settings">Все настройки</string>
 
     <!-- #826: warning display controls. -->

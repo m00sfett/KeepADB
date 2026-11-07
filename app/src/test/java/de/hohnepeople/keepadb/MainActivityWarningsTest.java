@@ -211,9 +211,14 @@ public class MainActivityWarningsTest {
 
     // ---- W2: force -------------------------------------------------------------------------------
 
+    /** A value the concept marks "less secure": the webhook reports over plain http. */
+    private void markLessSecure() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://example.org/register/x");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+    }
+
     @Test
     public void forceModeShowsW2AndItIsNotCountedAgainAsLessSecure() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         MainActivity activity = open();
 
@@ -227,23 +232,23 @@ public class MainActivityWarningsTest {
 
     @Test
     public void anExistingInstallWithAMarkedValueShowsW3ThatLeadsToTheValuesStep() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        markLessSecure();
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_less_secure));
-        assertEquals(context.getString(R.string.settings_notification_details_toggle),
+        assertEquals(context.getString(R.string.settings_webhook_cleartext_warning),
                 text(activity, R.id.warning_less_secure).getText().toString());
-        assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_DETAILS);
+        assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_WEBHOOK);
     }
 
     @Test
     public void w3PointsAtTheStepOfTheHeaviestMarkedValueAndCountsAll() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        markLessSecure();
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open();
 
         assertEquals(context.getString(R.string.network_mode_option_all_wifi) + "\n"
-                        + context.getString(R.string.settings_notification_details_toggle),
+                        + context.getString(R.string.settings_webhook_cleartext_warning),
                 text(activity, R.id.warning_less_secure).getText().toString());
         assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_NETWORK);
     }
@@ -253,7 +258,7 @@ public class MainActivityWarningsTest {
         // New: the assistant decided "new" while nothing was stored, then a value gets marked.
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         assertFalse(KeepADBOnboarding.isExistingInstall(context));
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        markLessSecure();
         assertTrue(shown(open(), R.id.warning_less_secure));
 
         // Existing, but nothing marked.
@@ -381,7 +386,7 @@ public class MainActivityWarningsTest {
                 android.Manifest.permission.POST_NOTIFICATIONS,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         setBatteryExempt(false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        markLessSecure();
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("");
@@ -397,7 +402,7 @@ public class MainActivityWarningsTest {
     @Test
     public void withoutW1ForceAndMarkedValuesAndALimitedKeepAliveAreStillThree() {
         setBatteryExempt(false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        markLessSecure();
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         MainActivity activity = open();

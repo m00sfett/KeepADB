@@ -63,6 +63,8 @@ public class SettingsActivityTest {
                 .edit()
                 .clear()
                 .commit();
+        // A new installation as the application leaves it (#904): only the privacy marker.
+        KeepADBPreferences.migratePrivacySplit(RuntimeEnvironment.getApplication());
     }
 
     @After
@@ -100,7 +102,7 @@ public class SettingsActivityTest {
      * already visible USB card through the existing KeepADBUsbReceiver.refresh path.
      */
     @Test
-    public void notificationDetailsToggleDefaultsOffAndRerendersTheVisibleUsbCard() {
+    public void notificationPrivacySwitchDefaultsOffAndRerendersTheVisibleUsbCard() {
         android.app.Application app = RuntimeEnvironment.getApplication();
         shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
         app.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
@@ -113,21 +115,24 @@ public class SettingsActivityTest {
         KeepADBUsbReceiver.refresh(app);
 
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        Switch toggle = activity.findViewById(R.id.settings_notification_details_toggle);
+        Switch toggle = activity.findViewById(R.id.privacy_switch_notifications);
         assertNotNull(toggle);
-        assertFalse("Details must be off by default", toggle.isChecked());
+        assertFalse("Notification privacy must be off by default", toggle.isChecked());
+        CharSequence before = postedUsbCard(app).extras.getCharSequence(
+                android.app.Notification.EXTRA_TEXT);
+        assertTrue("A new installation shows the profile: " + before,
+                String.valueOf(before).contains("TestHost"));
+
+        toggle.performClick();
+        assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
 
         toggle.performClick();
-        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         CharSequence text = postedUsbCard(app).extras.getCharSequence(
                 android.app.Notification.EXTRA_TEXT);
         assertTrue("The visible card must be re-rendered with details: " + text,
                 String.valueOf(text).contains("TestHost"));
-
-        toggle.performClick();
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
-        KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
         KeepADBUsbNotification.cancel(app);
     }
 
@@ -138,12 +143,12 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #597: the persistent main notification also gates its port/IP endpoint text behind
-     * {@code notification_details_enabled} now, so it needs the same "toggle re-renders the
-     * already-visible notification" wiring the USB card got in #592.
+     * #597/#904: the persistent main notification gates its port/IP endpoint text behind the
+     * notification privacy switch too, so it needs the same "switch re-renders the already-visible
+     * notification" wiring the USB card got in #592.
      */
     @Test
-    public void notificationDetailsToggleAlsoRerendersTheVisibleMainNotification() throws Exception {
+    public void notificationPrivacySwitchAlsoRerendersTheVisibleMainNotification() throws Exception {
         android.app.Application app = RuntimeEnvironment.getApplication();
         shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
         KeepADBPreferences.setAppLanguage(app, "en");
@@ -154,21 +159,24 @@ public class SettingsActivityTest {
         KeepADBEndpointCoordinator.refresh(app);
 
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        Switch toggle = activity.findViewById(R.id.settings_notification_details_toggle);
+        Switch toggle = activity.findViewById(R.id.privacy_switch_notifications);
         assertNotNull(toggle);
-        assertFalse("Details must be off by default", toggle.isChecked());
+        assertFalse("Notification privacy must be off by default", toggle.isChecked());
+        CharSequence textBefore = postedMainNotification(app).extras.getCharSequence(
+                android.app.Notification.EXTRA_TEXT);
+        assertTrue("A new installation shows the endpoint: " + textBefore,
+                String.valueOf(textBefore).contains("39123"));
+
+        toggle.performClick();
+        assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         KeepADBNotificationTextScan.assertMentionsNone(postedMainNotification(app), "39123", "192.168.1.50");
 
         toggle.performClick();
-        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         CharSequence textOn = postedMainNotification(app).extras.getCharSequence(
                 android.app.Notification.EXTRA_TEXT);
         assertTrue("The visible main notification must be re-rendered with the endpoint: " + textOn,
                 String.valueOf(textOn).contains("39123") && String.valueOf(textOn).contains("192.168.1.50"));
-
-        toggle.performClick();
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
-        KeepADBNotificationTextScan.assertMentionsNone(postedMainNotification(app), "39123", "192.168.1.50");
     }
 
     private static android.app.Notification postedMainNotification(android.content.Context context) {

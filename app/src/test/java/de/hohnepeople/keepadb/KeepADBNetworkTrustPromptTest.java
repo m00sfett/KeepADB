@@ -74,7 +74,7 @@ public class KeepADBNetworkTrustPromptTest {
     @Test
     public void aBlockOnAReadableAccessPointRaisesThePromptWithBothActions() {
         // #592: SSID/BSSID only appear in the prompt text after the opt-in.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
 
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
@@ -103,7 +103,7 @@ public class KeepADBNetworkTrustPromptTest {
 
     @Test
     public void anUnreadableSsidDisplaysUppercaseWithoutChangingTheTrustedLabel() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         Notification notification = postedPrompt();
@@ -774,7 +774,7 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void theBlockActionBlocksTheNamedAccessPointAndNothingElse() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         Notification notification = postedPrompt();
@@ -845,7 +845,7 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void swipingThePromptAwayChangesNoStateAndTheQuestionReturnsAfter24Hours() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         Notification notification = postedPrompt();
@@ -884,7 +884,7 @@ public class KeepADBNetworkTrustPromptTest {
     @Test
     public void theAllowActionRequiresAuthenticationButTheBlockActionDoesNot() {
         // #598: the allow action only exists with connection details on.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -903,7 +903,7 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void thePublicVersionNamesNeitherTheLabelNorTheBssid() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -924,7 +924,8 @@ public class KeepADBNetworkTrustPromptTest {
      * allow, and no block either; the text points to the decision dialog instead.
      */
     @Test
-    public void withDetailsOffThePromptNamesNeitherTheNetworkNorTheBssidAndHasNoActionButton() {
+    public void withNotificationPrivacyOnThePromptNamesNeitherTheNetworkNorTheBssidAndHasNoActionButton() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -948,7 +949,8 @@ public class KeepADBNetworkTrustPromptTest {
      * SettingsActivity PendingIntent the USB notification posts with request code 0.
      */
     @Test
-    public void withDetailsOffTheContentIntentOpensTheDecisionForThePromptedBssid() {
+    public void withNotificationPrivacyOnTheContentIntentOpensTheDecisionForThePromptedBssid() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -994,7 +996,8 @@ public class KeepADBNetworkTrustPromptTest {
 
     /** #592: the re-post after a rejected locked tap honors the opt-in as well. */
     @Test
-    public void withDetailsOffTheLockedReshowNamesNeitherTheNetworkNorTheBssid() {
+    public void withNotificationPrivacyOnTheLockedReshowNamesNeitherTheNetworkNorTheBssid() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         lockDevice();
 
         assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
@@ -1006,8 +1009,8 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     @Test
-    public void withDetailsOnThePromptNamesNetworkAndBssidInTextAndBigText() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+    public void withNotificationPrivacyOffThePromptNamesNetworkAndBssidInTextAndBigText() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -1057,7 +1060,7 @@ public class KeepADBNetworkTrustPromptTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         // #598: the re-offered allow action only exists with connection details on.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         connectTo("Cafe-WLAN", BSSID);

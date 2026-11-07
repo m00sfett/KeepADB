@@ -84,7 +84,7 @@ public class KeepADBWarningStateTest {
         }
     }
     @Test public void signaturesSurviveSameStateAndOnlyShrinkOnRemoval() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         http(true);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
         assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
@@ -94,22 +94,22 @@ public class KeepADBWarningStateTest {
         assertTrue("returning reason is new", shown(KeepADBWarningState.Card.LESS_SECURE));
     }
     @Test public void equalCountWithDifferentReasonsCannotInheritAcknowledgment() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         http(true);
         assertEquals(1, snapshot().reasons(KeepADBWarningState.Card.LESS_SECURE).size());
         assertTrue(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
     @Test public void ownChangesWithHomeClosedStartNewEpisodes() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         assertTrue(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
     @Test public void staleCloseAcknowledgesOnlyTheRenderedSnapshot() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBWarningState.Snapshot shown = snapshot();
         http(true);
         assertTrue(KeepADBWarningState.dismiss(context, KeepADBWarningState.Card.LESS_SECURE, shown));
@@ -118,7 +118,7 @@ public class KeepADBWarningStateTest {
         assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
     @Test public void staleCloseCannotAcknowledgeAReturnedEpisodeButKeepsUnchangedReasons() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         http(true);
         KeepADBWarningState.Snapshot old = snapshot();
         http(false);
@@ -129,8 +129,8 @@ public class KeepADBWarningStateTest {
                 KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, KeepADBWarningState.Card.LESS_SECURE, old));
         http(false);
         assertFalse("unchanged details reason was acknowledged", shown(KeepADBWarningState.Card.LESS_SECURE));
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         assertTrue(KeepADBWarningState.dismiss(context, KeepADBWarningState.Card.LESS_SECURE, old));
         assertTrue("full inactivity creates a new details episode", shown(KeepADBWarningState.Card.LESS_SECURE));
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
@@ -142,7 +142,7 @@ public class KeepADBWarningStateTest {
         http(true);
         assertTrue(KeepADBWarningState.mute(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, true));
         http(false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
         http(true);
         assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
@@ -152,7 +152,7 @@ public class KeepADBWarningStateTest {
     }
     @Test public void resetOnlyInvalidatesPreviouslyMutedReasonsAndLeavesAdviceAlone() {
         KeepADBPreferences.setAdviceBannerVisible(context, false);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
         assertTrue(KeepADBWarningState.mute(context, KeepADBWarningState.Reason.BATTERY_EXEMPTION_MISSING, true));
         KeepADBWarningState.resetMutes(context);
@@ -170,22 +170,22 @@ public class KeepADBWarningStateTest {
         assertTrue(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
     @Test public void closedFeedbackCannotMuteAnUnseenOrResolvedReason() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBWarningState.Snapshot shown = snapshot();
         http(true);
         assertFalse(KeepADBWarningState.muteClosed(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT,
                 KeepADBWarningState.Card.LESS_SECURE, shown));
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
-        assertFalse(KeepADBWarningState.muteClosed(context, KeepADBWarningState.Reason.NOTIFICATION_DETAILS,
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        assertFalse(KeepADBWarningState.muteClosed(context, KeepADBWarningState.Reason.PROTECTION_ALL_WIFI,
                 KeepADBWarningState.Card.LESS_SECURE, shown));
         assertTrue(snapshot().muted.isEmpty());
     }
     @Test public void mixedMutesDoNotHideAnUnmutedReason() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         http(true);
         KeepADBWarningState.mute(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, true);
         assertTrue(shown(KeepADBWarningState.Card.LESS_SECURE));
-        assertEquals(java.util.EnumSet.of(KeepADBWarningState.Reason.NOTIFICATION_DETAILS),
+        assertEquals(java.util.EnumSet.of(KeepADBWarningState.Reason.PROTECTION_ALL_WIFI),
                 snapshot().reasons(KeepADBWarningState.Card.LESS_SECURE));
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
         assertEquals(1, snapshot().security().size());
@@ -246,7 +246,7 @@ public class KeepADBWarningStateTest {
         assertEquals(1, prefs().getInt(KeepADBWarningState.KEY, 0));
     }
     @Test public void failedPersistenceCannotClaimCloseSucceeded() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         SharedPreferences delegate = prefs();
         SharedPreferences failing = (SharedPreferences) java.lang.reflect.Proxy.newProxyInstance(
                 SharedPreferences.class.getClassLoader(), new Class<?>[]{SharedPreferences.class}, (proxy, method, args) -> {
@@ -322,7 +322,7 @@ public class KeepADBWarningStateTest {
         assertFalse("suppression must not create a new episode", shown(KeepADBWarningState.Card.LIMITED));
     }
     @Test public void rawEvaluationRemainsPureAndAppResetDropsOnlyDisplayMemory() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         java.util.Map<String, ?> before = prefs().getAll();
         KeepADBHomeWarnings.evaluate(context);
         KeepADBHomeWarnings.reasons(context);

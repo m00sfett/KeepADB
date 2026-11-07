@@ -58,6 +58,15 @@
     <string name="action_settings">Impostazioni</string>
     <string name="privacy_toggle_enable_accessibility">Attiva modalità privacy (nascondi indirizzi di rete)</string>
     <string name="privacy_toggle_disable_accessibility">Disattiva modalità privacy (mostra indirizzi di rete)</string>
+    <string name="privacy_switches_title">Privacy</string>
+    <string name="privacy_switches_hint">Facoltativo, tutto disattivato per impostazione predefinita. Ogni interruttore nasconde nomi Wi-Fi, indirizzi e porte solo nella propria area.</string>
+    <string name="privacy_app_title">Nascondi nell’app</string>
+    <string name="privacy_app_body">Maschera i nomi Wi-Fi, gli indirizzi dei punti di accesso, gli indirizzi IP e l’host del webhook in ogni schermata e in ogni finestra di dialogo. «Mostra» li rivela finché non lasci la schermata.</string>
+    <string name="privacy_notifications_title">Nascondi nelle notifiche</string>
+    <string name="privacy_notifications_body">Le notifiche mostrano solo lo stato, senza porta, indirizzo IP, profilo USB o nome Wi-Fi. Un avviso su un nuovo Wi-Fi non ha allora pulsanti e apre l’app. Finché è disattivato, questi dettagli possono comparire anche nella schermata di blocco.</string>
+    <string name="privacy_widgets_title">Nascondi nei widget e nel riquadro</string>
+    <string name="privacy_widgets_body">Il widget della schermata Home e il riquadro delle impostazioni rapide mostrano solo lo stato, senza la porta o un indirizzo.</string>
+    <string name="usb_profile_hidden_numbered">Profilo %1$d</string>
     <string name="title_settings">Impostazioni</string>
     <string name="settings_section_general">Generale</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
     <string name="settings_hide_notification_subtext">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.</string>
     <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
-    <string name="settings_notification_details_toggle">Mostra i dettagli di connessione nelle notifiche</string>
-    <string name="settings_notification_details_subtext">Mostra la porta e l’indirizzo IP nella notifica di stato persistente, il profilo host USB (nome, IP, host) e il nome e il BSSID delle nuove reti Wi-Fi nelle notifiche. Se attivo, questi dettagli possono essere visibili anche nella schermata di blocco. Se disattivato, sono visibili solo nell’app.</string>
     <string name="settings_section_display">Schermo</string>
     <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
     <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>
@@ -496,12 +503,6 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_protection_keep_alive_off">Vale quando Keep-Alive è attivo.</string>
     <string name="onboarding_customize_show">Personalizza ▾</string>
     <string name="onboarding_customize_hide">Personalizza ▴</string>
-    <string name="onboarding_details_title">Schermata di blocco</string>
-    <string name="onboarding_details_question">Le notifiche devono mostrare indirizzi e nomi Wi-Fi?</string>
-    <string name="onboarding_details_off_body">Le notifiche mostrano solo lo stato. Nessun indirizzo, nessun nome Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Mostra indirizzo IP e porta, il profilo USB e i nomi delle nuove reti Wi-Fi nelle notifiche. A seconda delle impostazioni di Android, anche nella schermata di blocco.</string>
-    <string name="onboarding_details_value_on">Dettagli visibili</string>
-    <string name="onboarding_details_value_off">Nessun dettaglio</string>
     <string name="onboarding_summary_title">Configurazione completata</string>
     <string name="onboarding_summary_hint">Tocca una riga per modificarla. Puoi cambiare tutto più tardi in Impostazioni → Procedura guidata.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive è disattivo. Puoi attivarlo in qualsiasi momento nella schermata iniziale.</string>
@@ -532,7 +533,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_perm_force_note">Servirà di nuovo quando la modalità forzata termina.</string>
     <string name="onboarding_network_title">Wi-Fi affidabile</string>
     <string name="onboarding_network_question">KeepADB deve considerare affidabile il Wi-Fi a cui sei collegato in questo momento?</string>
-    <string name="onboarding_network_privacy_note">In modalità privacy il nome viene mostrato solo qui e quando consideri affidabile una rete.</string>
+    <string name="onboarding_network_privacy_note">La privacy è attiva: nome e indirizzo restano nascosti finché non tocchi «Mostra».</string>
     <string name="onboarding_network_open_list">Modifica nell’elenco Reti</string>
     <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale del debug wireless a un tuo server, per esempio nella tua rete domestica o VPN. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
     <string name="onboarding_protection_force_title">Massimo comfort (modalità forzata)</string>
@@ -555,7 +556,6 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Lingua</string>
-    <string name="menu_item_privacy_mode">Modalità privacy</string>
     <string name="menu_item_all_settings">Tutte le impostazioni</string>
 
     <!-- #826: warning display controls. -->

@@ -67,6 +67,9 @@ final class KeepADBUsbProfileEditor {
             return;
         }
         int profileId = savedInstanceState.getInt(STATE_PROFILE_EDIT_ID, -1);
+        // #904: a recreated screen has no "Show" any more; do not put a saved profile's name and
+        // addresses back on it while the app privacy switch masks them.
+        if (profileId != -1 && KeepADBNetworkDisplay.hidden(activity)) return;
         KeepADBUsbProfile.Profile editingProfile = null;
         if (profileId != -1) {
             for (KeepADBUsbProfile.Profile p : KeepADBUsbProfile.getProfiles(activity)) {
@@ -161,16 +164,38 @@ final class KeepADBUsbProfileEditor {
         showEditDialog(null);
     }
 
+    /** #904: the profile name as shown; a numbered stand-in while the app privacy masks it. */
+    private String shownName(KeepADBUsbProfile.Profile profile, int position) {
+        return KeepADBNetworkDisplay.hidden(activity)
+                ? activity.getString(R.string.usb_profile_hidden_numbered, position + 1)
+                : profile.name;
+    }
+
     private void showSwitchDialog(List<KeepADBUsbProfile.Profile> profiles) {
         KeepADBUsbProfile.Profile current = KeepADBUsbProfile.getSelected(activity);
+        // #904: names and addresses are masked while the app privacy switch is on; "Show" lifts
+        // that for this screen and reopens the list unmasked. Editing needs the real values.
+        boolean masked = KeepADBNetworkDisplay.hidden(activity);
         LinearLayout options = new LinearLayout(activity);
         options.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (20 * activity.getResources().getDisplayMetrics().density);
         options.setPadding(padding, 0, padding, 0);
         final AlertDialog[] dialogHolder = new AlertDialog[1];
         int rowSpacing = (int) (8 * activity.getResources().getDisplayMetrics().density);
+        if (masked) {
+            Button show = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
+            show.setText(R.string.networks_hidden_show);
+            show.setOnClickListener(v -> {
+                KeepADBPrivacy.reveal(activity);
+                dialogHolder[0].dismiss();
+                onProfileChanged.run();
+                showSwitchDialog(KeepADBUsbProfile.getProfiles(activity));
+            });
+            options.addView(show);
+        }
         for (int i = 0; i < profiles.size(); i++) {
             KeepADBUsbProfile.Profile profile = profiles.get(i);
+            String shownName = shownName(profile, i);
             int minTouch = (int) (48 * activity.getResources().getDisplayMetrics().density);
 
             // #593: name and details stacked in two lines instead of one radio label, so a
@@ -179,9 +204,9 @@ final class KeepADBUsbProfileEditor {
             LinearLayout textColumn = new LinearLayout(activity);
             textColumn.setOrientation(LinearLayout.VERTICAL);
             TextView nameView = new TextView(activity);
-            nameView.setText(profile.name);
+            nameView.setText(shownName);
             textColumn.addView(nameView);
-            String details = profile.details();
+            String details = masked ? profile.maskedDetails() : profile.details();
             if (!details.isEmpty()) {
                 TextView detailsView = new TextView(activity);
                 detailsView.setText(details);
@@ -191,7 +216,9 @@ final class KeepADBUsbProfileEditor {
                     LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
             RadioButton select = new RadioButton(activity);
-            select.setContentDescription(profile.summary());
+            select.setContentDescription(masked
+                    ? (details.isEmpty() ? shownName : shownName + " · " + details)
+                    : profile.summary());
             select.setChecked(current != null && current.id == profile.id);
             select.setMinHeight(minTouch);
             select.setMinWidth(minTouch);
@@ -218,7 +245,7 @@ final class KeepADBUsbProfileEditor {
             Button edit = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             edit.setText(R.string.usb_profile_edit_button);
             edit.setContentDescription(activity.getString(
-                    R.string.usb_profile_edit_action_accessibility, profile.name));
+                    R.string.usb_profile_edit_action_accessibility, shownName));
             edit.setMinHeight(minTouch);
             edit.setOnClickListener(v -> {
                 dialogHolder[0].dismiss();
@@ -227,16 +254,16 @@ final class KeepADBUsbProfileEditor {
             Button delete = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             delete.setText(R.string.usb_profile_delete_button);
             delete.setContentDescription(activity.getString(
-                    R.string.usb_profile_delete_action_accessibility, profile.name));
+                    R.string.usb_profile_delete_action_accessibility, shownName));
             delete.setMinHeight(minTouch);
             delete.setOnClickListener(v -> {
                 dialogHolder[0].dismiss();
-                showDeleteDialog(profile);
+                showDeleteDialog(profile, shownName);
             });
             LinearLayout.LayoutParams editParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             editParams.setMarginEnd(Math.round(8 * activity.getResources().getDisplayMetrics().density));
-            actionRow.addView(edit, editParams);
+            if (!masked) actionRow.addView(edit, editParams);
             actionRow.addView(delete);
 
             LinearLayout row = new LinearLayout(activity);
@@ -344,10 +371,10 @@ final class KeepADBUsbProfileEditor {
         dialog.show();
     }
 
-    private void showDeleteDialog(KeepADBUsbProfile.Profile profile) {
+    private void showDeleteDialog(KeepADBUsbProfile.Profile profile, String shownName) {
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setTitle(R.string.usb_profile_delete_title)
-                .setMessage(activity.getString(R.string.usb_profile_delete_message, profile.name))
+                .setMessage(activity.getString(R.string.usb_profile_delete_message, shownName))
                 .setPositiveButton(R.string.usb_profile_delete_button, (d, which) -> {
                     if (KeepADBUsbProfile.delete(activity, profile.id)) {
                         onProfileChanged.run();

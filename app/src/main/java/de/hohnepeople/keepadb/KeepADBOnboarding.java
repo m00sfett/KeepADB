@@ -35,14 +35,14 @@ final class KeepADBOnboarding {
      * The steps this build knows, in the order of the concept. The ids are the {@code EXTRA_STEP}
      * values of the single-step mode (UX concept 1.7). A further step is added here and
      * to {@link OnboardingActivity#buildSteps}. The permissions and the trusted Wi-Fi (#767) come
-     * between the protection level and the lock screen, the webhook (#768) last, as in the concept.
+     * between the protection level and the webhook (#768), which is last. The former "lock screen"
+     * step is gone (#904): its question is the notification privacy switch on the intro page.
      */
     enum Step {
         KEEP_ALIVE("keep_alive"),
         PROTECTION("protection"),
         PERMISSIONS("permissions"),
         NETWORK("network"),
-        DETAILS("details"),
         WEBHOOK("webhook");
 
         final String id;
@@ -62,16 +62,16 @@ final class KeepADBOnboarding {
     }
 
     /**
-     * The four settings the concept marks "less secure" (1.5), and nothing else. The balanced
-     * preset is deliberately absent: it is an offered preset, not a misconfiguration.
+     * The settings the concept marks "less secure" (1.5), and nothing else. The balanced preset
+     * is deliberately absent: it is an offered preset, not a misconfiguration. Details in
+     * notifications are absent too since #904: they are the default now, controlled by the
+     * notification privacy switch, and no longer a deviation from the safe default.
      */
     enum LessSecure {
         /** The former default "in all Wi-Fi networks". */
         PROTECTION_ALL_WIFI,
         /** The force mode is on. */
         FORCE_MODE,
-        /** Details (addresses, network names) in notifications. */
-        NOTIFICATION_DETAILS,
         /** The webhook reports over plain {@code http://}. */
         WEBHOOK_CLEARTEXT
     }
@@ -109,7 +109,9 @@ final class KeepADBOnboarding {
             // The marker of the one-time history discard (#778) is written on every installation.
             if (!KeepADBPreferences.KEY_ONBOARDING_COMPLETED_VERSION.equals(key)
                     && !KeepADBBssidHistory.KEY_LEGACY_DISCARDED.equals(key)
-                    && !KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN.equals(key)) {
+                    && !KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN.equals(key)
+                    // #904: bookkeeping written on every installation at the first start.
+                    && !KeepADBPreferences.KEY_PRIVACY_SPLIT_INITIALIZED.equals(key)) {
                 existing = true;
                 break;
             }
@@ -147,9 +149,6 @@ final class KeepADBOnboarding {
         }
         if (KeepADBForceMode.isActive(context)) {
             found.add(LessSecure.FORCE_MODE);
-        }
-        if (KeepADBPreferences.isNotificationDetailsEnabled(context)) {
-            found.add(LessSecure.NOTIFICATION_DETAILS);
         }
         if (isWebhookCleartext(context)) {
             found.add(LessSecure.WEBHOOK_CLEARTEXT);
@@ -201,15 +200,6 @@ final class KeepADBOnboarding {
             KeepADBTrustedNetwork.setTrustByNameEnabled(context, byName);
         }
         KeepADBService.sync(context);
-    }
-
-    /** Step "Lock screen": the existing {@code notification_details_enabled}, written on a change only. */
-    static void commitNotificationDetails(Context context, boolean wanted) {
-        if (KeepADBPreferences.isNotificationDetailsEnabled(context) == wanted) return;
-        KeepADBPreferences.setNotificationDetailsEnabled(context, wanted);
-        // The same two refreshes the Settings switch does (#592, #597).
-        KeepADBUsbReceiver.refresh(context);
-        KeepADBEndpointCoordinator.refresh(context);
     }
 
     // ---- Test seam --------------------------------------------------------------------------------

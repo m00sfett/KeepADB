@@ -89,7 +89,8 @@ public class NetworkDecisionActivityTest {
     // --- The prompt's tap opens the decision for exactly the prompted access point ----------------
 
     @Test
-    public void tappingTheDetailsOffPromptNamesTheNetworkAndTrustTrustsExactlyThatBssid() {
+    public void tappingTheNotificationPrivacyOnPromptNamesTheNetworkAndTrustTrustsExactlyThatBssid() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         Intent tap = promptTap(SSID, BSSID, false);
 
         ActivityController<NetworkDecisionActivity> controller = open(tap);
@@ -119,7 +120,7 @@ public class NetworkDecisionActivityTest {
 
     /** Roam between the notification and the tap: the dialog names and trusts the prompted BSSID. */
     @Test
-    public void tappingTheDetailsOnPromptAfterARoamStillDecidesThePromptedAccessPoint() {
+    public void tappingTheNotificationPrivacyOffPromptAfterARoamStillDecidesThePromptedAccessPoint() {
         Intent tap = promptTap(SSID, BSSID, true);
         connectTo(OTHER_SSID, OTHER_BSSID);
         KeepADBBlockedNetworkHistory.record(context,
@@ -557,19 +558,45 @@ public class NetworkDecisionActivityTest {
         controller.pause().stop().destroy();
     }
 
-    // --- Privacy mode: the dialog shows the name on purpose, toasts do not -------------------------
+    // --- Privacy (#904): masked like every screen, "Show" reveals this screen only -----------------
 
     @Test
-    public void thePrivacyModeDoesNotHideTheNetworkTheUserIsDecidingOnButTheToastStaysMasked() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+    public void theAppPrivacySwitchMasksTheDecisionAndShowRevealsItUntilTheScreenStops() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         Intent tap = promptTap(SSID, BSSID, false);
 
         ActivityController<NetworkDecisionActivity> controller = open(tap);
         NetworkDecisionActivity activity = controller.get();
-        assertEquals("Deliberate exception: the name is shown", SSID, text(activity, R.id.decision_name));
+        assertEquals(context.getString(R.string.network_privacy_name_hidden),
+                text(activity, R.id.decision_name));
+        assertEquals(KeepADBAddressMask.maskBssid(BSSID), text(activity, R.id.decision_bssid));
+        assertNoNetworkText(activity);
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.decision_show).getVisibility());
+
+        click(activity, R.id.decision_show);
+        assertEquals("Show reveals the name", SSID, text(activity, R.id.decision_name));
         assertEquals("... and the address", BSSID.toUpperCase(Locale.ROOT),
                 text(activity, R.id.decision_bssid));
+        assertEquals(View.GONE, activity.findViewById(R.id.decision_show).getVisibility());
+        assertTrue("Show never changes the stored switch",
+                KeepADBPreferences.isAppPrivacyEnabled(context));
 
+        // Leaving the screen ends the reveal: the same question comes back masked.
+        controller.pause().stop();
+        controller.start().resume();
+        assertEquals(context.getString(R.string.network_privacy_name_hidden),
+                text(activity, R.id.decision_name));
+        assertNoNetworkText(activity);
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void theToastStaysMaskedAfterTrustingAMaskedDecision() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        Intent tap = promptTap(SSID, BSSID, false);
+
+        ActivityController<NetworkDecisionActivity> controller = open(tap);
+        NetworkDecisionActivity activity = controller.get();
         click(activity, R.id.decision_trust);
         ShadowLooper.idleMainLooper();
 
@@ -646,7 +673,7 @@ public class NetworkDecisionActivityTest {
 
         KeepADBNetworkTrustPrompt.cancel(context);
         KeepADBNetworkTrustPrompt.clearPromptState(context);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         Notification detailed = postedPrompt();
         KeepADBNotificationTextScan.assertMentionsNone(detailed.publicVersion, SSID, BSSID,
@@ -663,7 +690,7 @@ public class NetworkDecisionActivityTest {
      * a tap, so the tests see only what the activity itself does to the notification.
      */
     private Intent promptTap(String ssid, String bssid, boolean details) {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, details);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, !details);
         connectTo(ssid, bssid);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         Notification prompt = postedPrompt();

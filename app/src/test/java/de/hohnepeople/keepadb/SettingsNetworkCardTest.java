@@ -585,14 +585,14 @@ public class SettingsNetworkCardTest {
         String[] secrets = {"HomeMesh", "aa:bb:cc:dd:ee:01", "AA:BB:CC:DD:EE:01",
                 "ee:01", "EE:01"};
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         SettingsActivity shown = open();
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
         assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity hidden = open();
         String concealed = everything(hidden);
         for (String secret : secrets) {
@@ -609,11 +609,11 @@ public class SettingsNetworkCardTest {
     public void privacyModeShowsTheFirstAndTheLastOctetOfTheCurrentAddress() {
         connectTo("HomeMesh", "de:11:22:33:44:ad");
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals("HomeMesh \u00b7 DE:11:22:33:44:AD",
                 text(open(), R.id.network_connection_line));
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity hidden = open();
         assertEquals(context.getString(R.string.network_privacy_name_hidden)
                 + " \u00b7 DE:*:*:*:*:AD", text(hidden, R.id.network_connection_line));
@@ -633,7 +633,7 @@ public class SettingsNetworkCardTest {
         preparedForAnAutomaticEnable();
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity activity = open();
         String hidden = context.getString(R.string.network_privacy_name_hidden);
 

@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.widget.ImageButton;
 
 /**
- * #725: the privacy-mode eye button of the red title bars (main view, Settings, network lists).
+ * #725: the eye button of the red title bars (main view, Settings, network lists, report history).
  * Every bar includes {@code view_privacy_toggle.xml} and binds it here, so the click behavior and
  * the icon / content description come from one place and all of them read and write the one
- * {@link KeepADBPreferences#isPrivacyModeEnabled} setting (#482). Display-only: what the mode
- * hides is not decided here.
+ * {@link KeepADBPreferences#isAppPrivacyEnabled} switch (#482, #904: the "app" one of the three
+ * privacy switches; notifications and widgets have their own, set in the Settings and the
+ * assistant). Display-only: what the switch hides is not decided here.
  */
 final class KeepADBPrivacyToggle {
     private KeepADBPrivacyToggle() {
@@ -22,14 +23,14 @@ final class KeepADBPrivacyToggle {
         ImageButton button = activity.findViewById(R.id.btn_toggle_privacy_mode);
         if (button == null) return;
         button.setOnClickListener(v -> {
-            boolean want = !KeepADBPreferences.isPrivacyModeEnabled(activity);
+            boolean want = !KeepADBPreferences.isAppPrivacyEnabled(activity);
             KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
                     "privacy_mode_toggle");
-            KeepADBPreferences.setPrivacyModeEnabled(activity, want);
+            KeepADBPreferences.setAppPrivacyEnabled(activity, want);
+            // Turning the switch on masks this screen again, also after a "Show" on it.
+            KeepADBPrivacy.concealAgain(activity);
             update(activity);
             redraw.run();
-            KeepADBEndpointCoordinator.refresh(activity);
-            KeepADBTileService.requestRefresh(activity);
         });
         update(activity);
     }
@@ -38,7 +39,7 @@ final class KeepADBPrivacyToggle {
     static void update(Activity activity) {
         ImageButton button = activity.findViewById(R.id.btn_toggle_privacy_mode);
         if (button == null) return;
-        boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(activity);
+        boolean enabled = KeepADBPreferences.isAppPrivacyEnabled(activity);
         button.setImageResource(enabled ? R.drawable.ic_privacy_eye_off : R.drawable.ic_privacy_eye);
         button.setContentDescription(activity.getString(enabled
                 ? R.string.privacy_toggle_disable_accessibility

@@ -48,6 +48,34 @@
         android:textColorHint="@color/night_muted"
         android:textSize="14sp" />
 
+    <!-- #904: replaces the field while the app privacy switch masks the saved URL; "Show" lifts
+         it for this screen. The field itself stays in the tree (gone) so the form logic and the
+         unsaved-draft round trip are unchanged. -->
+    <TextView
+        android:id="@+id/settings_webhook_url_masked"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_input"
+        android:fontFamily="monospace"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textColor="@color/night_text"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/settings_webhook_url_show"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:minHeight="48dp"
+        android:text="@string/networks_hidden_show"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/settings_webhook_error"
         android:layout_width="match_parent"

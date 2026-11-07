@@ -63,7 +63,7 @@ public class NetworkListSettingsEntryTest {
         assertEquals(NetworkListActivity.class.getName(), started.getComponent().getClassName());
         assertNull("There is one list, so no view is named", started.getExtras());
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity hiddenSettings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
         assertEquals(context.getString(R.string.networks_count_hidden),

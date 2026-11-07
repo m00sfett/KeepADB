@@ -129,10 +129,10 @@ public class PrivacyToggleTitleBarsTest {
 
     @Test
     public void switchingInTheListViewIsSeenByTheMainViewAndSettings() {
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         NetworkListActivity list = openList();
         list.findViewById(R.id.btn_toggle_privacy_mode).performClick();
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
 
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
                 Robolectric.buildActivity(SettingsActivity.class).setup().get()
@@ -146,8 +146,8 @@ public class PrivacyToggleTitleBarsTest {
         KeepADBSettingsMenu menu = main.getSettingsMenu();
         assertNotNull(menu);
         menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
-                KeepADBSettingsMenu.ID_PRIVACY_MODE, R.string.menu_item_privacy_mode, false, true));
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+                KeepADBSettingsMenu.ID_PRIVACY_MODE, R.string.privacy_app_title, false, true));
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
 
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
                 openList()
@@ -162,11 +162,11 @@ public class PrivacyToggleTitleBarsTest {
         SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         View eye = settings.findViewById(R.id.btn_toggle_privacy_mode);
         eye.performClick();
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
                 eye.getContentDescription());
         eye.performClick();
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals(context.getString(R.string.privacy_toggle_enable_accessibility),
                 eye.getContentDescription());
     }

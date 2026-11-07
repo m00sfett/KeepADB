@@ -58,6 +58,15 @@
     <string name="action_settings">सेटिंग्स</string>
     <string name="privacy_toggle_enable_accessibility">गोपनीयता मोड सक्षम करें (नेटवर्क पते छिपाएं)</string>
     <string name="privacy_toggle_disable_accessibility">गोपनीयता मोड अक्षम करें (नेटवर्क पते दिखाएं)</string>
+    <string name="privacy_switches_title">गोपनीयता</string>
+    <string name="privacy_switches_hint">वैकल्पिक, डिफ़ॉल्ट रूप से सब बंद है। हर स्विच Wi-Fi नाम, पते और पोर्ट केवल अपने क्षेत्र में छिपाता है।</string>
+    <string name="privacy_app_title">ऐप में छिपाएँ</string>
+    <string name="privacy_app_body">हर स्क्रीन और हर डायलॉग में Wi-Fi नाम, ऐक्सेस पॉइंट पते, IP पते और वेबहुक होस्ट को मास्क करता है। “दिखाएँ” स्क्रीन छोड़ने तक उन्हें दिखाता है।</string>
+    <string name="privacy_notifications_title">सूचनाओं में छिपाएँ</string>
+    <string name="privacy_notifications_body">सूचनाएँ केवल स्थिति दिखाती हैं, पोर्ट, IP पता, USB प्रोफ़ाइल या Wi-Fi नाम के बिना। तब नए Wi-Fi की सूचना में बटन नहीं होते और वह ऐप खोलती है। जब तक यह बंद है, ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं।</string>
+    <string name="privacy_widgets_title">विजेट और टाइल में छिपाएँ</string>
+    <string name="privacy_widgets_body">होम स्क्रीन विजेट और त्वरित सेटिंग टाइल केवल स्थिति दिखाते हैं, पोर्ट या पते के बिना।</string>
+    <string name="usb_profile_hidden_numbered">प्रोफ़ाइल %1$d</string>
     <string name="title_settings">सेटिंग्स</string>
     <string name="settings_section_general">सामान्य</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
     <string name="settings_hide_notification_subtext">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।</string>
     <string name="settings_hide_notification_subtext_keepalive">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।\n\nKeep-Alive सक्रिय होने पर Android को अग्रभूमि सेवा के लिए यह सूचना चाहिए। स्विच लॉक रहता है। Keep-Alive बंद करने पर आपका सहेजा हुआ विकल्प फिर लागू होता है।</string>
-    <string name="settings_notification_details_toggle">सूचनाओं में कनेक्शन विवरण दिखाएं</string>
-    <string name="settings_notification_details_subtext">स्थायी स्टेटस सूचना में पोर्ट और IP पता, USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए Wi-Fi नेटवर्क का नाम व BSSID सूचनाओं में दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
     <string name="settings_section_display">डिस्प्ले</string>
     <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
     <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>
@@ -496,12 +503,6 @@
     <string name="onboarding_protection_keep_alive_off">Keep-Alive चालू होने पर लागू होता है।</string>
     <string name="onboarding_customize_show">कस्टमाइज़ करें ▾</string>
     <string name="onboarding_customize_hide">कस्टमाइज़ करें ▴</string>
-    <string name="onboarding_details_title">लॉक स्क्रीन</string>
-    <string name="onboarding_details_question">क्या सूचनाओं में पते और Wi-Fi नाम दिखें?</string>
-    <string name="onboarding_details_off_body">सूचनाएं केवल स्थिति दिखाती हैं। कोई पता नहीं, कोई Wi-Fi नाम नहीं।</string>
-    <string name="onboarding_details_on_body">सूचनाओं में IP पता और पोर्ट, USB प्रोफ़ाइल और नए Wi-Fi नेटवर्क के नाम दिखाता है। Android सेटिंग के अनुसार लॉक स्क्रीन पर भी।</string>
-    <string name="onboarding_details_value_on">विवरण दिखते हैं</string>
-    <string name="onboarding_details_value_off">कोई विवरण नहीं</string>
     <string name="onboarding_summary_title">सेटअप पूरा</string>
     <string name="onboarding_summary_hint">किसी पंक्ति को बदलने के लिए उस पर टैप करें। सब कुछ बाद में सेटिंग → सेटअप सहायक में बदला जा सकता है।</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive बंद है। आप इसे कभी भी होम स्क्रीन पर चालू कर सकते हैं।</string>
@@ -532,7 +533,7 @@
     <string name="onboarding_perm_force_note">फ़ोर्स मोड ख़त्म होने के बाद फिर ज़रूरत होगी।</string>
     <string name="onboarding_network_title">भरोसेमंद Wi-Fi</string>
     <string name="onboarding_network_question">क्या KeepADB को उस Wi-Fi पर भरोसा करना चाहिए जिससे आप अभी जुड़े हैं?</string>
-    <string name="onboarding_network_privacy_note">गोपनीयता मोड में नाम केवल यहीं और भरोसा करते समय दिखता है।</string>
+    <string name="onboarding_network_privacy_note">गोपनीयता चालू है: नाम और पता तब तक छिपे रहते हैं जब तक आप “दिखाएँ” को नहीं छूते।</string>
     <string name="onboarding_network_open_list">नेटवर्क सूची में बदलें</string>
     <string name="onboarding_webhook_question">वैकल्पिक। वायरलेस डीबगिंग का मौजूदा पता आपके अपने सर्वर को भेजता है, जैसे आपके होम नेटवर्क या VPN में। ज़्यादातर लोगों को इसकी ज़रूरत नहीं होती। “URL सहेजें” दबाने तक कुछ सहेजा नहीं जाता।</string>
     <string name="onboarding_protection_force_title">अधिकतम सुविधा (फ़ोर्स मोड)</string>
@@ -555,7 +556,6 @@
     <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">भाषा</string>
-    <string name="menu_item_privacy_mode">गोपनीयता मोड</string>
     <string name="menu_item_all_settings">सभी सेटिंग्स</string>
 
     <!-- #826: warning display controls. -->

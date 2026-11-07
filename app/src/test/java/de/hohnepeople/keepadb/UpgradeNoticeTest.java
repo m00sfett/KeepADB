@@ -105,7 +105,7 @@ public class UpgradeNoticeTest {
 
     @Test public void standaloneStepDoesNotConsumeNotice() {
         seedLegacy();
-        assertNull(start(OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS))
+        assertNull(start(OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))
                 .get().findViewById(R.id.onboarding_upgrade_notice));
         assertFalse(prefs().contains(KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN));
         assertNotNull(handOver().findViewById(R.id.onboarding_upgrade_notice));

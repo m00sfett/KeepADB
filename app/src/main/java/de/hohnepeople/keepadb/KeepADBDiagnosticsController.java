@@ -128,11 +128,17 @@ final class KeepADBDiagnosticsController {
     private void shareDiagnostics() {
         KeepADBDiagnostics.event(activity, "diagnostics_export", "settings", "requested",
                 "share_sheet");
+        String export = KeepADBDiagnostics.export(activity);
+        // #904: while the app privacy switch masks this screen, the export leaves the app with the
+        // host, port, BSSID and SSID redacted in full, like the feedback report draft.
+        if (KeepADBNetworkDisplay.hidden(activity)) {
+            export = KeepADBIssueReporter.redactDiagnostics(export);
+        }
         Intent share = new Intent(Intent.ACTION_SEND)
                 .setType("text/plain")
                 .putExtra(Intent.EXTRA_SUBJECT,
                         activity.getString(R.string.settings_diagnostics_export_subject))
-                .putExtra(Intent.EXTRA_TEXT, KeepADBDiagnostics.export(activity));
+                .putExtra(Intent.EXTRA_TEXT, export);
         activity.startActivity(Intent.createChooser(share,
                 activity.getString(R.string.settings_diagnostics_export)));
     }

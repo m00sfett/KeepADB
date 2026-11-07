@@ -58,6 +58,15 @@
     <string name="action_settings">設定</string>
     <string name="privacy_toggle_enable_accessibility">啟用隱私模式（隱藏網路位址）</string>
     <string name="privacy_toggle_disable_accessibility">關閉隱私模式（顯示網路位址）</string>
+    <string name="privacy_switches_title">隱私</string>
+    <string name="privacy_switches_hint">選用，預設全部關閉。每個開關只在各自的範圍內隱藏 Wi-Fi 名稱、位址和連接埠。</string>
+    <string name="privacy_app_title">在應用程式內隱藏</string>
+    <string name="privacy_app_body">在每個畫面和每個對話框中遮蔽 Wi-Fi 名稱、存取點位址、IP 位址和 Webhook 主機。點選「顯示」後，在離開該畫面前會一直顯示。</string>
+    <string name="privacy_notifications_title">在通知中隱藏</string>
+    <string name="privacy_notifications_body">通知只顯示狀態，不含連接埠、IP 位址、USB 設定檔或 Wi-Fi 名稱。此時新 Wi-Fi 的通知沒有按鈕，點選後會開啟應用程式。此項關閉時，這些詳細資料也可能出現在鎖定畫面上。</string>
+    <string name="privacy_widgets_title">在小工具和快速設定圖塊中隱藏</string>
+    <string name="privacy_widgets_body">主畫面小工具和快速設定圖塊只顯示狀態，不含連接埠或位址。</string>
+    <string name="usb_profile_hidden_numbered">設定檔 %1$d</string>
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">保持常駐 (Keep-Alive)</string>
@@ -125,8 +134,6 @@
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。</string>
     <string name="settings_hide_notification_subtext_keepalive">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。\n\nKeep-Alive 開啟時，Android 要求前景服務顯示此通知，因此開關被鎖定。關閉 Keep-Alive 後將重新套用已儲存的選擇。</string>
-    <string name="settings_notification_details_toggle">在通知中顯示連線詳細資料</string>
-    <string name="settings_notification_details_subtext">在常駐狀態通知中顯示連接埠和 IP 位址，在通知中顯示 USB 主機設定檔（名稱、IP、主機）以及新 Wi-Fi 網路的名稱和 BSSID。開啟後，這些詳細資料也可能顯示在螢幕鎖定畫面上。關閉時，僅在應用程式中顯示。</string>
     <string name="settings_section_display">螢幕</string>
     <string name="settings_keep_display_on_toggle">KeepADB 在前景執行時保持螢幕開啟</string>
     <string name="settings_keep_display_on_subtext">僅在此應用程式開啟期間保持螢幕開啟。離開應用程式後螢幕會照常熄滅。</string>
@@ -496,12 +503,6 @@
     <string name="onboarding_protection_keep_alive_off">Keep-Alive 開啟後生效。</string>
     <string name="onboarding_customize_show">自訂 ▾</string>
     <string name="onboarding_customize_hide">自訂 ▴</string>
-    <string name="onboarding_details_title">鎖定畫面</string>
-    <string name="onboarding_details_question">通知中要顯示位址和 Wi-Fi 名稱嗎？</string>
-    <string name="onboarding_details_off_body">通知只顯示狀態。不顯示位址，也不顯示 Wi-Fi 名稱。</string>
-    <string name="onboarding_details_on_body">在通知中顯示 IP 位址和連接埠、USB 設定檔以及新 Wi-Fi 網路的名稱。視 Android 設定而定，也可能顯示在鎖定畫面上。</string>
-    <string name="onboarding_details_value_on">顯示詳細資料</string>
-    <string name="onboarding_details_value_off">不顯示詳細資料</string>
     <string name="onboarding_summary_title">設定完成</string>
     <string name="onboarding_summary_hint">點一下某一行即可變更。之後可隨時在「設定」→「設定精靈」中變更所有內容。</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive 已關閉。您可以隨時在主畫面開啟。</string>
@@ -532,7 +533,7 @@
     <string name="onboarding_perm_force_note">強制模式結束後會重新用到。</string>
     <string name="onboarding_network_title">已信任的 Wi-Fi</string>
     <string name="onboarding_network_question">KeepADB 是否應信任你目前連線的 Wi-Fi？</string>
-    <string name="onboarding_network_privacy_note">在隱私模式下，名稱僅在此處和信任網路時顯示。</string>
+    <string name="onboarding_network_privacy_note">隱私已開啟：在你點選「顯示」之前，名稱和位址保持隱藏。</string>
     <string name="onboarding_network_open_list">在網路清單中變更</string>
     <string name="onboarding_webhook_question">選用。將無線偵錯的目前位址回報給你自己的伺服器,例如你家中網路或 VPN 中的伺服器。多數人不需要。點選「儲存 URL」之前不會儲存任何內容。</string>
     <string name="onboarding_protection_force_title">最大便利(強制模式)</string>
@@ -555,7 +556,6 @@
     <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">語言</string>
-    <string name="menu_item_privacy_mode">隱私模式</string>
     <string name="menu_item_all_settings">所有設定</string>
 
     <!-- #826: warning display controls. -->

@@ -86,6 +86,15 @@
     <string name="action_settings">Einstellungen</string>
     <string name="privacy_toggle_enable_accessibility">Privatsphäre-Modus aktivieren (Netzwerkadressen ausblenden)</string>
     <string name="privacy_toggle_disable_accessibility">Privatsphäre-Modus deaktivieren (Netzwerkadressen anzeigen)</string>
+    <string name="privacy_switches_title">Privatsphäre</string>
+    <string name="privacy_switches_hint">Optional, alles standardmäßig aus. Jeder Schalter blendet WLAN-Namen, Adressen und Ports nur in seinem eigenen Bereich aus.</string>
+    <string name="privacy_app_title">In der App ausblenden</string>
+    <string name="privacy_app_body">Maskiert WLAN-Namen, Access-Point-Adressen, IP-Adressen und den Webhook-Host auf jedem Bildschirm und in jedem Dialog. „Anzeigen“ blendet sie ein, bis du den Bildschirm verlässt.</string>
+    <string name="privacy_notifications_title">In Benachrichtigungen ausblenden</string>
+    <string name="privacy_notifications_body">Benachrichtigungen zeigen nur den Zustand, ohne Port, IP-Adresse, USB-Profil oder WLAN-Name. Ein Hinweis auf ein neues WLAN hat dann keine Schaltflächen und öffnet die App. Solange das aus ist, können diese Details auch auf dem Sperrbildschirm erscheinen.</string>
+    <string name="privacy_widgets_title">In Widgets und der Kachel ausblenden</string>
+    <string name="privacy_widgets_body">Das Startbildschirm-Widget und die Schnelleinstellungs-Kachel zeigen nur den Zustand, ohne Port oder Adresse.</string>
+    <string name="usb_profile_hidden_numbered">Profil %1$d</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
@@ -161,8 +170,6 @@
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
     <string name="settings_hide_notification_subtext">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.</string>
     <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
-    <string name="settings_notification_details_toggle">Verbindungsdetails in Benachrichtigungen anzeigen</string>
-    <string name="settings_notification_details_subtext">Zeigt Port und IP-Adresse in der dauerhaften Status-Benachrichtigung, das USB-Hostprofil (Name, IP, Host) sowie Name und BSSID neuer WLANs in Benachrichtigungen. Eingeschaltet können diese Details auch auf dem Sperrbildschirm sichtbar sein. Ausgeschaltet stehen sie nur in der App.</string>
     <string name="settings_section_display">Bildschirm</string>
     <string name="settings_keep_display_on_toggle">Display eingeschaltet halten, solange KeepADB im Vordergrund ist</string>
     <string name="settings_keep_display_on_subtext">Hält den Bildschirm nur an, solange diese App geöffnet ist. Beim Verlassen der App schaltet sich der Bildschirm wieder wie gewohnt aus.</string>
@@ -496,12 +503,6 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_protection_keep_alive_off">Gilt, sobald Keep-Alive an ist.</string>
     <string name="onboarding_customize_show">Anpassen ▾</string>
     <string name="onboarding_customize_hide">Anpassen ▴</string>
-    <string name="onboarding_details_title">Sperrbildschirm</string>
-    <string name="onboarding_details_question">Sollen Benachrichtigungen Adressen und WLAN-Namen zeigen?</string>
-    <string name="onboarding_details_off_body">Benachrichtigungen zeigen nur den Zustand. Keine Adressen, keine WLAN-Namen.</string>
-    <string name="onboarding_details_on_body">Zeigt IP-Adresse und Port, das USB-Profil und die Namen neuer WLANs in Benachrichtigungen. Je nach Android-Einstellung auch auf dem Sperrbildschirm.</string>
-    <string name="onboarding_details_value_on">Details sichtbar</string>
-    <string name="onboarding_details_value_off">Keine Details</string>
     <string name="onboarding_summary_title">Fertig eingerichtet</string>
     <string name="onboarding_summary_hint">Tippe auf eine Zeile, um sie zu ändern. Alles lässt sich später unter Einstellungen → Einrichtungsassistent ändern.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive ist aus. Du kannst es jederzeit auf der Startseite einschalten.</string>
@@ -532,7 +533,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_perm_force_note">Wird nach Ende des Force-Modus wieder gebraucht.</string>
     <string name="onboarding_network_title">Vertrautes WLAN</string>
     <string name="onboarding_network_question">Soll KeepADB dem WLAN vertrauen, mit dem du gerade verbunden bist?</string>
-    <string name="onboarding_network_privacy_note">Im Privatsphäre-Modus wird der Name nur hier und beim Vertrauen gezeigt.</string>
+    <string name="onboarding_network_privacy_note">Privatsphäre ist an: Name und Adresse bleiben verborgen, bis du „Anzeigen“ antippst.</string>
     <string name="onboarding_network_open_list">In der Netzwerkliste ändern</string>
     <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Drahtlosem Debugging an einen eigenen Server, zum Beispiel in deinem Heimnetz oder VPN. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
     <string name="onboarding_protection_force_title">Maximal komfortabel (Force)</string>
@@ -555,7 +556,6 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Sprache</string>
-    <string name="menu_item_privacy_mode">Privatsphäre-Modus</string>
     <string name="menu_item_all_settings">Alle Einstellungen</string>
 
     <!-- #826: warning display controls. -->

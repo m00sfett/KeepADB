@@ -1059,26 +1059,25 @@
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
 
-                <!-- #592: opt-in for connection details in notifications (default off) -->
-                <Switch
-                    android:id="@+id/settings_notification_details_toggle"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_notification_details_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
 
+                <!-- #904: the three privacy switches (they replace the #592 opt-in for
+                     connection details in notifications) -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_notification_details_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/privacy_switches_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <include layout="@layout/view_privacy_switches" />
 
                 <View
                     android:layout_width="match_parent"

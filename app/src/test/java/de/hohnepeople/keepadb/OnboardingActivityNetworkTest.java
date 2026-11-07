@@ -41,9 +41,10 @@ import java.util.TreeMap;
 /**
  * The "Trusted Wi-Fi" step of the setup assistant (#767): the current network and the embedded
  * decision of #766, driven through the real activity. What is pinned, each with its other side:
- * answering stores the answer and "Next" or "Skip" without answering stores nothing; the name is
- * shown while the privacy mode is on (the step is a deliberate exception) and the note says so
- * only then; the states without a readable network offer the fix and a way to check again.
+ * answering stores the answer and "Next" or "Skip" without answering stores nothing; the name and
+ * the address are masked while the app privacy switch is on (#904), the note says so only then and
+ * "Show" reveals the screen; the states without a readable network offer the fix and a way to
+ * check again.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -62,7 +63,7 @@ public class OnboardingActivityNetworkTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> wifiConnected);
@@ -79,7 +80,7 @@ public class OnboardingActivityNetworkTest {
                 // Already finished.
             }
         }
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         KeepADBForceMode.resetForTesting();
     }
@@ -145,7 +146,7 @@ public class OnboardingActivityNetworkTest {
         connectTo(HOME, KITCHEN);
         // New installation: the whole walk equals "Later" on the intro.
         Map<String, String> later = walk(false);
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         Map<String, String> walkedNext = walk(true);
         assertEquals(later, walkedNext);
@@ -153,12 +154,12 @@ public class OnboardingActivityNetworkTest {
         assertFalse(KeepADBNetworkBlocklist.isBssidBlocked(context, KITCHEN));
 
         // Existing installation: nothing a step could write moves.
-        prefs().edit().clear().commit();
+        resetPrefs();
         KeepADB.resetForTesting();
         KeepADBTrustedNetwork.addBssid(context, "11:22:33:44:55:66", "Garten");
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         Map<String, String> before = snapshotWithoutAssistantKeys();
         OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
         for (int i = 0; i < OnboardingActivity.buildSteps().size() + 2; i++) {
@@ -169,33 +170,47 @@ public class OnboardingActivityNetworkTest {
                 prefs().getBoolean(KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN, false));
     }
 
-    // ---- Privacy mode: the name is shown here on purpose -------------------------------------------------
+    // ---- Privacy (#904): masked here too, "Show" reveals this screen ---------------------------------------
 
     @Test
-    public void thePrivacyModeStillShowsTheNameHereAndSaysSoOnlyThen() {
+    public void thePrivacySwitchMasksTheNameAndTheAddressAndShowRevealsThemForThisScreenOnly() {
         connectTo(HOME, KITCHEN);
         String note = context.getString(R.string.onboarding_network_privacy_note);
 
         OnboardingActivity visible = open();
         assertFalse(allText(visible).contains(note));
+        assertTrue(allText(visible).contains(HOME));
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         OnboardingActivity hidden = open();
-        String shown = allText(hidden);
-        assertTrue("the name is shown although the privacy mode is on", shown.contains(HOME));
-        assertTrue(shown.contains(note));
+        String masked = allText(hidden);
+        assertFalse("the name stays hidden: " + masked, masked.contains(HOME));
+        assertFalse("the address stays hidden: " + masked,
+                masked.toLowerCase(java.util.Locale.ROOT).contains(KITCHEN.toLowerCase(java.util.Locale.ROOT)));
+        assertTrue(masked.contains(note));
+        assertNotNull("the question is still asked", findDecision(hidden));
+
+        hidden.findViewById(R.id.decision_show).performClick();
+        String revealed = allText(hidden);
+        assertTrue("Show reveals the name: " + revealed, revealed.contains(HOME));
+        assertTrue(revealed.contains(KITCHEN.toUpperCase(java.util.Locale.ROOT)));
+        assertFalse("the note is gone with the mask", revealed.contains(note));
+        assertTrue("Show does not change the switch", KeepADBPreferences.isAppPrivacyEnabled(context));
+        assertTrue("and decides nothing", KeepADBTrustedNetwork.getEntries(context).isEmpty());
     }
 
-    /** The other side of the exception: a network that needs no question still shows its name. */
+    /** A network that needs no question is masked too and has its own "Show". */
     @Test
-    public void thePrivacyModeShowsTheNameOfATrustedNetworkToo() {
+    public void thePrivacySwitchMasksTheNameOfATrustedNetworkToo() {
         connectTo(HOME, KITCHEN);
         KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
 
         OnboardingActivity assistant = open();
 
         assertNull("a trusted network is not asked about", findDecision(assistant));
+        assertFalse(allText(assistant), allText(assistant).contains(HOME));
+        button(assistant, context.getString(R.string.networks_hidden_show)).performClick();
         assertTrue(allText(assistant), allText(assistant).contains(HOME));
     }
 
@@ -414,6 +429,16 @@ public class OnboardingActivityNetworkTest {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) collect(group.getChildAt(i), out);
         }
+    }
+
+    /**
+     * A new installation as the application leaves it at its first start: nothing stored but the
+     * marker of the privacy migration (#904). Clearing alone would drop that marker, and the first
+     * read of a privacy switch would then migrate the half-built state as an "existing" one.
+     */
+    private void resetPrefs() {
+        prefs().edit().clear().commit();
+        KeepADBPreferences.migratePrivacySplit(context);
     }
 
     private SharedPreferences prefs() {

@@ -123,7 +123,7 @@ public class OnboardingWebhookForceTest {
                 .getText().toString());
         assertFalse(((android.widget.Switch) assistant.findViewById(R.id.settings_webhook_toggle))
                 .isChecked());
-        assertEquals("the webhook is the last step", "Step 6 of 6",
+        assertEquals("the webhook is the last step", "Step 5 of 5",
                 text(assistant, R.id.onboarding_header_counter));
     }
 

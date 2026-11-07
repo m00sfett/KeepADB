@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Locale;
 
 /**
  * The reusable "Trust this network?" decision (#766): one access point, shown with its Wi-Fi name
@@ -23,11 +22,12 @@ import java.util.Locale;
  * network is blocked). "Decide later" and everything the host does besides answering -- Back, a
  * tap outside a dialog, rotating -- write nothing.
  *
- * <p><strong>Privacy.</strong> The Wi-Fi name and the address are shown even while the privacy mode
- * is on: whoever decides has to see whom they are trusting (decision of #758). That is a deliberate
- * exception for this view only; lists and status lines keep hiding them. It follows that a host
- * must never bind this view while the device is locked, and {@link #clear} removes everything again
- * (see {@link NetworkDecisionActivity}).
+ * <p><strong>Privacy (#904).</strong> While the app privacy switch is on, the Wi-Fi name and the
+ * address are masked like on every other screen; a deliberate "Show" (button in this view) lifts
+ * the mask for the screen that hosts the view, until it is left. Whoever decides can thereby still
+ * see whom they are trusting. Whatever the privacy state, a host must never bind this view while
+ * the device is locked, and {@link #clear} removes everything again (see {@link
+ * NetworkDecisionActivity}).
  */
 public final class NetworkDecisionView extends LinearLayout {
 
@@ -38,11 +38,18 @@ public final class NetworkDecisionView extends LinearLayout {
 
         /** The user chose "decide later": nothing was written. */
         void onDecideLater();
+
+        /**
+         * The user chose "Show": the screen is revealed and this view has redrawn itself. A host
+         * that shows more masked data around the view redraws it here.
+         */
+        default void onRevealed() {}
     }
 
     private final View details;
     private final TextView name;
     private final TextView bssid;
+    private final Button show;
     private final TextView comfortNote;
     private final Button blockName;
 
@@ -60,9 +67,14 @@ public final class NetworkDecisionView extends LinearLayout {
         details = findViewById(R.id.decision_details);
         name = findViewById(R.id.decision_name);
         bssid = findViewById(R.id.decision_bssid);
+        show = findViewById(R.id.decision_show);
         comfortNote = findViewById(R.id.decision_comfort_note);
         blockName = findViewById(R.id.decision_block_name);
 
+        KeepADBPrivacy.bindShowButton(show, () -> {
+            if (pending != null) bind(pending, listener);
+            if (listener != null) listener.onRevealed();
+        });
         findViewById(R.id.decision_trust).setOnClickListener(v -> trust());
         findViewById(R.id.decision_block_ap).setOnClickListener(v -> blockAccessPoint());
         blockName.setOnClickListener(v -> blockName());
@@ -78,16 +90,20 @@ public final class NetworkDecisionView extends LinearLayout {
         listener = decisionListener;
         Context context = getContext();
         boolean hasName = accessPoint.canBlockName();
-        name.setText(hasName ? accessPoint.ssid : context.getString(R.string.network_decision_name_hidden));
-        bssid.setText(accessPoint.bssid.toUpperCase(Locale.ROOT));
+        // #904: masked while the app privacy switch is on and this screen has no "Show".
+        boolean masked = KeepADBNetworkDisplay.hidden(context);
+        String shownName = hasName ? KeepADBNetworkDisplay.ssid(context, accessPoint.ssid, null) : null;
+        name.setText(hasName ? shownName : context.getString(R.string.network_decision_name_hidden));
+        bssid.setText(KeepADBNetworkDisplay.bssid(context, accessPoint.bssid));
+        show.setVisibility(masked ? VISIBLE : GONE);
         blockName.setVisibility(hasName ? VISIBLE : GONE);
         if (hasName) {
-            blockName.setText(context.getString(R.string.network_decision_block_name, accessPoint.ssid));
+            blockName.setText(context.getString(R.string.network_decision_block_name, shownName));
         }
         boolean comfort = hasName && KeepADBTrustedNetwork.isTrustByNameEnabled(context);
         comfortNote.setVisibility(comfort ? VISIBLE : GONE);
         if (comfort) {
-            comfortNote.setText(context.getString(R.string.network_decision_comfort_note, accessPoint.ssid));
+            comfortNote.setText(context.getString(R.string.network_decision_comfort_note, shownName));
         }
         details.setVisibility(VISIBLE);
     }
@@ -112,6 +128,7 @@ public final class NetworkDecisionView extends LinearLayout {
         comfortNote.setText("");
         comfortNote.setVisibility(GONE);
         blockName.setText("");
+        show.setVisibility(GONE);
         details.setVisibility(GONE);
     }
 

@@ -145,11 +145,15 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isRegisterWebhookEnabled(c)),
             new Setting("register_webhook_url", Kind.SECURITY, null, "https://example.com/hook",
                     c -> KeepADBPreferences.getRegisterWebhookUrl(c)),
-            new Setting("notification_details_enabled", Kind.SECURITY, false, true,
-                    c -> KeepADBPreferences.isNotificationDetailsEnabled(c)),
             // Presentation and convenience
+            // #904: the three privacy switches, all opt-in. The notification one replaces the
+            // former "notification details" opt-in (#592) and starts off, so details show.
             new Setting("privacy_mode_enabled", Kind.CONVENIENCE, false, true,
-                    c -> KeepADBPreferences.isPrivacyModeEnabled(c)),
+                    c -> KeepADBPreferences.isAppPrivacyEnabled(c)),
+            new Setting("notification_privacy_enabled", Kind.CONVENIENCE, false, true,
+                    c -> KeepADBPreferences.isNotificationPrivacyEnabled(c)),
+            new Setting("widget_privacy_enabled", Kind.CONVENIENCE, false, true,
+                    c -> KeepADBPreferences.isWidgetPrivacyEnabled(c)),
             new Setting("hide_notification_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isNotificationHidden(c)),
             new Setting("keep_display_on_enabled", Kind.CONVENIENCE, false, true,
@@ -190,13 +194,26 @@ public class KeepADBDefaultsAuditTest {
             "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
             "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
-            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at")));
+            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at",
+            // #904: bookkeeping of the one-time privacy split, and the retired #592 key (read only
+            // by that migration, never written any more)
+            "privacy_split_initialized", "notification_details_enabled")));
+
+    /** What {@link KeepADBApplication#onCreate} leaves behind on a new installation (#904). */
+    private static final Set<String> FIRST_START_KEYS = new TreeSet<>(Arrays.asList(
+            "privacy_split_initialized"));
 
     @Before
     public void setUp() {
-        prefs().edit().clear().commit();
+        freshInstallation();
         KeepADB.resetForTesting();
         KeepADBUsbHandover.resetForTesting();
+    }
+
+    /** Nothing stored but the marker the application writes at the first start. */
+    private void freshInstallation() {
+        prefs().edit().clear().commit();
+        KeepADBPreferences.migratePrivacySplit(app);
     }
 
     @After
@@ -230,7 +247,9 @@ public class KeepADBDefaultsAuditTest {
                 KeepADBPreferences.getUsbWlanHandoverMode(app));
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(app));
         assertNull(KeepADBPreferences.getRegisterWebhookUrl(app));
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        // #904 (deliberate, user decision of 2026-11-07): connection details in notifications are
+        // shown on a new installation; the notification privacy switch is an opt-in.
+        assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         // ...and the lists a trust decision reads start empty.
         assertTrue(KeepADBTrustedNetwork.getEntries(app).isEmpty());
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(app).isEmpty());
@@ -256,7 +275,9 @@ public class KeepADBDefaultsAuditTest {
         // A default is computed, never written back: otherwise a later change of a default would
         // already have moved every installation that merely opened the app (#760 persists the one
         // network policy deliberately, for exactly that reason).
-        assertEquals(MODE_FLAG_KEYS, new TreeSet<>(prefs().getAll().keySet()));
+        Set<String> persisted = new TreeSet<>(MODE_FLAG_KEYS);
+        persisted.addAll(FIRST_START_KEYS);
+        assertEquals(persisted, new TreeSet<>(prefs().getAll().keySet()));
         assertEquals("allowlist", prefs().getString("trusted_network_mode", null));
         assertTrue(prefs().getBoolean("trusted_network_mode_initialized", false));
     }
@@ -365,7 +386,7 @@ public class KeepADBDefaultsAuditTest {
         // One at a time, so a default that leaks into a neighbor's read cannot cancel out in the
         // combined test above.
         for (Setting setting : SETTINGS) {
-            prefs().edit().clear().commit();
+            freshInstallation();
             SharedPreferences.Editor editor = prefs().edit();
             setting.store(editor, setting.otherValue);
             editor.commit();

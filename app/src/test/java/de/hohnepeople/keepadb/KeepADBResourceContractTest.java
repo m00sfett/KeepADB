@@ -664,6 +664,7 @@ public class KeepADBResourceContractTest {
         result.put("webhook_status_hint", new Object[] {
                 stringWitness, stringWitness, stringWitness});
         result.put("settings_language_accessibility", new Object[] {stringWitness});
+        result.put("usb_profile_hidden_numbered", new Object[] {integerWitness});
         result.put("usb_profile_selected", new Object[] {stringWitness});
         result.put("usb_profile_edit_action_accessibility", new Object[] {stringWitness});
         result.put("usb_profile_delete_message", new Object[] {stringWitness});

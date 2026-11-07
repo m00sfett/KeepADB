@@ -70,7 +70,7 @@ public class KeepADBSettingsMenuTest {
         assertFalse(items.get(0).isCheckable);
 
         assertEquals(KeepADBSettingsMenu.ID_PRIVACY_MODE, items.get(1).id);
-        assertEquals(R.string.menu_item_privacy_mode, items.get(1).titleResId);
+        assertEquals(R.string.privacy_app_title, items.get(1).titleResId);
         assertFalse(items.get(1).isDivider);
         assertTrue(items.get(1).isCheckable);
 
@@ -118,19 +118,19 @@ public class KeepADBSettingsMenuTest {
         KeepADBSettingsMenu menu = activity.getSettingsMenu();
         assertTrue(menu.isShowing());
 
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
 
         KeepADBSettingsMenu.MenuItem privacyItem = menu.getItems().get(1);
         menu.onMenuItemClicked(privacyItem);
 
         // Preference flipped to true
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
         // Menu remains open
         assertTrue(menu.isShowing());
 
         // Toggle back
         menu.onMenuItemClicked(privacyItem);
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertTrue(menu.isShowing());
     }
 
@@ -280,7 +280,7 @@ public class KeepADBSettingsMenuTest {
         assertFalse(((CheckBox) privView.findViewById(R.id.menu_item_checkbox)).isChecked());
 
         // Toggle preference and re-render
-        KeepADBPreferences.setPrivacyModeEnabled(activity, true);
+        KeepADBPreferences.setAppPrivacyEnabled(activity, true);
         View privViewChecked = adapter.getView(1, null, null);
         assertTrue(((CheckBox) privViewChecked.findViewById(R.id.menu_item_checkbox)).isChecked());
     }

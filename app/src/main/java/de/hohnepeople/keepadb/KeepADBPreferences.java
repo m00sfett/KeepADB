@@ -45,18 +45,25 @@ final class KeepADBPreferences {
             "network_onboarding_panel_visible",
             "background_location_panel_visible",
     };
-    // #482: display-only privacy toggle. Persists whether network addresses currently shown in
-    // the UI should be masked -- purely a rendering preference, never the toggle facade's own
-    // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
-    // (#483) reads this via isPrivacyModeEnabled().
+    // #904: three independent, opt-in privacy switches (all off on a new installation). Each one
+    // masks its own area only and is purely a rendering preference, never the toggle facade's own
+    // WRITE_SECURE_SETTINGS state and never the real ADB transport.
+    //  - App (#482/#483): every screen and dialog. This is the former single "privacy mode", so
+    //    the key and its stored value are unchanged.
+    //  - Notifications: every KeepADB notification. Replaces the former "notification details"
+    //    opt-in (#592) with the opposite polarity; see migratePrivacySplit.
+    //  - Widgets: every home-screen widget and the Quick Settings tile.
     private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
+    static final String KEY_NOTIFICATION_PRIVACY_ENABLED = "notification_privacy_enabled";
+    static final String KEY_WIDGET_PRIVACY_ENABLED = "widget_privacy_enabled";
+    /** #904: bookkeeping, not a setting. Set once when the three switches were derived. */
+    static final String KEY_PRIVACY_SPLIT_INITIALIZED = "privacy_split_initialized";
     // #507: former opt-in toggle for Wi-Fi & access point discovery. Since #769 no UI, since #788
     // no code reads or writes it; the key stays a name so a stored value is recognised as legacy.
     static final String KEY_WIFI_APS_FEATURE_ENABLED = "wifi_aps_feature_enabled";
-    // #592: opt-in for connection details (USB host profile name/IP/host, trust-prompt network
-    // name/BSSID) inside notifications. Defaults to false: Android ignores publicVersion when the
-    // user allows sensitive lock-screen content, so the only reliable way to keep these details off
-    // the lock screen is to not put them into the notification at all.
+    // #592: former opt-in for connection details inside notifications. Since #904 nothing reads or
+    // writes it any more except the one-time migration into KEY_NOTIFICATION_PRIVACY_ENABLED; the
+    // stored value stays untouched, so an older app that is installed again still finds it.
     static final String KEY_NOTIFICATION_DETAILS_ENABLED = "notification_details_enabled";
 
     // #761: the setup assistant. The completed version is the number of the assistant that was
@@ -119,21 +126,77 @@ final class KeepADBPreferences {
     }
 
     /**
-     * #592: whether notifications may carry connection details (USB host profile summary,
-     * trust-prompt SSID/BSSID). Default OFF -- when on, those details can also appear on the lock
-     * screen if the device shows sensitive notification content there.
+     * #904: whether KeepADB notifications must stay free of connection details (port, IP address,
+     * USB host profile, Wi-Fi name, BSSID). Default OFF, so a new installation shows the details;
+     * when they are shown they can also appear on the lock screen if the device shows sensitive
+     * notification content there. An existing installation keeps what it had: see {@link
+     * #migratePrivacySplit}.
      */
-    static boolean isNotificationDetailsEnabled(Context context) {
+    static boolean isNotificationPrivacyEnabled(Context context) {
         if (context == null) return false;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, false);
+        ensurePrivacySplit(prefs);
+        return prefs.getBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, false);
     }
 
-    static void setNotificationDetailsEnabled(Context context, boolean enabled) {
+    static void setNotificationPrivacyEnabled(Context context, boolean enabled) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, enabled).apply();
-        KeepADBWarningState.observe(context);
+        ensurePrivacySplit(prefs);
+        prefs.edit().putBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, enabled).apply();
+    }
+
+    /**
+     * #904: whether every widget and the Quick Settings tile must show the state only, without
+     * port or address. Default OFF. It takes precedence over any per-widget "hide details" option.
+     */
+    static boolean isWidgetPrivacyEnabled(Context context) {
+        if (context == null) return false;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        ensurePrivacySplit(prefs);
+        return prefs.getBoolean(KEY_WIDGET_PRIVACY_ENABLED, false);
+    }
+
+    static void setWidgetPrivacyEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        ensurePrivacySplit(prefs);
+        prefs.edit().putBoolean(KEY_WIDGET_PRIVACY_ENABLED, enabled).apply();
+    }
+
+    /**
+     * #904: derives the notification and widget switches once, from what the installation stored
+     * under the former single privacy mode and the former notification details opt-in, following
+     * the pattern of {@code KeepADBTrustedNetwork#ensureModeInitialized} (a default is persisted
+     * once, never computed from a fallback).
+     *
+     * <ul>
+     *   <li><b>New installation</b> (nothing stored yet): the marker only; all three switches
+     *       stay at their default, off.</li>
+     *   <li><b>Existing installation:</b> nothing may loosen. Notification privacy is on unless
+     *       {@code notification_details_enabled} was stored as {@code true} (before #904 the
+     *       details were hidden by default, so an absent key counts as hidden). Widget privacy is
+     *       on when the former privacy mode was on. The app switch is the former privacy mode and
+     *       keeps its key and value.</li>
+     * </ul>
+     * The app runs this from {@link KeepADBApplication#onCreate}, before any component writes, so
+     * "nothing stored" really identifies a new installation. Idempotent: keyed on the marker.
+     */
+    static void migratePrivacySplit(Context context) {
+        if (context == null) return;
+        ensurePrivacySplit(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
+    }
+
+    private static void ensurePrivacySplit(SharedPreferences prefs) {
+        if (prefs.getBoolean(KEY_PRIVACY_SPLIT_INITIALIZED, false)) return;
+        SharedPreferences.Editor editor = prefs.edit();
+        if (!prefs.getAll().isEmpty()) {
+            boolean detailsShown = prefs.getBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, false);
+            editor.putBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, !detailsShown);
+            editor.putBoolean(KEY_WIDGET_PRIVACY_ENABLED,
+                    prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false));
+        }
+        editor.putBoolean(KEY_PRIVACY_SPLIT_INITIALIZED, true).apply();
     }
 
     static boolean isNotificationHidden(Context context) {
@@ -678,7 +741,7 @@ final class KeepADBPreferences {
      * <p>Never feed the result into a request — it is display text, not a URL.
      */
     static String maskWebhookUrlForDisplay(Context context, String rawUrl) {
-        return KeepADBUrlRedaction.forDisplay(rawUrl, isPrivacyModeEnabled(context));
+        return KeepADBUrlRedaction.forDisplay(rawUrl, KeepADBPrivacy.isAppMasked(context));
     }
 
     /**
@@ -686,13 +749,13 @@ final class KeepADBPreferences {
      * the value unchanged while it is off.
      */
     static String maskEndpointForDisplay(Context context, String endpoint) {
-        return isPrivacyModeEnabled(context)
+        return KeepADBPrivacy.isAppMasked(context)
                 ? KeepADBAddressMask.maskEndpointForDisplay(endpoint) : endpoint;
     }
 
     /** #483: masks a bare host for display while the privacy mode is on. */
     static String maskHostForDisplay(Context context, String host) {
-        return isPrivacyModeEnabled(context) ? KeepADBAddressMask.maskHost(host) : host;
+        return KeepADBPrivacy.isAppMasked(context) ? KeepADBAddressMask.maskHost(host) : host;
     }
 
     /** Marks the moment the foreground service was known alive; used to log restart gaps. */
@@ -761,18 +824,20 @@ final class KeepADBPreferences {
         if (editor != null) editor.apply();
     }
 
-    /** #482/#483/#488/#509: whether currently-displayed network addresses should be masked in
-     * the UI. This applies to every endpoint surface covered by the privacy mode; the home-screen
-     * widget only shows the port and therefore needs no masking. The default is off so a newly
-     * installed app starts with network addresses fully visible; privacy mode is an opt-in
-     * protection the user must explicitly enable (#509). This flag only ever controls rendering;
-     * it never touches {@code adb_wifi_enabled} or any other persisted original value. */
-    static boolean isPrivacyModeEnabled(Context context) {
+    /**
+     * #482/#483/#904: the app privacy switch: whether network identities and addresses are masked
+     * on the screens and dialogs of the app. This is the stored switch only; what a screen shows
+     * also depends on a "Show" the user chose on that screen, see {@link KeepADBPrivacy#isAppMasked}.
+     * The default is off so a newly installed app starts with everything visible; it is an opt-in
+     * the user must choose explicitly (#509). The flag only ever controls rendering; it never
+     * touches {@code adb_wifi_enabled} or any other persisted original value.
+     */
+    static boolean isAppPrivacyEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false);
     }
 
-    static void setPrivacyModeEnabled(Context context, boolean enabled) {
+    static void setAppPrivacyEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_PRIVACY_MODE_ENABLED, enabled).apply();
     }

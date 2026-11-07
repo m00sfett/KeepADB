@@ -125,7 +125,7 @@ public class KeepADBNotificationTapTargetsTest {
 
     @Test
     public void row6NewWlanWithDetailsOpensTheDecisionForThePromptedBssid() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -133,8 +133,8 @@ public class KeepADBNotificationTapTargetsTest {
     }
 
     @Test
-    public void row7NewWlanWithoutDetailsOpensTheSameDecision() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+    public void row7NewWlanWithNotificationPrivacyOpensTheSameDecision() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -184,7 +184,7 @@ public class KeepADBNotificationTapTargetsTest {
 
     @Test
     public void settingsActivityContentIntentsOfDifferentNotificationsAreDistinct() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         KeepADBUsbProfile.setNotificationEnabled(context, true);
@@ -238,22 +238,22 @@ public class KeepADBNotificationTapTargetsTest {
 
     @Test
     public void publicVersionsOfTheTouchedNotificationsKeepNoNameNoActionNoIntent() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         Notification prompt = posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         assertPublicVersionIsNeutral(prompt);
 
-        // The details-off form (the default) is neutral in both copies and has no action buttons.
+        // The notification-privacy form is neutral in both copies and has no action buttons.
         KeepADBNetworkTrustPrompt.cancel(context);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         KeepADBNetworkTrustPrompt.clearPromptState(context);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         Notification neutral = posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         assertPublicVersionIsNeutral(neutral);
         KeepADBNotificationTextScan.assertMentionsNone(neutral, "Cafe-WLAN", BSSID);
         assertTrue(neutral.actions == null || neutral.actions.length == 0);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
 
         KeepADBUsbProfile.setNotificationEnabled(context, true);
         KeepADBUsbProfile.setProfileNotificationEnabled(context, false);

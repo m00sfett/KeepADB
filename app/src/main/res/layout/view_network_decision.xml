@@ -2,7 +2,8 @@
 <!-- #766: the "Trust this network?" decision, inflated into NetworkDecisionView. It is a plain
      column without a background or an outer padding, so a host decides where it sits: the dialog
      activity (window background and padding of bg_panel) or, later, an embedded row of the network
-     list. Network name and access point are shown unmasked on purpose, see NetworkDecisionView. -->
+     list. Name and access point follow the app privacy switch (#904): masked, with "Show" for this
+     screen only, see NetworkDecisionView. -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
@@ -56,6 +57,20 @@
             android:fontFamily="monospace"
             android:textColor="@color/night_text"
             android:textSize="14sp" />
+
+        <!-- #904: only while the app privacy switch masks the two lines above. -->
+        <Button
+            android:id="@+id/decision_show"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:text="@string/networks_hidden_show"
+            android:textColor="@color/text_yellow"
+            android:textSize="15sp"
+            android:visibility="gone" />
 
         <TextView
             android:layout_width="match_parent"

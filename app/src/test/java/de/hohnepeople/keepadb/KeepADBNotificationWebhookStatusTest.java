@@ -240,11 +240,11 @@ public class KeepADBNotificationWebhookStatusTest {
     // --- privacy ----------------------------------------------------------------------------
 
     @Test
-    public void detailsOffHidesPortAndIpAndPublicVersionCarriesNoWebhookOrEndpoint() {
+    public void notificationPrivacyHidesPortAndIpAndPublicVersionCarriesNoWebhookOrEndpoint() {
         enableWebhook();
         KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
                 KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
 
         Notification notification = postCard();
 
@@ -258,8 +258,8 @@ public class KeepADBNotificationWebhookStatusTest {
     }
 
     @Test
-    public void detailsOnShowsPortAndIpInCompactLine() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+    public void withoutNotificationPrivacyTheCompactLineShowsPortAndIp() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
 
         Notification notification = postCard();
 
