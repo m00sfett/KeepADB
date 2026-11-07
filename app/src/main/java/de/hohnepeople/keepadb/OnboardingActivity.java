@@ -301,6 +301,8 @@ public class OnboardingActivity extends Activity {
 
     private void showPage(int target) {
         page = target;
+        // #904: a "Show" belongs to the page it was chosen on; no page inherits another's reveal.
+        KeepADBPrivacy.concealAll(this);
         OnboardingStep current = currentStep();
         pageRoot.setComparisonPage(current != null
                 && (current.id == KeepADBOnboarding.Step.KEEP_ALIVE

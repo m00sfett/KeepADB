@@ -197,7 +197,7 @@ public class KeepADBAppPrivacySurfacesTest {
     // --- Shared diagnostics ----------------------------------------------------------------------
 
     @Test
-    public void sharedDiagnosticsRedactAddressesWhileTheAppSwitchIsOnAndNotAfterShow() {
+    public void sharedDiagnosticsRedactAddressesWhileTheAppSwitchIsOnWhateverIsRevealed() {
         KeepADBDiagnostics.event(context, "user_action", "test", "seen",
                 "bssid=02:aa:bb:cc:dd:ee host=192.0.2.44 port=41234");
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
@@ -210,10 +210,12 @@ public class KeepADBAppPrivacySurfacesTest {
         assertFalse(masked, masked.contains("02:aa:bb"));
         assertFalse(masked, masked.contains("192.0.2.44"));
 
-        KeepADBPrivacy.reveal(activity);
-        String revealed = shared(activity);
-        assertTrue("after Show the usual export (OUI kept) is shared: " + revealed,
-                revealed.contains("bssid=02:aa:bb:*:*:*"));
+        // The Settings share is an eye-only surface: a "Show" elsewhere on the screen is no say.
+        KeepADBPrivacy.reveal(activity, KeepADBPrivacy.SCOPE_WEBHOOK);
+        KeepADBPrivacy.reveal(activity, KeepADBPrivacy.SCOPE_USB);
+        String stillMasked = shared(activity);
+        assertTrue(stillMasked, stillMasked.contains("bssid=[REDACTED]"));
+        assertFalse(stillMasked, stillMasked.contains("192.0.2.44"));
         controller.pause().stop().destroy();
     }
 
@@ -240,6 +242,208 @@ public class KeepADBAppPrivacySurfacesTest {
         return send.getStringExtra(Intent.EXTRA_TEXT);
     }
 
+    // --- A reveal reaches its own part only ------------------------------------------------------------
+
+    @Test
+    public void showInTheUsbListLeavesTheSettingsNetworkCardAndTheUsbLineMasked() {
+        shadowOf((android.app.Application) context).grantPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        TextView connection = activity.findViewById(R.id.network_connection_line);
+        assertEquals("Control: the card shows the connection, masked", View.VISIBLE,
+                connection.getVisibility());
+        assertFalse(connection.getText().toString(), connection.getText().toString().contains("HomeMesh"));
+
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.networks_hidden_show)).performClick();
+        ShadowLooper.idleMainLooper();
+
+        // The USB list is revealed, and the Settings refresh that came with it changed nothing else.
+        assertTrue(visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView())
+                .contains(PROFILE));
+        String card = connection.getText().toString();
+        assertFalse("the network card stays masked: " + card, card.contains("HomeMesh")
+                || card.toLowerCase(java.util.Locale.ROOT).contains("aa:bb:cc:dd:ee:01"));
+        String line = ((TextView) activity.findViewById(R.id.settings_usb_profile_summary))
+                .getText().toString();
+        assertFalse("the USB line stays masked: " + line, line.contains(PROFILE));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void showInTheWebhookFieldLeavesTheUsbListMasked() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setRegisterWebhookUrl(context, WEBHOOK);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+
+        activity.findViewById(R.id.settings_webhook_url_show).performClick();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+
+        String list = visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView());
+        assertFalse(list, list.contains(PROFILE) || list.contains(PROFILE_IP));
+        controller.pause().stop().destroy();
+    }
+
+    // --- When the screen comes back, the content is masked again (rendered, not only the flag) ---------------
+
+    @Test
+    public void aRevealedWebhookFieldIsMaskedAgainWhenTheScreenComesBackEvenWithFocus() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, WEBHOOK);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        EditText field = activity.findViewById(R.id.settings_webhook_url);
+        activity.findViewById(R.id.settings_webhook_url_show).performClick();
+        assertEquals(View.VISIBLE, field.getVisibility());
+        field.requestFocus();
+        assertTrue("Control: the field keeps focus", field.hasFocus());
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(View.GONE, field.getVisibility());
+        String shown = visibleText(activity.getWindow().getDecorView());
+        assertFalse("no visible view holds the saved host after returning: " + shown,
+                shown.contains("111.111.21"));
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_webhook_url_show).getVisibility());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aFocusedMaskedFieldNeverShowsTheSavedUrl() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, WEBHOOK);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        EditText field = activity.findViewById(R.id.settings_webhook_url);
+
+        // Focus arrives while the field is masked (a keyboard, a focus search), then Settings redraws.
+        field.setVisibility(View.VISIBLE);
+        field.requestFocus();
+        activity.findViewById(R.id.btn_toggle_privacy_mode).performClick(); // off
+        activity.findViewById(R.id.btn_toggle_privacy_mode).performClick(); // on again
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(View.GONE, field.getVisibility());
+        assertFalse(visibleText(activity.getWindow().getDecorView()).contains("111.111.21"));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void textTypedIntoAnEmptyWebhookFieldIsShownAsTypedAndMaskedOnceSaved() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        EditText field = activity.findViewById(R.id.settings_webhook_url);
+
+        field.setText("http://192.168.7.7:50829/register/s20"); // typed by the user
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+        assertEquals("the user's own new input is not hidden from them", View.VISIBLE,
+                field.getVisibility());
+        assertEquals("http://192.168.7.7:50829/register/s20", field.getText().toString());
+
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals("once saved it is the saved URL and masked", View.GONE, field.getVisibility());
+        assertTrue(((TextView) activity.findViewById(R.id.settings_webhook_url_masked)).getText()
+                .toString().contains("192.*.*.*"));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aMaskedUsbListHoldsNothingToHideAndStaysOpenWhenTheScreenStops() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertNotNull(activity.getActiveSwitchProfileDialog());
+        assertFalse(visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView())
+                .contains(PROFILE));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aRevealedUsbListIsClosedWhenTheScreenStopsSoNothingIsReadableOnReturn() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.networks_hidden_show)).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("Control: the revealed list shows the profile",
+                visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView())
+                        .contains(PROFILE));
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("the revealed list is closed", null, activity.getActiveSwitchProfileDialog());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void theEditDialogOfASavedProfileIsClosedWhenTheScreenStops() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.networks_hidden_show)).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.usb_profile_edit_button)).performClick();
+        ShadowLooper.idleMainLooper();
+        assertNotNull("Control: the edit form is open", activity.getActiveProfileEditDialog());
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(null, activity.getActiveProfileEditDialog());
+        controller.pause().stop().destroy();
+    }
+
     // --- Helpers ---------------------------------------------------------------------------------
 
     /** The text of every view that is actually shown (a gone view and its subtree are skipped). */
@@ -257,6 +461,15 @@ public class KeepADBAppPrivacySurfacesTest {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) collect(group.getChildAt(i), out);
         }
+    }
+
+    private void connectTo(String ssid, String bssid) {
+        android.net.wifi.WifiManager wifiManager = (android.net.wifi.WifiManager)
+                context.getSystemService(Context.WIFI_SERVICE);
+        android.net.wifi.WifiInfo info = org.robolectric.shadows.ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(ssid);
+        shadowOf(info).setBSSID(bssid);
+        shadowOf(wifiManager).setConnectionInfo(info);
     }
 
     private static int count(View root, String label) {

@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
@@ -59,6 +60,8 @@ final class NetworkListRenderer {
     private final Set<String> expandedGroups = new HashSet<>();
     /** #767: the current-network card drawn for the setup assistant, see {@link #renderCurrentForAssistant}. */
     private boolean assistantMode;
+    /** #904: the reveal scope of the part this renderer draws (the list screen or the assistant page). */
+    private String scope = KeepADBPrivacy.SCOPE_NETWORK_LIST;
     private boolean glossaryOpen;
     private AlertDialog dialog;
 
@@ -72,6 +75,10 @@ final class NetworkListRenderer {
         this.activity = activity;
         this.root = root;
         this.onChanged = onChanged;
+    }
+
+    private Context shown() {
+        return KeepADBPrivacy.scoped(activity, scope);
     }
 
     /** Dismisses the open dialog, if any; derived from live data and never restored. */
@@ -107,7 +114,7 @@ final class NetworkListRenderer {
         addGlossary();
         addProtection();
         addForceNote();
-        if (KeepADBNetworkDisplay.hidden(activity)) {
+        if (KeepADBNetworkDisplay.hidden(shown())) {
             highlightBssid = null;
             addHiddenPlaceholder();
             return;
@@ -148,6 +155,7 @@ final class NetworkListRenderer {
      */
     void renderCurrentForAssistant() {
         assistantMode = true;
+        scope = KeepADBPrivacy.SCOPE_ASSISTANT;
         dismissDialog();
         root.removeAllViews();
         root.setVisibility(View.VISIBLE);
@@ -250,7 +258,7 @@ final class NetworkListRenderer {
         Button show = stackedButton(activity.getString(R.string.networks_hidden_show), false,
                 v -> {
                     // #904: "Show" reveals this screen until it is left; the switch stays on.
-                    KeepADBPrivacy.reveal(activity);
+                    KeepADBPrivacy.reveal(activity, scope);
                     onChanged.run();
                 });
         card.addView(show);
@@ -335,10 +343,10 @@ final class NetworkListRenderer {
 
     private void addReadableCurrent(LinearLayout card, KeepADBNetworkList.Current current) {
         // #904: masked while the app privacy switch is on and the screen has no "Show".
-        String name = KeepADBNetworkDisplay.ssid(activity, current.ssid, null);
+        String name = KeepADBNetworkDisplay.ssid(shown(), current.ssid, null);
         KeepADBNetworkList.Row row = current.row;
         int band = KeepADBAccessPointBand.bandOf(frequencies, current.bssid);
-        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, current.bssid, band);
+        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), current.bssid, band);
 
         card.addView(titleLine(name, false, statusBadge(current.status), 18));
         card.addView(monoLine(bssidLine));
@@ -346,11 +354,11 @@ final class NetworkListRenderer {
         boolean decide = current.status == KeepADBNetworkList.Status.UNKNOWN
                 || current.status == KeepADBNetworkList.Status.TRUSTED_BY_NAME
                 || current.legacyOnly;
-        if (KeepADBNetworkDisplay.hidden(activity) && !decide) {
+        if (KeepADBNetworkDisplay.hidden(shown()) && !decide) {
             // A decision view brings its own "Show"; a card without one needs this.
             card.addView(stackedButton(activity.getString(R.string.networks_hidden_show), false,
                     v -> {
-                        KeepADBPrivacy.reveal(activity);
+                        KeepADBPrivacy.reveal(activity, scope);
                         onChanged.run();
                     }));
         }
@@ -375,6 +383,7 @@ final class NetworkListRenderer {
         if (decide) {
             // The question is the one of the notification dialog (#766), not a dialog of this list.
             NetworkDecisionView decision = new NetworkDecisionView(activity);
+            decision.setPrivacyScope(scope);
             decision.setDecideLaterVisible(false);
             decision.bind(new KeepADBNetworkDecision.Pending(current.bssid, current.ssid),
                     new NetworkDecisionView.Listener() {
@@ -546,9 +555,9 @@ final class NetworkListRenderer {
         setTopMargin(view, 8);
 
         String custom = row.customName == null ? null
-                : KeepADBNetworkDisplay.customName(activity, row.customName);
+                : KeepADBNetworkDisplay.customName(shown(), row.customName);
         int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
-        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
+        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), row.bssid, band);
         String title = custom != null ? custom : bssidLine;
         view.addView(titleLine(title, custom == null, statusBadge(row.status), 15));
         if (custom != null) view.addView(monoLine(bssidLine));
@@ -575,9 +584,9 @@ final class NetworkListRenderer {
     private void showAccessPointDialog(KeepADBNetworkList.Row row) {
         LinearLayout content = dialogContent();
         int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
-        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
+        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), row.bssid, band);
         String custom = row.customName == null ? null
-                : KeepADBNetworkDisplay.customName(activity, row.customName);
+                : KeepADBNetworkDisplay.customName(shown(), row.customName);
 
         TextView title = condensed(custom != null ? custom : bssidLine, 18, R.color.title_yellow);
         title.setAccessibilityHeading(true);
@@ -690,7 +699,7 @@ final class NetworkListRenderer {
 
     /** Tells the user what an answer did, then redraws. */
     private void answer(KeepADBNetworkListActions.Outcome outcome, String ssid) {
-        String quoted = ssid == null ? "" : KeepADBNetworkDisplay.quoted(activity, ssid);
+        String quoted = ssid == null ? "" : KeepADBNetworkDisplay.quoted(shown(), ssid);
         switch (outcome) {
             case TRUSTED:
                 toast(activity.getString(R.string.network_ap_allowed_toast,
@@ -771,7 +780,7 @@ final class NetworkListRenderer {
     private String reasonText(KeepADBNetworkList.Reason reason, String ssid, boolean trustedStored) {
         if (reason == KeepADBNetworkList.Reason.NAME && ssid != null) {
             return activity.getString(trustedStored ? R.string.networks_reason_name_trusted
-                    : R.string.networks_reason_name, KeepADBNetworkDisplay.quoted(activity, ssid));
+                    : R.string.networks_reason_name, KeepADBNetworkDisplay.quoted(shown(), ssid));
         }
         return activity.getString(R.string.networks_reason_access_point);
     }

@@ -45,37 +45,44 @@ public class KeepADBApplicationTest {
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
     }
 
+    private static final String LIST = KeepADBPrivacy.SCOPE_NETWORK_LIST;
+    private static final String WEBHOOK = KeepADBPrivacy.SCOPE_WEBHOOK;
+
     @Test
     public void aRevealEndsWhenTheScreenStops() {
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
                 NetworkListActivity.class, NetworkListActivity.intent(context)).setup();
         Activity screen = controller.get();
-        assertTrue(KeepADBPrivacy.isAppMasked(screen));
+        assertTrue(KeepADBPrivacy.isMasked(screen, LIST));
 
-        KeepADBPrivacy.reveal(screen);
-        assertFalse(KeepADBPrivacy.isAppMasked(screen));
-        assertTrue(KeepADBPrivacy.isRevealed(screen));
+        KeepADBPrivacy.reveal(screen, LIST);
+        assertFalse(KeepADBPrivacy.isMasked(screen, LIST));
+        assertTrue(KeepADBPrivacy.isRevealed(screen, LIST));
         assertTrue("the stored switch is untouched", KeepADBPreferences.isAppPrivacyEnabled(context));
 
         controller.pause().stop();
         assertTrue("the application's lifecycle callback ended the reveal",
-                KeepADBPrivacy.isAppMasked(screen));
+                KeepADBPrivacy.isMasked(screen, LIST));
         controller.destroy();
     }
 
     @Test
-    public void aRevealBelongsToOneScreenAndNeverToTheApplicationContext() {
+    public void aRevealBelongsToOneScopeAndOneScreenAndNeverToAPlainContext() {
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         ActivityController<NetworkListActivity> first = Robolectric.buildActivity(
                 NetworkListActivity.class, NetworkListActivity.intent(context)).setup();
         ActivityController<SettingsActivity> second = Robolectric.buildActivity(
                 SettingsActivity.class).setup();
 
-        KeepADBPrivacy.reveal(first.get());
+        KeepADBPrivacy.reveal(second.get(), WEBHOOK);
 
-        assertFalse(KeepADBPrivacy.isAppMasked(first.get()));
-        assertTrue("another screen stays masked", KeepADBPrivacy.isAppMasked(second.get()));
+        assertFalse(KeepADBPrivacy.isMasked(second.get(), WEBHOOK));
+        assertTrue("another scope of the same screen stays masked",
+                KeepADBPrivacy.isMasked(second.get(), KeepADBPrivacy.SCOPE_USB));
+        assertTrue("an eye-only surface (plain activity) reads the switch alone",
+                KeepADBPrivacy.isAppMasked(second.get()));
+        assertTrue("another screen stays masked", KeepADBPrivacy.isMasked(first.get(), WEBHOOK));
         assertTrue("a context without a screen can never be revealed", KeepADBPrivacy.isAppMasked(context));
         first.pause().stop().destroy();
         second.pause().stop().destroy();
@@ -86,14 +93,19 @@ public class KeepADBApplicationTest {
         ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
                 NetworkListActivity.class, NetworkListActivity.intent(context)).setup();
         Activity screen = controller.get();
-        KeepADBPrivacy.reveal(screen);
-        assertFalse("with the switch off there is nothing to reveal", KeepADBPrivacy.isRevealed(screen));
+        KeepADBPrivacy.reveal(screen, LIST);
+        assertFalse("with the switch off there is nothing to reveal",
+                KeepADBPrivacy.isRevealed(screen, LIST));
 
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        KeepADBPrivacy.reveal(screen);
-        assertFalse(KeepADBPrivacy.isAppMasked(screen));
-        KeepADBPrivacy.concealAgain(screen);
-        assertTrue(KeepADBPrivacy.isAppMasked(screen));
+        KeepADBPrivacy.reveal(screen, LIST);
+        KeepADBPrivacy.reveal(screen, WEBHOOK);
+        assertFalse(KeepADBPrivacy.isMasked(screen, LIST));
+        KeepADBPrivacy.conceal(screen, LIST);
+        assertTrue(KeepADBPrivacy.isMasked(screen, LIST));
+        assertFalse("conceal ends one scope only", KeepADBPrivacy.isMasked(screen, WEBHOOK));
+        KeepADBPrivacy.concealAll(screen);
+        assertTrue(KeepADBPrivacy.isMasked(screen, WEBHOOK));
         controller.pause().stop().destroy();
     }
 }

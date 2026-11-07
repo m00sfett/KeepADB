@@ -28,7 +28,7 @@ final class KeepADBPrivacyToggle {
                     "privacy_mode_toggle");
             KeepADBPreferences.setAppPrivacyEnabled(activity, want);
             // Turning the switch on masks this screen again, also after a "Show" on it.
-            KeepADBPrivacy.concealAgain(activity);
+            KeepADBPrivacy.concealAll(activity);
             update(activity);
             redraw.run();
         });

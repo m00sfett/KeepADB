@@ -234,6 +234,45 @@ public class OnboardingPrivacySwitchesTest {
         assertFalse(shown.contains(context.getString(R.string.onboarding_network_privacy_note)));
     }
 
+    @Test
+    public void aRevealOnTheNetworkPageDoesNotCarryToTheWebhookPageOrBack() {
+        connectTo(HOME, KITCHEN);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+        app(assistant).performClick();
+        for (int i = 0; i < 4; i++) assistant.findViewById(R.id.onboarding_next).performClick();
+        assistant.findViewById(R.id.decision_show).performClick();
+        assertTrue("Control: the network page is revealed", allText(assistant).contains(HOME));
+
+        assistant.findViewById(R.id.onboarding_next).performClick(); // webhook page
+        assertEquals(View.GONE, assistant.findViewById(R.id.settings_webhook_url).getVisibility());
+        assertFalse(allText(assistant), allText(assistant).contains("111.111.21"));
+
+        assistant.findViewById(R.id.onboarding_back).performClick(); // back to the network page
+        String again = allText(assistant);
+        assertFalse("the page is masked again after leaving it: " + again, again.contains(HOME));
+        assertTrue(again.contains(context.getString(R.string.onboarding_network_privacy_note)));
+    }
+
+    @Test
+    public void aRevealedWebhookFieldOfTheAssistantIsMaskedAgainOnReturn() {
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class,
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.WEBHOOK)).setup();
+        controllers.add(controller);
+        OnboardingActivity assistant = controller.get();
+        assistant.findViewById(R.id.settings_webhook_url_show).performClick();
+        assertEquals(View.VISIBLE, assistant.findViewById(R.id.settings_webhook_url).getVisibility());
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+
+        assertEquals(View.GONE, assistant.findViewById(R.id.settings_webhook_url).getVisibility());
+        assertFalse(allText(assistant), allText(assistant).contains("111.111.21"));
+    }
+
     // ---- Helpers ---------------------------------------------------------------------------------------
 
     private OnboardingActivity open(Intent intent) {

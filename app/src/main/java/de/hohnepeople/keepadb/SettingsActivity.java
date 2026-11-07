@@ -330,6 +330,7 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onStop() {
+        usbProfileEditor.onScreenStopped();
         networkCard.stop();
         super.onStop();
     }

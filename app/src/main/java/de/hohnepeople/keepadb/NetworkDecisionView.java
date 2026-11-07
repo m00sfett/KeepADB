@@ -55,6 +55,8 @@ public final class NetworkDecisionView extends LinearLayout {
 
     private KeepADBNetworkDecision.Pending pending;
     private Listener listener;
+    /** The reveal scope of the host (#904); a dialog host keeps the default. */
+    private String privacyScope = KeepADBPrivacy.SCOPE_DECISION;
 
     public NetworkDecisionView(Context context) {
         this(context, null);
@@ -71,10 +73,7 @@ public final class NetworkDecisionView extends LinearLayout {
         comfortNote = findViewById(R.id.decision_comfort_note);
         blockName = findViewById(R.id.decision_block_name);
 
-        KeepADBPrivacy.bindShowButton(show, () -> {
-            if (pending != null) bind(pending, listener);
-            if (listener != null) listener.onRevealed();
-        });
+        bindShow();
         findViewById(R.id.decision_trust).setOnClickListener(v -> trust());
         findViewById(R.id.decision_block_ap).setOnClickListener(v -> blockAccessPoint());
         blockName.setOnClickListener(v -> blockName());
@@ -84,6 +83,26 @@ public final class NetworkDecisionView extends LinearLayout {
         clear();
     }
 
+    /**
+     * Which reveal scope the "Show" of this view lifts (#904): an embedding host names its own
+     * page, so a reveal here does not unmask the rest of the screen and vice versa.
+     */
+    void setPrivacyScope(String scope) {
+        privacyScope = scope;
+        bindShow();
+    }
+
+    private void bindShow() {
+        KeepADBPrivacy.bindShowButton(show, privacyScope, () -> {
+            if (pending != null) bind(pending, listener);
+            if (listener != null) listener.onRevealed();
+        });
+    }
+
+    private Context shown() {
+        return KeepADBPrivacy.scoped(getContext(), privacyScope);
+    }
+
     /** Shows the question for {@code access point}; the answers act on exactly this one. */
     void bind(KeepADBNetworkDecision.Pending accessPoint, Listener decisionListener) {
         pending = accessPoint;
@@ -91,10 +110,11 @@ public final class NetworkDecisionView extends LinearLayout {
         Context context = getContext();
         boolean hasName = accessPoint.canBlockName();
         // #904: masked while the app privacy switch is on and this screen has no "Show".
-        boolean masked = KeepADBNetworkDisplay.hidden(context);
-        String shownName = hasName ? KeepADBNetworkDisplay.ssid(context, accessPoint.ssid, null) : null;
+        Context shown = shown();
+        boolean masked = KeepADBNetworkDisplay.hidden(shown);
+        String shownName = hasName ? KeepADBNetworkDisplay.ssid(shown, accessPoint.ssid, null) : null;
         name.setText(hasName ? shownName : context.getString(R.string.network_decision_name_hidden));
-        bssid.setText(KeepADBNetworkDisplay.bssid(context, accessPoint.bssid));
+        bssid.setText(KeepADBNetworkDisplay.bssid(shown, accessPoint.bssid));
         show.setVisibility(masked ? VISIBLE : GONE);
         blockName.setVisibility(hasName ? VISIBLE : GONE);
         if (hasName) {
@@ -145,7 +165,7 @@ public final class NetworkDecisionView extends LinearLayout {
         switch (result.outcome) {
             case TRUSTED:
                 toast(context.getString(R.string.network_ap_allowed_toast,
-                        KeepADBNetworkDisplay.quoted(context, target.ssid == null
+                        KeepADBNetworkDisplay.quoted(shown(), target.ssid == null
                                 ? target.bssid : target.ssid, target.bssid)), Toast.LENGTH_SHORT);
                 // #812: the cause comes from the toggle result, not from a second permission read.
                 if (!result.enabled && result.permissionFailure) {

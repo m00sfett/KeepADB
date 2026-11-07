@@ -83,6 +83,12 @@ final class OnboardingWebhookStep extends OnboardingStep {
         return view;
     }
 
+    /** Back in front: a reveal of the field did not survive the stop, so draw the mask again (#904). */
+    @Override
+    void onResume(Context context) {
+        if (form != null) form.refreshVisual();
+    }
+
     @Override
     boolean beforeNext() {
         return form == null || form.applyTypedUrl();

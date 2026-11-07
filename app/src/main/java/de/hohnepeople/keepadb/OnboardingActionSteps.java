@@ -399,7 +399,8 @@ final class OnboardingActionSteps {
 
         private void refresh() {
             if (privacyNote != null) {
-                privacyNote.setVisibility(KeepADBNetworkDisplay.hidden(host)
+                privacyNote.setVisibility(KeepADBNetworkDisplay.hidden(
+                        KeepADBPrivacy.scoped(host, KeepADBPrivacy.SCOPE_ASSISTANT))
                         ? View.VISIBLE : View.GONE);
             }
             if (renderer != null) renderer.renderCurrentForAssistant();

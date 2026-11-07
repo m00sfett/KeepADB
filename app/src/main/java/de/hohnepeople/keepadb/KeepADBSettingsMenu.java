@@ -140,7 +140,7 @@ final class KeepADBSettingsMenu {
             boolean want = !KeepADBPreferences.isAppPrivacyEnabled(activity);
             KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable", "privacy_mode_toggle");
             KeepADBPreferences.setAppPrivacyEnabled(activity, want);
-            KeepADBPrivacy.concealAgain(activity);
+            KeepADBPrivacy.concealAll(activity);
             activity.refreshUiAndComponents();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();

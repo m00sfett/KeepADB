@@ -35,7 +35,7 @@ final class KeepADBPrivacySwitches {
                     "privacy_app_switch");
             KeepADBPreferences.setAppPrivacyEnabled(activity, want);
             // Turning it on masks this screen again, also after a "Show" on it.
-            KeepADBPrivacy.concealAgain(activity);
+            KeepADBPrivacy.concealAll(activity);
             KeepADBPrivacyToggle.update(activity);
             if (onAppChanged != null) onAppChanged.run();
         });
