@@ -214,6 +214,24 @@ public class OnboardingActivityNetworkTest {
         assertTrue(allText(assistant), allText(assistant).contains(HOME));
     }
 
+    /** The reason of a block by name quotes the name; masked, it must quote the placeholder. */
+    @Test
+    public void aMaskedBlockedNetworkQuotesNoNameInItsReason() {
+        connectTo(HOME, KITCHEN);
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+
+        OnboardingActivity masked = open();
+        String hidden = allText(masked);
+        assertFalse(hidden, hidden.contains(HOME));
+        assertTrue(hidden, hidden.contains(context.getString(R.string.networks_reason_name,
+                context.getString(R.string.network_privacy_name_hidden))));
+
+        button(masked, context.getString(R.string.networks_hidden_show)).performClick();
+        assertTrue(allText(masked), allText(masked).contains(
+                context.getString(R.string.networks_reason_name, HOME)));
+    }
+
     @Test
     public void whileTheForceModeIsOnTheStepSaysTheAnswerAppliesAfterwards() {
         connectTo(HOME, KITCHEN);
