@@ -46,10 +46,12 @@ Settings also include local USB host profiles, optional USB-to-Wi-Fi ADB handove
 privacy, diagnostics export, and optional webhook synchronization. Three optional privacy switches
 (first page of the setup assistant, also in Settings) hide Wi-Fi names and addresses in the app,
 in notifications, and in widgets and the Quick Settings tile; they do not change the endpoint sent
-by an enabled webhook. Notifications and widgets omit the port as well; inside the app, an IPv4
-address keeps its first number and the port stays visible (for example `192.*.*.*:41234`), while
-names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names, in endpoint rows,
-report history, USB profiles and the webhook address) are masked as `***`.
+by an enabled webhook. Notifications and widgets omit addresses entirely, port included. Inside
+the app the masks are partial: an IPv4 address keeps its first number and the port stays visible
+(for example `192.*.*.*:41234`), an IPv6 address keeps its first group (`fe80:***`), and a BSSID
+keeps its first and last pair (`AA:*:*:*:*:01`); Wi-Fi names are replaced by a placeholder, and
+every host name (DNS and Tailnet names, in endpoint rows, report history, USB profiles and the
+webhook address) is masked as `***`.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
 points. Existing installations keep their previous setting, including “All Wi-Fi networks.” Change

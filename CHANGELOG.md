@@ -30,9 +30,9 @@ are retrospective issue-version records and were never published as separate rel
   area, each switch masking only its own: **app** (every screen and dialog: setup assistant, trust
   decision, Networks list, report history, webhook field, USB host profiles, shared diagnostics,
   toasts), **notifications** (every KeepADB notification, lock screen included) and **widgets**
-  (the home-screen widget and the Quick Settings tile). While a switch is on, no unmasked Wi-Fi
-  name, BSSID, IP address or port appears in its area; notifications and widgets omit the data and
-  have no reveal. All three are off on a new installation (`docs/defaults.md`).
+  (the home-screen widget and the Quick Settings tile). While a switch is on, no Wi-Fi name and no
+  unmasked BSSID or address appears in its area; notifications and widgets omit the data (port
+  included) and have no reveal, while the app shows partial masks (see below). All three are off on a new installation (`docs/defaults.md`).
 - **App switch with a per-screen “Show”:** the app switch is the former `privacy_mode_enabled`
   (key and stored value unchanged; the eye in the title bars and the header menu flip it). A
   deliberate “Show” (Networks list placeholder, assistant and dialog decision view, webhook field,
@@ -45,8 +45,10 @@ are retrospective issue-version records and were never published as separate rel
   field is masked again on return. Every host name (DNS or Tailnet name: webhook address,
   endpoint rows, report history, USB profile hosts) is masked as `***` in the privacy display
   (`KeepADBAddressMask.maskHost`, user decision of 2026-11-08; the log lines that use it are
-  stricter for names, never weaker); an IPv4 address keeps its first octet and the port stays
-  visible in the app (decision). The setup
+  stricter for names, never weaker). Inside the app the masks are partial by earlier decisions: an
+  IPv4 address keeps its first octet and the port stays visible (`192.*.*.*:41234`), an IPv6
+  address keeps its first group (`fe80:***`), a BSSID keeps its first and last octet
+  (`AA:*:*:*:*:01`); Wi-Fi names are replaced by a placeholder. The setup
   assistant and the “Trust this network?” dialog no longer show the name and BSSID unmasked in
   privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
   them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the
@@ -66,13 +68,16 @@ are retrospective issue-version records and were never published as separate rel
   “notification details” (#592) hid port, IP address, USB profile, Wi-Fi name and BSSID in
   notifications by default. The new notification switch is opt-in like the other two and off by
   default, so a **new** installation shows these details (and the “new Wi-Fi” notice has its
-  Allow/Block buttons, which still require an unlocked device) until the switch is turned on, on
+  Allow/Block buttons; Allow still requires an unlocked device, Block works on the lock screen)
+  until the switch is turned on, on
   the first page of the assistant or in the Settings. They can appear on the lock screen if
   Android shows sensitive content there. Documented in `SECURITY.md`, `docs/defaults.md` and the
   README.
-- **A posted trust notice follows the switch at once:** turning the notification switch on replaces
-  an already posted “new Wi-Fi” notice (name, BSSID, Allow/Block buttons) by the neutral form, or
-  removes it when it cannot be posted again.
+- **A posted trust notice follows the switch at once:** turning the notification switch on removes
+  an already posted “new Wi-Fi” notice with details (name, BSSID, Allow/Block buttons). It is not
+  re-posted in the neutral form, because the app cannot reliably tell which access point the
+  posted notice was for; removing it decides nothing, and the neutral question returns after the
+  usual repeat interval.
 - **Nothing is loosened for existing installations:** once, at the first start
   (`KeepADBApplication` → `KeepADBPreferences.migratePrivacySplit`, pattern of #760), the
   notification switch is derived from `notification_details_enabled` (absent or `false` = details
