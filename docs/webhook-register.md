@@ -97,16 +97,18 @@ the report as withdrawn, its failure keeps the record and shows the last report 
 - **While the process is needed:** a switch tapped on a widget keeps its broadcast open until the
   DELETE has been attempted (or the hold limit of the broadcast has passed, which is shorter than
   the system's window), so the process is not stopped with the request still queued. Switching on
-  keeps it open until the first report is out in the same way.
-- **If the process dies anyway, or the request fails:** the preference is already off, so the
-  record is the only trace of the registration. At the next start of the app, one attempt is made
-  to withdraw what the record names, also when a different URL is saved by then; a success ends it.
-  There is no timer and no loop: a failure waits for the next start, or for switching off again,
-  which also withdraws an outstanding registration instead of reporting "already off". With no
-  record left (or with synchronization on, where the registration is live) none of this sends
-  anything.
-- A newer operation, such as switching on again or a new report, supersedes a withdrawal that has
-  not started yet; the registration is then reported afresh instead of withdrawn.
+  keeps it open until the work queued behind it has run, such as the report of an endpoint the
+  process already knows. A freshly started process that still has to discover its endpoint is not
+  awaited: the broadcast ends once the refresh is dispatched, synchronization stays on, and the
+  report is sent by the next normal synchronization trigger, such as the endpoint being found or a
+  network change.
+- **If the process dies mid-DELETE, the hold limit passes or the request fails:** the preference is
+  already off, so the registration may remain at the receiver. The stored report record still names
+  it and shows the last report as failed; nothing sends the DELETE again on its own, not at the next
+  start of the app and not on a timer. Tapping "off" again is the retry, and it withdraws only while
+  the record names the URL that is saved now: if the URL was cleared or replaced in the meantime,
+  the old destination is not contacted from there. Without a record "off" while already off sends
+  nothing.
 
 ## What the widgets and the tile show of the delivery (#910)
 
