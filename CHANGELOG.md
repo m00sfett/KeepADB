@@ -29,13 +29,16 @@ are retrospective issue-version records and were never published as separate rel
 - **Adaptive control widget (#912):** the placed widget (same provider, same component) now holds
   up to four controls: Wireless Debugging, Keep-Alive, automatic webhook synchronization and
   "Report now", and shows more as it grows. About 1x1 shows the main action, narrow and tall two
-  actions, 2x1 two, 2x2 all four in a grid (taller: plus one status line), 4x1 the four in a row,
-  4x2 the four plus the status line and the webhook line. `KeepADBWidgetLayout` chooses the class
+  actions, 2x1 two, 2x2 all four in a grid, 4x1 the four in a row; tall 2x2 and 4x2 keep flat
+  tiles and add a status box (endpoint on one line, cut in the middle so the port stays readable,
+  or the reason for the state; the webhook state; the settings gear in the 4x2). `KeepADBWidgetLayout` chooses the class
   from the reported size and the font scale (every threshold grows with the scale, labels give way
   to the state word above a scale of 1.5); Android 12+ gets one view per class and lets the
   launcher pick while resizing, Android 11 rebuilds the one class the options select
   (`onAppWidgetOptionsChanged`). Tiles are at least 48 dp, every state has a word (no color-only
-  state), a dashed outline marks "needs you", TalkBack reads the full name and the state.
+  state), every tile has an icon, a label and a state word as one line that shrinks before it is
+  cut (no word or number is broken), a dashed outline marks "needs you", TalkBack reads the full
+  name and the state; at a large font the label gives way to icon and state word.
 - **Per-widget settings (#912):** `KeepADBWidgetConfigActivity` (the widget's configure and
   reconfigure activity, also reachable from the gear in the larger layouts) sets the main action,
   the order of the four actions and "hide connection details" for that one widget.
@@ -47,12 +50,20 @@ are retrospective issue-version records and were never published as separate rel
 - **Controls reuse the app's entry points:** Wireless Debugging uses the widget's existing toggle
   broadcast (same action, request code and component as before, so already placed widgets keep
   working), Keep-Alive the notification's action, the webhook controls `KeepADBWebhookActions`.
-  A missing grant opens the home screen instead of a failing write; the status lines open the
+  A missing grant opens the home screen instead of a failing write; the status box opens the
   relevant place (home screen, network settings, webhook form). "Report now" exists only while
-  automatic synchronization is on; with it off the slot reads "Sync off" and its tap switches
-  synchronization on.
-- Widget picker label and description, a preview layout (Android 12+), default size 2x1, resizable
-  in both directions, `reconfigurable`. New strings in all 18 locales; `docs/widgets.md`.
+  automatic synchronization is on; with it off (or without a URL) it takes no place and the
+  other controls widen; synchronization is switched on by the Auto-sync control. The webhook line
+  says "sync off" while it is off, never an old failure.
+- Widget picker label and description, a preview layout for the default 2x1 (Android 12+) and a
+  picker image for Android 11, default size 2x1, resizable in both directions, `reconfigurable`;
+  on Android 12+ also `configuration_optional` (placed with the defaults, configured from the gear
+  or the launcher), Android 11 keeps the settings screen at placement. The settings screen's Save
+  button sits below the scrolling part, above the navigation bar; the move buttons are 52 dp.
+- **Widgets follow the setting while nothing runs:** `KeepADBWidgetRefreshJob` (a `JobScheduler`
+  content trigger on `adb_wifi_enabled`, scheduled while a widget exists) re-renders the widgets
+  after a change made elsewhere; read-only, no report, no discovery, no polling. A force-stopped
+  app has no jobs until it is started again. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Changed
 - **Rendering is read-only:** `KeepADBWidget.refreshAll` no longer asks the endpoint coordinator
