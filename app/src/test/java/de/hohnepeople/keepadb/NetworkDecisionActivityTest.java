@@ -591,20 +591,42 @@ public class NetworkDecisionActivityTest {
     }
 
     @Test
-    public void theToastStaysMaskedAfterTrustingAMaskedDecision() {
+    public void aMaskedDecisionCannotBeTrustedBlindButBlockedAndShowEnablesTrust() {
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         Intent tap = promptTap(SSID, BSSID, false);
 
         ActivityController<NetworkDecisionActivity> controller = open(tap);
         NetworkDecisionActivity activity = controller.get();
+        // Q6 of the PR #917 review: no blind trust while the network is masked.
+        assertFalse("Trust is disabled while masked",
+                activity.findViewById(R.id.decision_trust).isEnabled());
+        activity.findViewById(R.id.decision_trust).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("A blind trust stores nothing", KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        assertTrue("Block stays available while masked",
+                activity.findViewById(R.id.decision_block_ap).isEnabled());
+
+        click(activity, R.id.decision_show);
+        assertTrue("Show enables trust", activity.findViewById(R.id.decision_trust).isEnabled());
         click(activity, R.id.decision_trust);
         ShadowLooper.idleMainLooper();
-
-        String toast = ShadowToast.getTextOfLatestToast();
-        assertNotNull(toast);
-        assertFalse("The toast stays masked: " + toast, toast.contains(SSID));
-        assertFalse(toast, toast.toUpperCase(Locale.ROOT).contains(BSSID.toUpperCase(Locale.ROOT)));
         assertOnlyTrusted(BSSID);
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aMaskedDecisionCanBeBlockedWithoutShow() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        Intent tap = promptTap(SSID, BSSID, false);
+
+        ActivityController<NetworkDecisionActivity> controller = open(tap);
+        NetworkDecisionActivity activity = controller.get();
+        click(activity, R.id.decision_block_ap);
+        ShadowLooper.idleMainLooper();
+
+        assertFalse(KeepADBNetworkBlocklist.isEmpty(context));
+        String toast = ShadowToast.getTextOfLatestToast();
+        if (toast != null) assertFalse("The toast stays masked: " + toast, toast.contains(SSID));
         controller.pause().stop().destroy();
     }
 

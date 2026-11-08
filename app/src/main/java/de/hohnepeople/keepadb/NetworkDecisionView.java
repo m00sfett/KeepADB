@@ -25,7 +25,9 @@ import android.widget.Toast;
  * <p><strong>Privacy (#904).</strong> While the app privacy switch is on, the Wi-Fi name and the
  * address are masked like on every other screen; a deliberate "Show" (button in this view) lifts
  * the mask for the screen that hosts the view, until it is left. Whoever decides can thereby still
- * see whom they are trusting. Whatever the privacy state, a host must never bind this view while
+ * see whom they are trusting. "Trust" needs that "Show" (Q6 of the PR #917 review): trusting
+ * lets KeepADB turn Wireless debugging on there automatically, so it is not done blind; blocking
+ * stays available while masked, it only takes something away. Whatever the privacy state, a host must never bind this view while
  * the device is locked, and {@link #clear} removes everything again (see {@link
  * NetworkDecisionActivity}).
  */
@@ -50,6 +52,7 @@ public final class NetworkDecisionView extends LinearLayout {
     private final TextView name;
     private final TextView bssid;
     private final Button show;
+    private final Button trust;
     private final TextView comfortNote;
     private final Button blockName;
 
@@ -74,7 +77,8 @@ public final class NetworkDecisionView extends LinearLayout {
         blockName = findViewById(R.id.decision_block_name);
 
         bindShow();
-        findViewById(R.id.decision_trust).setOnClickListener(v -> trust());
+        trust = findViewById(R.id.decision_trust);
+        trust.setOnClickListener(v -> trust());
         findViewById(R.id.decision_block_ap).setOnClickListener(v -> blockAccessPoint());
         blockName.setOnClickListener(v -> blockName());
         findViewById(R.id.decision_later).setOnClickListener(v -> {
@@ -116,6 +120,8 @@ public final class NetworkDecisionView extends LinearLayout {
         name.setText(hasName ? shownName : context.getString(R.string.network_decision_name_hidden));
         bssid.setText(KeepADBNetworkDisplay.bssid(shown, accessPoint.bssid));
         show.setVisibility(masked ? VISIBLE : GONE);
+        // Q6: no blind trust while the network is masked; "Show" enables it.
+        trust.setEnabled(!masked);
         blockName.setVisibility(hasName ? VISIBLE : GONE);
         if (hasName) {
             blockName.setText(context.getString(R.string.network_decision_block_name, shownName));
@@ -159,7 +165,7 @@ public final class NetworkDecisionView extends LinearLayout {
 
     private void trust() {
         KeepADBNetworkDecision.Pending target = pending;
-        if (target == null) return;
+        if (target == null || KeepADBNetworkDisplay.hidden(shown())) return;
         Context context = getContext();
         KeepADBNetworkDecision.TrustResult result = KeepADBNetworkDecision.trust(context, target);
         switch (result.outcome) {
