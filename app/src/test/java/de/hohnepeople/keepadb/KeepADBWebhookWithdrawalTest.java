@@ -209,6 +209,31 @@ public class KeepADBWebhookWithdrawalTest {
         assertEquals(1, count("POST"));
     }
 
+    /**
+     * A cold process that does not know its endpoint yet: the enable kicks the coordinator and the
+     * broadcast ends once that is dispatched. Discovery is not awaited; the report is sent by the
+     * next normal synchronization trigger, and synchronization stays on.
+     */
+    @Test
+    public void aColdStartEnableFinishesAfterTheRefreshAndTheNextTriggerReports() throws Exception {
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false)); // nothing to discover
+
+        Delivered tap = new Delivered(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE);
+        settle();
+
+        assertTrue("the broadcast does not wait for a discovery that may never come", tap.isFinished());
+        assertTrue(syncEnabled());
+        assertEquals(0, transport.getRequestCount());
+
+        // The endpoint shows up later: the normal trigger of an enabled synchronization reports it.
+        KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 2L);
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        settle();
+        assertEquals(1, count("POST"));
+        assertTrue(syncEnabled());
+    }
+
     @Test
     public void aTapThatQueuesNothingReleasesTheBroadcastAtOnce() throws Exception {
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
@@ -236,55 +261,14 @@ public class KeepADBWebhookWithdrawalTest {
         assertTrue(tap.isFinished());
     }
 
-    // ---- an interrupted or failed withdrawal is retried at the next start ----------------------------
+    // ---- an outstanding withdrawal is only ever retried by the user -------------------------------
 
-    /** The process died after the preference went off and before the DELETE ran. */
+    /**
+     * The DELETE failed (or the process died before it ran): the preference is off and the report
+     * snapshot still names the registration. Nothing sends it again on its own.
+     */
     @Test
-    public void aWithdrawalTheProcessDidNotSurviveIsSentAtTheNextStart() {
-        registered();
-        // What the preferences hold when the process dies right after "off": off, and the report
-        // snapshot still naming the registration.
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        KeepADBRegisterClientResetRule.reset(); // a new process: no in-memory state at all
-        KeepADBRegisterClient.setHttpTransport(transport);
-        transport.clearRequests();
-
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
-        settle();
-
-        assertEquals("the withdrawal is sent now", 1, count("DELETE"));
-        assertEquals(URL, transport.getLastRequest().url);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
-        assertFalse("never switches anything on", syncEnabled());
-
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
-        settle();
-        assertEquals("and once it is done there is nothing left to resume", 1, count("DELETE"));
-    }
-
-    /** What is withdrawn is what was registered, not what is saved now. */
-    @Test
-    public void theRecordedRegistrationIsWithdrawnNotTheCurrentlySavedUrl() {
-        registered();
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        KeepADBPreferences.setRegisterWebhookUrl(context, URL_2);
-        KeepADBRegisterClientResetRule.reset();
-        KeepADBRegisterClient.setHttpTransport(transport);
-        transport.clearRequests();
-
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
-        settle();
-
-        assertEquals(1, count("DELETE"));
-        assertEquals(URL, transport.getLastRequest().url);
-    }
-
-    @Test
-    public void aFailedWithdrawalStaysOnRecordAndIsRetriedAtTheNextStart() throws Exception {
+    public void aFailedWithdrawalStaysOnRecordAndNothingSendsItAgainOnItsOwn() throws Exception {
         registered();
         transport.setDeleteSuccess(false);
         Delivered tap = new Delivered(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE);
@@ -297,21 +281,41 @@ public class KeepADBWebhookWithdrawalTest {
         assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
                 KeepADBPreferences.getWebhookLastReportStatus(context));
 
-        // The network is back at the next start.
+        // A new process, the network back, hours and every trigger of the sender: still nothing.
         KeepADBRegisterClientResetRule.reset();
         KeepADBRegisterClient.setHttpTransport(transport);
         transport.setDeleteSuccess(true);
         transport.clearRequests();
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
+        ((KeepADBApplication) RuntimeEnvironment.getApplication()).onCreate();
+        KeepADBRegisterClient.requestResyncAsync(context);
+        KeepADBRegisterClient.reattemptStaleEpisode(context);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        ShadowLooper.idleMainLooper(6, TimeUnit.HOURS);
         settle();
 
-        assertEquals(1, count("DELETE"));
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertEquals("the app never sends a withdrawal on its own", 0, transport.getRequestCount());
+        assertEquals("and the record is still there for the user's retry", URL,
+                KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertFalse(syncEnabled());
     }
 
-    /** Switching off again is the explicit retry; a later tap is not swallowed as "unchanged". */
+    @Test
+    public void theApplicationStartSendsNothingEvenWithAnOutstandingWithdrawal() {
+        registered();
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false); // died right after "off"
+        KeepADBRegisterClientResetRule.reset();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        transport.clearRequests();
+
+        ((KeepADBApplication) RuntimeEnvironment.getApplication()).onCreate();
+        settle();
+
+        assertEquals(0, transport.getRequestCount());
+        assertEquals(URL, KeepADBPreferences.getWebhookLastReportedUrl(context));
+    }
+
+    /** Switching off again is the user's retry; a later tap is not swallowed as "unchanged". */
     @Test
     public void switchingOffAgainRetriesAnOutstandingWithdrawal() {
         registered();
@@ -327,6 +331,7 @@ public class KeepADBWebhookWithdrawalTest {
         settle();
 
         assertEquals("the second tap withdraws it", 1, count("DELETE"));
+        assertEquals(URL, transport.getLastRequest().url);
         assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
 
         assertEquals("and with nothing left it is a no-op again",
@@ -336,62 +341,40 @@ public class KeepADBWebhookWithdrawalTest {
         assertEquals(1, count("DELETE"));
     }
 
+    /**
+     * The retry goes to the saved destination only. If the URL was replaced or cleared since the
+     * registration was recorded, the old destination is not contacted from this path.
+     */
     @Test
-    public void nothingIsResumedWithoutAnOutstandingWithdrawalOrWithSyncOn() {
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
-        settle();
-        assertEquals("fresh: nothing recorded", 0, transport.getRequestCount());
-
+    public void switchingOffAgainDoesNotContactADestinationThatIsNoLongerSaved() {
         registered();
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
+        transport.setDeleteSuccess(false);
+        KeepADBWebhookSync.setAutomaticSync(context, false);
         settle();
-        assertEquals("synchronization is on: the registration is live", 0, count("DELETE"));
-        assertTrue(syncEnabled());
-    }
-
-    /** The start of the app is the trigger. */
-    @Test
-    public void theApplicationStartResumesAnInterruptedWithdrawal() {
-        registered();
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        KeepADBRegisterClientResetRule.reset();
-        KeepADBRegisterClient.setHttpTransport(transport);
+        transport.setDeleteSuccess(true);
         transport.clearRequests();
 
-        ((KeepADBApplication) RuntimeEnvironment.getApplication()).onCreate();
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_2);
+        assertEquals(KeepADBWebhookSync.Result.UNCHANGED,
+                KeepADBWebhookSync.setAutomaticSync(context, false));
         settle();
+        assertEquals("replaced URL: the old destination is left alone", 0,
+                transport.getRequestCount());
 
-        assertEquals(1, count("DELETE"));
-        assertEquals(URL, transport.getLastRequest().url);
-    }
-
-    @Test
-    public void theApplicationStartSendsNothingWhenNothingIsOutstanding() {
-        ((KeepADBApplication) RuntimeEnvironment.getApplication()).onCreate();
+        KeepADBPreferences.setRegisterWebhookUrl(context, null);
+        assertEquals(KeepADBWebhookSync.Result.UNCHANGED,
+                KeepADBWebhookSync.setAutomaticSync(context, false));
         settle();
-
-        assertEquals(0, transport.getRequestCount());
+        assertEquals("cleared URL: likewise", 0, transport.getRequestCount());
         assertFalse(syncEnabled());
     }
 
     @Test
-    public void theResumeNamesNeitherTheUrlNorTheEndpointInTheDiagnostics() {
-        registered();
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        KeepADBRegisterClientResetRule.reset();
-        KeepADBRegisterClient.setHttpTransport(transport);
-
-        KeepADBRegisterClient.resumeInterruptedWithdrawal(context);
+    public void switchingOffAgainWithNothingRecordedSendsNothing() {
+        assertEquals(KeepADBWebhookSync.Result.UNCHANGED,
+                KeepADBWebhookSync.setAutomaticSync(context, false));
         settle();
-
-        String diagnostics = KeepADBDiagnostics.export(context);
-        String resumed = null;
-        for (String line : diagnostics.split("\n")) {
-            if (line.contains("reason=interrupted_withdrawal")) resumed = line;
-        }
-        assertTrue(diagnostics, resumed != null);
-        assertFalse("no endpoint in the event: " + resumed, resumed.contains(HOST));
-        assertFalse("no URL anywhere: " + diagnostics, diagnostics.contains("register.example"));
+        assertEquals(0, transport.getRequestCount());
     }
 
     @Test

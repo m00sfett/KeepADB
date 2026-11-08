@@ -51,9 +51,8 @@ final class KeepADBWebhookSync {
     /**
      * The one disable path. The withdrawal is queued first (it reads the saved URL right away) and
      * the preference goes off at once; the DELETE itself runs asynchronously. Until it has
-     * succeeded the report snapshot still names the registration, which is what makes an
-     * interrupted or failed withdrawal retry at the next start of the app
-     * ({@link KeepADBRegisterClient#resumeInterruptedWithdrawal}).
+     * succeeded the report snapshot still names the registration. Nothing sends it again on its
+     * own: only another explicit "off" retries it ({@link #setAutomaticSync}).
      *
      * @param onDone runs on the register executor once the withdrawal has been attempted, so a
      *         receiver can hold its broadcast open until then.
@@ -73,21 +72,25 @@ final class KeepADBWebhookSync {
      * target state, never "flip"), so a repeated tap cannot undo itself. It uses the stored URL
      * only and never invents, repairs or replaces one.
      *
-     * <p>Asking for "off" while it already is off still withdraws a registration that an earlier
-     * opt-out left outstanding (the result is then {@link Result#DISABLED}); without one it is a
-     * no-op. The app, the notification and every widget are refreshed afterwards, whatever the
-     * result.
+     * <p>Asking for "off" while it already is off is the user's retry of a withdrawal that an
+     * earlier opt-out left outstanding (the result is then {@link Result#DISABLED}), but only
+     * while the report snapshot still names the URL that is saved now; if the URL was cleared or
+     * replaced since, the old destination is not contacted and the result is
+     * {@link Result#UNCHANGED}. The app, the notification and every widget are refreshed
+     * afterwards, whatever the result.
      *
      * @param onDone runs once the work this request queued has been attempted (on the register
      *         executor), or at once when it queued none, so a receiver can keep its broadcast
-     *         alive until the DELETE or the first report is out.
+     *         alive meanwhile. For an enable that is the work queued behind it, such as the report
+     *         of an endpoint the process already knows; discovery of a missing endpoint is not
+     *         awaited, the next normal synchronization trigger reports then.
      */
     static Result setAutomaticSync(Context context, boolean wanted, Runnable onDone) {
         Context app = context.getApplicationContext();
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(app);
         Result result;
         if (wanted == enabled) {
-            if (!wanted && KeepADBRegisterClient.hasRegistrationOnRecord(app)) {
+            if (!wanted && KeepADBRegisterClient.hasOutstandingWithdrawalAtSavedUrl(app)) {
                 disable(app, onDone);
                 result = Result.DISABLED;
             } else {
