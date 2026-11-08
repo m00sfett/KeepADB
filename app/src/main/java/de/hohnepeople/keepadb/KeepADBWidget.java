@@ -50,7 +50,9 @@ public class KeepADBWidget extends AppWidgetProvider {
 
     private void render(Context context, AppWidgetManager mgr, int id, boolean refreshNotification) {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
-        KeepADB.State state = KeepADB.getState(context);
+        // #910: one read-only projection; it also decides what the widget may reveal (#904).
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context);
+        KeepADB.State state = projection.systemState;
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
         String widgetText;
         switch (state) {
@@ -68,9 +70,10 @@ public class KeepADBWidget extends AppWidgetProvider {
                 widgetText = localizedContext.getString(R.string.widget_text_disconnected);
                 break;
             case ENABLED_CONNECTED:
-                int port = KeepADBEndpointCoordinator.snapshot().port;
-                // #904: with the widget privacy switch on, the widget shows the state only.
-                if (port > 0 && !KeepADBPreferences.isWidgetPrivacyEnabled(context)) {
+                // #904: with the widget privacy switch on, the projection carries no port and the
+                // widget shows the state only.
+                int port = projection.endpointPort;
+                if (port > 0) {
                     widgetText = localizedContext.getString(R.string.widget_text_connected_format, port);
                 } else {
                     widgetText = localizedContext.getString(R.string.widget_text_on);
@@ -81,7 +84,7 @@ public class KeepADBWidget extends AppWidgetProvider {
                 break;
         }
         // #318: show the debounce window instead of the stale pre-toggle value.
-        if (state != KeepADB.State.PERMISSION_MISSING && KeepADB.isTogglePending()) {
+        if (projection.adb == KeepADBWidgetState.Adb.PENDING) {
             widgetText = localizedContext.getString(R.string.widget_text_pending);
         }
         views.setTextViewText(R.id.widget_label, widgetText);

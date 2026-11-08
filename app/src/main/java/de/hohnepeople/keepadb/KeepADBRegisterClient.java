@@ -67,8 +67,42 @@ final class KeepADBRegisterClient {
         // coordinator monitor, which already calls into this class).
         if (context != null) {
             final Context appContext = context.getApplicationContext();
-            mainHandler().post(() -> KeepADBNotification.refreshIfActive(appContext));
+            mainHandler().post(() -> {
+                KeepADBNotification.refreshIfActive(appContext);
+                // #910: the widgets show the delivery state, so they follow every result as well.
+                // State only: re-rendering reads, it never reports or starts a discovery.
+                KeepADBWidget.refreshAllState(appContext);
+            });
         }
+    }
+
+    /**
+     * #910: a report was just queued. The widgets re-render so "sending" shows at once instead of
+     * after the answer. Posted to the main handler, outside the class monitor, and read-only.
+     */
+    private static void notifyWidgetsReportQueued(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        mainHandler().post(() -> KeepADBWidget.refreshAllState(appContext));
+    }
+
+    /**
+     * #910: what the report client is doing right now, for the widgets. A pure read of the series
+     * state under the class monitor; it starts nothing and sends nothing.
+     */
+    enum Activity {
+        /** No POST is running and none is waiting for its retry. */
+        IDLE,
+        /** A report POST is queued or running. */
+        SENDING,
+        /** The last POST failed and the next retry of the series is scheduled. */
+        RETRY_WAITING
+    }
+
+    static synchronized Activity activity() {
+        if (wlanUpdateInFlight) return Activity.SENDING;
+        if (pendingPostRetry != null) return Activity.RETRY_WAITING;
+        return Activity.IDLE;
     }
 
     private static volatile String lastRegisteredUrl = null;
@@ -395,6 +429,7 @@ final class KeepADBRegisterClient {
      */
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint,
             long opGen, boolean probeFirst) {
+        notifyWidgetsReportQueued(appContext);
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
             if (probeFirst && !endpointProbe.isReachable(endpoint)) {

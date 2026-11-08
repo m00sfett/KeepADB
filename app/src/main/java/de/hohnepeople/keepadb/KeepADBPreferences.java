@@ -235,6 +235,7 @@ final class KeepADBPreferences {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
         KeepADBWarningState.observe(context);
+        refreshWidgetState(context);
     }
 
     static boolean isRegisterWebhookEnabled(Context context) {
@@ -246,6 +247,7 @@ final class KeepADBPreferences {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_WEBHOOK_ENABLED, enabled).apply();
         KeepADBWarningState.observe(context);
+        refreshWidgetState(context);
     }
 
     static String getRegisterWebhookUrl(Context context) {
@@ -264,6 +266,16 @@ final class KeepADBPreferences {
             prefs.edit().putString(KEY_REGISTER_URL, sanitized.trim()).apply();
         }
         KeepADBWarningState.observe(context);
+        refreshWidgetState(context);
+    }
+
+    /**
+     * #910: the widgets show the Keep-Alive and webhook configuration, so a change of it re-renders
+     * them. State only ({@link KeepADBWidget#refreshAllState}): it reads, it never reports or
+     * starts a discovery, so saving a setting cannot cause traffic through this call.
+     */
+    private static void refreshWidgetState(Context context) {
+        KeepADBWidget.refreshAllState(context.getApplicationContext());
     }
 
     static long getWebhookLastReportedAt(Context context) {

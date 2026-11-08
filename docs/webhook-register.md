@@ -61,6 +61,32 @@ The HTTP client does not follow redirects. An HTTP status from 200 through 299 c
 successful request. This does not prove that a receiver accepted the data semantically, stored it
 permanently, or made it available to clients.
 
+## What the widgets and the tile show of the delivery (#910)
+
+The home-screen widgets and the Quick Settings tile read one projection of the app's own state
+(`KeepADBWidgetState`); it reads only and never sends a report, starts a discovery or polls. The
+widgets are re-rendered when the state they show changes: a toggle, an endpoint change, the
+Keep-Alive or webhook settings, a report being queued and its result.
+
+The webhook part keeps these apart:
+
+- **Configuration:** not configured (no destination), synchronization off, or on.
+- **Activity:** nothing in flight, a report being sent, or a retry waiting.
+- **Newest outcome, last success, last failure:** what the sender recorded. A success from before
+  a later failure stays visible as history and is not the current state.
+- **Current delivery:** claimed only while the last report the server accepted names exactly the
+  verified endpoint that is current now and the destination that is configured now, and no later
+  report failed or was withdrawn. A changed endpoint, a changed or removed destination, a later
+  failure, a deregistration, or an endpoint that is lost (also after the app process restarts and
+  before the endpoint is found again) ends the claim; the claim is derived from what is current,
+  so a late answer to an older report cannot restore it. Without a current endpoint the delivery is
+  reported as unknown rather than as a success or a failure.
+
+This is the sender's own evidence (see above): it does not prove what the receiver stored and
+does not mean that a computer is connected over ADB. With the privacy switch for widgets and the
+tile on (or the stricter option of a single widget), the projection carries no address, port,
+Wi-Fi name or destination; whether an endpoint is available stays visible.
+
 ## Transport and privacy
 
 HTTPS is recommended. The project also allows HTTP for local or self-hosted destinations
