@@ -66,13 +66,30 @@ public class KeepADBWidgetStateReportNowTest {
         return KeepADBWidgetState.project(context).webhook.reportNow;
     }
 
-    @Test
-    public void aSavedDestinationAndAVerifiedEndpointMakeItReady() {
-        assertEquals(KeepADBWidgetState.ReportNow.READY, reportNow());
+    private void syncOn() {
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
     }
 
     @Test
-    public void withoutAVerifiedEndpointItHasNothingToReport() {
+    public void withSyncOnADestinationAndAVerifiedEndpointMakeItReady() {
+        syncOn();
+        assertEquals(KeepADBWidgetState.ReportNow.READY, reportNow());
+    }
+
+    /** "Report now" pushes an enabled synchronization; without one the switch is the offer. */
+    @Test
+    public void withSyncOffTheSwitchIsOfferedInsteadOfTheReport() {
+        assertEquals(KeepADBWidgetState.Sync.OFF, KeepADBWidgetState.project(context).webhook.sync);
+        assertEquals(KeepADBWidgetState.ReportNow.SYNC_OFF, reportNow());
+
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        assertEquals("sync off is named before a missing endpoint",
+                KeepADBWidgetState.ReportNow.SYNC_OFF, reportNow());
+    }
+
+    @Test
+    public void withSyncOnAndWithoutAVerifiedEndpointItHasNothingToReport() {
+        syncOn();
         wifi.set(false);
         assertEquals("a cached endpoint is not believed without Wi-Fi",
                 KeepADBWidgetState.ReportNow.NO_ENDPOINT, reportNow());
@@ -84,6 +101,7 @@ public class KeepADBWidgetStateReportNowTest {
 
     @Test
     public void withoutAValidDestinationTheSetupComesFirst() {
+        syncOn();
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
         assertEquals(KeepADBWidgetState.ReportNow.NEEDS_SETUP, reportNow());
 
@@ -92,17 +110,46 @@ public class KeepADBWidgetStateReportNowTest {
         assertEquals("a saved but invalid URL is no destination",
                 KeepADBWidgetState.ReportNow.NEEDS_SETUP, reportNow());
 
-        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
-        assertEquals("the missing destination is named before the missing endpoint",
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        assertEquals("the missing destination is named before the switch",
                 KeepADBWidgetState.ReportNow.NEEDS_SETUP, reportNow());
+
+        syncOn();
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        assertEquals("and before the missing endpoint", KeepADBWidgetState.ReportNow.NEEDS_SETUP,
+                reportNow());
+    }
+
+    /** The action and the projection agree: whatever the projection says, the tap does that. */
+    @Test
+    public void theProjectionAgreesWithWhatATapDoes() {
+        assertEquals(KeepADBRegisterClient.ReportNowResult.SYNC_OFF,
+                KeepADBRegisterClient.reportNow(context, null));
+        assertEquals(KeepADBWidgetState.ReportNow.SYNC_OFF, reportNow());
+
+        syncOn();
+        assertEquals(KeepADBWidgetState.ReportNow.READY, reportNow());
+        assertEquals(KeepADBRegisterClient.ReportNowResult.STARTED,
+                KeepADBRegisterClient.reportNow(context, null));
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        wifi.set(false);
+        assertEquals(KeepADBWidgetState.ReportNow.NO_ENDPOINT, reportNow());
+        assertEquals(KeepADBRegisterClient.ReportNowResult.NO_ENDPOINT,
+                KeepADBRegisterClient.reportNow(context, null));
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, null);
+        assertEquals(KeepADBWidgetState.ReportNow.NEEDS_SETUP, reportNow());
+        assertEquals(KeepADBRegisterClient.ReportNowResult.NEEDS_SETUP,
+                KeepADBRegisterClient.reportNow(context, null));
     }
 
     @Test
-    public void itDoesNotDependOnTheSynchronizationSwitchAndProjectingSendsNothing() {
+    public void projectingSendsNothing() {
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(KeepADBWidgetState.ReportNow.READY, reportNow());
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        assertEquals(KeepADBWidgetState.ReportNow.READY, reportNow());
+        reportNow();
+        syncOn();
+        reportNow();
 
         KeepADBRegisterClientResetRule.awaitIdle();
         assertEquals("projecting is a pure read", 0, transport.getRequestCount());

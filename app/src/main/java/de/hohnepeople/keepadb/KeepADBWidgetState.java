@@ -107,16 +107,19 @@ final class KeepADBWidgetState {
     }
 
     /**
-     * #911: what "Report now" can do at this moment, for choosing the control. It reads the same
-     * facts the action checks when it is tapped (a valid saved destination, a verified Wi-Fi
-     * endpoint), whether or not automatic synchronization is on; the action still re-checks.
+     * #911: what "Report now" can do at this moment, for choosing the control. "Report now" is a
+     * manual push into the normal flow of an enabled synchronization, so this reads the facts the
+     * action checks, in the order it checks them: a valid saved destination, synchronization on and
+     * a verified Wi-Fi endpoint. The action still re-checks when it is tapped.
      */
     enum ReportNow {
-        /** A valid destination is saved and a verified Wi-Fi endpoint is available. */
+        /** Synchronization is on, a valid destination is saved and a verified Wi-Fi endpoint is available. */
         READY,
         /** No valid destination is saved: offer the setup, a report would send nothing. */
         NEEDS_SETUP,
-        /** No verified Wi-Fi endpoint: a report would send nothing. */
+        /** Automatic synchronization is off: offer the switch; "Report now" does nothing. */
+        SYNC_OFF,
+        /** Synchronization is on but there is no verified Wi-Fi endpoint: a report would send nothing. */
         NO_ENDPOINT
     }
 
@@ -293,6 +296,7 @@ final class KeepADBWidgetState {
                 : clientActivity == KeepADBRegisterClient.Activity.RETRY_WAITING
                         ? Activity.RETRY_WAITING : Activity.IDLE;
         ReportNow reportNow = !KeepADBPreferences.isValidWebhookUrl(url) ? ReportNow.NEEDS_SETUP
+                : sync != Sync.ON ? ReportNow.SYNC_OFF
                 : currentEndpoint == null ? ReportNow.NO_ENDPOINT : ReportNow.READY;
         return new Webhook(sync, activity, outcome,
                 KeepADBPreferences.getWebhookLastSuccessAt(app),
