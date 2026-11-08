@@ -66,6 +66,8 @@ public class KeepADBWebhookAlertTest {
         transport.setPostSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBRegisterClient.setCoordinatorEndpointForTesting("192.168.1.10:41000");
+        // #911: "Report now" only reports an endpoint while Wi-Fi is up.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         now = START;
         KeepADBWebhookAlert.setNowForTesting(now);
         notifications = Shadows.shadowOf(context.getSystemService(NotificationManager.class));

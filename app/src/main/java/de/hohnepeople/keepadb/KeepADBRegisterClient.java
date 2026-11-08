@@ -77,6 +77,15 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #911: something other than a report result changed what the surfaces show (the widgets
+     * switched automatic synchronization). Tells the visible app screen, the persistent
+     * notification and every widget to re-render. A pure refresh: nothing is sent.
+     */
+    static void notifyStateChanged(Context context) {
+        notifyRegisterStateListener(context);
+    }
+
+    /**
      * #910: a report was just queued. The widgets re-render so "sending" shows at once instead of
      * after the answer. Posted to the main handler, outside the class monitor, and read-only.
      */
@@ -326,6 +335,84 @@ final class KeepADBRegisterClient {
             // single register executor.
             mainHandler().post(() -> EXECUTOR.execute(onDone));
         }
+    }
+
+    /** What a manual "Report now" did with the tap; decided before anything is sent. */
+    enum ReportNowResult {
+        /** A report of the current endpoint was started for this tap, or a waiting retry was sent at once. */
+        STARTED,
+        /** A report is already running; the tap joined it and added no request. */
+        JOINED,
+        /** No valid destination is saved; nothing was sent. Lead the user to the setup. */
+        NEEDS_SETUP,
+        /** Automatic synchronization is off; nothing was sent and nothing was changed. */
+        SYNC_OFF,
+        /** No verified Wi-Fi endpoint right now; nothing was sent and no address was reused. */
+        NO_ENDPOINT
+    }
+
+    /**
+     * #911: the single entry point of every "Report now" (the webhook alert's button and the
+     * widgets): a manual push into the normal flow of an <em>enabled</em> synchronization. It
+     * reports the current, verified Wi-Fi ADB endpoint to the saved destination at once and
+     * everything afterwards continues as usual (retries, the failure episode, cleanups).
+     *
+     * <ul>
+     *   <li>It is only a push of automatic synchronization. With synchronization off it does
+     *       nothing: no request, no change of any preference and no state, and the result says
+     *       {@link ReportNowResult#SYNC_OFF}. It never switches synchronization on.
+     *   <li>Without a valid saved URL or without a verified endpoint (Wi-Fi up) nothing is sent
+     *       and the cause is returned and logged ({@code register_report skipped reason=...},
+     *       never the URL or the endpoint). Wireless Debugging is never switched on and a cached
+     *       address is not reused without Wi-Fi.
+     *   <li>Otherwise it is {@link #reportNowFromAlert}: a retry that is only waiting for its
+     *       timer is sent at once, a POST that is already running is joined and a debounced
+     *       resync that is still waiting is dropped, so one tap never sends two requests, and the
+     *       network being untrusted does not matter (the report path has no trust gate).
+     * </ul>
+     *
+     * @param onDone runs on the register executor once the attempt this tap caused or joined has
+     *         finished (or at once when nothing was sent), so the receiver can keep the process
+     *         alive until then ({@code goAsync}).
+     */
+    static ReportNowResult reportNow(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return ReportNowResult.NO_ENDPOINT;
+        }
+        final Context appContext = context.getApplicationContext();
+        if (!KeepADBPreferences.isValidWebhookUrl(KeepADBPreferences.getRegisterWebhookUrl(appContext))) {
+            return refuseReportNow(appContext, ReportNowResult.NEEDS_SETUP, "needs_setup", onDone);
+        }
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) {
+            return refuseReportNow(appContext, ReportNowResult.SYNC_OFF, "sync_off", onDone);
+        }
+        if (verifiedWifiEndpoint(appContext) == null) {
+            return refuseReportNow(appContext, ReportNowResult.NO_ENDPOINT, "no_endpoint", onDone);
+        }
+        boolean running;
+        synchronized (KeepADBRegisterClient.class) {
+            running = wlanUpdateInFlight;
+        }
+        reportNowFromAlert(appContext, onDone);
+        return running ? ReportNowResult.JOINED : ReportNowResult.STARTED;
+    }
+
+    private static ReportNowResult refuseReportNow(Context appContext, ReportNowResult result,
+            String reason, Runnable onDone) {
+        KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
+                "method=post reason=" + reason + " manual=true");
+        if (onDone != null) onDone.run();
+        return result;
+    }
+
+    /**
+     * The current endpoint, formatted like a report, but only while Wi-Fi is up (a cached endpoint
+     * is not believed without it, as in {@link KeepADBWidgetState}); null otherwise.
+     */
+    private static String verifiedWifiEndpoint(Context appContext) {
+        String endpoint = currentCoordinatorEndpoint();
+        return endpoint != null && KeepADBService.isWifiConnected(appContext) ? endpoint : null;
     }
 
     /**
@@ -596,7 +683,19 @@ final class KeepADBRegisterClient {
     }
 
     static void unregisterAndDisableAsync(Context context) {
-        if (context == null) return;
+        unregisterAndDisableAsync(context, null);
+    }
+
+    /**
+     * @param onDone #911: runs on the register executor once the withdrawal queued here has been
+     *         attempted (or found obsolete), so a receiver can keep the process alive until then
+     *         ({@code goAsync}) instead of letting it die with the DELETE still queued.
+     */
+    static void unregisterAndDisableAsync(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return;
+        }
         Context appContext = context.getApplicationContext();
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
@@ -612,6 +711,28 @@ final class KeepADBRegisterClient {
             if (opGen != currentOpGeneration) return;
             performDeleteTransaction(appContext, targetUrl, opGen, false);
         });
+        // FIFO on the single register executor: behind the withdrawal just queued.
+        if (onDone != null) EXECUTOR.execute(onDone);
+    }
+
+    /** Runs {@code work} on the register executor behind everything queued so far. */
+    static void afterQueuedWork(Runnable work) {
+        EXECUTOR.execute(work);
+    }
+
+    /**
+     * #911: whether the persisted report snapshot still names the registration at the URL that is
+     * saved now, i.e. a report that nothing has withdrawn. A completed withdrawal clears the
+     * snapshot, a failed or interrupted one leaves it, so with synchronization off this is
+     * "an opt-out whose withdrawal is outstanding". It is deliberately limited to the saved URL:
+     * if the URL was cleared or replaced since, the old destination is not contacted from here.
+     * Read from the preferences, which survive the process, not from the in-memory copy.
+     */
+    static boolean hasOutstandingWithdrawalAtSavedUrl(Context context) {
+        Context app = context.getApplicationContext();
+        String recorded = KeepADBPreferences.getWebhookLastReportedUrl(app);
+        String saved = KeepADBPreferences.getRegisterWebhookUrl(app);
+        return recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved);
     }
 
     /**

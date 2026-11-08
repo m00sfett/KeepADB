@@ -23,6 +23,77 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.7] - Unreleased
+
+### Added
+- **"Report now" for the widgets (#911):** `KeepADBRegisterClient.reportNow` is the one entry
+  point of the webhook alert's button and of the widgets' "Report now": a manual push into the
+  normal flow of an **enabled** synchronization. It reports the current, verified Wi-Fi ADB
+  endpoint to the saved URL at once, whether or not the network is trusted, with the semantics of
+  `reportNowFromAlert` (a running POST is joined, a waiting retry is sent at once, a waiting
+  debounced resync is dropped, so one tap never sends two requests); afterwards retries, the failure
+  episode and the cleanups continue normally.
+- **With synchronization off it does nothing:** no request, no preference change, no state; the
+  result is `SYNC_OFF` and the widget offers the switch instead. Without a valid saved URL
+  (`NEEDS_SETUP`) or without a verified endpoint with Wi-Fi up (`NO_ENDPOINT`) nothing is sent
+  either. Each refusal is logged as `register_report skipped reason=...` without the URL or the
+  endpoint. Wireless Debugging is never switched on and a cached address is not reused without
+  Wi-Fi.
+- **`KeepADBWebhookSync`:** the one enable and disable path for automatic synchronization, used by
+  the settings form and by the widgets' switch (`setAutomaticSync`). The widget switch asks for a
+  target state (never a flip), needs a valid saved URL (without one nothing changes and nothing
+  is sent: `NEEDS_SETUP`), keeps the opt-out DELETE and refreshes the app, the notification and
+  every widget.
+- **`KeepADBWidgetState.Webhook.reportNow`:** needs setup, sync off, no endpoint or ready, in the
+  order the action checks, so a widget offers the setup, the switch, nothing or the report.
+- **PendingIntents for #912 and #913 (`KeepADBWebhookActions`):** "Report now", enable and disable
+  of the synchronization (`ACTION_WEBHOOK_SYNC_ENABLE` and `_DISABLE`) and the setup. Explicit and
+  immutable; the broadcasts go to the non-exported receiver and are not in its intent filter. No
+  widget uses them yet.
+
+### Fixed
+- **A widget's opt-out could lose its DELETE to process death (#911, Codex review):** switching
+  synchronization off turns the preference off at once and sends the DELETE asynchronously, but the
+  receiver returned immediately, so with no service or screen alive the process could be stopped
+  with the DELETE still queued. The widget actions now keep their broadcast open (`goAsync`) until
+  the DELETE has been attempted, bounded by the same hold limit as "Report now" and finished only
+  once. Enabling holds it until the work queued behind it has run; a freshly started process that
+  still has to discover its endpoint is not awaited, and its report is sent by the next normal
+  synchronization trigger.
+- **Limits, stated rather than hidden:** if the process dies mid-DELETE, the hold limit passes or
+  the request fails, the registration may remain at the receiver until the user taps "off" again;
+  the app never sends a withdrawal on its own at start or on a timer. That retry withdraws the
+  report record only while it names the URL saved now; a record of a replaced or cleared URL is not
+  retried from there. Like every opt-out, the retry also flushes withdrawals already queued for
+  earlier URLs whose DELETE failed (the existing pending-cleanup list): those are registrations the
+  app itself made and still owes a withdrawal for.
+
+### Changed
+- **The alert's "Report now" needs Wi-Fi:** like the widgets, it reports only while Wi-Fi is up and
+  a valid URL is saved; before, it could send a cached endpoint without Wi-Fi.
+
+### Documentation
+- `docs/webhook-register.md` describes "Report now" (a push of an enabled synchronization, nothing
+  with it off) and the widgets' switch, including the actual order of an opt-out (preference off at
+  once, asynchronous DELETE) and what remains after a failure or a process death, without assuming
+  any receiver behavior.
+
+### Testing
+- `KeepADBWebhookWithdrawalTest`: the disable and enable broadcasts stay open (real pending result)
+  until the DELETE or the queued report is out, a hung DELETE is released by the hold limit and only
+  once, a cold-start enable ends after the refresh and the next trigger reports; an outstanding
+  withdrawal is never sent on its own (not at the application start, not by any trigger or time),
+  "off" again retries it only while the record names the saved URL, and a replaced or cleared URL
+  leaves the old destination alone.
+- `KeepADBReportNowTest`, `KeepADBWebhookActionsTest`, `KeepADBWebhookSyncTest` and
+  `KeepADBWidgetStateReportNowTest`: with synchronization off a tap sends nothing and changes no
+  preference, also for repeated taps and hours later; with it on a tap reports at once, joins a
+  running POST, sends a waiting retry instead of adding a request, drops a waiting debounced
+  resync, never sends in parallel (also for two widgets) and leaves a failure to the normal retry
+  flow; a missing or invalid URL, a missing endpoint and Wi-Fi down send nothing; an untrusted
+  network does not stop the report; the projection and a tap agree; the PendingIntents are explicit
+  and immutable and the actions are not in the manifest.
+
 ## [1.11.6] - Unreleased
 
 ### Added
