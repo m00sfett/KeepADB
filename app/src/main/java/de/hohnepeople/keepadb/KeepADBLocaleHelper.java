@@ -98,6 +98,8 @@ public final class KeepADBLocaleHelper {
         }
 
         KeepADBPreferences.setAppLanguage(activity, safeTag);
+        // The placed widgets are drawn in the language chosen here; redraw them now (#912).
+        KeepADBWidget.refreshAllState(activity);
         activity.recreate();
     }
 

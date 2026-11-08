@@ -71,6 +71,12 @@ public class KeepADBWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+        if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
+            // The system language changed while the widgets were drawn in the old one (#912).
+            // Draw only; nothing is sent and no discovery starts.
+            refreshAllState(context);
+            return;
+        }
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");

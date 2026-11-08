@@ -66,6 +66,14 @@ are retrospective issue-version records and were never published as separate rel
   a widget is placed and no job is pending (idempotent, no network). Remaining limit: between a
   force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
+### Fixed
+- **The widget did not redraw after a language change (#912):** a system language change
+  (`ACTION_LOCALE_CHANGED`, now in the widget receiver's filter), the in-app language below
+  Android 13 (`KeepADBLocaleHelper.setAppLanguage`) and a language or font scale change of a running
+  process (`KeepADBApplication.onConfigurationChanged`, which is how the in-app language arrives on
+  Android 13+) redraw the placed widgets from the read-only projection. Nothing is sent and no
+  discovery starts.
+
 ### Changed
 - **Rendering is read-only:** `KeepADBWidget.refreshAll` no longer asks the endpoint coordinator
   for a refresh once per widget; every caller already refreshes the coordinator itself. Resizing

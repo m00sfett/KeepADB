@@ -113,6 +113,8 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="de.hohnepeople.keepadb.TOGGLE" />
+                <!-- #912: a system language change redraws the placed widgets in the new language. -->
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

@@ -264,6 +264,61 @@ public class KeepADBWidgetLifecycleTest {
         }
     }
 
+    // -- a language change redraws the widgets ------------------------------------------------------
+
+    /** After a language change the widget used to keep its old words until something else drew it. */
+    @Test
+    public void aSystemLanguageChangeRedrawsThePlacedWidgetsWithoutSendingAnything() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+        String before = KeepADBWidgetTestSupport.allText(widgets.getViewFor(id));
+        assertTrue(before, before.contains("Connected"));
+        transport.recordedRequests.clear();
+
+        org.robolectric.RuntimeEnvironment.setQualifiers("+de");
+        Context german = ApplicationProvider.getApplicationContext();
+        new KeepADBWidget().onReceive(german, new Intent(Intent.ACTION_LOCALE_CHANGED));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        String after = KeepADBWidgetTestSupport.allText(widgets.getViewFor(id));
+        assertTrue(after, after.contains("Verbunden"));
+        assertFalse(after, after.contains("Connected"));
+        assertEquals("redrawing sent nothing", 0, transport.getRequestCount());
+        assertFalse(KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
+    }
+
+    @Test
+    public void aConfigurationChangeOfALiveProcessRedrawsOnlyWhenLanguageOrFontScaleChanged() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBApplication app = (KeepADBApplication) context;
+        app.onCreate(); // remembers the current configuration
+        assertTrue(KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("Connected"));
+
+        org.robolectric.RuntimeEnvironment.setQualifiers("+de");
+        android.content.res.Configuration german = new android.content.res.Configuration(
+                context.getResources().getConfiguration());
+        app.onConfigurationChanged(german);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue("the in-app language (Android 13+) arrives as a configuration change",
+                KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("Verbunden"));
+
+        // Nothing relevant changed: no redraw (the widget keeps what it shows).
+        gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        app.onConfigurationChanged(german);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue(KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("Verbunden"));
+
+        // A font scale change is one: the layout follows it.
+        android.content.res.Configuration bigger = new android.content.res.Configuration(german);
+        bigger.fontScale = 1.3f;
+        app.onConfigurationChanged(bigger);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue(KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("Aus"));
+    }
+
     // -- staying in step while nothing of the app runs ---------------------------------------------
 
     private android.app.job.JobScheduler jobs() {

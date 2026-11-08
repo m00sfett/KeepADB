@@ -116,6 +116,21 @@ public class KeepADBWidgetApi30Test {
                 !KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("41873"));
     }
 
+    /** Below Android 13 the in-app language is a preference; choosing it must redraw the widgets. */
+    @Test
+    public void choosingTheAppLanguageRedrawsThePlacedWidgets() {
+        assertTrue(KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("Off"));
+
+        android.app.Activity activity = org.robolectric.Robolectric.buildActivity(
+                android.app.Activity.class).create().get();
+        KeepADBLocaleHelper.setAppLanguage(activity, "de");
+        shadowOf(Looper.getMainLooper()).idle();
+
+        String text = KeepADBWidgetTestSupport.allText(widgets.getViewFor(id));
+        assertTrue(text, text.contains("Aus"));
+        assertTrue(text, !text.contains("Off"));
+    }
+
     @Test
     public void android11KeepsTheConfigurationScreenAtPlacement() throws Exception {
         android.content.res.XmlResourceParser parser = context.getResources().getXml(R.xml.widget_info);
