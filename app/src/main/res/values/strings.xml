@@ -87,8 +87,12 @@
     <string name="location_permission_panel_body_discovery">Location access is needed to identify the current Wi-Fi network and access points.</string>
     <string name="location_permission_settings_button">Open settings</string>
     <string name="action_settings">Settings</string>
-    <string name="privacy_toggle_enable_accessibility">Enable privacy mode (hide network addresses)</string>
-    <string name="privacy_toggle_disable_accessibility">Disable privacy mode (show network addresses)</string>
+    <string name="privacy_menu_show_screen">Show on this screen</string>
+    <string name="privacy_menu_hide_screen">Hide on this screen</string>
+    <string name="privacy_eye_masked_accessibility">Privacy options. Details are hidden on this screen.</string>
+    <string name="privacy_eye_shown_accessibility">Privacy options. Details are shown on this screen.</string>
+    <string name="menu_item_state_on">On</string>
+    <string name="menu_item_state_off">Off</string>
     <string name="privacy_switches_title">Privacy</string>
     <string name="privacy_switches_hint">Optional, all off by default. Each switch hides Wi-Fi names, addresses and ports in its own area only.</string>
     <string name="privacy_app_title">Hide in the app</string>

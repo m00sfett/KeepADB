@@ -56,8 +56,12 @@
     <string name="notification_permission_settings_button">打开通知设置</string>
     <string name="notification_permission_missing_text">请在电脑上通过 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 权限</string>
     <string name="action_settings">设置</string>
-    <string name="privacy_toggle_enable_accessibility">启用隐私模式（隐藏网络地址）</string>
-    <string name="privacy_toggle_disable_accessibility">关闭隐私模式（显示网络地址）</string>
+    <string name="privacy_menu_show_screen">在此屏幕上显示</string>
+    <string name="privacy_menu_hide_screen">在此屏幕上隐藏</string>
+    <string name="privacy_eye_masked_accessibility">隐私选项。此屏幕上的详细信息已隐藏。</string>
+    <string name="privacy_eye_shown_accessibility">隐私选项。此屏幕上的详细信息已显示。</string>
+    <string name="menu_item_state_on">开</string>
+    <string name="menu_item_state_off">关</string>
     <string name="privacy_switches_title">隐私</string>
     <string name="privacy_switches_hint">可选，默认全部关闭。每个开关只在各自的范围内隐藏 Wi-Fi 名称、地址和端口。</string>
     <string name="privacy_app_title">在应用内隐藏</string>

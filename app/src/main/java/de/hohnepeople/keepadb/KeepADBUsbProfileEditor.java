@@ -145,9 +145,14 @@ final class KeepADBUsbProfileEditor {
      * a new profile hold nothing to hide and stay.
      */
     void onScreenStopped() {
-        if (!KeepADBPreferences.isAppPrivacyEnabled(activity)) return;
+        // Nothing on this screen is masked by default (switch off, no "Hide on this screen"), so
+        // nothing was revealed either.
+        if (!KeepADBPrivacy.isScreenMasked(activity)
+                && !KeepADBPreferences.isAppPrivacyEnabled(activity)) {
+            return;
+        }
         if (activeSwitchDialog != null
-                && KeepADBPrivacy.isRevealed(activity, KeepADBPrivacy.SCOPE_USB)) {
+                && !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB)) {
             activeSwitchDialog.dismiss();
         }
         if (activeEditDialog != null && activeEditId != null) {

@@ -56,8 +56,12 @@
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
     <string name="action_settings">Pengaturan</string>
-    <string name="privacy_toggle_enable_accessibility">Aktifkan mode privasi (sembunyikan alamat jaringan)</string>
-    <string name="privacy_toggle_disable_accessibility">Nonaktifkan mode privasi (tampilkan alamat jaringan)</string>
+    <string name="privacy_menu_show_screen">Tampilkan di layar ini</string>
+    <string name="privacy_menu_hide_screen">Sembunyikan di layar ini</string>
+    <string name="privacy_eye_masked_accessibility">Opsi privasi. Detail disembunyikan di layar ini.</string>
+    <string name="privacy_eye_shown_accessibility">Opsi privasi. Detail ditampilkan di layar ini.</string>
+    <string name="menu_item_state_on">Aktif</string>
+    <string name="menu_item_state_off">Nonaktif</string>
     <string name="privacy_switches_title">Privasi</string>
     <string name="privacy_switches_hint">Opsional, semuanya nonaktif secara default. Setiap sakelar hanya menyembunyikan nama Wi-Fi, alamat, dan port di areanya sendiri.</string>
     <string name="privacy_app_title">Sembunyikan di aplikasi</string>

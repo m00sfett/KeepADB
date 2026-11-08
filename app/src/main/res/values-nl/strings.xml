@@ -56,8 +56,12 @@
     <string name="notification_permission_settings_button">Meldingsinstellingen openen</string>
     <string name="notification_permission_missing_text">Verleen WRITE_SECURE_SETTINGS vanaf de pc via adb shell pm grant</string>
     <string name="action_settings">Instellingen</string>
-    <string name="privacy_toggle_enable_accessibility">Privacymodus inschakelen (netwerkadressen verbergen)</string>
-    <string name="privacy_toggle_disable_accessibility">Privacymodus uitschakelen (netwerkadressen tonen)</string>
+    <string name="privacy_menu_show_screen">Tonen op dit scherm</string>
+    <string name="privacy_menu_hide_screen">Verbergen op dit scherm</string>
+    <string name="privacy_eye_masked_accessibility">Privacyopties. Details zijn verborgen op dit scherm.</string>
+    <string name="privacy_eye_shown_accessibility">Privacyopties. Details worden getoond op dit scherm.</string>
+    <string name="menu_item_state_on">Aan</string>
+    <string name="menu_item_state_off">Uit</string>
     <string name="privacy_switches_title">Privacy</string>
     <string name="privacy_switches_hint">Optioneel, standaard staat alles uit. Elke schakelaar verbergt wifi-namen, adressen en poorten alleen in zijn eigen gebied.</string>
     <string name="privacy_app_title">Verbergen in de app</string>

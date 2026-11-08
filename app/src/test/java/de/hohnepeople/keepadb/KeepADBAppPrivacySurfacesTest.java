@@ -350,8 +350,8 @@ public class KeepADBAppPrivacySurfacesTest {
         // Focus arrives while the field is masked (a keyboard, a focus search), then Settings redraws.
         field.setVisibility(View.VISIBLE);
         field.requestFocus();
-        activity.findViewById(R.id.btn_toggle_privacy_mode).performClick(); // off
-        activity.findViewById(R.id.btn_toggle_privacy_mode).performClick(); // on again
+        KeepADBEyeMenuTestSupport.choose(activity, KeepADBPrivacyToggle.ITEM_APP); // off
+        KeepADBEyeMenuTestSupport.choose(activity, KeepADBPrivacyToggle.ITEM_APP); // on again
         ShadowLooper.idleMainLooper();
 
         assertEquals(View.GONE, field.getVisibility());
@@ -427,6 +427,29 @@ public class KeepADBAppPrivacySurfacesTest {
         ShadowLooper.idleMainLooper();
 
         assertEquals("the revealed list is closed", null, activity.getActiveSwitchProfileDialog());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void aUsbListOpenedUnderShowOnThisScreenIsClosedWhenTheScreenStops() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        KeepADBPrivacy.setScreenMasked(activity, false); // eye menu: "Show on this screen"
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("Control: the list is unmasked",
+                visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView())
+                        .contains(PROFILE));
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("the unmasked list is closed", null, activity.getActiveSwitchProfileDialog());
         controller.pause().stop().destroy();
     }
 

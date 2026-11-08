@@ -84,8 +84,12 @@
     <string name="location_permission_settings_button">Einstellungen öffnen</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="privacy_toggle_enable_accessibility">Privatsphäre-Modus aktivieren (Netzwerkadressen ausblenden)</string>
-    <string name="privacy_toggle_disable_accessibility">Privatsphäre-Modus deaktivieren (Netzwerkadressen anzeigen)</string>
+    <string name="privacy_menu_show_screen">Auf diesem Bildschirm anzeigen</string>
+    <string name="privacy_menu_hide_screen">Auf diesem Bildschirm ausblenden</string>
+    <string name="privacy_eye_masked_accessibility">Privatsphäre-Optionen. Details sind auf diesem Bildschirm ausgeblendet.</string>
+    <string name="privacy_eye_shown_accessibility">Privatsphäre-Optionen. Details werden auf diesem Bildschirm angezeigt.</string>
+    <string name="menu_item_state_on">An</string>
+    <string name="menu_item_state_off">Aus</string>
     <string name="privacy_switches_title">Privatsphäre</string>
     <string name="privacy_switches_hint">Optional, alles standardmäßig aus. Jeder Schalter blendet WLAN-Namen, Adressen und Ports nur in seinem eigenen Bereich aus.</string>
     <string name="privacy_app_title">In der App ausblenden</string>

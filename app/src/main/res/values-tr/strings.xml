@@ -56,8 +56,12 @@
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
     <string name="notification_permission_missing_text">adb shell pm grant aracılığıyla PC’den WRITE_SECURE_SETTINGS izni verin</string>
     <string name="action_settings">Ayarlar</string>
-    <string name="privacy_toggle_enable_accessibility">Gizlilik modunu etkinleştir (ağ adreslerini gizle)</string>
-    <string name="privacy_toggle_disable_accessibility">Gizlilik modunu devre dışı bırak (ağ adreslerini göster)</string>
+    <string name="privacy_menu_show_screen">Bu ekranda göster</string>
+    <string name="privacy_menu_hide_screen">Bu ekranda gizle</string>
+    <string name="privacy_eye_masked_accessibility">Gizlilik seçenekleri. Ayrıntılar bu ekranda gizli.</string>
+    <string name="privacy_eye_shown_accessibility">Gizlilik seçenekleri. Ayrıntılar bu ekranda gösteriliyor.</string>
+    <string name="menu_item_state_on">Açık</string>
+    <string name="menu_item_state_off">Kapalı</string>
     <string name="privacy_switches_title">Gizlilik</string>
     <string name="privacy_switches_hint">İsteğe bağlı, varsayılan olarak hepsi kapalı. Her anahtar Wi-Fi adlarını, adresleri ve bağlantı noktalarını yalnızca kendi alanında gizler.</string>
     <string name="privacy_app_title">Uygulamada gizle</string>

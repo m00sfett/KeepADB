@@ -56,8 +56,12 @@
     <string name="notification_permission_settings_button">Abrir definições de notificações</string>
     <string name="notification_permission_missing_text">Conceda WRITE_SECURE_SETTINGS no PC via adb shell pm grant</string>
     <string name="action_settings">Configurações</string>
-    <string name="privacy_toggle_enable_accessibility">Ativar modo de privacidade (ocultar endereços de rede)</string>
-    <string name="privacy_toggle_disable_accessibility">Desativar modo de privacidade (mostrar endereços de rede)</string>
+    <string name="privacy_menu_show_screen">Mostrar nesta tela</string>
+    <string name="privacy_menu_hide_screen">Ocultar nesta tela</string>
+    <string name="privacy_eye_masked_accessibility">Opções de privacidade. Os detalhes estão ocultos nesta tela.</string>
+    <string name="privacy_eye_shown_accessibility">Opções de privacidade. Os detalhes são exibidos nesta tela.</string>
+    <string name="menu_item_state_on">Ativado</string>
+    <string name="menu_item_state_off">Desativado</string>
     <string name="privacy_switches_title">Privacidade</string>
     <string name="privacy_switches_hint">Opcional, tudo desativado por predefinição. Cada interruptor oculta nomes Wi-Fi, endereços e portas apenas na sua própria área.</string>
     <string name="privacy_app_title">Ocultar na app</string>

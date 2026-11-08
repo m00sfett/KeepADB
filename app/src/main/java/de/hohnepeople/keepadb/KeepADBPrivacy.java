@@ -33,6 +33,14 @@ import java.util.WeakHashMap;
  *       turns the switch on again, and it never changes the stored switch.</li>
  * </ul>
  *
+ * <p>On top of that the eye menu ({@link KeepADBPrivacyToggle}) sets a <b>screen override</b>
+ * (Q9/Q13 of the PR #917 review): "Show on this screen" unmasks every part of the screen,
+ * "Hide on this screen" masks every part even while the switch is off. Like a scope reveal it
+ * ends when the screen stops or is recreated, when the assistant changes its page, or when one of
+ * the switches is changed; it never changes the stored switch. A "Show" of a part still works
+ * under a "Hide on this screen". A diagnostics export ignores "Show on this screen": it is
+ * redacted whenever the switch is on or the screen is hidden ({@link #isExportRedacted}).
+ *
  * <p>Notifications and widgets (and the tile) have no "Show": they read their own switch.
  */
 final class KeepADBPrivacy {
@@ -49,18 +57,21 @@ final class KeepADBPrivacy {
 
     private static final Map<Activity, Set<String>> REVEALED =
             Collections.synchronizedMap(new WeakHashMap<>());
+    /** Screen override of the eye menu: TRUE = hidden on this screen, FALSE = shown on it. */
+    private static final Map<Activity, Boolean> SCREEN_OVERRIDE =
+            Collections.synchronizedMap(new WeakHashMap<>());
 
     /** Ends every reveal of a screen that stops; registered once by the application. */
     static final Application.ActivityLifecycleCallbacks LIFECYCLE =
             new Application.ActivityLifecycleCallbacks() {
                 @Override
                 public void onActivityStopped(Activity activity) {
-                    REVEALED.remove(activity);
+                    concealAll(activity);
                 }
 
                 @Override
                 public void onActivityDestroyed(Activity activity) {
-                    REVEALED.remove(activity);
+                    concealAll(activity);
                 }
 
                 @Override
@@ -97,10 +108,42 @@ final class KeepADBPrivacy {
      * that scope. A plain context (eye-only surface, service) only has the switch.
      */
     static boolean isAppMasked(Context context) {
-        if (context == null || !KeepADBPreferences.isAppPrivacyEnabled(context)) return false;
+        if (context == null) return false;
+        Activity screen = screenOf(context);
+        if (!isScreenMasked(context, screen)) return false;
         ScopedContext scoped = scopedOf(context);
         if (scoped == null) return true;
-        return !isRevealed((Activity) scoped.getBaseContext(), scoped.scope);
+        return !isRevealed(screen, scoped.scope);
+    }
+
+    /**
+     * Whether {@code screen} masks before any "Show" of a part: its eye-menu override if it has
+     * one, otherwise the stored app switch. This is what the eye icon shows (Q12).
+     */
+    static boolean isScreenMasked(Activity screen) {
+        return isScreenMasked(screen, screen);
+    }
+
+    private static boolean isScreenMasked(Context context, Activity screen) {
+        Boolean override = screen == null ? null : SCREEN_OVERRIDE.get(screen);
+        if (override != null) return override;
+        return KeepADBPreferences.isAppPrivacyEnabled(context);
+    }
+
+    /** Sets the eye-menu override of {@code screen}: masked or shown until the screen ends. */
+    static void setScreenMasked(Activity screen, boolean masked) {
+        if (screen == null) return;
+        SCREEN_OVERRIDE.put(screen, masked);
+    }
+
+    /**
+     * Whether something that leaves the app from {@code screen} (the diagnostics share) must be
+     * redacted: the stored switch is on or the screen is hidden. "Show on this screen" is about
+     * reading on the display and does not unredact an export.
+     */
+    static boolean isExportRedacted(Activity screen) {
+        return KeepADBPreferences.isAppPrivacyEnabled(screen)
+                || Boolean.TRUE.equals(SCREEN_OVERRIDE.get(screen));
     }
 
     /** {@link #isAppMasked} for a reveal scope of {@code screen}. */
@@ -119,7 +162,7 @@ final class KeepADBPrivacy {
 
     /** Lifts the mask of {@code scope} on {@code screen}; the caller redraws that part. */
     static void reveal(Activity screen, String scope) {
-        if (screen == null || !KeepADBPreferences.isAppPrivacyEnabled(screen)) return;
+        if (screen == null || !isScreenMasked(screen)) return;
         synchronized (REVEALED) {
             Set<String> scopes = REVEALED.get(screen);
             if (scopes == null) {
@@ -141,9 +184,14 @@ final class KeepADBPrivacy {
         }
     }
 
-    /** Masks every scope of {@code screen} again (the switch was turned on, or the page changed). */
+    /**
+     * Ends every reveal of {@code screen} and its eye-menu override (a switch changed, the page
+     * changed, or the screen stopped).
+     */
     static void concealAll(Activity screen) {
-        if (screen != null) REVEALED.remove(screen);
+        if (screen == null) return;
+        REVEALED.remove(screen);
+        SCREEN_OVERRIDE.remove(screen);
     }
 
     /** Whether the user chose "Show" for {@code scope} on {@code screen} and it still holds. */
