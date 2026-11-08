@@ -15,8 +15,8 @@ import de.hohnepeople.keepadb.KeepADBWidgetLayout.SizeClass;
 
 /**
  * #912: the layout follows the actual size and the font scale. The thresholds grow with the scale
- * ({@code wide4 = w >= 250 fs}, {@code wide2 = w >= 140 fs}, {@code tall = h >= 145 fs}); in a
- * short widget the hero gets as many square buttons as fit beside 76 dp of room for it.
+ * ({@code wide4 = w >= 250 fs}, {@code wide2 = w >= 136 fs}, {@code tall = h >= 135 fs}); in a
+ * short widget the hero gets as many square buttons as fit beside 70 dp of room for it.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -43,75 +43,82 @@ public class KeepADBWidgetLayoutTest {
 
     @Test
     public void aLargerFontFallsBackToASmallerClass() {
-        // Font 1.3 (the matrix rows): the thresholds are 182 / 325 dp wide and 189 dp high, and one
-        // square button needs 171 dp, two need 228 dp.
+        // Font 1.3 (the matrix rows): the thresholds are 177 / 325 dp wide and 176 dp high, one
+        // square button needs 158 dp, two need 215 dp.
         assertEquals("2x2 falls back to the stack", SizeClass.STACK, cell(152, 196, 1.3f));
         assertEquals("4x1 keeps the hero and two square buttons", SizeClass.ROW2, cell(304, 92, 1.3f));
         assertEquals("2x1 keeps only the hero, with its port", SizeClass.HERO, cell(152, 92, 1.3f));
         assertEquals(SizeClass.ONE, cell(72, 92, 1.3f));
         assertEquals("4x2 falls back to the grid", SizeClass.GRID, cell(304, 196, 1.3f));
-        assertEquals(SizeClass.PANEL, cell(325, 189, 1.3f));
-        assertEquals(SizeClass.GRID, cell(182, 189, 1.3f));
-        assertEquals(SizeClass.STRIP, cell(325, 188, 1.3f));
-        // Font 2.0: the grid needs 280 x 290 dp, the strip 500 dp.
+        assertEquals(SizeClass.PANEL, cell(325, 176, 1.3f));
+        assertEquals(SizeClass.GRID, cell(177, 176, 1.3f));
+        assertEquals(SizeClass.STRIP, cell(325, 175, 1.3f));
+        // Font 2.0: the grid needs 272 x 270 dp, the strip 500 dp, one square button 207 dp.
         assertEquals(SizeClass.HERO, cell(152, 196, 2f));
         assertEquals(SizeClass.ROW2, cell(304, 92, 2f));
         assertEquals(SizeClass.STRIP, cell(500, 92, 2f));
-        assertEquals(SizeClass.PANEL, cell(500, 290, 2f));
-        assertEquals(SizeClass.STACK, cell(152, 290, 2f));
-        assertEquals(SizeClass.GRID, cell(280, 290, 2f));
+        assertEquals(SizeClass.PANEL, cell(500, 270, 2f));
+        assertEquals(SizeClass.STACK, cell(152, 270, 2f));
+        assertEquals(SizeClass.GRID, cell(272, 270, 2f));
     }
 
     @Test
     public void tallAndNarrowArrangementsHaveTheirOwnLayouts() {
-        assertEquals("narrow and tall: the hero over two square buttons", SizeClass.STACK, cell(114, 145, 1f));
+        assertEquals("narrow and tall: the hero over two square buttons", SizeClass.STACK, cell(114, 135, 1f));
+        assertEquals("below 114 dp the two square buttons would be under 48 dp", SizeClass.ONE, cell(113, 135, 1f));
         assertEquals(SizeClass.ONE, cell(109, 400, 1f));
-        assertEquals(SizeClass.GRID, cell(140, 145, 1f));
-        assertEquals(SizeClass.STACK, cell(139, 145, 1f));
-        assertEquals("below 114 dp the two square buttons would be under 48 dp", SizeClass.ONE, cell(113, 145, 1f));
-        assertEquals("tall but not wide: the compact classes", SizeClass.ROW1, cell(150, 144, 1f));
+        assertEquals(SizeClass.GRID, cell(136, 135, 1f));
+        assertEquals(SizeClass.STACK, cell(135, 135, 1f));
+        assertEquals("tall but not wide: the compact classes", SizeClass.ROW1, cell(150, 134, 1f));
     }
 
     @Test
     public void everyThresholdIsExactlyItsBoundary() {
-        // The hero shows its port from 140 dp; narrower it is the 1x1 shape.
-        assertEquals(SizeClass.ONE, cell(139, 100, 1f));
-        assertEquals(SizeClass.HERO, cell(140, 100, 1f));
-        assertEquals(SizeClass.HERO, cell(142, 100, 1f));
-        // One square button needs 10 + 76 + 57 = 143 dp, two need 200 dp.
-        assertEquals(SizeClass.ROW1, cell(143, 100, 1f));
-        assertEquals(SizeClass.ROW1, cell(199, 100, 1f));
-        assertEquals(SizeClass.ROW2, cell(200, 100, 1f));
+        // The hero shows its port from 130 dp; narrower it is the 1x1 shape.
+        assertEquals(SizeClass.ONE, cell(129, 100, 1f));
+        assertEquals(SizeClass.HERO, cell(130, 100, 1f));
+        assertEquals(SizeClass.HERO, cell(136, 100, 1f));
+        // One square button needs 10 + 70 + 57 = 137 dp, two need 194 dp.
+        assertEquals(SizeClass.ROW1, cell(137, 100, 1f));
+        assertEquals(SizeClass.ROW1, cell(193, 100, 1f));
+        assertEquals(SizeClass.ROW2, cell(194, 100, 1f));
         assertEquals(SizeClass.ROW2, cell(249, 100, 1f));
         assertEquals(SizeClass.STRIP, cell(250, 100, 1f));
-        assertEquals(SizeClass.STRIP, cell(250, 144, 1f));
-        assertEquals(SizeClass.PANEL, cell(250, 145, 1f));
-        assertEquals(SizeClass.GRID, cell(249, 145, 1f));
+        assertEquals(SizeClass.STRIP, cell(250, 134, 1f));
+        assertEquals(SizeClass.PANEL, cell(250, 135, 1f));
+        assertEquals(SizeClass.GRID, cell(249, 135, 1f));
     }
 
     /**
-     * What the Pixel launcher (API 34) reports for one to four cells: 68, 144, 220 and 296 dp wide,
-     * 89 and 193 dp high (measured on the emulator, #912 round 3). The matrix's 152 dp for two cells
-     * was too generous, which would have left the 2x1 widget without its square button.
+     * What the launchers report for one to four cells (portrait: minimum width, maximum height),
+     * measured on the emulators (#912 round 3). Android 14 (Pixel Launcher): 68, 144, 220, 296 dp
+     * wide, 89 and 193 dp high. Android 11: 60, 137, 214, 291 dp wide, 80 and 176 dp high. The
+     * matrix's 152 and 196 dp were more generous than either.
      */
     @Test
-    public void theSizesARealLauncherReportsSelectTheIntendedClasses() {
-        assertEquals("1x1", SizeClass.ONE, cell(68, 89, 1f));
-        assertEquals("2x1", SizeClass.ROW1, cell(144, 89, 1f));
-        assertEquals("3x1", SizeClass.ROW2, cell(220, 89, 1f));
-        assertEquals("4x1", SizeClass.STRIP, cell(296, 89, 1f));
-        assertEquals("1x2", SizeClass.ONE, cell(68, 193, 1f));
-        assertEquals("2x2", SizeClass.GRID, cell(144, 193, 1f));
-        assertEquals("4x2", SizeClass.PANEL, cell(296, 193, 1f));
-        // Font 1.3: 2x2 is the stack, 2x1 only the hero, 4x1 the hero and two square buttons.
-        assertEquals(SizeClass.STACK, cell(144, 193, 1.3f));
-        assertEquals(SizeClass.HERO, cell(144, 89, 1.3f));
-        assertEquals(SizeClass.ROW2, cell(296, 89, 1.3f));
-        assertEquals(SizeClass.GRID, cell(296, 193, 1.3f));
-        // Font 2.0: the hero alone in a 2x2 and a 2x1, the hero with two buttons in a 4x1.
-        assertEquals(SizeClass.HERO, cell(144, 193, 2f));
-        assertEquals(SizeClass.HERO, cell(144, 89, 2f));
-        assertEquals(SizeClass.ROW2, cell(296, 89, 2f));
+    public void theSizesRealLaunchersReportSelectTheIntendedClasses() {
+        int[][] launchers = {
+                {68, 144, 220, 296, 89, 193},
+                {60, 137, 214, 291, 80, 176}};
+        for (int[] l : launchers) {
+            String which = "cells " + l[1];
+            assertEquals(which + " 1x1", SizeClass.ONE, cell(l[0], l[4], 1f));
+            assertEquals(which + " 2x1", SizeClass.ROW1, cell(l[1], l[4], 1f));
+            assertEquals(which + " 3x1", SizeClass.ROW2, cell(l[2], l[4], 1f));
+            assertEquals(which + " 4x1", SizeClass.STRIP, cell(l[3], l[4], 1f));
+            assertEquals(which + " 1x2", SizeClass.ONE, cell(l[0], l[5], 1f));
+            assertEquals(which + " 2x2", SizeClass.GRID, cell(l[1], l[5], 1f));
+            assertEquals(which + " 4x2", SizeClass.PANEL, cell(l[3], l[5], 1f));
+            // Font 1.3: 2x2 is the stack, 2x1 only the hero, 4x1 the hero and two square buttons.
+            assertEquals(which + " 2x2 @1.3", SizeClass.STACK, cell(l[1], l[5], 1.3f));
+            assertEquals(which + " 2x1 @1.3", SizeClass.HERO, cell(l[1], l[4], 1.3f));
+            assertEquals(which + " 4x1 @1.3", SizeClass.ROW2, cell(l[3], l[4], 1.3f));
+            assertEquals(which + " 4x2 @1.3", SizeClass.GRID, cell(l[3], l[5], 1.3f));
+            // Font 2.0: the hero alone in a 2x2 and a 2x1, the hero with two buttons in a 4x1.
+            assertEquals(which + " 2x2 @2", SizeClass.HERO, cell(l[1], l[5], 2f));
+            assertEquals(which + " 2x1 @2", SizeClass.HERO, cell(l[1], l[4], 2f));
+            assertEquals(which + " 4x1 @2", SizeClass.ROW2, cell(l[3], l[4], 2f));
+        }
     }
 
     @Test

@@ -42,8 +42,8 @@ wraps. TalkBack reads "name: state, port N" from the control's description, in f
 ## Sizes
 
 The layout follows the size the launcher reports (and, on Android 12 and newer, the launcher picks
-it while the user resizes). With the font scale `fs`: wide = 250 dp x `fs`, medium = 140 dp x `fs`,
-tall = 145 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
+it while the user resizes). With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`,
+tall = 135 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
 layout with fewer, still readable controls. The hero is in every class:
 
 | About | Class | Shows |
@@ -55,13 +55,15 @@ layout with fewer, still readable controls. The hero is in every class:
 | 2x2 (medium and tall) | `GRID` | the hero (symbol, label, large port) and two 48 dp pills under it |
 | 4x2 (wide and tall) | `PANEL` | the hero over two rows on the left, two pills growing with the height on the right, and under them one status line with the settings gear |
 | tall, narrower than medium | `STACK` | the hero on top, two square buttons below (needs 114 dp) |
-| short, under 140 dp | `ONE`; from 140 dp `HERO` | the hero alone (with its port from 140 dp) |
+| short, under 130 dp | `ONE`; from 130 dp `HERO` | the hero alone (with its port from 130 dp) |
 
-In a short widget the hero gets as many square buttons (at most two) as fit beside 76 dp x `fs` of
-room for it. Examples: at font 1.3 a 2x2 is the stack, a 2x1 only the hero, a 4x1 the hero with two
+In a short widget the hero gets as many square buttons (at most two) as fit beside 70 dp x `fs` of
+room for it. The launchers report less than the cell grid suggests (two cells: 144 dp on Android 14, 137 dp on
+Android 11; two rows: 193 and 176 dp), so the thresholds sit a little below the round numbers.
+Examples: at font 1.3 a 2x2 is the stack, a 2x1 only the hero, a 4x1 the hero with two
 square buttons; at font 2.0 a 2x2 is only the hero.
 
-The **port** is shown in the hero from the compact shape (140 dp) up, never in the smallest one
+The **port** is shown in the hero from the compact shape (130 dp) up, never in the smallest one
 (`ONE`); without a port the short or full state word stands there. While the widget privacy switch
 or the per-widget option withholds the details, five dots (`•••••`) stand where the port would be
 and the status line says "Details hidden".

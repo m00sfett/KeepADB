@@ -104,15 +104,20 @@ final class KeepADBWidgetLayout {
     static final int DEFAULT_WIDTH_DP = 152;
     static final int DEFAULT_HEIGHT_DP = 92;
 
-    /** Width from which two columns or four columns of controls fit, before the font scale. */
-    private static final float WIDE2_DP = 140f;
+    /**
+     * Width from which two columns or four columns of controls fit, before the font scale. The
+     * reference matrix says 140; the launchers report 137 (Android 11) and 144 (Android 14) dp for
+     * two cells, so 136 keeps a 2x2 a grid on both.
+     */
+    private static final float WIDE2_DP = 136f;
     private static final float WIDE4_DP = 250f;
     /**
      * Height from which a second row of controls fits, before the font scale. The reference
-     * matrix says 150; the Pixel launcher reports 193 dp for two rows, so 150 x 1.3 = 195 would turn
-     * a 2x2 at font 1.3 into a single row. 145 keeps it the stack (189 dp needed at 1.3).
+     * matrix says 150; the launchers report 176 (Android 11) and 193 (Android 14) dp for two rows,
+     * so 150 x 1.3 = 195 would turn a 2x2 at font 1.3 into a single row. 135 keeps it the stack
+     * (176 dp needed at 1.3).
      */
-    private static final float TALL_DP = 145f;
+    private static final float TALL_DP = 135f;
     /**
      * Narrow and tall: the hero over two square buttons needs this width, not scaled. 114 dp is
      * 10 (frame) + 5 (gap) + 2 x 48 plus one dp for pixel rounding: the two buttons stay at the 48 dp
@@ -120,19 +125,23 @@ final class KeepADBWidgetLayout {
      * matrix says 110; at 110 they would be 47.5 dp wide.)
      */
     private static final int STACK_MIN_DP = 114;
-    /** The hero alone shows its port from this width (below it the short label, see ONE). */
-    private static final int HERO_MIN_DP = 140;
+    /**
+     * The hero alone shows its port from this width (below it the short label, see ONE). 130 is
+     * below the 137 dp the Android 11 launcher reports for two cells (the matrix says 140).
+     */
+    private static final int HERO_MIN_DP = 130;
     /** A square symbol button, the gap, and the frame of the widget. */
     private static final int SQUARE_DP = 52;
     private static final int GAP_DP = 5;
     private static final int FRAME_DP = 10;
     /**
      * The hero keeps at least this much room (before the font scale) next to the square buttons.
-     * The reference matrix says 80; the Pixel launcher (API 34) reports 144 dp for two cells,
-     * not 152, so 80 would leave the 2x1 widget without its square button. With 76 a 2x1 (144 dp)
-     * has one and a 3x1 (220 dp) has two.
+     * The reference matrix says 80, which assumes 152 dp for two cells. The launchers report 137
+     * (Android 11) and 144 (Android 14) dp, so 80 would leave a 2x1 without its square button.
+     * With 70 a 2x1 has one (the port still fits: it shrinks to 10 sp before it is cut) and a 3x1
+     * (214 or 220 dp) has two.
      */
-    private static final float HERO_ROOM_DP = 76f;
+    private static final float HERO_ROOM_DP = 70f;
 
     private KeepADBWidgetLayout() {}
 
