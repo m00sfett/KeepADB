@@ -87,9 +87,9 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     + 4_000L;
 
     /**
-     * "Report now" from the webhook alert and (#911) from the widgets: one deliberate report of the
-     * current endpoint, see {@link KeepADBRegisterClient#reportNow}. Works with automatic
-     * synchronization off as well and never switches it on.
+     * "Report now" from the webhook alert and (#911) from the widgets: a manual push into the
+     * normal flow of an enabled synchronization, see {@link KeepADBRegisterClient#reportNow}. With
+     * synchronization off it does nothing, and it never switches it on.
      */
     static KeepADBRegisterClient.ReportNowResult handleReportNowAction(Context app,
             Runnable finishBroadcast) {

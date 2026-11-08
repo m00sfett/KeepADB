@@ -10,8 +10,9 @@ import android.content.Intent;
  * redirect or fill in one; the broadcasts go to the non-exported {@link KeepADBReceiver}.
  *
  * <p>Which control to offer comes from the shared state ({@link KeepADBWidgetState.Webhook}):
- * "Report now" when {@code reportNow} is {@code READY}, the setup when it is {@code NEEDS_SETUP}.
- * A widget never needs to guess: the receiver re-checks everything at the moment of the tap.
+ * "Report now" when {@code reportNow} is {@code READY}, the synchronization switch when it is
+ * {@code SYNC_OFF} and the setup when it is {@code NEEDS_SETUP}. A widget never needs to guess:
+ * the receiver re-checks everything at the moment of the tap.
  */
 final class KeepADBWebhookActions {
     // Distinct from the webhook alert's own requests (see KeepADBWebhookAlert), so a widget's
@@ -23,7 +24,7 @@ final class KeepADBWebhookActions {
 
     private KeepADBWebhookActions() {}
 
-    /** One deliberate report of the current endpoint; works with automatic sync off as well. */
+    /** A manual push of the current endpoint; does nothing while automatic sync is off. */
     static PendingIntent reportNow(Context context) {
         return broadcast(context, KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, REQUEST_CODE_REPORT_NOW);
     }

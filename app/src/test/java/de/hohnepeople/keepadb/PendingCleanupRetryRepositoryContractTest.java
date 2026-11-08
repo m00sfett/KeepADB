@@ -183,12 +183,8 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertEquals("the client books a failure in exactly one place", 1,
                 count(client, "PendingCleanupRetryRepository.recordFailure("));
         assertEquals("the client removes a record when it discards or drops an entry, and (#707) "
-                + "in the commit block for the entry a full backlog evicted, and (#911) in the "
-                + "commit block of the deliberate report for the entry its remembering evicted", 4,
+                + "in the commit block for the entry a full backlog evicted", 3,
                 count(client, "PendingCleanupRetryRepository.remove("));
-        assertTrue("the fourth one belongs to the deliberate report and nothing else",
-                bodyOf(client, "private static void completeOneShot(")
-                        .contains("PendingCleanupRetryRepository.remove(context, evicted)"));
         assertEquals("the client sweeps the records of dead entries in exactly one place (#707)", 1,
                 count(client, "PendingCleanupRetryRepository.removeOrphans("));
 
@@ -213,9 +209,8 @@ public class PendingCleanupRetryRepositoryContractTest {
     }
 
     /**
-     * The generation keeps its five increments: the four dispatching entry points (a report, the
-     * endpoint loss, an unregister and, since #911, the deliberate one-shot report) and the test
-     * seam. A sixth would be another place that decides which operation is current.
+     * The generation keeps its four increments: the three dispatching entry points and the test
+     * seam. A fifth would be another place that decides which operation is current.
      */
     @Test
     public void theClientStaysTheOnlyPlaceThatAdvancesTheGeneration() throws IOException {
@@ -223,11 +218,8 @@ public class PendingCleanupRetryRepositoryContractTest {
 
         assertEquals("one volatile generation field", 1,
                 count(client, "static volatile long currentOpGeneration"));
-        assertEquals("update, markUnavailable, unregister, the deliberate report (#911) and the "
-                + "test seam advance it", 5, count(client, "++currentOpGeneration"));
-        assertTrue("the fifth one is the start of the deliberate one-shot report",
-                bodyOf(client, "private static ReportNowResult startOneShot(")
-                        .contains("++currentOpGeneration"));
+        assertEquals("update, markUnavailable, unregister and the test seam advance it", 4,
+                count(client, "++currentOpGeneration"));
         assertEquals("a generation is only ever advanced; it is assigned only by its declaration "
                 + "and the test reset", 2, count(client, "currentOpGeneration = "));
     }

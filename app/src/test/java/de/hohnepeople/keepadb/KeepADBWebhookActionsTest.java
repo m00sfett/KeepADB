@@ -70,7 +70,6 @@ public class KeepADBWebhookActionsTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeout) -> true);
-        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> true);
         transport = new KeepADBFakeHttpTransport();
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
@@ -184,17 +183,44 @@ public class KeepADBWebhookActionsTest {
     // ---- Report now, tapped on a widget ------------------------------------------------------------
 
     @Test
-    public void aWidgetTapReportsOnceWithSyncOffAndLeavesItOff() {
+    public void aWidgetTapWithSyncOffSendsNothingAndLeavesItOff() {
+        tap(KeepADBWebhookActions.reportNow(context));
+        tap(KeepADBWebhookActions.reportNow(context));
+        settle();
+
+        assertEquals("report now is a push of an enabled synchronization", 0,
+                transport.getRequestCount());
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
+    }
+
+    @Test
+    public void aWidgetTapWithSyncOnReportsOnce() {
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
         tap(KeepADBWebhookActions.reportNow(context));
         settle();
 
         assertEquals(1, count("POST"));
         assertEquals(URL, transport.getLastRequest().url);
-        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
+    }
+
+    /** The receiver goes through the one entry point, which does not reuse a cached address. */
+    @Test
+    public void aWidgetTapWithoutWifiSendsNothingEvenWithSyncOnAndACachedEndpoint() {
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+
+        tap(KeepADBWebhookActions.reportNow(context));
+        settle();
+
+        assertEquals(0, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
     }
 
     @Test
     public void tapsOnTwoWidgetsWhileAReportIsOnTheWireSendOneRequest() throws Exception {
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         CountDownLatch started = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
         transport.setRequestCallback(request -> {
