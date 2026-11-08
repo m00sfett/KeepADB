@@ -79,6 +79,11 @@ are retrospective issue-version records and were never published as separate rel
   force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Fixed
+- **The widget settings screen hid its last row (#912):** "Hide connection details in this widget"
+  sat half (API 34) or wholly (API 30) behind the edge of the scrolling part until scrolled. The
+  Save button was already outside the `ScrollView`, so nothing was drawn under it; the scrolling
+  part now fades at its bottom edge to show there is more, and its content ends 24 dp (was 16)
+  above the edge, so the row is fully visible when scrolled down, also at font scale 2.0.
 - **The widget did not redraw after a language change (#912):** a system language change
   (`ACTION_LOCALE_CHANGED`, now in the widget receiver's filter), the in-app language below
   Android 13 (`KeepADBLocaleHelper.setAppLanguage`) and a language or font scale change of a running

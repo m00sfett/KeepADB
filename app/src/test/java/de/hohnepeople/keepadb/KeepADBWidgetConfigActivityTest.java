@@ -236,6 +236,26 @@ public class KeepADBWidgetConfigActivityTest {
         assertTrue("bottom margin " + margin, margin >= 120);
     }
 
+    /**
+     * Round 3: the last row ("Hide connection details in this widget") was half or wholly out of
+     * sight above the Save button until scrolled. The button never covers it (it is outside the
+     * ScrollView); the fading edge shows that more is below, and the content ends 24 dp above the
+     * end of the scrolling part so the row is fully visible at the bottom of the scroll.
+     */
+    @Test
+    public void theScrollingPartShowsThatThereIsMoreAndLeavesRoomAfterTheLastRow() {
+        Activity activity = open(widgetId).get();
+        android.widget.ScrollView scroll = activity.findViewById(R.id.widget_config_scroll);
+        assertTrue(scroll.isVerticalFadingEdgeEnabled());
+        assertTrue(scroll.getVerticalFadingEdgeLength() > 0);
+        View content = scroll.getChildAt(0);
+        float density = activity.getResources().getDisplayMetrics().density;
+        assertTrue("room after the last row", content.getPaddingBottom() >= 24 * density - 1);
+        assertEquals("the last row is the hide-details option", R.id.widget_config_hide_details_note,
+                ((android.view.ViewGroup) content).getChildAt(
+                        ((android.view.ViewGroup) content).getChildCount() - 1).getId());
+    }
+
     @Test
     public void everyMoveButtonIsNamedForTalkBackAndBigEnough() {
         Activity activity = open(widgetId).get();

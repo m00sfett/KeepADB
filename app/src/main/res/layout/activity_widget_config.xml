@@ -52,13 +52,22 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="32dp"
+        android:fillViewport="true"
+        android:requiresFadingEdge="vertical">
 
+        <!-- The Save button is outside this ScrollView, so nothing is ever drawn under it; the
+             content ends 24 dp above the end of the scrolling part and the fading edge shows that
+             more is below while the last row is still out of sight (#912 round 3). -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp">
 
             <TextView
                 android:layout_width="match_parent"
