@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #912: the picker image for Android 11 (no preview layout there): the surface with the first two
-     tiles of the default 2x1 widget, drawn without text. -->
+<!-- #912: the picker image for Android 11 (no preview layout there): the surface with the main
+     control (yellow gradient, Wireless Debugging symbol) and one square symbol button, as the 2x1
+     widget draws them, without text. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="220dp"
     android:height="110dp"
     android:viewportWidth="220"
     android:viewportHeight="110">
     <path
-        android:fillColor="#080604"
-        android:pathData="M12,0h196a12,12 0 0 1 12,12v86a12,12 0 0 1 -12,12h-196a12,12 0 0 1 -12,-12v-86a12,12 0 0 1 12,-12z" />
+        android:fillColor="#0B0806"
+        android:pathData="M28,0h164a28,28 0 0 1 28,28v54a28,28 0 0 1 -28,28h-164a28,28 0 0 1 -28,-28v-54a28,28 0 0 1 28,-28z" />
+    <path android:pathData="M28,5h107a23,23 0 0 1 23,23v54a23,23 0 0 1 -23,23h-107a23,23 0 0 1 -23,-23v-54a23,23 0 0 1 23,-23z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endColor="#E5AE14"
+                android:endX="158"
+                android:endY="105"
+                android:startColor="#FFE15A"
+                android:startX="5"
+                android:startY="5"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
     <path
-        android:fillColor="#1F1712"
-        android:pathData="M18,8h86a8,8 0 0 1 8,8v78a8,8 0 0 1 -8,8h-86a8,8 0 0 1 -8,-8v-78a8,8 0 0 1 8,-8z"
-        android:strokeWidth="3"
-        android:strokeColor="#7FBF6A" />
-    <path
-        android:fillColor="#1F1712"
-        android:pathData="M116,8h86a8,8 0 0 1 8,8v78a8,8 0 0 1 -8,8h-86a8,8 0 0 1 -8,-8v-78a8,8 0 0 1 8,-8z"
-        android:strokeWidth="3"
-        android:strokeColor="#7FBF6A" />
+        android:fillColor="#FFD21F"
+        android:pathData="M168,5h24a23,23 0 0 1 23,23v54a23,23 0 0 1 -23,23h-24a23,23 0 0 1 -23,-23v-54a23,23 0 0 1 23,-23z" />
     <group
-        android:scaleX="1.6"
-        android:scaleY="1.6"
-        android:translateX="43"
-        android:translateY="36">
+        android:scaleX="1.7"
+        android:scaleY="1.7"
+        android:translateX="14"
+        android:translateY="19">
         <path
-            android:fillColor="#E0B83A"
-            android:pathData="M5,16c0,3.87 3.13,7 7,7s7,-3.13 7,-7v-4L5,12v4zM16.12,4.37l2.1,-2.1 -0.82,-0.83 -2.3,2.31C14.16,3.28 13.12,3 12,3s-2.16,0.28 -3.09,0.75L6.6,1.44l-0.82,0.83 2.1,2.1C6.14,5.64 5,7.68 5,10v1h14v-1c0,-2.32 -1.14,-4.36 -2.88,-5.63z" />
+            android:fillColor="#140E02"
+            android:pathData="M5,16c0,3.87 3.13,7 7,7s7,-3.13 7,-7v-4L5,12v4zM16.12,4.37l2.1,-2.1 -0.82,-0.83 -2.3,2.31C14.16,3.28 13.12,3 12,3s-2.16,0.28 -3.09,0.75L6.6,1.44l-0.82,0.83 2.1,2.1C6.14,5.64 5,7.68 5,10v1h14v-1c0,-2.32 -1.14,-4.36 -2.88,-5.63zM9,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1 1,0.45 1,1 -0.45,1 -1,1zM15,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1 1,0.45 1,1 -0.45,1 -1,1z" />
     </group>
     <group
-        android:scaleX="1.6"
-        android:scaleY="1.6"
-        android:translateX="141"
-        android:translateY="36">
+        android:scaleX="1.4"
+        android:scaleY="1.4"
+        android:translateX="164"
+        android:translateY="38">
         <path
-            android:fillColor="#E0B83A"
-            android:pathData="M12,6v3l4,-4 -4,-4v3c-4.42,0 -8,3.58 -8,8 0,1.57 0.46,3.03 1.24,4.26L6.7,14.8c-0.45,-0.83 -0.7,-1.79 -0.7,-2.8 0,-3.31 2.69,-6 6,-6zM18.76,7.74L17.3,9.2c0.44,0.84 0.7,1.79 0.7,2.8 0,3.31 -2.69,6 -6,6v-3l-4,4 4,4v-3c4.42,0 8,-3.58 8,-8 0,-1.57 -0.46,-3.03 -1.24,-4.26z" />
+            android:fillColor="#140E02"
+            android:pathData="M12,4V1L8,5l4,4V6c3.31,0 6,2.69 6,6 0,1.01 -0.25,1.97 -0.7,2.8l1.46,1.46C19.54,15.03 20,13.57 20,12c0,-4.42 -3.58,-8 -8,-8zm0,14c-3.31,0 -6,-2.69 -6,-6 0,-1.01 0.25,-1.97 0.7,-2.8L5.24,7.74C4.46,8.97 4,10.43 4,12c0,4.42 3.58,8 8,8v3l4,-4 -4,-4v3z" />
     </group>
 </vector>

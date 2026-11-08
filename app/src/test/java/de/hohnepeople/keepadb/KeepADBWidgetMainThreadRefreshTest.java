@@ -124,7 +124,7 @@ public class KeepADBWidgetMainThreadRefreshTest {
     }
 
     private static String widgetText(View widget) {
-        TextView label = widget.findViewById(R.id.widget_tile_state);
-        return label.getText().toString();
+        return KeepADBWidgetTestSupport.heroStateWord(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext(), widget);
     }
 }

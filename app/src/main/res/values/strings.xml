@@ -652,4 +652,10 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="widget_config_hide_details_global">The widget privacy setting already hides the details in every widget.</string>
     <string name="widget_config_save">Save</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">On</string>
+    <string name="widget_short_off">Off</string>
+    <string name="widget_short_scan">Scan…</string>
+    <string name="widget_status_details_hidden">Details hidden</string>
+    <string name="widget_description_port_format">%1$s, port %2$d</string>
+    <string name="widget_label_adb_short" translatable="false">ADB</string>
 </resources>

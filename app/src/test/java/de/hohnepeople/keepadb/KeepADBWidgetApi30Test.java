@@ -1,6 +1,5 @@
 package de.hohnepeople.keepadb;
 
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.labels;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.tiles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -149,24 +148,34 @@ public class KeepADBWidgetApi30Test {
 
     @Test
     public void theReportedSizeSelectsTheLayoutAndResizingBackAndForthDoesNotStackTiles() {
-        assertEquals(1, tilesAfterResizeTo(56, 56));
-        assertEquals(2, tilesAfterResizeTo(110, 56));
-        assertEquals(3, tilesAfterResizeTo(250, 56));
-        assertEquals(3, tilesAfterResizeTo(110, 120));
-        assertEquals(2, tilesAfterResizeTo(56, 120));
-        assertEquals(1, tilesAfterResizeTo(56, 56));
-        assertEquals(3, tilesAfterResizeTo(250, 120));
-        assertTrue("the panel shows the details",
-                widgets.getViewFor(id).findViewById(R.id.widget_details_row).getVisibility()
+        assertEquals("1x1", 1, tilesAfterResizeTo(72, 92));
+        assertEquals("2x1: the hero and one square button", 2, tilesAfterResizeTo(152, 92));
+        assertEquals("4x1: the hero and two tiles", 3, tilesAfterResizeTo(304, 92));
+        assertEquals("2x2", 3, tilesAfterResizeTo(152, 196));
+        assertEquals("1x2: the hero alone", 1, tilesAfterResizeTo(72, 196));
+        assertEquals(1, tilesAfterResizeTo(72, 92));
+        assertEquals("4x2", 3, tilesAfterResizeTo(304, 196));
+        assertTrue("the panel shows the status line",
+                widgets.getViewFor(id).findViewById(R.id.widget_status_row).getVisibility()
                         == View.VISIBLE);
+        assertEquals("back to a short widget: the status line is gone", 3, tilesAfterResizeTo(304, 92));
+        assertTrue(widgets.getViewFor(id).findViewById(R.id.widget_status_row) == null);
     }
 
     @Test
     public void thePerWidgetConfigurationAppliesToTheFallbackLayoutToo() {
         KeepADBWidgetConfig.save(context, id, KeepADBWidgetConfig.of(
                 KeepADBWidgetConfig.Action.KEEP_ALIVE, null, false));
-        assertEquals(1, tilesAfterResizeTo(56, 56));
-        assertEquals(java.util.Arrays.asList(context.getString(R.string.widget_action_keep_alive)),
-                labels(widgets.getViewFor(id)));
+        assertEquals(1, tilesAfterResizeTo(72, 92));
+        assertEquals(java.util.Arrays.asList(KeepADBWidgetConfig.Action.KEEP_ALIVE),
+                KeepADBWidgetTestSupport.actions(context, widgets.getViewFor(id)));
+        assertEquals(java.util.Arrays.asList(KeepADBWidgetConfig.Action.KEEP_ALIVE,
+                        KeepADBWidgetConfig.Action.ADB),
+                tilesAfterResizeToActions(152, 92));
+    }
+
+    private java.util.List<KeepADBWidgetConfig.Action> tilesAfterResizeToActions(int w, int h) {
+        tilesAfterResizeTo(w, h);
+        return KeepADBWidgetTestSupport.actions(context, widgets.getViewFor(id));
     }
 }

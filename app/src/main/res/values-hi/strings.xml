@@ -645,4 +645,9 @@
     <string name="widget_config_hide_details_global">विजेट गोपनीयता सेटिंग पहले से सभी विजेट में विवरण छिपाती है।</string>
     <string name="widget_config_save">सहेजें</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">चालू</string>
+    <string name="widget_short_off">बंद</string>
+    <string name="widget_short_scan">खोज…</string>
+    <string name="widget_status_details_hidden">विवरण छिपे हैं</string>
+    <string name="widget_description_port_format">%1$s, पोर्ट %2$d</string>
 </resources>

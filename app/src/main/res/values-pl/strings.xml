@@ -647,4 +647,9 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="widget_config_hide_details_global">Ustawienie prywatności widżetów już ukrywa szczegóły we wszystkich widżetach.</string>
     <string name="widget_config_save">Zapisz</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Wł.</string>
+    <string name="widget_short_off">Wył.</string>
+    <string name="widget_short_scan">Szukam…</string>
+    <string name="widget_status_details_hidden">Szczegóły ukryte</string>
+    <string name="widget_description_port_format">%1$s, port %2$d</string>
 </resources>

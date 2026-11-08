@@ -644,4 +644,9 @@
     <string name="widget_config_hide_details_global">ウィジェットのプライバシー設定により、すべてのウィジェットで詳細は既に非表示です。</string>
     <string name="widget_config_save">保存</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">オン</string>
+    <string name="widget_short_off">オフ</string>
+    <string name="widget_short_scan">検索…</string>
+    <string name="widget_status_details_hidden">詳細は非表示</string>
+    <string name="widget_description_port_format">%1$s、ポート %2$d</string>
 </resources>

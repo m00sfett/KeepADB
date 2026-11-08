@@ -29,69 +29,101 @@ final class KeepADBWidgetTestSupport {
         root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());
     }
 
-    /** The control tiles in reading order: first row left to right, then the second row. */
+    private static final int[] SLOTS = {R.id.widget_slot_hero, R.id.widget_slot_a, R.id.widget_slot_b};
+
+    /** The controls in reading order: the main one first, then the others; only visible ones. */
     static List<View> tiles(View root) {
         List<View> tiles = new ArrayList<>();
-        collect(root.findViewById(R.id.widget_row_1), tiles);
-        collect(root.findViewById(R.id.widget_row_2), tiles);
+        for (int slot : SLOTS) {
+            View container = root.findViewById(slot);
+            if (!(container instanceof ViewGroup) || container.getVisibility() != View.VISIBLE) continue;
+            ViewGroup group = (ViewGroup) container;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View child = group.getChildAt(i);
+                if (child.getId() == R.id.widget_tile) tiles.add(child);
+            }
+        }
         return tiles;
     }
 
-    private static void collect(View row, List<View> into) {
-        if (!(row instanceof ViewGroup)) return;
-        ViewGroup group = (ViewGroup) row;
-        for (int i = 0; i < group.getChildCount(); i++) {
-            View child = group.getChildAt(i);
-            if (child.getId() == R.id.widget_tile) into.add(child);
-        }
+    static View hero(View root) {
+        List<View> tiles = tiles(root);
+        return tiles.isEmpty() ? null : tiles.get(0);
     }
 
+    /** What TalkBack reads for the control: "name: state[, port ...]". */
+    static String description(View tile) {
+        CharSequence description = tile.getContentDescription();
+        return description == null ? "" : description.toString();
+    }
+
+    private static String visibleText(View tile, int id) {
+        View view = tile.findViewById(id);
+        if (!(view instanceof TextView) || view.getVisibility() != View.VISIBLE) return null;
+        return ((TextView) view).getText().toString();
+    }
+
+    /** The label text on the control, or null where the shape has none (hero S, square). */
     static String label(View tile) {
-        return ((TextView) tile.findViewById(R.id.widget_tile_label)).getText().toString();
+        return visibleText(tile, R.id.widget_tile_label);
     }
 
+    /** The state word on the control, or null where it is not shown (square, hero with port). */
     static String state(View tile) {
-        return ((TextView) tile.findViewById(R.id.widget_tile_state)).getText().toString();
+        return visibleText(tile, R.id.widget_tile_state);
     }
 
-    static boolean labelVisible(View tile) {
-        return tile.findViewById(R.id.widget_tile_label).getVisibility() == View.VISIBLE;
+    /** The port (or the dots) on the control, or null while none is shown. */
+    static String port(View tile) {
+        return visibleText(tile, R.id.widget_tile_port);
     }
 
-    static List<String> labels(View root) {
-        List<String> labels = new ArrayList<>();
-        for (View tile : tiles(root)) labels.add(label(tile));
-        return labels;
+    /**
+     * The full state word of the Wireless Debugging control (the main one in the default
+     * configuration) as TalkBack reads it after the name, without the port.
+     */
+    static String heroStateWord(Context context, View root) {
+        View hero = hero(root);
+        if (hero == null) throw new AssertionError("no control");
+        String description = description(hero);
+        String prefix = context.getString(R.string.toggle_label) + ": ";
+        if (!description.startsWith(prefix)) throw new AssertionError(description);
+        String state = description.substring(prefix.length());
+        int port = state.indexOf(", port ");
+        return port >= 0 ? state.substring(0, port) : state;
     }
 
-    /** Only the layouts with a status box have a details row. */
-    static boolean detailsVisible(View root) {
-        View row = root.findViewById(R.id.widget_details_row);
+    /** Which control a tile is, from the full name TalkBack starts with. */
+    static KeepADBWidgetConfig.Action actionOf(Context context, View tile) {
+        for (KeepADBWidgetConfig.Action action : KeepADBWidgetConfig.Action.values()) {
+            if (description(tile).startsWith(KeepADBWidgetContent.fullName(context, action))) {
+                return action;
+            }
+        }
+        throw new AssertionError("unknown control: " + description(tile));
+    }
+
+    static List<KeepADBWidgetConfig.Action> actions(Context context, View root) {
+        List<KeepADBWidgetConfig.Action> actions = new ArrayList<>();
+        for (View tile : tiles(root)) actions.add(actionOf(context, tile));
+        return actions;
+    }
+
+    /** Only the 4x2 layout has the status line. */
+    static boolean statusVisible(View root) {
+        View row = root.findViewById(R.id.widget_status_row);
         return row != null && row.getVisibility() == View.VISIBLE;
     }
 
-    static boolean endpointLineVisible(View root) {
-        return root.findViewById(R.id.widget_detail_endpoint).getVisibility() == View.VISIBLE;
+    static String statusText(View root) {
+        View view = root.findViewById(R.id.widget_status_text);
+        return view instanceof TextView ? ((TextView) view).getText().toString() : null;
     }
 
-    static String endpointLine(View root) {
-        return ((TextView) root.findViewById(R.id.widget_detail_endpoint)).getText().toString();
-    }
-
-    static boolean systemLineVisible(View root) {
-        return root.findViewById(R.id.widget_detail_system).getVisibility() == View.VISIBLE;
-    }
-
-    static String systemLine(View root) {
-        return ((TextView) root.findViewById(R.id.widget_detail_system)).getText().toString();
-    }
-
-    static boolean webhookLineVisible(View root) {
-        return root.findViewById(R.id.widget_detail_webhook).getVisibility() == View.VISIBLE;
-    }
-
-    static String webhookLine(View root) {
-        return ((TextView) root.findViewById(R.id.widget_detail_webhook)).getText().toString();
+    static String statusDescription(View root) {
+        View view = root.findViewById(R.id.widget_status_text);
+        return view == null || view.getContentDescription() == null ? ""
+                : view.getContentDescription().toString();
     }
 
     /** All text a widget shows or speaks, for privacy scans. */

@@ -645,4 +645,9 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="widget_config_hide_details_global">Widget gizlilik ayarı ayrıntıları zaten tüm widget\'larda gizliyor.</string>
     <string name="widget_config_save">Kaydet</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Açık</string>
+    <string name="widget_short_off">Kapalı</string>
+    <string name="widget_short_scan">Aranıyor…</string>
+    <string name="widget_status_details_hidden">Ayrıntılar gizli</string>
+    <string name="widget_description_port_format">%1$s, bağlantı noktası %2$d</string>
 </resources>

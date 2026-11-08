@@ -644,4 +644,9 @@
     <string name="widget_config_hide_details_global">위젯 개인정보 보호 설정이 이미 모든 위젯에서 세부 정보를 숨기고 있습니다.</string>
     <string name="widget_config_save">저장</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">켜짐</string>
+    <string name="widget_short_off">꺼짐</string>
+    <string name="widget_short_scan">검색…</string>
+    <string name="widget_status_details_hidden">세부 정보 숨김</string>
+    <string name="widget_description_port_format">%1$s, 포트 %2$d</string>
 </resources>

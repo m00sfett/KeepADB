@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the main control while it is on: the yellow gradient (135 degrees). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/widget_ripple_on_light">
+    <item>
+        <shape>
+            <gradient
+                android:angle="315"
+                android:centerColor="@color/widget_hero_center"
+                android:endColor="@color/widget_hero_end"
+                android:startColor="@color/widget_hero_start"
+                android:type="linear" />
+            <corners android:radius="@dimen/widget_radius_tile" />
+        </shape>
+    </item>
+    <item android:id="@android:id/mask">
+        <shape>
+            <solid android:color="@android:color/white" />
+            <corners android:radius="@dimen/widget_radius_tile" />
+        </shape>
+    </item>
+</ripple>

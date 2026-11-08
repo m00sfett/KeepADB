@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * #912: the settings of one placed control widget, kept per {@code appWidgetId}: which of the three
@@ -22,10 +21,9 @@ import java.util.Set;
  * action, details visible. A stored entry that still names the retired Report now action keeps
  * decoding: the token is ignored, and a main action that was Report now falls back to ADB.
  *
- * <p><b>Main action and order are independent.</b> The order fixes the positions in every layout.
- * The main action decides which action survives when the widget is too small for all three: {@link
- * #shown} takes the main action first, then the others in their order, and returns the chosen ones
- * in the order's sequence. So a position never jumps when the widget grows, an action only appears.
+ * <p><b>Main action and order.</b> The main action is the big control of every layout and the only
+ * one a small widget shows. The order fixes the sequence of the others: {@link #others} takes them
+ * in that sequence, so a control never jumps when the widget grows, one only appears.
  *
  * <p><b>Details.</b> {@link #hideDetails} is the per-widget option; it can only hide more. The
  * global widget privacy switch decides first (see {@link KeepADBWidgetState}).
@@ -92,31 +90,17 @@ final class KeepADBWidgetConfig {
     }
 
     /**
-     * The actions a layout with room for {@code count} controls shows, in display order: the main
-     * action first, then the others in their order until {@code count} are chosen; the chosen ones
-     * keep the sequence of {@link #order}.
+     * The controls that sit beside the main one in a layout with room for {@code count} of them:
+     * the first {@code count} actions of {@link #order} without the main action, in the order's
+     * sequence. The main action is not part of the result; it is always the big control.
      */
-    List<Action> shown(int count) {
-        return shown(count, Collections.<Action>emptySet());
-    }
-
-    /**
-     * Like {@link #shown(int)}, but an action that is not available right now takes no place: the
-     * others move up and widen instead.
-     */
-    List<Action> shown(int count, Set<Action> unavailable) {
-        int wanted = Math.max(0, Math.min(count, order.size()));
-        List<Action> chosen = new ArrayList<>();
-        if (wanted > 0 && !unavailable.contains(primary)) chosen.add(primary);
+    List<Action> others(int count) {
+        List<Action> others = new ArrayList<>();
         for (Action action : order) {
-            if (chosen.size() >= wanted) break;
-            if (action != primary && !unavailable.contains(action)) chosen.add(action);
+            if (others.size() >= Math.max(0, count)) break;
+            if (action != primary) others.add(action);
         }
-        List<Action> display = new ArrayList<>();
-        for (Action action : order) {
-            if (chosen.contains(action)) display.add(action);
-        }
-        return display;
+        return others;
     }
 
     // -- persistence ---------------------------------------------------------------------------

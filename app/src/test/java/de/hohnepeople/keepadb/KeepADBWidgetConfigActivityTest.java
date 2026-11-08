@@ -139,8 +139,8 @@ public class KeepADBWidgetConfigActivityTest {
         shadowOf(Looper.getMainLooper()).idle();
         View rendered = widgets.getViewFor(widgetId);
         assertEquals("the widget shows the new main action",
-                context.getString(R.string.widget_action_sync),
-                KeepADBWidgetTestSupport.labels(rendered).get(0));
+                java.util.Arrays.asList(Action.WEBHOOK_SYNC),
+                KeepADBWidgetTestSupport.actions(context, rendered).subList(0, 1));
     }
 
     @Test

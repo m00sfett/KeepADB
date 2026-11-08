@@ -1,20 +1,20 @@
 package de.hohnepeople.keepadb;
 
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.actions;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.applyAndMeasure;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.detailsVisible;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.endpointLine;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.systemLineVisible;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.description;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.hero;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.label;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.labelVisible;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.labels;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.port;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.state;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.systemLine;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.statusDescription;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.statusText;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.statusVisible;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.tiles;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.webhookLine;
-import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.webhookLineVisible;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -40,9 +40,10 @@ import de.hohnepeople.keepadb.KeepADBWidgetConfig.Action;
 import de.hohnepeople.keepadb.KeepADBWidgetLayout.SizeClass;
 
 /**
- * #912: what the control widget shows per size class, built from the shared projection: the tiles
- * and their order, the words that carry each state, the details, the privacy precedence and the
- * touch targets. The views are the real RemoteViews applied and laid out, not a source scan.
+ * #912: what the control widget shows per size class, built from the shared projection: the hero
+ * and the other controls, their shapes, the words and symbols that carry each state, the port rules,
+ * the status line, the privacy precedence and the touch targets. The views are the real RemoteViews
+ * applied and laid out, not a source scan.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -79,7 +80,6 @@ public class KeepADBWidgetViewsTest {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(wifi::get);
         KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
-        // Automatic synchronization on: only then the fourth slot is "Report now".
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
     }
@@ -95,16 +95,39 @@ public class KeepADBWidgetViewsTest {
 
     // -- helpers -------------------------------------------------------------------------------
 
-    private View render(KeepADBWidgetConfig config, SizeClass sizeClass) {
-        return render(config, sizeClass, 1f);
+    /** A realistic room for a class: the smallest the launcher gives it, at normal font size. */
+    private static int[] room(SizeClass sizeClass) {
+        switch (sizeClass) {
+            case ONE:
+                return new int[] {72, 92};
+            case HERO:
+                return new int[] {140, 72};
+            case ROW1:
+                return new int[] {152, 92};
+            case ROW2:
+                return new int[] {228, 92};
+            case STACK:
+                return new int[] {114, 150};
+            case STRIP:
+                return new int[] {304, 92};
+            case GRID:
+                return new int[] {152, 196};
+            case PANEL:
+            default:
+                return new int[] {304, 196};
+        }
     }
 
-    private View render(KeepADBWidgetConfig config, SizeClass sizeClass, float fontScale) {
+    private View render(KeepADBWidgetConfig config, SizeClass sizeClass) {
         KeepADBWidgetState projection = KeepADBWidgetState.project(context, config.hideDetails);
+        int[] room = room(sizeClass);
         return applyAndMeasure(context,
-                KeepADBWidgetViews.forSize(context, WIDGET_ID, config, projection, sizeClass,
-                        KeepADBWidgetLayout.showLabels(fontScale)),
-                Math.max(56, sizeClass.minWidthDp), Math.max(56, sizeClass.minHeightDp));
+                KeepADBWidgetViews.forSize(context, WIDGET_ID, config, projection, sizeClass),
+                room[0], room[1]);
+    }
+
+    private View render(SizeClass sizeClass) {
+        return render(KeepADBWidgetConfig.defaults(), sizeClass);
     }
 
     private void setAdb(boolean on) {
@@ -116,119 +139,172 @@ public class KeepADBWidgetViewsTest {
         return context.getString(resId, args);
     }
 
-    private static KeepADBWidgetConfig order(Action primary, Action... order) {
+    private static KeepADBWidgetConfig config(Action primary, Action... order) {
         return KeepADBWidgetConfig.of(primary, Arrays.asList(order), false);
     }
 
-    // -- tiles per size class ------------------------------------------------------------------
+    private static String ico(View tile) {
+        return String.valueOf(((android.widget.ImageView) tile.findViewById(R.id.widget_tile_icon))
+                .getDrawable() == null ? "none" : "icon");
+    }
+
+    // -- controls per size class ---------------------------------------------------------------
 
     @Test
-    public void eachSizeClassShowsItsControlsAndDetails() {
+    public void eachSizeClassShowsItsControlsHeroFirst() {
         KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
-        String adb = name(R.string.widget_action_adb);
-        String keepAlive = name(R.string.widget_action_keep_alive);
-        String sync = name(R.string.widget_action_sync);
-
-        assertEquals(Arrays.asList(adb), labels(render(defaults, SizeClass.SINGLE)));
-        assertEquals(Arrays.asList(adb, keepAlive), labels(render(defaults, SizeClass.STACK)));
-        assertEquals(Arrays.asList(adb, keepAlive), labels(render(defaults, SizeClass.DUO)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync),
-                labels(render(defaults, SizeClass.GRID)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync),
-                labels(render(defaults, SizeClass.GRID_STATUS)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync),
-                labels(render(defaults, SizeClass.STRIP)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync),
-                labels(render(defaults, SizeClass.PANEL)));
-
+        assertEquals(Arrays.asList(Action.ADB), actions(context, render(defaults, SizeClass.ONE)));
+        assertEquals(Arrays.asList(Action.ADB), actions(context, render(defaults, SizeClass.HERO)));
+        assertEquals(Arrays.asList(Action.ADB, Action.KEEP_ALIVE),
+                actions(context, render(defaults, SizeClass.ROW1)));
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.ROW2, SizeClass.STACK, SizeClass.STRIP,
+                SizeClass.GRID, SizeClass.PANEL}) {
+            assertEquals(sizeClass.name(),
+                    Arrays.asList(Action.ADB, Action.KEEP_ALIVE, Action.WEBHOOK_SYNC),
+                    actions(context, render(defaults, sizeClass)));
+        }
         for (SizeClass sizeClass : SizeClass.values()) {
             View widget = render(defaults, sizeClass);
-            assertEquals(sizeClass.name() + " details", sizeClass.hasDetails(), detailsVisible(widget));
-            assertEquals(sizeClass.name() + " webhook line", sizeClass.hasDetails(),
-                    detailsVisible(widget) && webhookLineVisible(widget));
-            assertEquals(sizeClass.name() + " second row", sizeClass.secondRowTiles > 0,
-                    widget.findViewById(R.id.widget_row_2).getVisibility() == View.VISIBLE);
+            assertEquals(sizeClass.name() + " control count", sizeClass.actionCount(),
+                    tiles(widget).size());
+            assertEquals(sizeClass.name() + " status line", sizeClass == SizeClass.PANEL,
+                    statusVisible(widget));
+            assertEquals(sizeClass.name() + " settings gear", sizeClass == SizeClass.PANEL,
+                    widget.findViewById(R.id.widget_customize) != null);
         }
     }
 
     @Test
-    public void theGridPutsTwoControlsInEachRowAndTheStackOneUnderTheOther() {
-        View grid = render(KeepADBWidgetConfig.defaults(), SizeClass.GRID);
-        assertEquals(2, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_1)).getChildCount());
-        assertEquals(1, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_2)).getChildCount());
+    public void everyClassHasItsOwnShapes() {
+        // 1x1: symbol, the short label (ADB, not translated) and a short state word; no port.
+        View one = hero(render(SizeClass.ONE));
+        assertEquals("ADB", label(one));
+        assertEquals(name(R.string.widget_short_on), state(one));
+        assertNull("never a port in the smallest shape", port(one));
 
-        View stack = render(KeepADBWidgetConfig.defaults(), SizeClass.STACK);
-        assertEquals(1, ((android.view.ViewGroup) stack.findViewById(R.id.widget_row_1)).getChildCount());
-        assertEquals(1, ((android.view.ViewGroup) stack.findViewById(R.id.widget_row_2)).getChildCount());
-    }
+        // Compact hero: only the port under the symbol.
+        View compact = hero(render(SizeClass.ROW1));
+        assertNull(label(compact));
+        assertNull("the port replaces the state word", state(compact));
+        assertEquals(":" + PORT, port(compact));
 
-    @Test
-    public void theMainActionIsWhatTheSmallestLayoutKeeps() {
-        KeepADBWidgetConfig config = order(Action.WEBHOOK_SYNC,
-                Action.ADB, Action.KEEP_ALIVE, Action.WEBHOOK_SYNC);
-        String sync = name(R.string.widget_action_sync);
+        // 2x2: label in a row with the symbol, the port large; no state word beside the port.
+        View m = hero(render(SizeClass.GRID));
+        assertEquals(name(R.string.widget_action_adb), label(m));
+        assertEquals(":" + PORT, port(m));
+        assertNull(state(m));
 
-        assertEquals(Arrays.asList(sync), labels(render(config, SizeClass.SINGLE)));
-        // Two controls: the main one plus the first of the others, in the order's sequence.
-        assertEquals(Arrays.asList(name(R.string.widget_action_adb), sync),
-                labels(render(config, SizeClass.DUO)));
-    }
+        // 4x2: label, the full state word and the port.
+        View l = hero(render(SizeClass.PANEL));
+        assertEquals(name(R.string.widget_action_adb), label(l));
+        assertEquals(name(R.string.tile_state_connected), state(l));
+        assertEquals(":" + PORT, port(l));
 
-    @Test
-    public void theOrderFixesEveryPositionAndGrowingOnlyAddsControls() {
-        KeepADBWidgetConfig config = order(Action.ADB,
-                Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB);
-        String adb = name(R.string.widget_action_adb);
-        String keepAlive = name(R.string.widget_action_keep_alive);
-        String sync = name(R.string.widget_action_sync);
-
-        assertEquals(Arrays.asList(sync, keepAlive, adb), labels(render(config, SizeClass.STRIP)));
-        assertEquals(Arrays.asList(sync, keepAlive, adb), labels(render(config, SizeClass.GRID)));
-        // Row by row in the grid: the first two, then the last one.
-        List<View> grid = tiles(render(config, SizeClass.GRID));
-        assertEquals(sync, label(grid.get(0)));
-        assertEquals(keepAlive, label(grid.get(1)));
-        assertEquals(adb, label(grid.get(2)));
-        // Smaller: the main action (ADB) and the first other; each keeps its place relative to
-        // the others, nothing swaps when the widget grows.
-        assertEquals(Arrays.asList(sync, adb), labels(render(config, SizeClass.DUO)));
-        assertEquals(Arrays.asList(adb), labels(render(config, SizeClass.SINGLE)));
-    }
-
-    // -- states in words, pending and errors ----------------------------------------------------
-
-    @Test
-    public void everyTileStatesItsStateInWordsAndTalkBackNamesControlAndState() {
-        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        List<View> tiles = tiles(widget);
-        assertEquals(3, tiles.size());
-        for (View tile : tiles) {
-            assertTrue("a state word on " + label(tile), state(tile).length() > 0);
-            assertNotNull(tile.getContentDescription());
-            assertTrue(tile.getContentDescription().toString().contains(state(tile)));
+        // The other controls: square buttons (no text), upright tiles, pills.
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.ROW2, SizeClass.STACK}) {
+            View square = tiles(render(sizeClass)).get(1);
+            assertNull(sizeClass + " square button has no label", label(square));
+            assertNull(sizeClass + " square button has no state word", state(square));
         }
-        assertEquals(name(R.string.toggle_label) + ": " + state(tiles.get(0)),
-                tiles.get(0).getContentDescription().toString());
-        assertTrue(tiles.get(1).getContentDescription().toString()
-                .startsWith(name(R.string.settings_section_keep_alive)));
-        assertTrue(tiles.get(2).getContentDescription().toString()
-                .startsWith(name(R.string.widget_action_sync_description)));
+        for (View tile : tiles(render(SizeClass.STRIP)).subList(1, 3)) {
+            assertNotNull("upright tile has a label", label(tile));
+            assertNotNull("and a state word", state(tile));
+        }
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.GRID, SizeClass.PANEL}) {
+            for (View tile : tiles(render(sizeClass)).subList(1, 3)) {
+                assertNotNull(sizeClass + " pill has a label", label(tile));
+                assertNotNull(sizeClass + " pill has a state word", state(tile));
+            }
+        }
     }
 
     @Test
-    public void theWirelessDebuggingTileSaysOffConnectedWaitingAndSwitching() {
-        // Connected: Wi-Fi up, a verified endpoint, the setting on.
-        View connected = render(KeepADBWidgetConfig.defaults(), SizeClass.SINGLE);
-        assertEquals("one word, the port has its own line in the status box",
-                name(R.string.tile_state_connected), state(tiles(connected).get(0)));
+    public void theMainActionIsTheHeroAndTheOrderIsTheSequenceOfTheOthers() {
+        KeepADBWidgetConfig config = config(Action.WEBHOOK_SYNC,
+                Action.KEEP_ALIVE, Action.ADB, Action.WEBHOOK_SYNC);
+        assertEquals(Arrays.asList(Action.WEBHOOK_SYNC), actions(context, render(config, SizeClass.ONE)));
+        assertEquals(Arrays.asList(Action.WEBHOOK_SYNC, Action.KEEP_ALIVE),
+                actions(context, render(config, SizeClass.ROW1)));
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.ROW2, SizeClass.STRIP, SizeClass.GRID,
+                SizeClass.PANEL, SizeClass.STACK}) {
+            assertEquals(sizeClass.name(),
+                    Arrays.asList(Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB),
+                    actions(context, render(config, sizeClass)));
+        }
+        // The hero keeps its shape whichever control it is: the sync control as the hero in 4x2
+        // shows its label, state word and no port (it has none).
+        View l = hero(render(config, SizeClass.PANEL));
+        assertEquals(name(R.string.widget_action_sync), label(l));
+        assertEquals(name(R.string.widget_state_on), state(l));
+        assertNull(port(l));
+        // As the hero of the compact shapes, the state word stands where the port would be.
+        assertEquals(name(R.string.widget_state_on), state(hero(render(config, SizeClass.ROW1))));
+        assertEquals(name(R.string.widget_state_on), state(hero(render(config, SizeClass.GRID))));
+    }
+
+    @Test
+    public void growingOnlyAddsControlsAndNeverReordersThem() {
+        KeepADBWidgetConfig config = config(Action.ADB, Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB);
+        assertEquals(Arrays.asList(Action.ADB, Action.WEBHOOK_SYNC),
+                actions(context, render(config, SizeClass.ROW1)));
+        assertEquals(Arrays.asList(Action.ADB, Action.WEBHOOK_SYNC, Action.KEEP_ALIVE),
+                actions(context, render(config, SizeClass.ROW2)));
+        assertEquals(Arrays.asList(Action.ADB, Action.WEBHOOK_SYNC, Action.KEEP_ALIVE),
+                actions(context, render(config, SizeClass.PANEL)));
+    }
+
+    /** Report now left the widget in #912: no size, no state and no configuration brings it back. */
+    @Test
+    public void theWidgetNeverOffersReportNowAndAlwaysKeepsItsThreeControls() {
+        String report = name(R.string.webhook_alert_action_report_now);
+        KeepADBWidgetConfig legacy = KeepADBWidgetConfig.decode(
+                "report_now;report_now,webhook_sync,keep_alive,adb;0");
+        for (boolean syncOn : new boolean[] {true, false}) {
+            KeepADBPreferences.setRegisterWebhookEnabled(context, syncOn);
+            for (SizeClass sizeClass : SizeClass.values()) {
+                assertFalse(sizeClass.name(), KeepADBWidgetTestSupport.allText(
+                        render(KeepADBWidgetConfig.defaults(), sizeClass)).contains(report));
+                assertFalse(sizeClass.name(), KeepADBWidgetTestSupport.allText(
+                        render(legacy, sizeClass)).contains(report));
+            }
+            assertEquals(3, tiles(render(SizeClass.STRIP)).size());
+        }
+        assertEquals("the legacy main action fell back to ADB", Arrays.asList(Action.ADB),
+                actions(context, render(legacy, SizeClass.ONE)));
+    }
+
+    // -- states in words and symbols -------------------------------------------------------------
+
+    @Test
+    public void theWirelessDebuggingControlSaysConnectedOffWaitingSearchingAndSwitching() {
+        KeepADBWidgetContent.Tile connected = tile(Action.ADB);
+        assertEquals(name(R.string.tile_state_connected), connected.state);
+        assertEquals(name(R.string.widget_short_on), connected.shortState);
+        assertEquals(KeepADBWidgetContent.Style.ON, connected.style);
+        assertEquals(R.drawable.ic_widget_adb, connected.iconRes);
+        assertEquals(":" + PORT, connected.port);
 
         setAdb(false);
-        assertEquals(name(R.string.tile_state_off),
-                state(tiles(render(KeepADBWidgetConfig.defaults(), SizeClass.SINGLE)).get(0)));
+        KeepADBWidgetContent.Tile off = tile(Action.ADB);
+        assertEquals(name(R.string.tile_state_off), off.state);
+        assertEquals(name(R.string.widget_short_off), off.shortState);
+        assertEquals(KeepADBWidgetContent.Style.OFF, off.style);
+        assertEquals("the outlined variant, not only another color", R.drawable.ic_widget_adb_off,
+                off.iconRes);
+        assertNull(off.port);
 
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        assertEquals(name(R.string.widget_state_off_waiting),
-                state(tiles(render(KeepADBWidgetConfig.defaults(), SizeClass.SINGLE)).get(0)));
+        assertEquals(name(R.string.widget_state_off_waiting), tile(Action.ADB).state);
+
+        // On, Wi-Fi up, no endpoint yet: searching, a busy fill and the symbol with three dots.
+        setAdb(true);
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        KeepADBWidgetContent.Tile searching = tile(Action.ADB);
+        assertEquals(name(R.string.tile_state_searching), searching.state);
+        assertEquals(name(R.string.widget_short_scan), searching.shortState);
+        assertEquals(KeepADBWidgetContent.Style.BUSY, searching.style);
+        assertEquals(R.drawable.ic_widget_adb_busy, searching.iconRes);
+        assertNull(searching.port);
     }
 
     @Test
@@ -238,190 +314,237 @@ public class KeepADBWidgetViewsTest {
         KeepADB.setEnabled(context, true, "content_observer");
         assertTrue(KeepADB.isTogglePending());
 
-        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        assertEquals(name(R.string.state_pending), state(tiles(widget).get(0)));
-        assertEquals(name(R.string.status_pending), systemLine(widget));
+        View widget = render(SizeClass.PANEL);
+        assertEquals(name(R.string.state_pending), state(hero(widget)));
+        assertEquals(KeepADBWidgetContent.Style.BUSY, tile(Action.ADB).style);
+        assertTrue(statusText(widget).startsWith(name(R.string.status_pending)));
     }
 
     @Test
-    public void aMissingPermissionIsVisibleOnTheTileAndInTheDetails() {
+    public void aMissingPermissionIsVisibleOnTheControlAndInTheStatusLine() {
         shadowOf((Application) context).denyPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
 
-        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        assertEquals(name(R.string.tile_state_permission_missing), state(tiles(widget).get(0)));
-        assertEquals(name(R.string.status_permission_missing), systemLine(widget));
+        View widget = render(SizeClass.PANEL);
+        assertEquals(name(R.string.tile_state_permission_missing), state(hero(widget)));
+        assertEquals(KeepADBWidgetContent.Style.ATTENTION, tile(Action.ADB).style);
+        assertEquals(name(R.string.widget_state_setup), tile(Action.ADB).shortState);
+        assertNull("no port without a connection", port(hero(widget)));
+        assertTrue(statusText(widget).startsWith(name(R.string.status_permission_missing)));
     }
 
     @Test
-    public void keepAliveSaysOnWaitingPausedAndOff() {
-        Action keepAlive = Action.KEEP_ALIVE;
-        KeepADBWidgetConfig config = order(keepAlive, Action.KEEP_ALIVE, Action.ADB,
-                Action.WEBHOOK_SYNC);
-        assertEquals(name(R.string.tile_state_off), state(tiles(render(config, SizeClass.SINGLE)).get(0)));
+    public void keepAliveSaysOnWaitingPausedAndOffWithADifferentSymbolWhenItIsNotRunning() {
+        assertEquals(name(R.string.tile_state_off), tile(Action.KEEP_ALIVE).state);
+        assertEquals(R.drawable.ic_widget_keep_alive_off, tile(Action.KEEP_ALIVE).iconRes);
 
         KeepADBPreferences.setKeepAliveEnabled(context, true);
-        assertEquals(name(R.string.widget_state_on), state(tiles(render(config, SizeClass.SINGLE)).get(0)));
+        assertEquals(name(R.string.widget_state_on), tile(Action.KEEP_ALIVE).state);
+        assertEquals(KeepADBWidgetContent.Style.ON, tile(Action.KEEP_ALIVE).style);
+        assertEquals(R.drawable.ic_widget_keep_alive, tile(Action.KEEP_ALIVE).iconRes);
 
         // Off but resolving by itself (no Wi-Fi yet): waiting.
         setAdb(false);
         wifi.set(false);
-        assertEquals(name(R.string.widget_state_waiting),
-                state(tiles(render(config, SizeClass.SINGLE)).get(0)));
+        assertEquals(name(R.string.widget_state_waiting), tile(Action.KEEP_ALIVE).state);
 
-        // The last explicit intent was off: paused until the user acts, in words.
+        // The last explicit intent was off: paused until the user acts, in words and attention fill.
         wifi.set(true);
         KeepADB.recordExplicitIntent(context, false);
-        View paused = render(config, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_state_paused), state(tiles(paused).get(0)));
+        assertEquals(name(R.string.widget_state_paused), tile(Action.KEEP_ALIVE).state);
+        assertEquals(KeepADBWidgetContent.Style.ATTENTION, tile(Action.KEEP_ALIVE).style);
     }
 
     @Test
     public void theSyncControlFollowsTheSharedActionState() {
-        KeepADBWidgetConfig sync = order(Action.WEBHOOK_SYNC, Action.WEBHOOK_SYNC,
-                Action.ADB, Action.KEEP_ALIVE);
+        KeepADBWidgetContent.Tile on = tile(Action.WEBHOOK_SYNC);
+        assertEquals(name(R.string.widget_state_on), on.state);
+        assertEquals(R.drawable.ic_widget_sync, on.iconRes);
+        assertEquals(KeepADBWidgetContent.Click.SYNC_DISABLE, on.click);
 
-        // Synchronization on with a valid destination: on.
-        assertEquals(name(R.string.widget_state_on), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
-
-        // Switched off: the control says so and stays in place; there is no report control.
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(name(R.string.tile_state_off), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
+        KeepADBWidgetContent.Tile off = tile(Action.WEBHOOK_SYNC);
+        assertEquals(name(R.string.tile_state_off), off.state);
+        assertEquals(R.drawable.ic_widget_sync_off, off.iconRes);
+        assertEquals(KeepADBWidgetContent.Click.SYNC_ENABLE, off.click);
 
-        // No destination at all: the sync control leads to the setup, in words.
+        // No destination at all: the control leads to the setup, in words, with the marked symbol.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
-        assertEquals(name(R.string.widget_state_setup), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
+        KeepADBWidgetContent.Tile setup = tile(Action.WEBHOOK_SYNC);
+        assertEquals(name(R.string.widget_state_setup), setup.state);
+        assertEquals(R.drawable.ic_widget_sync_warn, setup.iconRes);
+        assertEquals(KeepADBWidgetContent.Style.ATTENTION, setup.style);
+        assertEquals(KeepADBWidgetContent.Click.SETUP_WEBHOOK, setup.click);
     }
 
-    /** Report now left the widget in #912: no size, no state and no configuration brings it back. */
     @Test
-    public void theWidgetNeverOffersReportNowAndAlwaysKeepsItsThreeControls() {
-        String report = name(R.string.webhook_alert_action_report_now);
-        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
-        // A legacy entry that still names it (see KeepADBWidgetConfigTest) must not bring it back.
-        KeepADBWidgetConfig legacy = KeepADBWidgetConfig.decode(
-                "report_now;report_now,webhook_sync,keep_alive,adb;0");
-        for (boolean syncOn : new boolean[] {true, false}) {
-            KeepADBPreferences.setRegisterWebhookEnabled(context, syncOn);
-            for (SizeClass sizeClass : SizeClass.values()) {
-                assertFalse(sizeClass.name(), labels(render(defaults, sizeClass)).contains(report));
-                assertFalse(sizeClass.name(), labels(render(legacy, sizeClass)).contains(report));
-            }
-            assertEquals(3, tiles(render(defaults, SizeClass.STRIP)).size());
+    public void everyStateHasAWordAndTheFillAloneNeverCarriesIt() {
+        // Each state pairs a fill with a symbol variant and a word, so no state depends on color.
+        setAdb(false);
+        for (Action action : Action.values()) {
+            KeepADBWidgetContent.Tile tile = tile(action);
+            assertTrue(action + " has a state word", tile.state.length() > 0);
+            assertTrue(action + " has a short word", tile.shortState.length() > 0);
+            assertTrue(action + " has a symbol", tile.iconRes != 0);
         }
-        assertEquals("the legacy main action fell back to ADB",
-                Arrays.asList(name(R.string.widget_action_adb)), labels(render(legacy, SizeClass.SINGLE)));
-    }
-
-    @Test
-    public void everyControlHasItsOwnIconAndTheStateWordStaysWithoutTheLabel() {
-        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP);
         java.util.Set<Integer> icons = new java.util.HashSet<>();
-        for (View tile : tiles(widget)) {
-            android.widget.ImageView icon = tile.findViewById(R.id.widget_tile_icon);
-            assertNotNull(label(tile), icon.getDrawable());
-            icons.add(icon.getDrawable().getConstantState().hashCode());
-        }
-        assertEquals("three different icons", 3, icons.size());
+        for (Action action : Action.values()) icons.add(tile(action).iconRes);
+        assertEquals("three different symbols", 3, icons.size());
+    }
 
-        View large = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP, 2f);
-        for (View tile : tiles(large)) {
-            assertNotNull("icon stays", ((android.widget.ImageView) tile.findViewById(R.id.widget_tile_icon)).getDrawable());
-            assertEquals("icon stays visible", View.VISIBLE, tile.findViewById(R.id.widget_tile_icon).getVisibility());
-            assertTrue("state word stays", state(tile).length() > 0);
-            assertFalse("the title gives way", labelVisible(tile));
+    private KeepADBWidgetContent.Tile tile(Action action) {
+        return KeepADBWidgetContent.tile(context, action, KeepADBWidgetState.project(context));
+    }
+
+    // -- the port ------------------------------------------------------------------------------
+
+    @Test
+    public void thePortIsShownFromTheCompactHeroUpAndNeverInTheSmallestShape() {
+        for (SizeClass sizeClass : SizeClass.values()) {
+            String shown = port(hero(render(sizeClass)));
+            if (sizeClass == SizeClass.ONE) {
+                assertNull("no port in the smallest shape", shown);
+            } else {
+                assertEquals(sizeClass.name(), ":" + PORT, shown);
+            }
+        }
+        // The state word stands in for it in the compact shapes while there is no port.
+        setAdb(false);
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.HERO, SizeClass.ROW2, SizeClass.STACK,
+                SizeClass.STRIP, SizeClass.GRID}) {
+            View hero = hero(render(sizeClass));
+            assertNull(sizeClass.name(), port(hero));
+            assertNotNull(sizeClass.name() + " shows a word instead", state(hero));
         }
     }
 
     @Test
-    public void textsAreOneShrinkingLineSoNoWordOrNumberIsBrokenInTheMiddle() {
-        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        for (View tile : tiles(widget)) {
-            for (int id : new int[] {R.id.widget_tile_label, R.id.widget_tile_state}) {
-                android.widget.TextView text = tile.findViewById(id);
-                assertEquals(1, text.getMaxLines());
-                assertEquals(android.widget.TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM, text.getAutoSizeTextType());
-                assertTrue("never below 9sp", text.getAutoSizeMinTextSize() >= 9 * context.getResources().getDisplayMetrics().scaledDensity - 0.5f);
+    public void theGlobalSwitchAndThePerWidgetOptionShowDotsInsteadOfThePort() {
+        KeepADBWidgetConfig hidden = KeepADBWidgetConfig.of(Action.ADB, null, true);
+        for (SizeClass sizeClass : SizeClass.values()) {
+            View widget = render(hidden, sizeClass);
+            String shown = port(hero(widget));
+            if (sizeClass == SizeClass.ONE) {
+                assertNull(shown);
+            } else {
+                assertEquals(sizeClass.name(), "•••••", shown);
             }
+            assertNoEndpoint(widget);
         }
-        // The endpoint is one line cut in the middle: both ends, including the port, stay readable.
-        android.widget.TextView endpoint = widget.findViewById(R.id.widget_detail_endpoint);
-        assertEquals(1, endpoint.getMaxLines());
-        assertEquals(android.text.TextUtils.TruncateAt.MIDDLE, endpoint.getEllipsize());
-        assertEquals(1, ((android.widget.TextView) widget.findViewById(R.id.widget_detail_webhook)).getMaxLines());
+        assertEquals(name(R.string.widget_status_details_hidden) + " · "
+                        + name(R.string.widget_webhook_not_current),
+                statusText(render(hidden, SizeClass.PANEL)));
+    }
+
+    // -- TalkBack ------------------------------------------------------------------------------
+
+    @Test
+    public void everyControlSpeaksNameStateAndPortInFullWhateverIsVisible() {
+        String adb = name(R.string.toggle_label);
+        for (SizeClass sizeClass : SizeClass.values()) {
+            View widget = render(sizeClass);
+            List<View> tiles = tiles(widget);
+            for (View tile : tiles) {
+                assertTrue(sizeClass + " " + description(tile), description(tile).contains(": "));
+                assertTrue(description(tile).length() > 0);
+            }
+            assertEquals(sizeClass.name(), name(R.string.widget_description_port_format,
+                            name(R.string.widget_description_format, adb,
+                                    name(R.string.tile_state_connected)), PORT),
+                    description(tiles.get(0)));
+        }
+        // A square button has no text at all, but still names the control and its state.
+        View square = tiles(render(SizeClass.ROW1)).get(1);
+        assertEquals(name(R.string.widget_description_format,
+                name(R.string.settings_section_keep_alive), name(R.string.tile_state_off)),
+                description(square));
+        // With the details withheld the port is not spoken either.
+        String hidden = description(hero(render(KeepADBWidgetConfig.of(Action.ADB, null, true),
+                SizeClass.PANEL)));
+        assertEquals(name(R.string.widget_description_format, adb, name(R.string.tile_state_connected)),
+                hidden);
+    }
+
+    // -- the status line -------------------------------------------------------------------------
+
+    @Test
+    public void theStatusLineIsOneTextWithTheEndpointAndTheWebhookState() {
+        View widget = render(SizeClass.PANEL);
+        assertEquals(HOST + ":" + PORT + " · " + name(R.string.widget_webhook_not_current),
+                statusText(widget));
+        assertEquals(HOST + ":" + PORT + ". " + name(R.string.widget_webhook_not_current),
+                statusDescription(widget));
+        android.widget.TextView text = widget.findViewById(R.id.widget_status_text);
+        assertTrue("two lines at most, as high as its text", text.getMaxLines() <= 2);
+        assertEquals(android.text.TextUtils.TruncateAt.END, text.getEllipsize());
+        // The endpoint part is stressed, the webhook part keeps the muted color.
+        android.text.Spanned spanned = (android.text.Spanned) text.getText();
+        assertTrue(spanned.getSpans(0, HOST.length() + 1 + String.valueOf(PORT).length(),
+                android.text.style.StyleSpan.class).length > 0);
     }
 
     @Test
     public void aFailedReportIsVisibleAndDeliveryIsClaimedOnlyForTheCurrentEndpoint() {
-        KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-        View failed = render(config, SizeClass.PANEL);
-        assertEquals(name(R.string.notification_text_webhook_failed), webhookLine(failed));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.notification_text_webhook_failed)));
 
         // A success for exactly the current endpoint and destination: current.
         KeepADBPreferences.setWebhookLastReportedUrl(context, KeepADBPreferences.getRegisterWebhookUrl(context));
         KeepADBPreferences.setWebhookLastReportedEndpoint(context, KeepADBEndpoint.formatEndpoint(HOST, PORT));
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
-        View sent = render(config, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_webhook_current), webhookLine(sent));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_current)));
 
-        // With synchronization off the webhook line is about that, not about an earlier report.
+        // With synchronization off the line is about that, not about an earlier report.
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(name(R.string.widget_webhook_sync_off), webhookLine(render(config, SizeClass.PANEL)));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_sync_off)));
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
 
         // An old completion must not mark a newer endpoint delivered.
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT + 1, 2L);
-        View moved = render(config, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_webhook_not_current), webhookLine(moved));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_not_current)));
 
         // Without a verified endpoint there is nothing to report.
         KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
-        assertEquals(name(R.string.widget_webhook_no_endpoint), webhookLine(render(config, SizeClass.PANEL)));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_no_endpoint)));
     }
 
     @Test
-    public void theDetailsNameTheReasonsThatCanBeSolved() {
+    public void theStatusLineNamesTheReasonsThatCanBeSolved() {
         setAdb(false);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADB.recordExplicitIntent(context, true);
 
         // No Wi-Fi yet: Keep-Alive is waiting for the network.
         wifi.set(false);
-        assertEquals(name(R.string.status_off_keep_alive_waiting),
-                systemLine(render(KeepADBWidgetConfig.defaults(), SizeClass.GRID_STATUS)));
+        assertTrue(statusText(render(SizeClass.PANEL))
+                .startsWith(name(R.string.status_off_keep_alive_waiting)));
 
         // Wi-Fi up but the network cannot be read (no location access): paused, with the reason.
         wifi.set(true);
-        assertEquals(name(R.string.status_off_keep_alive_blocked_identity_unavailable),
-                systemLine(render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL)));
+        assertTrue(statusText(render(SizeClass.PANEL))
+                .startsWith(name(R.string.status_off_keep_alive_blocked_identity_unavailable)));
 
-        // No destination: the webhook line says it is not set up.
+        // No destination: the webhook part says it is not set up.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
-        assertEquals(name(R.string.widget_webhook_unconfigured),
-                webhookLine(render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL)));
+        assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_unconfigured)));
     }
 
     // -- privacy -------------------------------------------------------------------------------
 
     @Test
     public void theEndpointIsShownOnlyWhenNeitherTheGlobalSwitchNorTheWidgetHidesIt() {
-        View open = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        assertEquals(name(R.string.endpoint_format, HOST, PORT), endpointLine(open));
-        assertFalse("the endpoint line stands in for the state line", systemLineVisible(open));
-        // The narrow box drops the word so the port stays on the line.
-        assertEquals(name(R.string.tile_state_connected_format, HOST, PORT),
-                endpointLine(render(KeepADBWidgetConfig.defaults(), SizeClass.GRID_STATUS)));
+        View open = render(SizeClass.PANEL);
+        assertTrue(statusText(open).startsWith(HOST + ":" + PORT));
 
-        // The per-widget option hides more: only the state is left.
+        // The per-widget option hides more: "Details hidden", no address, no port.
         KeepADBWidgetConfig hidden = KeepADBWidgetConfig.of(Action.ADB, null, true);
         View closed = render(hidden, SizeClass.PANEL);
         assertNoEndpoint(closed);
-        assertFalse(KeepADBWidgetTestSupport.endpointLineVisible(closed));
-        assertEquals(name(R.string.status_on), systemLine(closed));
+        assertTrue(statusText(closed).startsWith(name(R.string.widget_status_details_hidden)));
+        assertEquals("the state itself stays readable", name(R.string.tile_state_connected),
+                state(hero(closed)));
     }
 
     @Test
@@ -436,13 +559,12 @@ public class KeepADBWidgetViewsTest {
         // Both on: still hidden, and the state itself stays readable.
         View both = render(KeepADBWidgetConfig.of(Action.ADB, null, true), SizeClass.PANEL);
         assertNoEndpoint(both);
-        assertEquals(name(R.string.tile_state_connected), state(tiles(both).get(0)));
-        assertEquals(name(R.string.status_on), systemLine(both));
+        assertEquals(name(R.string.tile_state_connected), state(hero(both)));
+        assertTrue(statusText(both).startsWith(name(R.string.widget_status_details_hidden)));
     }
 
     @Test
     public void theWebhookUrlIsNeverOnTheWidgetInAnySizeOrPrivacyState() {
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         for (boolean global : new boolean[] {false, true}) {
             KeepADBPreferences.setWidgetPrivacyEnabled(context, global);
             for (boolean widgetHides : new boolean[] {false, true}) {
@@ -464,32 +586,48 @@ public class KeepADBWidgetViewsTest {
         assertFalse(text, text.contains(name(R.string.endpoint_format, HOST, PORT)));
     }
 
-    // -- fonts, touch targets, clipping --------------------------------------------------------
+    // -- text fitting and touch targets ------------------------------------------------------------
 
     @Test
-    public void aLargeFontKeepsTheStateAndLetsTheLabelGiveWay() {
-        View normal = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP, 1f);
-        View large = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP, 2f);
-        for (View tile : tiles(normal)) assertTrue(labelVisible(tile));
-        for (View tile : tiles(large)) {
-            assertFalse("the label gives way first", labelVisible(tile));
-            assertTrue("the state stays", state(tile).length() > 0);
-            assertTrue("TalkBack still has the name",
-                    tile.getContentDescription().toString().contains(": "));
+    public void textsAreOneShrinkingLineUpTo85PercentAndThePortNeverWraps() {
+        float density = context.getResources().getDisplayMetrics().scaledDensity;
+        for (SizeClass sizeClass : SizeClass.values()) {
+            View widget = render(sizeClass);
+            for (View tile : tiles(widget)) {
+                for (int id : new int[] {R.id.widget_tile_label, R.id.widget_tile_state,
+                        R.id.widget_tile_port}) {
+                    View view = tile.findViewById(id);
+                    if (!(view instanceof android.widget.TextView)) continue;
+                    android.widget.TextView text = (android.widget.TextView) view;
+                    assertEquals(sizeClass + " " + id, 1, text.getMaxLines());
+                    assertEquals(android.widget.TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM,
+                            text.getAutoSizeTextType());
+                    assertEquals("never cut with an ellipsis", null, text.getEllipsize());
+                    float max = text.getAutoSizeMaxTextSize();
+                    float min = text.getAutoSizeMinTextSize();
+                    if (id == R.id.widget_tile_port) {
+                        assertTrue("the port may shrink further than words, but never wraps",
+                                min >= 0.45f * max);
+                    } else {
+                        assertTrue(sizeClass + " " + id + " min " + min + " max " + max,
+                                min >= 0.8f * max && min <= 0.92f * max);
+                    }
+                    assertTrue(max <= 22 * density + 0.5f);
+                }
+            }
         }
     }
 
     /**
-     * The geometry budget without text: Robolectric's text metrics are not a device's (a line is
-     * several times too tall), so the tests measure the structure the layout guarantees (tile,
-     * details row and button sizes at the smallest room of a class) and leave text out. Text is cut
-     * with an ellipsis by the layout, never allowed to grow a tile.
+     * The geometry budget without text: Robolectric's text metrics are not a device's, so the tests
+     * measure the structure the layout guarantees (control and button sizes at the smallest room
+     * of a class) and leave the text out.
      */
     private View renderWithoutText(SizeClass sizeClass) {
-        View widget = render(KeepADBWidgetConfig.defaults(), sizeClass);
+        View widget = render(sizeClass);
         blank(widget);
-        KeepADBWidgetTestSupport.measure(widget, Math.max(56, sizeClass.minWidthDp),
-                Math.max(56, sizeClass.minHeightDp));
+        int[] room = room(sizeClass);
+        KeepADBWidgetTestSupport.measure(widget, room[0], room[1]);
         return widget;
     }
 
@@ -502,48 +640,48 @@ public class KeepADBWidgetViewsTest {
     }
 
     @Test
-    public void everyTileAndButtonKeepsAtLeast48DpAtTheSmallestSizeOfItsClass() {
+    public void everyControlAndButtonKeepsAtLeast48DpInTheRoomOfItsClass() {
         int minimum = 48;
         for (SizeClass sizeClass : SizeClass.values()) {
             View widget = renderWithoutText(sizeClass);
             for (View tile : tiles(widget)) {
-                assertTrue(sizeClass + " tile width " + tile.getMeasuredWidth(),
+                assertTrue(sizeClass + " control width " + tile.getMeasuredWidth(),
                         tile.getMeasuredWidth() >= minimum);
-                assertTrue(sizeClass + " tile height " + tile.getMeasuredHeight(),
+                assertTrue(sizeClass + " control height " + tile.getMeasuredHeight(),
                         tile.getMeasuredHeight() >= minimum);
             }
-            if (sizeClass.hasDetails()) {
-                View details = widget.findViewById(R.id.widget_details);
-                assertTrue(sizeClass + " details height " + details.getMeasuredHeight(),
-                        details.getMeasuredHeight() >= minimum - 4);
-                View customize = widget.findViewById(R.id.widget_customize);
-                if (sizeClass == SizeClass.PANEL) {
-                    assertEquals(View.VISIBLE, customize.getVisibility());
-                    assertTrue(customize.getMeasuredWidth() >= minimum);
-                    assertTrue(customize.getMeasuredHeight() >= minimum);
-                } else {
-                    assertEquals("a narrow box keeps its room for the text",
-                            View.GONE, customize.getVisibility());
-                }
+            if (sizeClass == SizeClass.PANEL) {
+                View gear = widget.findViewById(R.id.widget_customize);
+                assertEquals(View.VISIBLE, gear.getVisibility());
+                assertTrue(gear.getMeasuredWidth() >= minimum);
+                assertTrue(gear.getMeasuredHeight() >= minimum);
+                assertTrue(widget.findViewById(R.id.widget_status_row).getMeasuredHeight() >= minimum);
             }
         }
     }
 
     @Test
-    public void rowsAndDetailsFitTheSmallestRoomOfEveryClass() {
+    public void tilesGrowWithTheHeightAndTheStatusLineStaysAsHighAsItsText() {
+        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        View low = applyAndMeasure(context, KeepADBWidgetViews.forSize(context, WIDGET_ID, defaults,
+                projection, SizeClass.PANEL), 304, 160);
+        View high = applyAndMeasure(context, KeepADBWidgetViews.forSize(context, WIDGET_ID, defaults,
+                projection, SizeClass.PANEL), 304, 300);
+        assertTrue("the pills grow with the height", tiles(high).get(1).getMeasuredHeight()
+                > tiles(low).get(1).getMeasuredHeight());
+        assertTrue("the hero grows with it", hero(high).getMeasuredHeight() > hero(low).getMeasuredHeight());
+        assertEquals("the status line does not", low.findViewById(R.id.widget_status_row).getMeasuredHeight(),
+                high.findViewById(R.id.widget_status_row).getMeasuredHeight());
+    }
+
+    @Test
+    public void everyControlOfEveryClassHasASymbol() {
         for (SizeClass sizeClass : SizeClass.values()) {
             View widget = renderWithoutText(sizeClass);
-            int height = Math.max(56, sizeClass.minHeightDp);
-            int used = widget.findViewById(R.id.widget_row_1).getMeasuredHeight();
-            if (widget.findViewById(R.id.widget_row_2).getVisibility() == View.VISIBLE) {
-                used += widget.findViewById(R.id.widget_row_2).getMeasuredHeight();
+            for (View tile : tiles(widget)) {
+                assertEquals(sizeClass + " has a symbol", "icon", ico(tile));
             }
-            if (detailsVisible(widget)) {
-                used += widget.findViewById(R.id.widget_details_row).getMeasuredHeight();
-            }
-            assertTrue(sizeClass + ": rows and details (" + used + ") fit the height " + height,
-                    used <= height);
-            assertTrue(sizeClass + " has tiles", tiles(widget).size() == sizeClass.actionCount());
         }
     }
 }

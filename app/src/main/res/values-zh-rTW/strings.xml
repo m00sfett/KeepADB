@@ -644,4 +644,9 @@
     <string name="widget_config_hide_details_global">小工具隱私設定已在所有小工具中隱藏詳情。</string>
     <string name="widget_config_save">儲存</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">開</string>
+    <string name="widget_short_off">關</string>
+    <string name="widget_short_scan">搜尋…</string>
+    <string name="widget_status_details_hidden">詳細資料已隱藏</string>
+    <string name="widget_description_port_format">%1$s，連接埠 %2$d</string>
 </resources>

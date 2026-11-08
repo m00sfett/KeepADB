@@ -69,17 +69,16 @@ public class KeepADBWidgetConfigTest {
     }
 
     @Test
-    public void theMainActionSurvivesShrinkingAndTheOrderKeepsThePositions() {
+    public void theMainActionIsNeverAmongTheOthersAndTheOrderIsTheirSequence() {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(SYNC,
                 Arrays.asList(ADB, KEEP_ALIVE, SYNC), false);
 
-        assertEquals(Collections.singletonList(SYNC), config.shown(1));
-        // The main action plus the first of the others, in the order's sequence.
-        assertEquals(Arrays.asList(ADB, SYNC), config.shown(2));
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(3));
-        assertEquals("asking for more than exists shows all, once",
-                Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(9));
-        assertTrue(config.shown(0).isEmpty());
+        assertTrue("a small widget shows the main action alone", config.others(0).isEmpty());
+        assertEquals(Collections.singletonList(ADB), config.others(1));
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE), config.others(2));
+        assertEquals("asking for more than exists gives the others, once",
+                Arrays.asList(ADB, KEEP_ALIVE), config.others(9));
+        assertTrue(config.others(-1).isEmpty());
     }
 
     @Test
@@ -87,27 +86,14 @@ public class KeepADBWidgetConfigTest {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(KEEP_ALIVE,
                 Arrays.asList(SYNC, KEEP_ALIVE, ADB), false);
 
-        assertEquals(Collections.singletonList(KEEP_ALIVE), config.shown(1));
-        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE), config.shown(2));
-        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE, ADB), config.shown(3));
-    }
+        assertEquals(Collections.singletonList(SYNC), config.others(1));
+        assertEquals(Arrays.asList(SYNC, ADB), config.others(2));
 
-    @Test
-    public void anUnavailableActionTakesNoPlaceAndTheOthersMoveUp() {
-        KeepADBWidgetConfig config = KeepADBWidgetConfig.of(ADB,
-                Arrays.asList(ADB, SYNC, KEEP_ALIVE), false);
-        java.util.Set<KeepADBWidgetConfig.Action> noSync = java.util.EnumSet.of(SYNC);
-
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE), config.shown(3, noSync));
-        assertEquals(Arrays.asList(ADB), config.shown(1, noSync));
-        assertEquals("with everything available nothing changes",
-                config.shown(3), config.shown(3, java.util.Collections.<KeepADBWidgetConfig.Action>emptySet()));
-
-        // An unavailable main action gives its place to the first of the others.
-        KeepADBWidgetConfig syncFirst = KeepADBWidgetConfig.of(SYNC,
-                Arrays.asList(SYNC, ADB, KEEP_ALIVE), false);
-        assertEquals(Collections.singletonList(SYNC), syncFirst.shown(1));
-        assertEquals(Collections.singletonList(ADB), syncFirst.shown(1, noSync));
+        KeepADBWidgetConfig adbFirst = KeepADBWidgetConfig.of(ADB,
+                Arrays.asList(SYNC, KEEP_ALIVE, ADB), false);
+        assertEquals("growing only adds the next one in the sequence",
+                Collections.singletonList(SYNC), adbFirst.others(1));
+        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE), adbFirst.others(2));
     }
 
     @Test

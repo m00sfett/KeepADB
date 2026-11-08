@@ -649,4 +649,9 @@
     <string name="widget_config_hide_details_global">إعداد خصوصية الأدوات يخفي التفاصيل بالفعل في كل الأدوات.</string>
     <string name="widget_config_save">حفظ</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">تشغيل</string>
+    <string name="widget_short_off">إيقاف</string>
+    <string name="widget_short_scan">بحث…</string>
+    <string name="widget_status_details_hidden">التفاصيل مخفية</string>
+    <string name="widget_description_port_format">%1$s، المنفذ %2$d</string>
 </resources>

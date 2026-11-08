@@ -109,8 +109,8 @@ public class KeepADBWidgetLifecycleTest {
     private View panel(int widgetId, KeepADBWidgetConfig config, SizeClass sizeClass) {
         KeepADBWidgetState projection = KeepADBWidgetState.project(context, config.hideDetails);
         return applyAndMeasure(context,
-                KeepADBWidgetViews.forSize(context, widgetId, config, projection, sizeClass, true),
-                Math.max(56, sizeClass.minWidthDp), Math.max(56, sizeClass.minHeightDp));
+                KeepADBWidgetViews.forSize(context, widgetId, config, projection, sizeClass),
+                Math.max(56, sizeClass.minWidthDp(1f)), Math.max(56, sizeClass.minHeightDp(1f)));
     }
 
     private NotificationManager notifications() {
@@ -133,7 +133,8 @@ public class KeepADBWidgetLifecycleTest {
         View view = widgets.getViewFor(id);
         List<View> tiles = tiles(view);
         assertFalse("it renders something", tiles.isEmpty());
-        assertEquals(context.getString(R.string.widget_action_adb), label(tiles.get(0)));
+        assertEquals("the main control is Wireless Debugging, as it was before",
+                Action.ADB, KeepADBWidgetTestSupport.actionOf(context, tiles.get(0)));
 
         // The tap still reaches the same component with the same action it always did.
         PendingIntent toggle = KeepADBWidgetActions.toggleAdb(context);
@@ -398,7 +399,7 @@ public class KeepADBWidgetLifecycleTest {
         shadowOf(Looper.getMainLooper()).idle();
         KeepADBRegisterClientResetRule.awaitIdle();
         assertEquals(context.getString(R.string.tile_state_connected),
-                KeepADBWidgetTestSupport.state(tiles(widgets.getViewFor(id)).get(0)));
+                KeepADBWidgetTestSupport.heroStateWord(context, widgets.getViewFor(id)));
         notifications().cancelAll();
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpointCoordinator.seedEndpointForTesting("127.0.0.1", endpointServer.getLocalPort(), 1L);
@@ -418,7 +419,7 @@ public class KeepADBWidgetLifecycleTest {
         KeepADBRegisterClientResetRule.awaitIdle();
 
         assertEquals("the widget shows the new state", context.getString(R.string.tile_state_off),
-                KeepADBWidgetTestSupport.state(tiles(widgets.getViewFor(id)).get(0)));
+                KeepADBWidgetTestSupport.heroStateWord(context, widgets.getViewFor(id)));
         assertNotNull("a content-triggered job runs once, so it watches again",
                 shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
         assertEquals("redrawing sent nothing", 0, transport.getRequestCount());
@@ -472,7 +473,7 @@ public class KeepADBWidgetLifecycleTest {
         KeepADBWidgetConfig sync = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
 
         // Synchronization is on: the sync control asks to switch it off.
-        tiles(panel(401, sync, SizeClass.SINGLE)).get(0).performClick();
+        tiles(panel(401, sync, SizeClass.ONE)).get(0).performClick();
         shadowOf(Looper.getMainLooper()).idle();
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE, lastBroadcast(app).getAction());
         KeepADBRegisterClientResetRule.awaitIdle();
@@ -480,14 +481,14 @@ public class KeepADBWidgetLifecycleTest {
 
         // Now it is off: the sync control asks to switch it on. The widget has no report control
         // in either state (#912; "Report now" lives only on the webhook failure notification).
-        tiles(panel(402, sync, SizeClass.SINGLE)).get(0).performClick();
+        tiles(panel(402, sync, SizeClass.ONE)).get(0).performClick();
         shadowOf(Looper.getMainLooper()).idle();
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
         KeepADBRegisterClientResetRule.awaitIdle();
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         View strip = panel(403, KeepADBWidgetConfig.defaults(), SizeClass.STRIP);
         assertEquals(3, tiles(strip).size());
-        assertFalse(KeepADBWidgetTestSupport.labels(strip)
+        assertFalse(KeepADBWidgetTestSupport.allText(strip)
                 .contains(context.getString(R.string.webhook_alert_action_report_now)));
     }
 
@@ -547,7 +548,7 @@ public class KeepADBWidgetLifecycleTest {
         // No destination: the sync control leads to the webhook form.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
         KeepADBWidgetConfig syncFirst = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
-        tiles(panel(301, syncFirst, SizeClass.SINGLE)).get(0).performClick();
+        tiles(panel(301, syncFirst, SizeClass.ONE)).get(0).performClick();
         Intent setup = shadowOf(app).getNextStartedActivity();
         assertEquals(SettingsActivity.class.getName(), setup.getComponent().getClassName());
         assertTrue(setup.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
@@ -558,7 +559,7 @@ public class KeepADBWidgetLifecycleTest {
         tiles(widget).get(0).performClick();
         assertEquals(MainActivity.class.getName(),
                 shadowOf(app).getNextStartedActivity().getComponent().getClassName());
-        widget.findViewById(R.id.widget_details).performClick();
+        widget.findViewById(R.id.widget_status_text).performClick();
         assertEquals(MainActivity.class.getName(),
                 shadowOf(app).getNextStartedActivity().getComponent().getClassName());
         assertNull("nothing else started", shadowOf(app).getNextStartedActivity());
@@ -616,8 +617,8 @@ public class KeepADBWidgetLifecycleTest {
         // What a launcher does on a resize and on every refresh: reapply onto the view it has.
         KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
         KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
-        RemoteViews strip = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.STRIP, true);
-        RemoteViews single = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.SINGLE, true);
+        RemoteViews strip = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.STRIP);
+        RemoteViews single = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.ONE);
 
         View view = strip.apply(context, new FrameLayout(context));
         assertEquals(3, tiles(view).size());

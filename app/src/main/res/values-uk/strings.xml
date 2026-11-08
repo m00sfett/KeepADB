@@ -647,4 +647,9 @@
     <string name="widget_config_hide_details_global">Налаштування приватності віджетів уже приховує дані в усіх віджетах.</string>
     <string name="widget_config_save">Зберегти</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Увімк.</string>
+    <string name="widget_short_off">Вимк.</string>
+    <string name="widget_short_scan">Пошук…</string>
+    <string name="widget_status_details_hidden">Подробиці приховано</string>
+    <string name="widget_description_port_format">%1$s, порт %2$d</string>
 </resources>

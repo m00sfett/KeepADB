@@ -647,4 +647,9 @@
     <string name="widget_config_hide_details_global">Настройка конфиденциальности виджетов уже скрывает данные во всех виджетах.</string>
     <string name="widget_config_save">Сохранить</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Вкл.</string>
+    <string name="widget_short_off">Выкл.</string>
+    <string name="widget_short_scan">Поиск…</string>
+    <string name="widget_status_details_hidden">Детали скрыты</string>
+    <string name="widget_description_port_format">%1$s, порт %2$d</string>
 </resources>

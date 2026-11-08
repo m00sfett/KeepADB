@@ -165,7 +165,7 @@ public class KeepADBMultiStateContractTest {
 
         assertEquals(context.getString(R.string.tile_state_connected), widgetText(renderWidget()));
         assertTrue("the status box of the larger sizes names the endpoint",
-                panelText().contains(context.getString(R.string.endpoint_format, "127.0.0.1", endpointPort)));
+                panelText().contains(context.getString(R.string.tile_state_connected_format, "127.0.0.1", endpointPort)));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -425,15 +425,16 @@ public class KeepADBMultiStateContractTest {
         return KeepADBWidgetTestSupport.allText(KeepADBWidgetTestSupport.applyAndMeasure(context,
                 KeepADBWidgetViews.forSize(context, 77, KeepADBWidgetConfig.defaults(),
                         KeepADBWidgetState.project(context, false),
-                        KeepADBWidgetLayout.SizeClass.PANEL, true), 250, 110));
+                        KeepADBWidgetLayout.SizeClass.PANEL), 304, 196));
     }
 
     private String widgetText(View view) {
-        // The first tile is Wireless Debugging in the default order, in every size class.
-        TextView label = view.findViewById(R.id.widget_tile_state);
-        assertNotNull(label);
-        assertTrue(label.getText().length() > 0);
-        return label.getText().toString();
+        // The main control is Wireless Debugging in the default configuration, in every size
+        // class; its state word is what TalkBack reads after the name (and before a port).
+        assertNotNull(KeepADBWidgetTestSupport.hero(view));
+        String state = KeepADBWidgetTestSupport.heroStateWord(context, view);
+        assertTrue(state.length() > 0);
+        return state;
     }
 
     private void stopTileService(KeepADBTileService tileService) {

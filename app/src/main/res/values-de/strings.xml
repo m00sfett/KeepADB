@@ -645,4 +645,9 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="widget_config_hide_details_global">Die Datenschutzeinstellung für Widgets blendet die Details bereits in allen Widgets aus.</string>
     <string name="widget_config_save">Speichern</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">An</string>
+    <string name="widget_short_off">Aus</string>
+    <string name="widget_short_scan">Suche…</string>
+    <string name="widget_status_details_hidden">Details ausgeblendet</string>
+    <string name="widget_description_port_format">%1$s, Port %2$d</string>
 </resources>

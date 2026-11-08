@@ -124,8 +124,7 @@ public class KeepADBWidget extends AppWidgetProvider {
                     == Configuration.ORIENTATION_LANDSCAPE;
             KeepADBWidgetLayout.SizeClass sizeClass = KeepADBWidgetLayout.choose(
                     mgr.getAppWidgetOptions(id), landscape, fontScale);
-            views = KeepADBWidgetViews.forSize(localizedContext, id, config, projection, sizeClass,
-                    KeepADBWidgetLayout.showLabels(fontScale));
+            views = KeepADBWidgetViews.forSize(localizedContext, id, config, projection, sizeClass);
         }
         mgr.updateAppWidget(id, views);
     }

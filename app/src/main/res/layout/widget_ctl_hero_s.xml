@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the main control in a short or compact widget (2x1, 4x1, the compact classes): the
+     symbol and under it only the port in monospace, or the short state word while there is no
+     port. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_tile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget_tile_off"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="48dp"
+    android:minWidth="48dp"
+    android:gravity="center_vertical|start"
+    android:orientation="vertical"
+    android:paddingStart="12dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/widget_tile_icon"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/widget_tile_port"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
+        android:fontFamily="monospace"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/widget_text"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/widget_tile_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/widget_text"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp" />
+</LinearLayout>

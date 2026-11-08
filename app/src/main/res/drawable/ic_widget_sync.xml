@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #912: automatic webhook synchronization tile icon (a cloud with an arrow up). -->
+<!-- #912: Auto-sync on: the cloud with an upward arrow. White; the widget tints it per state (KeepADBWidgetViews). Material icon path. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:tint="@color/text_yellow"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path

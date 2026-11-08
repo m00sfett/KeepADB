@@ -646,4 +646,9 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="widget_config_hide_details_global">A configuração de privacidade dos widgets já oculta os detalhes em todos os widgets.</string>
     <string name="widget_config_save">Salvar</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Ativo</string>
+    <string name="widget_short_off">Inativo</string>
+    <string name="widget_short_scan">Busca…</string>
+    <string name="widget_status_details_hidden">Detalhes ocultos</string>
+    <string name="widget_description_port_format">%1$s, porta %2$d</string>
 </resources>

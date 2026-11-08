@@ -644,4 +644,9 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="widget_config_hide_details_global">Cài đặt riêng tư widget đã ẩn chi tiết trong mọi widget.</string>
     <string name="widget_config_save">Lưu</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Bật</string>
+    <string name="widget_short_off">Tắt</string>
+    <string name="widget_short_scan">Đang tìm…</string>
+    <string name="widget_status_details_hidden">Chi tiết đã ẩn</string>
+    <string name="widget_description_port_format">%1$s, cổng %2$d</string>
 </resources>

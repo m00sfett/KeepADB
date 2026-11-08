@@ -101,6 +101,8 @@ ALLOWLIST = {
         "nl", "pl", "pt", "ru", "tr", "uk", "vi",
     },
     "widget_action_adb": {"de"},
+    # Widget port description (#912): "port" is the same word in these languages.
+    "widget_description_port_format": {"fr", "in", "pl"},
     "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form
     "settings_section_version": {"de", "fr"},   # "Version" is the correct German and French word
     "background_location_dialog_later": {"nl"},  # "Later" is the correct Dutch word (#644)

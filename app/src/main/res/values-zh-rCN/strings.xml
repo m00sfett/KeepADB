@@ -644,4 +644,9 @@
     <string name="widget_config_hide_details_global">小组件隐私设置已在所有小组件中隐藏详情。</string>
     <string name="widget_config_save">保存</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">开</string>
+    <string name="widget_short_off">关</string>
+    <string name="widget_short_scan">搜索…</string>
+    <string name="widget_status_details_hidden">详情已隐藏</string>
+    <string name="widget_description_port_format">%1$s，端口 %2$d</string>
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: about 2x2: the main control takes the rest of the height, two pills of 48 dp under it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget_root"
+    android:padding="@dimen/widget_gap_half"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/widget_slot_hero"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/widget_gap_half"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/widget_slot_a"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="@dimen/widget_gap_half" />
+
+    <FrameLayout
+        android:id="@+id/widget_slot_b"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_margin="@dimen/widget_gap_half" />
+</LinearLayout>

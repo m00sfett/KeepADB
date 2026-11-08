@@ -646,4 +646,9 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="widget_config_hide_details_global">Le réglage de confidentialité des widgets masque déjà les détails dans tous les widgets.</string>
     <string name="widget_config_save">Enregistrer</string>
     <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Actif</string>
+    <string name="widget_short_off">Inactif</string>
+    <string name="widget_short_scan">Recherche…</string>
+    <string name="widget_status_details_hidden">Détails masqués</string>
+    <string name="widget_description_port_format">%1$s, port %2$d</string>
 </resources>
