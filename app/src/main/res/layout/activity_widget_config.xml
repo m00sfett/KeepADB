@@ -38,6 +38,15 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- The body takes the bottom inset (navigation bar), so the Save button below the scrolling
+         part is always on the screen, whatever the screen height. -->
+    <LinearLayout
+        android:id="@+id/widget_config_body"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
     <ScrollView
         android:id="@+id/widget_config_scroll"
         android:layout_width="match_parent"
@@ -109,13 +118,18 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
-            <Button
-                android:id="@+id/widget_config_save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/widget_config_save"
-                style="@style/Widget.KeepADB.Button.Primary" />
         </LinearLayout>
     </ScrollView>
+
+        <Button
+            android:id="@+id/widget_config_save"
+            style="@style/Widget.KeepADB.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/widget_config_save" />
+    </LinearLayout>
 </LinearLayout>

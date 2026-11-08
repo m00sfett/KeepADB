@@ -63,6 +63,9 @@ public class KeepADBWidgetConfigActivityTest {
         KeepADB.resetForTesting(context);
         KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        // Synchronization on: only then "Report now" has a place in the widget.
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://register.example/register/dev1");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         widgets = shadowOf(AppWidgetManager.getInstance(context));
         widgetId = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
         otherId = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
@@ -217,6 +220,24 @@ public class KeepADBWidgetConfigActivityTest {
     }
 
     @Test
+    public void theSaveButtonStaysOnTheScreenAboveTheNavigationBar() {
+        Activity activity = open(widgetId).get();
+        View save = activity.findViewById(R.id.widget_config_save);
+        View body = activity.findViewById(R.id.widget_config_body);
+        View scroll = activity.findViewById(R.id.widget_config_scroll);
+        assertEquals("not inside the scrolling part, so it cannot scroll away",
+                body, save.getParent());
+        assertEquals(body, scroll.getParent());
+
+        // The navigation bar's room goes to the body that holds the button.
+        android.graphics.Insets bar = android.graphics.Insets.of(0, 0, 0, 120);
+        body.dispatchApplyWindowInsets(new android.view.WindowInsets.Builder()
+                .setInsets(android.view.WindowInsets.Type.systemBars(), bar).build());
+        int margin = ((android.view.ViewGroup.MarginLayoutParams) body.getLayoutParams()).bottomMargin;
+        assertTrue("bottom margin " + margin, margin >= 120);
+    }
+
+    @Test
     public void everyMoveButtonIsNamedForTalkBackAndBigEnough() {
         Activity activity = open(widgetId).get();
         LinearLayout rows = activity.findViewById(R.id.widget_config_order_rows);
@@ -225,7 +246,7 @@ public class KeepADBWidgetConfigActivityTest {
                 View view = orderButton(activity, row, button);
                 assertNotNull(view.getContentDescription());
                 assertTrue(view.getContentDescription().length() > 0);
-                assertEquals(48, view.getLayoutParams().height);
+                assertTrue(view.getLayoutParams().height >= 48);
                 assertTrue(((android.widget.Button) view).getMinWidth() >= 48);
             }
         }

@@ -55,7 +55,7 @@ public class KeepADBWidgetConfigActivity extends Activity {
         }
         setContentView(R.layout.activity_widget_config);
         KeepADBWindowInsets.apply(getWindow(), findViewById(R.id.header_bar),
-                findViewById(R.id.widget_config_scroll));
+                findViewById(R.id.widget_config_body));
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
         KeepADBWidgetConfig stored = KeepADBWidgetConfig.load(this, appWidgetId);
@@ -190,11 +190,15 @@ public class KeepADBWidgetConfigActivity extends Activity {
         button.setText(glyph);
         button.setContentDescription(description);
         button.setEnabled(enabled);
-        button.setMinWidth(dp(48));
-        button.setMinimumWidth(dp(48));
+        button.setMinWidth(dp(52));
+        button.setMinimumWidth(dp(52));
+        button.setMinHeight(dp(52));
+        button.setMinimumHeight(dp(52));
         button.setPadding(dp(8), dp(8), dp(8), dp(8));
+        // A little above 48 dp: the dp conversion rounds down and the drawn shape sits inside the
+        // view, so exactly 48 measured a pixel short on some densities.
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48));
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(52));
         params.setMarginStart(dp(8));
         button.setLayoutParams(params);
         button.setOnClickListener(v -> move.run());
@@ -218,6 +222,6 @@ public class KeepADBWidgetConfigActivity extends Activity {
     }
 
     private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density);
+        return (int) Math.ceil(value * getResources().getDisplayMetrics().density);
     }
 }
