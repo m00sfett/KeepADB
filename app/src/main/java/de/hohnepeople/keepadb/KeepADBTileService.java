@@ -147,7 +147,9 @@ public class KeepADBTileService extends TileService {
     private void updateTile() {
         Tile tile = getQsTile();
         if (tile == null) return;
-        KeepADB.State state = KeepADB.getState(this);
+        // #910: one read-only projection; it also decides what the tile may reveal (#904).
+        KeepADBWidgetState projection = KeepADBWidgetState.project(this);
+        KeepADB.State state = projection.systemState;
         tile.setLabel(getString(R.string.tile_label));
         switch (state) {
             case PERMISSION_MISSING:
@@ -177,12 +179,12 @@ public class KeepADBTileService extends TileService {
                 break;
             case ENABLED_CONNECTED:
                 tile.setState(Tile.STATE_ACTIVE);
-                KeepADBEndpointCoordinator.Snapshot endpoint = KeepADBEndpointCoordinator.snapshot();
-                String host = endpoint.host;
-                int port = endpoint.port;
-                // #904: with the widget privacy switch on, the tile shows the state only. The
-                // switch covers widgets and the tile; the app switch does not apply here.
-                if (host != null && port > 0 && !KeepADBPreferences.isWidgetPrivacyEnabled(this)) {
+                String host = projection.endpointHost;
+                int port = projection.endpointPort;
+                // #904: with the widget privacy switch on, the projection carries no host and no
+                // port and the tile shows the state only. The switch covers widgets and the tile;
+                // the app switch does not apply here.
+                if (host != null && port > 0) {
                     String displayHost = host;
                     if (displayHost.contains(":") && !displayHost.startsWith("[")) {
                         displayHost = "[" + displayHost + "]";
@@ -197,7 +199,7 @@ public class KeepADBTileService extends TileService {
         }
         // #318: a scheduled but not yet written toggle overrides the subtitle, so the debounce
         // window is visible instead of silently showing the old value.
-        if (state != KeepADB.State.PERMISSION_MISSING && KeepADB.isTogglePending()) {
+        if (projection.adb == KeepADBWidgetState.Adb.PENDING) {
             tile.setSubtitle(getString(R.string.state_pending));
         }
         tile.updateTile();
