@@ -169,7 +169,9 @@ forms and one tap target.
 device, and dismissing the notice do not change status. The same access point is not prompted again
 for at least 24 hours (previously 6 hours); a blocked access point is never prompted.
 
-**Locked device.** The notice stays neutral (no name; #578/#592/#598). The dialog appears only
+**Locked device.** On the lock screen Android shows the notice's public version, which names no
+network (#578). Only if the notification privacy switch is off and Android is set to show sensitive
+content on the lock screen does the notice with name and BSSID appear there (#592/#904). The dialog appears only
 after the device is unlocked: the activity has neither `showWhenLocked` nor `turnScreenOn`, so
 Android requires unlocking before opening it, and it checks the screen lock itself as well. While
 the screen is locked, it does not bind a name or address; when paused (screen off or another app),
