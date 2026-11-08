@@ -84,9 +84,29 @@ and never reuses an address while Wi-Fi is down.
 The widgets' synchronization switch asks for a target state (on or off), never a flip, so a
 repeated tap cannot undo itself. It uses the same enable and disable paths as the settings form:
 switching on needs a valid saved URL (without one nothing changes and nothing is sent, and the
-widget's setup action leads to the settings), switching off sends the DELETE before the preference
-goes off, exactly as the opt-out always does. The app, the notification and every widget are
+widget's setup action leads to the settings). The app, the notification and every widget are
 refreshed afterwards.
+
+**Switching off: what happens in which order.** The preference goes off at once; the withdrawal
+does not wait for the network. The DELETE at the last reported URL is queued on the sender's single
+background thread (behind any request already running or due) and sent from there; the URL is read
+when the switch is tapped. Until the DELETE has succeeded, the stored report record (the last
+reported URL and endpoint) still names the registration; its success clears the record and shows
+the report as withdrawn, its failure keeps the record and shows the last report as failed.
+
+- **While the process is needed:** a switch tapped on a widget keeps its broadcast open until the
+  DELETE has been attempted (or the hold limit of the broadcast has passed, which is shorter than
+  the system's window), so the process is not stopped with the request still queued. Switching on
+  keeps it open until the first report is out in the same way.
+- **If the process dies anyway, or the request fails:** the preference is already off, so the
+  record is the only trace of the registration. At the next start of the app, one attempt is made
+  to withdraw what the record names, also when a different URL is saved by then; a success ends it.
+  There is no timer and no loop: a failure waits for the next start, or for switching off again,
+  which also withdraws an outstanding registration instead of reporting "already off". With no
+  record left (or with synchronization on, where the registration is live) none of this sends
+  anything.
+- A newer operation, such as switching on again or a new report, supersedes a withdrawal that has
+  not started yet; the registration is then reported afresh instead of withdrawn.
 
 ## What the widgets and the tile show of the delivery (#910)
 
