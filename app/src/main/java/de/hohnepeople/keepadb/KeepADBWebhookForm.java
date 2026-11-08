@@ -224,11 +224,10 @@ final class KeepADBWebhookForm {
      */
     private void activateWebhook(String validUrl) {
         error.setVisibility(View.GONE);
-        KeepADBPreferences.setRegisterWebhookUrl(activity, validUrl);
-        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        // #911: the same enable path the widgets use.
+        KeepADBWebhookSync.enable(activity, validUrl);
         toggle.setChecked(true);
         vpnHint.setVisibility(View.VISIBLE);
-        KeepADBEndpointCoordinator.refresh(activity);
         Toast.makeText(activity, R.string.settings_webhook_enabled_toast, Toast.LENGTH_SHORT).show();
     }
 
@@ -246,8 +245,7 @@ final class KeepADBWebhookForm {
             activateWebhook(inputUrl);
         } else {
             error.setVisibility(View.GONE);
-            KeepADBRegisterClient.unregisterAndDisableAsync(activity);
-            KeepADBPreferences.setRegisterWebhookEnabled(activity, false);
+            KeepADBWebhookSync.disable(activity);
             Toast.makeText(activity, R.string.settings_webhook_disabled_toast, Toast.LENGTH_SHORT).show();
         }
         onChange.run();

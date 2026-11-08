@@ -77,6 +77,15 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #911: something other than a report result changed what the surfaces show (the widgets
+     * switched automatic synchronization). Tells the visible app screen, the persistent
+     * notification and every widget to re-render. A pure refresh: nothing is sent.
+     */
+    static void notifyStateChanged(Context context) {
+        notifyRegisterStateListener(context);
+    }
+
+    /**
      * #910: a report was just queued. The widgets re-render so "sending" shows at once instead of
      * after the answer. Posted to the main handler, outside the class monitor, and read-only.
      */
