@@ -23,6 +23,43 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.6] - Unreleased
+
+### Added
+- **One shared, read-only widget state (#910):** `KeepADBWidgetState` projects what the existing
+  components own, for the widgets and the tile, without a discovery or report loop of its own:
+  Wireless Debugging on, off, pending (debounce window) or failing, with the cause told apart
+  (grant missing or setting unreadable); Keep-Alive disabled, active, waiting or blocked with an
+  actionable reason (manual off, no Wi-Fi, untrusted network, unreadable network identity,
+  recovery backoff, missing grant), explained with the same predicates as the status card; the
+  verified WLAN endpoint with its availability (available, no Wi-Fi, Wireless Debugging off,
+  searching, unknown) independent of the toggle, and no inferred ADB session; and the webhook as
+  configuration (unconfigured, off, on), activity (idle, sending, retry waiting), newest outcome,
+  historical last success and last failure, and a current-delivery claim.
+- **Delivery is claimed only while it is current:** the claim holds while the last accepted report
+  names exactly the endpoint that is current now and the destination configured now and is still
+  the newest outcome. An endpoint or URL change, a later failure, a deregistration, a lost endpoint
+  or a restarted process before the endpoint is found again ends it (unknown without an endpoint,
+  otherwise not current); a late answer to an older report cannot restore it. The earlier success
+  stays as history. The claim is sender-side evidence, not proof of the receiver's state or of a
+  computer being connected.
+- **Widgets follow the state:** the Keep-Alive and webhook setters, the queueing of a report and
+  every report result re-render the placed widgets through the state-only refresh. Rendering and
+  projecting read only: they send no report, start no discovery and add no polling. Placing a
+  widget keeps running the provider's existing first update, which asks the coordinator to refresh.
+
+### Changed
+- **The widget and the tile read their connection details from the projection:** the widget
+  privacy switch (#904) now decides in one place; with it on the projection carries no host, port,
+  Wi-Fi name or BSSID, and it takes precedence over a per-widget hide option, which can only add to
+  it. No visible change; placed widgets keep working.
+
+### Testing
+- `KeepADBWidgetStateTest`, `KeepADBWidgetStateDeliveryTest` and `KeepADBWidgetStateRefreshTest`
+  cover every state above, the privacy precedence with a field scan of the projection, endpoint
+  A to B while A's report completes, a destination change while a report is on the wire, a failure
+  after a success, process recreation and endpoint loss, and the re-render triggers.
+
 ## [1.11.5] - Unreleased
 
 ### Fixed
