@@ -2,6 +2,8 @@ package de.hohnepeople.keepadb;
 
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.applyAndMeasure;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.detailsVisible;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.endpointLine;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.systemLineVisible;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.label;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.labelVisible;
 import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.labels;
@@ -143,7 +145,7 @@ public class KeepADBWidgetViewsTest {
         for (SizeClass sizeClass : SizeClass.values()) {
             View widget = render(defaults, sizeClass);
             assertEquals(sizeClass.name() + " details", sizeClass.hasDetails(), detailsVisible(widget));
-            assertEquals(sizeClass.name() + " webhook line", sizeClass.detailLines > 1,
+            assertEquals(sizeClass.name() + " webhook line", sizeClass.hasDetails(),
                     detailsVisible(widget) && webhookLineVisible(widget));
             assertEquals(sizeClass.name() + " second row", sizeClass.secondRowTiles > 0,
                     widget.findViewById(R.id.widget_row_2).getVisibility() == View.VISIBLE);
@@ -222,8 +224,8 @@ public class KeepADBWidgetViewsTest {
     public void theWirelessDebuggingTileSaysOffConnectedWaitingAndSwitching() {
         // Connected: Wi-Fi up, a verified endpoint, the setting on.
         View connected = render(KeepADBWidgetConfig.defaults(), SizeClass.SINGLE);
-        assertEquals(name(R.string.widget_state_connected_port, name(R.string.tile_state_connected), PORT),
-                state(tiles(connected).get(0)));
+        assertEquals("one word, the port has its own line in the status box",
+                name(R.string.tile_state_connected), state(tiles(connected).get(0)));
 
         setAdb(false);
         assertEquals(name(R.string.tile_state_off),
@@ -286,18 +288,7 @@ public class KeepADBWidgetViewsTest {
         KeepADBWidgetConfig report = order(Action.REPORT_NOW, Action.REPORT_NOW, Action.WEBHOOK_SYNC,
                 Action.ADB, Action.KEEP_ALIVE);
 
-        // Synchronization off: the sync control says off, and the report slot offers the switch
-        // that turns it on instead of a report button.
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(name(R.string.tile_state_off), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
-        View offSlot = tiles(render(report, SizeClass.SINGLE)).get(0);
-        assertEquals(name(R.string.widget_state_sync_off), state(offSlot));
-        assertEquals(name(R.string.widget_action_sync), label(offSlot));
-        assertFalse(offSlot.getContentDescription().toString()
-                .contains(name(R.string.webhook_alert_action_report_now)));
-
-        // Synchronization on, a valid destination and a verified endpoint: ready, on.
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        // Synchronization on, a valid destination and a verified endpoint: on, ready.
         assertEquals(name(R.string.widget_state_on), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
         View ready = tiles(render(report, SizeClass.SINGLE)).get(0);
         assertEquals(name(R.string.widget_state_ready), state(ready));
@@ -309,10 +300,88 @@ public class KeepADBWidgetViewsTest {
                 state(tiles(render(report, SizeClass.SINGLE)).get(0)));
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
 
-        // No destination: both lead to the setup, in words.
+        // A saved but invalid destination with synchronization on: Report now leads to the setup.
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putString("register_webhook_url", "ftp://register.example/x").commit();
+        assertEquals(name(R.string.widget_state_setup), state(tiles(render(report, SizeClass.SINGLE)).get(0)));
+
+        // No destination at all: the sync control leads to the setup, in words.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
         assertEquals(name(R.string.widget_state_setup), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
-        assertEquals(name(R.string.widget_state_setup), state(tiles(render(report, SizeClass.SINGLE)).get(0)));
+    }
+
+    @Test
+    public void reportNowTakesNoPlaceWhileSynchronizationIsOffAndTheOthersWiden() {
+        String report = name(R.string.webhook_alert_action_report_now);
+        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
+        View on = render(defaults, SizeClass.STRIP);
+        assertEquals(4, tiles(on).size());
+        int widthWithFour = tiles(on).get(0).getMeasuredWidth();
+
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        View off = render(defaults, SizeClass.STRIP);
+        assertEquals(Arrays.asList(name(R.string.widget_action_adb), name(R.string.widget_action_keep_alive),
+                name(R.string.widget_action_sync)), labels(off));
+        assertTrue("the remaining tiles widen", tiles(off).get(0).getMeasuredWidth() > widthWithFour);
+        assertEquals("the sync control says off", name(R.string.tile_state_off), state(tiles(off).get(2)));
+
+        // Nowhere in any size, and not as a main action either.
+        KeepADBWidgetConfig reportFirst = order(Action.REPORT_NOW, Action.REPORT_NOW, Action.ADB,
+                Action.KEEP_ALIVE, Action.WEBHOOK_SYNC);
+        for (SizeClass sizeClass : SizeClass.values()) {
+            assertFalse(sizeClass.name(), labels(render(reportFirst, sizeClass)).contains(report));
+        }
+        assertEquals("the main action's place goes to the first of the others",
+                Arrays.asList(name(R.string.widget_action_adb)), labels(render(reportFirst, SizeClass.SINGLE)));
+        // A grid with three controls: two, then one that fills its row.
+        View grid = render(defaults, SizeClass.GRID);
+        assertEquals(2, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_1)).getChildCount());
+        assertEquals(1, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_2)).getChildCount());
+
+        // Without a destination it is gone as well; with synchronization on again it is back.
+        KeepADBPreferences.setRegisterWebhookUrl(context, null);
+        assertFalse(labels(render(defaults, SizeClass.STRIP)).contains(report));
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        assertTrue(labels(render(defaults, SizeClass.STRIP)).contains(report));
+    }
+
+    @Test
+    public void everyControlHasItsOwnIconAndTheStateWordStaysWithoutTheLabel() {
+        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP);
+        java.util.Set<Integer> icons = new java.util.HashSet<>();
+        for (View tile : tiles(widget)) {
+            android.widget.ImageView icon = tile.findViewById(R.id.widget_tile_icon);
+            assertNotNull(label(tile), icon.getDrawable());
+            icons.add(icon.getDrawable().getConstantState().hashCode());
+        }
+        assertEquals("four different icons", 4, icons.size());
+
+        View large = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP, 2f);
+        for (View tile : tiles(large)) {
+            assertNotNull("icon stays", ((android.widget.ImageView) tile.findViewById(R.id.widget_tile_icon)).getDrawable());
+            assertEquals("icon stays visible", View.VISIBLE, tile.findViewById(R.id.widget_tile_icon).getVisibility());
+            assertTrue("state word stays", state(tile).length() > 0);
+            assertFalse("the title gives way", labelVisible(tile));
+        }
+    }
+
+    @Test
+    public void textsAreOneShrinkingLineSoNoWordOrNumberIsBrokenInTheMiddle() {
+        View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
+        for (View tile : tiles(widget)) {
+            for (int id : new int[] {R.id.widget_tile_label, R.id.widget_tile_state}) {
+                android.widget.TextView text = tile.findViewById(id);
+                assertEquals(1, text.getMaxLines());
+                assertEquals(android.widget.TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM, text.getAutoSizeTextType());
+                assertTrue("never below 9sp", text.getAutoSizeMinTextSize() >= 9 * context.getResources().getDisplayMetrics().scaledDensity - 0.5f);
+            }
+        }
+        // The endpoint is one line cut in the middle: both ends, including the port, stay readable.
+        android.widget.TextView endpoint = widget.findViewById(R.id.widget_detail_endpoint);
+        assertEquals(1, endpoint.getMaxLines());
+        assertEquals(android.text.TextUtils.TruncateAt.MIDDLE, endpoint.getEllipsize());
+        assertEquals(1, ((android.widget.TextView) widget.findViewById(R.id.widget_detail_webhook)).getMaxLines());
     }
 
     @Test
@@ -332,6 +401,13 @@ public class KeepADBWidgetViewsTest {
         View sent = render(report, SizeClass.PANEL);
         assertEquals(name(R.string.widget_state_sent), state(tiles(sent).get(0)));
         assertEquals(name(R.string.widget_webhook_current), webhookLine(sent));
+
+        // With synchronization off the webhook line is about that, not about an earlier report.
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        assertEquals(name(R.string.widget_webhook_sync_off), webhookLine(render(report, SizeClass.PANEL)));
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
 
         // An old completion must not mark a newer endpoint delivered.
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT + 1, 2L);
@@ -367,13 +443,18 @@ public class KeepADBWidgetViewsTest {
     @Test
     public void theEndpointIsShownOnlyWhenNeitherTheGlobalSwitchNorTheWidgetHidesIt() {
         View open = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
-        assertEquals(name(R.string.endpoint_format, HOST, PORT), systemLine(open));
-        assertTrue(KeepADBWidgetTestSupport.allText(open).contains(String.valueOf(PORT)));
+        assertEquals(name(R.string.endpoint_format, HOST, PORT), endpointLine(open));
+        assertFalse("the endpoint line stands in for the state line", systemLineVisible(open));
+        // The narrow box drops the word so the port stays on the line.
+        assertEquals(name(R.string.tile_state_connected_format, HOST, PORT),
+                endpointLine(render(KeepADBWidgetConfig.defaults(), SizeClass.GRID_STATUS)));
 
-        // The per-widget option hides more.
+        // The per-widget option hides more: only the state is left.
         KeepADBWidgetConfig hidden = KeepADBWidgetConfig.of(Action.ADB, null, true);
-        assertNoEndpoint(render(hidden, SizeClass.PANEL));
-        assertEquals(name(R.string.status_on), systemLine(render(hidden, SizeClass.PANEL)));
+        View closed = render(hidden, SizeClass.PANEL);
+        assertNoEndpoint(closed);
+        assertFalse(KeepADBWidgetTestSupport.endpointLineVisible(closed));
+        assertEquals(name(R.string.status_on), systemLine(closed));
     }
 
     @Test
@@ -389,6 +470,7 @@ public class KeepADBWidgetViewsTest {
         View both = render(KeepADBWidgetConfig.of(Action.ADB, null, true), SizeClass.PANEL);
         assertNoEndpoint(both);
         assertEquals(name(R.string.tile_state_connected), state(tiles(both).get(0)));
+        assertEquals(name(R.string.status_on), systemLine(both));
     }
 
     @Test
@@ -468,8 +550,14 @@ public class KeepADBWidgetViewsTest {
                 assertTrue(sizeClass + " details height " + details.getMeasuredHeight(),
                         details.getMeasuredHeight() >= minimum - 4);
                 View customize = widget.findViewById(R.id.widget_customize);
-                assertTrue(customize.getMeasuredWidth() >= minimum);
-                assertTrue(customize.getMeasuredHeight() >= minimum);
+                if (sizeClass == SizeClass.PANEL) {
+                    assertEquals(View.VISIBLE, customize.getVisibility());
+                    assertTrue(customize.getMeasuredWidth() >= minimum);
+                    assertTrue(customize.getMeasuredHeight() >= minimum);
+                } else {
+                    assertEquals("a narrow box keeps its room for the text",
+                            View.GONE, customize.getVisibility());
+                }
             }
         }
     }

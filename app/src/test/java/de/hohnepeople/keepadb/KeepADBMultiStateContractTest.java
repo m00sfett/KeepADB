@@ -163,7 +163,9 @@ public class KeepADBMultiStateContractTest {
                 ((TextView) activity.get().findViewById(R.id.endpoint)).getText().toString());
         activity.pause().close();
 
-        assertEquals(connectedText(endpointPort), widgetText(renderWidget()));
+        assertEquals(context.getString(R.string.tile_state_connected), widgetText(renderWidget()));
+        assertTrue("the status box of the larger sizes names the endpoint",
+                panelText().contains(context.getString(R.string.endpoint_format, "127.0.0.1", endpointPort)));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -222,12 +224,14 @@ public class KeepADBMultiStateContractTest {
         KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
 
-        assertEquals(connectedText(endpointPort), widgetText(renderWidget()));
+        assertTrue(panelText().contains(String.valueOf(endpointPort)));
 
         KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
         String text = widgetText(renderWidget());
         assertEquals(context.getString(R.string.tile_state_connected), text);
-        assertFalse(text, text.contains(String.valueOf(endpointPort)));
+        String panel = panelText();
+        assertFalse(panel, panel.contains(String.valueOf(endpointPort)));
+        assertFalse(panel, panel.contains("127.0.0.1"));
     }
 
     /**
@@ -273,10 +277,10 @@ public class KeepADBMultiStateContractTest {
             }
 
             // Widgets: the widget and the tile.
-            assertEquals(only + ": widget", "widgets".equals(only)
-                    ? context.getString(R.string.tile_state_connected)
-                    : connectedText(endpointPort),
+            assertEquals(only + ": widget", context.getString(R.string.tile_state_connected),
                     widgetText(renderWidget()));
+            assertEquals(only + ": widget status box", !"widgets".equals(only),
+                    panelText().contains("127.0.0.1") && panelText().contains(String.valueOf(endpointPort)));
             KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                     .create().get();
             tileService.onStartListening();
@@ -416,10 +420,12 @@ public class KeepADBMultiStateContractTest {
         return view;
     }
 
-    /** The Wireless Debugging tile's state while connected with a visible port (#912). */
-    private String connectedText(int endpointPort) {
-        return context.getString(R.string.widget_state_connected_port,
-                context.getString(R.string.tile_state_connected), endpointPort);
+    /** Everything the 4x2 widget shows and says, built from the current state (#912). */
+    private String panelText() {
+        return KeepADBWidgetTestSupport.allText(KeepADBWidgetTestSupport.applyAndMeasure(context,
+                KeepADBWidgetViews.forSize(context, 77, KeepADBWidgetConfig.defaults(),
+                        KeepADBWidgetState.project(context, false),
+                        KeepADBWidgetLayout.SizeClass.PANEL, true), 250, 110));
     }
 
     private String widgetText(View view) {

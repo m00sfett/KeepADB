@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #912: one control of the widget. The label names it, the state says in words what it is now;
-     KeepADBWidget sets both, the outline and the tap target. A text that does not fit is cut with an
-     ellipsis, the full wording is in the tile's content description. -->
+<!-- #912: one control of the widget: an icon, the label that names it and the state in words.
+     KeepADBWidget sets the texts, the outline and the tap target. Each text is one line that shrinks
+     to fit before it is cut (never below 9sp), so no word or number is broken in the middle; the
+     full wording is in the tile's content description. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_tile"
     android:layout_width="0dp"
@@ -14,31 +15,42 @@
     android:gravity="center"
     android:minHeight="48dp"
     android:orientation="vertical"
-    android:paddingStart="4dp"
+    android:paddingStart="2dp"
     android:paddingTop="2dp"
-    android:paddingEnd="4dp"
+    android:paddingEnd="2dp"
     android:paddingBottom="2dp">
+
+    <ImageView
+        android:id="@+id/widget_tile_icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
 
     <TextView
         android:id="@+id/widget_tile_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
+        android:autoSizeMaxTextSize="11sp"
+        android:autoSizeMinTextSize="9sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
         android:fontFamily="sans-serif-condensed"
         android:gravity="center"
         android:maxLines="1"
         android:textColor="@color/text_yellow"
-        android:textSize="12sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/widget_tile_state"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
+        android:autoSizeMaxTextSize="11sp"
+        android:autoSizeMinTextSize="9sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:maxLines="2"
-        android:textColor="@color/night_text"
-        android:textSize="11sp" />
+        android:maxLines="1"
+        android:textColor="@color/night_text" />
 </LinearLayout>

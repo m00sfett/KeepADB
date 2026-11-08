@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #912: the picker preview (Android 12+): the four controls in a row, as the 4x1 widget shows
-     them. Static sample states; the real widget reads the live ones. -->
+<!-- #912: the picker preview (Android 12+), sized for the default 2x1: the first two controls as
+     the 2x1 widget shows them, with the same icons and one-line texts. Static sample states; the
+     real widget reads the live ones. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,23 +17,37 @@
         android:background="@drawable/bg_widget_tile_on"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="4dp">
+        android:padding="2dp">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_widget_adb" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
             android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="@string/widget_action_adb"
             android:textColor="@color/text_yellow"
-            android:textSize="11sp"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="@string/tile_state_connected"
-            android:textColor="@color/night_text"
-            android:textSize="10sp" />
+            android:textColor="@color/night_text" />
     </LinearLayout>
 
     <LinearLayout
@@ -43,76 +58,36 @@
         android:background="@drawable/bg_widget_tile_on"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="4dp">
+        android:padding="2dp">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_widget_keep_alive" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
             android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="@string/widget_action_keep_alive"
             android:textColor="@color/text_yellow"
-            android:textSize="11sp"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="@string/widget_state_on"
-            android:textColor="@color/night_text"
-            android:textSize="10sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_margin="2dp"
-        android:layout_weight="1"
-        android:background="@drawable/bg_widget_tile_off"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:text="@string/widget_action_sync"
-            android:textColor="@color/text_yellow"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tile_state_off"
-            android:textColor="@color/night_text"
-            android:textSize="10sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_margin="2dp"
-        android:layout_weight="1"
-        android:background="@drawable/bg_widget_tile_off"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed"
-            android:text="@string/webhook_alert_action_report_now"
-            android:textColor="@color/text_yellow"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/widget_state_ready"
-            android:textColor="@color/night_text"
-            android:textSize="10sp" />
+            android:textColor="@color/night_text" />
     </LinearLayout>
 </LinearLayout>

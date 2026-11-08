@@ -639,8 +639,8 @@
     <string name="widget_state_sent">تم الإرسال</string>
     <string name="widget_state_failed">فشل</string>
     <string name="widget_state_no_endpoint">لا نقطة نهاية</string>
-    <string name="widget_state_sync_off">المزامنة متوقفة</string>
     <string name="widget_webhook_unconfigured">Webhook: غير مُعدّ</string>
+    <string name="widget_webhook_sync_off">Webhook: المزامنة متوقفة</string>
     <string name="widget_webhook_sending">Webhook: جارٍ إرسال التقرير…</string>
     <string name="widget_webhook_current">Webhook: تم إبلاغ نقطة النهاية الحالية</string>
     <string name="widget_webhook_not_current">Webhook: لم يُبلَّغ عن نقطة النهاية الحالية بعد</string>
@@ -653,6 +653,5 @@
     <string name="widget_config_hide_details">إخفاء تفاصيل الاتصال في هذه الأداة</string>
     <string name="widget_config_hide_details_global">إعداد خصوصية الأدوات يخفي التفاصيل بالفعل في كل الأدوات.</string>
     <string name="widget_config_save">حفظ</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

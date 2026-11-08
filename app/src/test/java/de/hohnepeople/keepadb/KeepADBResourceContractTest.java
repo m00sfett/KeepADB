@@ -622,7 +622,6 @@ public class KeepADBResourceContractTest {
         result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});
         result.put("widget_config_move_up", new Object[] {stringWitness});
         result.put("widget_config_move_down", new Object[] {stringWitness});
-        result.put("widget_state_connected_port", new Object[] {stringWitness, integerWitness});
         result.put("widget_description_format", new Object[] {stringWitness, stringWitness});
         result.put("settings_webhook_retry_count_value", new Object[] {integerWitness});
         result.put("webhook_alert_status_since", new Object[] {stringWitness, stringWitness});

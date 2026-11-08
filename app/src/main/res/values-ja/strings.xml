@@ -634,8 +634,8 @@
     <string name="widget_state_sent">送信済み</string>
     <string name="widget_state_failed">失敗</string>
     <string name="widget_state_no_endpoint">エンドポイントなし</string>
-    <string name="widget_state_sync_off">同期オフ</string>
     <string name="widget_webhook_unconfigured">Webhook: 未設定</string>
+    <string name="widget_webhook_sync_off">Webhook: 同期オフ</string>
     <string name="widget_webhook_sending">Webhook: 報告を送信中…</string>
     <string name="widget_webhook_current">Webhook: 現在のエンドポイントを報告済み</string>
     <string name="widget_webhook_not_current">Webhook: 現在のエンドポイントは未報告</string>
@@ -648,6 +648,5 @@
     <string name="widget_config_hide_details">このウィジェットで接続の詳細を隠す</string>
     <string name="widget_config_hide_details_global">ウィジェットのプライバシー設定により、すべてのウィジェットで詳細は既に非表示です。</string>
     <string name="widget_config_save">保存</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

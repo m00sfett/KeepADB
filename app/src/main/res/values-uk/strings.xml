@@ -637,8 +637,8 @@
     <string name="widget_state_sent">Надіслано</string>
     <string name="widget_state_failed">Помилка</string>
     <string name="widget_state_no_endpoint">Немає кінцевої точки</string>
-    <string name="widget_state_sync_off">Синхр. вимк.</string>
     <string name="widget_webhook_unconfigured">Webhook: не налаштовано</string>
+    <string name="widget_webhook_sync_off">Webhook: синхронізацію вимкнено</string>
     <string name="widget_webhook_sending">Webhook: надсилання звіту…</string>
     <string name="widget_webhook_current">Webhook: поточну кінцеву точку передано</string>
     <string name="widget_webhook_not_current">Webhook: поточну кінцеву точку ще не передано</string>
@@ -651,6 +651,5 @@
     <string name="widget_config_hide_details">Сховати дані підключення в цьому віджеті</string>
     <string name="widget_config_hide_details_global">Налаштування приватності віджетів уже приховує дані в усіх віджетах.</string>
     <string name="widget_config_save">Зберегти</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

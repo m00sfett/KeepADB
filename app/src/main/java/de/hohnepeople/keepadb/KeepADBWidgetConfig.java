@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * #912: the settings of one placed control widget, kept per {@code appWidgetId}: which of the four
@@ -96,12 +97,20 @@ final class KeepADBWidgetConfig {
      * keep the sequence of {@link #order}.
      */
     List<Action> shown(int count) {
+        return shown(count, Collections.<Action>emptySet());
+    }
+
+    /**
+     * Like {@link #shown(int)}, but an action that is not available right now (Report now while
+     * automatic synchronization is off) takes no place: the others move up and widen instead.
+     */
+    List<Action> shown(int count, Set<Action> unavailable) {
         int wanted = Math.max(0, Math.min(count, order.size()));
         List<Action> chosen = new ArrayList<>();
-        if (wanted > 0) chosen.add(primary);
+        if (wanted > 0 && !unavailable.contains(primary)) chosen.add(primary);
         for (Action action : order) {
             if (chosen.size() >= wanted) break;
-            if (action != primary) chosen.add(action);
+            if (action != primary && !unavailable.contains(action)) chosen.add(action);
         }
         List<Action> display = new ArrayList<>();
         for (Action action : order) {

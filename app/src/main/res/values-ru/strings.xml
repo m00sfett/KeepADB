@@ -637,8 +637,8 @@
     <string name="widget_state_sent">Отправлено</string>
     <string name="widget_state_failed">Ошибка</string>
     <string name="widget_state_no_endpoint">Нет конечной точки</string>
-    <string name="widget_state_sync_off">Синхр. выкл.</string>
     <string name="widget_webhook_unconfigured">Webhook: не настроен</string>
+    <string name="widget_webhook_sync_off">Webhook: синхронизация отключена</string>
     <string name="widget_webhook_sending">Webhook: отправка отчёта…</string>
     <string name="widget_webhook_current">Webhook: текущая конечная точка передана</string>
     <string name="widget_webhook_not_current">Webhook: текущая конечная точка ещё не передана</string>
@@ -651,6 +651,5 @@
     <string name="widget_config_hide_details">Скрыть данные подключения в этом виджете</string>
     <string name="widget_config_hide_details_global">Настройка конфиденциальности виджетов уже скрывает данные во всех виджетах.</string>
     <string name="widget_config_save">Сохранить</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

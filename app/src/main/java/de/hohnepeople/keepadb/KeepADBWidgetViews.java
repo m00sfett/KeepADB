@@ -6,9 +6,12 @@ import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * #912: builds the {@link RemoteViews} of the control widget from a configuration, the shared
@@ -33,8 +36,17 @@ final class KeepADBWidgetViews {
     static RemoteViews forSize(Context ctx, int appWidgetId, KeepADBWidgetConfig config,
             KeepADBWidgetState projection, KeepADBWidgetLayout.SizeClass sizeClass,
             boolean showLabels) {
-        RemoteViews views = new RemoteViews(ctx.getPackageName(), R.layout.widget_keepadb);
-        List<KeepADBWidgetConfig.Action> actions = config.shown(sizeClass.actionCount());
+        boolean details = sizeClass.hasDetails();
+        RemoteViews views = new RemoteViews(ctx.getPackageName(),
+                details ? R.layout.widget_keepadb_flat : R.layout.widget_keepadb);
+        // Report now exists only while automatic synchronization is on. Without it the control
+        // takes no place at all: the others move up and widen.
+        Set<KeepADBWidgetConfig.Action> unavailable =
+                projection.webhook.sync == KeepADBWidgetState.Sync.ON
+                        ? Collections.<KeepADBWidgetConfig.Action>emptySet()
+                        : EnumSet.of(KeepADBWidgetConfig.Action.REPORT_NOW);
+        List<KeepADBWidgetConfig.Action> actions =
+                config.shown(sizeClass.actionCount(), unavailable);
 
         // A launcher re-applies a new RemoteViews with the same layout onto the view it already
         // has (and, on Android 12+, switches between the size classes the same way). Added tiles
@@ -42,33 +54,41 @@ final class KeepADBWidgetViews {
         views.removeAllViews(R.id.widget_row_1);
         views.removeAllViews(R.id.widget_row_2);
 
-        int index = 0;
+        int firstRow = Math.min(sizeClass.firstRowTiles, actions.size());
+        for (int i = 0; i < actions.size(); i++) {
+            views.addView(i < firstRow ? R.id.widget_row_1 : R.id.widget_row_2,
+                    tile(ctx, actions.get(i), projection, showLabels));
+        }
         views.setViewVisibility(R.id.widget_row_2,
-                sizeClass.secondRowTiles > 0 ? View.VISIBLE : View.GONE);
-        for (int i = 0; i < sizeClass.firstRowTiles && index < actions.size(); i++, index++) {
-            views.addView(R.id.widget_row_1,
-                    tile(ctx, actions.get(index), projection, showLabels));
-        }
-        for (int i = 0; i < sizeClass.secondRowTiles && index < actions.size(); i++, index++) {
-            views.addView(R.id.widget_row_2,
-                    tile(ctx, actions.get(index), projection, showLabels));
-        }
+                actions.size() > firstRow ? View.VISIBLE : View.GONE);
 
-        boolean details = sizeClass.hasDetails();
-        views.setViewVisibility(R.id.widget_details_row, details ? View.VISIBLE : View.GONE);
         if (details) {
-            KeepADBWidgetContent.Details content = KeepADBWidgetContent.details(ctx, projection);
-            views.setTextViewText(R.id.widget_detail_system, content.system);
-            boolean webhookLine = sizeClass.detailLines > 1;
-            views.setViewVisibility(R.id.widget_detail_webhook,
-                    webhookLine ? View.VISIBLE : View.GONE);
-            if (webhookLine) views.setTextViewText(R.id.widget_detail_webhook, content.webhook);
-            views.setContentDescription(R.id.widget_details, webhookLine
-                    ? content.system + ". " + content.webhook : content.system);
+            boolean gear = sizeClass == KeepADBWidgetLayout.SizeClass.PANEL;
+            KeepADBWidgetContent.Details content = KeepADBWidgetContent.details(ctx, projection,
+                    sizeClass != KeepADBWidgetLayout.SizeClass.PANEL);
+            if (content.endpoint != null) {
+                views.setViewVisibility(R.id.widget_detail_endpoint, View.VISIBLE);
+                views.setTextViewText(R.id.widget_detail_endpoint, content.endpoint);
+                views.setViewVisibility(R.id.widget_detail_system, View.GONE);
+                views.setTextViewText(R.id.widget_detail_system, "");
+            } else {
+                // The address must not linger in a hidden view when the details become hidden.
+                views.setViewVisibility(R.id.widget_detail_endpoint, View.GONE);
+                views.setTextViewText(R.id.widget_detail_endpoint, "");
+                views.setViewVisibility(R.id.widget_detail_system, View.VISIBLE);
+                views.setTextViewText(R.id.widget_detail_system, content.system);
+            }
+            views.setTextViewText(R.id.widget_detail_webhook, content.webhook);
+            views.setContentDescription(R.id.widget_details, content.description());
             views.setOnClickPendingIntent(R.id.widget_details,
                     KeepADBWidgetActions.forClick(ctx, content.click));
-            views.setOnClickPendingIntent(R.id.widget_customize,
-                    KeepADBWidgetActions.customize(ctx, appWidgetId));
+            // The gear needs a 48 dp touch target of its own; a box only 110 dp wide keeps its
+            // room for the text, and the launcher's reconfigure reaches the settings there.
+            views.setViewVisibility(R.id.widget_customize, gear ? View.VISIBLE : View.GONE);
+            if (gear) {
+                views.setOnClickPendingIntent(R.id.widget_customize,
+                        KeepADBWidgetActions.customize(ctx, appWidgetId));
+            }
         }
         return views;
     }
@@ -97,11 +117,12 @@ final class KeepADBWidgetViews {
             KeepADBWidgetState projection, boolean showLabels) {
         KeepADBWidgetContent.Tile content = KeepADBWidgetContent.tile(ctx, action, projection);
         RemoteViews tile = new RemoteViews(ctx.getPackageName(), R.layout.widget_tile);
+        tile.setImageViewResource(R.id.widget_tile_icon, content.iconRes);
         tile.setTextViewText(R.id.widget_tile_label, content.label);
         tile.setTextViewText(R.id.widget_tile_state, content.state);
         tile.setViewVisibility(R.id.widget_tile_label, showLabels ? View.VISIBLE : View.GONE);
         tile.setInt(R.id.widget_tile, "setBackgroundResource", background(content.style));
-        // The two text views are part of the tile's own description; TalkBack reads that one.
+        // The texts and the icon are part of the tile's own description; TalkBack reads that one.
         tile.setContentDescription(R.id.widget_tile, content.description);
         tile.setOnClickPendingIntent(R.id.widget_tile,
                 KeepADBWidgetActions.forClick(ctx, content.click));

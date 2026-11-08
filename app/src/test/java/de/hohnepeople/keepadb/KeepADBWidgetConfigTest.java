@@ -96,6 +96,24 @@ public class KeepADBWidgetConfigTest {
     }
 
     @Test
+    public void anUnavailableActionTakesNoPlaceAndTheOthersMoveUp() {
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.of(ADB,
+                Arrays.asList(ADB, REPORT, KEEP_ALIVE, SYNC), false);
+        java.util.Set<KeepADBWidgetConfig.Action> noReport = java.util.EnumSet.of(REPORT);
+
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(4, noReport));
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE), config.shown(2, noReport));
+        assertEquals("with everything available nothing changes",
+                config.shown(4), config.shown(4, java.util.Collections.<KeepADBWidgetConfig.Action>emptySet()));
+
+        // An unavailable main action gives its place to the first of the others.
+        KeepADBWidgetConfig reportFirst = KeepADBWidgetConfig.of(REPORT,
+                Arrays.asList(REPORT, ADB, KEEP_ALIVE, SYNC), false);
+        assertEquals(Collections.singletonList(REPORT), reportFirst.shown(1));
+        assertEquals(Collections.singletonList(ADB), reportFirst.shown(1, noReport));
+    }
+
+    @Test
     public void anyInputIsNormalizedToAPermutationOfAllFour() {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(null,
                 Arrays.asList(REPORT, null, REPORT, KEEP_ALIVE), true);

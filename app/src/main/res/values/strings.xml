@@ -642,8 +642,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="widget_state_sent">Sent</string>
     <string name="widget_state_failed">Failed</string>
     <string name="widget_state_no_endpoint">No endpoint</string>
-    <string name="widget_state_sync_off">Sync off</string>
     <string name="widget_webhook_unconfigured">Webhook: not set up</string>
+    <string name="widget_webhook_sync_off">Webhook: sync off</string>
     <string name="widget_webhook_sending">Webhook: sending report…</string>
     <string name="widget_webhook_current">Webhook: current endpoint reported</string>
     <string name="widget_webhook_not_current">Webhook: current endpoint not reported yet</string>
@@ -656,6 +656,5 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="widget_config_hide_details">Hide connection details in this widget</string>
     <string name="widget_config_hide_details_global">The widget privacy setting already hides the details in every widget.</string>
     <string name="widget_config_save">Save</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

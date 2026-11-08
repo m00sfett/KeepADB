@@ -636,8 +636,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="widget_state_sent">Inviato</string>
     <string name="widget_state_failed">Non riuscito</string>
     <string name="widget_state_no_endpoint">Nessun endpoint</string>
-    <string name="widget_state_sync_off">Sincr. spenta</string>
     <string name="widget_webhook_unconfigured">Webhook: non configurato</string>
+    <string name="widget_webhook_sync_off">Webhook: sincronizzazione disattivata</string>
     <string name="widget_webhook_sending">Webhook: invio della segnalazione…</string>
     <string name="widget_webhook_current">Webhook: endpoint attuale segnalato</string>
     <string name="widget_webhook_not_current">Webhook: endpoint attuale non ancora segnalato</string>
@@ -650,6 +650,5 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="widget_config_hide_details">Nascondi i dettagli di connessione in questo widget</string>
     <string name="widget_config_hide_details_global">L\'impostazione di privacy dei widget nasconde già i dettagli in tutti i widget.</string>
     <string name="widget_config_save">Salva</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

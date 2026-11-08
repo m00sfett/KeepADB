@@ -637,8 +637,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="widget_state_sent">Wysłano</string>
     <string name="widget_state_failed">Błąd</string>
     <string name="widget_state_no_endpoint">Brak punktu końcowego</string>
-    <string name="widget_state_sync_off">Synchr. wył.</string>
     <string name="widget_webhook_unconfigured">Webhook: nie skonfigurowano</string>
+    <string name="widget_webhook_sync_off">Webhook: synchronizacja wyłączona</string>
     <string name="widget_webhook_sending">Webhook: wysyłanie zgłoszenia…</string>
     <string name="widget_webhook_current">Webhook: bieżący punkt końcowy zgłoszony</string>
     <string name="widget_webhook_not_current">Webhook: bieżący punkt końcowy jeszcze nie zgłoszony</string>
@@ -651,6 +651,5 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="widget_config_hide_details">Ukryj szczegóły połączenia w tym widżecie</string>
     <string name="widget_config_hide_details_global">Ustawienie prywatności widżetów już ukrywa szczegóły we wszystkich widżetach.</string>
     <string name="widget_config_save">Zapisz</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

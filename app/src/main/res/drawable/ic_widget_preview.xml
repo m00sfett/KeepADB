@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the picker image for Android 11 (no preview layout there): the surface with the first two
+     tiles of the default 2x1 widget, drawn without text. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="220dp"
+    android:height="110dp"
+    android:viewportWidth="220"
+    android:viewportHeight="110">
+    <path
+        android:fillColor="#080604"
+        android:pathData="M12,0h196a12,12 0 0 1 12,12v86a12,12 0 0 1 -12,12h-196a12,12 0 0 1 -12,-12v-86a12,12 0 0 1 12,-12z" />
+    <path
+        android:fillColor="#1F1712"
+        android:pathData="M18,8h86a8,8 0 0 1 8,8v78a8,8 0 0 1 -8,8h-86a8,8 0 0 1 -8,-8v-78a8,8 0 0 1 8,-8z"
+        android:strokeWidth="3"
+        android:strokeColor="#7FBF6A" />
+    <path
+        android:fillColor="#1F1712"
+        android:pathData="M116,8h86a8,8 0 0 1 8,8v78a8,8 0 0 1 -8,8h-86a8,8 0 0 1 -8,-8v-78a8,8 0 0 1 8,-8z"
+        android:strokeWidth="3"
+        android:strokeColor="#7FBF6A" />
+    <group
+        android:scaleX="1.6"
+        android:scaleY="1.6"
+        android:translateX="43"
+        android:translateY="36">
+        <path
+            android:fillColor="#E0B83A"
+            android:pathData="M5,16c0,3.87 3.13,7 7,7s7,-3.13 7,-7v-4L5,12v4zM16.12,4.37l2.1,-2.1 -0.82,-0.83 -2.3,2.31C14.16,3.28 13.12,3 12,3s-2.16,0.28 -3.09,0.75L6.6,1.44l-0.82,0.83 2.1,2.1C6.14,5.64 5,7.68 5,10v1h14v-1c0,-2.32 -1.14,-4.36 -2.88,-5.63z" />
+    </group>
+    <group
+        android:scaleX="1.6"
+        android:scaleY="1.6"
+        android:translateX="141"
+        android:translateY="36">
+        <path
+            android:fillColor="#E0B83A"
+            android:pathData="M12,6v3l4,-4 -4,-4v3c-4.42,0 -8,3.58 -8,8 0,1.57 0.46,3.03 1.24,4.26L6.7,14.8c-0.45,-0.83 -0.7,-1.79 -0.7,-2.8 0,-3.31 2.69,-6 6,-6zM18.76,7.74L17.3,9.2c0.44,0.84 0.7,1.79 0.7,2.8 0,3.31 -2.69,6 -6,6v-3l-4,4 4,4v-3c4.42,0 8,-3.58 8,-8 0,-1.57 -0.46,-3.03 -1.24,-4.26z" />
+    </group>
+</vector>

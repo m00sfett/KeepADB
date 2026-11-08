@@ -125,7 +125,7 @@ public class KeepADBWidgetLayoutTest {
         assertEquals(4, SizeClass.PANEL.actionCount());
         assertFalse(SizeClass.GRID.hasDetails());
         assertFalse(SizeClass.STRIP.hasDetails());
-        assertEquals(1, SizeClass.GRID_STATUS.detailLines);
+        assertEquals(2, SizeClass.GRID_STATUS.detailLines);
         assertEquals(2, SizeClass.PANEL.detailLines);
     }
 }

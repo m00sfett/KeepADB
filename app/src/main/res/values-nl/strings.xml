@@ -635,8 +635,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="widget_state_sent">Verzonden</string>
     <string name="widget_state_failed">Mislukt</string>
     <string name="widget_state_no_endpoint">Geen eindpunt</string>
-    <string name="widget_state_sync_off">Sync uit</string>
     <string name="widget_webhook_unconfigured">Webhook: niet ingesteld</string>
+    <string name="widget_webhook_sync_off">Webhook: synchronisatie uit</string>
     <string name="widget_webhook_sending">Webhook: melding wordt verzonden…</string>
     <string name="widget_webhook_current">Webhook: huidig eindpunt gemeld</string>
     <string name="widget_webhook_not_current">Webhook: huidig eindpunt nog niet gemeld</string>
@@ -649,6 +649,5 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="widget_config_hide_details">Verbindingsgegevens in deze widget verbergen</string>
     <string name="widget_config_hide_details_global">De privacyinstelling voor widgets verbergt de gegevens al in alle widgets.</string>
     <string name="widget_config_save">Opslaan</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

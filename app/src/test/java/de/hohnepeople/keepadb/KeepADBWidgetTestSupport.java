@@ -64,8 +64,22 @@ final class KeepADBWidgetTestSupport {
         return labels;
     }
 
+    /** Only the layouts with a status box have a details row. */
     static boolean detailsVisible(View root) {
-        return root.findViewById(R.id.widget_details_row).getVisibility() == View.VISIBLE;
+        View row = root.findViewById(R.id.widget_details_row);
+        return row != null && row.getVisibility() == View.VISIBLE;
+    }
+
+    static boolean endpointLineVisible(View root) {
+        return root.findViewById(R.id.widget_detail_endpoint).getVisibility() == View.VISIBLE;
+    }
+
+    static String endpointLine(View root) {
+        return ((TextView) root.findViewById(R.id.widget_detail_endpoint)).getText().toString();
+    }
+
+    static boolean systemLineVisible(View root) {
+        return root.findViewById(R.id.widget_detail_system).getVisibility() == View.VISIBLE;
     }
 
     static String systemLine(View root) {

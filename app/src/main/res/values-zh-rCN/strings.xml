@@ -634,8 +634,8 @@
     <string name="widget_state_sent">已发送</string>
     <string name="widget_state_failed">失败</string>
     <string name="widget_state_no_endpoint">无端点</string>
-    <string name="widget_state_sync_off">同步已关闭</string>
     <string name="widget_webhook_unconfigured">Webhook：未设置</string>
+    <string name="widget_webhook_sync_off">Webhook：同步已关闭</string>
     <string name="widget_webhook_sending">Webhook：正在发送报告…</string>
     <string name="widget_webhook_current">Webhook：已报告当前端点</string>
     <string name="widget_webhook_not_current">Webhook：尚未报告当前端点</string>
@@ -648,6 +648,5 @@
     <string name="widget_config_hide_details">在此小组件中隐藏连接详情</string>
     <string name="widget_config_hide_details_global">小组件隐私设置已在所有小组件中隐藏详情。</string>
     <string name="widget_config_save">保存</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

@@ -635,8 +635,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="widget_state_sent">Gesendet</string>
     <string name="widget_state_failed">Fehlgeschlagen</string>
     <string name="widget_state_no_endpoint">Kein Endpunkt</string>
-    <string name="widget_state_sync_off">Sync aus</string>
     <string name="widget_webhook_unconfigured">Webhook: nicht eingerichtet</string>
+    <string name="widget_webhook_sync_off">Webhook: Sync aus</string>
     <string name="widget_webhook_sending">Webhook: Meldung wird gesendet …</string>
     <string name="widget_webhook_current">Webhook: aktueller Endpunkt gemeldet</string>
     <string name="widget_webhook_not_current">Webhook: aktueller Endpunkt noch nicht gemeldet</string>
@@ -649,6 +649,5 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="widget_config_hide_details">Verbindungsdetails in diesem Widget ausblenden</string>
     <string name="widget_config_hide_details_global">Die Datenschutzeinstellung für Widgets blendet die Details bereits in allen Widgets aus.</string>
     <string name="widget_config_save">Speichern</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

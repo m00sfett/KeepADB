@@ -634,8 +634,8 @@
     <string name="widget_state_sent">已傳送</string>
     <string name="widget_state_failed">失敗</string>
     <string name="widget_state_no_endpoint">無端點</string>
-    <string name="widget_state_sync_off">同步已關閉</string>
     <string name="widget_webhook_unconfigured">Webhook：未設定</string>
+    <string name="widget_webhook_sync_off">Webhook：同步已關閉</string>
     <string name="widget_webhook_sending">Webhook：正在傳送回報…</string>
     <string name="widget_webhook_current">Webhook：已回報目前端點</string>
     <string name="widget_webhook_not_current">Webhook：尚未回報目前端點</string>
@@ -648,6 +648,5 @@
     <string name="widget_config_hide_details">在此小工具中隱藏連線詳情</string>
     <string name="widget_config_hide_details_global">小工具隱私設定已在所有小工具中隱藏詳情。</string>
     <string name="widget_config_save">儲存</string>
-    <string name="widget_state_connected_port">%1$s :%2$d</string>
     <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

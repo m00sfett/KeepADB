@@ -44,9 +44,12 @@ final class KeepADBWidgetContent {
         final String description;
         final Style style;
         final Click click;
+        /** The drawable of the control; the same whatever the state, the words carry the state. */
+        final int iconRes;
 
         Tile(KeepADBWidgetConfig.Action action, String label, String state, String description,
-                Style style, Click click) {
+                Style style, Click click, int iconRes) {
+            this.iconRes = iconRes;
             this.action = action;
             this.label = label;
             this.state = state;
@@ -56,16 +59,29 @@ final class KeepADBWidgetContent {
         }
     }
 
-    /** The reasons below the tiles. {@code click} leads to where the first actionable one is solved. */
+    /**
+     * The status box below the tiles. The first line is the endpoint (when it may be shown) or,
+     * without it, {@code system}: the reason the state is what it is, in the home screen's wording.
+     * {@code click} leads to where the first actionable reason is solved.
+     */
     static final class Details {
+        /** The verified endpoint, or null while it is unknown or withheld. */
+        final String endpoint;
+        /** The state or the reason, or null while the endpoint line stands in for it. */
         final String system;
         final String webhook;
         final Click click;
 
-        Details(String system, String webhook, Click click) {
+        Details(String endpoint, String system, String webhook, Click click) {
+            this.endpoint = endpoint;
             this.system = system;
             this.webhook = webhook;
             this.click = click;
+        }
+
+        /** What TalkBack reads for the box. */
+        String description() {
+            return (endpoint != null ? endpoint : system) + ". " + webhook;
         }
     }
 
@@ -113,11 +129,9 @@ final class KeepADBWidgetContent {
             state = ctx.getString(R.string.state_pending);
             style = Style.OFF;
         } else if (p.systemState == KeepADB.State.ENABLED_CONNECTED) {
-            // Withheld details leave the projection without a port (#904): the state only.
-            state = p.endpointPort > 0
-                    ? ctx.getString(R.string.widget_state_connected_port,
-                            ctx.getString(R.string.tile_state_connected), p.endpointPort)
-                    : ctx.getString(R.string.tile_state_connected);
+            // One word per tile: a port in a 60 dp tile would be cut or broken. The endpoint has
+            // its own line in the status box of the larger sizes.
+            state = ctx.getString(R.string.tile_state_connected);
             style = Style.ON;
         } else if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
             state = ctx.getString(p.endpoint == KeepADBWidgetState.EndpointAvailability.SEARCHING
@@ -131,7 +145,7 @@ final class KeepADBWidgetContent {
             style = Style.OFF;
         }
         return build(ctx, KeepADBWidgetConfig.Action.ADB, ctx.getString(R.string.widget_action_adb),
-                ctx.getString(R.string.toggle_label), state, style, click);
+                ctx.getString(R.string.toggle_label), state, style, click, R.drawable.ic_widget_adb);
     }
 
     private static Tile keepAliveTile(Context ctx, KeepADBWidgetState p) {
@@ -160,7 +174,7 @@ final class KeepADBWidgetContent {
         return build(ctx, KeepADBWidgetConfig.Action.KEEP_ALIVE,
                 ctx.getString(R.string.widget_action_keep_alive),
                 ctx.getString(R.string.settings_section_keep_alive), state, style,
-                Click.TOGGLE_KEEP_ALIVE);
+                Click.TOGGLE_KEEP_ALIVE, R.drawable.ic_widget_keep_alive);
     }
 
     private static Tile syncTile(Context ctx, KeepADBWidgetState p) {
@@ -187,7 +201,8 @@ final class KeepADBWidgetContent {
         }
         return build(ctx, KeepADBWidgetConfig.Action.WEBHOOK_SYNC,
                 ctx.getString(R.string.widget_action_sync),
-                ctx.getString(R.string.widget_action_sync_description), state, style, click);
+                ctx.getString(R.string.widget_action_sync_description), state, style, click,
+                R.drawable.ic_widget_sync);
     }
 
     private static Tile reportTile(Context ctx, KeepADBWidgetState p) {
@@ -201,22 +216,15 @@ final class KeepADBWidgetContent {
                 style = Style.ATTENTION;
                 click = Click.SETUP_WEBHOOK;
                 break;
-            case SYNC_OFF: {
-                // "Report now" exists only while automatic synchronization is on. With it off the
-                // slot says so and offers the switch that turns it on instead.
-                String offState = ctx.getString(R.string.widget_state_sync_off);
-                return new Tile(KeepADBWidgetConfig.Action.REPORT_NOW,
-                        ctx.getString(R.string.widget_action_sync), offState,
-                        ctx.getString(R.string.widget_description_format,
-                                ctx.getString(R.string.widget_action_sync_description), offState),
-                        Style.OFF, Click.SYNC_ENABLE);
-            }
             case NO_ENDPOINT:
                 // A report would send nothing; the app shows why.
                 state = ctx.getString(R.string.widget_state_no_endpoint);
                 style = Style.ATTENTION;
                 click = Click.OPEN_APP;
                 break;
+            case SYNC_OFF:
+                // Not reached by the widget: with synchronization off the Report now control takes
+                // no place at all (KeepADBWidgetViews). Treated like "ready" so the tile stays valid.
             case READY:
             default:
                 if (w.activity == KeepADBWidgetState.Activity.SENDING) {
@@ -237,25 +245,44 @@ final class KeepADBWidgetContent {
                 break;
         }
         String name = ctx.getString(R.string.webhook_alert_action_report_now);
-        return build(ctx, KeepADBWidgetConfig.Action.REPORT_NOW, name, name, state, style, click);
+        return build(ctx, KeepADBWidgetConfig.Action.REPORT_NOW, name, name, state, style, click,
+                R.drawable.ic_widget_report);
     }
 
     private static Tile build(Context ctx, KeepADBWidgetConfig.Action action, String label,
-            String fullName, String state, Style style, Click click) {
+            String fullName, String state, Style style, Click click, int iconRes) {
         return new Tile(action, label, state,
-                ctx.getString(R.string.widget_description_format, fullName, state), style, click);
+                ctx.getString(R.string.widget_description_format, fullName, state), style, click,
+                iconRes);
     }
 
     // -- details -------------------------------------------------------------------------------
 
-    static Details details(Context ctx, KeepADBWidgetState p) {
+    /**
+     * @param compactEndpoint true for the narrow status box: "host:port" without the word, so the
+     *         port stays on the line
+     */
+    static Details details(Context ctx, KeepADBWidgetState p, boolean compactEndpoint) {
         Click[] systemClick = {null};
-        String system = systemLine(ctx, p, systemClick);
+        boolean endpointShown = p.systemState == KeepADB.State.ENABLED_CONNECTED
+                && p.adb != KeepADBWidgetState.Adb.PERMISSION_FAILURE
+                && p.adb != KeepADBWidgetState.Adb.PENDING
+                && p.endpointHost != null && p.endpointPort > 0;
+        String endpoint = null;
+        String system = null;
+        if (endpointShown) {
+            String host = hostForDisplay(p.endpointHost);
+            endpoint = compactEndpoint
+                    ? ctx.getString(R.string.tile_state_connected_format, host, p.endpointPort)
+                    : ctx.getString(R.string.endpoint_format, host, p.endpointPort);
+        } else {
+            system = systemLine(ctx, p, systemClick);
+        }
         Click[] webhookClick = {null};
         String webhook = webhookLine(ctx, p, webhookClick);
         Click click = systemClick[0] != null ? systemClick[0]
                 : webhookClick[0] != null ? webhookClick[0] : Click.OPEN_APP;
-        return new Details(system, webhook, click);
+        return new Details(endpoint, system, webhook, click);
     }
 
     /** The home screen's own wording for the state, so the widget never says something else. */
@@ -268,10 +295,7 @@ final class KeepADBWidgetContent {
             return ctx.getString(R.string.status_pending);
         }
         if (p.systemState == KeepADB.State.ENABLED_CONNECTED) {
-            if (p.endpointHost != null && p.endpointPort > 0) {
-                return ctx.getString(R.string.endpoint_format, hostForDisplay(p.endpointHost),
-                        p.endpointPort);
-            }
+            // Details withheld (#904): the state only, never the address.
             return ctx.getString(R.string.status_on);
         }
         if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
@@ -307,6 +331,11 @@ final class KeepADBWidgetContent {
         if (w.sync == KeepADBWidgetState.Sync.UNCONFIGURED) {
             click[0] = Click.SETUP_WEBHOOK;
             return ctx.getString(R.string.widget_webhook_unconfigured);
+        }
+        if (w.sync == KeepADBWidgetState.Sync.OFF) {
+            // Whatever an earlier report did: with synchronization off nothing is being synced, so
+            // neither a failure nor a delivery is the state of the sync.
+            return ctx.getString(R.string.widget_webhook_sync_off);
         }
         if (w.activity == KeepADBWidgetState.Activity.SENDING) {
             return ctx.getString(R.string.widget_webhook_sending);

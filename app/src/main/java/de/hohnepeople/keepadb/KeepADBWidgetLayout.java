@@ -16,9 +16,9 @@ import android.os.Bundle;
  *   <li>{@link #STACK} narrow and tall (1x2 and up): two actions on top of each other.</li>
  *   <li>{@link #DUO} about 2x1: two actions side by side.</li>
  *   <li>{@link #GRID} about 2x2: all four actions in a 2x2 grid.</li>
- *   <li>{@link #GRID_STATUS} taller than 2x2: the grid plus one status line.</li>
+ *   <li>{@link #GRID_STATUS} taller than 2x2: the grid plus the status box.</li>
  *   <li>{@link #STRIP} about 4x1: the four actions in a row.</li>
- *   <li>{@link #PANEL} about 4x2: the strip plus the details and reasons.</li>
+ *   <li>{@link #PANEL} about 4x2: the strip plus the status box and the settings gear.</li>
  * </ul>
  * What a size class shows is decided here and only here; the renderer follows it.
  */
@@ -30,14 +30,17 @@ final class KeepADBWidgetLayout {
         STACK(1, 1, 0, 0, 110),
         DUO(2, 0, 0, 110, 0),
         GRID(2, 2, 0, 110, 110),
-        GRID_STATUS(2, 2, 1, 110, 170),
+        GRID_STATUS(2, 2, 2, 110, 170),
         STRIP(4, 0, 0, 250, 0),
         PANEL(4, 0, 2, 250, 110);
 
         /** Tiles in the first and in the second row. */
         final int firstRowTiles;
         final int secondRowTiles;
-        /** Lines of status text below the tiles: 0, 1 (the system line) or 2 (plus the webhook). */
+        /**
+         * Status lines below the tiles (0: none; otherwise the endpoint or the reason, then the
+         * webhook state). Tiles of a class with a status box keep their flat height.
+         */
         final int detailLines;
         /** The smallest room in dp the class is chosen for, before the font scale. */
         final int minWidthDp;

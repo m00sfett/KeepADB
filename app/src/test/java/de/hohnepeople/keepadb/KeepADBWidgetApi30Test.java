@@ -8,6 +8,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
@@ -55,6 +56,9 @@ public class KeepADBWidgetApi30Test {
         KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
         // Off: the shadow's own first update then starts nothing.
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        // Synchronization on: only then "Report now" has a place in the widget.
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://register.example/register/dev1");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         manager = AppWidgetManager.getInstance(context);
         widgets = shadowOf(manager);
         id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
@@ -81,6 +85,46 @@ public class KeepADBWidgetApi30Test {
         shadowOf(Looper.getMainLooper()).idle();
         View view = widgets.getViewFor(id);
         return tiles(view).size();
+    }
+
+    @Test
+    public void theInstancesOwnHideOptionAndTheGlobalSwitchReachTheRenderedStatusBox() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBEndpointCoordinator.seedEndpointForTesting("10.20.30.40", 41873, 1L);
+        int hidden = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        KeepADBWidgetConfig.save(context, hidden, KeepADBWidgetConfig.of(
+                KeepADBWidgetConfig.Action.ADB, null, true));
+        for (int widget : new int[] {id, hidden}) {
+            Bundle options = new Bundle();
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 120);
+            manager.updateAppWidgetOptions(widget, options);
+        }
+        KeepADBWidget.refreshAllState(context);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertTrue("the widget without the option shows the endpoint",
+                KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("41873"));
+        assertTrue("the widget with the option hides it",
+                !KeepADBWidgetTestSupport.allText(widgets.getViewFor(hidden)).contains("41873"));
+
+        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
+        KeepADBWidget.refreshAllState(context); // what the settings switch does after flipping it
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue("the global switch hides it in every widget",
+                !KeepADBWidgetTestSupport.allText(widgets.getViewFor(id)).contains("41873"));
+    }
+
+    @Test
+    public void android11KeepsTheConfigurationScreenAtPlacement() throws Exception {
+        android.content.res.XmlResourceParser parser = context.getResources().getXml(R.xml.widget_info);
+        while (parser.getEventType() != org.xmlpull.v1.XmlPullParser.START_TAG) parser.next();
+        String ns = "http://schemas.android.com/apk/res/android";
+        int features = parser.getAttributeIntValue(ns, "widgetFeatures", -1);
+        assertEquals("reconfigurable only", AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE, features);
+        assertEquals(KeepADBWidgetConfigActivity.class.getName(),
+                parser.getAttributeValue(ns, "configure"));
     }
 
     @Test
