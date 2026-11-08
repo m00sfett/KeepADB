@@ -307,6 +307,39 @@ public class PrivacyToggleTitleBarsTest {
     }
 
     @Test
+    public void hideOnThisScreenAlsoHidesAPartThatWasRevealedBefore() {
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:02", "Cafe-WLAN");
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        NetworkListActivity list = openList();
+        KeepADBPrivacy.reveal(list, KeepADBPrivacy.SCOPE_NETWORK_LIST);
+        KeepADBEyeMenuTestSupport.choose(list, KeepADBPrivacyToggle.ITEM_SCREEN); // show
+        assertTrue(shown(list).contains("Cafe-WLAN"));
+
+        KeepADBEyeMenuTestSupport.choose(list, KeepADBPrivacyToggle.ITEM_SCREEN); // hide
+        assertFalse("Hide on this screen hides the revealed list too: " + shown(list),
+                shown(list).contains("Cafe-WLAN"));
+    }
+
+    @Test
+    public void changingTheNotificationOrWidgetSwitchEndsShowOnThisScreen() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_SCREEN);
+        assertFalse(KeepADBPrivacy.isScreenMasked(settings));
+        KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_NOTIFICATIONS);
+        assertTrue("a switch change ends the override", KeepADBPrivacy.isScreenMasked(settings));
+
+        KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_SCREEN);
+        assertFalse(KeepADBPrivacy.isScreenMasked(settings));
+        settings.findViewById(R.id.privacy_switch_widgets).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("also from the Settings switch", KeepADBPrivacy.isScreenMasked(settings));
+        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+                settings.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
+    }
+
+    @Test
     public void anExportStaysRedactedUnderShowOnThisScreenAndIsRedactedUnderHide() {
         SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         assertFalse(KeepADBPrivacy.isExportRedacted(settings));

@@ -21,8 +21,8 @@ final class KeepADBPrivacySwitches {
     /**
      * Wires the three switches inside {@code root} and shows their stored state.
      *
-     * @param onAppChanged runs after the app switch changed so the host can redraw what it shows
-     *     (may be null).
+     * @param onAppChanged runs after any of the three switches changed (each ends the screen's
+     *     reveals and eye-menu override) so the host can redraw what it shows (may be null).
      */
     static void bind(Activity activity, View root, Runnable onAppChanged) {
         Switch app = root.findViewById(R.id.privacy_switch_app);
@@ -33,8 +33,15 @@ final class KeepADBPrivacySwitches {
             setApp(activity, app.isChecked());
             if (onAppChanged != null) onAppChanged.run();
         });
-        notifications.setOnClickListener(v -> setNotifications(activity, notifications.isChecked()));
-        widgets.setOnClickListener(v -> setWidgets(activity, widgets.isChecked()));
+        // Every switch change ends this screen's reveals and eye-menu override, so the host redraws.
+        notifications.setOnClickListener(v -> {
+            setNotifications(activity, notifications.isChecked());
+            if (onAppChanged != null) onAppChanged.run();
+        });
+        widgets.setOnClickListener(v -> {
+            setWidgets(activity, widgets.isChecked());
+            if (onAppChanged != null) onAppChanged.run();
+        });
         refresh(activity, root);
     }
 
@@ -55,6 +62,8 @@ final class KeepADBPrivacySwitches {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
                 "privacy_notification_switch");
         KeepADBPreferences.setNotificationPrivacyEnabled(activity, want);
+        KeepADBPrivacy.concealAll(activity);
+        KeepADBPrivacyToggle.update(activity);
         // Re-render a currently visible USB card and the persistent main notification right
         // away (#592, #597).
         KeepADBUsbReceiver.refresh(activity);
@@ -69,6 +78,8 @@ final class KeepADBPrivacySwitches {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
                 "privacy_widget_switch");
         KeepADBPreferences.setWidgetPrivacyEnabled(activity, want);
+        KeepADBPrivacy.concealAll(activity);
+        KeepADBPrivacyToggle.update(activity);
         KeepADBWidget.refreshAllState(activity);
         KeepADBTileService.requestRefresh(activity);
     }

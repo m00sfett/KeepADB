@@ -133,7 +133,28 @@ final class KeepADBPrivacy {
     /** Sets the eye-menu override of {@code screen}: masked or shown until the screen ends. */
     static void setScreenMasked(Activity screen, boolean masked) {
         if (screen == null) return;
+        // "Hide on this screen" hides every part, also one revealed before; a "Show" of a part
+        // afterwards still works.
+        if (masked) REVEALED.remove(screen);
         SCREEN_OVERRIDE.put(screen, masked);
+    }
+
+    /** Whether {@code screen} has an eye-menu override or a revealed part. */
+    static boolean hasTemporaryState(Activity screen) {
+        return screen != null
+                && (SCREEN_OVERRIDE.containsKey(screen) || REVEALED.containsKey(screen));
+    }
+
+    /**
+     * Whether a text that can outlive the screen (a toast) must mask: everything shown through
+     * {@code context} masks, or its screen is redacted for exports ({@link #isExportRedacted}).
+     * A "Show" ends with the screen, a toast does not, so a reveal never unmasks a toast.
+     */
+    static boolean isOutlivingTextMasked(Context context) {
+        if (isAppMasked(context)) return true;
+        Activity screen = screenOf(context);
+        return screen != null ? isExportRedacted(screen)
+                : context != null && KeepADBPreferences.isAppPrivacyEnabled(context);
     }
 
     /**
