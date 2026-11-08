@@ -632,11 +632,6 @@
     <string name="widget_state_waiting">Очікування</string>
     <string name="widget_state_paused">Призупинено</string>
     <string name="widget_state_setup">Налаштувати</string>
-    <string name="widget_state_ready">Готово</string>
-    <string name="widget_state_sending">Надсилання…</string>
-    <string name="widget_state_sent">Надіслано</string>
-    <string name="widget_state_failed">Помилка</string>
-    <string name="widget_state_no_endpoint">Немає кінцевої точки</string>
     <string name="widget_webhook_unconfigured">Webhook: не налаштовано</string>
     <string name="widget_webhook_sync_off">Webhook: синхронізацію вимкнено</string>
     <string name="widget_webhook_sending">Webhook: надсилання звіту…</string>

@@ -136,11 +136,11 @@ public class KeepADBWidgetApi30Test {
     public void theReportedSizeSelectsTheLayoutAndResizingBackAndForthDoesNotStackTiles() {
         assertEquals(1, tilesAfterResizeTo(56, 56));
         assertEquals(2, tilesAfterResizeTo(110, 56));
-        assertEquals(4, tilesAfterResizeTo(250, 56));
-        assertEquals(4, tilesAfterResizeTo(110, 120));
+        assertEquals(3, tilesAfterResizeTo(250, 56));
+        assertEquals(3, tilesAfterResizeTo(110, 120));
         assertEquals(2, tilesAfterResizeTo(56, 120));
         assertEquals(1, tilesAfterResizeTo(56, 56));
-        assertEquals(4, tilesAfterResizeTo(250, 120));
+        assertEquals(3, tilesAfterResizeTo(250, 120));
         assertTrue("the panel shows the details",
                 widgets.getViewFor(id).findViewById(R.id.widget_details_row).getVisibility()
                         == View.VISIBLE);
@@ -149,9 +149,9 @@ public class KeepADBWidgetApi30Test {
     @Test
     public void thePerWidgetConfigurationAppliesToTheFallbackLayoutToo() {
         KeepADBWidgetConfig.save(context, id, KeepADBWidgetConfig.of(
-                KeepADBWidgetConfig.Action.REPORT_NOW, null, false));
+                KeepADBWidgetConfig.Action.KEEP_ALIVE, null, false));
         assertEquals(1, tilesAfterResizeTo(56, 56));
-        assertEquals(java.util.Arrays.asList(context.getString(R.string.webhook_alert_action_report_now)),
+        assertEquals(java.util.Arrays.asList(context.getString(R.string.widget_action_keep_alive)),
                 labels(widgets.getViewFor(id)));
     }
 }

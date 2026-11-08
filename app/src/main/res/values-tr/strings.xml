@@ -630,11 +630,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="widget_state_waiting">Bekliyor</string>
     <string name="widget_state_paused">Duraklatıldı</string>
     <string name="widget_state_setup">Kur</string>
-    <string name="widget_state_ready">Hazır</string>
-    <string name="widget_state_sending">Gönderiliyor…</string>
-    <string name="widget_state_sent">Gönderildi</string>
-    <string name="widget_state_failed">Başarısız</string>
-    <string name="widget_state_no_endpoint">Uç nokta yok</string>
     <string name="widget_webhook_unconfigured">Webhook: kurulmadı</string>
     <string name="widget_webhook_sync_off">Webhook: eşitleme kapalı</string>
     <string name="widget_webhook_sending">Webhook: bildirim gönderiliyor…</string>

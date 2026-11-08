@@ -632,11 +632,6 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="widget_state_waiting">Czeka</string>
     <string name="widget_state_paused">Wstrzymane</string>
     <string name="widget_state_setup">Skonfiguruj</string>
-    <string name="widget_state_ready">Gotowe</string>
-    <string name="widget_state_sending">Wysyłanie…</string>
-    <string name="widget_state_sent">Wysłano</string>
-    <string name="widget_state_failed">Błąd</string>
-    <string name="widget_state_no_endpoint">Brak punktu końcowego</string>
     <string name="widget_webhook_unconfigured">Webhook: nie skonfigurowano</string>
     <string name="widget_webhook_sync_off">Webhook: synchronizacja wyłączona</string>
     <string name="widget_webhook_sending">Webhook: wysyłanie zgłoszenia…</string>

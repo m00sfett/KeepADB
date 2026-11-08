@@ -637,11 +637,6 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="widget_state_waiting">Waiting</string>
     <string name="widget_state_paused">Paused</string>
     <string name="widget_state_setup">Set up</string>
-    <string name="widget_state_ready">Ready</string>
-    <string name="widget_state_sending">Sending…</string>
-    <string name="widget_state_sent">Sent</string>
-    <string name="widget_state_failed">Failed</string>
-    <string name="widget_state_no_endpoint">No endpoint</string>
     <string name="widget_webhook_unconfigured">Webhook: not set up</string>
     <string name="widget_webhook_sync_off">Webhook: sync off</string>
     <string name="widget_webhook_sending">Webhook: sending report…</string>

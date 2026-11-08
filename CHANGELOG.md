@@ -27,9 +27,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Added
 - **Adaptive control widget (#912):** the placed widget (same provider, same component) now holds
-  up to four controls: Wireless Debugging, Keep-Alive, automatic webhook synchronization and
-  "Report now", and shows more as it grows. About 1x1 shows the main action, narrow and tall two
-  actions, 2x1 two, 2x2 all four in a grid, 4x1 the four in a row; tall 2x2 and 4x2 keep flat
+  up to three controls: Wireless Debugging, Keep-Alive and automatic webhook synchronization, and
+  shows more as it grows. About 1x1 shows the main action, narrow and tall two
+  actions, 2x1 two, 2x2 all three in a grid, 4x1 the three in a row; tall 2x2 and 4x2 keep flat
   tiles and add a status box (endpoint on one line, cut in the middle so the port stays readable,
   or the reason for the state; the webhook state; the settings gear in the 4x2). `KeepADBWidgetLayout` chooses the class
   from the reported size and the font scale (every threshold grows with the scale, labels give way
@@ -41,19 +41,17 @@ are retrospective issue-version records and were never published as separate rel
   name and the state; at a large font the label gives way to icon and state word.
 - **Per-widget settings (#912):** `KeepADBWidgetConfigActivity` (the widget's configure and
   reconfigure activity, also reachable from the gear in the larger layouts) sets the main action,
-  the order of the four actions and "hide connection details" for that one widget.
+  the order of the three actions and "hide connection details" for that one widget.
   `KeepADBWidgetConfig` stores them per `appWidgetId` in the private file `keepadb_widget_config`,
   never in `keepadb_prefs`; `onDeleted` removes the instance's entry, `onDisabled` all of them.
   The main action decides which controls survive a small size, the order fixes the positions, so
   nothing moves when the widget grows. A widget placed before this version has no entry and shows
-  the defaults (Debugging, Keep-Alive, Auto-sync, Report now).
+  the defaults (Debugging, Keep-Alive, Auto-sync).
 - **Controls reuse the app's entry points:** Wireless Debugging uses the widget's existing toggle
   broadcast (same action, request code and component as before, so already placed widgets keep
   working), Keep-Alive the notification's action, the webhook controls `KeepADBWebhookActions`.
   A missing grant opens the home screen instead of a failing write; the status box opens the
-  relevant place (home screen, network settings, webhook form). "Report now" exists only while
-  automatic synchronization is on; with it off (or without a URL) it takes no place and the
-  other controls widen; synchronization is switched on by the Auto-sync control. The webhook line
+  relevant place (home screen, network settings, webhook form). The webhook line
   says "sync off" while it is off, never an old failure.
 - Widget picker label and description, a preview layout for the default 2x1 (Android 12+) and a
   picker image for Android 11, default size 2x1, resizable in both directions, `reconfigurable`;
@@ -71,6 +69,14 @@ are retrospective issue-version records and were never published as separate rel
   and state refreshes never send or poll. `onUpdate` (placement and boot) keeps one coordinator
   refresh per update, because with Keep-Alive off nothing else restarts the coordinator after a
   restart (`BootReceiver` starts the service only for Keep-Alive).
+- **"Report now" left the widget (#912):** the control widget has three controls (Debugging,
+  Keep-Alive, Auto-sync). `KeepADBWebhookActions.reportNow`, the widget tile and the
+  `KeepADBWidgetState.Webhook.reportNow` projection are removed, as are the five tile strings only
+  that tile used (`widget_state_ready`, `_sending`, `_sent`, `_failed`, `_no_endpoint`, all
+  locales) and `ic_widget_report`. Kept: `KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW`,
+  `KeepADBRegisterClient.reportNow` and the "Report now" button of the webhook failure
+  notification (#893). A stored widget configuration that names `report_now` still decodes: the
+  token is ignored and a main action that was "Report now" becomes Debugging.
 - The one-line `widget_text_*` strings are gone; the Wireless Debugging tile uses the tile's
   state words.
 - The manifest now has a third exported component, the widget's configure activity, which the

@@ -110,7 +110,7 @@ public class KeepADBWidgetConfigActivityTest {
         assertTrue(primaryChoice(activity, Action.ADB).isChecked());
         assertFalse(((Switch) activity.findViewById(R.id.widget_config_hide_details)).isChecked());
         assertFalse("the first cannot move up", orderButton(activity, 0, UP).isEnabled());
-        assertFalse("the last cannot move down", orderButton(activity, 3, DOWN).isEnabled());
+        assertFalse("the last cannot move down", orderButton(activity, 2, DOWN).isEnabled());
         assertTrue(orderButton(activity, 1, UP).isEnabled());
     }
 
@@ -119,18 +119,17 @@ public class KeepADBWidgetConfigActivityTest {
         ActivityController<KeepADBWidgetConfigActivity> controller = open(widgetId);
         Activity activity = controller.get();
 
-        primaryChoice(activity, Action.REPORT_NOW).setChecked(true);
-        // Move "Report now" (4th) to the top: up, up, up.
-        orderButton(activity, 3, UP).performClick();
+        primaryChoice(activity, Action.WEBHOOK_SYNC).setChecked(true);
+        // Move the synchronization (3rd) to the top: up, up.
         orderButton(activity, 2, UP).performClick();
         orderButton(activity, 1, UP).performClick();
         ((Switch) activity.findViewById(R.id.widget_config_hide_details)).setChecked(true);
         activity.findViewById(R.id.widget_config_save).performClick();
 
         KeepADBWidgetConfig stored = KeepADBWidgetConfig.load(context, widgetId);
-        assertEquals(Action.REPORT_NOW, stored.primary);
-        assertEquals(Arrays.asList(Action.REPORT_NOW, Action.ADB, Action.KEEP_ALIVE,
-                Action.WEBHOOK_SYNC), stored.order);
+        assertEquals(Action.WEBHOOK_SYNC, stored.primary);
+        assertEquals(Arrays.asList(Action.WEBHOOK_SYNC, Action.ADB, Action.KEEP_ALIVE),
+                stored.order);
         assertTrue(stored.hideDetails);
         assertEquals(Activity.RESULT_OK, shadowOf(activity).getResultCode());
         assertEquals(widgetId, shadowOf(activity).getResultIntent()
@@ -140,14 +139,14 @@ public class KeepADBWidgetConfigActivityTest {
         shadowOf(Looper.getMainLooper()).idle();
         View rendered = widgets.getViewFor(widgetId);
         assertEquals("the widget shows the new main action",
-                context.getString(R.string.webhook_alert_action_report_now),
+                context.getString(R.string.widget_action_sync),
                 KeepADBWidgetTestSupport.labels(rendered).get(0));
     }
 
     @Test
     public void otherWidgetsAndTheAppSettingsAreUntouched() {
         KeepADBWidgetConfig other = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC,
-                Arrays.asList(Action.WEBHOOK_SYNC, Action.ADB, Action.REPORT_NOW, Action.KEEP_ALIVE), true);
+                Arrays.asList(Action.WEBHOOK_SYNC, Action.ADB, Action.KEEP_ALIVE), true);
         KeepADBWidgetConfig.save(context, otherId, other);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         java.util.TreeMap<String, ?> before = new java.util.TreeMap<>(
@@ -168,7 +167,7 @@ public class KeepADBWidgetConfigActivityTest {
     @Test
     public void reconfiguringShowsAndChangesThePreviousChoices() {
         KeepADBWidgetConfig.save(context, widgetId, KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC,
-                Arrays.asList(Action.KEEP_ALIVE, Action.WEBHOOK_SYNC, Action.ADB, Action.REPORT_NOW), true));
+                Arrays.asList(Action.KEEP_ALIVE, Action.WEBHOOK_SYNC, Action.ADB), true));
 
         Activity activity = open(widgetId).get();
         assertTrue(primaryChoice(activity, Action.WEBHOOK_SYNC).isChecked());
@@ -177,7 +176,7 @@ public class KeepADBWidgetConfigActivityTest {
 
         orderButton(activity, 0, DOWN).performClick();
         activity.findViewById(R.id.widget_config_save).performClick();
-        assertEquals(Arrays.asList(Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB, Action.REPORT_NOW),
+        assertEquals(Arrays.asList(Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB),
                 KeepADBWidgetConfig.load(context, widgetId).order);
     }
 
@@ -185,7 +184,7 @@ public class KeepADBWidgetConfigActivityTest {
     public void goingBackChangesNothingAndReportsCancelled() {
         KeepADBWidgetConfig before = KeepADBWidgetConfig.load(context, widgetId);
         Activity activity = open(widgetId).get();
-        primaryChoice(activity, Action.REPORT_NOW).setChecked(true);
+        primaryChoice(activity, Action.WEBHOOK_SYNC).setChecked(true);
         orderButton(activity, 1, UP).performClick();
         activity.findViewById(R.id.btn_back).performClick();
 

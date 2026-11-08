@@ -634,11 +634,6 @@
     <string name="widget_state_waiting">في الانتظار</string>
     <string name="widget_state_paused">متوقف مؤقتًا</string>
     <string name="widget_state_setup">يلزم الإعداد</string>
-    <string name="widget_state_ready">جاهز</string>
-    <string name="widget_state_sending">جارٍ الإرسال…</string>
-    <string name="widget_state_sent">تم الإرسال</string>
-    <string name="widget_state_failed">فشل</string>
-    <string name="widget_state_no_endpoint">لا نقطة نهاية</string>
     <string name="widget_webhook_unconfigured">Webhook: غير مُعدّ</string>
     <string name="widget_webhook_sync_off">Webhook: المزامنة متوقفة</string>
     <string name="widget_webhook_sending">Webhook: جارٍ إرسال التقرير…</string>

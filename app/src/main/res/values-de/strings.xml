@@ -630,11 +630,6 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="widget_state_waiting">Wartet</string>
     <string name="widget_state_paused">Pausiert</string>
     <string name="widget_state_setup">Einrichten</string>
-    <string name="widget_state_ready">Bereit</string>
-    <string name="widget_state_sending">Sendet …</string>
-    <string name="widget_state_sent">Gesendet</string>
-    <string name="widget_state_failed">Fehlgeschlagen</string>
-    <string name="widget_state_no_endpoint">Kein Endpunkt</string>
     <string name="widget_webhook_unconfigured">Webhook: nicht eingerichtet</string>
     <string name="widget_webhook_sync_off">Webhook: Sync aus</string>
     <string name="widget_webhook_sending">Webhook: Meldung wird gesendet …</string>

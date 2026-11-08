@@ -6,12 +6,9 @@ import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * #912: builds the {@link RemoteViews} of the control widget from a configuration, the shared
@@ -39,14 +36,7 @@ final class KeepADBWidgetViews {
         boolean details = sizeClass.hasDetails();
         RemoteViews views = new RemoteViews(ctx.getPackageName(),
                 details ? R.layout.widget_keepadb_flat : R.layout.widget_keepadb);
-        // Report now exists only while automatic synchronization is on. Without it the control
-        // takes no place at all: the others move up and widen.
-        Set<KeepADBWidgetConfig.Action> unavailable =
-                projection.webhook.sync == KeepADBWidgetState.Sync.ON
-                        ? Collections.<KeepADBWidgetConfig.Action>emptySet()
-                        : EnumSet.of(KeepADBWidgetConfig.Action.REPORT_NOW);
-        List<KeepADBWidgetConfig.Action> actions =
-                config.shown(sizeClass.actionCount(), unavailable);
+        List<KeepADBWidgetConfig.Action> actions = config.shown(sizeClass.actionCount());
 
         // A launcher re-applies a new RemoteViews with the same layout onto the view it already
         // has (and, on Android 12+, switches between the size classes the same way). Added tiles

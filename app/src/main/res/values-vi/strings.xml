@@ -629,11 +629,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="widget_state_waiting">Đang chờ</string>
     <string name="widget_state_paused">Tạm dừng</string>
     <string name="widget_state_setup">Thiết lập</string>
-    <string name="widget_state_ready">Sẵn sàng</string>
-    <string name="widget_state_sending">Đang gửi…</string>
-    <string name="widget_state_sent">Đã gửi</string>
-    <string name="widget_state_failed">Thất bại</string>
-    <string name="widget_state_no_endpoint">Chưa có điểm cuối</string>
     <string name="widget_webhook_unconfigured">Webhook: chưa thiết lập</string>
     <string name="widget_webhook_sync_off">Webhook: đồng bộ tắt</string>
     <string name="widget_webhook_sending">Webhook: đang gửi báo cáo…</string>

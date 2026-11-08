@@ -40,8 +40,6 @@ final class KeepADBWidgetActions {
                 return KeepADBWebhookActions.setAutomaticSync(context, true);
             case SYNC_DISABLE:
                 return KeepADBWebhookActions.setAutomaticSync(context, false);
-            case REPORT_NOW:
-                return KeepADBWebhookActions.reportNow(context);
             case SETUP_WEBHOOK:
                 return KeepADBWebhookActions.setup(context);
             case OPEN_NETWORK:

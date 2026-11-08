@@ -632,11 +632,6 @@
     <string name="widget_state_waiting">Ожидание</string>
     <string name="widget_state_paused">Приостановлено</string>
     <string name="widget_state_setup">Настроить</string>
-    <string name="widget_state_ready">Готово</string>
-    <string name="widget_state_sending">Отправка…</string>
-    <string name="widget_state_sent">Отправлено</string>
-    <string name="widget_state_failed">Ошибка</string>
-    <string name="widget_state_no_endpoint">Нет конечной точки</string>
     <string name="widget_webhook_unconfigured">Webhook: не настроен</string>
     <string name="widget_webhook_sync_off">Webhook: синхронизация отключена</string>
     <string name="widget_webhook_sending">Webhook: отправка отчёта…</string>

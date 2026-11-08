@@ -630,11 +630,6 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="widget_state_waiting">Wacht</string>
     <string name="widget_state_paused">Gepauzeerd</string>
     <string name="widget_state_setup">Instellen</string>
-    <string name="widget_state_ready">Klaar</string>
-    <string name="widget_state_sending">Verzenden…</string>
-    <string name="widget_state_sent">Verzonden</string>
-    <string name="widget_state_failed">Mislukt</string>
-    <string name="widget_state_no_endpoint">Geen eindpunt</string>
     <string name="widget_webhook_unconfigured">Webhook: niet ingesteld</string>
     <string name="widget_webhook_sync_off">Webhook: synchronisatie uit</string>
     <string name="widget_webhook_sending">Webhook: melding wordt verzonden…</string>

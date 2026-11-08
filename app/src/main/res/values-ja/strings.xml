@@ -629,11 +629,6 @@
     <string name="widget_state_waiting">待機中</string>
     <string name="widget_state_paused">一時停止中</string>
     <string name="widget_state_setup">設定が必要</string>
-    <string name="widget_state_ready">準備完了</string>
-    <string name="widget_state_sending">送信中…</string>
-    <string name="widget_state_sent">送信済み</string>
-    <string name="widget_state_failed">失敗</string>
-    <string name="widget_state_no_endpoint">エンドポイントなし</string>
     <string name="widget_webhook_unconfigured">Webhook: 未設定</string>
     <string name="widget_webhook_sync_off">Webhook: 同期オフ</string>
     <string name="widget_webhook_sending">Webhook: 報告を送信中…</string>

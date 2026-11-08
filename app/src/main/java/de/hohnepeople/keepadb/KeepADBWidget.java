@@ -14,8 +14,8 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 /**
- * The control widget (#912): up to four controls (Wireless Debugging, Keep-Alive, automatic
- * webhook synchronization, Report now), more of them and more detail the larger the widget is. Which
+ * The control widget (#912): up to three controls (Wireless Debugging, Keep-Alive, automatic
+ * webhook synchronization), more of them and more detail the larger the widget is. Which
  * ones, in which order and with which main action is configured per placed instance
  * ({@link KeepADBWidgetConfig}); a widget placed before that existed shows the defaults and keeps
  * its single Wireless Debugging toggle as the first control.

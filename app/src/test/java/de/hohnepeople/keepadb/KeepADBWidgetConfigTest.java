@@ -34,7 +34,6 @@ public class KeepADBWidgetConfigTest {
     private static final KeepADBWidgetConfig.Action ADB = KeepADBWidgetConfig.Action.ADB;
     private static final KeepADBWidgetConfig.Action KEEP_ALIVE = KeepADBWidgetConfig.Action.KEEP_ALIVE;
     private static final KeepADBWidgetConfig.Action SYNC = KeepADBWidgetConfig.Action.WEBHOOK_SYNC;
-    private static final KeepADBWidgetConfig.Action REPORT = KeepADBWidgetConfig.Action.REPORT_NOW;
 
     private Context context;
 
@@ -52,9 +51,9 @@ public class KeepADBWidgetConfigTest {
     }
 
     @Test
-    public void defaultsAreAdbKeepAliveSyncReportWithAdbAsTheMainAction() {
+    public void defaultsAreAdbKeepAliveSyncWithAdbAsTheMainAction() {
         KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC, REPORT), defaults.order);
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), defaults.order);
         assertEquals(ADB, defaults.primary);
         assertFalse(defaults.hideDetails);
     }
@@ -71,54 +70,52 @@ public class KeepADBWidgetConfigTest {
 
     @Test
     public void theMainActionSurvivesShrinkingAndTheOrderKeepsThePositions() {
-        KeepADBWidgetConfig config = KeepADBWidgetConfig.of(REPORT,
-                Arrays.asList(ADB, KEEP_ALIVE, SYNC, REPORT), false);
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.of(SYNC,
+                Arrays.asList(ADB, KEEP_ALIVE, SYNC), false);
 
-        assertEquals(Collections.singletonList(REPORT), config.shown(1));
+        assertEquals(Collections.singletonList(SYNC), config.shown(1));
         // The main action plus the first of the others, in the order's sequence.
-        assertEquals(Arrays.asList(ADB, REPORT), config.shown(2));
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, REPORT), config.shown(3));
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC, REPORT), config.shown(4));
+        assertEquals(Arrays.asList(ADB, SYNC), config.shown(2));
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(3));
         assertEquals("asking for more than exists shows all, once",
-                Arrays.asList(ADB, KEEP_ALIVE, SYNC, REPORT), config.shown(9));
+                Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(9));
         assertTrue(config.shown(0).isEmpty());
     }
 
     @Test
     public void aCustomOrderIsKeptInEverySize() {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(KEEP_ALIVE,
-                Arrays.asList(REPORT, SYNC, KEEP_ALIVE, ADB), false);
+                Arrays.asList(SYNC, KEEP_ALIVE, ADB), false);
 
         assertEquals(Collections.singletonList(KEEP_ALIVE), config.shown(1));
-        assertEquals(Arrays.asList(REPORT, KEEP_ALIVE), config.shown(2));
-        assertEquals(Arrays.asList(REPORT, SYNC, KEEP_ALIVE), config.shown(3));
-        assertEquals(Arrays.asList(REPORT, SYNC, KEEP_ALIVE, ADB), config.shown(4));
+        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE), config.shown(2));
+        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE, ADB), config.shown(3));
     }
 
     @Test
     public void anUnavailableActionTakesNoPlaceAndTheOthersMoveUp() {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(ADB,
-                Arrays.asList(ADB, REPORT, KEEP_ALIVE, SYNC), false);
-        java.util.Set<KeepADBWidgetConfig.Action> noReport = java.util.EnumSet.of(REPORT);
+                Arrays.asList(ADB, SYNC, KEEP_ALIVE), false);
+        java.util.Set<KeepADBWidgetConfig.Action> noSync = java.util.EnumSet.of(SYNC);
 
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), config.shown(4, noReport));
-        assertEquals(Arrays.asList(ADB, KEEP_ALIVE), config.shown(2, noReport));
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE), config.shown(3, noSync));
+        assertEquals(Arrays.asList(ADB), config.shown(1, noSync));
         assertEquals("with everything available nothing changes",
-                config.shown(4), config.shown(4, java.util.Collections.<KeepADBWidgetConfig.Action>emptySet()));
+                config.shown(3), config.shown(3, java.util.Collections.<KeepADBWidgetConfig.Action>emptySet()));
 
         // An unavailable main action gives its place to the first of the others.
-        KeepADBWidgetConfig reportFirst = KeepADBWidgetConfig.of(REPORT,
-                Arrays.asList(REPORT, ADB, KEEP_ALIVE, SYNC), false);
-        assertEquals(Collections.singletonList(REPORT), reportFirst.shown(1));
-        assertEquals(Collections.singletonList(ADB), reportFirst.shown(1, noReport));
+        KeepADBWidgetConfig syncFirst = KeepADBWidgetConfig.of(SYNC,
+                Arrays.asList(SYNC, ADB, KEEP_ALIVE), false);
+        assertEquals(Collections.singletonList(SYNC), syncFirst.shown(1));
+        assertEquals(Collections.singletonList(ADB), syncFirst.shown(1, noSync));
     }
 
     @Test
-    public void anyInputIsNormalizedToAPermutationOfAllFour() {
+    public void anyInputIsNormalizedToAPermutationOfAllThree() {
         KeepADBWidgetConfig config = KeepADBWidgetConfig.of(null,
-                Arrays.asList(REPORT, null, REPORT, KEEP_ALIVE), true);
+                Arrays.asList(SYNC, null, SYNC, KEEP_ALIVE), true);
         assertEquals(ADB, config.primary);
-        assertEquals(Arrays.asList(REPORT, KEEP_ALIVE, ADB, SYNC), config.order);
+        assertEquals(Arrays.asList(SYNC, KEEP_ALIVE, ADB), config.order);
         assertTrue(config.hideDetails);
     }
 
@@ -127,19 +124,45 @@ public class KeepADBWidgetConfigTest {
         assertEquals(KeepADBWidgetConfig.defaults().order,
                 KeepADBWidgetConfig.decode("garbage").order);
         assertEquals(ADB, KeepADBWidgetConfig.decode(null).primary);
-        KeepADBWidgetConfig partial = KeepADBWidgetConfig.decode("report_now;webhook_sync,bogus;1");
-        assertEquals(REPORT, partial.primary);
+        KeepADBWidgetConfig partial = KeepADBWidgetConfig.decode("keep_alive;webhook_sync,bogus;1");
+        assertEquals(KEEP_ALIVE, partial.primary);
         assertEquals("the readable part is kept, the missing actions follow in default order",
-                Arrays.asList(SYNC, ADB, KEEP_ALIVE, REPORT), partial.order);
+                Arrays.asList(SYNC, ADB, KEEP_ALIVE), partial.order);
         assertTrue(partial.hideDetails);
+    }
+
+    /**
+     * Report now left the widget in #912, but entries stored by a build that still had it must
+     * decode: the retired token is ignored and a main action that was Report now becomes ADB.
+     */
+    @Test
+    public void aStoredEntryThatNamesTheRetiredReportNowStillDecodes() {
+        KeepADBWidgetConfig primary = KeepADBWidgetConfig.decode(
+                "report_now;keep_alive,report_now,webhook_sync,adb;1");
+        assertEquals("the retired main action falls back to the default", ADB, primary.primary);
+        assertEquals("the retired token is dropped from the order",
+                Arrays.asList(KEEP_ALIVE, SYNC, ADB), primary.order);
+        assertTrue(primary.hideDetails);
+
+        KeepADBWidgetConfig inOrderOnly = KeepADBWidgetConfig.decode(
+                "webhook_sync;adb,keep_alive,webhook_sync,report_now;0");
+        assertEquals(SYNC, inOrderOnly.primary);
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), inOrderOnly.order);
+
+        // Through the stored file, the way a legacy instance reaches it.
+        context.getSharedPreferences("keepadb_widget_config", Context.MODE_PRIVATE).edit()
+                .putString("widget.61", "report_now;report_now,adb,keep_alive,webhook_sync;0").commit();
+        KeepADBWidgetConfig loaded = KeepADBWidgetConfig.load(context, 61);
+        assertEquals(ADB, loaded.primary);
+        assertEquals(Arrays.asList(ADB, KEEP_ALIVE, SYNC), loaded.order);
     }
 
     @Test
     public void eachInstanceKeepsItsOwnSettingsAndTheyOutliveTheProcess() {
-        KeepADBWidgetConfig a = KeepADBWidgetConfig.of(REPORT,
-                Arrays.asList(REPORT, ADB, KEEP_ALIVE, SYNC), true);
+        KeepADBWidgetConfig a = KeepADBWidgetConfig.of(KEEP_ALIVE,
+                Arrays.asList(KEEP_ALIVE, ADB, SYNC), true);
         KeepADBWidgetConfig b = KeepADBWidgetConfig.of(SYNC,
-                Arrays.asList(SYNC, KEEP_ALIVE, ADB, REPORT), false);
+                Arrays.asList(SYNC, KEEP_ALIVE, ADB), false);
         KeepADBWidgetConfig.save(context, 11, a);
         KeepADBWidgetConfig.save(context, 12, b);
 
@@ -147,7 +170,7 @@ public class KeepADBWidgetConfigTest {
         Context again = ApplicationProvider.getApplicationContext();
         KeepADBWidgetConfig readA = KeepADBWidgetConfig.load(again, 11);
         KeepADBWidgetConfig readB = KeepADBWidgetConfig.load(again, 12);
-        assertEquals(REPORT, readA.primary);
+        assertEquals(KEEP_ALIVE, readA.primary);
         assertEquals(a.order, readA.order);
         assertTrue(readA.hideDetails);
         assertEquals(SYNC, readB.primary);
@@ -166,7 +189,7 @@ public class KeepADBWidgetConfigTest {
         appPrefs.edit().putBoolean("keep_alive_enabled", true).putString("custom", "x").commit();
         Map<String, ?> before = new TreeMap<>(appPrefs.getAll());
 
-        KeepADBWidgetConfig.save(context, 21, KeepADBWidgetConfig.of(REPORT, null, true));
+        KeepADBWidgetConfig.save(context, 21, KeepADBWidgetConfig.of(KEEP_ALIVE, null, true));
         KeepADBWidgetConfig.delete(context, new int[] {21});
 
         assertEquals(before, new TreeMap<>(appPrefs.getAll()));
@@ -174,7 +197,7 @@ public class KeepADBWidgetConfigTest {
 
     @Test
     public void deletingAnInstanceRemovesOnlyItsEntry() {
-        KeepADBWidgetConfig custom = KeepADBWidgetConfig.of(REPORT, null, true);
+        KeepADBWidgetConfig custom = KeepADBWidgetConfig.of(KEEP_ALIVE, null, true);
         KeepADBWidgetConfig.save(context, 31, custom);
         KeepADBWidgetConfig.save(context, 32, custom);
         KeepADBWidgetConfig.save(context, 33, custom);
@@ -184,12 +207,12 @@ public class KeepADBWidgetConfigTest {
         assertFalse(KeepADBWidgetConfig.isStored(context, 31));
         assertTrue("the other instance keeps its settings", KeepADBWidgetConfig.isStored(context, 32));
         assertFalse(KeepADBWidgetConfig.isStored(context, 33));
-        assertEquals(REPORT, KeepADBWidgetConfig.load(context, 32).primary);
+        assertEquals(KEEP_ALIVE, KeepADBWidgetConfig.load(context, 32).primary);
     }
 
     @Test
     public void removingTheLastWidgetClearsEveryEntry() {
-        KeepADBWidgetConfig.save(context, 41, KeepADBWidgetConfig.of(REPORT, null, true));
+        KeepADBWidgetConfig.save(context, 41, KeepADBWidgetConfig.of(KEEP_ALIVE, null, true));
         KeepADBWidgetConfig.save(context, 42, KeepADBWidgetConfig.of(SYNC, null, false));
 
         new KeepADBWidget().onDisabled(context);
@@ -205,6 +228,6 @@ public class KeepADBWidgetConfigTest {
         KeepADBWidgetConfig.save(context, AppWidgetManager.INVALID_APPWIDGET_ID,
                 KeepADBWidgetConfig.defaults());
         List<KeepADBWidgetConfig.Action> order = KeepADBWidgetConfig.load(context, 51).order;
-        assertEquals(4, order.size());
+        assertEquals(3, order.size());
     }
 }

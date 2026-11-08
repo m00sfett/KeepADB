@@ -629,11 +629,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="widget_state_waiting">Menunggu</string>
     <string name="widget_state_paused">Dijeda</string>
     <string name="widget_state_setup">Atur</string>
-    <string name="widget_state_ready">Siap</string>
-    <string name="widget_state_sending">Mengirim…</string>
-    <string name="widget_state_sent">Terkirim</string>
-    <string name="widget_state_failed">Gagal</string>
-    <string name="widget_state_no_endpoint">Tanpa endpoint</string>
     <string name="widget_webhook_unconfigured">Webhook: belum diatur</string>
     <string name="widget_webhook_sync_off">Webhook: sinkronisasi nonaktif</string>
     <string name="widget_webhook_sending">Webhook: mengirim laporan…</string>

@@ -629,11 +629,6 @@
     <string name="widget_state_waiting">대기 중</string>
     <string name="widget_state_paused">일시 중지됨</string>
     <string name="widget_state_setup">설정 필요</string>
-    <string name="widget_state_ready">준비됨</string>
-    <string name="widget_state_sending">전송 중…</string>
-    <string name="widget_state_sent">전송됨</string>
-    <string name="widget_state_failed">실패</string>
-    <string name="widget_state_no_endpoint">엔드포인트 없음</string>
     <string name="widget_webhook_unconfigured">Webhook: 설정되지 않음</string>
     <string name="widget_webhook_sync_off">Webhook: 동기화 꺼짐</string>
     <string name="widget_webhook_sending">Webhook: 보고 전송 중…</string>

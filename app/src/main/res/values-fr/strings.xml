@@ -631,11 +631,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="widget_state_waiting">En attente</string>
     <string name="widget_state_paused">En pause</string>
     <string name="widget_state_setup">À configurer</string>
-    <string name="widget_state_ready">Prêt</string>
-    <string name="widget_state_sending">Envoi…</string>
-    <string name="widget_state_sent">Envoyé</string>
-    <string name="widget_state_failed">Échec</string>
-    <string name="widget_state_no_endpoint">Aucun endpoint</string>
     <string name="widget_webhook_unconfigured">Webhook : non configuré</string>
     <string name="widget_webhook_sync_off">Webhook : synchronisation désactivée</string>
     <string name="widget_webhook_sending">Webhook : envoi du signalement…</string>

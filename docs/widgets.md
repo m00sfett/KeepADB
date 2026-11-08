@@ -1,24 +1,28 @@
 # Control widget (#912)
 
-The home-screen widget **KeepADB controls** holds up to four controls. The larger the widget, the
+The home-screen widget **KeepADB controls** holds up to three controls. The larger the widget, the
 more of them it shows and the more it explains. It only reads the app's state
 (`KeepADBWidgetState`); drawing or resizing it never sends a report, never starts a discovery and
 never polls.
 
-## The four controls
+## The three controls
 
 | Control | Tap | State words |
 |---|---|---|
 | Debugging (Wireless Debugging) | switches it, with the permission, trust and debounce behavior of the app and the tile | Off, Off, waiting, Switching…, Searching…, Disconnected, Connected, Permission missing |
 | Keep-Alive | switches the Keep-Alive setting; Wi-Fi, trust and backoff rules stay with the service | Off, On, Waiting, Paused |
 | Auto-sync | switches automatic webhook synchronization to the opposite state; without a saved URL it opens the webhook form | Off, On, Set up |
-| Report now | pushes the current endpoint to the webhook, see [Webhook contract](webhook-register.md) | Ready, Sending…, Sent, Failed, No endpoint, Set up. It exists only while automatic synchronization is on: with it off (or without a saved URL) the control is not shown at all, the others widen, and the way to switch synchronization on is the Auto-sync control |
 
 Every tile has an icon of its own, a label and its state in words, so no state depends on color
 alone. A tile that needs the user (setup, paused, failed) has a dashed outline, an active one a
 heavier green outline. The texts are one line each that shrinks (not below 9sp) before it is cut,
 so no word or number is broken in the middle. The tile shows "Connected" only; the endpoint has
 its own line in the status box of the larger sizes.
+
+There is no "Report now" control: that action exists only as the button of the webhook failure
+notification (see [Webhook contract](webhook-register.md)). A stored widget configuration that
+still names it keeps working: the entry is read, the retired control is ignored and a main action
+that was "Report now" becomes Debugging.
 
 ## Sizes
 
@@ -32,9 +36,9 @@ icon and the state word (TalkBack still reads the full name and the state).
 | 1x1 | the main action |
 | 1x2 and taller, narrow | two actions on top of each other |
 | 2x1 | two actions side by side |
-| 2x2 | all four actions in a grid; taller (about 2x3): plus the status box |
-| 4x1 | the four actions in a row |
-| 4x2 | the four actions, flat, plus the status box and the settings gear |
+| 2x2 | all three actions in a grid; taller (about 2x3): plus the status box |
+| 4x1 | the three actions in a row |
+| 4x2 | the three actions, flat, plus the status box and the settings gear |
 
 The status box (tall 2x2 and 4x2; the tiles keep their flat height and the box takes the rest)
 shows the endpoint on one line while details are visible (cut in the middle if it must be, so the
@@ -54,7 +58,7 @@ defaults (`configuration_optional`) and configured afterwards, from the gear or 
 "reconfigure"; on Android 11 the settings screen opens at placement:
 
 - **Main action:** the control shown alone when the widget is small.
-- **Order:** the position of the four controls in every size. A small widget shows the main
+- **Order:** the position of the three controls in every size. A small widget shows the main
   action plus the first of the others, in this order; a position never changes when the widget
   grows, a control only appears.
 - **Hide connection details in this widget:** an additional, stricter option.
@@ -62,7 +66,7 @@ defaults (`configuration_optional`) and configured afterwards, from the gear or 
 The settings live in their own private file (`keepadb_widget_config`), keyed by the widget id,
 and are removed with the widget. They never change the app's settings or another widget. A widget
 placed before this version has no entry and shows the defaults: Debugging, Keep-Alive, Auto-sync,
-Report now, Debugging as the main action, details visible.
+Debugging as the main action, details visible.
 
 ## Privacy
 

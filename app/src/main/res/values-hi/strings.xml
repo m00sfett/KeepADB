@@ -630,11 +630,6 @@
     <string name="widget_state_waiting">प्रतीक्षा में</string>
     <string name="widget_state_paused">रुका हुआ</string>
     <string name="widget_state_setup">सेट अप करें</string>
-    <string name="widget_state_ready">तैयार</string>
-    <string name="widget_state_sending">भेज रहा है…</string>
-    <string name="widget_state_sent">भेजा गया</string>
-    <string name="widget_state_failed">विफल</string>
-    <string name="widget_state_no_endpoint">कोई एंडपॉइंट नहीं</string>
     <string name="widget_webhook_unconfigured">Webhook: सेट अप नहीं है</string>
     <string name="widget_webhook_sync_off">Webhook: सिंक बंद</string>
     <string name="widget_webhook_sending">Webhook: रिपोर्ट भेजी जा रही है…</string>

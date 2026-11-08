@@ -128,18 +128,17 @@ public class KeepADBWidgetViewsTest {
         String adb = name(R.string.widget_action_adb);
         String keepAlive = name(R.string.widget_action_keep_alive);
         String sync = name(R.string.widget_action_sync);
-        String report = name(R.string.webhook_alert_action_report_now);
 
         assertEquals(Arrays.asList(adb), labels(render(defaults, SizeClass.SINGLE)));
         assertEquals(Arrays.asList(adb, keepAlive), labels(render(defaults, SizeClass.STACK)));
         assertEquals(Arrays.asList(adb, keepAlive), labels(render(defaults, SizeClass.DUO)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync, report),
+        assertEquals(Arrays.asList(adb, keepAlive, sync),
                 labels(render(defaults, SizeClass.GRID)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync, report),
+        assertEquals(Arrays.asList(adb, keepAlive, sync),
                 labels(render(defaults, SizeClass.GRID_STATUS)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync, report),
+        assertEquals(Arrays.asList(adb, keepAlive, sync),
                 labels(render(defaults, SizeClass.STRIP)));
-        assertEquals(Arrays.asList(adb, keepAlive, sync, report),
+        assertEquals(Arrays.asList(adb, keepAlive, sync),
                 labels(render(defaults, SizeClass.PANEL)));
 
         for (SizeClass sizeClass : SizeClass.values()) {
@@ -156,7 +155,7 @@ public class KeepADBWidgetViewsTest {
     public void theGridPutsTwoControlsInEachRowAndTheStackOneUnderTheOther() {
         View grid = render(KeepADBWidgetConfig.defaults(), SizeClass.GRID);
         assertEquals(2, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_1)).getChildCount());
-        assertEquals(2, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_2)).getChildCount());
+        assertEquals(1, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_2)).getChildCount());
 
         View stack = render(KeepADBWidgetConfig.defaults(), SizeClass.STACK);
         assertEquals(1, ((android.view.ViewGroup) stack.findViewById(R.id.widget_row_1)).getChildCount());
@@ -165,36 +164,34 @@ public class KeepADBWidgetViewsTest {
 
     @Test
     public void theMainActionIsWhatTheSmallestLayoutKeeps() {
-        KeepADBWidgetConfig config = order(Action.REPORT_NOW,
-                Action.ADB, Action.KEEP_ALIVE, Action.WEBHOOK_SYNC, Action.REPORT_NOW);
-        String report = name(R.string.webhook_alert_action_report_now);
+        KeepADBWidgetConfig config = order(Action.WEBHOOK_SYNC,
+                Action.ADB, Action.KEEP_ALIVE, Action.WEBHOOK_SYNC);
+        String sync = name(R.string.widget_action_sync);
 
-        assertEquals(Arrays.asList(report), labels(render(config, SizeClass.SINGLE)));
+        assertEquals(Arrays.asList(sync), labels(render(config, SizeClass.SINGLE)));
         // Two controls: the main one plus the first of the others, in the order's sequence.
-        assertEquals(Arrays.asList(name(R.string.widget_action_adb), report),
+        assertEquals(Arrays.asList(name(R.string.widget_action_adb), sync),
                 labels(render(config, SizeClass.DUO)));
     }
 
     @Test
     public void theOrderFixesEveryPositionAndGrowingOnlyAddsControls() {
         KeepADBWidgetConfig config = order(Action.ADB,
-                Action.REPORT_NOW, Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB);
+                Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB);
         String adb = name(R.string.widget_action_adb);
         String keepAlive = name(R.string.widget_action_keep_alive);
         String sync = name(R.string.widget_action_sync);
-        String report = name(R.string.webhook_alert_action_report_now);
 
-        assertEquals(Arrays.asList(report, sync, keepAlive, adb), labels(render(config, SizeClass.STRIP)));
-        assertEquals(Arrays.asList(report, sync, keepAlive, adb), labels(render(config, SizeClass.GRID)));
-        // Row by row in the grid: the first two, then the last two.
+        assertEquals(Arrays.asList(sync, keepAlive, adb), labels(render(config, SizeClass.STRIP)));
+        assertEquals(Arrays.asList(sync, keepAlive, adb), labels(render(config, SizeClass.GRID)));
+        // Row by row in the grid: the first two, then the last one.
         List<View> grid = tiles(render(config, SizeClass.GRID));
-        assertEquals(report, label(grid.get(0)));
-        assertEquals(sync, label(grid.get(1)));
-        assertEquals(keepAlive, label(grid.get(2)));
-        assertEquals(adb, label(grid.get(3)));
+        assertEquals(sync, label(grid.get(0)));
+        assertEquals(keepAlive, label(grid.get(1)));
+        assertEquals(adb, label(grid.get(2)));
         // Smaller: the main action (ADB) and the first other; each keeps its place relative to
         // the others, nothing swaps when the widget grows.
-        assertEquals(Arrays.asList(report, adb), labels(render(config, SizeClass.DUO)));
+        assertEquals(Arrays.asList(sync, adb), labels(render(config, SizeClass.DUO)));
         assertEquals(Arrays.asList(adb), labels(render(config, SizeClass.SINGLE)));
     }
 
@@ -204,7 +201,7 @@ public class KeepADBWidgetViewsTest {
     public void everyTileStatesItsStateInWordsAndTalkBackNamesControlAndState() {
         View widget = render(KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
         List<View> tiles = tiles(widget);
-        assertEquals(4, tiles.size());
+        assertEquals(3, tiles.size());
         for (View tile : tiles) {
             assertTrue("a state word on " + label(tile), state(tile).length() > 0);
             assertNotNull(tile.getContentDescription());
@@ -216,8 +213,6 @@ public class KeepADBWidgetViewsTest {
                 .startsWith(name(R.string.settings_section_keep_alive)));
         assertTrue(tiles.get(2).getContentDescription().toString()
                 .startsWith(name(R.string.widget_action_sync_description)));
-        assertTrue(tiles.get(3).getContentDescription().toString()
-                .startsWith(name(R.string.webhook_alert_action_report_now)));
     }
 
     @Test
@@ -262,7 +257,7 @@ public class KeepADBWidgetViewsTest {
     public void keepAliveSaysOnWaitingPausedAndOff() {
         Action keepAlive = Action.KEEP_ALIVE;
         KeepADBWidgetConfig config = order(keepAlive, Action.KEEP_ALIVE, Action.ADB,
-                Action.WEBHOOK_SYNC, Action.REPORT_NOW);
+                Action.WEBHOOK_SYNC);
         assertEquals(name(R.string.tile_state_off), state(tiles(render(config, SizeClass.SINGLE)).get(0)));
 
         KeepADBPreferences.setKeepAliveEnabled(context, true);
@@ -282,68 +277,40 @@ public class KeepADBWidgetViewsTest {
     }
 
     @Test
-    public void theWebhookControlsFollowTheSharedActionState() {
-        KeepADBWidgetConfig sync = order(Action.WEBHOOK_SYNC, Action.WEBHOOK_SYNC, Action.REPORT_NOW,
-                Action.ADB, Action.KEEP_ALIVE);
-        KeepADBWidgetConfig report = order(Action.REPORT_NOW, Action.REPORT_NOW, Action.WEBHOOK_SYNC,
+    public void theSyncControlFollowsTheSharedActionState() {
+        KeepADBWidgetConfig sync = order(Action.WEBHOOK_SYNC, Action.WEBHOOK_SYNC,
                 Action.ADB, Action.KEEP_ALIVE);
 
-        // Synchronization on, a valid destination and a verified endpoint: on, ready.
+        // Synchronization on with a valid destination: on.
         assertEquals(name(R.string.widget_state_on), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
-        View ready = tiles(render(report, SizeClass.SINGLE)).get(0);
-        assertEquals(name(R.string.widget_state_ready), state(ready));
-        assertEquals(name(R.string.webhook_alert_action_report_now), label(ready));
 
-        // No endpoint: a report would send nothing, the tile says so.
-        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
-        assertEquals(name(R.string.widget_state_no_endpoint),
-                state(tiles(render(report, SizeClass.SINGLE)).get(0)));
-        KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
-
-        // A saved but invalid destination with synchronization on: Report now leads to the setup.
-        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
-                .putString("register_webhook_url", "ftp://register.example/x").commit();
-        assertEquals(name(R.string.widget_state_setup), state(tiles(render(report, SizeClass.SINGLE)).get(0)));
+        // Switched off: the control says so and stays in place; there is no report control.
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        assertEquals(name(R.string.tile_state_off), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
 
         // No destination at all: the sync control leads to the setup, in words.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
         assertEquals(name(R.string.widget_state_setup), state(tiles(render(sync, SizeClass.SINGLE)).get(0)));
     }
 
+    /** Report now left the widget in #912: no size, no state and no configuration brings it back. */
     @Test
-    public void reportNowTakesNoPlaceWhileSynchronizationIsOffAndTheOthersWiden() {
+    public void theWidgetNeverOffersReportNowAndAlwaysKeepsItsThreeControls() {
         String report = name(R.string.webhook_alert_action_report_now);
         KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
-        View on = render(defaults, SizeClass.STRIP);
-        assertEquals(4, tiles(on).size());
-        int widthWithFour = tiles(on).get(0).getMeasuredWidth();
-
-        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        View off = render(defaults, SizeClass.STRIP);
-        assertEquals(Arrays.asList(name(R.string.widget_action_adb), name(R.string.widget_action_keep_alive),
-                name(R.string.widget_action_sync)), labels(off));
-        assertTrue("the remaining tiles widen", tiles(off).get(0).getMeasuredWidth() > widthWithFour);
-        assertEquals("the sync control says off", name(R.string.tile_state_off), state(tiles(off).get(2)));
-
-        // Nowhere in any size, and not as a main action either.
-        KeepADBWidgetConfig reportFirst = order(Action.REPORT_NOW, Action.REPORT_NOW, Action.ADB,
-                Action.KEEP_ALIVE, Action.WEBHOOK_SYNC);
-        for (SizeClass sizeClass : SizeClass.values()) {
-            assertFalse(sizeClass.name(), labels(render(reportFirst, sizeClass)).contains(report));
+        // A legacy entry that still names it (see KeepADBWidgetConfigTest) must not bring it back.
+        KeepADBWidgetConfig legacy = KeepADBWidgetConfig.decode(
+                "report_now;report_now,webhook_sync,keep_alive,adb;0");
+        for (boolean syncOn : new boolean[] {true, false}) {
+            KeepADBPreferences.setRegisterWebhookEnabled(context, syncOn);
+            for (SizeClass sizeClass : SizeClass.values()) {
+                assertFalse(sizeClass.name(), labels(render(defaults, sizeClass)).contains(report));
+                assertFalse(sizeClass.name(), labels(render(legacy, sizeClass)).contains(report));
+            }
+            assertEquals(3, tiles(render(defaults, SizeClass.STRIP)).size());
         }
-        assertEquals("the main action's place goes to the first of the others",
-                Arrays.asList(name(R.string.widget_action_adb)), labels(render(reportFirst, SizeClass.SINGLE)));
-        // A grid with three controls: two, then one that fills its row.
-        View grid = render(defaults, SizeClass.GRID);
-        assertEquals(2, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_1)).getChildCount());
-        assertEquals(1, ((android.view.ViewGroup) grid.findViewById(R.id.widget_row_2)).getChildCount());
-
-        // Without a destination it is gone as well; with synchronization on again it is back.
-        KeepADBPreferences.setRegisterWebhookUrl(context, null);
-        assertFalse(labels(render(defaults, SizeClass.STRIP)).contains(report));
-        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        assertTrue(labels(render(defaults, SizeClass.STRIP)).contains(report));
+        assertEquals("the legacy main action fell back to ADB",
+                Arrays.asList(name(R.string.widget_action_adb)), labels(render(legacy, SizeClass.SINGLE)));
     }
 
     @Test
@@ -355,7 +322,7 @@ public class KeepADBWidgetViewsTest {
             assertNotNull(label(tile), icon.getDrawable());
             icons.add(icon.getDrawable().getConstantState().hashCode());
         }
-        assertEquals("four different icons", 4, icons.size());
+        assertEquals("three different icons", 3, icons.size());
 
         View large = render(KeepADBWidgetConfig.defaults(), SizeClass.STRIP, 2f);
         for (View tile : tiles(large)) {
@@ -385,35 +352,35 @@ public class KeepADBWidgetViewsTest {
     }
 
     @Test
-    public void aFailedReportIsVisibleAndSentIsClaimedOnlyForTheCurrentEndpoint() {
-        KeepADBWidgetConfig report = order(Action.REPORT_NOW, Action.REPORT_NOW, Action.WEBHOOK_SYNC,
-                Action.ADB, Action.KEEP_ALIVE);
+    public void aFailedReportIsVisibleAndDeliveryIsClaimedOnlyForTheCurrentEndpoint() {
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-        View failed = render(report, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_state_failed), state(tiles(failed).get(0)));
+        View failed = render(config, SizeClass.PANEL);
         assertEquals(name(R.string.notification_text_webhook_failed), webhookLine(failed));
 
-        // A success for exactly the current endpoint and destination: sent.
+        // A success for exactly the current endpoint and destination: current.
         KeepADBPreferences.setWebhookLastReportedUrl(context, KeepADBPreferences.getRegisterWebhookUrl(context));
         KeepADBPreferences.setWebhookLastReportedEndpoint(context, KeepADBEndpoint.formatEndpoint(HOST, PORT));
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
-        View sent = render(report, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_state_sent), state(tiles(sent).get(0)));
+        View sent = render(config, SizeClass.PANEL);
         assertEquals(name(R.string.widget_webhook_current), webhookLine(sent));
 
         // With synchronization off the webhook line is about that, not about an earlier report.
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        assertEquals(name(R.string.widget_webhook_sync_off), webhookLine(render(report, SizeClass.PANEL)));
+        assertEquals(name(R.string.widget_webhook_sync_off), webhookLine(render(config, SizeClass.PANEL)));
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
 
         // An old completion must not mark a newer endpoint delivered.
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT + 1, 2L);
-        View moved = render(report, SizeClass.PANEL);
-        assertEquals(name(R.string.widget_state_ready), state(tiles(moved).get(0)));
+        View moved = render(config, SizeClass.PANEL);
         assertEquals(name(R.string.widget_webhook_not_current), webhookLine(moved));
+
+        // Without a verified endpoint there is nothing to report.
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        assertEquals(name(R.string.widget_webhook_no_endpoint), webhookLine(render(config, SizeClass.PANEL)));
     }
 
     @Test

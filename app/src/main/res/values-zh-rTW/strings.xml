@@ -629,11 +629,6 @@
     <string name="widget_state_waiting">等待中</string>
     <string name="widget_state_paused">已暫停</string>
     <string name="widget_state_setup">前往設定</string>
-    <string name="widget_state_ready">就緒</string>
-    <string name="widget_state_sending">傳送中…</string>
-    <string name="widget_state_sent">已傳送</string>
-    <string name="widget_state_failed">失敗</string>
-    <string name="widget_state_no_endpoint">無端點</string>
     <string name="widget_webhook_unconfigured">Webhook：未設定</string>
     <string name="widget_webhook_sync_off">Webhook：同步已關閉</string>
     <string name="widget_webhook_sending">Webhook：正在傳送回報…</string>

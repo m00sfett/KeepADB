@@ -27,7 +27,6 @@ final class KeepADBWidgetContent {
         TOGGLE_KEEP_ALIVE,
         SYNC_ENABLE,
         SYNC_DISABLE,
-        REPORT_NOW,
         /** The settings at the webhook form. */
         SETUP_WEBHOOK,
         /** The app's home screen: the setup, the status and the full reasons. */
@@ -94,8 +93,6 @@ final class KeepADBWidgetContent {
                 return ctx.getString(R.string.settings_section_keep_alive);
             case WEBHOOK_SYNC:
                 return ctx.getString(R.string.widget_action_sync_description);
-            case REPORT_NOW:
-                return ctx.getString(R.string.webhook_alert_action_report_now);
             case ADB:
             default:
                 return ctx.getString(R.string.toggle_label);
@@ -108,8 +105,6 @@ final class KeepADBWidgetContent {
                 return keepAliveTile(ctx, p);
             case WEBHOOK_SYNC:
                 return syncTile(ctx, p);
-            case REPORT_NOW:
-                return reportTile(ctx, p);
             case ADB:
             default:
                 return adbTile(ctx, p);
@@ -203,50 +198,6 @@ final class KeepADBWidgetContent {
                 ctx.getString(R.string.widget_action_sync),
                 ctx.getString(R.string.widget_action_sync_description), state, style, click,
                 R.drawable.ic_widget_sync);
-    }
-
-    private static Tile reportTile(Context ctx, KeepADBWidgetState p) {
-        KeepADBWidgetState.Webhook w = p.webhook;
-        Click click = Click.REPORT_NOW;
-        String state;
-        Style style;
-        switch (w.reportNow) {
-            case NEEDS_SETUP:
-                state = ctx.getString(R.string.widget_state_setup);
-                style = Style.ATTENTION;
-                click = Click.SETUP_WEBHOOK;
-                break;
-            case NO_ENDPOINT:
-                // A report would send nothing; the app shows why.
-                state = ctx.getString(R.string.widget_state_no_endpoint);
-                style = Style.ATTENTION;
-                click = Click.OPEN_APP;
-                break;
-            case SYNC_OFF:
-                // Not reached by the widget: with synchronization off the Report now control takes
-                // no place at all (KeepADBWidgetViews). Treated like "ready" so the tile stays valid.
-            case READY:
-            default:
-                if (w.activity == KeepADBWidgetState.Activity.SENDING) {
-                    state = ctx.getString(R.string.widget_state_sending);
-                    style = Style.OFF;
-                } else if (w.activity == KeepADBWidgetState.Activity.RETRY_WAITING
-                        || w.latestOutcome == KeepADBWidgetState.Outcome.FAILED) {
-                    state = ctx.getString(R.string.widget_state_failed);
-                    style = Style.ATTENTION;
-                } else if (w.delivery == KeepADBWidgetState.Delivery.CURRENT) {
-                    // Only a report that names the endpoint and destination that are current now.
-                    state = ctx.getString(R.string.widget_state_sent);
-                    style = Style.ON;
-                } else {
-                    state = ctx.getString(R.string.widget_state_ready);
-                    style = Style.OFF;
-                }
-                break;
-        }
-        String name = ctx.getString(R.string.webhook_alert_action_report_now);
-        return build(ctx, KeepADBWidgetConfig.Action.REPORT_NOW, name, name, state, style, click,
-                R.drawable.ic_widget_report);
     }
 
     private static Tile build(Context ctx, KeepADBWidgetConfig.Action action, String label,
@@ -348,7 +299,8 @@ final class KeepADBWidgetContent {
         if (w.delivery == KeepADBWidgetState.Delivery.CURRENT) {
             return ctx.getString(R.string.widget_webhook_current);
         }
-        if (w.reportNow == KeepADBWidgetState.ReportNow.NO_ENDPOINT) {
+        if (w.delivery == KeepADBWidgetState.Delivery.UNKNOWN) {
+            // Synchronization is on and a destination is saved, but there is no verified endpoint.
             return ctx.getString(R.string.widget_webhook_no_endpoint);
         }
         return ctx.getString(R.string.widget_webhook_not_current);

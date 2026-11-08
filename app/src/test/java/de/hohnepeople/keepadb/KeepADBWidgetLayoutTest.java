@@ -113,16 +113,16 @@ public class KeepADBWidgetLayoutTest {
     }
 
     @Test
-    public void everyClassShowsAtMostFourActionsAndTheDetailsComeLast() {
+    public void everyClassShowsAtMostThreeActionsAndTheDetailsComeLast() {
         for (SizeClass sizeClass : SizeClass.values()) {
-            assertTrue(sizeClass.name(), sizeClass.actionCount() >= 1 && sizeClass.actionCount() <= 4);
+            assertTrue(sizeClass.name(), sizeClass.actionCount() >= 1 && sizeClass.actionCount() <= 3);
         }
         assertEquals(1, SizeClass.SINGLE.actionCount());
         assertEquals(2, SizeClass.DUO.actionCount());
         assertEquals(2, SizeClass.STACK.actionCount());
-        assertEquals(4, SizeClass.GRID.actionCount());
-        assertEquals(4, SizeClass.STRIP.actionCount());
-        assertEquals(4, SizeClass.PANEL.actionCount());
+        assertEquals(3, SizeClass.GRID.actionCount());
+        assertEquals(3, SizeClass.STRIP.actionCount());
+        assertEquals(3, SizeClass.PANEL.actionCount());
         assertFalse(SizeClass.GRID.hasDetails());
         assertFalse(SizeClass.STRIP.hasDetails());
         assertEquals(2, SizeClass.GRID_STATUS.detailLines);

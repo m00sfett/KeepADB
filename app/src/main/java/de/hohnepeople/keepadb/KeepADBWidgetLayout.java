@@ -7,7 +7,7 @@ import android.os.Bundle;
  * #912: which layout the control widget uses for the room it has. The room is the size the
  * launcher reports in dp, made stricter by the font scale: a larger font needs more room for the
  * same label, so every threshold grows with the scale and the widget falls back to a smaller
- * layout (fewer, readable controls) instead of squeezing four of them into the same width.
+ * layout (fewer, readable controls) instead of squeezing three of them into the same width.
  *
  * <p>The classes are approximate cell counts, not launcher cells: the thresholds follow the
  * launchers' usual {@code 70 * cells - 30} dp. Every class keeps the tiles at 48 dp or more:
@@ -15,10 +15,10 @@ import android.os.Bundle;
  *   <li>{@link #SINGLE} about 1x1: the main action alone.</li>
  *   <li>{@link #STACK} narrow and tall (1x2 and up): two actions on top of each other.</li>
  *   <li>{@link #DUO} about 2x1: two actions side by side.</li>
- *   <li>{@link #GRID} about 2x2: all four actions in a 2x2 grid.</li>
+ *   <li>{@link #GRID} about 2x2: all three actions, two in the first row.</li>
  *   <li>{@link #GRID_STATUS} taller than 2x2: the grid plus the status box.</li>
- *   <li>{@link #STRIP} about 4x1: the four actions in a row.</li>
- *   <li>{@link #PANEL} about 4x2: the strip plus the status box and the settings gear.</li>
+ *   <li>{@link #STRIP} about 4x1: the three actions in a row.</li>
+ *   <li>{@link #PANEL} about 4x2: the three actions plus the status box and the settings gear.</li>
  * </ul>
  * What a size class shows is decided here and only here; the renderer follows it.
  */
@@ -29,10 +29,10 @@ final class KeepADBWidgetLayout {
         SINGLE(1, 0, 0, 0, 0),
         STACK(1, 1, 0, 0, 110),
         DUO(2, 0, 0, 110, 0),
-        GRID(2, 2, 0, 110, 110),
-        GRID_STATUS(2, 2, 2, 110, 170),
-        STRIP(4, 0, 0, 250, 0),
-        PANEL(4, 0, 2, 250, 110);
+        GRID(2, 1, 0, 110, 110),
+        GRID_STATUS(2, 1, 2, 110, 170),
+        STRIP(3, 0, 0, 250, 0),
+        PANEL(3, 0, 2, 250, 110);
 
         /** Tiles in the first and in the second row. */
         final int firstRowTiles;

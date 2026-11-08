@@ -631,11 +631,6 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="widget_state_waiting">Aguardando</string>
     <string name="widget_state_paused">Pausado</string>
     <string name="widget_state_setup">Configurar</string>
-    <string name="widget_state_ready">Pronto</string>
-    <string name="widget_state_sending">Enviando…</string>
-    <string name="widget_state_sent">Enviado</string>
-    <string name="widget_state_failed">Falhou</string>
-    <string name="widget_state_no_endpoint">Sem endpoint</string>
     <string name="widget_webhook_unconfigured">Webhook: não configurado</string>
     <string name="widget_webhook_sync_off">Webhook: sincronização desativada</string>
     <string name="widget_webhook_sending">Webhook: enviando relatório…</string>

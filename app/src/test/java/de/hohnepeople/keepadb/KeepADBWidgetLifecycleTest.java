@@ -329,8 +329,8 @@ public class KeepADBWidgetLifecycleTest {
     @Test
     public void everyControlRoutesToItsOwnActionWhateverItsPosition() {
         KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
-        KeepADBWidgetConfig custom = KeepADBWidgetConfig.of(Action.REPORT_NOW,
-                Arrays.asList(Action.REPORT_NOW, Action.KEEP_ALIVE, Action.ADB, Action.WEBHOOK_SYNC), false);
+        KeepADBWidgetConfig custom = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC,
+                Arrays.asList(Action.WEBHOOK_SYNC, Action.KEEP_ALIVE, Action.ADB), false);
         View a = panel(101, defaults, SizeClass.STRIP);
         View b = panel(102, custom, SizeClass.STRIP);
         Application app = (Application) context;
@@ -342,11 +342,11 @@ public class KeepADBWidgetLifecycleTest {
         assertEquals("de.hohnepeople.keepadb.TOGGLE", last.getAction());
         assertEquals(KeepADBWidget.class.getName(), last.getComponent().getClassName());
 
-        // Widget B, same position, another control: Report now, the dedicated action.
+        // Widget B, same position, another control: the synchronization (on, so it asks for off).
         tiles(b).get(0).performClick();
         shadowOf(Looper.getMainLooper()).idle();
         last = lastBroadcast(app);
-        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, last.getAction());
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE, last.getAction());
         assertEquals(KeepADBReceiver.class.getName(), last.getComponent().getClassName());
 
         // B, second tile: Keep-Alive, the notification's action; A's second tile is the same.
@@ -365,7 +365,7 @@ public class KeepADBWidgetLifecycleTest {
     }
 
     @Test
-    public void theSyncControlAsksForTheOppositeStateAndReportNowIsGoneWhileItIsOff() {
+    public void theSyncControlAsksForTheOppositeStateAndNoReportControlExists() {
         Application app = (Application) context;
         KeepADBWidgetConfig sync = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
 
@@ -376,8 +376,8 @@ public class KeepADBWidgetLifecycleTest {
         KeepADBRegisterClientResetRule.awaitIdle();
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
 
-        // Now it is off: the sync control asks to switch it on, and the strip no longer offers a
-        // report at all (the way to switch synchronization on is the sync control).
+        // Now it is off: the sync control asks to switch it on. The widget has no report control
+        // in either state (#912; "Report now" lives only on the webhook failure notification).
         tiles(panel(402, sync, SizeClass.SINGLE)).get(0).performClick();
         shadowOf(Looper.getMainLooper()).idle();
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
@@ -395,8 +395,6 @@ public class KeepADBWidgetLifecycleTest {
                 KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.SYNC_ENABLE)));
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE, savedAction(
                 KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.SYNC_DISABLE)));
-        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, savedAction(
-                KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.REPORT_NOW)));
         assertEquals(KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE, savedAction(
                 KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.TOGGLE_KEEP_ALIVE)));
     }
@@ -452,14 +450,6 @@ public class KeepADBWidgetLifecycleTest {
         assertEquals(SettingsActivity.class.getName(), setup.getComponent().getClassName());
         assertTrue(setup.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
 
-        // A saved but invalid destination with synchronization on: Report now leads there too.
-        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
-                .putString("register_webhook_url", "ftp://register.example/x").commit();
-        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
-        tiles(panel(304, report, SizeClass.SINGLE)).get(0).performClick();
-        Intent invalid = shadowOf(app).getNextStartedActivity();
-        assertTrue(invalid.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
-
         // The grant is missing: the Wireless Debugging tile and the details open the home screen.
         shadowOf(app).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         View widget = panel(302, KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
@@ -470,19 +460,6 @@ public class KeepADBWidgetLifecycleTest {
         assertEquals(MainActivity.class.getName(),
                 shadowOf(app).getNextStartedActivity().getComponent().getClassName());
         assertNull("nothing else started", shadowOf(app).getNextStartedActivity());
-    }
-
-    @Test
-    public void aMissingEndpointOpensTheAppInsteadOfSendingNothing() {
-        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
-        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
-        int before = transport.getRequestCount();
-        tiles(panel(311, report, SizeClass.SINGLE)).get(0).performClick();
-        KeepADBRegisterClientResetRule.awaitIdle();
-
-        assertEquals(MainActivity.class.getName(),
-                shadowOf((Application) context).getNextStartedActivity().getComponent().getClassName());
-        assertEquals("nothing was sent", before, transport.getRequestCount());
     }
 
     // -- responsive keys agree with the code path used below Android 12 ---------------------------
@@ -541,12 +518,12 @@ public class KeepADBWidgetLifecycleTest {
         RemoteViews single = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.SINGLE, true);
 
         View view = strip.apply(context, new FrameLayout(context));
-        assertEquals(4, tiles(view).size());
+        assertEquals(3, tiles(view).size());
         single.reapply(context, view);
         assertEquals(1, tiles(view).size());
         strip.reapply(context, view);
-        assertEquals(4, tiles(view).size());
+        assertEquals(3, tiles(view).size());
         strip.reapply(context, view);
-        assertEquals("refreshing the same size does not stack tiles", 4, tiles(view).size());
+        assertEquals("refreshing the same size does not stack tiles", 3, tiles(view).size());
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * #912: the settings of one placed control widget, kept per {@code appWidgetId}: which of the four
+ * #912: the settings of one placed control widget, kept per {@code appWidgetId}: which of the three
  * actions is the main one, in which order the actions appear, and whether this widget hides the
  * connection details.
  *
@@ -18,11 +18,12 @@ import java.util.Set;
  * the widget id, so they never touch {@code keepadb_prefs} (the app's settings) and one widget can
  * never change another. {@link #delete} removes an instance's entry when the widget is removed. A
  * widget without an entry (every widget placed before this version) simply reads {@link
- * #defaults()}: the order ADB, Keep-Alive, webhook synchronization, Report now, ADB as the main
- * action, details visible.
+ * #defaults()}: the order ADB, Keep-Alive, webhook synchronization, ADB as the main
+ * action, details visible. A stored entry that still names the retired Report now action keeps
+ * decoding: the token is ignored, and a main action that was Report now falls back to ADB.
  *
  * <p><b>Main action and order are independent.</b> The order fixes the positions in every layout.
- * The main action decides which action survives when the widget is too small for all four: {@link
+ * The main action decides which action survives when the widget is too small for all three: {@link
  * #shown} takes the main action first, then the others in their order, and returns the chosen ones
  * in the order's sequence. So a position never jumps when the widget grows, an action only appears.
  *
@@ -31,12 +32,11 @@ import java.util.Set;
  */
 final class KeepADBWidgetConfig {
 
-    /** The four controls, in their default order. {@link #id} is the stored token. */
+    /** The three controls, in their default order. {@link #id} is the stored token. */
     enum Action {
         ADB("adb"),
         KEEP_ALIVE("keep_alive"),
-        WEBHOOK_SYNC("webhook_sync"),
-        REPORT_NOW("report_now");
+        WEBHOOK_SYNC("webhook_sync");
 
         final String id;
 
@@ -58,7 +58,7 @@ final class KeepADBWidgetConfig {
             Collections.unmodifiableList(Arrays.asList(Action.values()));
 
     final Action primary;
-    /** Always a permutation of all four actions. */
+    /** Always a permutation of all three actions. */
     final List<Action> order;
     final boolean hideDetails;
 
@@ -101,8 +101,8 @@ final class KeepADBWidgetConfig {
     }
 
     /**
-     * Like {@link #shown(int)}, but an action that is not available right now (Report now while
-     * automatic synchronization is off) takes no place: the others move up and widen instead.
+     * Like {@link #shown(int)}, but an action that is not available right now takes no place: the
+     * others move up and widen instead.
      */
     List<Action> shown(int count, Set<Action> unavailable) {
         int wanted = Math.max(0, Math.min(count, order.size()));
