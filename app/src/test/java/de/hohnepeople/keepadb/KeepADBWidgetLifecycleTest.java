@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -287,6 +288,52 @@ public class KeepADBWidgetLifecycleTest {
         new KeepADBWidget().onDeleted(context, new int[] {id});
         new KeepADBWidget().onDisabled(context);
         assertNull("the last widget stops the watch",
+                shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+    }
+
+    /**
+     * Measured on the emulator (#912 round 3): the job fires on a change of the setting and
+     * survives {@code install -r}, but {@code am force-stop} deletes it and nothing re-armed it until
+     * the next placement or boot. The process start (the application's onCreate) must do it.
+     */
+    @Test
+    public void aProcessStartWatchesTheSettingAgainWhenAWidgetIsPlacedAndTheJobIsGone() {
+        assertTrue("the application object is the one that re-arms the watch",
+                context instanceof KeepADBApplication);
+        widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNotNull(shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+
+        // A force-stop deletes the app's jobs; the widget stays placed.
+        jobs().cancel(KeepADBWidgetRefreshJob.JOB_ID);
+        assertNull(shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+        transport.recordedRequests.clear();
+
+        ((KeepADBApplication) context).onCreate();
+
+        android.app.job.JobInfo job = shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID);
+        assertNotNull("a process start watches the setting again", job);
+        assertEquals(android.provider.Settings.Global.getUriFor("adb_wifi_enabled"),
+                job.getTriggerContentUris()[0].getUri());
+        assertFalse("no timer, no polling", job.isPeriodic());
+        KeepADBRegisterClientResetRule.awaitIdle();
+        assertEquals("scheduling sends nothing", 0, transport.getRequestCount());
+        assertFalse("and starts no discovery",
+                KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
+    }
+
+    @Test
+    public void aProcessStartWithoutAWidgetSchedulesNothingAndNeverReplacesAnExistingJob() {
+        assertNull(shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+        ((KeepADBApplication) context).onCreate();
+        assertNull("no widget, no watch", shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+
+        widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        android.app.job.JobInfo before = shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID);
+        ((KeepADBApplication) context).onCreate();
+        ((KeepADBApplication) context).onCreate();
+        assertSame("idempotent: the pending job is left alone", before,
                 shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
     }
 

@@ -60,8 +60,11 @@ are retrospective issue-version records and were never published as separate rel
   button sits below the scrolling part, above the navigation bar; the move buttons are 52 dp.
 - **Widgets follow the setting while nothing runs:** `KeepADBWidgetRefreshJob` (a `JobScheduler`
   content trigger on `adb_wifi_enabled`, scheduled while a widget exists) re-renders the widgets
-  after a change made elsewhere; read-only, no report, no discovery, no polling. A force-stopped
-  app has no jobs until it is started again. New strings in all 18 locales; `docs/widgets.md`.
+  after a change made elsewhere; read-only, no report, no discovery, no polling. Measured on an
+  API 34 emulator: the job fires within a second and survives `install -r`, but a force-stop
+  deletes it, so `KeepADBApplication.onCreate` now schedules it again at every process start when
+  a widget is placed and no job is pending (idempotent, no network). Remaining limit: between a
+  force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Changed
 - **Rendering is read-only:** `KeepADBWidget.refreshAll` no longer asks the endpoint coordinator

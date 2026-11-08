@@ -81,9 +81,16 @@ widgets follow. With neither running, a change made elsewhere (Developer options
 would leave the widget on the old state until the app was opened. `KeepADBWidgetRefreshJob`
 closes that gap: a `JobScheduler` job with a content trigger on the setting, scheduled while a
 widget exists, runs when the setting changes and re-renders the widgets from the read-only
-projection (no report, no discovery, no polling), then schedules itself again. Limit: a
-force-stopped app has no scheduled jobs; its widgets show the last drawn state until the app is
-started again (by the user, a widget update or a reboot).
+projection (no report, no discovery, no polling), then schedules itself again. Measured on an
+Android 14 emulator: a change by `settings put global adb_wifi_enabled` redraws the widget within
+a few seconds, and the job survives `install -r`.
+
+A force-stop (`am force-stop`, "Force stop" in the system settings) deletes the app's scheduled
+jobs, and the system does not update a placed widget again by itself. So every process start
+(`KeepADBApplication.onCreate`) schedules the job again when at least one widget is placed and no
+job is pending: one lookup, idempotent, no network, no polling. **Remaining limit:** between a
+force-stop and the next process start (opening the app, tapping the widget, the tile or a
+notification, or a reboot) no job exists and the widget shows its last drawn state.
 
 ## Why placement still asks for a refresh
 
