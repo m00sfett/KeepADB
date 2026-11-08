@@ -305,7 +305,9 @@ public class KeepADBWidgetLifecycleTest {
         // Wireless Debugging is switched off from outside (Developer options, settings put).
         gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);
-        shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID);
+        // A content-triggered job is gone once it has fired; the platform starts it now.
+        jobs().cancel(KeepADBWidgetRefreshJob.JOB_ID);
+        assertNull(shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
         // The platform starts the job in a process that is started for it.
         KeepADBWidgetRefreshJob job = org.robolectric.Robolectric.buildService(KeepADBWidgetRefreshJob.class)
                 .create().get();
