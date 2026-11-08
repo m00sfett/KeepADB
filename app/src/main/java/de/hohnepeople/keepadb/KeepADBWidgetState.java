@@ -106,6 +106,20 @@ final class KeepADBWidgetState {
         UNKNOWN
     }
 
+    /**
+     * #911: what "Report now" can do at this moment, for choosing the control. It reads the same
+     * facts the action checks when it is tapped (a valid saved destination, a verified Wi-Fi
+     * endpoint), whether or not automatic synchronization is on; the action still re-checks.
+     */
+    enum ReportNow {
+        /** A valid destination is saved and a verified Wi-Fi endpoint is available. */
+        READY,
+        /** No valid destination is saved: offer the setup, a report would send nothing. */
+        NEEDS_SETUP,
+        /** No verified Wi-Fi endpoint: a report would send nothing. */
+        NO_ENDPOINT
+    }
+
     /** The webhook half of the projection. No URL, no destination host, no endpoint address. */
     static final class Webhook {
         final Sync sync;
@@ -120,15 +134,18 @@ final class KeepADBWidgetState {
         /** When the newest failed attempt of the last 24 hours happened, or 0 (history is bounded). */
         final long lastFailureAtMs;
         final Delivery delivery;
+        /** What a "Report now" tap would do right now; see {@link ReportNow}. */
+        final ReportNow reportNow;
 
         Webhook(Sync sync, Activity activity, Outcome latestOutcome, long lastSuccessAtMs,
-                long lastFailureAtMs, Delivery delivery) {
+                long lastFailureAtMs, Delivery delivery, ReportNow reportNow) {
             this.sync = sync;
             this.activity = activity;
             this.latestOutcome = latestOutcome;
             this.lastSuccessAtMs = lastSuccessAtMs;
             this.lastFailureAtMs = lastFailureAtMs;
             this.delivery = delivery;
+            this.reportNow = reportNow;
         }
     }
 
@@ -275,9 +292,11 @@ final class KeepADBWidgetState {
                 ? Activity.SENDING
                 : clientActivity == KeepADBRegisterClient.Activity.RETRY_WAITING
                         ? Activity.RETRY_WAITING : Activity.IDLE;
+        ReportNow reportNow = !KeepADBPreferences.isValidWebhookUrl(url) ? ReportNow.NEEDS_SETUP
+                : currentEndpoint == null ? ReportNow.NO_ENDPOINT : ReportNow.READY;
         return new Webhook(sync, activity, outcome,
                 KeepADBPreferences.getWebhookLastSuccessAt(app),
-                KeepADBReportHistory.latestFailureAtMs(app), delivery);
+                KeepADBReportHistory.latestFailureAtMs(app), delivery, reportNow);
     }
 
     private static Outcome outcomeOf(String status) {
