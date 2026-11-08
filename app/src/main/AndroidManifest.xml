@@ -85,6 +85,13 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice|location" />
 
+        <!-- #912: re-renders the placed widgets when adb_wifi_enabled changes while no screen or
+             service is running. Only the system can bind it. -->
+        <service
+            android:name=".KeepADBWidgetRefreshJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".KeepADBTileService"
             android:exported="true"

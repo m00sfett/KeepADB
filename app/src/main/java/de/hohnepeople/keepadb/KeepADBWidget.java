@@ -43,6 +43,8 @@ public class KeepADBWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
         for (int id : ids) render(context, mgr, id);
+        // Watch the setting for the widget while no screen or service is running (see the job).
+        KeepADBWidgetRefreshJob.schedule(context);
         KeepADBEndpointCoordinator.refresh(context);
     }
 
@@ -62,6 +64,7 @@ public class KeepADBWidget extends AppWidgetProvider {
     /** The last instance is gone: no entry can belong to a widget any more. */
     @Override
     public void onDisabled(Context context) {
+        KeepADBWidgetRefreshJob.cancel(context);
         KeepADBWidgetConfig.clearAll(context);
     }
 

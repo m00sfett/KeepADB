@@ -164,27 +164,6 @@ public class KeepADBWidgetLifecycleTest {
         assertFalse(KeepADBWidgetConfig.isStored(context, id));
     }
 
-    @Test
-    public void theInstancesOwnHideOptionAndTheGlobalSwitchReachTheRenderedWidget() {
-        int shown = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
-        int hidden = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
-        KeepADBWidgetConfig.save(context, hidden, KeepADBWidgetConfig.of(Action.ADB, null, true));
-        KeepADBWidget.refreshAllState(context);
-        shadowOf(Looper.getMainLooper()).idle();
-        String port = String.valueOf(endpointServer.getLocalPort());
-
-        assertTrue("the widget without the option shows the port",
-                KeepADBWidgetTestSupport.allText(widgets.getViewFor(shown)).contains(port));
-        assertFalse("the widget with the option hides it",
-                KeepADBWidgetTestSupport.allText(widgets.getViewFor(hidden)).contains(port));
-
-        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
-        KeepADBWidget.refreshAllState(context); // what the settings switch does after flipping it
-        shadowOf(Looper.getMainLooper()).idle();
-        assertFalse("the global switch hides it in every widget",
-                KeepADBWidgetTestSupport.allText(widgets.getViewFor(shown)).contains(port));
-    }
-
     // -- no send, no poll on render and resize ----------------------------------------------------
 
     @Test
@@ -250,6 +229,99 @@ public class KeepADBWidgetLifecycleTest {
                 endpointNotificationShown());
     }
 
+    // -- Android 12+ placement and picker --------------------------------------------------------
+
+    @Test
+    public void android12PlacesWithTheDefaultsAndOffersAPreviewThatFitsItsTargetSize() throws Exception {
+        android.content.res.XmlResourceParser parser = context.getResources().getXml(R.xml.widget_info);
+        while (parser.getEventType() != org.xmlpull.v1.XmlPullParser.START_TAG) parser.next();
+        String ns = "http://schemas.android.com/apk/res/android";
+        assertEquals("reconfigurable and configuration optional",
+                android.appwidget.AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE
+                        | android.appwidget.AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL,
+                parser.getAttributeIntValue(ns, "widgetFeatures", -1));
+        assertEquals(2, parser.getAttributeIntValue(ns, "targetCellWidth", -1));
+        assertEquals(1, parser.getAttributeIntValue(ns, "targetCellHeight", -1));
+        assertEquals(R.layout.widget_preview_control,
+                parser.getAttributeResourceValue(ns, "previewLayout", 0));
+
+        // The preview shows what a 2x1 widget shows: two tiles, each text one shrinking line.
+        View preview = android.view.LayoutInflater.from(context)
+                .inflate(R.layout.widget_preview_control, new FrameLayout(context), false);
+        android.view.ViewGroup row = (android.view.ViewGroup) preview;
+        assertEquals(2, row.getChildCount());
+        for (int i = 0; i < row.getChildCount(); i++) {
+            android.view.ViewGroup tile = (android.view.ViewGroup) row.getChildAt(i);
+            for (int j = 0; j < tile.getChildCount(); j++) {
+                if (tile.getChildAt(j) instanceof android.widget.TextView) {
+                    android.widget.TextView text = (android.widget.TextView) tile.getChildAt(j);
+                    assertEquals(1, text.getMaxLines());
+                    assertEquals(android.widget.TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM,
+                            text.getAutoSizeTextType());
+                }
+            }
+        }
+    }
+
+    // -- staying in step while nothing of the app runs ---------------------------------------------
+
+    private android.app.job.JobScheduler jobs() {
+        return context.getSystemService(android.app.job.JobScheduler.class);
+    }
+
+    @Test
+    public void placementWatchesTheSettingForTheWidgetAndTheLastWidgetStopsIt() {
+        assertNull("nothing watches before a widget exists", shadowOf(jobs()).getPendingJob(
+                KeepADBWidgetRefreshJob.JOB_ID));
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        android.app.job.JobInfo job = shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID);
+        assertNotNull("onUpdate schedules the watch", job);
+        assertEquals(KeepADBWidgetRefreshJob.class.getName(), job.getService().getClassName());
+        assertEquals(1, job.getTriggerContentUris().length);
+        assertEquals(android.provider.Settings.Global.getUriFor("adb_wifi_enabled"),
+                job.getTriggerContentUris()[0].getUri());
+        assertFalse("no timer, no polling", job.isPeriodic());
+
+        new KeepADBWidget().onDeleted(context, new int[] {id});
+        new KeepADBWidget().onDisabled(context);
+        assertNull("the last widget stops the watch",
+                shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+    }
+
+    @Test
+    public void aSettingChangeWhileNothingRunsRedrawsTheWidgetWithoutSendingAnything() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+        assertEquals(context.getString(R.string.tile_state_connected),
+                KeepADBWidgetTestSupport.state(tiles(widgets.getViewFor(id)).get(0)));
+        notifications().cancelAll();
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADBEndpointCoordinator.seedEndpointForTesting("127.0.0.1", endpointServer.getLocalPort(), 1L);
+        transport.recordedRequests.clear();
+
+        // Wireless Debugging is switched off from outside (Developer options, settings put).
+        gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID);
+        // The platform starts the job in a process that is started for it.
+        KeepADBWidgetRefreshJob job = org.robolectric.Robolectric.buildService(KeepADBWidgetRefreshJob.class)
+                .create().get();
+        assertFalse(job.onStartJob(null));
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        assertEquals("the widget shows the new state", context.getString(R.string.tile_state_off),
+                KeepADBWidgetTestSupport.state(tiles(widgets.getViewFor(id)).get(0)));
+        assertNotNull("a content-triggered job runs once, so it watches again",
+                shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
+        assertEquals("redrawing sent nothing", 0, transport.getRequestCount());
+        assertFalse(KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
+        assertFalse(endpointNotificationShown());
+    }
+
     // -- routing -------------------------------------------------------------------------------
 
     @Test
@@ -291,10 +363,9 @@ public class KeepADBWidgetLifecycleTest {
     }
 
     @Test
-    public void theSyncControlAndTheSyncOffSlotAskForTheOppositeStateOfWhatTheyShow() {
+    public void theSyncControlAsksForTheOppositeStateAndReportNowIsGoneWhileItIsOff() {
         Application app = (Application) context;
         KeepADBWidgetConfig sync = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
-        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
 
         // Synchronization is on: the sync control asks to switch it off.
         tiles(panel(401, sync, SizeClass.SINGLE)).get(0).performClick();
@@ -303,23 +374,17 @@ public class KeepADBWidgetLifecycleTest {
         KeepADBRegisterClientResetRule.awaitIdle();
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
 
-        // Now it is off: the sync control asks to switch it on, and so does the report slot,
-        // which offers no report while synchronization is off.
+        // Now it is off: the sync control asks to switch it on, and the strip no longer offers a
+        // report at all (the way to switch synchronization on is the sync control).
         tiles(panel(402, sync, SizeClass.SINGLE)).get(0).performClick();
         shadowOf(Looper.getMainLooper()).idle();
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
         KeepADBRegisterClientResetRule.awaitIdle();
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        int before = shadowOf(app).getBroadcastIntents().size();
-        tiles(panel(403, report, SizeClass.SINGLE)).get(0).performClick();
-        shadowOf(Looper.getMainLooper()).idle();
-        assertTrue(shadowOf(app).getBroadcastIntents().size() > before);
-        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
-        for (Intent sent : shadowOf(app).getBroadcastIntents().subList(before,
-                shadowOf(app).getBroadcastIntents().size())) {
-            assertNotEquals("no report is offered while synchronization is off",
-                    KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, sent.getAction());
-        }
+        View strip = panel(403, KeepADBWidgetConfig.defaults(), SizeClass.STRIP);
+        assertEquals(3, tiles(strip).size());
+        assertFalse(KeepADBWidgetTestSupport.labels(strip)
+                .contains(context.getString(R.string.webhook_alert_action_report_now)));
     }
 
     @Test
@@ -377,13 +442,21 @@ public class KeepADBWidgetLifecycleTest {
     public void setupAndReasonsLeadToTheRelevantAppDestination() {
         Application app = (Application) context;
 
-        // No destination: the report slot and the sync tile lead to the webhook form.
+        // No destination: the sync control leads to the webhook form.
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
-        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
-        tiles(panel(301, report, SizeClass.SINGLE)).get(0).performClick();
+        KeepADBWidgetConfig syncFirst = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
+        tiles(panel(301, syncFirst, SizeClass.SINGLE)).get(0).performClick();
         Intent setup = shadowOf(app).getNextStartedActivity();
         assertEquals(SettingsActivity.class.getName(), setup.getComponent().getClassName());
         assertTrue(setup.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
+
+        // A saved but invalid destination with synchronization on: Report now leads there too.
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putString("register_webhook_url", "ftp://register.example/x").commit();
+        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
+        tiles(panel(304, report, SizeClass.SINGLE)).get(0).performClick();
+        Intent invalid = shadowOf(app).getNextStartedActivity();
+        assertTrue(invalid.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
 
         // The grant is missing: the Wireless Debugging tile and the details open the home screen.
         shadowOf(app).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
