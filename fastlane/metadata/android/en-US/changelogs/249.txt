@@ -1,0 +1,1 @@
+Saving the webhook URL now sends one report instead of sometimes two in a row.

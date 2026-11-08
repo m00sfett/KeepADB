@@ -301,10 +301,12 @@ final class KeepADBWebhookForm {
         }
         error.setVisibility(View.GONE);
         KeepADBPreferences.setRegisterWebhookUrl(activity, inputUrl);
+        long beforeRefresh = KeepADBRegisterClient.currentOperation();
         KeepADBEndpointCoordinator.refresh(activity);
         // #869: saving is an explicit request to report now, also with an unchanged URL after the
-        // retry series was given up on; it joins the report the refresh may just have started.
-        KeepADBRegisterClient.requestResyncNow(activity);
+        // retry series was given up on; it joins the report the refresh may just have started,
+        // also one that already finished (#918), so a save never sends two POSTs.
+        KeepADBRegisterClient.requestResyncNowSince(activity, beforeRefresh);
         Toast.makeText(activity, R.string.settings_webhook_saved_toast, Toast.LENGTH_SHORT).show();
         onChange.run();
         return true;
