@@ -107,8 +107,12 @@ final class KeepADBWidgetLayout {
     /** Width from which two columns or four columns of controls fit, before the font scale. */
     private static final float WIDE2_DP = 140f;
     private static final float WIDE4_DP = 250f;
-    /** Height from which a second row of controls fits, before the font scale. */
-    private static final float TALL_DP = 150f;
+    /**
+     * Height from which a second row of controls fits, before the font scale. The reference
+     * matrix says 150; the Pixel launcher reports 193 dp for two rows, so 150 x 1.3 = 195 would turn
+     * a 2x2 at font 1.3 into a single row. 145 keeps it the stack (189 dp needed at 1.3).
+     */
+    private static final float TALL_DP = 145f;
     /**
      * Narrow and tall: the hero over two square buttons needs this width, not scaled. 114 dp is
      * 10 (frame) + 5 (gap) + 2 x 48 plus one dp for pixel rounding: the two buttons stay at the 48 dp
@@ -122,8 +126,13 @@ final class KeepADBWidgetLayout {
     private static final int SQUARE_DP = 52;
     private static final int GAP_DP = 5;
     private static final int FRAME_DP = 10;
-    /** The hero keeps at least this much room (before the font scale) next to the square buttons. */
-    private static final float HERO_ROOM_DP = 80f;
+    /**
+     * The hero keeps at least this much room (before the font scale) next to the square buttons.
+     * The reference matrix says 80; the Pixel launcher (API 34) reports 144 dp for two cells,
+     * not 152, so 80 would leave the 2x1 widget without its square button. With 76 a 2x1 (144 dp)
+     * has one and a 3x1 (220 dp) has two.
+     */
+    private static final float HERO_ROOM_DP = 76f;
 
     private KeepADBWidgetLayout() {}
 

@@ -33,8 +33,8 @@ are retrospective issue-version records and were never published as separate rel
   Fill, symbol variant (filled, outlined, with dots, with an exclamation mark) and a word carry
   every state, never the color alone; every text and symbol color has at least 4.5:1 contrast on
   its fill (`KeepADBWidgetColorsTest`). `KeepADBWidgetLayout` chooses one of eight classes from the
-  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 140 x `fs`, tall = 150 x `fs`
-  dp; in a short widget as many square buttons as fit beside 80 x `fs` dp of room for the hero):
+  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 140 x `fs`, tall = 145 x `fs`
+  dp; in a short widget as many square buttons as fit beside 76 x `fs` dp of room for the hero):
   1x1 the hero with the short label "ADB" and a short state word (no port), 2x1 the hero with its
   port and one square button, 4x1 the hero and two upright tiles, 2x2 the hero (label, large port)
   over two 48 dp pills, 4x2 the hero over two rows beside two pills that grow with the height,

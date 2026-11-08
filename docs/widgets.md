@@ -43,7 +43,7 @@ wraps. TalkBack reads "name: state, port N" from the control's description, in f
 
 The layout follows the size the launcher reports (and, on Android 12 and newer, the launcher picks
 it while the user resizes). With the font scale `fs`: wide = 250 dp x `fs`, medium = 140 dp x `fs`,
-tall = 150 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
+tall = 145 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
 layout with fewer, still readable controls. The hero is in every class:
 
 | About | Class | Shows |
@@ -57,7 +57,7 @@ layout with fewer, still readable controls. The hero is in every class:
 | tall, narrower than medium | `STACK` | the hero on top, two square buttons below (needs 114 dp) |
 | short, under 140 dp | `ONE`; from 140 dp `HERO` | the hero alone (with its port from 140 dp) |
 
-In a short widget the hero gets as many square buttons (at most two) as fit beside 80 dp x `fs` of
+In a short widget the hero gets as many square buttons (at most two) as fit beside 76 dp x `fs` of
 room for it. Examples: at font 1.3 a 2x2 is the stack, a 2x1 only the hero, a 4x1 the hero with two
 square buttons; at font 2.0 a 2x2 is only the hero.
 

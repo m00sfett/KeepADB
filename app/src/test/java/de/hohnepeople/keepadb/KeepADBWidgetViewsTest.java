@@ -99,22 +99,22 @@ public class KeepADBWidgetViewsTest {
     private static int[] room(SizeClass sizeClass) {
         switch (sizeClass) {
             case ONE:
-                return new int[] {72, 92};
+                return new int[] {68, 89};
             case HERO:
                 return new int[] {140, 72};
             case ROW1:
-                return new int[] {152, 92};
+                return new int[] {144, 89};
             case ROW2:
-                return new int[] {228, 92};
+                return new int[] {220, 89};
             case STACK:
                 return new int[] {114, 150};
             case STRIP:
-                return new int[] {304, 92};
+                return new int[] {296, 89};
             case GRID:
-                return new int[] {152, 196};
+                return new int[] {144, 193};
             case PANEL:
             default:
-                return new int[] {304, 196};
+                return new int[] {296, 193};
         }
     }
 
