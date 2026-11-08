@@ -171,7 +171,7 @@ public final class NetworkDecisionView extends LinearLayout {
         switch (result.outcome) {
             case TRUSTED:
                 toast(context.getString(R.string.network_ap_allowed_toast,
-                        KeepADBNetworkDisplay.quoted(shown(), target.ssid == null
+                        KeepADBNetworkDisplay.toastLabel(shown(), target.ssid == null
                                 ? target.bssid : target.ssid, target.bssid)), Toast.LENGTH_SHORT);
                 // #812: the cause comes from the toggle result, not from a second permission read.
                 if (!result.enabled && result.permissionFailure) {

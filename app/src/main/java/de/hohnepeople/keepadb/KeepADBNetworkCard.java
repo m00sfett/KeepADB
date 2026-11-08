@@ -408,13 +408,18 @@ final class KeepADBNetworkCard {
                         ? activity.getString(R.string.network_action_allow_ap_accessibility,
                                 KeepADBNetworkDisplay.label(activity, ssid, identity.bssid, null))
                         : null);
+        // #904 (Q6): allowing a masked access point waits for the eye.
+        networkStatusAction.setEnabled(state.action != KeepADBNetworkCardState.Action.ALLOW_ACCESS_POINT
+                || !KeepADBNetworkDisplay.hidden(activity));
         networkStatusAction.setVisibility(View.VISIBLE);
     }
 
     private void onNetworkStatusActionClicked() {
         switch (networkStatusActionKind) {
             case ALLOW_ACCESS_POINT:
-                if (networkActionBssid != null) {
+                // #904 (Q6): no blind trust; while the card masks the network, allowing waits for
+                // the eye ("Show on this screen").
+                if (networkActionBssid != null && !KeepADBNetworkDisplay.hidden(activity)) {
                     // Grants exactly the access point the card showed; never switches anything on.
                     KeepADBNetworkActions.allowAccessPoint(activity, networkActionBssid,
                             networkActionLabel, onChange);

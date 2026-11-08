@@ -699,7 +699,7 @@ final class NetworkListRenderer {
 
     /** Tells the user what an answer did, then redraws. */
     private void answer(KeepADBNetworkListActions.Outcome outcome, String ssid) {
-        String quoted = ssid == null ? "" : KeepADBNetworkDisplay.quoted(shown(), ssid);
+        String quoted = ssid == null ? "" : KeepADBNetworkDisplay.toastLabel(shown(), ssid, null);
         switch (outcome) {
             case TRUSTED:
                 toast(activity.getString(R.string.network_ap_allowed_toast,

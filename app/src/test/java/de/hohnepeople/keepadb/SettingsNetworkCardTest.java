@@ -146,6 +146,32 @@ public class SettingsNetworkCardTest {
     }
 
     @Test
+    public void aMaskedCardCannotAllowBlindAndItsToastStaysMaskedAfterShowOnThisScreen() {
+        preparedForAnAutomaticEnable();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+
+        SettingsActivity activity = open();
+        Button action = activity.findViewById(R.id.network_status_action);
+        assertEquals(View.VISIBLE, action.getVisibility());
+        // #904 (Q6): no blind trust from the masked card.
+        assertFalse("Allow is disabled while masked", action.isEnabled());
+        action.performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("A blind allow stores nothing", KeepADBTrustedNetwork.getEntries(context).isEmpty());
+
+        KeepADBEyeMenuTestSupport.choose(activity, KeepADBPrivacyToggle.ITEM_SCREEN);
+        assertTrue("Show on this screen enables Allow", action.isEnabled());
+        action.performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+        String toast = org.robolectric.shadows.ShadowToast.getTextOfLatestToast();
+        assertFalse("A toast outlives the screen, so it stays masked: " + toast,
+                toast == null || toast.contains("HomeMesh"));
+    }
+
+    @Test
     public void aNotAllowedAccessPointExplainsWhyAndOffersToAllowItWithoutSwitchingAnythingOn() {
         KeepADBFakeSettingsGateway gateway = preparedForAnAutomaticEnable();
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);

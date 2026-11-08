@@ -140,6 +140,16 @@ final class KeepADBNetworkDisplay {
         return storedLabel;
     }
 
+    /**
+     * {@link #quoted} for a toast (#904): a toast can stay on screen after the screen that showed
+     * it stopped, so a "Show" there does not unmask it ({@link KeepADBPrivacy#isOutlivingTextMasked}).
+     */
+    static String toastLabel(Context context, String storedLabel, String bssid) {
+        if (storedLabel == null) return "";
+        if (KeepADBPrivacy.isOutlivingTextMasked(context)) return placeholder(context, 0);
+        return quoted(context, storedLabel, bssid);
+    }
+
     private static String placeholder(Context context, int number) {
         String hiddenName = context.getString(R.string.network_privacy_name_hidden);
         return number > 0 ? hiddenName + " #" + number : hiddenName;
