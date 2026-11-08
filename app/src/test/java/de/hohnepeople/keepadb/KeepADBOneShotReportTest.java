@@ -6,13 +6,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.widget.Button;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -27,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlarmManager;
@@ -673,46 +670,6 @@ public class KeepADBOneShotReportTest {
         settle();
         assertEquals("one request by the tap, none by the old series", before + 1,
                 transport.getRequestCount());
-    }
-
-    private Button clearButton() {
-        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
-        activity.setContentView(R.layout.activity_settings);
-        new KeepADBWebhookForm(activity, () -> { });
-        return activity.findViewById(R.id.settings_webhook_clear);
-    }
-
-    /**
-     * Clearing the webhook with synchronization off withdraws what a deliberate report left
-     * registered, so the URL is not dropped while the entry and a copy of the URL stay behind.
-     */
-    @Test
-    public void clearingTheWebhookWithdrawsWhatTheOneShotRegistered() {
-        KeepADBRegisterClient.reportNow(context, null);
-        settle();
-        assertEquals(1, posts());
-        assertFalse(syncEnabled());
-        Button clear = clearButton();
-
-        clear.performClick();
-        settle();
-
-        assertEquals("DELETE at the URL that was cleared", 1, count("DELETE"));
-        assertEquals(URL, transport.getLastRequest().url);
-        assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
-        assertNull("no copy of the cleared URL is kept", KeepADBPreferences.getWebhookLastReportedUrl(context));
-        assertFalse(syncEnabled());
-    }
-
-    @Test
-    public void clearingWhenNothingIsRegisteredSendsNothing() {
-        Button clear = clearButton();
-
-        clear.performClick();
-        settle();
-
-        assertEquals(0, transport.getRequestCount());
-        assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
     }
 
     // ---- the shared state shows the operation -------------------------------------------------------

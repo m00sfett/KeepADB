@@ -313,11 +313,9 @@ final class KeepADBWebhookForm {
     private void onClearClicked() {
         setFieldText("");
         error.setVisibility(View.GONE);
-        // #911: a deliberate "Report now" leaves a registration behind with synchronization off;
-        // clearing the webhook withdraws that one as well.
-        if (KeepADBPreferences.isRegisterWebhookEnabled(activity)
-                || KeepADBRegisterClient.hasRegistrationOnRecord(activity)) {
-            KeepADBWebhookSync.disable(activity);
+        if (KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
+            KeepADBRegisterClient.unregisterAndDisableAsync(activity);
+            KeepADBPreferences.setRegisterWebhookEnabled(activity, false);
         }
         KeepADBPreferences.setRegisterWebhookUrl(activity, null);
         Toast.makeText(activity, R.string.settings_webhook_cleared_toast, Toast.LENGTH_SHORT).show();

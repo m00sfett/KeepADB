@@ -453,20 +453,6 @@ final class KeepADBRegisterClient {
         return shot == null ? ReportNowResult.JOINED : ReportNowResult.STARTED;
     }
 
-    /**
-     * #911: whether a report is on record as registered at a destination. A deliberate report
-     * leaves one behind even with synchronization off, so "Clear" in the settings must withdraw it
-     * like it does for a synchronized registration instead of dropping the URL and keeping the
-     * entry.
-     */
-    static boolean hasRegistrationOnRecord(Context context) {
-        synchronized (KeepADBRegisterClient.class) {
-            ensureStateInitializedLocked(context.getApplicationContext());
-            return (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
-                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty());
-        }
-    }
-
     /** The captured scope of one deliberate report; see {@link #startOneShot}. */
     private static final class OneShot {
         final String url;
