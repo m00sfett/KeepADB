@@ -62,9 +62,11 @@ are retrospective issue-version records and were never published as separate rel
   synchronization trigger.
 - **Limits, stated rather than hidden:** if the process dies mid-DELETE, the hold limit passes or
   the request fails, the registration may remain at the receiver until the user taps "off" again;
-  the app never sends a withdrawal on its own at start or on a timer. That retry goes to the saved
-  URL only: if the stored report record names another URL than the one saved now, the old
-  destination is not contacted.
+  the app never sends a withdrawal on its own at start or on a timer. That retry withdraws the
+  report record only while it names the URL saved now; a record of a replaced or cleared URL is not
+  retried from there. Like every opt-out, the retry also flushes withdrawals already queued for
+  earlier URLs whose DELETE failed (the existing pending-cleanup list): those are registrations the
+  app itself made and still owes a withdrawal for.
 
 ### Changed
 - **The alert's "Report now" needs Wi-Fi:** like the widgets, it reports only while Wi-Fi is up and
