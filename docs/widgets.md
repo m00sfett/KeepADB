@@ -13,43 +13,68 @@ never polls.
 | Keep-Alive | switches the Keep-Alive setting; Wi-Fi, trust and backoff rules stay with the service | Off, On, Waiting, Paused |
 | Auto-sync | switches automatic webhook synchronization to the opposite state; without a saved URL it opens the webhook form | Off, On, Set up |
 
-Every tile has an icon of its own, a label and its state in words, so no state depends on color
-alone. A tile that needs the user (setup, paused, failed) has a dashed outline, an active one a
-heavier green outline. The texts are one line each that shrinks (not below 9sp) before it is cut,
-so no word or number is broken in the middle. The tile shows "Connected" only; the endpoint has
-its own line in the status box of the larger sizes.
-
 There is no "Report now" control: that action exists only as the button of the webhook failure
 notification (see [Webhook contract](webhook-register.md)). A stored widget configuration that
 still names it keeps working: the entry is read, the retired control is ignored and a main action
 that was "Report now" becomes Debugging.
 
+## Design: hero and rail
+
+The **main action** (default Debugging, see "Settings per widget") is the *hero*: a large tile that
+is a yellow gradient while it is on. The other two controls sit beside or under it as flat pills,
+upright tiles or square symbol buttons, depending on the room. There are no borders and no switch
+look; the state is never told by color alone:
+
+| State | Fill | Symbol | Word |
+|---|---|---|---|
+| on / connected | yellow (the hero: gradient), dark text and symbol | filled (`adb`, arrows, cloud with arrow) | On, Connected |
+| off | dark, yellow symbol | outlined or struck through | Off |
+| searching or switching (Debugging only) | lighter dark, yellow symbol | outlined bug with three dots | Searching…, Switching… |
+| needs you (permission, set up, paused) | dark red, pink text and symbol | cloud with an exclamation mark, struck-through arrows or outlined bug | Set up, Paused, Permission missing |
+
+All text and symbol colors have at least 4.5:1 contrast on their fill (`KeepADBWidgetColorsTest`).
+The surface is `#0B0806` with a 28 dp radius, the controls have a 23 dp radius and a 5 dp gap.
+Controls are at least 48 dp high and wide. The words shrink (not below 85 percent of their size)
+before they could be cut, and never get an ellipsis; the port is one line in monospace and never
+wraps. TalkBack reads "name: state, port N" from the control's description, in full, even where only
+"ADB" or a symbol is visible.
+
 ## Sizes
 
 The layout follows the size the launcher reports (and, on Android 12 and newer, the launcher picks
-it while the user resizes). All thresholds grow with the font scale, so a larger font falls back to
-a layout with fewer, still readable controls; above a font scale of 1.5 the label gives way to the
-icon and the state word (TalkBack still reads the full name and the state).
+it while the user resizes). With the font scale `fs`: wide = 250 dp x `fs`, medium = 140 dp x `fs`,
+tall = 150 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
+layout with fewer, still readable controls. The hero is in every class:
 
-| About | Shows |
-|---|---|
-| 1x1 | the main action |
-| 1x2 and taller, narrow | two actions on top of each other |
-| 2x1 | two actions side by side |
-| 2x2 | all three actions in a grid; taller (about 2x3): plus the status box |
-| 4x1 | the three actions in a row |
-| 4x2 | the three actions, flat, plus the status box and the settings gear |
+| About | Class | Shows |
+|---|---|---|
+| 1x1 | `ONE` | the hero alone: symbol, "ADB" (not translated) and a short state word (On, Off, Scan…); no port |
+| 2x1 | `ROW1` | the hero (symbol and port) and one square symbol button |
+| 3x1 | `ROW2` | the hero and two square symbol buttons |
+| 4x1 (wide, not tall) | `STRIP` | the hero and two upright tiles (symbol, label, state word) |
+| 2x2 (medium and tall) | `GRID` | the hero (symbol, label, large port) and two 48 dp pills under it |
+| 4x2 (wide and tall) | `PANEL` | the hero over two rows on the left, two pills growing with the height on the right, and under them one status line with the settings gear |
+| tall, narrower than medium | `STACK` | the hero on top, two square buttons below (needs 114 dp) |
+| short, under 140 dp | `ONE`; from 140 dp `HERO` | the hero alone (with its port from 140 dp) |
 
-The status box (tall 2x2 and 4x2; the tiles keep their flat height and the box takes the rest)
-shows the endpoint on one line while details are visible (cut in the middle if it must be, so the
-port stays readable; the narrow box shows `host:port` without the word), or the reason for the
-state in the home screen's own wording (permission missing, Keep-Alive waiting or paused and why),
-and one line for the webhook ("not set up", "sync off", sending, failed, current endpoint reported,
-not reported yet, no endpoint). Tapping it opens the relevant place in the app: the home screen
-for a missing permission, the network settings for an untrusted network, the webhook form for a
-missing or failing webhook. In the 4x2 a small gear opens the widget's settings. Tiles are at
-least 48 dp high and wide. The Wi-Fi name and network details are part of the overview widget,
-not of this one.
+In a short widget the hero gets as many square buttons (at most two) as fit beside 80 dp x `fs` of
+room for it. Examples: at font 1.3 a 2x2 is the stack, a 2x1 only the hero, a 4x1 the hero with two
+square buttons; at font 2.0 a 2x2 is only the hero.
+
+The **port** is shown in the hero from the compact shape (140 dp) up, never in the smallest one
+(`ONE`); without a port the short or full state word stands there. While the widget privacy switch
+or the per-widget option withholds the details, five dots (`•••••`) stand where the port would be
+and the status line says "Details hidden".
+
+The **status line** (only the 4x2) is one text as high as its text, at least 48 dp for the gear: the
+endpoint (`host:port`, stronger) or "Details hidden" or the reason for the state in the home
+screen's own wording (permission missing, Keep-Alive waiting or paused and why), then the webhook
+state ("not set up", "sync off", sending, failed, current endpoint reported, not reported yet, no
+endpoint), at most two lines. Tapping it opens the relevant place in the app: the home screen for a
+missing permission, the network settings for an untrusted network, the webhook form for a missing
+or failing webhook. The round gear at its end opens the widget's settings; it exists only here,
+everywhere else the settings are the launcher's "reconfigure". The Wi-Fi name and network details
+are part of the overview widget, not of this one.
 
 ## Settings per widget
 
@@ -57,9 +82,9 @@ Each placed widget has its own settings. On Android 12 and newer a widget is pla
 defaults (`configuration_optional`) and configured afterwards, from the gear or the launcher's
 "reconfigure"; on Android 11 the settings screen opens at placement:
 
-- **Main action:** the control shown alone when the widget is small.
-- **Order:** the position of the three controls in every size. A small widget shows the main
-  action plus the first of the others, in this order; a position never changes when the widget
+- **Main action:** the hero, the control shown alone when the widget is small.
+- **Order:** the sequence of the other controls beside or under the hero. A small widget shows
+  the hero plus the first of the others, in this order; a position never changes when the widget
   grows, a control only appears.
 - **Hide connection details in this widget:** an additional, stricter option.
 
