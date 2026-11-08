@@ -23,6 +23,58 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.8] - Unreleased
+
+### Added
+- **Adaptive control widget (#912):** the placed widget (same provider, same component) now holds
+  up to four controls: Wireless Debugging, Keep-Alive, automatic webhook synchronization and
+  "Report now", and shows more as it grows. About 1x1 shows the main action, narrow and tall two
+  actions, 2x1 two, 2x2 all four in a grid (taller: plus one status line), 4x1 the four in a row,
+  4x2 the four plus the status line and the webhook line. `KeepADBWidgetLayout` chooses the class
+  from the reported size and the font scale (every threshold grows with the scale, labels give way
+  to the state word above a scale of 1.5); Android 12+ gets one view per class and lets the
+  launcher pick while resizing, Android 11 rebuilds the one class the options select
+  (`onAppWidgetOptionsChanged`). Tiles are at least 48 dp, every state has a word (no color-only
+  state), a dashed outline marks "needs you", TalkBack reads the full name and the state.
+- **Per-widget settings (#912):** `KeepADBWidgetConfigActivity` (the widget's configure and
+  reconfigure activity, also reachable from the gear in the larger layouts) sets the main action,
+  the order of the four actions and "hide connection details" for that one widget.
+  `KeepADBWidgetConfig` stores them per `appWidgetId` in the private file `keepadb_widget_config`,
+  never in `keepadb_prefs`; `onDeleted` removes the instance's entry, `onDisabled` all of them.
+  The main action decides which controls survive a small size, the order fixes the positions, so
+  nothing moves when the widget grows. A widget placed before this version has no entry and shows
+  the defaults (Debugging, Keep-Alive, Auto-sync, Report now).
+- **Controls reuse the app's entry points:** Wireless Debugging uses the widget's existing toggle
+  broadcast (same action, request code and component as before, so already placed widgets keep
+  working), Keep-Alive the notification's action, the webhook controls `KeepADBWebhookActions`.
+  A missing grant opens the home screen instead of a failing write; the status lines open the
+  relevant place (home screen, network settings, webhook form). "Report now" exists only while
+  automatic synchronization is on; with it off the slot reads "Sync off" and its tap switches
+  synchronization on.
+- Widget picker label and description, a preview layout (Android 12+), default size 2x1, resizable
+  in both directions, `reconfigurable`. New strings in all 18 locales; `docs/widgets.md`.
+
+### Changed
+- **Rendering is read-only:** `KeepADBWidget.refreshAll` no longer asks the endpoint coordinator
+  for a refresh once per widget; every caller already refreshes the coordinator itself. Resizing
+  and state refreshes never send or poll. `onUpdate` (placement and boot) keeps one coordinator
+  refresh per update, because with Keep-Alive off nothing else restarts the coordinator after a
+  restart (`BootReceiver` starts the service only for Keep-Alive).
+- The one-line `widget_text_*` strings are gone; the Wireless Debugging tile uses the tile's
+  state words.
+- The manifest now has a third exported component, the widget's configure activity, which the
+  launcher has to start; it accepts only the id of an existing widget of this app and changes only
+  that widget's own display settings. `KeepADBForceContractTest` pins the count and the filter.
+
+### Testing
+- `KeepADBWidgetConfigTest`, `KeepADBWidgetLayoutTest`, `KeepADBWidgetViewsTest`,
+  `KeepADBWidgetLifecycleTest`, `KeepADBWidgetApi30Test` and `KeepADBWidgetConfigActivityTest`:
+  the real RemoteViews per size class (tiles, order, main action, state words, details, touch
+  targets), per-instance persistence and cleanup, the privacy precedence, no send or discovery on
+  render and resize with a positive control, independent PendingIntent routing per widget, legacy
+  instances, the Android 11 fallback and re-applying a view without stacking tiles, and the
+  configure screen.
+
 ## [1.11.7] - Unreleased
 
 ### Added
