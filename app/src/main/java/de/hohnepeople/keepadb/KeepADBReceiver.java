@@ -32,6 +32,13 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
     /** #893: "Report now" on the webhook alert: one user-triggered report, no polling. */
     static final String ACTION_WEBHOOK_REPORT_NOW = "de.hohnepeople.keepadb.ACTION_WEBHOOK_REPORT_NOW";
+    /**
+     * #911: the widgets' switch for automatic webhook synchronization. One action per target state,
+     * not a toggle, so a repeated tap cannot undo itself. Explicit intents to this non-exported
+     * receiver only; neither action is in the manifest's intent filter.
+     */
+    static final String ACTION_WEBHOOK_SYNC_ENABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_ENABLE";
+    static final String ACTION_WEBHOOK_SYNC_DISABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_DISABLE";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -61,6 +68,10 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleReportNowAction(context.getApplicationContext(), () -> {
                 if (pending != null) pending.finish();
             });
+        } else if (ACTION_WEBHOOK_SYNC_ENABLE.equals(action)) {
+            handleWebhookSyncAction(context.getApplicationContext(), true);
+        } else if (ACTION_WEBHOOK_SYNC_DISABLE.equals(action)) {
+            handleWebhookSyncAction(context.getApplicationContext(), false);
         }
     }
 
@@ -89,6 +100,22 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         new Handler(Looper.getMainLooper()).postDelayed(finish, REPORT_NOW_MAX_HOLD_MS);
         KeepADBDiagnostics.event(app, "user_action", "webhook", "report_now", "tap");
         return KeepADBRegisterClient.reportNow(app, finish);
+    }
+
+    /**
+     * #911: a widget asks for a target state of the automatic synchronization. Goes through the
+     * form's validated path ({@link KeepADBWebhookSync}); without a valid saved URL it changes and
+     * sends nothing, and the widget's setup action leads to the settings instead.
+     */
+    static KeepADBWebhookSync.Result handleWebhookSyncAction(Context app, boolean enable) {
+        KeepADBDiagnostics.event(app, "user_action", "widget", enable ? "enable" : "disable",
+                "webhook_sync");
+        KeepADBWebhookSync.Result result = KeepADBWebhookSync.setAutomaticSync(app, enable);
+        if (result == KeepADBWebhookSync.Result.NEEDS_SETUP) {
+            KeepADBDiagnostics.event(app, "user_action", "widget", "skipped",
+                    "webhook_sync reason=needs_setup");
+        }
+        return result;
     }
 
     /**
