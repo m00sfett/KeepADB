@@ -111,9 +111,10 @@ network page, the trust dialog, the webhook field, the USB profile dialog) until
 left, the screen stops or the switch is turned on again. The eye in the title bars (on the home
 screen: the header menu) opens a menu with “Show on this screen” / “Hide on this screen”, which
 applies to every part of that screen until it is left and never changes a stored switch, plus the
-three stored switches. Shared diagnostics stay redacted under “Show on this screen”; they are
-redacted whenever the app switch is on or the screen is hidden. In the trust dialog, “Trust” needs
-a “Show” while the network is masked; “Block” does not.
+three stored switches. Shared diagnostics and toasts that name a network stay masked under any
+“Show”, because they can outlive the screen; they are masked whenever the app switch is on or the
+screen is hidden. In the trust dialog and on the Settings network card, trusting needs a “Show”
+while the network is masked; blocking does not.
 
 **Change in #904 (deliberate):** earlier versions hid connection details in notifications by
 default (#592); a new installation now shows them until the notification switch is turned on, and

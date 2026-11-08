@@ -59,10 +59,12 @@ are retrospective issue-version records and were never published as separate rel
   ends when the screen stops or is recreated, the assistant changes its page, or a switch changes,
   and it is never stored) and the three stored switches as check items. The home screen's header
   menu offers the same entries. The icon shows what the screen currently does (crossed-out eye:
-  masked). Shared diagnostics stay redacted under “Show on this screen” and are redacted under
-  “Hide on this screen”.
+  masked). “Hide on this screen” also hides a part revealed before. Shared diagnostics and toasts
+  that name a network stay masked under “Show on this screen” (and under a part's “Show”), because
+  they can outlive the screen; both are masked under “Hide on this screen”.
 - **No blind trust (Q6):** while the trust decision is masked, “Trust” is disabled until “Show”;
-  “Block” stays available.
+  “Block” stays available. The Settings network card's “Allow this access point” likewise waits
+  for the eye while the card is masked.
 - **Webhook field and USB profiles masked:** with the app switch on, the saved webhook URL appears
   with its host masked and a “Show” instead of the editable field; the USB host profile list shows
   numbered profiles with masked addresses, hides “Edit” until “Show”, and the Settings line names
