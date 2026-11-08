@@ -683,7 +683,19 @@ final class KeepADBRegisterClient {
     }
 
     static void unregisterAndDisableAsync(Context context) {
-        if (context == null) return;
+        unregisterAndDisableAsync(context, null);
+    }
+
+    /**
+     * @param onDone #911: runs on the register executor once the withdrawal queued here has been
+     *         attempted (or found obsolete), so a receiver can keep the process alive until then
+     *         ({@code goAsync}) instead of letting it die with the DELETE still queued.
+     */
+    static void unregisterAndDisableAsync(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return;
+        }
         Context appContext = context.getApplicationContext();
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
@@ -699,6 +711,43 @@ final class KeepADBRegisterClient {
             if (opGen != currentOpGeneration) return;
             performDeleteTransaction(appContext, targetUrl, opGen, false);
         });
+        // FIFO on the single register executor: behind the withdrawal just queued.
+        if (onDone != null) EXECUTOR.execute(onDone);
+    }
+
+    /** Runs {@code work} on the register executor behind everything queued so far. */
+    static void afterQueuedWork(Runnable work) {
+        EXECUTOR.execute(work);
+    }
+
+    /**
+     * #911: whether the persisted report snapshot still names a registration, i.e. a report that
+     * nothing has withdrawn. A completed withdrawal clears it, a failed or interrupted one leaves
+     * it, so with synchronization off this is exactly "an opt-out whose withdrawal is outstanding".
+     * Read from the preferences, which survive the process, not from the in-memory copy.
+     */
+    static boolean hasRegistrationOnRecord(Context context) {
+        Context app = context.getApplicationContext();
+        String endpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(app);
+        String url = KeepADBPreferences.getWebhookLastReportedUrl(app);
+        return (endpoint != null && !endpoint.trim().isEmpty())
+                || (url != null && !url.trim().isEmpty());
+    }
+
+    /**
+     * #911: an opt-out turns synchronization off at once and withdraws the registration
+     * asynchronously. If the process died before the DELETE ran, or the DELETE failed, the report
+     * snapshot still names the registration while synchronization is off; the withdrawal is then
+     * tried again, once, at the next start of the app. Not a timer and not a loop: a failure waits
+     * for the next start (or for switching the synchronization off again).
+     */
+    static void resumeInterruptedWithdrawal(Context context) {
+        if (context == null) return;
+        Context app = context.getApplicationContext();
+        if (KeepADBPreferences.isRegisterWebhookEnabled(app) || !hasRegistrationOnRecord(app)) return;
+        KeepADBDiagnostics.event(app, "register_report", "webhook", "resumed",
+                "method=delete reason=interrupted_withdrawal");
+        unregisterAndDisableAsync(app);
     }
 
     /**

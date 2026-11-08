@@ -22,9 +22,9 @@ final class KeepADBWebhookSync {
     enum Result {
         /** Synchronization was switched on. */
         ENABLED,
-        /** Synchronization was switched off and the registration is being withdrawn. */
+        /** Synchronization is off and the registration is being withdrawn (again, if it already was off). */
         DISABLED,
-        /** Already in the requested state; nothing was changed or sent. */
+        /** Already in the requested state with nothing to withdraw; nothing was changed or sent. */
         UNCHANGED,
         /** No valid destination is stored: nothing was changed or sent; lead the user to the setup. */
         NEEDS_SETUP
@@ -43,10 +43,29 @@ final class KeepADBWebhookSync {
         KeepADBEndpointCoordinator.refresh(context);
     }
 
-    /** The one disable path: withdraws the registration, then switches the webhook off. */
+    /** The one disable path, see {@link #disable(Context, Runnable)}. */
     static void disable(Context context) {
-        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        disable(context, null);
+    }
+
+    /**
+     * The one disable path. The withdrawal is queued first (it reads the saved URL right away) and
+     * the preference goes off at once; the DELETE itself runs asynchronously. Until it has
+     * succeeded the report snapshot still names the registration, which is what makes an
+     * interrupted or failed withdrawal retry at the next start of the app
+     * ({@link KeepADBRegisterClient#resumeInterruptedWithdrawal}).
+     *
+     * @param onDone runs on the register executor once the withdrawal has been attempted, so a
+     *         receiver can hold its broadcast open until then.
+     */
+    static void disable(Context context, Runnable onDone) {
+        KeepADBRegisterClient.unregisterAndDisableAsync(context, onDone);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+    }
+
+    /** {@link #setAutomaticSync(Context, boolean, Runnable)} for a caller that does not wait. */
+    static Result setAutomaticSync(Context context, boolean wanted) {
+        return setAutomaticSync(context, wanted, null);
     }
 
     /**
@@ -54,24 +73,39 @@ final class KeepADBWebhookSync {
      * target state, never "flip"), so a repeated tap cannot undo itself. It uses the stored URL
      * only and never invents, repairs or replaces one.
      *
-     * <p>The app, the notification and every widget are refreshed afterwards, whatever the result.
+     * <p>Asking for "off" while it already is off still withdraws a registration that an earlier
+     * opt-out left outstanding (the result is then {@link Result#DISABLED}); without one it is a
+     * no-op. The app, the notification and every widget are refreshed afterwards, whatever the
+     * result.
+     *
+     * @param onDone runs once the work this request queued has been attempted (on the register
+     *         executor), or at once when it queued none, so a receiver can keep its broadcast
+     *         alive until the DELETE or the first report is out.
      */
-    static Result setAutomaticSync(Context context, boolean wanted) {
+    static Result setAutomaticSync(Context context, boolean wanted, Runnable onDone) {
         Context app = context.getApplicationContext();
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(app);
         Result result;
         if (wanted == enabled) {
-            result = Result.UNCHANGED;
+            if (!wanted && KeepADBRegisterClient.hasRegistrationOnRecord(app)) {
+                disable(app, onDone);
+                result = Result.DISABLED;
+            } else {
+                result = Result.UNCHANGED;
+                if (onDone != null) onDone.run();
+            }
         } else if (wanted) {
             String url = KeepADBPreferences.getRegisterWebhookUrl(app);
             if (KeepADBPreferences.isValidWebhookUrl(url)) {
                 enable(app, url);
                 result = Result.ENABLED;
+                if (onDone != null) KeepADBRegisterClient.afterQueuedWork(onDone);
             } else {
                 result = Result.NEEDS_SETUP;
+                if (onDone != null) onDone.run();
             }
         } else {
-            disable(app);
+            disable(app, onDone);
             result = Result.DISABLED;
         }
         KeepADBRegisterClient.notifyStateChanged(app);
