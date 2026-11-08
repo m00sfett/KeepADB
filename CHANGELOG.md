@@ -23,6 +23,17 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.5] - Unreleased
+
+### Fixed
+- **“Save URL” sent the webhook report twice (#918):** saving the URL while the webhook is on
+  kicks a coordinator refresh and then an explicit report (#869). When the refresh's POST had
+  already finished, the explicit report did not join it and sent a second, identical POST. It now
+  joins any report started since its refresh (`KeepADBRegisterClient.requestResyncNowSince`), so a
+  save sends one POST; an explicit save without a report from the refresh still reports at once.
+  This also removes the flaky failure of
+  `KeepADBWebhookFormTest.savingAValidUrlWhileAlreadyEnabledKeepsTheSavedToastAndRefreshes`.
+
 ## [1.11.4] - Unreleased
 
 ### Changed
