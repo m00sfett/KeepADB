@@ -110,8 +110,8 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   retry: it withdraws the report record only while the record names the URL that is saved now (a
   record of a replaced or cleared URL is not retried from there), and, like every opt-out, it also
   flushes withdrawals already queued for earlier URLs whose DELETE failed (pending cleanups of
-  registrations the app made itself). Without a record and without queued cleanups, "off" while
-  already off sends nothing.
+  registrations the app made itself). Without such a record, "off" while already off sends nothing;
+  queued cleanups then wait for the next register activity.
 
 ## What the widgets and the tile show of the delivery (#910)
 
