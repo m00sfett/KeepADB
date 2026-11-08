@@ -147,12 +147,12 @@ final class KeepADBUsbProfileEditor {
     void onScreenStopped() {
         // Nothing on this screen is masked by default (switch off, no "Hide on this screen"), so
         // nothing was revealed either.
-        if (!KeepADBPrivacy.isScreenMasked(activity)
-                && !KeepADBPreferences.isAppPrivacyEnabled(activity)) {
-            return;
-        }
+        boolean temporary = KeepADBPrivacy.hasTemporaryState(activity);
+        if (!temporary && !KeepADBPreferences.isAppPrivacyEnabled(activity)) return;
+        // A list drawn under a temporary state (eye-menu override or "Show") would come back
+        // drawn for a state that has ended, unmasked or masked; it is closed either way.
         if (activeSwitchDialog != null
-                && !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB)) {
+                && (temporary || !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB))) {
             activeSwitchDialog.dismiss();
         }
         if (activeEditDialog != null && activeEditId != null) {

@@ -454,6 +454,29 @@ public class KeepADBAppPrivacySurfacesTest {
     }
 
     @Test
+    public void aUsbListMaskedByHideOnThisScreenIsClosedWhenTheScreenStops() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        KeepADBPrivacy.setScreenMasked(activity, true); // eye menu: "Hide on this screen"
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse("Control: the list is masked",
+                visibleText(activity.getActiveSwitchProfileDialog().getWindow().getDecorView())
+                        .contains(PROFILE));
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("the list drawn for an ended state is closed", null,
+                activity.getActiveSwitchProfileDialog());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
     public void theEditDialogOfASavedProfileIsClosedWhenTheScreenStops() {
         KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
