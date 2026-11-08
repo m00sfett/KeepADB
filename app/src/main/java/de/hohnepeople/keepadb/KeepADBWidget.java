@@ -69,7 +69,8 @@ public class KeepADBWidget extends AppWidgetProvider {
                 break;
             case ENABLED_CONNECTED:
                 int port = KeepADBEndpointCoordinator.snapshot().port;
-                if (port > 0) {
+                // #904: with the widget privacy switch on, the widget shows the state only.
+                if (port > 0 && !KeepADBPreferences.isWidgetPrivacyEnabled(context)) {
                     widgetText = localizedContext.getString(R.string.widget_text_connected_format, port);
                 } else {
                     widgetText = localizedContext.getString(R.string.widget_text_on);

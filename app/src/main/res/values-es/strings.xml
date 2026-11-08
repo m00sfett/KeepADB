@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">Abrir ajustes de notificaciones</string>
     <string name="notification_permission_missing_text">Concede WRITE_SECURE_SETTINGS desde el PC mediante adb shell pm grant</string>
     <string name="action_settings">Ajustes</string>
-    <string name="privacy_toggle_enable_accessibility">Activar modo privacidad (ocultar direcciones de red)</string>
-    <string name="privacy_toggle_disable_accessibility">Desactivar modo privacidad (mostrar direcciones de red)</string>
+    <string name="privacy_menu_show_screen">Mostrar en esta pantalla</string>
+    <string name="privacy_menu_hide_screen">Ocultar en esta pantalla</string>
+    <string name="privacy_eye_masked_accessibility">Opciones de privacidad. Los detalles están ocultos en esta pantalla.</string>
+    <string name="privacy_eye_shown_accessibility">Opciones de privacidad. Los detalles se muestran en esta pantalla.</string>
+    <string name="menu_item_state_on">Activado</string>
+    <string name="menu_item_state_off">Desactivado</string>
+    <string name="privacy_switches_title">Privacidad</string>
+    <string name="privacy_switches_hint">Opcional, todo desactivado por defecto. Cada interruptor oculta los nombres de Wi-Fi, las direcciones y los puertos solo en su propia zona.</string>
+    <string name="privacy_app_title">Ocultar en la app</string>
+    <string name="privacy_app_body">Enmascara los nombres de Wi-Fi, las direcciones de los puntos de acceso, las direcciones IP y el host del webhook en todas las pantallas y diálogos. «Mostrar» los revela hasta que salgas de la pantalla.</string>
+    <string name="privacy_notifications_title">Ocultar en las notificaciones</string>
+    <string name="privacy_notifications_body">Las notificaciones solo muestran el estado, sin puerto, dirección IP, perfil USB ni nombre de Wi-Fi. Un aviso de una nueva Wi-Fi no tiene entonces botones y abre la app. Mientras esto esté desactivado, esos detalles también pueden aparecer en la pantalla de bloqueo.</string>
+    <string name="privacy_widgets_title">Ocultar en los widgets y el mosaico</string>
+    <string name="privacy_widgets_body">El widget de la pantalla de inicio y el mosaico de ajustes rápidos solo muestran el estado, sin el puerto ni una dirección.</string>
+    <string name="usb_profile_hidden_numbered">Perfil %1$d</string>
     <string name="title_settings">Ajustes</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_keep_alive">Mantener activo</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">Notificación persistente</string>
     <string name="settings_hide_notification_subtext">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Los detalles de conexión se configuran por separado abajo y pueden mostrar direcciones y nombres de redes.</string>
     <string name="settings_hide_notification_subtext_keepalive">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Los detalles de conexión se configuran por separado abajo y pueden mostrar direcciones y nombres de redes.\n\nCon Keep-Alive activo, Android exige esta notificación para el servicio en primer plano. El interruptor está bloqueado. Al desactivar Keep-Alive se recupera tu elección guardada.</string>
-    <string name="settings_notification_details_toggle">Mostrar detalles de conexión en las notificaciones</string>
-    <string name="settings_notification_details_subtext">Muestra el puerto y la dirección IP en la notificación de estado persistente, el perfil de host USB (nombre, IP, host) y el nombre y BSSID de las nuevas redes Wi-Fi en las notificaciones. Si está activado, estos detalles también pueden verse en la pantalla de bloqueo. Si está desactivado, solo se muestran en la app.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>
@@ -496,12 +507,6 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_protection_keep_alive_off">Se aplica cuando Keep-Alive está activado.</string>
     <string name="onboarding_customize_show">Personalizar ▾</string>
     <string name="onboarding_customize_hide">Personalizar ▴</string>
-    <string name="onboarding_details_title">Pantalla de bloqueo</string>
-    <string name="onboarding_details_question">¿Deben las notificaciones mostrar direcciones y nombres de Wi-Fi?</string>
-    <string name="onboarding_details_off_body">Las notificaciones solo muestran el estado. Sin direcciones ni nombres de Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Muestra la dirección IP y el puerto, el perfil USB y los nombres de las redes Wi-Fi nuevas en las notificaciones. Según los ajustes de Android, también en la pantalla de bloqueo.</string>
-    <string name="onboarding_details_value_on">Detalles visibles</string>
-    <string name="onboarding_details_value_off">Sin detalles</string>
     <string name="onboarding_summary_title">Configuración completa</string>
     <string name="onboarding_summary_hint">Toca una línea para cambiarla. Puedes cambiarlo todo más tarde en Ajustes → Asistente de configuración.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive está desactivado. Puedes activarlo en cualquier momento en la pantalla de inicio.</string>
@@ -532,7 +537,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_perm_force_note">Se necesitará de nuevo cuando termine el modo forzado.</string>
     <string name="onboarding_network_title">Wi-Fi de confianza</string>
     <string name="onboarding_network_question">¿Debe KeepADB confiar en el Wi-Fi al que estás conectado ahora mismo?</string>
-    <string name="onboarding_network_privacy_note">En el modo de privacidad, el nombre solo se muestra aquí y al confiar en una red.</string>
+    <string name="onboarding_network_privacy_note">La privacidad está activada: el nombre y la dirección permanecen ocultos hasta que toques «Mostrar».</string>
     <string name="onboarding_network_open_list">Cambiar en la lista Redes</string>
     <string name="onboarding_webhook_question">Opcional. Informa de la dirección actual de la depuración inalámbrica a un servidor propio, por ejemplo en tu red doméstica o VPN. La mayoría no lo necesita. No se guarda nada hasta que pulses «Guardar URL».</string>
     <string name="onboarding_protection_force_title">Máxima comodidad (modo forzado)</string>
@@ -555,7 +560,6 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="status_tap_to_open_list">Toca para abrir la lista de redes</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Idioma</string>
-    <string name="menu_item_privacy_mode">Modo de privacidad</string>
     <string name="menu_item_all_settings">Todos los ajustes</string>
 
     <!-- #826: warning display controls. -->

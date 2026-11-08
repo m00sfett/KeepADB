@@ -140,8 +140,6 @@ final class KeepADBHomeWarnings {
     /** The assistant step that changes a marked setting. */
     private static KeepADBOnboarding.Step stepOf(KeepADBOnboarding.LessSecure value) {
         switch (value) {
-            case NOTIFICATION_DETAILS:
-                return KeepADBOnboarding.Step.DETAILS;
             case WEBHOOK_CLEARTEXT:
                 return KeepADBOnboarding.Step.WEBHOOK;
             default:

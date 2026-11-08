@@ -167,7 +167,7 @@ public class NetworkListDeepLinkTest {
     @Test
     public void thePrivacyModeDropsTheWishInsteadOfKeepingItForLater() {
         String target = addNetworks(4);
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         org.robolectric.android.controller.ActivityController<NetworkListActivity> controller =
                 Robolectric.buildActivity(NetworkListActivity.class,
                         NetworkListActivity.intent(context, target)).setup();
@@ -175,7 +175,7 @@ public class NetworkListDeepLinkTest {
         assertTrue("hidden list, nothing marked", selectedViews(controller.get()).isEmpty());
         assertEquals(0, ((ScrollView) controller.get().findViewById(R.id.network_list_scroll)).getScrollY());
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         controller.pause().resume();
         ShadowLooper.idleMainLooper();
 

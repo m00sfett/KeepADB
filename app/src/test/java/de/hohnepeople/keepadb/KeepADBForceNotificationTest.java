@@ -199,7 +199,7 @@ public class KeepADBForceNotificationTest {
     public void thePublicVersionStaysNeutralWhileForceIsOnWhateverTheDetailsSetting() {
         startForce(KeepADBForceMode.Span.HOURS_24);
         for (boolean details : new boolean[] {false, true}) {
-            KeepADBPreferences.setNotificationDetailsEnabled(context, details);
+            KeepADBPreferences.setNotificationPrivacyEnabled(context, !details);
             KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
 
             Notification publicVersion = posted(context, KeepADBNotification.NOTIFICATION_ID).publicVersion;
@@ -269,7 +269,7 @@ public class KeepADBForceNotificationTest {
         force.add(new NamedIntent("notice turn off", notice.actions[0].actionIntent));
 
         // Every other notification, including the details-on prompt with both actions.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         Notification prompt = posted(context, KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         others.add(new NamedIntent("prompt content", prompt.contentIntent));

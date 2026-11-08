@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
     <string name="notification_permission_missing_text">امنح WRITE_SECURE_SETTINGS من الكمبيوتر عبر adb shell pm grant</string>
     <string name="action_settings">الإعدادات</string>
-    <string name="privacy_toggle_enable_accessibility">تفعيل وضع الخصوصية (إخفاء عناوين الشبكة)</string>
-    <string name="privacy_toggle_disable_accessibility">إيقاف وضع الخصوصية (إظهار عناوين الشبكة)</string>
+    <string name="privacy_menu_show_screen">إظهار على هذه الشاشة</string>
+    <string name="privacy_menu_hide_screen">إخفاء على هذه الشاشة</string>
+    <string name="privacy_eye_masked_accessibility">خيارات الخصوصية. التفاصيل مخفية على هذه الشاشة.</string>
+    <string name="privacy_eye_shown_accessibility">خيارات الخصوصية. التفاصيل ظاهرة على هذه الشاشة.</string>
+    <string name="menu_item_state_on">تشغيل</string>
+    <string name="menu_item_state_off">إيقاف</string>
+    <string name="privacy_switches_title">الخصوصية</string>
+    <string name="privacy_switches_hint">اختياري، وكل شيء معطّل افتراضيًا. يخفي كل مفتاح أسماء Wi-Fi والعناوين والمنافذ في منطقته فقط.</string>
+    <string name="privacy_app_title">الإخفاء في التطبيق</string>
+    <string name="privacy_app_body">يحجب أسماء Wi-Fi وعناوين نقاط الوصول وعناوين IP ومضيف webhook على كل شاشة وفي كل مربع حوار. يعرضها «إظهار» إلى أن تغادر الشاشة.</string>
+    <string name="privacy_notifications_title">الإخفاء في الإشعارات</string>
+    <string name="privacy_notifications_body">تعرض الإشعارات الحالة فقط، دون المنفذ أو عنوان IP أو ملف USB أو اسم Wi-Fi. عندها لا يحتوي إشعار شبكة Wi-Fi جديدة على أزرار ويفتح التطبيق. وما دام هذا الخيار معطّلًا قد تظهر هذه التفاصيل أيضًا على شاشة القفل.</string>
+    <string name="privacy_widgets_title">الإخفاء في الأدوات والبلاطة</string>
+    <string name="privacy_widgets_body">تعرض أداة الشاشة الرئيسية وبلاطة الإعدادات السريعة الحالة فقط، دون المنفذ أو عنوان.</string>
+    <string name="usb_profile_hidden_numbered">الملف %1$d</string>
     <string name="title_settings">الإعدادات</string>
     <string name="settings_section_general">عام</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.</string>
     <string name="settings_hide_notification_subtext_keepalive">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.\n\nعند تفعيل Keep-Alive، يتطلب Android هذا الإشعار لخدمة المقدمة. يكون المفتاح مقفلاً. بعد إيقاف Keep-Alive يُطبق اختيارك المحفوظ مجدداً.</string>
-    <string name="settings_notification_details_toggle">إظهار تفاصيل الاتصال في الإشعارات</string>
-    <string name="settings_notification_details_subtext">يعرض المنفذ وعنوان IP في إشعار الحالة الدائم، وملف تعريف مضيف USB (الاسم وعنوان IP والمضيف)، واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
@@ -496,12 +507,6 @@
     <string name="onboarding_protection_keep_alive_off">يُطبَّق عند تشغيل Keep-Alive.</string>
     <string name="onboarding_customize_show">تخصيص ▾</string>
     <string name="onboarding_customize_hide">تخصيص ▴</string>
-    <string name="onboarding_details_title">شاشة القفل</string>
-    <string name="onboarding_details_question">هل تُظهر الإشعارات العناوين وأسماء Wi-Fi؟</string>
-    <string name="onboarding_details_off_body">تُظهر الإشعارات الحالة فقط. دون عناوين ودون أسماء Wi-Fi.</string>
-    <string name="onboarding_details_on_body">يعرض في الإشعارات عنوان IP والمنفذ وملف USB وأسماء شبكات Wi-Fi الجديدة. بحسب إعدادات Android، وعلى شاشة القفل أيضًا.</string>
-    <string name="onboarding_details_value_on">التفاصيل ظاهرة</string>
-    <string name="onboarding_details_value_off">بدون تفاصيل</string>
     <string name="onboarding_summary_title">اكتمل الإعداد</string>
     <string name="onboarding_summary_hint">المس سطرًا لتغييره. يمكنك تغيير كل شيء لاحقًا من الإعدادات ← معالج الإعداد.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive معطّل. يمكنك تشغيله في أي وقت من الشاشة الرئيسية.</string>
@@ -532,7 +537,7 @@
     <string name="onboarding_perm_force_note">سيلزم مجددًا بعد انتهاء الوضع الإجباري.</string>
     <string name="onboarding_network_title">شبكة Wi-Fi موثوقة</string>
     <string name="onboarding_network_question">هل يثق KeepADB بشبكة Wi-Fi المتصل بها الآن؟</string>
-    <string name="onboarding_network_privacy_note">في وضع الخصوصية يُعرض الاسم هنا وعند الوثوق بشبكة فقط.</string>
+    <string name="onboarding_network_privacy_note">الخصوصية مفعّلة: يبقى الاسم والعنوان مخفيين إلى أن تضغط «إظهار».</string>
     <string name="onboarding_network_open_list">التغيير في قائمة الشبكات</string>
     <string name="onboarding_webhook_question">اختياري. يُبلغ عن العنوان الحالي للتصحيح اللاسلكي إلى خادم خاص بك، مثلًا في شبكتك المنزلية أو شبكة VPN. معظم الناس لا يحتاجون إليه. لا يُحفظ شيء حتى تضغط «حفظ الرابط».</string>
     <string name="onboarding_protection_force_title">أقصى راحة (الوضع الإجباري)</string>
@@ -555,7 +560,6 @@
     <string name="status_tap_to_open_list">المس لفتح قائمة الشبكات</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">اللغة</string>
-    <string name="menu_item_privacy_mode">وضع الخصوصية</string>
     <string name="menu_item_all_settings">جميع الإعدادات</string>
 
     <!-- #826: warning display controls. -->

@@ -421,6 +421,30 @@ final class KeepADBNetworkTrustPrompt {
         }
     }
 
+    /**
+     * #904: the notification privacy switch was turned on. A prompt that is already posted with
+     * the network name, the BSSID and the Allow/Block buttons would stay that way until it is
+     * posted again, so it is cancelled at once. It is not re-posted in the neutral form: the
+     * prompt history does not reliably name the access point of the posted notification (a
+     * locked-device re-show posts without recording it), and a neutral prompt for the wrong
+     * access point would open the wrong decision. Cancelling decides nothing (#766); the question
+     * comes back in the neutral form after the repeat interval. A neutral prompt, or another
+     * notification under the same id, is left alone.
+     */
+    static void applyNotificationPrivacy(Context context) {
+        NotificationManager manager = context.getApplicationContext()
+                .getSystemService(NotificationManager.class);
+        if (manager == null) return;
+        Notification posted = null;
+        for (android.service.notification.StatusBarNotification active
+                : manager.getActiveNotifications()) {
+            if (active.getId() == NOTIFICATION_ID) posted = active.getNotification();
+        }
+        // Only the form with details has buttons; the neutral form has nothing to take away.
+        if (posted == null || posted.actions == null || posted.actions.length == 0) return;
+        cancel(context);
+    }
+
     static void cancel(Context context) {
         NotificationManager manager = context.getApplicationContext()
                 .getSystemService(NotificationManager.class);
@@ -443,12 +467,13 @@ final class KeepADBNetworkTrustPrompt {
             return false;
         }
         ensureChannel(localized, manager);
-        // #592: network name and BSSID only go into the notification when the user opted in.
+        // #592/#904: network name and BSSID go into the notification unless the notification privacy
+        // switch is on.
         // #598/#766: without the opt-in the user could not see which network an action would
         // affect, so that mode has no action buttons at all (F3 of #758): the neutral text points
         // to the app, and tapping the notification opens the decision dialog, which names the
         // network before anything can be trusted or blocked (see decisionIntent).
-        boolean details = KeepADBPreferences.isNotificationDetailsEnabled(context);
+        boolean details = !KeepADBPreferences.isNotificationPrivacyEnabled(context);
         String displayBssid = bssid.toUpperCase(Locale.ROOT);
         String displayLabel = label != null && label.equalsIgnoreCase(bssid)
                 ? displayBssid : label;

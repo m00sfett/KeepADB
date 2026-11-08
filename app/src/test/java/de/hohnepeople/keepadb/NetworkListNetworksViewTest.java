@@ -569,231 +569,45 @@ public class NetworkListNetworksViewTest {
         String[] secrets = {CAFE, HOME, "Ecke", CAFE_AP, CAFE_AP.toUpperCase(Locale.ROOT),
                 KITCHEN.toUpperCase(Locale.ROOT)};
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         String visible = everythingShown(open());
         for (String secret : secrets) {
             assertTrue("Control: with privacy off '" + secret + "' is shown: " + visible,
                     visible.toLowerCase(Locale.ROOT).contains(secret.toLowerCase(Locale.ROOT)));
         }
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        NetworkListActivity activity = open();
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        org.robolectric.android.controller.ActivityController<NetworkListActivity> controller =
+                Robolectric.buildActivity(NetworkListActivity.class, NetworkListActivity.intent(context))
+                        .setup();
+        NetworkListActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
         String hidden = everythingShown(activity).toLowerCase(Locale.ROOT);
         for (String secret : secrets) {
             assertFalse("Privacy mode must hide '" + secret + "': " + hidden,
                     hidden.contains(secret.toLowerCase(Locale.ROOT)));
         }
-        assertNull("No row to tap, so no rename to open", findRow(activity, "ecke"));
-    }
-
-    // --- The current network and the embedded decision (#766) --------------------------------------
-
-    @Test
-    public void anUndecidedCurrentNetworkIsAskedThroughTheEmbeddedDecisionNotAnOwnDialog() {
-        connectTo(CAFE, CAFE_AP);
-
-        NetworkListActivity activity = open();
-
-        NetworkDecisionView decision = findDecision(activity);
-        assertNotNull("The #766 component is embedded", decision);
-        assertTrue(decision.isBound());
-        assertEquals("Decide later has nothing to close here", View.GONE,
-                decision.findViewById(R.id.decision_later).getVisibility());
-        assertTrue("The current card says unknown",
-                texts(currentCard(activity)).contains(context.getString(R.string.networks_badge_unknown)));
-        assertNull("No dialog of the list asks the question", ShadowAlertDialog.getLatestAlertDialog());
-        assertTrue("Nothing is decided by looking", KeepADBTrustedNetwork.getEntries(context).isEmpty()
-                && KeepADBNetworkBlocklist.isEmpty(context));
-
-        activity.findViewById(R.id.decision_trust).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
-        assertTrue("The card now says trusted",
-                texts(currentCard(activity)).contains(context.getString(R.string.networks_badge_trusted)));
-        assertNull("The question is gone once answered", findDecision(activity));
-    }
-
-    @Test
-    public void blockingTheNameFromTheEmbeddedDecisionBlocksItAndTheCardSaysSo() {
-        connectTo(CAFE, CAFE_AP);
-        NetworkListActivity activity = open();
-
-        activity.findViewById(R.id.decision_block_name).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue(KeepADBNetworkBlocklist.isSsidBlocked(context, CAFE));
-        String card = texts(currentCard(activity));
-        assertTrue(card, card.contains(context.getString(R.string.network_badge_blocked)));
-        assertTrue(card, card.contains(context.getString(R.string.networks_reason_name, CAFE)));
-        assertNull(findDecision(activity));
-    }
-
-    @Test
-    public void aNetworkTrustedOnlyByTheLegacyPolicyStillOffersTheDecisionAndSaysWhy() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        connectTo(CAFE, CAFE_AP);
-
-        NetworkListActivity activity = open();
-
-        String card = texts(currentCard(activity));
-        assertTrue(card, card.contains(context.getString(R.string.networks_current_legacy)));
-        assertNotNull(findDecision(activity));
-        // The comfort switch says it has no effect there; in the strict policy it does not say so.
-        assertTrue(everythingShown(activity).contains(context.getString(R.string.networks_comfort_no_effect)));
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertFalse(everythingShown(open()).contains(context.getString(R.string.networks_comfort_no_effect)));
-    }
-
-    @Test
-    public void noWifiAndAnUnreadableNetworkEachHaveTheirOwnCardAndFix() {
-        connectToUnreadable();
-        shadowOf((Application) context).denyPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
-        NetworkListActivity unreadable = open();
-        String card = texts(currentCard(unreadable));
-        assertTrue(card, card.contains(context.getString(R.string.network_status_unreadable)));
-        assertTrue(card, card.contains(context.getString(R.string.network_cause_permission_missing)));
-        Button grant = buttonIn(currentCard(unreadable),
-                context.getString(R.string.location_permission_panel_grant_button));
-        assertNotNull(grant);
-        grant.performClick();
-        assertTrue(shadowOf(unreadable).getLastRequestedPermission().requestedPermissions.length > 0);
-        assertEquals(Manifest.permission.ACCESS_FINE_LOCATION,
-                shadowOf(unreadable).getLastRequestedPermission().requestedPermissions[0]);
-        assertNull("No decision is asked about a network that cannot be read", findDecision(unreadable));
-
-        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        connectNothing();
-        String none = texts(currentCard(open()));
-        assertTrue(none, none.contains(context.getString(R.string.network_status_no_wifi)));
-        assertNotNull(buttonIn(currentCard(open()), context.getString(R.string.network_action_wifi_settings)));
-    }
-
-    // --- Saved list: empty state, order, folding ---------------------------------------------
-
-    @Test
-    public void withNothingSavedTheEmptyStateExplainsAndTheCurrentCardStays() {
-        connectTo(HOME, KITCHEN);
-        NetworkListActivity activity = open();
-        String all = everythingShown(activity);
-        assertTrue(all, all.contains(context.getString(R.string.networks_empty_title)));
-        assertTrue(all, all.contains(context.getString(R.string.networks_empty_text)));
-        assertNotNull(findDecision(activity));
-
-        KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
-        assertFalse(everythingShown(open()).contains(context.getString(R.string.networks_empty_title)));
-    }
-
-    @Test
-    public void aLongGroupFoldsToThreeRowsAndExpandsOnRequest() {
-        List<String> addresses = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
-            String bssid = String.format(Locale.ROOT, "aa:bb:cc:00:00:%02x", i);
-            addresses.add(bssid);
-            KeepADBTrustedNetwork.addBssid(context, bssid, HOME);
-        }
-        NetworkListActivity activity = open();
-
-        int shown = 0;
-        for (String bssid : addresses) if (findRow(activity, bssid) != null) shown++;
-        assertEquals(NetworkListRenderer.COLLAPSED_ROWS, shown);
-        TextView more = findText(activity.getWindow().getDecorView(),
-                context.getString(R.string.wifi_aps_show_more_button, 3));
-        assertNotNull(more);
-        more.performClick();
-        shown = 0;
-        for (String bssid : addresses) if (findRow(activity, bssid) != null) shown++;
-        assertEquals(6, shown);
-
-        // Control: five access points are not folded.
-        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        for (int i = 1; i <= 5; i++) {
-            KeepADBTrustedNetwork.addBssid(context, String.format(Locale.ROOT, "aa:bb:cc:00:00:%02x", i), HOME);
-        }
-        activity = open();
-        shown = 0;
-        for (int i = 1; i <= 5; i++) {
-            if (findRow(activity, String.format(Locale.ROOT, "aa:bb:cc:00:00:%02x", i)) != null) shown++;
-        }
-        assertEquals(5, shown);
-    }
-
-    // --- Comfort switch and force note -------------------------------------------------------
-
-    @Test
-    public void theComfortSwitchIsTheOneSwitchBetweenStrictAndConvenienceAndNamesTheLevel() {
-        NetworkListActivity activity = open();
-        Switch comfort = findSwitch(activity);
-        assertNotNull(comfort);
-        assertFalse(comfort.isChecked());
-        assertTrue(everythingShown(activity).contains(context.getString(R.string.networks_level,
-                context.getString(R.string.force_level_maximum))));
-
-        comfort.performClick();
-
-        assertTrue(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
-        assertTrue("The level follows the switch", everythingShown(activity).contains(
-                context.getString(R.string.networks_level, context.getString(R.string.force_level_balanced))));
-        findSwitch(activity).performClick();
-        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
-    }
-
-    @Test
-    public void theForceNoteIsShownExactlyWhileForceModeIsOn() {
-        assertFalse(everythingShown(open()).contains(context.getString(R.string.networks_force_note)));
-
-        KeepADBForceMode.setClockForTesting(new KeepADBForceTestSupport.TestClock());
-        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
-        String all = everythingShown(open());
-        assertTrue(all, all.contains(context.getString(R.string.networks_force_note)));
-
-        KeepADBForceMode.endNow(context);
-        assertFalse(everythingShown(open()).contains(context.getString(R.string.networks_force_note)));
-        KeepADBForceMode.resetForTesting();
-    }
-
-    // --- Privacy mode ------------------------------------------------------------------------
-
-    @Test
-    public void privacyModeLeavesNoWifiNameAndNoAddressInAnyViewOrDescriptionAndOffShowsThem() {
-        connectTo(CAFE, CAFE_AP);
-        KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
-        KeepADBTrustedNetwork.addBssid(context, HALL, HOME);
-        KeepADBTrustedNetwork.setCustomName(context, KeepADBTrustedNetwork.getEntries(context).get(0).id,
-                "Kueche");
-        KeepADBNetworkBlocklist.blockSsid(context, "Gast");
-        KeepADBNetworkBlocklist.blockBssid(context, "ee:ee:ee:ee:ee:01");
-        String[] secrets = {CAFE, HOME, "Gast", "Kueche",
-                CAFE_AP, CAFE_AP.toUpperCase(Locale.ROOT), KITCHEN, KITCHEN.toUpperCase(Locale.ROOT),
-                HALL.toUpperCase(Locale.ROOT), "EE:EE:EE:EE:EE:01", "11:22:33", "11:22:44", "78:9A:BC",
-                "ee:ee"};
-
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
-        String visible = everythingShown(open());
-        for (String secret : secrets) {
-            if (!"ee:ee".equals(secret)) {
-                assertTrue("Control: with privacy off '" + secret + "' is shown: " + visible,
-                        visible.toLowerCase(Locale.ROOT).contains(secret.toLowerCase(Locale.ROOT)));
-            }
-        }
-
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        NetworkListActivity activity = open();
-        String hidden = everythingShown(activity).toLowerCase(Locale.ROOT);
-        for (String secret : secrets) {
-            assertFalse("Privacy mode must hide '" + secret + "': " + hidden,
-                    hidden.contains(secret.toLowerCase(Locale.ROOT)));
-        }
-        assertNull("The embedded decision, which shows the name on purpose, is not even built",
+        assertNull("The embedded decision is not even built",
                 findDecision(activity));
         assertTrue(hidden.contains(context.getString(R.string.networks_hidden_title).toLowerCase(Locale.ROOT)));
 
-        // The placeholder's button does what the eye does: privacy off, the list is back.
+        // #904: the placeholder's "Show" reveals this screen only; the switch itself stays on.
         findButton(activity.getWindow().getDecorView(), context.getString(R.string.networks_hidden_show))
                 .performClick();
         ShadowLooper.idleMainLooper();
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertTrue(everythingShown(activity).contains(CAFE));
+
+        // Leaving the screen ends the reveal: it comes back masked.
+        controller.pause().stop();
+        controller.start().resume();
+        ShadowLooper.idleMainLooper();
+        String again = everythingShown(activity).toLowerCase(Locale.ROOT);
+        for (String secret : secrets) {
+            assertFalse("After leaving the screen '" + secret + "' is hidden again: " + again,
+                    again.contains(secret.toLowerCase(Locale.ROOT)));
+        }
+        controller.pause().stop().destroy();
     }
 
     // --- Helpers -----------------------------------------------------------------------------

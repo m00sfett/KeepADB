@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #904: the three privacy switches (app, notifications, widgets and tile). Included by the
+     Settings and inflated onto the intro page of the setup assistant; behavior lives in
+     KeepADBPrivacySwitches, so both places read and write the same three preferences. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/privacy_switches"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/privacy_switches_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="@string/privacy_switches_hint"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+    <Switch
+        android:id="@+id/privacy_switch_app"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="48dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/privacy_app_title"
+        android:textColor="@color/text_yellow"
+        android:textSize="17sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/privacy_app_body"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+    <Switch
+        android:id="@+id/privacy_switch_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:minHeight="48dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/privacy_notifications_title"
+        android:textColor="@color/text_yellow"
+        android:textSize="17sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/privacy_notifications_body"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+    <Switch
+        android:id="@+id/privacy_switch_widgets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:minHeight="48dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/privacy_widgets_title"
+        android:textColor="@color/text_yellow"
+        android:textSize="17sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/privacy_widgets_body"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+</LinearLayout>

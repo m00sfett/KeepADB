@@ -148,14 +148,17 @@ When automatic enabling encounters a readable access point that is neither trust
 KeepADB shows the “New Wi-Fi network / new access point detected” notice (#446, #766). It has two
 forms and one tap target.
 
-- **With notification details:** the name and BSSID appear in the text, with two buttons: “Yes,
-  allow” (requires unlocking/authentication) and “No, block.” The second button now actually blocks
-  the access point, by BSSID only and not by name; previously it only dismissed the notice.
-- **Without details (default):** the notice shows no name and has no buttons; tapping it opens the
+- **Notification privacy off (default since #904):** the name and BSSID appear in the text, with
+  two buttons: “Yes, allow” (requires unlocking/authentication) and “No, block.” The second button
+  actually blocks the access point, by BSSID only and not by name.
+- **Notification privacy on:** the notice shows no name and has no buttons; tapping it opens the
   app. Neither form's public lock-screen version shows a name, address, action, or destination.
+  An installation that updated from a version before #904 starts in this form (see
+  [New-installation defaults](defaults.md)).
 - **Tap:** opens the “Trust this network?” dialog (`NetworkDecisionActivity`: a dialog screen,
   absent from the recent-apps list and never shown over the lock screen). It shows the Wi-Fi name
-  and access-point BSSID, deliberately even in privacy mode, and offers: Trust, “Block this access
+  and access-point BSSID, masked while the app privacy switch is on (#904; a “Show” button in the
+  dialog lifts that for the dialog until it is left or the screen stops), and offers: Trust, “Block this access
   point only,” “Always block Wi-Fi name…” (unavailable if the name is hidden or unreadable), and
   “Decide later.” If the convenience switch is on, a note explains that other access points with
   this name will also be accepted. The dialog is built as a reusable view
@@ -166,7 +169,9 @@ forms and one tap target.
 device, and dismissing the notice do not change status. The same access point is not prompted again
 for at least 24 hours (previously 6 hours); a blocked access point is never prompted.
 
-**Locked device.** The notice stays neutral (no name; #578/#592/#598). The dialog appears only
+**Locked device.** On the lock screen Android shows the notice's public version, which names no
+network (#578). Only if the notification privacy switch is off and Android is set to show sensitive
+content on the lock screen does the notice with name and BSSID appear there (#592/#904). The dialog appears only
 after the device is unlocked: the activity has neither `showWhenLocked` nor `turnScreenOn`, so
 Android requires unlocking before opening it, and it checks the screen lock itself as well. While
 the screen is locked, it does not bind a name or address; when paused (screen off or another app),
@@ -248,9 +253,11 @@ on, the level is labeled “Name allowlist (previous setting)” because the sav
 beyond names derived from trusted access points. Under the previous “All Wi-Fi networks” setting,
 the switch has no effect and the list says so.
 
-**Privacy mode.** It replaces the entire list with a placeholder. No views or descriptions with
-Wi-Fi names or BSSIDs are built, including the embedded decision view that deliberately shows the
-name (#766). The Settings count (“3 trusted · 1 blocked”) becomes “Hidden.”
+**Privacy (app switch, #904).** It replaces the entire list with a placeholder. No views or
+descriptions with Wi-Fi names or BSSIDs are built, including the embedded decision view (#766).
+The Settings count (“3 trusted · 1 blocked”) becomes “Hidden.” “Show” in the placeholder lifts
+this for the list until the screen stops; it does not change the switch. In the setup assistant
+the same “Show” belongs to the network page only and ends when the page changes.
 
 **Limit.** A block can affect only a network whose name or address is readable. If the network
 cannot be read and the previous “All Wi-Fi networks” setting is active, KeepADB continues enabling
@@ -322,8 +329,8 @@ An older app ignores the keys: rolling back loses only the names in the list; tr
 unchanged. (If an older version later blocks the same address without knowing these name keys,
 old name remnants for that address may reappear in the list as display text only.) Names never leave
 the device: they are not included in diagnostics, the webhook, or any notification. The list shows
-them only while privacy mode is off (privacy mode replaces the whole list, including custom names
-for blocks).
+them only while the app privacy switch is off or the screen was revealed with “Show” (the switch
+replaces the whole list, including custom names for blocks).
 
 Code evidence: `KeepADBTrustPrecedenceTest` (precedence in both directions),
 `KeepADBTrustMigrationTest` (same decision as 1.9.28 for every saved state, no rewrite, rollback),
@@ -466,8 +473,8 @@ a custom display name, entered through the pencil action. A custom name is local
 40 characters, and changes neither the SSID nor any trust decision: the BSSID remains authoritative.
 For a blocked access point, the custom name belongs to the block and disappears when the block is
 lifted; trusting a blocked access point carries the name to the trusted entry, and blocking a
-trusted access point carries its custom name to the block. When privacy mode is on, the whole list
-is replaced by a placeholder, including custom names.
+trusted access point carries its custom name to the block. When the app privacy switch is on, the
+whole list is replaced by a placeholder, including custom names.
 
 The BSSID line may include a band in parentheses, for example
 `AA:BB:CC:DD:EE:01 (5 GHz)`. If no band is known, the address appears without parentheses or

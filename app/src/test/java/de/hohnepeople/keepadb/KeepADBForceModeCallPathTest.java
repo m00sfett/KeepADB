@@ -80,7 +80,7 @@ public class KeepADBForceModeCallPathTest {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);
     }

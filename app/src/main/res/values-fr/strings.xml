@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">Ouvrir les paramètres des notifications</string>
     <string name="notification_permission_missing_text">Accordez WRITE_SECURE_SETTINGS depuis un PC via adb shell pm grant</string>
     <string name="action_settings">Paramètres</string>
-    <string name="privacy_toggle_enable_accessibility">Activer le mode confidentialité (masquer les adresses réseau)</string>
-    <string name="privacy_toggle_disable_accessibility">Désactiver le mode confidentialité (afficher les adresses réseau)</string>
+    <string name="privacy_menu_show_screen">Afficher sur cet écran</string>
+    <string name="privacy_menu_hide_screen">Masquer sur cet écran</string>
+    <string name="privacy_eye_masked_accessibility">Options de confidentialité. Les détails sont masqués sur cet écran.</string>
+    <string name="privacy_eye_shown_accessibility">Options de confidentialité. Les détails sont affichés sur cet écran.</string>
+    <string name="menu_item_state_on">Activé</string>
+    <string name="menu_item_state_off">Désactivé</string>
+    <string name="privacy_switches_title">Confidentialité</string>
+    <string name="privacy_switches_hint">Facultatif, tout est désactivé par défaut. Chaque commutateur masque les noms Wi-Fi, les adresses et les ports dans sa propre zone uniquement.</string>
+    <string name="privacy_app_title">Masquer dans l’application</string>
+    <string name="privacy_app_body">Masque les noms Wi-Fi, les adresses des points d’accès, les adresses IP et l’hôte du webhook sur chaque écran et dans chaque boîte de dialogue. « Afficher » les révèle jusqu’à ce que vous quittiez l’écran.</string>
+    <string name="privacy_notifications_title">Masquer dans les notifications</string>
+    <string name="privacy_notifications_body">Les notifications n’affichent que l’état, sans port, adresse IP, profil USB ni nom Wi-Fi. Un avis sur un nouveau Wi-Fi n’a alors pas de boutons et ouvre l’application. Tant que cette option est désactivée, ces détails peuvent aussi apparaître sur l’écran de verrouillage.</string>
+    <string name="privacy_widgets_title">Masquer dans les widgets et la vignette</string>
+    <string name="privacy_widgets_body">Le widget de l’écran d’accueil et la vignette des réglages rapides n’affichent que l’état, sans port ni adresse.</string>
+    <string name="usb_profile_hidden_numbered">Profil %1$d</string>
     <string name="title_settings">Paramètres</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">Notification persistante</string>
     <string name="settings_hide_notification_subtext">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.</string>
     <string name="settings_hide_notification_subtext_keepalive">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
-    <string name="settings_notification_details_toggle">Afficher les détails de connexion dans les notifications</string>
-    <string name="settings_notification_details_subtext">Affiche le port et l’adresse IP dans la notification d’état persistante, le profil hôte USB (nom, IP, hôte) ainsi que le nom et le BSSID des nouveaux réseaux Wi-Fi dans les notifications. Activé, ces détails peuvent aussi apparaître sur l’écran de verrouillage. Désactivé, ils ne sont visibles que dans l’application.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>
@@ -496,12 +507,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_protection_keep_alive_off">S’applique dès que Keep-Alive est activé.</string>
     <string name="onboarding_customize_show">Personnaliser ▾</string>
     <string name="onboarding_customize_hide">Personnaliser ▴</string>
-    <string name="onboarding_details_title">Écran de verrouillage</string>
-    <string name="onboarding_details_question">Les notifications doivent-elles afficher adresses et noms Wi-Fi ?</string>
-    <string name="onboarding_details_off_body">Les notifications n’indiquent que l’état. Ni adresses ni noms Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Affiche l’adresse IP et le port, le profil USB et les noms des nouveaux réseaux Wi-Fi dans les notifications. Selon les réglages Android, aussi sur l’écran de verrouillage.</string>
-    <string name="onboarding_details_value_on">Détails affichés</string>
-    <string name="onboarding_details_value_off">Aucun détail</string>
     <string name="onboarding_summary_title">Configuration terminée</string>
     <string name="onboarding_summary_hint">Touchez une ligne pour la modifier. Vous pouvez tout changer plus tard dans Réglages → Assistant de configuration.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive est désactivé. Vous pouvez l’activer à tout moment sur l’écran d’accueil.</string>
@@ -532,7 +537,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_perm_force_note">Nécessaire de nouveau après la fin du mode forcé.</string>
     <string name="onboarding_network_title">Wi-Fi approuvé</string>
     <string name="onboarding_network_question">KeepADB doit-il faire confiance au Wi-Fi auquel vous êtes connecté en ce moment ?</string>
-    <string name="onboarding_network_privacy_note">En mode confidentialité, le nom n’est affiché qu’ici et lorsque vous approuvez un réseau.</string>
+    <string name="onboarding_network_privacy_note">La confidentialité est activée : le nom et l’adresse restent masqués jusqu’à ce que vous touchiez « Afficher ».</string>
     <string name="onboarding_network_open_list">Modifier dans la liste des réseaux</string>
     <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle du débogage sans fil à un serveur à toi, par exemple dans ton réseau domestique ou ton VPN. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
     <string name="onboarding_protection_force_title">Confort maximal (mode forcé)</string>
@@ -555,7 +560,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Langue</string>
-    <string name="menu_item_privacy_mode">Mode de confidentialité</string>
     <string name="menu_item_all_settings">Tous les paramètres</string>
 
     <!-- #826: warning display controls. -->

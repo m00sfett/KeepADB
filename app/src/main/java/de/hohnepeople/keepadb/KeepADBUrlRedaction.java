@@ -28,8 +28,9 @@ import java.util.Locale;
  *       subnet). Any IPv6 literal — bracketed or not, compressed or not, with or without a zone
  *       id — collapses to {@link #IPV6_MASK}: IPv6 addresses are frequently globally routable and
  *       have no octet boundary that would make a partial mask meaningful. A registered name
- *       (DNS host) is kept: it is the only remaining hint about which register the app talks to,
- *       and it is not an address of the user's local network.</li>
+ *       (DNS host) is kept in these two renderings: it is the only remaining hint about which
+ *       register the app talks to. The privacy display ({@link #forDisplay(String, boolean)}
+ *       with the mode on) masks it since #904.</li>
  *   <li><b>Port</b> — kept. It is load-bearing for diagnosis ("did it report to :50829?") and is
  *       not secret on its own. A port that cannot be recognised as digits is dropped together with
  *       the ambiguous host it belongs to.</li>
@@ -86,7 +87,8 @@ final class KeepADBUrlRedaction {
     /**
      * #550: the webhook URL's actual display entry point. While the privacy mode is on, the host
      * keeps the stricter #483 rule — an IPv4 literal keeps only its first octet, IPv6 literals stay
-     * fully masked, hostnames stay readable. While the privacy mode is off, the host is shown
+     * fully masked, and since #904 a registered name (DNS host) is masked too ({@link
+     * KeepADBAddressMask#MASKED}); port and path stay. While the privacy mode is off, the host is shown
      * exactly as stored — no octet masking, no IPv6 masking — because the open-eye toggle means the
      * user explicitly chose to see the full endpoint. Userinfo, query and fragment are stripped or
      * masked either way: they are secret material (#350/#378), not the local-network host hint this
@@ -198,7 +200,12 @@ final class KeepADBUrlRedaction {
         String[] parts = host.split("\\.", -1);
         if (!(parts.length == 4 && areDecimalOctets(parts))) {
             Long address = parseIpv4Address(host);
-            if (address == null) return host;
+            if (address == null) {
+                // A registered name (DNS host). The #350 log/display rule keeps it as the only
+                // hint about which register the app talks to; the privacy display (#904) does
+                // not, because the name itself can identify the user's server or network.
+                return visibleOctets < DEFAULT_VISIBLE_OCTETS ? KeepADBAddressMask.MASKED : host;
+            }
             parts = new String[] {
                 String.valueOf((address >>> 24) & 0xff),
                 String.valueOf((address >>> 16) & 0xff),

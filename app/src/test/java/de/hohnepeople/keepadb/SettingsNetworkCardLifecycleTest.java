@@ -72,7 +72,7 @@ public class SettingsNetworkCardLifecycleTest {
 
     @Before
     public void setUp() {
-        prefs().edit().clear().commit();
+        resetPrefs();
         activityPrefs().edit().clear().commit();
         shadowOf((Application) context).denyPermissions(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -86,7 +86,7 @@ public class SettingsNetworkCardLifecycleTest {
 
     @After
     public void tearDown() {
-        prefs().edit().clear().commit();
+        resetPrefs();
         activityPrefs().edit().clear().commit();
         KeepADB.resetForTesting();
     }
@@ -293,7 +293,7 @@ public class SettingsNetworkCardLifecycleTest {
                 for (boolean fine : new boolean[] {false, true}) {
                     for (boolean background : new boolean[] {false, true}) {
                         for (int connection = 0; connection < 3; connection++) {
-                            prefs().edit().clear().commit();
+                            resetPrefs();
                             activityPrefs().edit().clear().commit();
                             ShadowDialog.reset();
                             setPermission(Manifest.permission.ACCESS_FINE_LOCATION, fine);
@@ -511,6 +511,16 @@ public class SettingsNetworkCardLifecycleTest {
             }
         }
         return found;
+    }
+
+    /**
+     * A new installation as the application leaves it at its first start: nothing stored but the
+     * marker of the privacy migration (#904). Clearing alone would drop that marker, and the first
+     * read of a privacy switch would then migrate the half-built state as an "existing" one.
+     */
+    private void resetPrefs() {
+        prefs().edit().clear().commit();
+        KeepADBPreferences.migratePrivacySplit(context);
     }
 
     private SharedPreferences prefs() {

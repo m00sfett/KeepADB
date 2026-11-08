@@ -216,8 +216,8 @@ public class KeepADBPreferencesTest {
     @Test
     public void testPrivacyModeOffLeavesDisplayValuesUntouched() {
         FakeContext context = new FakeContext();
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals("192.168.1.100",
                 KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
         assertEquals("[fe80::1%wlan0]:50829",
@@ -232,15 +232,15 @@ public class KeepADBPreferencesTest {
     /** #509: a new installation starts with privacy masking disabled (addresses fully visible). */
     @Test
     public void testPrivacyModeDefaultsToDisabled() {
-        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(new FakeContext()));
+        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(new FakeContext()));
     }
 
     /** #483: with the privacy toggle on, addresses are masked and ports stay readable. */
     @Test
-    public void testPrivacyModeOnMasksAddressesButKeepsPortsAndHostnames() {
+    public void testPrivacyModeOnMasksAddressesButKeepsPortsAndMasksTheWebhookHostName() {
         FakeContext context = new FakeContext();
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals("192.*.*.*", KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
         assertEquals("192.*.*.*:5555",
                 KeepADBPreferences.maskEndpointForDisplay(context, "192.168.1.100:5555"));
@@ -249,9 +249,26 @@ public class KeepADBPreferencesTest {
         assertEquals("http://100.*.*.*:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
-        assertEquals("https://register.example:50829/register/s20",
+        // #904: a registered name in the webhook address is masked too; the port stays.
+        assertEquals("https://***:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "https://register.example:50829/register/s20"));
+    }
+
+    /** #904: the app display masks a registered name in every host rendering; off, nothing changes. */
+    @Test
+    public void testPrivacyModeMasksRegisteredNamesInEndpointAndHostRenderings() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
+        assertEquals("phone.tailnet.ts.net:41234",
+                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+        assertEquals("phone.tailnet.ts.net",
+                KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
+
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        assertEquals("***:41234",
+                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+        assertEquals("***", KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
     }
 
     /** #483: masking is display-only — the stored originals must survive a toggle round trip. */
@@ -261,7 +278,7 @@ public class KeepADBPreferencesTest {
         String url = "http://100.111.111.21:50829/register/s20";
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.100:5555");
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBPreferences.maskWebhookUrlForDisplay(
                 context, KeepADBPreferences.getRegisterWebhookUrl(context));
         KeepADBPreferences.maskEndpointForDisplay(
@@ -269,7 +286,7 @@ public class KeepADBPreferencesTest {
         assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
         assertEquals("192.168.1.100:5555",
                 KeepADBPreferences.getWebhookLastReportedEndpoint(context));
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
         assertEquals("192.168.1.100:5555",
                 KeepADBPreferences.getWebhookLastReportedEndpoint(context));

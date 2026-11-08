@@ -23,6 +23,109 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.4] - Unreleased
+
+### Changed
+- **Privacy is three independent opt-in switches (#904):** the single privacy mode is split by
+  area, each switch masking only its own: **app** (every screen and dialog: setup assistant, trust
+  decision, Networks list, report history, webhook field, USB host profiles, shared diagnostics,
+  toasts), **notifications** (every KeepADB notification, lock screen included) and **widgets**
+  (the home-screen widget and the Quick Settings tile). While a switch is on, no Wi-Fi name and no
+  unmasked BSSID or address appears in its area; notifications and widgets omit the data (port
+  included) and have no reveal, while the app shows partial masks (see below). All three are off on a new installation (`docs/defaults.md`).
+- **App switch with a per-screen “Show”:** the app switch is the former `privacy_mode_enabled`
+  (key and stored value unchanged). A
+  deliberate “Show” (Networks list placeholder, assistant and dialog decision view, webhook field,
+  USB profile dialog) lifts the mask for that one part only (a scope: the list, the assistant
+  page, the dialog, the field), never for the rest of the screen; it ends when that part ends
+  (assistant page change, dialog dismissed), the screen stops or is recreated, or the switch is
+  turned on again, and never changes the stored switch. Home screen, Settings network card,
+  report history and the Settings USB line have no “Show” of their own; they follow the eye menu.
+  A still-open unmasked USB dialog is closed when the screen stops, the webhook
+  field is masked again on return. Every host name (DNS or Tailnet name: webhook address,
+  endpoint rows, report history, USB profile hosts) is masked as `***` in the privacy display
+  (`KeepADBAddressMask.maskHost`, user decision of 2026-11-08; the log lines that use it are
+  stricter for names, never weaker). Inside the app the masks are partial by earlier decisions: an
+  IPv4 address keeps its first octet and the port stays visible (`192.*.*.*:41234`), an IPv6
+  address keeps its first group (`fe80:***`), a BSSID keeps its first and last octet
+  (`AA:*:*:*:*:01`); Wi-Fi names are replaced by a placeholder. The setup
+  assistant and the “Trust this network?” dialog no longer show the name and BSSID unmasked in
+  privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
+  them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the
+  privacy mode off for good; it now reveals the list only.
+- **Eye menu instead of a flip (review of PR #917, Q9/Q12–Q15):** the eye in the title bars no
+  longer flips the stored app switch. It opens a menu with “Show on this screen” or “Hide on this
+  screen” (a temporary override of every part of that screen, also while the switch is off; it
+  ends when the screen stops or is recreated, the assistant changes its page, or a switch changes,
+  and it is never stored) and the three stored switches as check items. The home screen's header
+  menu offers the same entries. The icon shows what the screen currently does (crossed-out eye:
+  masked). “Hide on this screen” also hides a part revealed before. Shared diagnostics and toasts
+  that name a network stay masked under “Show on this screen” (and under a part's “Show”), because
+  they can outlive the screen; both are masked under “Hide on this screen”.
+- **No blind trust (Q6):** while the trust decision is masked, “Trust” is disabled until “Show”;
+  “Block” stays available. The Settings network card's “Allow this access point” likewise waits
+  for the eye while the card is masked.
+- **Webhook field and USB profiles masked:** with the app switch on, the saved webhook URL appears
+  with its host masked and a “Show” instead of the editable field; the USB host profile list shows
+  numbered profiles with masked addresses, hides “Edit” until “Show”, and the Settings line names
+  no profile. “Share diagnostics” redacts host, port, BSSID and SSID like the feedback draft.
+- **Setup assistant:** the three switches sit on the intro page below the intro text (also in the
+  variant for existing installations), before any step shows data; they write at once. The
+  “Lock screen” step is removed (5 steps instead of 6): its question is the notification switch.
+- **Settings:** the “Show connection details in notifications” row is replaced by a “Privacy”
+  section with the three switches.
+
+### Security
+- **Deliberate weakening for new installations (#904, decision of 2026-11-07):** the former opt-in
+  “notification details” (#592) hid port, IP address, USB profile, Wi-Fi name and BSSID in
+  notifications by default. The new notification switch is opt-in like the other two and off by
+  default, so a **new** installation shows these details (and the “new Wi-Fi” notice has its
+  Allow/Block buttons; Allow still requires an unlocked device, Block works on the lock screen)
+  until the switch is turned on, on
+  the first page of the assistant or in the Settings. They can appear on the lock screen if
+  Android shows sensitive content there. Documented in `SECURITY.md`, `docs/defaults.md` and the
+  README.
+- **A posted trust notice follows the switch at once:** turning the notification switch on removes
+  an already posted “new Wi-Fi” notice with details (name, BSSID, Allow/Block buttons). It is not
+  re-posted in the neutral form, because the app cannot reliably tell which access point the
+  posted notice was for; removing it decides nothing, and the neutral question returns after the
+  usual repeat interval.
+- **Nothing is loosened for existing installations:** once, at the first start
+  (`KeepADBApplication` → `KeepADBPreferences.migratePrivacySplit`, pattern of #760), the
+  notification switch is derived from `notification_details_enabled` (absent or `false` = details
+  were hidden, so it becomes **on**; `true` = off) and the widget switch is turned on when the old
+  privacy mode was on. The widget and the tile showed the port or host before regardless of the
+  old privacy mode (the tile masked the host); the derived widget switch keeps that surface at
+  least as quiet as before. `privacy_split_initialized` is bookkeeping. The retired key stays
+  stored, unread.
+
+### Fixed
+- The widget showed the port and the tile a host masked only by the app privacy mode, and the
+  main notification followed the app privacy mode as well; the widget and the tile now follow the
+  widget switch, the notifications their own switch, so no area is hidden or shown by another
+  area's switch.
+
+### Removed
+- `LessSecure.NOTIFICATION_DETAILS` and the home-screen less-secure mark for details in
+  notifications: they are the default now, not a deviation. The warning reason id stays in
+  `KeepADBWarningState.Reason` (never active) so a stored warning state remains valid.
+- Strings `settings_notification_details_toggle/_subtext`, `onboarding_details_*` and
+  `menu_item_privacy_mode` (source and all 18 locales); new strings `privacy_*`, `usb_profile_hidden_numbered`,
+  and a reworded `onboarding_network_privacy_note`, translated into all 18 locales.
+
+### Testing
+- New `KeepADBPrivacySplitTest` (migration matrix: new installation, existing with the old privacy
+  mode on/off, existing with `notification_details_enabled` absent/on/off, idempotence, the
+  assistant's existing-install check), `KeepADBApplicationTest` (first start, per-screen reveal and
+  its end), `KeepADBAppPrivacySurfacesTest` (webhook field, USB profiles, shared diagnostics),
+  `OnboardingPrivacySwitchesTest` (intro page, the assistant respecting the switches) and, in
+  `KeepADBMultiStateContractTest`, one test that turns each switch on alone and checks that only
+  its own area (app, notification, widget, tile) loses the endpoint. `KeepADBDefaultsAuditTest`,
+  the decision, Networks list, assistant, notification and warning tests follow the new defaults.
+  Each new test was checked against a deliberate violation (mask never applied, notification
+  following the app switch, a loosening migration, widget or tile ignoring their switch, reveal
+  not ended on stop, intro without switches, unredacted export, raw host names) and went red.
+
 ## [1.11.3] - Unreleased
 
 ### Added

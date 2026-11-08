@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">打开通知设置</string>
     <string name="notification_permission_missing_text">请在电脑上通过 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 权限</string>
     <string name="action_settings">设置</string>
-    <string name="privacy_toggle_enable_accessibility">启用隐私模式（隐藏网络地址）</string>
-    <string name="privacy_toggle_disable_accessibility">关闭隐私模式（显示网络地址）</string>
+    <string name="privacy_menu_show_screen">在此屏幕上显示</string>
+    <string name="privacy_menu_hide_screen">在此屏幕上隐藏</string>
+    <string name="privacy_eye_masked_accessibility">隐私选项。此屏幕上的详细信息已隐藏。</string>
+    <string name="privacy_eye_shown_accessibility">隐私选项。此屏幕上的详细信息已显示。</string>
+    <string name="menu_item_state_on">开</string>
+    <string name="menu_item_state_off">关</string>
+    <string name="privacy_switches_title">隐私</string>
+    <string name="privacy_switches_hint">可选，默认全部关闭。每个开关只在各自的范围内隐藏 Wi-Fi 名称、地址和端口。</string>
+    <string name="privacy_app_title">在应用内隐藏</string>
+    <string name="privacy_app_body">在每个屏幕和每个对话框中遮盖 Wi-Fi 名称、接入点地址、IP 地址和 Webhook 主机。点击“显示”后，在离开该屏幕前会一直显示。</string>
+    <string name="privacy_notifications_title">在通知中隐藏</string>
+    <string name="privacy_notifications_body">通知只显示状态，不含端口、IP 地址、USB 配置或 Wi-Fi 名称。此时新 Wi-Fi 的通知没有按钮，点击后会打开应用。此项关闭时，这些详情也可能出现在锁屏上。</string>
+    <string name="privacy_widgets_title">在小组件和快捷设置磁贴中隐藏</string>
+    <string name="privacy_widgets_body">主屏幕小组件和快捷设置磁贴只显示状态，不含端口或地址。</string>
+    <string name="usb_profile_hidden_numbered">配置 %1$d</string>
     <string name="title_settings">设置</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_section_keep_alive">保持常驻 (Keep-Alive)</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">常驻通知</string>
     <string name="settings_hide_notification_subtext">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。</string>
     <string name="settings_hide_notification_subtext_keepalive">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。\n\nKeep-Alive 开启时，Android 要求前台服务显示此通知，因此开关被锁定。关闭 Keep-Alive 后将重新应用已保存的选择。</string>
-    <string name="settings_notification_details_toggle">在通知中显示连接详情</string>
-    <string name="settings_notification_details_subtext">在常驻状态通知中显示端口和 IP 地址，在通知中显示 USB 主机配置（名称、IP、主机）以及新 Wi-Fi 网络的名称和 BSSID。开启后，这些详情也可能显示在锁屏上。关闭时，仅在应用内显示。</string>
     <string name="settings_section_display">显示屏</string>
     <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
     <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>
@@ -496,12 +507,6 @@
     <string name="onboarding_protection_keep_alive_off">Keep-Alive 开启后生效。</string>
     <string name="onboarding_customize_show">自定义 ▾</string>
     <string name="onboarding_customize_hide">自定义 ▴</string>
-    <string name="onboarding_details_title">锁屏</string>
-    <string name="onboarding_details_question">通知中要显示地址和 Wi-Fi 名称吗？</string>
-    <string name="onboarding_details_off_body">通知只显示状态。不显示地址，也不显示 Wi-Fi 名称。</string>
-    <string name="onboarding_details_on_body">在通知中显示 IP 地址和端口、USB 配置文件以及新 Wi-Fi 网络的名称。视 Android 设置而定，也可能显示在锁屏上。</string>
-    <string name="onboarding_details_value_on">显示详情</string>
-    <string name="onboarding_details_value_off">不显示详情</string>
     <string name="onboarding_summary_title">设置完成</string>
     <string name="onboarding_summary_hint">点按某一行即可更改。之后可随时在“设置”→“设置向导”中更改所有内容。</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive 已关闭。您可以随时在主屏幕上开启。</string>
@@ -532,7 +537,7 @@
     <string name="onboarding_perm_force_note">强制模式结束后会重新用到。</string>
     <string name="onboarding_network_title">已信任的 Wi-Fi</string>
     <string name="onboarding_network_question">KeepADB 是否应信任你当前连接的 Wi-Fi？</string>
-    <string name="onboarding_network_privacy_note">在隐私模式下，名称仅在此处和信任网络时显示。</string>
+    <string name="onboarding_network_privacy_note">隐私已开启：在你点按“显示”之前，名称和地址保持隐藏。</string>
     <string name="onboarding_network_open_list">在网络列表中更改</string>
     <string name="onboarding_webhook_question">可选。把无线调试的当前地址报告给你自己的服务器,例如你家庭网络或 VPN 中的服务器。大多数人不需要。点按“保存 URL”之前不会保存任何内容。</string>
     <string name="onboarding_protection_force_title">最大便利(强制模式)</string>
@@ -555,7 +560,6 @@
     <string name="status_tap_to_open_list">点按以打开网络列表</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">语言</string>
-    <string name="menu_item_privacy_mode">隐私模式</string>
     <string name="menu_item_all_settings">所有设置</string>
 
     <!-- #826: warning display controls. -->

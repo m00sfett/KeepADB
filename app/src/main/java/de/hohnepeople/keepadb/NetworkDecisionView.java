@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Locale;
 
 /**
  * The reusable "Trust this network?" decision (#766): one access point, shown with its Wi-Fi name
@@ -23,11 +22,14 @@ import java.util.Locale;
  * network is blocked). "Decide later" and everything the host does besides answering -- Back, a
  * tap outside a dialog, rotating -- write nothing.
  *
- * <p><strong>Privacy.</strong> The Wi-Fi name and the address are shown even while the privacy mode
- * is on: whoever decides has to see whom they are trusting (decision of #758). That is a deliberate
- * exception for this view only; lists and status lines keep hiding them. It follows that a host
- * must never bind this view while the device is locked, and {@link #clear} removes everything again
- * (see {@link NetworkDecisionActivity}).
+ * <p><strong>Privacy (#904).</strong> While the app privacy switch is on, the Wi-Fi name and the
+ * address are masked like on every other screen; a deliberate "Show" (button in this view) lifts
+ * the mask for the screen that hosts the view, until it is left. Whoever decides can thereby still
+ * see whom they are trusting. "Trust" needs that "Show" (Q6 of the PR #917 review): trusting
+ * lets KeepADB turn Wireless debugging on there automatically, so it is not done blind; blocking
+ * stays available while masked, it only takes something away. Whatever the privacy state, a host must never bind this view while
+ * the device is locked, and {@link #clear} removes everything again (see {@link
+ * NetworkDecisionActivity}).
  */
 public final class NetworkDecisionView extends LinearLayout {
 
@@ -38,16 +40,26 @@ public final class NetworkDecisionView extends LinearLayout {
 
         /** The user chose "decide later": nothing was written. */
         void onDecideLater();
+
+        /**
+         * The user chose "Show": the screen is revealed and this view has redrawn itself. A host
+         * that shows more masked data around the view redraws it here.
+         */
+        default void onRevealed() {}
     }
 
     private final View details;
     private final TextView name;
     private final TextView bssid;
+    private final Button show;
+    private final Button trust;
     private final TextView comfortNote;
     private final Button blockName;
 
     private KeepADBNetworkDecision.Pending pending;
     private Listener listener;
+    /** The reveal scope of the host (#904); a dialog host keeps the default. */
+    private String privacyScope = KeepADBPrivacy.SCOPE_DECISION;
 
     public NetworkDecisionView(Context context) {
         this(context, null);
@@ -60,10 +72,13 @@ public final class NetworkDecisionView extends LinearLayout {
         details = findViewById(R.id.decision_details);
         name = findViewById(R.id.decision_name);
         bssid = findViewById(R.id.decision_bssid);
+        show = findViewById(R.id.decision_show);
         comfortNote = findViewById(R.id.decision_comfort_note);
         blockName = findViewById(R.id.decision_block_name);
 
-        findViewById(R.id.decision_trust).setOnClickListener(v -> trust());
+        bindShow();
+        trust = findViewById(R.id.decision_trust);
+        trust.setOnClickListener(v -> trust());
         findViewById(R.id.decision_block_ap).setOnClickListener(v -> blockAccessPoint());
         blockName.setOnClickListener(v -> blockName());
         findViewById(R.id.decision_later).setOnClickListener(v -> {
@@ -72,22 +87,49 @@ public final class NetworkDecisionView extends LinearLayout {
         clear();
     }
 
+    /**
+     * Which reveal scope the "Show" of this view lifts (#904): an embedding host names its own
+     * page, so a reveal here does not unmask the rest of the screen and vice versa.
+     */
+    void setPrivacyScope(String scope) {
+        privacyScope = scope;
+        bindShow();
+    }
+
+    private void bindShow() {
+        KeepADBPrivacy.bindShowButton(show, privacyScope, () -> {
+            if (pending != null) bind(pending, listener);
+            if (listener != null) listener.onRevealed();
+        });
+    }
+
+    private Context shown() {
+        return KeepADBPrivacy.scoped(getContext(), privacyScope);
+    }
+
     /** Shows the question for {@code access point}; the answers act on exactly this one. */
     void bind(KeepADBNetworkDecision.Pending accessPoint, Listener decisionListener) {
         pending = accessPoint;
         listener = decisionListener;
         Context context = getContext();
         boolean hasName = accessPoint.canBlockName();
-        name.setText(hasName ? accessPoint.ssid : context.getString(R.string.network_decision_name_hidden));
-        bssid.setText(accessPoint.bssid.toUpperCase(Locale.ROOT));
+        // #904: masked while the app privacy switch is on and this screen has no "Show".
+        Context shown = shown();
+        boolean masked = KeepADBNetworkDisplay.hidden(shown);
+        String shownName = hasName ? KeepADBNetworkDisplay.ssid(shown, accessPoint.ssid, null) : null;
+        name.setText(hasName ? shownName : context.getString(R.string.network_decision_name_hidden));
+        bssid.setText(KeepADBNetworkDisplay.bssid(shown, accessPoint.bssid));
+        show.setVisibility(masked ? VISIBLE : GONE);
+        // Q6: no blind trust while the network is masked; "Show" enables it.
+        trust.setEnabled(!masked);
         blockName.setVisibility(hasName ? VISIBLE : GONE);
         if (hasName) {
-            blockName.setText(context.getString(R.string.network_decision_block_name, accessPoint.ssid));
+            blockName.setText(context.getString(R.string.network_decision_block_name, shownName));
         }
         boolean comfort = hasName && KeepADBTrustedNetwork.isTrustByNameEnabled(context);
         comfortNote.setVisibility(comfort ? VISIBLE : GONE);
         if (comfort) {
-            comfortNote.setText(context.getString(R.string.network_decision_comfort_note, accessPoint.ssid));
+            comfortNote.setText(context.getString(R.string.network_decision_comfort_note, shownName));
         }
         details.setVisibility(VISIBLE);
     }
@@ -112,6 +154,7 @@ public final class NetworkDecisionView extends LinearLayout {
         comfortNote.setText("");
         comfortNote.setVisibility(GONE);
         blockName.setText("");
+        show.setVisibility(GONE);
         details.setVisibility(GONE);
     }
 
@@ -122,13 +165,13 @@ public final class NetworkDecisionView extends LinearLayout {
 
     private void trust() {
         KeepADBNetworkDecision.Pending target = pending;
-        if (target == null) return;
+        if (target == null || KeepADBNetworkDisplay.hidden(shown())) return;
         Context context = getContext();
         KeepADBNetworkDecision.TrustResult result = KeepADBNetworkDecision.trust(context, target);
         switch (result.outcome) {
             case TRUSTED:
                 toast(context.getString(R.string.network_ap_allowed_toast,
-                        KeepADBNetworkDisplay.quoted(context, target.ssid == null
+                        KeepADBNetworkDisplay.toastLabel(shown(), target.ssid == null
                                 ? target.bssid : target.ssid, target.bssid)), Toast.LENGTH_SHORT);
                 // #812: the cause comes from the toggle result, not from a second permission read.
                 if (!result.enabled && result.permissionFailure) {

@@ -39,11 +39,18 @@ final class KeepADBWebhookForm {
 
     private final Switch toggle;
     private final EditText urlInput;
+    /** #904: stands in for {@link #urlInput} while the app privacy switch masks the URL. */
+    private final TextView urlMasked;
+    private final android.widget.Button urlShow;
     private final TextView error;
     private final TextView cleartextWarning;
     private final View vpnHint;
 
     private boolean draftInitialized;
+    /** True while this class sets the field itself, so the watcher can tell the user's typing apart. */
+    private boolean programmatic;
+    /** The last change of the field was typed by the user (#904); see {@link #refreshUrlMask}. */
+    private boolean typedByUser;
 
     /** @param onChange invoked after every action that used to end its click listener in refresh(). */
     KeepADBWebhookForm(Activity activity, Runnable onChange) {
@@ -66,6 +73,12 @@ final class KeepADBWebhookForm {
         android.widget.Button clear = root.findViewById(R.id.settings_webhook_clear);
         this.toggle = toggle;
         this.urlInput = urlInput;
+        this.urlMasked = root.findViewById(R.id.settings_webhook_url_masked);
+        this.urlShow = root.findViewById(R.id.settings_webhook_url_show);
+        KeepADBPrivacy.bindShowButton(urlShow, KeepADBPrivacy.SCOPE_WEBHOOK, () -> {
+            refreshVisual();
+            onChange.run();
+        });
         this.error = error;
         this.cleartextWarning = cleartextWarning;
         this.vpnHint = root.findViewById(R.id.settings_webhook_vpn_hint);
@@ -100,6 +113,7 @@ final class KeepADBWebhookForm {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int count, int after) {
+                if (!programmatic) typedByUser = true;
                 String text = s != null ? s.toString().trim().toLowerCase(Locale.ROOT) : "";
                 boolean isHttp = text.startsWith("http://");
                 cleartextWarning.setVisibility(isHttp ? View.VISIBLE : View.GONE);
@@ -118,7 +132,7 @@ final class KeepADBWebhookForm {
     void restoreDraft(Bundle savedInstanceState) {
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
-            urlInput.setText(SettingsActivity.resolveWebhookDraft(
+            setFieldText(SettingsActivity.resolveWebhookDraft(
                     KeepADBPreferences.getRegisterWebhookUrl(activity),
                     savedInstanceState.getString(STATE_WEBHOOK_DRAFT_URL), true));
             draftInitialized = true;
@@ -131,10 +145,39 @@ final class KeepADBWebhookForm {
      */
     void ensureDraftInitialized() {
         if (!draftInitialized) {
-            urlInput.setText(SettingsActivity.resolveWebhookDraft(
+            setFieldText(SettingsActivity.resolveWebhookDraft(
                     KeepADBPreferences.getRegisterWebhookUrl(activity), null, false));
             draftInitialized = true;
         }
+    }
+
+    private void setFieldText(CharSequence text) {
+        programmatic = true;
+        try {
+            urlInput.setText(text);
+        } finally {
+            programmatic = false;
+        }
+    }
+
+    /**
+     * #904: while the app privacy switch is on and the webhook field has no "Show", the field is
+     * replaced by the URL with its host masked (the shared display rule of {@link
+     * KeepADBUrlRedaction#forDisplay(String, boolean)}) and a "Show" button. Focus never lifts the
+     * mask. The one exception is the user's own new input: with no URL saved yet, text typed into
+     * the field is shown as typed, because there is nothing saved to hide. Any text the field
+     * holds while a URL is saved (the saved one, an edit of it, a restored draft) is masked.
+     */
+    private void refreshUrlMask() {
+        String typed = urlInput.getText() == null ? "" : urlInput.getText().toString().trim();
+        String saved = KeepADBPreferences.getRegisterWebhookUrl(activity);
+        boolean ownInput = typedByUser && (saved == null || saved.isEmpty());
+        boolean mask = !typed.isEmpty() && !ownInput
+                && KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_WEBHOOK);
+        urlInput.setVisibility(mask ? View.GONE : View.VISIBLE);
+        urlMasked.setVisibility(mask ? View.VISIBLE : View.GONE);
+        urlShow.setVisibility(mask ? View.VISIBLE : View.GONE);
+        urlMasked.setText(mask ? KeepADBUrlRedaction.forDisplay(typed, true) : "");
     }
 
     /** Call from {@code SettingsActivity#onSaveInstanceState}. */
@@ -149,6 +192,8 @@ final class KeepADBWebhookForm {
         toggle.setChecked(webhookEnabled);
         // #891: the VPN battery hint only matters while reports are actually sent.
         vpnHint.setVisibility(webhookEnabled ? View.VISIBLE : View.GONE);
+
+        refreshUrlMask();
 
         String urlToCheck = (urlInput != null && urlInput.getText() != null)
                 ? urlInput.getText().toString().trim()
@@ -167,7 +212,7 @@ final class KeepADBWebhookForm {
         String inputUrl = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
         String sanitized = KeepADBPreferences.sanitizeWebhookUrl(inputUrl);
         if (sanitized != null && !sanitized.equals(inputUrl)) {
-            urlInput.setText(sanitized);
+            setFieldText(sanitized);
             inputUrl = sanitized;
         }
         return inputUrl;
@@ -266,7 +311,7 @@ final class KeepADBWebhookForm {
     }
 
     private void onClearClicked() {
-        urlInput.setText("");
+        setFieldText("");
         error.setVisibility(View.GONE);
         if (KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
             KeepADBRegisterClient.unregisterAndDisableAsync(activity);

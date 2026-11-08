@@ -52,6 +52,21 @@ final class KeepADBUsbProfile {
             return value.length() > 3 ? value.substring(3) : value.toString();
         }
 
+        /**
+         * #904: {@link #details()} for the app privacy switch: an IP address with the shared
+         * address mask, the two host names fully masked. The profile name is masked by the caller.
+         */
+        String maskedDetails() {
+            StringBuilder value = new StringBuilder();
+            append(value, ipAddress == null || ipAddress.isEmpty()
+                    ? ipAddress : KeepADBAddressMask.maskHost(ipAddress));
+            append(value, hostname == null || hostname.isEmpty()
+                    ? hostname : KeepADBAddressMask.MASKED);
+            append(value, remoteHostname == null || remoteHostname.isEmpty()
+                    ? remoteHostname : KeepADBAddressMask.MASKED);
+            return value.length() > 3 ? value.substring(3) : value.toString();
+        }
+
         private static void append(StringBuilder value, String part) {
             if (part != null && !part.isEmpty()) value.append(" · ").append(part);
         }

@@ -27,8 +27,11 @@ final class KeepADBWarningState {
         FORCE_MODE("force_mode", Card.FORCE, true, false, R.string.force_card_title),
         PROTECTION_ALL_WIFI("protection_all_wifi", Card.LESS_SECURE, true, true,
                 R.string.network_mode_option_all_wifi),
-        NOTIFICATION_DETAILS("notification_details", Card.LESS_SECURE, true, true,
-                R.string.settings_notification_details_toggle),
+        // #904: never active any more (details in notifications are the default now). The id stays
+        // so a state saved by an earlier version, which may name it, remains valid and writable. Not
+        // mutable, so the mute list does not offer a switch for a reason that cannot occur.
+        NOTIFICATION_DETAILS("notification_details", Card.LESS_SECURE, true, false,
+                R.string.privacy_notifications_title),
         WEBHOOK_CLEARTEXT("webhook_cleartext", Card.LESS_SECURE, true, true,
                 R.string.settings_webhook_cleartext_warning),
         NETWORK_IDENTITY_UNAVAILABLE("network_identity_unavailable", Card.PAUSED, false, true,

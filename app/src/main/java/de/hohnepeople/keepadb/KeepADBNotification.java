@@ -217,13 +217,12 @@ final class KeepADBNotification {
 
     private static Notification buildNotification(Context context, String host, int port) {
         String title = context.getString(R.string.notification_title_active, context.getString(R.string.app_name));
-        // #597: the port/IP endpoint string is opt-in, gated behind the same
-        // notification_details_enabled preference #592 introduced for the USB and trust-prompt
-        // notifications. Off (the default) shows only the status; on reproduces the previous,
-        // always-shown "Port <port> @ <ip>" text.
-        CharSequence content = KeepADBPreferences.isNotificationDetailsEnabled(context)
-                ? styledEndpointText(context, host, port)
-                : context.getString(R.string.notification_text_active_hidden);
+        // #597/#904: the port/IP endpoint string follows the notification privacy switch, the same
+        // one the USB and trust-prompt notifications use. While it is on, only the status is
+        // shown; while it is off (the default) the text reads "Port <port> @ <ip>".
+        CharSequence content = KeepADBPreferences.isNotificationPrivacyEnabled(context)
+                ? context.getString(R.string.notification_text_active_hidden)
+                : styledEndpointText(context, host, port);
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
@@ -252,7 +251,7 @@ final class KeepADBNotification {
                 .addExtras(marker)
                 .setOngoing(true)
                 .setShowWhen(false)
-                // #597: publicVersion never carries the endpoint, regardless of the details
+                // #597: publicVersion never carries the endpoint, regardless of the privacy
                 // setting -- same rule #589/#592 already apply to the USB and trust-prompt
                 // notifications. Android only shows it while sensitive lock-screen content is
                 // redacted; with it allowed, the private content above (gated by the check just
@@ -324,7 +323,8 @@ final class KeepADBNotification {
     }
 
     private static CharSequence styledEndpointText(Context context, String host, int port) {
-        String displayHost = KeepADBPreferences.maskHostForDisplay(context, host);
+        // The app privacy switch does not apply here: this notification has its own (#904).
+        String displayHost = host;
         if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
             displayHost = "[" + displayHost + "]";
         }

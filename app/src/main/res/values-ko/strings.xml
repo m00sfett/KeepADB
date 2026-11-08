@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">알림 설정 열기</string>
     <string name="notification_permission_missing_text">PC에서 adb shell pm grant로 WRITE_SECURE_SETTINGS 권한을 부여하세요</string>
     <string name="action_settings">설정</string>
-    <string name="privacy_toggle_enable_accessibility">개인정보 보호 모드 켜기(네트워크 주소 숨기기)</string>
-    <string name="privacy_toggle_disable_accessibility">개인정보 보호 모드 끄기(네트워크 주소 표시)</string>
+    <string name="privacy_menu_show_screen">이 화면에서 표시</string>
+    <string name="privacy_menu_hide_screen">이 화면에서 숨기기</string>
+    <string name="privacy_eye_masked_accessibility">개인정보 보호 옵션. 이 화면에서 세부 정보가 숨겨져 있습니다.</string>
+    <string name="privacy_eye_shown_accessibility">개인정보 보호 옵션. 이 화면에서 세부 정보가 표시됩니다.</string>
+    <string name="menu_item_state_on">켜짐</string>
+    <string name="menu_item_state_off">꺼짐</string>
+    <string name="privacy_switches_title">개인정보 보호</string>
+    <string name="privacy_switches_hint">선택 사항이며 기본값은 모두 꺼짐입니다. 각 스위치는 자기 영역에서만 Wi-Fi 이름, 주소, 포트를 숨깁니다.</string>
+    <string name="privacy_app_title">앱에서 숨기기</string>
+    <string name="privacy_app_body">모든 화면과 대화상자에서 Wi-Fi 이름, 액세스 포인트 주소, IP 주소, 웹훅 호스트를 가립니다. “표시”를 누르면 화면을 벗어날 때까지 보입니다.</string>
+    <string name="privacy_notifications_title">알림에서 숨기기</string>
+    <string name="privacy_notifications_body">알림에는 상태만 표시하며 포트, IP 주소, USB 프로필, Wi-Fi 이름은 포함하지 않습니다. 새 Wi-Fi 알림에는 버튼이 없고 탭하면 앱이 열립니다. 꺼져 있는 동안에는 이러한 세부정보가 잠금 화면에도 표시될 수 있습니다.</string>
+    <string name="privacy_widgets_title">위젯과 타일에서 숨기기</string>
+    <string name="privacy_widgets_body">홈 화면 위젯과 빠른 설정 타일에는 상태만 표시하며 포트나 주소는 표시하지 않습니다.</string>
+    <string name="usb_profile_hidden_numbered">프로필 %1$d</string>
     <string name="title_settings">설정</string>
     <string name="settings_section_general">일반</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">고정 알림</string>
     <string name="settings_hide_notification_subtext">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.</string>
     <string name="settings_hide_notification_subtext_keepalive">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
-    <string name="settings_notification_details_toggle">알림에 연결 세부정보 표시</string>
-    <string name="settings_notification_details_subtext">상시 상태 알림의 포트 및 IP 주소, USB 호스트 프로필(이름, IP, 호스트), 새 Wi-Fi 네트워크의 이름 및 BSSID를 알림에 표시합니다. 켜면 이 세부정보가 잠금 화면에도 표시될 수 있습니다. 끄면 앱에서만 표시됩니다.</string>
     <string name="settings_section_display">디스플레이</string>
     <string name="settings_keep_display_on_toggle">KeepADB가 포그라운드에 있는 동안 화면 켜짐 유지</string>
     <string name="settings_keep_display_on_subtext">이 앱이 열려 있는 동안에만 화면을 켜진 상태로 유지합니다. 앱을 벗어나면 화면은 평소처럼 꺼집니다.</string>
@@ -496,12 +507,6 @@
     <string name="onboarding_protection_keep_alive_off">Keep-Alive가 켜져 있을 때 적용됩니다.</string>
     <string name="onboarding_customize_show">맞춤 설정 ▾</string>
     <string name="onboarding_customize_hide">맞춤 설정 ▴</string>
-    <string name="onboarding_details_title">잠금 화면</string>
-    <string name="onboarding_details_question">알림에 주소와 Wi-Fi 이름을 표시할까요?</string>
-    <string name="onboarding_details_off_body">알림에는 상태만 표시합니다. 주소도 Wi-Fi 이름도 표시하지 않습니다.</string>
-    <string name="onboarding_details_on_body">알림에 IP 주소와 포트, USB 프로필, 새 Wi-Fi 네트워크 이름을 표시합니다. Android 설정에 따라 잠금 화면에도 표시될 수 있습니다.</string>
-    <string name="onboarding_details_value_on">세부정보 표시</string>
-    <string name="onboarding_details_value_off">세부정보 없음</string>
     <string name="onboarding_summary_title">설정 완료</string>
     <string name="onboarding_summary_hint">줄을 누르면 변경할 수 있습니다. 모든 설정은 나중에 설정 → 설정 도우미에서 바꿀 수 있습니다.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive가 꺼져 있습니다. 홈 화면에서 언제든 켤 수 있습니다.</string>
@@ -532,7 +537,7 @@
     <string name="onboarding_perm_force_note">강제 모드가 끝나면 다시 필요합니다.</string>
     <string name="onboarding_network_title">신뢰하는 Wi-Fi</string>
     <string name="onboarding_network_question">지금 연결된 Wi-Fi를 KeepADB가 신뢰하도록 할까요?</string>
-    <string name="onboarding_network_privacy_note">개인정보 보호 모드에서는 이름이 여기와 신뢰할 때만 표시됩니다.</string>
+    <string name="onboarding_network_privacy_note">개인정보 보호가 켜져 있습니다. “표시”를 탭하기 전까지 이름과 주소는 숨겨집니다.</string>
     <string name="onboarding_network_open_list">네트워크 목록에서 변경</string>
     <string name="onboarding_webhook_question">선택 사항입니다. 무선 디버깅의 현재 주소를 예를 들어 홈 네트워크나 VPN에 있는 자체 서버로 알립니다. 대부분은 필요하지 않습니다. “URL 저장”을 누르기 전에는 아무것도 저장되지 않습니다.</string>
     <string name="onboarding_protection_force_title">최대 편의(강제 모드)</string>
@@ -555,7 +560,6 @@
     <string name="status_tap_to_open_list">탭하여 네트워크 목록 열기</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">언어</string>
-    <string name="menu_item_privacy_mode">개인정보 보호 모드</string>
     <string name="menu_item_all_settings">모든 설정</string>
 
     <!-- #826: warning display controls. -->

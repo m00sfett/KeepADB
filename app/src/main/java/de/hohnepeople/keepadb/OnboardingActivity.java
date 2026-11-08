@@ -109,7 +109,6 @@ public class OnboardingActivity extends Activity {
         list.add(new OnboardingSteps.Protection());
         list.add(new OnboardingActionSteps.Permissions());
         list.add(new OnboardingActionSteps.Network());
-        list.add(new OnboardingSteps.Details());
         list.add(new OnboardingWebhookStep());
         return list;
     }
@@ -302,11 +301,12 @@ public class OnboardingActivity extends Activity {
 
     private void showPage(int target) {
         page = target;
+        // #904: a "Show" belongs to the page it was chosen on; no page inherits another's reveal.
+        KeepADBPrivacy.concealAll(this);
         OnboardingStep current = currentStep();
         pageRoot.setComparisonPage(current != null
                 && (current.id == KeepADBOnboarding.Step.KEEP_ALIVE
-                || current.id == KeepADBOnboarding.Step.PROTECTION
-                || current.id == KeepADBOnboarding.Step.DETAILS));
+                || current.id == KeepADBOnboarding.Step.PROTECTION));
         pageContent.removeAllViews();
         findViewById(R.id.onboarding_page_icon).setVisibility(View.GONE);
         scroll.scrollTo(0, 0);
@@ -352,6 +352,10 @@ public class OnboardingActivity extends Activity {
             params.topMargin = dp(16);
             pageContent.addView(notice, params);
         }
+        // #904: the three privacy switches sit here, before any step shows a network name or an
+        // address, so the rest of the assistant respects them. They write at once, like the
+        // buttons of the action steps; "Later" and "Next" write nothing on top.
+        addPrivacySwitches();
         if (existing && !marked.isEmpty()) {
             pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure)));
         }
@@ -360,6 +364,24 @@ public class OnboardingActivity extends Activity {
         secondaryButton.setText(R.string.onboarding_later);
         nextButton.setText(R.string.onboarding_start);
         applyBarOrder();
+    }
+
+    private void addPrivacySwitches() {
+        TextView heading = new TextView(this);
+        heading.setText(R.string.privacy_switches_title);
+        heading.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        heading.setTextColor(getColor(R.color.title_yellow));
+        heading.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        heading.setAccessibilityHeading(true);
+        LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        headingParams.topMargin = dp(24);
+        pageContent.addView(heading, headingParams);
+        View switches = getLayoutInflater().inflate(R.layout.view_privacy_switches, pageContent,
+                false);
+        pageContent.addView(switches);
+        KeepADBPrivacySwitches.bind(this, switches, null);
     }
 
     private void showStep(OnboardingStep step) {

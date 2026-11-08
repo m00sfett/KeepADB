@@ -52,7 +52,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void withThePrivacyModeOffNamesAndAddressesAreShownAsTheyAre() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertFalse(KeepADBNetworkDisplay.hidden(context));
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
         assertEquals("HomeMesh", KeepADBNetworkDisplay.ssid(context, "HomeMesh", numbering));
@@ -69,7 +69,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void withThePrivacyModeOnNamesAreReplacedAndAddressesMasked() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertTrue(KeepADBNetworkDisplay.hidden(context));
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
         assertEquals(hiddenName() + " #1", KeepADBNetworkDisplay.ssid(context, "HomeMesh", numbering));
@@ -89,7 +89,7 @@ public class KeepADBNetworkDisplayTest {
     @Test
     public void anUnknownNameIsNeverDisguisedAsAHiddenOne() {
         for (boolean privacy : new boolean[] {false, true}) {
-            KeepADBPreferences.setPrivacyModeEnabled(context, privacy);
+            KeepADBPreferences.setAppPrivacyEnabled(context, privacy);
             String unknown = context.getString(R.string.wifi_aps_ssid_unknown);
             KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
             assertEquals(unknown, KeepADBNetworkDisplay.ssid(context, null, numbering));
@@ -100,14 +100,14 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void nullInputsNeverThrowAndNeverInventText() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertEquals("", KeepADBNetworkDisplay.bssid(context, null));
         assertEquals("", KeepADBNetworkDisplay.quoted(context, null));
     }
 
     @Test
     public void aQuotedBssidCopyIsUppercaseWhileAnSsidKeepsItsCase() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         String bssid = "aa:bb:cc:dd:ee:01";
         assertEquals("AA:BB:CC:DD:EE:01",
                 KeepADBNetworkDisplay.quoted(context, bssid, bssid));
@@ -119,7 +119,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void theBandStandsInBracketsDirectlyBehindTheBssidAndUnknownShowsNone() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals("AA:BB:CC:DD:EE:01 (2.4 GHz)", KeepADBNetworkDisplay.bssidWithBand(
                 context, "aa:bb:cc:dd:ee:01", KeepADBAccessPointBand.GHZ_2_4));
         assertEquals("AA:BB:CC:DD:EE:01 (5 GHz)", KeepADBNetworkDisplay.bssidWithBand(
@@ -133,7 +133,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void thePrivacyModeMasksTheAddressBehindTheBandButNotTheBand() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertEquals("AA:*:*:*:*:01 (5 GHz)", KeepADBNetworkDisplay.bssidWithBand(
                 context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_5));
         assertEquals("The masked address stands alone without a band", "AA:*:*:*:*:01",
@@ -143,9 +143,9 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void anOwnNameIsShownAsTypedAndHiddenByThePrivacyMode() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals("Kitchen", KeepADBNetworkDisplay.customName(context, "Kitchen"));
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertEquals(hiddenName(), KeepADBNetworkDisplay.customName(context, "Kitchen"));
     }
 
@@ -157,7 +157,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void theSameNameGetsTheSameNumberAndADifferentNameADifferentOne() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
         assertEquals(hiddenName() + " #1", shown(numbering, "HomeMesh"));
@@ -171,7 +171,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void theCurrentNameAndTheListEntriesOfAViewShareOneNumbering() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
         String current = shown(numbering, "HomeMesh");
@@ -185,7 +185,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void everyViewCountsOnItsOwnAndStartsAtOne() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBNetworkDisplay.Numbering first = new KeepADBNetworkDisplay.Numbering();
         KeepADBNetworkDisplay.Numbering second = new KeepADBNetworkDisplay.Numbering();
 
@@ -206,7 +206,7 @@ public class KeepADBNetworkDisplayTest {
      */
     @Test
     public void numbersAreAFunctionOfTheNameAloneAndStayStableOverARepeatedPass() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         String[] names = {"HomeMesh", "Cafe-WLAN", "Hotel-WLAN", "Office", "Guest", "homemesh",
                 "HomeMesh ", "Cafe-WLAN", "x"};
         Random random = new Random(654);
@@ -244,7 +244,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void namesThatDifferOnlyInCaseAreTwoNetworks() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
         assertEquals(hiddenName() + " #1", shown(numbering, "HomeMesh"));
@@ -254,7 +254,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void rowsWithoutAReadableNameTakeNoNumber() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
         assertEquals("AA:*:*:*:*:01",
@@ -269,7 +269,7 @@ public class KeepADBNetworkDisplayTest {
 
     @Test
     public void aHiddenNumberNeverContainsTheNameOrItsLength() {
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertEquals(shown(new KeepADBNetworkDisplay.Numbering(), "A"),
                 shown(new KeepADBNetworkDisplay.Numbering(), "A-very-long-network-name-with-digits-1234567890"));
     }

@@ -248,7 +248,7 @@ public class KeepADBUsbNotificationTest {
         KeepADBPreferences.setAppLanguage(context, "en");
         KeepADBUsbProfile.setNotificationEnabled(context, true);
         // #592: private content only carries the profile summary after the opt-in.
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
 
         KeepADBUsbNotification.refresh(context, true);
@@ -349,8 +349,9 @@ public class KeepADBUsbNotificationTest {
             "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example"};
 
     @Test
-    public void connectionDetailsInNotificationsAreOffByDefault() {
-        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
+    public void connectionDetailsInNotificationsAreShownOnANewInstallation() {
+        // #904: the notification privacy switch is opt-in like the other two, off by default.
+        assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(context));
     }
 
     /**
@@ -360,8 +361,9 @@ public class KeepADBUsbNotificationTest {
      * The profile actions stay available.
      */
     @Test
-    public void withDetailsOffTheCardNamesNeitherTheProfileNorTheHostNorTheIp() {
+    public void withNotificationPrivacyOnTheCardNamesNeitherTheProfileNorTheHostNorTheIp() {
         KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         KeepADBUsbProfile.setNotificationEnabled(context, true);
         KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
         KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example");
@@ -379,10 +381,10 @@ public class KeepADBUsbNotificationTest {
     }
 
     @Test
-    public void withDetailsOnTheCardShowsTheProfileSummary() {
+    public void withNotificationPrivacyOffTheCardShowsTheProfileSummary() {
         KeepADBPreferences.setAppLanguage(context, "en");
         KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example");
 
         KeepADBUsbNotification.refresh(context, true);
@@ -395,14 +397,14 @@ public class KeepADBUsbNotificationTest {
     }
 
     @Test
-    public void switchingDetailsOffAgainRemovesThemOnTheNextRefresh() {
+    public void switchingNotificationPrivacyOnAgainRemovesThemOnTheNextRefresh() {
         KeepADBPreferences.setAppLanguage(context, "en");
         KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
         KeepADBUsbNotification.refresh(context, true);
 
-        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         KeepADBUsbNotification.refresh(context, true);
 
         KeepADBNotificationTextScan.assertMentionsNone(postedNotification(), PROFILE_DETAILS);

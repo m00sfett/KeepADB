@@ -24,8 +24,12 @@ final class KeepADBNetworkDisplay {
 
     private KeepADBNetworkDisplay() {}
 
+    /**
+     * Whether this screen masks names and addresses: the app privacy switch is on and the user has
+     * not chosen "Show" on this screen (#904).
+     */
     static boolean hidden(Context context) {
-        return KeepADBPreferences.isPrivacyModeEnabled(context);
+        return KeepADBPrivacy.isAppMasked(context);
     }
 
     /**
@@ -134,6 +138,16 @@ final class KeepADBNetworkDisplay {
             return KeepADBNetworkDisplay.bssid(context, storedLabel);
         }
         return storedLabel;
+    }
+
+    /**
+     * {@link #quoted} for a toast (#904): a toast can stay on screen after the screen that showed
+     * it stopped, so a "Show" there does not unmask it ({@link KeepADBPrivacy#isOutlivingTextMasked}).
+     */
+    static String toastLabel(Context context, String storedLabel, String bssid) {
+        if (storedLabel == null) return "";
+        if (KeepADBPrivacy.isOutlivingTextMasked(context)) return placeholder(context, 0);
+        return quoted(context, storedLabel, bssid);
     }
 
     private static String placeholder(Context context, int number) {

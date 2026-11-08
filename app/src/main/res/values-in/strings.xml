@@ -56,8 +56,21 @@
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
     <string name="action_settings">Pengaturan</string>
-    <string name="privacy_toggle_enable_accessibility">Aktifkan mode privasi (sembunyikan alamat jaringan)</string>
-    <string name="privacy_toggle_disable_accessibility">Nonaktifkan mode privasi (tampilkan alamat jaringan)</string>
+    <string name="privacy_menu_show_screen">Tampilkan di layar ini</string>
+    <string name="privacy_menu_hide_screen">Sembunyikan di layar ini</string>
+    <string name="privacy_eye_masked_accessibility">Opsi privasi. Detail disembunyikan di layar ini.</string>
+    <string name="privacy_eye_shown_accessibility">Opsi privasi. Detail ditampilkan di layar ini.</string>
+    <string name="menu_item_state_on">Aktif</string>
+    <string name="menu_item_state_off">Nonaktif</string>
+    <string name="privacy_switches_title">Privasi</string>
+    <string name="privacy_switches_hint">Opsional, semuanya nonaktif secara default. Setiap sakelar hanya menyembunyikan nama Wi-Fi, alamat, dan port di areanya sendiri.</string>
+    <string name="privacy_app_title">Sembunyikan di aplikasi</string>
+    <string name="privacy_app_body">Menyamarkan nama Wi-Fi, alamat titik akses, alamat IP, dan host webhook di setiap layar dan dialog. “Tampilkan” menampilkannya sampai Anda meninggalkan layar.</string>
+    <string name="privacy_notifications_title">Sembunyikan di notifikasi</string>
+    <string name="privacy_notifications_body">Notifikasi hanya menampilkan status, tanpa port, alamat IP, profil USB, atau nama Wi-Fi. Pemberitahuan tentang Wi-Fi baru lalu tidak punya tombol dan membuka aplikasi. Selama ini nonaktif, detail tersebut juga dapat muncul di layar kunci.</string>
+    <string name="privacy_widgets_title">Sembunyikan di widget dan kartu</string>
+    <string name="privacy_widgets_body">Widget layar utama dan kartu Pengaturan Cepat hanya menampilkan status, tanpa port atau alamat.</string>
+    <string name="usb_profile_hidden_numbered">Profil %1$d</string>
     <string name="title_settings">Pengaturan</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
@@ -125,8 +138,6 @@
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
     <string name="settings_hide_notification_subtext">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.</string>
     <string name="settings_hide_notification_subtext_keepalive">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
-    <string name="settings_notification_details_toggle">Tampilkan detail koneksi di notifikasi</string>
-    <string name="settings_notification_details_subtext">Menampilkan port dan alamat IP di notifikasi status persisten, profil host USB (nama, IP, host), serta nama dan BSSID jaringan Wi-Fi baru di notifikasi. Jika aktif, detail ini juga dapat terlihat di layar kunci. Jika nonaktif, detail hanya ditampilkan di aplikasi.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>
@@ -496,12 +507,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_protection_keep_alive_off">Berlaku setelah Keep-Alive aktif.</string>
     <string name="onboarding_customize_show">Sesuaikan ▾</string>
     <string name="onboarding_customize_hide">Sesuaikan ▴</string>
-    <string name="onboarding_details_title">Layar kunci</string>
-    <string name="onboarding_details_question">Haruskah notifikasi menampilkan alamat dan nama Wi-Fi?</string>
-    <string name="onboarding_details_off_body">Notifikasi hanya menampilkan status. Tanpa alamat, tanpa nama Wi-Fi.</string>
-    <string name="onboarding_details_on_body">Menampilkan alamat IP dan port, profil USB, serta nama jaringan Wi-Fi baru di notifikasi. Tergantung pengaturan Android, juga di layar kunci.</string>
-    <string name="onboarding_details_value_on">Detail ditampilkan</string>
-    <string name="onboarding_details_value_off">Tanpa detail</string>
     <string name="onboarding_summary_title">Penyiapan selesai</string>
     <string name="onboarding_summary_hint">Ketuk satu baris untuk mengubahnya. Semua bisa diubah nanti di Pengaturan → Asisten penyiapan.</string>
     <string name="onboarding_summary_keep_alive_off">Keep-Alive nonaktif. Anda bisa mengaktifkannya kapan saja di layar utama.</string>
@@ -532,7 +537,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_perm_force_note">Diperlukan lagi setelah mode paksa berakhir.</string>
     <string name="onboarding_network_title">Wi-Fi dipercaya</string>
     <string name="onboarding_network_question">Apakah KeepADB perlu mempercayai Wi-Fi yang sedang tersambung saat ini?</string>
-    <string name="onboarding_network_privacy_note">Dalam mode privasi, nama hanya ditampilkan di sini dan saat Anda mempercayai jaringan.</string>
+    <string name="onboarding_network_privacy_note">Privasi aktif: nama dan alamat tetap tersembunyi sampai Anda mengetuk “Tampilkan”.</string>
     <string name="onboarding_network_open_list">Ubah di daftar Jaringan</string>
     <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Debugging Nirkabel saat ini ke server milikmu sendiri, misalnya di jaringan rumah atau VPN-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
     <string name="onboarding_protection_force_title">Paling nyaman (mode paksa)</string>
@@ -555,7 +560,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Bahasa</string>
-    <string name="menu_item_privacy_mode">Mode privasi</string>
     <string name="menu_item_all_settings">Semua pengaturan</string>
 
     <!-- #826: warning display controls. -->

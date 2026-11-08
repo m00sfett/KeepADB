@@ -67,6 +67,9 @@ final class KeepADBUsbProfileEditor {
             return;
         }
         int profileId = savedInstanceState.getInt(STATE_PROFILE_EDIT_ID, -1);
+        // #904: a recreated screen has no "Show" any more; do not put a saved profile's name and
+        // addresses back on it while the app privacy switch masks them.
+        if (profileId != -1 && KeepADBNetworkDisplay.hidden(activity)) return;
         KeepADBUsbProfile.Profile editingProfile = null;
         if (profileId != -1) {
             for (KeepADBUsbProfile.Profile p : KeepADBUsbProfile.getProfiles(activity)) {
@@ -134,6 +137,37 @@ final class KeepADBUsbProfileEditor {
         }
     }
 
+    /**
+     * #904: the screen stopped, which ends every "Show". A dialog that still holds what the
+     * reveal made readable (the unmasked profile list, the edit form of a saved profile, the delete
+     * confirmation that quotes the profile name) would show it again on return without a new
+     * "Show", so it is closed instead; the edit draft goes with it. A masked list and the form of
+     * a new profile hold nothing to hide and stay.
+     */
+    void onScreenStopped() {
+        // Nothing on this screen is masked by default (switch off, no "Hide on this screen"), so
+        // nothing was revealed either.
+        boolean temporary = KeepADBPrivacy.hasTemporaryState(activity);
+        if (!temporary && !KeepADBPreferences.isAppPrivacyEnabled(activity)) return;
+        // A list drawn under a temporary state (eye-menu override or "Show") would come back
+        // drawn for a state that has ended, unmasked or masked; it is closed either way.
+        if (activeSwitchDialog != null
+                && (temporary || !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB))) {
+            activeSwitchDialog.dismiss();
+        }
+        // The edit form of a saved profile and the delete confirmation only hold readable values
+        // while the screen masks by default (switch on or "Hide on this screen"); with the switch
+        // off and no hide, nothing needs masking on return and an unsaved draft stays.
+        boolean masksByDefault = KeepADBPreferences.isAppPrivacyEnabled(activity)
+                || KeepADBPrivacy.isScreenMasked(activity);
+        if (masksByDefault && activeEditDialog != null && activeEditId != null) {
+            activeEditDialog.dismiss();
+        }
+        if (masksByDefault && activeDeleteDialog != null) {
+            activeDeleteDialog.dismiss();
+        }
+    }
+
     AlertDialog getActiveEditDialog() {
         return activeEditDialog;
     }
@@ -161,16 +195,39 @@ final class KeepADBUsbProfileEditor {
         showEditDialog(null);
     }
 
+    /** #904: the profile name as shown; a numbered stand-in while the app privacy masks it. */
+    private String shownName(KeepADBUsbProfile.Profile profile, int position) {
+        return KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB)
+                ? activity.getString(R.string.usb_profile_hidden_numbered, position + 1)
+                : profile.name;
+    }
+
     private void showSwitchDialog(List<KeepADBUsbProfile.Profile> profiles) {
         KeepADBUsbProfile.Profile current = KeepADBUsbProfile.getSelected(activity);
+        // #904: names and addresses are masked while the app privacy switch is on; "Show" lifts
+        // that for this screen and reopens the list unmasked. Editing needs the real values.
+        boolean masked = KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB);
         LinearLayout options = new LinearLayout(activity);
         options.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (20 * activity.getResources().getDisplayMetrics().density);
         options.setPadding(padding, 0, padding, 0);
         final AlertDialog[] dialogHolder = new AlertDialog[1];
         int rowSpacing = (int) (8 * activity.getResources().getDisplayMetrics().density);
+        if (masked) {
+            Button show = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
+            show.setText(R.string.networks_hidden_show);
+            show.setOnClickListener(v -> {
+                // The dismissal ends the dialog's scope, so the reveal is made after it.
+                dialogHolder[0].dismiss();
+                KeepADBPrivacy.reveal(activity, KeepADBPrivacy.SCOPE_USB);
+                onProfileChanged.run();
+                showSwitchDialog(KeepADBUsbProfile.getProfiles(activity));
+            });
+            options.addView(show);
+        }
         for (int i = 0; i < profiles.size(); i++) {
             KeepADBUsbProfile.Profile profile = profiles.get(i);
+            String shownName = shownName(profile, i);
             int minTouch = (int) (48 * activity.getResources().getDisplayMetrics().density);
 
             // #593: name and details stacked in two lines instead of one radio label, so a
@@ -179,9 +236,9 @@ final class KeepADBUsbProfileEditor {
             LinearLayout textColumn = new LinearLayout(activity);
             textColumn.setOrientation(LinearLayout.VERTICAL);
             TextView nameView = new TextView(activity);
-            nameView.setText(profile.name);
+            nameView.setText(shownName);
             textColumn.addView(nameView);
-            String details = profile.details();
+            String details = masked ? profile.maskedDetails() : profile.details();
             if (!details.isEmpty()) {
                 TextView detailsView = new TextView(activity);
                 detailsView.setText(details);
@@ -191,7 +248,9 @@ final class KeepADBUsbProfileEditor {
                     LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
             RadioButton select = new RadioButton(activity);
-            select.setContentDescription(profile.summary());
+            select.setContentDescription(masked
+                    ? (details.isEmpty() ? shownName : shownName + " · " + details)
+                    : profile.summary());
             select.setChecked(current != null && current.id == profile.id);
             select.setMinHeight(minTouch);
             select.setMinWidth(minTouch);
@@ -218,7 +277,7 @@ final class KeepADBUsbProfileEditor {
             Button edit = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             edit.setText(R.string.usb_profile_edit_button);
             edit.setContentDescription(activity.getString(
-                    R.string.usb_profile_edit_action_accessibility, profile.name));
+                    R.string.usb_profile_edit_action_accessibility, shownName));
             edit.setMinHeight(minTouch);
             edit.setOnClickListener(v -> {
                 dialogHolder[0].dismiss();
@@ -227,16 +286,16 @@ final class KeepADBUsbProfileEditor {
             Button delete = new Button(activity, null, 0, R.style.Widget_KeepADB_Button_Secondary);
             delete.setText(R.string.usb_profile_delete_button);
             delete.setContentDescription(activity.getString(
-                    R.string.usb_profile_delete_action_accessibility, profile.name));
+                    R.string.usb_profile_delete_action_accessibility, shownName));
             delete.setMinHeight(minTouch);
             delete.setOnClickListener(v -> {
                 dialogHolder[0].dismiss();
-                showDeleteDialog(profile);
+                showDeleteDialog(profile, shownName);
             });
             LinearLayout.LayoutParams editParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             editParams.setMarginEnd(Math.round(8 * activity.getResources().getDisplayMetrics().density));
-            actionRow.addView(edit, editParams);
+            if (!masked) actionRow.addView(edit, editParams);
             actionRow.addView(delete);
 
             LinearLayout row = new LinearLayout(activity);
@@ -258,8 +317,12 @@ final class KeepADBUsbProfileEditor {
         dialogHolder[0] = dialog;
         activeSwitchDialog = dialog;
         dialog.setOnDismissListener(d -> {
+            // The dismiss callback is posted: by then "Show" may already have opened a newer
+            // list, whose reveal this one must not end.
             if (activeSwitchDialog == d) {
                 activeSwitchDialog = null;
+                // #904: a "Show" in this dialog ends with the dialog.
+                KeepADBPrivacy.conceal(activity, KeepADBPrivacy.SCOPE_USB);
             }
         });
         dialog.show();
@@ -344,10 +407,10 @@ final class KeepADBUsbProfileEditor {
         dialog.show();
     }
 
-    private void showDeleteDialog(KeepADBUsbProfile.Profile profile) {
+    private void showDeleteDialog(KeepADBUsbProfile.Profile profile, String shownName) {
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setTitle(R.string.usb_profile_delete_title)
-                .setMessage(activity.getString(R.string.usb_profile_delete_message, profile.name))
+                .setMessage(activity.getString(R.string.usb_profile_delete_message, shownName))
                 .setPositiveButton(R.string.usb_profile_delete_button, (d, which) -> {
                     if (KeepADBUsbProfile.delete(activity, profile.id)) {
                         onProfileChanged.run();

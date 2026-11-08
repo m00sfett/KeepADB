@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.Gravity;
@@ -18,9 +19,10 @@ import java.util.List;
 
 /**
  * #823: Dropdown menu opened by the header settings button on the main view.
- * Provides quick links (Language, Privacy mode with inline checkbox, All settings,
- * Setup assistant, Network, Webhook, USB-ADB, Other) while keeping the privacy toggle
- * inline and dismiss-free.
+ * Provides quick links (Language, the privacy options, All settings, Setup assistant, Network,
+ * Webhook, USB-ADB, Other) while keeping the privacy options inline and dismiss-free. #904 (Q15 of
+ * the PR #917 review): the privacy options are the same as in the eye menu of the other title
+ * bars ({@link KeepADBPrivacyToggle}): "Show/Hide on this screen" plus the three stored switches.
  */
 final class KeepADBSettingsMenu {
 
@@ -34,6 +36,9 @@ final class KeepADBSettingsMenu {
     static final int ID_WEBHOOK = 6;
     static final int ID_USB_ADB = 7;
     static final int ID_MISC = 8;
+    static final int ID_PRIVACY_SCREEN = 9;
+    static final int ID_PRIVACY_NOTIFICATIONS = 10;
+    static final int ID_PRIVACY_WIDGETS = 11;
 
     static final class MenuItem {
         final int id;
@@ -72,7 +77,11 @@ final class KeepADBSettingsMenu {
     static List<MenuItem> buildMenuItems() {
         List<MenuItem> menu = new ArrayList<>();
         menu.add(new MenuItem(ID_LANGUAGE, R.string.menu_item_language));
-        menu.add(new MenuItem(ID_PRIVACY_MODE, R.string.menu_item_privacy_mode, false, true));
+        menu.add(new MenuItem(ID_PRIVACY_SCREEN, R.string.privacy_menu_show_screen));
+        menu.add(new MenuItem(ID_PRIVACY_MODE, R.string.privacy_app_title, false, true));
+        menu.add(new MenuItem(ID_PRIVACY_NOTIFICATIONS, R.string.privacy_notifications_title,
+                false, true));
+        menu.add(new MenuItem(ID_PRIVACY_WIDGETS, R.string.privacy_widgets_title, false, true));
         menu.add(MenuItem.divider(ID_DIVIDER_1));
         menu.add(new MenuItem(ID_ALL_SETTINGS, R.string.menu_item_all_settings));
         menu.add(MenuItem.divider(ID_DIVIDER_2));
@@ -82,6 +91,45 @@ final class KeepADBSettingsMenu {
         menu.add(new MenuItem(ID_USB_ADB, R.string.settings_section_usb_adb));
         menu.add(new MenuItem(ID_MISC, R.string.settings_section_misc));
         return Collections.unmodifiableList(menu);
+    }
+
+    /** The {@link KeepADBPrivacyToggle} choice behind a menu entry, or 0 for other entries. */
+    static int privacyItemOf(int id) {
+        switch (id) {
+            case ID_PRIVACY_SCREEN:
+                return KeepADBPrivacyToggle.ITEM_SCREEN;
+            case ID_PRIVACY_MODE:
+                return KeepADBPrivacyToggle.ITEM_APP;
+            case ID_PRIVACY_NOTIFICATIONS:
+                return KeepADBPrivacyToggle.ITEM_NOTIFICATIONS;
+            case ID_PRIVACY_WIDGETS:
+                return KeepADBPrivacyToggle.ITEM_WIDGETS;
+            default:
+                return 0;
+        }
+    }
+
+    /** The title of an entry; "Show/Hide on this screen" follows what the screen does now. */
+    static int titleOf(Activity activity, MenuItem item) {
+        if (item.id == ID_PRIVACY_SCREEN) {
+            return KeepADBPrivacy.isScreenMasked(activity)
+                    ? R.string.privacy_menu_show_screen : R.string.privacy_menu_hide_screen;
+        }
+        return item.titleResId;
+    }
+
+    /** The stored switch a check entry stands for. */
+    static boolean isChecked(Activity activity, MenuItem item) {
+        switch (item.id) {
+            case ID_PRIVACY_MODE:
+                return KeepADBPreferences.isAppPrivacyEnabled(activity);
+            case ID_PRIVACY_NOTIFICATIONS:
+                return KeepADBPreferences.isNotificationPrivacyEnabled(activity);
+            case ID_PRIVACY_WIDGETS:
+                return KeepADBPreferences.isWidgetPrivacyEnabled(activity);
+            default:
+                return false;
+        }
     }
 
     List<MenuItem> getItems() {
@@ -136,12 +184,9 @@ final class KeepADBSettingsMenu {
     void onMenuItemClicked(MenuItem item) {
         if (item.isDivider) return;
 
-        if (item.id == ID_PRIVACY_MODE) {
-            boolean want = !KeepADBPreferences.isPrivacyModeEnabled(activity);
-            KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable", "privacy_mode_toggle");
-            KeepADBPreferences.setPrivacyModeEnabled(activity, want);
-            KeepADBEndpointCoordinator.refresh(activity);
-            KeepADBTileService.requestRefresh(activity);
+        int privacyItem = privacyItemOf(item.id);
+        if (privacyItem != 0) {
+            KeepADBPrivacyToggle.apply(activity, privacyItem);
             activity.refreshUiAndComponents();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
@@ -283,15 +328,14 @@ final class KeepADBSettingsMenu {
             TextView title = convertView.findViewById(R.id.menu_item_title);
             CheckBox checkbox = convertView.findViewById(R.id.menu_item_checkbox);
 
-            title.setText(item.titleResId);
+            title.setText(titleOf(activity, item));
 
             if (item.isCheckable) {
-                boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(activity);
+                boolean enabled = isChecked(activity, item);
                 checkbox.setVisibility(View.VISIBLE);
                 checkbox.setChecked(enabled);
                 String stateText = activity.getString(enabled
-                        ? R.string.privacy_toggle_disable_accessibility
-                        : R.string.privacy_toggle_enable_accessibility);
+                        ? R.string.menu_item_state_on : R.string.menu_item_state_off);
                 convertView.setContentDescription(activity.getString(item.titleResId) + ", " + stateText);
             } else {
                 checkbox.setVisibility(View.GONE);

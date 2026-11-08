@@ -477,9 +477,8 @@ public class OnboardingActivityPermissionsTest {
                 KeepADBPreferences.getOnboardingCompletedVersion(context));
 
         click(assistant, R.id.onboarding_secondary); // skip the Wi-Fi as well
-        assertEquals(context.getString(R.string.onboarding_details_title),
+        assertEquals(context.getString(R.string.webhook_status_title),
                 text(assistant, R.id.onboarding_page_title));
-        assertEquals(View.GONE, assistant.findViewById(R.id.onboarding_secondary).getVisibility());
     }
 
     @Test

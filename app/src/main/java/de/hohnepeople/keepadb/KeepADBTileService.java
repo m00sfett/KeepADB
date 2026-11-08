@@ -180,8 +180,10 @@ public class KeepADBTileService extends TileService {
                 KeepADBEndpointCoordinator.Snapshot endpoint = KeepADBEndpointCoordinator.snapshot();
                 String host = endpoint.host;
                 int port = endpoint.port;
-                if (host != null && port > 0) {
-                    String displayHost = KeepADBPreferences.maskHostForDisplay(this, host);
+                // #904: with the widget privacy switch on, the tile shows the state only. The
+                // switch covers widgets and the tile; the app switch does not apply here.
+                if (host != null && port > 0 && !KeepADBPreferences.isWidgetPrivacyEnabled(this)) {
+                    String displayHost = host;
                     if (displayHost.contains(":") && !displayHost.startsWith("[")) {
                         displayHost = "[" + displayHost + "]";
                     }

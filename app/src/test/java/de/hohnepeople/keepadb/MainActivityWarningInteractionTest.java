@@ -60,7 +60,7 @@ public class MainActivityWarningInteractionTest {
         return activity.findViewById(id).getVisibility() == View.VISIBLE;
     }
     @Test public void closeKeepsTriangleUndoRestoresAndRotationKeepsAcknowledgment() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         ActivityController<MainActivity> controller = open();
         MainActivity activity = controller.get();
         assertEquals(1, KeepADBWarningState.observe(context).security().size());
@@ -83,7 +83,7 @@ public class MainActivityWarningInteractionTest {
     }
     /** #889 (s20 beta test): the bar after closing a card goes away by itself. */
     @Test public void feedbackBarExpiresAfterItsTimeoutAndTheCardStaysClosed() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open().get();
         close(activity, R.id.warning_less_secure);
         assertTrue(visible(activity, R.id.warning_feedback));
@@ -112,7 +112,7 @@ public class MainActivityWarningInteractionTest {
     }
     /** #906: swiping the bar sideways removes it before its timeout; the card stays closed. */
     @Test public void swipingTheFeedbackBarAwayDismissesItEarlyAndKeepsTheCardClosed() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open().get();
         close(activity, R.id.warning_less_secure);
         View bar = activity.findViewById(R.id.warning_feedback);
@@ -121,14 +121,14 @@ public class MainActivityWarningInteractionTest {
         assertFalse(visible(activity, R.id.warning_feedback));
         assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
         assertTrue("no mute was recorded", KeepADBWarningState.observe(context).security()
-                .contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
+                .contains(KeepADBWarningState.Reason.PROTECTION_ALL_WIFI));
         // Hidden again, the bar is back in place for the next closed card.
         assertEquals(0f, bar.getTranslationX(), 0f);
         assertEquals(1f, bar.getAlpha(), 0f);
     }
     /** #906 counterexamples: a vertical scroll or a short drag leaves the bar in place. */
     @Test public void verticalOrShortDragsDoNotDismissTheFeedbackBar() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open().get();
         close(activity, R.id.warning_less_secure);
         View bar = activity.findViewById(R.id.warning_feedback);
@@ -142,9 +142,9 @@ public class MainActivityWarningInteractionTest {
     private static void touch(View view, int action, float x, long t) {
         view.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, action, x, 10f, 0));
     }
-    /** Two closable cards: "less secure" (notification details) and "limited" (battery). */
+    /** Two closable cards: "less secure" (all Wi-Fi networks) and "limited" (battery). */
     private MainActivity openWithTwoClosableCards() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         shadowOf((PowerManager) context.getSystemService(Context.POWER_SERVICE))
                 .setIgnoringBatteryOptimizations(context.getPackageName(), false);
@@ -196,7 +196,7 @@ public class MainActivityWarningInteractionTest {
     }
     /** #906: screen-reader users get an equivalent "Dismiss" action. */
     @Test public void feedbackBarOffersAnAccessibleDismissAction() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open().get();
         close(activity, R.id.warning_less_secure);
         View bar = activity.findViewById(R.id.warning_feedback);
@@ -210,7 +210,7 @@ public class MainActivityWarningInteractionTest {
         assertFalse(visible(activity, R.id.warning_less_secure));
     }
     @Test public void triangleActivatesOnFirstTouchAfterReturningFocusAndClosingAnotherCard() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         ActivityController<MainActivity> controller = open();
         MainActivity activity = controller.get();
         View triangle = activity.findViewById(R.id.btn_security_warnings);
@@ -266,7 +266,7 @@ public class MainActivityWarningInteractionTest {
         assertTrue(target.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_FORCE, false));
     }
     @Test public void singleReasonMuteRemovesTriangleAndCanBeRestoredViaSettings() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open().get();
         close(activity, R.id.warning_less_secure);
         activity.findViewById(R.id.warning_mute).performClick();
@@ -275,16 +275,16 @@ public class MainActivityWarningInteractionTest {
         Intent intent = new Intent(context, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true);
         WarningsActivity settings = Robolectric.buildActivity(WarningsActivity.class, intent).setup().get();
         Switch details = findSwitch((ViewGroup) settings.findViewById(android.R.id.content),
-                settings.getString(R.string.settings_notification_details_toggle));
+                settings.getString(R.string.network_mode_option_all_wifi));
         assertNotNull(details);
         assertTrue(details.isChecked());
         details.performClick();
         assertTrue(KeepADBWarningState.observe(context).visible.contains(KeepADBWarningState.Card.LESS_SECURE));
-        assertTrue(KeepADBWarningState.observe(context).security().contains(KeepADBWarningState.Reason.NOTIFICATION_DETAILS));
+        assertTrue(KeepADBWarningState.observe(context).security().contains(KeepADBWarningState.Reason.PROTECTION_ALL_WIFI));
     }
     /** #905: the multi-reason mute dialog keeps the dialog inset for its list and primary button. */
     @Test public void muteDialogKeepsTheDialogInsetOnBothSides() {
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         MainActivity activity = open().get();
@@ -302,30 +302,29 @@ public class MainActivityWarningInteractionTest {
     }
     @Test public void headerCountAndListContainEverySecurityReasonDespiteCardLimit() {
         shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
-        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         // Enable the warning without triggering register traffic from an activity resume.
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         KeepADBWarningState.Snapshot snapshot = KeepADBWarningState.observe(context);
-        assertEquals(5, snapshot.security().size());
+        assertEquals(4, snapshot.security().size());
         assertEquals(3, snapshot.visible.size());
         MainActivity activity = open().get();
-        assertEquals("Security warnings: 5 active reasons",
+        assertEquals("Security warnings: 4 active reasons",
                 activity.findViewById(R.id.btn_security_warnings).getContentDescription());
         activity.findViewById(R.id.btn_security_warnings).performClick();
         Intent listIntent = shadowOf(activity).getNextStartedActivity();
         WarningsActivity list = Robolectric.buildActivity(WarningsActivity.class, listIntent).setup().get();
-        assertEquals(5, countButtons((ViewGroup) list.findViewById(android.R.id.content),
+        assertEquals(4, countButtons((ViewGroup) list.findViewById(android.R.id.content),
                 list.getString(R.string.home_warning_action_review)));
         assertNull(findButton((ViewGroup) list.findViewById(android.R.id.content),
                 list.getString(R.string.force_action_end)));
         // Close the higher priority card: the triangle's reason set is independent of dismissal.
         assertTrue(KeepADBWarningState.dismiss(context, KeepADBWarningState.Card.SYSTEM, snapshot));
-        assertEquals(5, KeepADBWarningState.observe(context).security().size());
+        assertEquals(4, KeepADBWarningState.observe(context).security().size());
     }
-    @Test public void operationalWarningsHaveNoTriangleAndMuteControlsHaveSevenReasons() {
+    @Test public void operationalWarningsHaveNoTriangleAndMuteControlsHaveSixReasons() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         shadowOf((PowerManager) context.getSystemService(Context.POWER_SERVICE))
                 .setIgnoringBatteryOptimizations(context.getPackageName(), false);
@@ -336,11 +335,15 @@ public class MainActivityWarningInteractionTest {
         assertTrue(visible(activity, R.id.warning_mute));
         WarningsActivity settings = Robolectric.buildActivity(WarningsActivity.class,
                 new Intent(context, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)).setup().get();
-        assertEquals(7, countSwitches((ViewGroup) settings.findViewById(android.R.id.content)));
+        assertEquals(6, countSwitches((ViewGroup) settings.findViewById(android.R.id.content)));
         assertNull(findSwitch((ViewGroup) settings.findViewById(android.R.id.content),
                 settings.getString(R.string.force_card_title)));
     }
     @Test public void reviewTargetsUseSpecificSettingsRowsAndSystemGuide() {
+        assertTrue(KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.PROTECTION_ALL_WIFI)
+                .getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, false));
+        // #904: the retired reason is never active, but a stored link to it still lands on the
+        // notification privacy switch.
         assertTrue(KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.NOTIFICATION_DETAILS)
                 .getBooleanExtra(SettingsActivity.EXTRA_FOCUS_DETAILS, false));
         assertTrue(KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT)
@@ -359,7 +362,7 @@ public class MainActivityWarningInteractionTest {
             boolean details = extra.equals(SettingsActivity.EXTRA_FOCUS_DETAILS);
             assertEquals(View.VISIBLE, activity.findViewById(details ? R.id.settings_misc_body
                     : R.id.settings_webhook_body).getVisibility());
-            assertTrue(activity.findViewById(details ? R.id.settings_notification_details_toggle
+            assertTrue(activity.findViewById(details ? R.id.privacy_switch_notifications
                     : R.id.settings_webhook_url).hasFocus());
             controller.pause().stop().destroy();
         }
@@ -371,7 +374,7 @@ public class MainActivityWarningInteractionTest {
         SettingsActivity activity = controller.get();
         controller.windowFocusChanged(false);
         shadowOf(android.os.Looper.getMainLooper()).idle();
-        View target = activity.findViewById(R.id.settings_notification_details_toggle);
+        View target = activity.findViewById(R.id.privacy_switch_notifications);
         target.clearFocus();
         controller.windowFocusChanged(true);
         shadowOf(android.os.Looper.getMainLooper()).idle();

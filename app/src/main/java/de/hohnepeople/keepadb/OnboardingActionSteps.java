@@ -358,6 +358,7 @@ final class OnboardingActionSteps {
         private Activity host;
         private ViewGroup content;
         private LinearLayout card;
+        private TextView privacyNote;
         private NetworkListRenderer renderer;
         private boolean built;
 
@@ -376,10 +377,10 @@ final class OnboardingActionSteps {
             host = activity;
             content = container;
             content.removeAllViews();
-            if (KeepADBNetworkDisplay.hidden(host)) {
-                content.addView(text(host, host.getString(R.string.onboarding_network_privacy_note),
-                        13, R.color.night_muted, 0));
-            }
+            // #904: shown while the app privacy switch masks this card; "Show" lifts it.
+            privacyNote = text(host, host.getString(R.string.onboarding_network_privacy_note),
+                    13, R.color.night_muted, 0);
+            content.addView(privacyNote);
             if (KeepADBForceMode.isActive(host)) {
                 // Trust and blocks do not apply while force mode is on; the answer still counts.
                 content.addView(text(host, host.getString(R.string.networks_force_note), 13,
@@ -397,6 +398,11 @@ final class OnboardingActionSteps {
         }
 
         private void refresh() {
+            if (privacyNote != null) {
+                privacyNote.setVisibility(KeepADBNetworkDisplay.hidden(
+                        KeepADBPrivacy.scoped(host, KeepADBPrivacy.SCOPE_ASSISTANT))
+                        ? View.VISIBLE : View.GONE);
+            }
             if (renderer != null) renderer.renderCurrentForAssistant();
         }
 

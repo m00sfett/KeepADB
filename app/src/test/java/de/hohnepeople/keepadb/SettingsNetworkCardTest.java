@@ -146,6 +146,32 @@ public class SettingsNetworkCardTest {
     }
 
     @Test
+    public void aMaskedCardCannotAllowBlindAndItsToastStaysMaskedAfterShowOnThisScreen() {
+        preparedForAnAutomaticEnable();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+
+        SettingsActivity activity = open();
+        Button action = activity.findViewById(R.id.network_status_action);
+        assertEquals(View.VISIBLE, action.getVisibility());
+        // #904 (Q6): no blind trust from the masked card.
+        assertFalse("Allow is disabled while masked", action.isEnabled());
+        action.performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue("A blind allow stores nothing", KeepADBTrustedNetwork.getEntries(context).isEmpty());
+
+        KeepADBEyeMenuTestSupport.choose(activity, KeepADBPrivacyToggle.ITEM_SCREEN);
+        assertTrue("Show on this screen enables Allow", action.isEnabled());
+        action.performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+        String toast = org.robolectric.shadows.ShadowToast.getTextOfLatestToast();
+        assertFalse("A toast outlives the screen, so it stays masked: " + toast,
+                toast == null || toast.contains("HomeMesh"));
+    }
+
+    @Test
     public void aNotAllowedAccessPointExplainsWhyAndOffersToAllowItWithoutSwitchingAnythingOn() {
         KeepADBFakeSettingsGateway gateway = preparedForAnAutomaticEnable();
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
@@ -585,14 +611,14 @@ public class SettingsNetworkCardTest {
         String[] secrets = {"HomeMesh", "aa:bb:cc:dd:ee:01", "AA:BB:CC:DD:EE:01",
                 "ee:01", "EE:01"};
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         SettingsActivity shown = open();
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
         assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity hidden = open();
         String concealed = everything(hidden);
         for (String secret : secrets) {
@@ -609,11 +635,11 @@ public class SettingsNetworkCardTest {
     public void privacyModeShowsTheFirstAndTheLastOctetOfTheCurrentAddress() {
         connectTo("HomeMesh", "de:11:22:33:44:ad");
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals("HomeMesh \u00b7 DE:11:22:33:44:AD",
                 text(open(), R.id.network_connection_line));
 
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity hidden = open();
         assertEquals(context.getString(R.string.network_privacy_name_hidden)
                 + " \u00b7 DE:*:*:*:*:AD", text(hidden, R.id.network_connection_line));
@@ -633,7 +659,7 @@ public class SettingsNetworkCardTest {
         preparedForAnAutomaticEnable();
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
         SettingsActivity activity = open();
         String hidden = context.getString(R.string.network_privacy_name_hidden);
 
