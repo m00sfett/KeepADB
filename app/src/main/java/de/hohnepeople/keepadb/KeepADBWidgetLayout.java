@@ -114,10 +114,11 @@ final class KeepADBWidgetLayout {
     /**
      * Height from which a second row of controls fits, before the font scale. The reference
      * matrix says 150; the launchers report 176 (Android 11) and 193 (Android 14) dp for two rows,
-     * so 150 x 1.3 = 195 would turn a 2x2 at font 1.3 into a single row. 135 keeps it the stack
-     * (176 dp needed at 1.3).
+     * so 150 x 1.3 = 195 would turn a 2x2 at font 1.3 into a single row on both. 140 keeps the
+     * stack and the grid at font 1.3 on Android 14 (182 dp needed); on Android 11 (176 dp) a larger
+     * font falls back to one row, because the hero of the grid is then too short for its text.
      */
-    private static final float TALL_DP = 135f;
+    private static final float TALL_DP = 140f;
     /**
      * Narrow and tall: the hero over two square buttons needs this width, not scaled. 114 dp is
      * 10 (frame) + 5 (gap) + 2 x 48 plus one dp for pixel rounding: the two buttons stay at the 48 dp

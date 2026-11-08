@@ -33,7 +33,7 @@ are retrospective issue-version records and were never published as separate rel
   Fill, symbol variant (filled, outlined, with dots, with an exclamation mark) and a word carry
   every state, never the color alone; every text and symbol color has at least 4.5:1 contrast on
   its fill (`KeepADBWidgetColorsTest`). `KeepADBWidgetLayout` chooses one of eight classes from the
-  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 136 x `fs`, tall = 135 x `fs`
+  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 136 x `fs`, tall = 140 x `fs`
   dp; in a short widget as many square buttons as fit beside 70 x `fs` dp of room for the hero;
   the thresholds follow what the launchers report, 137/144 dp for two cells and 176/193 dp for
   two rows on Android 11/14):
