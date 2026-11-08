@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Wi-Fi üzerinden ADB için Kablosuz Hata Ayıklamayı açar veya kapatır.</string>
     <string name="keep_alive_toggle">Sürekli aktif tut</string>
     <string name="keep_alive_subtext">Bağlantı kesintisi, ağ değişikliği veya yeniden başlatmada otomatik yeniden bağlanma</string>
-    <string name="widget_text_on">Kablosuz Hata Ayıklama: AÇIK</string>
-    <string name="widget_text_off">Kablosuz Hata Ayıklama: KAPALI</string>
     <string name="tile_permission_error">%1$s: İzin eksik (pm grant gerekli)</string>
     <string name="permission_error_toast">İzin eksik. PC’den bir kez çalıştırın:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Kablosuz Hata Ayıklama Uç Noktası</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
-    <string name="widget_text_disconnected">Kablosuz Hata Ayıklama: Bağlı değil</string>
-    <string name="widget_text_connected_format">Kablosuz Hata Ayıklama: AÇIK (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: İzin eksik</string>
     <string name="tile_state_off">Kapalı</string>
     <string name="tile_state_disconnected">Bağlı değil</string>
     <string name="tile_state_searching">Aranıyor…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Değiştiriliyor…</string>
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>
-    <string name="widget_text_keep_alive_waiting">Kablosuz Hata Ayıklama: KAPALI (bekliyor)</string>
-    <string name="widget_text_pending">Kablosuz Hata Ayıklama: değiştiriliyor…</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
     <string name="settings_section_network">Ağ</string>
     <string name="network_head_mode">Otomatik yeniden etkinleştirme: %1$s</string>
@@ -624,4 +617,38 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="webhook_alert_text_vpn">Webhook\'unuz bir VPN uygulaması üzerinden çalışıyorsa onu pil optimizasyonundan hariç tutun.</string>
     <string name="webhook_alert_action_battery">Pil ipuçları</string>
     <string name="webhook_alert_action_report_now">Şimdi bildir</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB denetimleri</string>
+    <string name="widget_picker_description">Kablosuz hata ayıklama, Keep-Alive ve Webhook denetimleri. Büyüttükçe daha fazlasını gösterir.</string>
+    <string name="widget_action_adb">Hata ayıkl.</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Oto. eşitleme</string>
+    <string name="widget_action_sync_description">Otomatik Webhook eşitleme</string>
+    <string name="widget_state_on">Açık</string>
+    <string name="widget_state_off_waiting">Kapalı, bekliyor</string>
+    <string name="widget_state_waiting">Bekliyor</string>
+    <string name="widget_state_paused">Duraklatıldı</string>
+    <string name="widget_state_setup">Kur</string>
+    <string name="widget_state_ready">Hazır</string>
+    <string name="widget_state_sending">Gönderiliyor…</string>
+    <string name="widget_state_sent">Gönderildi</string>
+    <string name="widget_state_failed">Başarısız</string>
+    <string name="widget_state_no_endpoint">Uç nokta yok</string>
+    <string name="widget_state_sync_off">Eşitleme kapalı</string>
+    <string name="widget_webhook_unconfigured">Webhook: kurulmadı</string>
+    <string name="widget_webhook_sending">Webhook: bildirim gönderiliyor…</string>
+    <string name="widget_webhook_current">Webhook: geçerli uç nokta bildirildi</string>
+    <string name="widget_webhook_not_current">Webhook: geçerli uç nokta henüz bildirilmedi</string>
+    <string name="widget_webhook_no_endpoint">Webhook: bildirilecek uç nokta yok</string>
+    <string name="widget_config_title">Widget\'ı özelleştir</string>
+    <string name="widget_config_primary">Ana eylem (küçük widget\'ta tek başına görünür)</string>
+    <string name="widget_config_order">Eylemlerin sırası</string>
+    <string name="widget_config_move_up">%1$s öğesini yukarı taşı</string>
+    <string name="widget_config_move_down">%1$s öğesini aşağı taşı</string>
+    <string name="widget_config_hide_details">Bu widget\'ta bağlantı ayrıntılarını gizle</string>
+    <string name="widget_config_hide_details_global">Widget gizlilik ayarı ayrıntıları zaten tüm widget\'larda gizliyor.</string>
+    <string name="widget_config_save">Kaydet</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

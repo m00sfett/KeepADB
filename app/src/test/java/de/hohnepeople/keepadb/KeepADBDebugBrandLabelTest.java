@@ -39,13 +39,13 @@ public class KeepADBDebugBrandLabelTest {
             assertEquals("tile_label in " + locale, "(DBG) KeepADB",
                     context.getString(R.string.tile_label));
             // Strings that start with the brand name take it as %1$s argument, so the debug
-            // prefix reaches notification titles, the widget text and the tile error toast too.
+            // prefix reaches notification titles and the tile error toast too.
             String brand = context.getString(R.string.app_name);
             int[] brandedTexts = {
                     R.string.notification_title_active, R.string.notification_title_disabled,
                     R.string.notification_title_searching,
                     R.string.notification_permission_missing_title,
-                    R.string.widget_text_permission_missing, R.string.tile_permission_error};
+                    R.string.tile_permission_error};
             for (int id : brandedTexts) {
                 String text = context.getString(id, brand);
                 assertTrue(locale + " " + context.getResources().getResourceEntryName(id)

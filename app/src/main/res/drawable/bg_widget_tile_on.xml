@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: a control that is on. A heavier 2dp green outline; the word "On" or "Connected" on the
+     tile carries the meaning, the color only reinforces it. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/panel" />
+            <stroke android:width="2dp" android:color="@color/link_red" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/panel_strong" />
+            <stroke android:width="2dp" android:color="@color/status_ok_green" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+</selector>

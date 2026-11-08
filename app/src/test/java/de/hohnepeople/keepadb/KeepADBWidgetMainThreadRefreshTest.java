@@ -80,7 +80,7 @@ public class KeepADBWidgetMainThreadRefreshTest {
 
         String initialText = widgetText(shadowManager.getViewFor(widgetId));
         assertTrue("expected the initial OFF text in the widget: " + initialText,
-                initialText.contains(context.getString(R.string.widget_text_off)));
+                initialText.contains(context.getString(R.string.tile_state_off)));
         assertFalse("no discovery attempt must be running before the refresh either",
                 KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
 
@@ -112,7 +112,7 @@ public class KeepADBWidgetMainThreadRefreshTest {
         String updatedText = widgetText(shadowManager.getViewFor(widgetId));
         assertTrue("expected the DISCONNECTED text once the main looper ran the posted refresh: "
                         + updatedText,
-                updatedText.contains(context.getString(R.string.widget_text_disconnected)));
+                updatedText.contains(context.getString(R.string.tile_state_disconnected)));
         assertFalse("refreshAllState() must never start a discovery attempt, even once applied",
                 KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
     }
@@ -124,7 +124,7 @@ public class KeepADBWidgetMainThreadRefreshTest {
     }
 
     private static String widgetText(View widget) {
-        TextView label = widget.findViewById(R.id.widget_label);
+        TextView label = widget.findViewById(R.id.widget_tile_state);
         return label.getText().toString();
     }
 }

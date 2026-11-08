@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Вмикає або вимикає бездротове налагодження для ADB через Wi-Fi.</string>
     <string name="keep_alive_toggle">Підтримувати постійно активним</string>
     <string name="keep_alive_subtext">Автоперепідключення при обриві зв’язку, зміні мережі або перезавантаженні</string>
-    <string name="widget_text_on">Бездротове налагодження: УВІМК</string>
-    <string name="widget_text_off">Бездротове налагодження: ВИМК</string>
     <string name="tile_permission_error">%1$s: Відсутній дозвіл (потрібно pm grant)</string>
     <string name="permission_error_toast">Відсутній дозвіл. Виконайте один раз із ПК:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Кінцева точка бездротового налагодження</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Вимкнути Wifi-ADB</string>
     <string name="status_enabled_disconnected">Бездротове налагодження УВІМКНЕНО (не підключено)</string>
     <string name="status_permission_missing">Немає системного дозволу</string>
-    <string name="widget_text_disconnected">Бездротове налагодження: не підключено</string>
-    <string name="widget_text_connected_format">Бездротове налагодження: УВІМКНЕНО (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: немає дозволу</string>
     <string name="tile_state_off">Вимкнено</string>
     <string name="tile_state_disconnected">Не підключено</string>
     <string name="tile_state_searching">Пошук…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Перемикання…</string>
     <string name="state_pending">Перемикання…</string>
     <string name="tile_state_keep_alive_waiting">Вимкнено — Keep-Alive чекає</string>
-    <string name="widget_text_keep_alive_waiting">Бездротове налагодження: ВИМК (очікування)</string>
-    <string name="widget_text_pending">Бездротове налагодження: перемикання…</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
     <string name="settings_section_network">Мережа</string>
     <string name="network_head_mode">Автоматичне повторне ввімкнення: %1$s</string>
@@ -626,4 +619,38 @@
     <string name="webhook_alert_text_vpn">Якщо webhook працює через VPN-застосунок, вимкніть для нього оптимізацію батареї.</string>
     <string name="webhook_alert_action_battery">Поради щодо батареї</string>
     <string name="webhook_alert_action_report_now">Надіслати зараз</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Керування KeepADB</string>
+    <string name="widget_picker_description">Керування бездротовим налагодженням, Keep-Alive і Webhook. Чим більший віджет, тим більше він показує.</string>
+    <string name="widget_action_adb">Налагодж.</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Автосинхр.</string>
+    <string name="widget_action_sync_description">Автоматична синхронізація Webhook</string>
+    <string name="widget_state_on">Увімкнено</string>
+    <string name="widget_state_off_waiting">Вимкнено, очікування</string>
+    <string name="widget_state_waiting">Очікування</string>
+    <string name="widget_state_paused">Призупинено</string>
+    <string name="widget_state_setup">Налаштувати</string>
+    <string name="widget_state_ready">Готово</string>
+    <string name="widget_state_sending">Надсилання…</string>
+    <string name="widget_state_sent">Надіслано</string>
+    <string name="widget_state_failed">Помилка</string>
+    <string name="widget_state_no_endpoint">Немає кінцевої точки</string>
+    <string name="widget_state_sync_off">Синхр. вимк.</string>
+    <string name="widget_webhook_unconfigured">Webhook: не налаштовано</string>
+    <string name="widget_webhook_sending">Webhook: надсилання звіту…</string>
+    <string name="widget_webhook_current">Webhook: поточну кінцеву точку передано</string>
+    <string name="widget_webhook_not_current">Webhook: поточну кінцеву точку ще не передано</string>
+    <string name="widget_webhook_no_endpoint">Webhook: немає кінцевої точки для передачі</string>
+    <string name="widget_config_title">Налаштувати віджет</string>
+    <string name="widget_config_primary">Головна дія (єдина в малому віджеті)</string>
+    <string name="widget_config_order">Порядок дій</string>
+    <string name="widget_config_move_up">Перемістити «%1$s» вгору</string>
+    <string name="widget_config_move_down">Перемістити «%1$s» вниз</string>
+    <string name="widget_config_hide_details">Сховати дані підключення в цьому віджеті</string>
+    <string name="widget_config_hide_details_global">Налаштування приватності віджетів уже приховує дані в усіх віджетах.</string>
+    <string name="widget_config_save">Зберегти</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

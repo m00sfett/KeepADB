@@ -1,0 +1,445 @@
+package de.hohnepeople.keepadb;
+
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.applyAndMeasure;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.label;
+import static de.hohnepeople.keepadb.KeepADBWidgetTestSupport.tiles;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
+
+import android.app.Application;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Looper;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RemoteViews;
+
+import androidx.test.core.app.ApplicationProvider;
+
+import java.net.ServerSocket;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAppWidgetManager;
+import org.robolectric.shadows.ShadowPendingIntent;
+
+import de.hohnepeople.keepadb.KeepADBWidgetConfig.Action;
+import de.hohnepeople.keepadb.KeepADBWidgetLayout.SizeClass;
+
+/**
+ * #912: the widget's life on a launcher: legacy instances keep working, rendering and resizing
+ * never send or poll, placement (onUpdate) is the one place that asks the coordinator for work,
+ * and every control routes to its own action for its own instance.
+ */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
+public class KeepADBWidgetLifecycleTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule networkResetRule = new KeepADBNetworkResetRule();
+    @Rule
+    public final KeepADBRegisterClientResetRule registerResetRule = new KeepADBRegisterClientResetRule();
+
+    private static final String URL = "http://register.example/register/dev1";
+
+    private final AtomicBoolean wifi = new AtomicBoolean(true);
+    private Context context;
+    private KeepADBFakeSettingsGateway gateway;
+    private KeepADBFakeHttpTransport transport;
+    private ServerSocket endpointServer;
+    private ShadowAppWidgetManager widgets;
+    private AppWidgetManager manager;
+
+    @Before
+    public void setUp() throws Exception {
+        context = ApplicationProvider.getApplicationContext();
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS,
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
+        KeepADBWidgetConfig.clearAll(context);
+        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBReportHistory.clear(context);
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADB.resetForTesting(context);
+        KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
+        gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(wifi::get);
+        transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        endpointServer = new ServerSocket(0);
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBEndpointCoordinator.seedEndpointForTesting("127.0.0.1", endpointServer.getLocalPort(), 1L);
+        manager = AppWidgetManager.getInstance(context);
+        widgets = shadowOf(manager);
+        shadowOf(Looper.getMainLooper()).idle();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        KeepADBRegisterClientResetRule.awaitIdle();
+        KeepADBEndpointCoordinator.resetForTesting();
+        endpointServer.close();
+        KeepADBWidgetConfig.clearAll(context);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
+        KeepADB.resetForTesting();
+    }
+
+    private View panel(int widgetId, KeepADBWidgetConfig config, SizeClass sizeClass) {
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, config.hideDetails);
+        return applyAndMeasure(context,
+                KeepADBWidgetViews.forSize(context, widgetId, config, projection, sizeClass, true),
+                Math.max(56, sizeClass.minWidthDp), Math.max(56, sizeClass.minHeightDp));
+    }
+
+    private NotificationManager notifications() {
+        return context.getSystemService(NotificationManager.class);
+    }
+
+    private boolean endpointNotificationShown() {
+        return shadowOf(notifications()).getNotification(KeepADBNotification.NOTIFICATION_ID) != null;
+    }
+
+    // -- legacy --------------------------------------------------------------------------------
+
+    @Test
+    public void aWidgetPlacedBeforeThisVersionRendersTheDefaultsAndKeepsItsToggle() {
+        // No stored entry: exactly the state of every widget placed before #912.
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertFalse(KeepADBWidgetConfig.isStored(context, id));
+
+        View view = widgets.getViewFor(id);
+        List<View> tiles = tiles(view);
+        assertFalse("it renders something", tiles.isEmpty());
+        assertEquals(context.getString(R.string.widget_action_adb), label(tiles.get(0)));
+
+        // The tap still reaches the same component with the same action it always did.
+        PendingIntent toggle = KeepADBWidgetActions.toggleAdb(context);
+        Intent saved = shadowOf(toggle).getSavedIntent();
+        assertEquals("de.hohnepeople.keepadb.TOGGLE", saved.getAction());
+        assertEquals(KeepADBWidget.class.getName(), saved.getComponent().getClassName());
+        assertEquals(0, shadowOf(toggle).getRequestCode());
+
+        gateway.writes.clear();
+        new KeepADBWidget().onReceive(context, new Intent(context, KeepADBWidget.class)
+                .setAction("de.hohnepeople.keepadb.TOGGLE"));
+        assertEquals("the old PendingIntent still toggles", Arrays.asList(false), gateway.writes);
+    }
+
+    @Test
+    public void renderingAndRestoringLeaveTheAppSettingsAlone() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        TreeMap<String, ?> before = new TreeMap<>(
+                context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).getAll());
+
+        KeepADBWidget.refreshAllState(context);
+        KeepADBWidget.refresh(context, id);
+        new KeepADBWidget().onAppWidgetOptionsChanged(context, manager, id, new Bundle());
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertEquals(before, new TreeMap<>(
+                context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).getAll()));
+        assertFalse(KeepADBWidgetConfig.isStored(context, id));
+    }
+
+    @Test
+    public void theInstancesOwnHideOptionAndTheGlobalSwitchReachTheRenderedWidget() {
+        int shown = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        int hidden = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        KeepADBWidgetConfig.save(context, hidden, KeepADBWidgetConfig.of(Action.ADB, null, true));
+        KeepADBWidget.refreshAllState(context);
+        shadowOf(Looper.getMainLooper()).idle();
+        String port = String.valueOf(endpointServer.getLocalPort());
+
+        assertTrue("the widget without the option shows the port",
+                KeepADBWidgetTestSupport.allText(widgets.getViewFor(shown)).contains(port));
+        assertFalse("the widget with the option hides it",
+                KeepADBWidgetTestSupport.allText(widgets.getViewFor(hidden)).contains(port));
+
+        KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
+        KeepADBWidget.refreshAllState(context); // what the settings switch does after flipping it
+        shadowOf(Looper.getMainLooper()).idle();
+        assertFalse("the global switch hides it in every widget",
+                KeepADBWidgetTestSupport.allText(widgets.getViewFor(shown)).contains(port));
+    }
+
+    // -- no send, no poll on render and resize ----------------------------------------------------
+
+    @Test
+    public void renderingAndResizingNeverSendAReportNorStartADiscovery() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+        // Placing it was an update, which may report and notify (that is the point of the next
+        // tests). From here on only renders and resizes happen.
+        transport.recordedRequests.clear();
+        notifications().cancelAll();
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADBEndpointCoordinator.seedEndpointForTesting("127.0.0.1", endpointServer.getLocalPort(), 1L);
+        assertFalse(endpointNotificationShown());
+
+        KeepADBWidget provider = new KeepADBWidget();
+        Bundle options = new Bundle();
+        for (int width : new int[] {56, 110, 250, 330}) {
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 56 + width / 2);
+            provider.onAppWidgetOptionsChanged(context, manager, id, options);
+        }
+        KeepADBWidget.refreshAll(context);
+        KeepADBWidget.refreshAllState(context);
+        KeepADBWidget.refresh(context, id);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        assertEquals("a render or a resize sent nothing", 0, transport.getRequestCount());
+        assertFalse("and started no discovery", KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
+        assertFalse("and posted no endpoint notification", endpointNotificationShown());
+    }
+
+    @Test
+    public void theCoordinatorStillSendsWhenAskedSoTheQuietTestMeansSomething() {
+        // Counter-check for the test above: the same state does send when the coordinator is asked.
+        KeepADBEndpointCoordinator.refresh(context);
+        KeepADBRegisterClientResetRule.awaitIdle();
+        assertTrue("an asked refresh reports the cached endpoint", transport.getRequestCount() > 0);
+    }
+
+    @Test
+    public void placementIsTheOneUpdateThatAsksTheCoordinatorForOneRefresh() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        int other = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        KeepADBRegisterClientResetRule.awaitIdle();
+        // Whatever the shadow's own first update did, start from a clean slate.
+        notifications().cancelAll();
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADBEndpointCoordinator.seedEndpointForTesting("127.0.0.1", endpointServer.getLocalPort(), 1L);
+        assertFalse(endpointNotificationShown());
+
+        KeepADBWidget provider = new KeepADBWidget();
+        provider.onAppWidgetOptionsChanged(context, manager, id, new Bundle());
+        KeepADBWidget.refreshAllState(context);
+        assertFalse("resize and re-render do not touch the coordinator", endpointNotificationShown());
+
+        // Boot and placement: with Keep-Alive off nothing else restarts the coordinator.
+        assertFalse(KeepADBPreferences.isKeepAliveEnabled(context));
+        provider.onUpdate(context, manager, new int[] {id, other});
+        assertTrue("the update refreshed the coordinator, which shows the endpoint",
+                endpointNotificationShown());
+    }
+
+    // -- routing -------------------------------------------------------------------------------
+
+    @Test
+    public void everyControlRoutesToItsOwnActionWhateverItsPosition() {
+        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetConfig custom = KeepADBWidgetConfig.of(Action.REPORT_NOW,
+                Arrays.asList(Action.REPORT_NOW, Action.KEEP_ALIVE, Action.ADB, Action.WEBHOOK_SYNC), false);
+        View a = panel(101, defaults, SizeClass.STRIP);
+        View b = panel(102, custom, SizeClass.STRIP);
+        Application app = (Application) context;
+
+        // Widget A, first tile: Wireless Debugging, the widget's own toggle broadcast.
+        tiles(a).get(0).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        Intent last = lastBroadcast(app);
+        assertEquals("de.hohnepeople.keepadb.TOGGLE", last.getAction());
+        assertEquals(KeepADBWidget.class.getName(), last.getComponent().getClassName());
+
+        // Widget B, same position, another control: Report now, the dedicated action.
+        tiles(b).get(0).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        last = lastBroadcast(app);
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, last.getAction());
+        assertEquals(KeepADBReceiver.class.getName(), last.getComponent().getClassName());
+
+        // B, second tile: Keep-Alive, the notification's action; A's second tile is the same.
+        tiles(b).get(1).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE, lastBroadcast(app).getAction());
+        tiles(a).get(1).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE, lastBroadcast(app).getAction());
+    }
+
+    private static Intent lastBroadcast(Application app) {
+        List<Intent> broadcasts = shadowOf(app).getBroadcastIntents();
+        assertFalse("a tap must send a broadcast", broadcasts.isEmpty());
+        return broadcasts.get(broadcasts.size() - 1);
+    }
+
+    @Test
+    public void theTargetStateControlsAskForTheStateAndNeverForAFlip() {
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, savedAction(
+                KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.SYNC_ENABLE)));
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE, savedAction(
+                KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.SYNC_DISABLE)));
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, savedAction(
+                KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.REPORT_NOW)));
+        assertEquals(KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE, savedAction(
+                KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.TOGGLE_KEEP_ALIVE)));
+    }
+
+    private static String savedAction(PendingIntent pendingIntent) {
+        return shadowOf(pendingIntent).getSavedIntent().getAction();
+    }
+
+    @Test
+    public void everyPendingIntentIsExplicitAndImmutable() {
+        for (KeepADBWidgetContent.Click click : KeepADBWidgetContent.Click.values()) {
+            ShadowPendingIntent shadow = shadowOf(KeepADBWidgetActions.forClick(context, click));
+            Intent intent = shadow.getSavedIntent();
+            assertNotNull(click + " names its component", intent.getComponent());
+            assertEquals(click.name(), context.getPackageName(), intent.getComponent().getPackageName());
+            assertTrue(click + " is immutable",
+                    (shadow.getFlags() & PendingIntent.FLAG_IMMUTABLE) != 0);
+        }
+        PendingIntent customize = KeepADBWidgetActions.customize(context, 5);
+        assertTrue((shadowOf(customize).getFlags() & PendingIntent.FLAG_IMMUTABLE) != 0);
+        assertNotNull(shadowOf(customize).getSavedIntent().getComponent());
+    }
+
+    @Test
+    public void theSettingsOfOneWidgetAreReachedFromThatWidgetOnly() {
+        View a = panel(201, KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
+        View b = panel(202, KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
+        Application app = (Application) context;
+
+        a.findViewById(R.id.widget_customize).performClick();
+        Intent first = shadowOf(app).getNextStartedActivity();
+        b.findViewById(R.id.widget_customize).performClick();
+        Intent second = shadowOf(app).getNextStartedActivity();
+
+        assertEquals(KeepADBWidgetConfigActivity.class.getName(), first.getComponent().getClassName());
+        assertEquals(201, first.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1));
+        assertEquals(202, second.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1));
+        PendingIntent one = KeepADBWidgetActions.customize(context, 201);
+        PendingIntent two = KeepADBWidgetActions.customize(context, 202);
+        assertNotEquals(shadowOf(one).getRequestCode(), shadowOf(two).getRequestCode());
+        assertNotEquals(shadowOf(one).getSavedIntent().getData(), shadowOf(two).getSavedIntent().getData());
+    }
+
+    @Test
+    public void setupAndReasonsLeadToTheRelevantAppDestination() {
+        Application app = (Application) context;
+
+        // No destination: the report slot and the sync tile lead to the webhook form.
+        KeepADBPreferences.setRegisterWebhookUrl(context, null);
+        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
+        tiles(panel(301, report, SizeClass.SINGLE)).get(0).performClick();
+        Intent setup = shadowOf(app).getNextStartedActivity();
+        assertEquals(SettingsActivity.class.getName(), setup.getComponent().getClassName());
+        assertTrue(setup.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
+
+        // The grant is missing: the Wireless Debugging tile and the details open the home screen.
+        shadowOf(app).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        View widget = panel(302, KeepADBWidgetConfig.defaults(), SizeClass.PANEL);
+        tiles(widget).get(0).performClick();
+        assertEquals(MainActivity.class.getName(),
+                shadowOf(app).getNextStartedActivity().getComponent().getClassName());
+        widget.findViewById(R.id.widget_details).performClick();
+        assertEquals(MainActivity.class.getName(),
+                shadowOf(app).getNextStartedActivity().getComponent().getClassName());
+        assertNull("nothing else started", shadowOf(app).getNextStartedActivity());
+    }
+
+    @Test
+    public void aMissingEndpointOpensTheAppInsteadOfSendingNothing() {
+        KeepADBEndpointCoordinator.seedEndpointForTesting(null, 0, 0L);
+        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
+        int before = transport.getRequestCount();
+        tiles(panel(311, report, SizeClass.SINGLE)).get(0).performClick();
+        KeepADBRegisterClientResetRule.awaitIdle();
+
+        assertEquals(MainActivity.class.getName(),
+                shadowOf((Application) context).getNextStartedActivity().getComponent().getClassName());
+        assertEquals("nothing was sent", before, transport.getRequestCount());
+    }
+
+    // -- responsive keys agree with the code path used below Android 12 ---------------------------
+
+    @Test
+    public void theLaunchersBestFitOfTheResponsiveKeysEqualsTheFallbackChoice() {
+        // The platform shows the largest entry that fits the room, else the smallest. Replaying that
+        // rule over many rooms and font scales must give the class the Android 11 path computes.
+        for (float scale : new float[] {1f, 1.15f, 1.3f, 1.5f, 2f}) {
+            for (int width = 40; width <= 420; width += 7) {
+                for (int height = 40; height <= 320; height += 7) {
+                    assertEquals(width + "x" + height + " @" + scale,
+                            KeepADBWidgetLayout.choose(width, height, scale),
+                            bestFit(width, height, scale));
+                }
+            }
+        }
+    }
+
+    private static SizeClass bestFit(int width, int height, float scale) {
+        SizeClass best = null;
+        float bestArea = -1f;
+        SizeClass smallest = null;
+        float smallestArea = Float.MAX_VALUE;
+        for (SizeClass sizeClass : SizeClass.values()) {
+            float w = KeepADBWidgetLayout.responsiveWidthDp(sizeClass, scale);
+            float h = KeepADBWidgetLayout.responsiveHeightDp(sizeClass, scale);
+            float area = w * h;
+            if (area < smallestArea) {
+                smallestArea = area;
+                smallest = sizeClass;
+            }
+            if (w <= width && h <= height && area > bestArea) {
+                bestArea = area;
+                best = sizeClass;
+            }
+        }
+        return best != null ? best : smallest;
+    }
+
+    @Test
+    public void theResponsiveViewsBuildAndTheSmallestIsShownWhenNoSizeIsKnown() {
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        RemoteViews responsive = KeepADBWidgetViews.responsive(context, 9,
+                KeepADBWidgetConfig.defaults(), projection, 1f);
+        View view = responsive.apply(context, new FrameLayout(context));
+        assertEquals("one control before any size is known", 1, tiles(view).size());
+    }
+
+    @Test
+    public void aNewRemoteViewsReappliedOnTheOldViewReplacesTheTilesInsteadOfAddingToThem() {
+        // What a launcher does on a resize and on every refresh: reapply onto the view it has.
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        RemoteViews strip = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.STRIP, true);
+        RemoteViews single = KeepADBWidgetViews.forSize(context, 9, config, projection, SizeClass.SINGLE, true);
+
+        View view = strip.apply(context, new FrameLayout(context));
+        assertEquals(4, tiles(view).size());
+        single.reapply(context, view);
+        assertEquals(1, tiles(view).size());
+        strip.reapply(context, view);
+        assertEquals(4, tiles(view).size());
+        strip.reapply(context, view);
+        assertEquals("refreshing the same size does not stack tiles", 4, tiles(view).size());
+    }
+}

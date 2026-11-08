@@ -114,6 +114,9 @@ public class PrivacyToggleTitleBarsTest {
                 // #897: the warnings screen lists warning reasons and mute switches only, never a
                 // network name or address.
                 if (file.getFileName().toString().equals("activity_warnings.xml")) continue;
+                // #912: the widget settings page lists the four actions and one switch; it shows
+                // no network name or address either.
+                if (file.getFileName().toString().equals("activity_widget_config.xml")) continue;
                 if (xml.contains("@color/banner_red") && xml.contains("@+id/header_bar")) {
                     redBars++;
                     assertTrue(file.getFileName() + " has a red header bar and needs the eye",

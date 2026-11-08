@@ -26,8 +26,6 @@
     <string name="toggle_subtext">يشغّل أو يوقف تصحيح الأخطاء اللاسلكي لاستخدام ADB عبر Wi-Fi.</string>
     <string name="keep_alive_toggle">إبقاء مفعلًا باستمرار</string>
     <string name="keep_alive_subtext">إعادة الاتصال تلقائيًا عند انقطاع الاتصال أو تغيير الشبكة أو إعادة التشغيل</string>
-    <string name="widget_text_on">تصحيح لاسلكي: تشغيل</string>
-    <string name="widget_text_off">تصحيح لاسلكي: إيقاف</string>
     <string name="tile_permission_error">%1$s: الإذن مفقود (مطلوب pm grant)</string>
     <string name="permission_error_toast">الإذن مفقود. شغّل مرة واحدة من الكمبيوتر:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">نقطة نهاية تصحيح الأخطاء اللاسلكي</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
     <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>
     <string name="status_permission_missing">إذن النظام مفقود</string>
-    <string name="widget_text_disconnected">تصحيح الأخطاء اللاسلكي: غير متصل</string>
-    <string name="widget_text_connected_format">تصحيح الأخطاء اللاسلكي: مفعّل (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: الإذن مفقود</string>
     <string name="tile_state_off">متوقف</string>
     <string name="tile_state_disconnected">غير متصل</string>
     <string name="tile_state_searching">جارٍ البحث…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">جارٍ التبديل…</string>
     <string name="state_pending">جارٍ التبديل…</string>
     <string name="tile_state_keep_alive_waiting">متوقف — ينتظر Keep-Alive</string>
-    <string name="widget_text_keep_alive_waiting">تصحيح لاسلكي: إيقاف (في الانتظار)</string>
-    <string name="widget_text_pending">تصحيح لاسلكي: جارٍ التبديل…</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
     <string name="settings_section_network">الشبكة</string>
     <string name="network_head_mode">إعادة التفعيل التلقائي: %1$s</string>
@@ -628,4 +621,38 @@
     <string name="webhook_alert_text_vpn">إذا كان الـ Webhook يعمل عبر تطبيق VPN، فاستثنِه من تحسين البطارية.</string>
     <string name="webhook_alert_action_battery">نصائح البطارية</string>
     <string name="webhook_alert_action_report_now">أبلغ الآن</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">عناصر تحكم KeepADB</string>
+    <string name="widget_picker_description">عناصر تحكم في التصحيح اللاسلكي وKeep-Alive وWebhook. تظهر عناصر أكثر كلما كبّرته.</string>
+    <string name="widget_action_adb">التصحيح</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">مزامنة تلقائية</string>
+    <string name="widget_action_sync_description">مزامنة Webhook التلقائية</string>
+    <string name="widget_state_on">مفعّل</string>
+    <string name="widget_state_off_waiting">متوقف، في الانتظار</string>
+    <string name="widget_state_waiting">في الانتظار</string>
+    <string name="widget_state_paused">متوقف مؤقتًا</string>
+    <string name="widget_state_setup">يلزم الإعداد</string>
+    <string name="widget_state_ready">جاهز</string>
+    <string name="widget_state_sending">جارٍ الإرسال…</string>
+    <string name="widget_state_sent">تم الإرسال</string>
+    <string name="widget_state_failed">فشل</string>
+    <string name="widget_state_no_endpoint">لا نقطة نهاية</string>
+    <string name="widget_state_sync_off">المزامنة متوقفة</string>
+    <string name="widget_webhook_unconfigured">Webhook: غير مُعدّ</string>
+    <string name="widget_webhook_sending">Webhook: جارٍ إرسال التقرير…</string>
+    <string name="widget_webhook_current">Webhook: تم إبلاغ نقطة النهاية الحالية</string>
+    <string name="widget_webhook_not_current">Webhook: لم يُبلَّغ عن نقطة النهاية الحالية بعد</string>
+    <string name="widget_webhook_no_endpoint">Webhook: لا توجد نقطة نهاية للإبلاغ</string>
+    <string name="widget_config_title">تخصيص الأداة</string>
+    <string name="widget_config_primary">الإجراء الرئيسي (يظهر وحده في أداة صغيرة)</string>
+    <string name="widget_config_order">ترتيب الإجراءات</string>
+    <string name="widget_config_move_up">نقل %1$s لأعلى</string>
+    <string name="widget_config_move_down">نقل %1$s لأسفل</string>
+    <string name="widget_config_hide_details">إخفاء تفاصيل الاتصال في هذه الأداة</string>
+    <string name="widget_config_hide_details_global">إعداد خصوصية الأدوات يخفي التفاصيل بالفعل في كل الأدوات.</string>
+    <string name="widget_config_save">حفظ</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

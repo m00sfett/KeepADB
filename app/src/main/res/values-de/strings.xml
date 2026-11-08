@@ -28,11 +28,6 @@
     <string name="toggle_subtext">Schaltet Drahtloses Debugging für ADB über WLAN ein oder aus.</string>
     <string name="keep_alive_toggle">Dauerhaft aktiv halten</string>
     <string name="keep_alive_subtext">Automatischer Reconnect bei Verbindungsabbruch, Access-Point-Wechsel oder Neustart</string>
-    <string name="widget_text_on">Drahtloses Debugging: AN</string>
-    <string name="widget_text_off">Drahtloses Debugging: AUS</string>
-    <string name="widget_text_disconnected">Drahtlos-Debugging: Getrennt</string>
-    <string name="widget_text_connected_format">Drahtlos-Debugging: AN (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Berechtigung fehlt</string>
     <string name="tile_state_off">Aus</string>
     <string name="tile_state_disconnected">Nicht verbunden</string>
     <string name="tile_state_searching">Suche …</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Wird umgeschaltet …</string>
     <string name="state_pending">Wird umgeschaltet …</string>
     <string name="tile_state_keep_alive_waiting">Aus – Keep-Alive wartet</string>
-    <string name="widget_text_keep_alive_waiting">Drahtloses Debugging: AUS (wartet)</string>
-    <string name="widget_text_pending">Drahtloses Debugging: wird umgeschaltet …</string>
     <string name="toggle_failed_toast">Drahtloses Debugging konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
     <string name="settings_section_network">Netzwerk</string>
     <string name="network_head_mode">Automatisches Wiedereinschalten: %1$s</string>
@@ -624,4 +617,38 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="webhook_alert_text_vpn">Läuft dein Webhook über eine VPN-App, nimm sie von der Akkuoptimierung aus.</string>
     <string name="webhook_alert_action_battery">Akku-Tipps</string>
     <string name="webhook_alert_action_report_now">Jetzt melden</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB-Steuerung</string>
+    <string name="widget_picker_description">Steuerung für Drahtloses Debugging, Keep-Alive und Webhook. Zeigt mehr, je größer es wird.</string>
+    <string name="widget_action_adb">Debugging</string>
+    <string name="widget_action_keep_alive">Dauerhaft</string>
+    <string name="widget_action_sync">Auto-Sync</string>
+    <string name="widget_action_sync_description">Automatische Webhook-Synchronisierung</string>
+    <string name="widget_state_on">An</string>
+    <string name="widget_state_off_waiting">Aus, wartet</string>
+    <string name="widget_state_waiting">Wartet</string>
+    <string name="widget_state_paused">Pausiert</string>
+    <string name="widget_state_setup">Einrichten</string>
+    <string name="widget_state_ready">Bereit</string>
+    <string name="widget_state_sending">Sendet …</string>
+    <string name="widget_state_sent">Gesendet</string>
+    <string name="widget_state_failed">Fehlgeschlagen</string>
+    <string name="widget_state_no_endpoint">Kein Endpunkt</string>
+    <string name="widget_state_sync_off">Sync aus</string>
+    <string name="widget_webhook_unconfigured">Webhook: nicht eingerichtet</string>
+    <string name="widget_webhook_sending">Webhook: Meldung wird gesendet …</string>
+    <string name="widget_webhook_current">Webhook: aktueller Endpunkt gemeldet</string>
+    <string name="widget_webhook_not_current">Webhook: aktueller Endpunkt noch nicht gemeldet</string>
+    <string name="widget_webhook_no_endpoint">Webhook: kein Endpunkt zum Melden</string>
+    <string name="widget_config_title">Widget anpassen</string>
+    <string name="widget_config_primary">Hauptaktion (steht allein in einem kleinen Widget)</string>
+    <string name="widget_config_order">Reihenfolge der Aktionen</string>
+    <string name="widget_config_move_up">%1$s nach oben</string>
+    <string name="widget_config_move_down">%1$s nach unten</string>
+    <string name="widget_config_hide_details">Verbindungsdetails in diesem Widget ausblenden</string>
+    <string name="widget_config_hide_details_global">Die Datenschutzeinstellung für Widgets blendet die Details bereits in allen Widgets aus.</string>
+    <string name="widget_config_save">Speichern</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

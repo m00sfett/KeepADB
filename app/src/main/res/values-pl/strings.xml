@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Włącza lub wyłącza debugowanie bezprzewodowe dla ADB przez Wi-Fi.</string>
     <string name="keep_alive_toggle">Utrzymuj stale aktywne</string>
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
-    <string name="widget_text_on">Debugowanie bezprzewodowe: WŁ.</string>
-    <string name="widget_text_off">Debugowanie bezprzewodowe: WYŁ.</string>
     <string name="tile_permission_error">%1$s: Brak uprawnień (wymagane pm grant)</string>
     <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punkt końcowy debugowania bezprzewodowego</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Wyłącz Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugowanie bezprzewodowe jest WŁĄCZONE (Rozłączone)</string>
     <string name="status_permission_missing">Brak uprawnienia systemowego</string>
-    <string name="widget_text_disconnected">Debugowanie bezprzewodowe: Rozłączone</string>
-    <string name="widget_text_connected_format">Debugowanie bezprzewodowe: WŁ. (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Brak uprawnień</string>
     <string name="tile_state_off">Wyłączone</string>
     <string name="tile_state_disconnected">Rozłączone</string>
     <string name="tile_state_searching">Wyszukiwanie…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Przełączanie…</string>
     <string name="state_pending">Przełączanie…</string>
     <string name="tile_state_keep_alive_waiting">Wyłączone – Keep-Alive czeka</string>
-    <string name="widget_text_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁ. (oczekiwanie)</string>
-    <string name="widget_text_pending">Debugowanie bezprzewodowe: przełączanie…</string>
     <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
     <string name="settings_section_network">Sieć</string>
     <string name="network_head_mode">Automatyczne ponowne włączanie: %1$s</string>
@@ -626,4 +619,38 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="webhook_alert_text_vpn">Jeśli webhook działa przez aplikację VPN, wyłącz dla niej optymalizację baterii.</string>
     <string name="webhook_alert_action_battery">Wskazówki baterii</string>
     <string name="webhook_alert_action_report_now">Zgłoś teraz</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Sterowanie KeepADB</string>
+    <string name="widget_picker_description">Sterowanie debugowaniem bezprzewodowym, Keep-Alive i Webhook. Im większy widżet, tym więcej pokazuje.</string>
+    <string name="widget_action_adb">Debugowanie</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Autosynchr.</string>
+    <string name="widget_action_sync_description">Automatyczna synchronizacja Webhook</string>
+    <string name="widget_state_on">Włączone</string>
+    <string name="widget_state_off_waiting">Wyłączone, czeka</string>
+    <string name="widget_state_waiting">Czeka</string>
+    <string name="widget_state_paused">Wstrzymane</string>
+    <string name="widget_state_setup">Skonfiguruj</string>
+    <string name="widget_state_ready">Gotowe</string>
+    <string name="widget_state_sending">Wysyłanie…</string>
+    <string name="widget_state_sent">Wysłano</string>
+    <string name="widget_state_failed">Błąd</string>
+    <string name="widget_state_no_endpoint">Brak punktu końcowego</string>
+    <string name="widget_state_sync_off">Synchr. wył.</string>
+    <string name="widget_webhook_unconfigured">Webhook: nie skonfigurowano</string>
+    <string name="widget_webhook_sending">Webhook: wysyłanie zgłoszenia…</string>
+    <string name="widget_webhook_current">Webhook: bieżący punkt końcowy zgłoszony</string>
+    <string name="widget_webhook_not_current">Webhook: bieżący punkt końcowy jeszcze nie zgłoszony</string>
+    <string name="widget_webhook_no_endpoint">Webhook: brak punktu końcowego do zgłoszenia</string>
+    <string name="widget_config_title">Dostosuj widżet</string>
+    <string name="widget_config_primary">Główna akcja (sama w małym widżecie)</string>
+    <string name="widget_config_order">Kolejność akcji</string>
+    <string name="widget_config_move_up">Przesuń %1$s w górę</string>
+    <string name="widget_config_move_down">Przesuń %1$s w dół</string>
+    <string name="widget_config_hide_details">Ukryj szczegóły połączenia w tym widżecie</string>
+    <string name="widget_config_hide_details_global">Ustawienie prywatności widżetów już ukrywa szczegóły we wszystkich widżetach.</string>
+    <string name="widget_config_save">Zapisz</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

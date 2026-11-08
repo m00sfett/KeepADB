@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Bật hoặc tắt Gỡ lỗi không dây để dùng ADB qua Wi-Fi.</string>
     <string name="keep_alive_toggle">Luôn duy trì hoạt động</string>
     <string name="keep_alive_subtext">Tự động kết nối lại khi mất kết nối, đổi mạng hoặc khởi động lại</string>
-    <string name="widget_text_on">Gỡ lỗi không dây: BẬT</string>
-    <string name="widget_text_off">Gỡ lỗi không dây: TẮT</string>
     <string name="tile_permission_error">%1$s: Thiếu quyền (cần pm grant)</string>
     <string name="permission_error_toast">Thiếu quyền. Chạy một lần từ PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Điểm cuối gỡ lỗi không dây</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
     <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>
-    <string name="widget_text_disconnected">Gỡ lỗi không dây: Đã ngắt kết nối</string>
-    <string name="widget_text_connected_format">Gỡ lỗi không dây: ĐANG BẬT (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Thiếu quyền</string>
     <string name="tile_state_off">Tắt</string>
     <string name="tile_state_disconnected">Đã ngắt kết nối</string>
     <string name="tile_state_searching">Đang tìm…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Đang chuyển…</string>
     <string name="state_pending">Đang chuyển…</string>
     <string name="tile_state_keep_alive_waiting">Tắt – Keep-Alive đang chờ</string>
-    <string name="widget_text_keep_alive_waiting">Gỡ lỗi không dây: TẮT (đang chờ)</string>
-    <string name="widget_text_pending">Gỡ lỗi không dây: đang chuyển…</string>
     <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
     <string name="settings_section_network">Mạng</string>
     <string name="network_head_mode">Tự động bật lại: %1$s</string>
@@ -623,4 +616,38 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="webhook_alert_text_vpn">Nếu webhook chạy qua một ứng dụng VPN, hãy loại ứng dụng đó khỏi tối ưu hóa pin.</string>
     <string name="webhook_alert_action_battery">Mẹo về pin</string>
     <string name="webhook_alert_action_report_now">Báo cáo ngay</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Điều khiển KeepADB</string>
+    <string name="widget_picker_description">Điều khiển gỡ lỗi không dây, Keep-Alive và Webhook. Càng phóng to càng hiển thị nhiều hơn.</string>
+    <string name="widget_action_adb">Gỡ lỗi</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Tự đồng bộ</string>
+    <string name="widget_action_sync_description">Đồng bộ Webhook tự động</string>
+    <string name="widget_state_on">Bật</string>
+    <string name="widget_state_off_waiting">Tắt, đang chờ</string>
+    <string name="widget_state_waiting">Đang chờ</string>
+    <string name="widget_state_paused">Tạm dừng</string>
+    <string name="widget_state_setup">Thiết lập</string>
+    <string name="widget_state_ready">Sẵn sàng</string>
+    <string name="widget_state_sending">Đang gửi…</string>
+    <string name="widget_state_sent">Đã gửi</string>
+    <string name="widget_state_failed">Thất bại</string>
+    <string name="widget_state_no_endpoint">Chưa có điểm cuối</string>
+    <string name="widget_state_sync_off">Đồng bộ tắt</string>
+    <string name="widget_webhook_unconfigured">Webhook: chưa thiết lập</string>
+    <string name="widget_webhook_sending">Webhook: đang gửi báo cáo…</string>
+    <string name="widget_webhook_current">Webhook: đã báo cáo điểm cuối hiện tại</string>
+    <string name="widget_webhook_not_current">Webhook: chưa báo cáo điểm cuối hiện tại</string>
+    <string name="widget_webhook_no_endpoint">Webhook: không có điểm cuối để báo cáo</string>
+    <string name="widget_config_title">Tùy chỉnh widget</string>
+    <string name="widget_config_primary">Hành động chính (hiển thị riêng trong widget nhỏ)</string>
+    <string name="widget_config_order">Thứ tự hành động</string>
+    <string name="widget_config_move_up">Chuyển %1$s lên</string>
+    <string name="widget_config_move_down">Chuyển %1$s xuống</string>
+    <string name="widget_config_hide_details">Ẩn chi tiết kết nối trong widget này</string>
+    <string name="widget_config_hide_details_global">Cài đặt riêng tư widget đã ẩn chi tiết trong mọi widget.</string>
+    <string name="widget_config_save">Lưu</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>

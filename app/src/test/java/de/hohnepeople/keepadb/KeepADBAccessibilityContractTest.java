@@ -137,7 +137,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_website_link
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
-        assertMinSize(widget.findViewById(R.id.widget_label));
+        assertMinSize(widget.findViewById(R.id.widget_tile));
     }
 
     /** #471: clicks every collapsible settings card's header so its body (and everything inside)

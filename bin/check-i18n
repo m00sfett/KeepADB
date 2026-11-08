@@ -65,6 +65,8 @@ ALLOWLIST = {
     "setup_command": ALL_LANGUAGES,              # literal shell command (adb shell pm grant ...)
     "setup_command_multi": ALL_LANGUAGES,        # literal shell command (adb -s <serial> shell pm grant ...)
     "tile_state_connected_format": ALL_LANGUAGES,  # pure format string "%1$s:%2$d"
+    "widget_state_connected_port": ALL_LANGUAGES,  # pure format string "%1$s :%2$d" (#912)
+    "widget_description_format": ALL_LANGUAGES,  # pure format string "%1$s: %2$s" (#912)
     "endpoint_format": ALL_LANGUAGES,            # pure format string "Endpoint: %1$s:%2$d"
     "notification_text_active": ALL_LANGUAGES,   # pure format string "Port %1$d @ %2$s"
     "settings_webhook_url_hint": ALL_LANGUAGES,  # technical URL example, not prose
@@ -93,6 +95,13 @@ ALLOWLIST = {
         "ar", "fr", "hi", "in", "it", "ja", "ko",
         "nl", "pl", "pt", "ru", "tr", "uk", "vi",
     },
+    # Widget tile labels (#912): the same Keep-Alive term as the settings section above, and the
+    # German loanword that already names the feature ("Drahtloses Debugging").
+    "widget_action_keep_alive": {
+        "ar", "fr", "hi", "in", "it", "ja", "ko",
+        "nl", "pl", "pt", "ru", "tr", "uk", "vi",
+    },
+    "widget_action_adb": {"de"},
     "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form
     "settings_section_version": {"de", "fr"},   # "Version" is the correct German and French word
     "background_location_dialog_later": {"nl"},  # "Later" is the correct Dutch word (#644)

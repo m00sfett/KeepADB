@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: a control that needs the user (setup, paused, failed). A dashed yellow outline, so it
+     differs from "off" and "on" by its shape and not only by its color. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/panel" />
+            <stroke android:width="2dp" android:color="@color/link_red" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/advice_surface" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/title_yellow"
+                android:dashWidth="5dp"
+                android:dashGap="3dp" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+</selector>

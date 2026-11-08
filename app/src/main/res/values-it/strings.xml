@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Attiva o disattiva il debug wireless per ADB via Wi-Fi.</string>
     <string name="keep_alive_toggle">Mantieni sempre attivo</string>
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
-    <string name="widget_text_on">Debug wireless: ATTIVO</string>
-    <string name="widget_text_off">Debug wireless: DISATTIVO</string>
     <string name="tile_permission_error">%1$s: Autorizzazione mancante (richiesto pm grant)</string>
     <string name="permission_error_toast">Autorizzazione mancante. Esegui una volta dal PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint di debug wireless</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>
     <string name="status_permission_missing">Autorizzazione di sistema mancante</string>
-    <string name="widget_text_disconnected">Debug wireless: Disconnesso</string>
-    <string name="widget_text_connected_format">Debug wireless: ATTIVO (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Autorizzazione mancante</string>
     <string name="tile_state_off">Disattivato</string>
     <string name="tile_state_disconnected">Disconnesso</string>
     <string name="tile_state_searching">Ricerca in corso…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Cambio in corso…</string>
     <string name="state_pending">Cambio in corso…</string>
     <string name="tile_state_keep_alive_waiting">Disattivato – Keep-Alive in attesa</string>
-    <string name="widget_text_keep_alive_waiting">Debug wireless: DISATTIVO (in attesa)</string>
-    <string name="widget_text_pending">Debug wireless: cambio in corso…</string>
     <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
     <string name="settings_section_network">Rete</string>
     <string name="network_head_mode">Riattivazione automatica: %1$s</string>
@@ -625,4 +618,38 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="webhook_alert_text_vpn">Se il tuo webhook passa da un\'app VPN, escludila dall\'ottimizzazione della batteria.</string>
     <string name="webhook_alert_action_battery">Consigli batteria</string>
     <string name="webhook_alert_action_report_now">Segnala ora</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Comandi KeepADB</string>
+    <string name="widget_picker_description">Comandi per debug wireless, Keep-Alive e Webhook. Mostra di più quando lo ingrandisci.</string>
+    <string name="widget_action_adb">Debug</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Sincr. auto</string>
+    <string name="widget_action_sync_description">Sincronizzazione Webhook automatica</string>
+    <string name="widget_state_on">Attivo</string>
+    <string name="widget_state_off_waiting">Disattivato, attesa</string>
+    <string name="widget_state_waiting">In attesa</string>
+    <string name="widget_state_paused">In pausa</string>
+    <string name="widget_state_setup">Configura</string>
+    <string name="widget_state_ready">Pronto</string>
+    <string name="widget_state_sending">Invio…</string>
+    <string name="widget_state_sent">Inviato</string>
+    <string name="widget_state_failed">Non riuscito</string>
+    <string name="widget_state_no_endpoint">Nessun endpoint</string>
+    <string name="widget_state_sync_off">Sincr. spenta</string>
+    <string name="widget_webhook_unconfigured">Webhook: non configurato</string>
+    <string name="widget_webhook_sending">Webhook: invio della segnalazione…</string>
+    <string name="widget_webhook_current">Webhook: endpoint attuale segnalato</string>
+    <string name="widget_webhook_not_current">Webhook: endpoint attuale non ancora segnalato</string>
+    <string name="widget_webhook_no_endpoint">Webhook: nessun endpoint da segnalare</string>
+    <string name="widget_config_title">Personalizza widget</string>
+    <string name="widget_config_primary">Azione principale (da sola in un widget piccolo)</string>
+    <string name="widget_config_order">Ordine delle azioni</string>
+    <string name="widget_config_move_up">Sposta su %1$s</string>
+    <string name="widget_config_move_down">Sposta giù %1$s</string>
+    <string name="widget_config_hide_details">Nascondi i dettagli di connessione in questo widget</string>
+    <string name="widget_config_hide_details_global">L\'impostazione di privacy dei widget nasconde già i dettagli in tutti i widget.</string>
+    <string name="widget_config_save">Salva</string>
+    <string name="widget_state_connected_port">%1$s :%2$d</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
 </resources>
