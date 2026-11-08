@@ -34,14 +34,14 @@ are retrospective issue-version records and were never published as separate rel
   unmasked BSSID or address appears in its area; notifications and widgets omit the data (port
   included) and have no reveal, while the app shows partial masks (see below). All three are off on a new installation (`docs/defaults.md`).
 - **App switch with a per-screen “Show”:** the app switch is the former `privacy_mode_enabled`
-  (key and stored value unchanged; the eye in the title bars and the header menu flip it). A
+  (key and stored value unchanged). A
   deliberate “Show” (Networks list placeholder, assistant and dialog decision view, webhook field,
   USB profile dialog) lifts the mask for that one part only (a scope: the list, the assistant
   page, the dialog, the field), never for the rest of the screen; it ends when that part ends
   (assistant page change, dialog dismissed), the screen stops or is recreated, or the switch is
   turned on again, and never changes the stored switch. Home screen, Settings network card,
-  report history, the Settings USB line and shared diagnostics are eye-only and read the stored
-  switch alone. A still-open unmasked USB dialog is closed when the screen stops, the webhook
+  report history and the Settings USB line have no “Show” of their own; they follow the eye menu.
+  A still-open unmasked USB dialog is closed when the screen stops, the webhook
   field is masked again on return. Every host name (DNS or Tailnet name: webhook address,
   endpoint rows, report history, USB profile hosts) is masked as `***` in the privacy display
   (`KeepADBAddressMask.maskHost`, user decision of 2026-11-08; the log lines that use it are
@@ -53,6 +53,16 @@ are retrospective issue-version records and were never published as separate rel
   privacy mode (the exception of #758/#766 is gone); the card, the trust panel and the dialog mask
   them like everywhere else and carry the “Show”. The Networks list's “Show” used to turn the
   privacy mode off for good; it now reveals the list only.
+- **Eye menu instead of a flip (review of PR #917, Q9/Q12–Q15):** the eye in the title bars no
+  longer flips the stored app switch. It opens a menu with “Show on this screen” or “Hide on this
+  screen” (a temporary override of every part of that screen, also while the switch is off; it
+  ends when the screen stops or is recreated, the assistant changes its page, or a switch changes,
+  and it is never stored) and the three stored switches as check items. The home screen's header
+  menu offers the same entries. The icon shows what the screen currently does (crossed-out eye:
+  masked). Shared diagnostics stay redacted under “Show on this screen” and are redacted under
+  “Hide on this screen”.
+- **No blind trust (Q6):** while the trust decision is masked, “Trust” is disabled until “Show”;
+  “Block” stays available.
 - **Webhook field and USB profiles masked:** with the app switch on, the saved webhook URL appears
   with its host masked and a “Show” instead of the editable field; the USB host profile list shows
   numbered profiles with masked addresses, hides “Edit” until “Show”, and the Settings line names

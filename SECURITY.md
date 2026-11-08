@@ -108,8 +108,12 @@ inside the app an IPv4 address keeps its first number and the port stays visible
 (`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
 has a “Show”. It lifts the mask for one part of one screen (the Networks list, the assistant's
 network page, the trust dialog, the webhook field, the USB profile dialog) until that part is
-left, the screen stops or the switch is turned on again; home screen, the Settings network card,
-report history and shared diagnostics change only with the eye in the title bar.
+left, the screen stops or the switch is turned on again. The eye in the title bars (on the home
+screen: the header menu) opens a menu with “Show on this screen” / “Hide on this screen”, which
+applies to every part of that screen until it is left and never changes a stored switch, plus the
+three stored switches. Shared diagnostics stay redacted under “Show on this screen”; they are
+redacted whenever the app switch is on or the screen is hidden. In the trust dialog, “Trust” needs
+a “Show” while the network is masked; “Block” does not.
 
 **Change in #904 (deliberate):** earlier versions hid connection details in notifications by
 default (#592); a new installation now shows them until the notification switch is turned on, and
