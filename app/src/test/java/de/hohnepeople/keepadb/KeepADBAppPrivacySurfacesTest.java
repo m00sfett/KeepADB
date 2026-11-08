@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -487,7 +488,7 @@ public class KeepADBAppPrivacySurfacesTest {
     // --- A posted trust notice follows the notification switch at once ---------------------------------------
 
     @Test
-    public void turningNotificationPrivacyOnReplacesAPostedTrustNoticeByTheNeutralForm() {
+    public void turningNotificationPrivacyOnCancelsAPostedTrustNoticeWithDetails() {
         shadowOf((android.app.Application) context).grantPermissions(
                 android.Manifest.permission.POST_NOTIFICATIONS);
         connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:77");
@@ -508,15 +509,10 @@ public class KeepADBAppPrivacySurfacesTest {
         ShadowLooper.idleMainLooper();
 
         assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(context));
-        android.app.Notification after = shadowOf(manager)
-                .getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
-        assertNotNull("the notice is still there, in the neutral form", after);
-        assertTrue("no buttons", after.actions == null || after.actions.length == 0);
-        KeepADBNotificationTextScan.assertMentionsNone(after, "Cafe-WLAN", "aa:bb:cc:dd:ee:77",
-                "AA:BB:CC:DD:EE:77");
-        Intent tap = shadowOf(after.contentIntent).getSavedIntent();
-        assertEquals("it still opens the decision for the same access point", "aa:bb:cc:dd:ee:77",
-                tap.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        // Cancelled, not re-posted: the prompt history cannot reliably name the access point of
+        // the posted notice, so a neutral re-post could open the decision for the wrong one.
+        assertNull("the notice with name, BSSID and buttons is gone", shadowOf(manager)
+                .getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
         controller.pause().stop().destroy();
     }
 

@@ -424,9 +424,12 @@ final class KeepADBNetworkTrustPrompt {
     /**
      * #904: the notification privacy switch was turned on. A prompt that is already posted with
      * the network name, the BSSID and the Allow/Block buttons would stay that way until it is
-     * posted again, so it is posted again at once in the neutral form (same access point, no
-     * name, no buttons, tap opens the decision dialog); if that is not possible it is cancelled.
-     * A neutral prompt, or another notification under the same id, is left alone.
+     * posted again, so it is cancelled at once. It is not re-posted in the neutral form: the
+     * prompt history does not reliably name the access point of the posted notification (a
+     * locked-device re-show posts without recording it), and a neutral prompt for the wrong
+     * access point would open the wrong decision. Cancelling decides nothing (#766); the question
+     * comes back in the neutral form after the repeat interval. A neutral prompt, or another
+     * notification under the same id, is left alone.
      */
     static void applyNotificationPrivacy(Context context) {
         NotificationManager manager = context.getApplicationContext()
@@ -439,14 +442,7 @@ final class KeepADBNetworkTrustPrompt {
         }
         // Only the form with details has buttons; the neutral form has nothing to take away.
         if (posted == null || posted.actions == null || posted.actions.length == 0) return;
-        List<PromptEntry> history = readPromptHistory(prefs(context));
-        if (history.isEmpty() || !KeepADBPreferences.isNotificationPrivacyEnabled(context)) {
-            cancel(context);
-            return;
-        }
-        String bssid = history.get(history.size() - 1).bssid;
-        // The label only feeds text in the form with details; the block check derives no name.
-        if (!show(context, bssid, bssid)) cancel(context);
+        cancel(context);
     }
 
     static void cancel(Context context) {
