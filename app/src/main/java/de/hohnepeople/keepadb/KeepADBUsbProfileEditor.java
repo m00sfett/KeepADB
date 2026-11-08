@@ -155,10 +155,15 @@ final class KeepADBUsbProfileEditor {
                 && (temporary || !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB))) {
             activeSwitchDialog.dismiss();
         }
-        if (activeEditDialog != null && activeEditId != null) {
+        // The edit form of a saved profile and the delete confirmation only hold readable values
+        // while the screen masks by default (switch on or "Hide on this screen"); with the switch
+        // off and no hide, nothing needs masking on return and an unsaved draft stays.
+        boolean masksByDefault = KeepADBPreferences.isAppPrivacyEnabled(activity)
+                || KeepADBPrivacy.isScreenMasked(activity);
+        if (masksByDefault && activeEditDialog != null && activeEditId != null) {
             activeEditDialog.dismiss();
         }
-        if (activeDeleteDialog != null) {
+        if (masksByDefault && activeDeleteDialog != null) {
             activeDeleteDialog.dismiss();
         }
     }

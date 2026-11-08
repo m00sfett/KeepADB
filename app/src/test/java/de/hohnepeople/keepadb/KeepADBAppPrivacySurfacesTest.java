@@ -477,6 +477,30 @@ public class KeepADBAppPrivacySurfacesTest {
     }
 
     @Test
+    public void withTheSwitchOffAnEditDraftSurvivesStopAfterHideThenShowOnThisScreen() {
+        KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        KeepADBPrivacy.setScreenMasked(activity, true);  // "Hide on this screen"
+        KeepADBPrivacy.setScreenMasked(activity, false); // then "Show on this screen"
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        button(activity.getActiveSwitchProfileDialog().getWindow().getDecorView(),
+                context.getString(R.string.usb_profile_edit_button)).performClick();
+        ShadowLooper.idleMainLooper();
+        assertNotNull("Control: the edit form is open", activity.getActiveProfileEditDialog());
+
+        controller.pause().stop();
+        controller.start().resume().visible();
+        ShadowLooper.idleMainLooper();
+
+        assertNotNull("nothing needs masking, so the draft stays", activity.getActiveProfileEditDialog());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
     public void theEditDialogOfASavedProfileIsClosedWhenTheScreenStops() {
         KeepADBUsbProfile.add(context, PROFILE, PROFILE_IP, PROFILE_HOST, PROFILE_REMOTE);
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
