@@ -291,6 +291,38 @@ public class KeepADBWidgetLifecycleTest {
     }
 
     @Test
+    public void theSyncControlAndTheSyncOffSlotAskForTheOppositeStateOfWhatTheyShow() {
+        Application app = (Application) context;
+        KeepADBWidgetConfig sync = KeepADBWidgetConfig.of(Action.WEBHOOK_SYNC, null, false);
+        KeepADBWidgetConfig report = KeepADBWidgetConfig.of(Action.REPORT_NOW, null, false);
+
+        // Synchronization is on: the sync control asks to switch it off.
+        tiles(panel(401, sync, SizeClass.SINGLE)).get(0).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE, lastBroadcast(app).getAction());
+        KeepADBRegisterClientResetRule.awaitIdle();
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
+
+        // Now it is off: the sync control asks to switch it on, and so does the report slot,
+        // which offers no report while synchronization is off.
+        tiles(panel(402, sync, SizeClass.SINGLE)).get(0).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
+        KeepADBRegisterClientResetRule.awaitIdle();
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        int before = shadowOf(app).getBroadcastIntents().size();
+        tiles(panel(403, report, SizeClass.SINGLE)).get(0).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue(shadowOf(app).getBroadcastIntents().size() > before);
+        assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, lastBroadcast(app).getAction());
+        for (Intent sent : shadowOf(app).getBroadcastIntents().subList(before,
+                shadowOf(app).getBroadcastIntents().size())) {
+            assertNotEquals("no report is offered while synchronization is off",
+                    KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW, sent.getAction());
+        }
+    }
+
+    @Test
     public void theTargetStateControlsAskForTheStateAndNeverForAFlip() {
         assertEquals(KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE, savedAction(
                 KeepADBWidgetActions.forClick(context, KeepADBWidgetContent.Click.SYNC_ENABLE)));
