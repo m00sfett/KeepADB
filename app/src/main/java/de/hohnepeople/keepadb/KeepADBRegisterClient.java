@@ -71,6 +71,25 @@ final class KeepADBRegisterClient {
         }
     }
 
+    /**
+     * #910: what the report client is doing right now, for the widgets. A pure read of the series
+     * state under the class monitor; it starts nothing and sends nothing.
+     */
+    enum Activity {
+        /** No POST is running and none is waiting for its retry. */
+        IDLE,
+        /** A report POST is queued or running. */
+        SENDING,
+        /** The last POST failed and the next retry of the series is scheduled. */
+        RETRY_WAITING
+    }
+
+    static synchronized Activity activity() {
+        if (wlanUpdateInFlight) return Activity.SENDING;
+        if (pendingPostRetry != null) return Activity.RETRY_WAITING;
+        return Activity.IDLE;
+    }
+
     private static volatile String lastRegisteredUrl = null;
     private static volatile String lastRegisteredEndpoint = null;
     private static volatile boolean stateInitialized = false;

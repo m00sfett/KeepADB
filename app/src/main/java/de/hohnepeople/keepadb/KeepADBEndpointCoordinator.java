@@ -142,6 +142,16 @@ final class KeepADBEndpointCoordinator {
         endpoint = fakeEndpoint;
     }
 
+    /**
+     * Test-only seam (#910): installs a cached endpoint (or clears it with a null host) without
+     * running a discovery, so a state projection test can drive "endpoint A, then B, then lost".
+     */
+    static synchronized void seedEndpointForTesting(String host, int port, long verifiedAtMs) {
+        currentHost = host;
+        currentPort = host == null ? 0 : port;
+        currentEndpointVerifiedAtMs = host == null ? 0 : verifiedAtMs;
+    }
+
     /** Number of verification worker Threads actually started since the last {@link #resetForTesting()}. */
     static synchronized int getVerificationWorkerStartCountForTesting() {
         return verificationWorkerStartCountForTesting;

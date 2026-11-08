@@ -114,6 +114,25 @@ final class KeepADBReportHistory {
     }
 
     /**
+     * #910: when the newest failed report or unregister attempt in the last 24 hours happened, or 0
+     * if there is none. A pure read for the widgets: unlike {@link #entries} it does not prune, so
+     * rendering never writes the preference file, and it hands out the time only, never an endpoint.
+     */
+    static long latestFailureAtMs(Context context) {
+        if (context == null) return 0L;
+        synchronized (KeepADBReportHistory.class) {
+            long now = now();
+            long newest = 0L;
+            for (Entry entry : read(prefs(context))) {
+                if (!entry.ok && now - entry.timeMs <= MAX_AGE_MS && entry.timeMs > newest) {
+                    newest = entry.timeMs;
+                }
+            }
+            return newest;
+        }
+    }
+
+    /**
      * Codex review: drops expired entries from the stored history, not only from what is shown,
      * so full endpoints do not outlive the 24 hours while nothing new is recorded. Writes only
      * when something was dropped. Returns the kept entries, oldest first.
