@@ -52,15 +52,19 @@ are retrospective issue-version records and were never published as separate rel
   widget uses them yet.
 
 ### Fixed
-- **A widget's opt-out could lose its DELETE (#911, Codex review):** switching synchronization off
-  turns the preference off at once and sends the DELETE asynchronously, but the receiver returned
-  immediately, so with no service or screen alive the process could be stopped with the DELETE still
-  queued, the registration stayed at the receiver and later "off" taps were reported as unchanged.
-  The widget actions now keep their broadcast open (`goAsync`) until the DELETE (or, when enabling,
-  the first report) has been attempted, bounded by the same hold limit as "Report now". A withdrawal
-  that still does not complete (process death, no network) is retried once at the next start of the
-  app from the persisted report record (`KeepADBRegisterClient.resumeInterruptedWithdrawal`, called
-  from the application object, no timer); switching off again while already off also retries it.
+- **A widget's opt-out could lose its DELETE to process death (#911, Codex review):** switching
+  synchronization off turns the preference off at once and sends the DELETE asynchronously, but the
+  receiver returned immediately, so with no service or screen alive the process could be stopped
+  with the DELETE still queued. The widget actions now keep their broadcast open (`goAsync`) until
+  the DELETE has been attempted, bounded by the same hold limit as "Report now" and finished only
+  once. Enabling holds it until the work queued behind it has run; a freshly started process that
+  still has to discover its endpoint is not awaited, and its report is sent by the next normal
+  synchronization trigger.
+- **Limits, stated rather than hidden:** if the process dies mid-DELETE, the hold limit passes or
+  the request fails, the registration may remain at the receiver until the user taps "off" again;
+  the app never sends a withdrawal on its own at start or on a timer. That retry goes to the saved
+  URL only: if the stored report record names another URL than the one saved now, the old
+  destination is not contacted.
 
 ### Changed
 - **The alert's "Report now" needs Wi-Fi:** like the widgets, it reports only while Wi-Fi is up and
@@ -69,14 +73,16 @@ are retrospective issue-version records and were never published as separate rel
 ### Documentation
 - `docs/webhook-register.md` describes "Report now" (a push of an enabled synchronization, nothing
   with it off) and the widgets' switch, including the actual order of an opt-out (preference off at
-  once, asynchronous DELETE, what survives a failure or a process death), without assuming any
-  receiver behavior.
+  once, asynchronous DELETE) and what remains after a failure or a process death, without assuming
+  any receiver behavior.
 
 ### Testing
 - `KeepADBWebhookWithdrawalTest`: the disable and enable broadcasts stay open (real pending result)
-  until the DELETE or first report is out, a hung DELETE is released by the hold limit and only
-  once, a withdrawal the process did not survive or that failed is sent at the next start, from the
-  record and not from the saved URL, with nothing sent when nothing is outstanding or sync is on.
+  until the DELETE or the queued report is out, a hung DELETE is released by the hold limit and only
+  once, a cold-start enable ends after the refresh and the next trigger reports; an outstanding
+  withdrawal is never sent on its own (not at the application start, not by any trigger or time),
+  "off" again retries it only while the record names the saved URL, and a replaced or cleared URL
+  leaves the old destination alone.
 - `KeepADBReportNowTest`, `KeepADBWebhookActionsTest`, `KeepADBWebhookSyncTest` and
   `KeepADBWidgetStateReportNowTest`: with synchronization off a tap sends nothing and changes no
   preference, also for repeated taps and hours later; with it on a tap reports at once, joins a
