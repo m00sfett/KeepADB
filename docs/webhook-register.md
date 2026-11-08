@@ -11,7 +11,8 @@ Webhook synchronization is off by default. Users enter the target URL and enable
 themselves in app Settings or in the setup assistant. Saving a valid URL also enables
 synchronization; in the assistant, "Next" applies a newly typed URL the same way (#888). Both values are stored in private app preferences and are not restored
 through Android cloud backup or device transfer. They must be entered again after reinstalling.
-KeepADB sends only to the URL saved by the user.
+KeepADB sends only to the URL saved by the user. The one exception to "synchronization decides
+whether anything is sent" is a deliberate "Report now" (below): one request, started by a tap.
 
 ## Current sender path
 
@@ -61,6 +62,61 @@ The HTTP client does not follow redirects. An HTTP status from 200 through 299 c
 successful request. This does not prove that a receiver accepted the data semantically, stored it
 permanently, or made it available to clients.
 
+## Report now and the widgets' synchronization switch (#911)
+
+"Report now" is a deliberate, manual action (the webhook warning's button and the widgets). It
+reports the current, verified Wi-Fi ADB endpoint to the saved URL once, with the same message as
+any other report, whether or not the connected network is trusted and also while automatic
+synchronization is off. It needs a valid saved URL and a verified Wi-Fi endpoint (Wi-Fi is up and
+the app holds a discovered endpoint). Without either, nothing is sent; the reason is returned to
+the caller and written to the diagnostics as `register_report skipped reason=needs_setup` or
+`reason=no_endpoint`, never with the URL or the endpoint. It never switches Wireless Debugging on
+and never reuses an address while Wi-Fi is down.
+
+**With synchronization on,** it behaves as before: a retry that is only waiting for its timer is
+sent at once, a request that is already running is joined, and a waiting debounced resync is
+dropped, so one tap never sends two requests.
+
+**With synchronization off,** it is a one-shot report. The permission is the tap itself: the
+destination and the endpoint it saw are captured by value and used by exactly one request. Nothing
+is stored that an automatic path could read, so every automatic path keeps requiring the
+synchronization preference, which the one-shot never changes (off before, during and after). Right
+before the request the endpoint must still answer a connection check (a port that adbd rotated
+without notice is not reported), and the app checks again that synchronization is still off and
+that the saved destination and the verified endpoint are still the captured ones. If anything
+changed, or a newer operation has started, the one-shot ends without a request and the
+diagnostics name the reason (`endpoint_unreachable`, `endpoint_lost`, `endpoint_changed`,
+`destination_changed` or `sync_enabled`). A late answer of a request that a newer
+operation superseded records nothing.
+
+A one-shot leaves nothing running behind it:
+
+- one request, no retry series, even after a failure; a failure is recorded in the report history
+  and as the newest outcome but starts no failure episode, so there is no warning and no
+  re-attempt on the Keep-Alive heartbeat;
+- a tap while a request is queued or running joins it; two widgets or a double tap never send in
+  parallel;
+- no request to any other destination: cleanups pending for other URLs stay pending for the
+  regular register activity, and no secondary transports are attempted;
+- no DELETE when the endpoint is lost later, because synchronization is off and that would be
+  background sending.
+
+**Registration lifecycle.** A successful one-shot is recorded as the last report (URL and
+endpoint), like any other, so the regular paths know what is registered where: switching
+synchronization on finds it already reported and sends nothing new; switching it off sends the
+DELETE at that URL, as the opt-out always does; a different URL with synchronization on sends the
+DELETE at the old one first; clearing the webhook in the settings sends the DELETE as well, also
+with synchronization off, instead of dropping the URL and keeping the entry; a registration at
+another URL that was on record when the one-shot succeeded becomes a pending cleanup. What the one-shot does not do is withdraw itself: a receiver
+keeps whatever it keeps for a report that nothing later withdraws, and how it ages such an entry is
+its own business and not specified here.
+
+The widgets' synchronization switch asks for a target state (on or off), never a flip, so a
+repeated tap cannot undo itself. It uses the same enable and disable paths as the settings form:
+switching on needs a valid saved URL (without one nothing changes and nothing is sent, and the
+widget leads to the settings), switching off sends the DELETE before the preference goes off. The
+app, the notification and every widget are refreshed afterwards.
+
 ## What the widgets and the tile show of the delivery (#910)
 
 The home-screen widgets and the Quick Settings tile read one projection of the app's own state
@@ -74,6 +130,9 @@ The webhook part keeps these apart:
 - **Activity:** nothing in flight, a report being sent, or a retry waiting.
 - **Newest outcome, last success, last failure:** what the sender recorded. A success from before
   a later failure stays visible as history and is not the current state.
+- **Report now:** ready (a valid destination is saved and a verified Wi-Fi endpoint is available),
+  needs setup (no valid destination) or no endpoint. It follows the facts the action checks, with
+  synchronization on or off; the action checks them again when it is tapped.
 - **Current delivery:** claimed only while the last report the server accepted names exactly the
   verified endpoint that is current now and the destination that is configured now, and no later
   report failed or was withdrawn. A changed endpoint, a changed or removed destination, a later
