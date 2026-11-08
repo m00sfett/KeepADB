@@ -75,13 +75,20 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * 2L * KeepADBHttpTransport.TIMEOUT_MS
                     + 4_000L;
 
-    static void handleReportNowAction(Context app, Runnable finishBroadcast) {
+    /**
+     * "Report now" from the webhook alert and (#911) from the widgets: one deliberate report of the
+     * current endpoint, see {@link KeepADBRegisterClient#reportNow}. Works with automatic
+     * synchronization off as well and never switches it on.
+     */
+    static KeepADBRegisterClient.ReportNowResult handleReportNowAction(Context app,
+            Runnable finishBroadcast) {
         AtomicBoolean finished = new AtomicBoolean(false);
         Runnable finish = () -> {
             if (finished.compareAndSet(false, true)) finishBroadcast.run();
         };
         new Handler(Looper.getMainLooper()).postDelayed(finish, REPORT_NOW_MAX_HOLD_MS);
-        KeepADBRegisterClient.reportNowFromAlert(app, finish);
+        KeepADBDiagnostics.event(app, "user_action", "webhook", "report_now", "tap");
+        return KeepADBRegisterClient.reportNow(app, finish);
     }
 
     /**

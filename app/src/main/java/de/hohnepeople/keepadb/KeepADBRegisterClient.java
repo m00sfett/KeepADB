@@ -337,6 +337,231 @@ final class KeepADBRegisterClient {
         }
     }
 
+    /** What a deliberate "Report now" did with the tap; decided before anything is sent. */
+    enum ReportNowResult {
+        /** A report of the current endpoint was started for this tap (with sync on: the attempt it asked for). */
+        STARTED,
+        /** A report is already queued or running; the tap joined it and added no request. */
+        JOINED,
+        /** No valid destination is stored; nothing was sent. Lead the user to the setup. */
+        NEEDS_SETUP,
+        /** No verified Wi-Fi endpoint right now; nothing was sent and no address was reused. */
+        NO_ENDPOINT
+    }
+
+    /**
+     * #911: the single entry point of every "Report now" (the webhook alert, both widgets): one
+     * deliberate user action that reports the current, verified Wi-Fi ADB endpoint to the saved
+     * destination, whether or not the network is trusted.
+     *
+     * <ul>
+     *   <li>Without a valid saved URL or without a verified endpoint (Wi-Fi up) nothing is sent
+     *       and the cause is returned and logged ({@code register_report skipped reason=...},
+     *       never the URL or the endpoint). Wireless Debugging is never switched on and no cached
+     *       address is reused.
+     *   <li><b>Automatic sync on:</b> the established behavior of {@link #reportNowFromAlert}
+     *       (a waiting retry is sent at once, a running POST is joined, a waiting debounced resync
+     *       is dropped, so one tap never sends two requests).
+     *   <li><b>Automatic sync off:</b> a one-shot report, see {@link #startOneShot}. It never
+     *       switches synchronization on and leaves no retry, heartbeat or alert behind.
+     * </ul>
+     *
+     * @param onDone runs on the register executor once the attempt this tap caused or joined has
+     *         finished (or at once when nothing was sent), so the receiver can keep the process
+     *         alive until then ({@code goAsync}).
+     */
+    static ReportNowResult reportNow(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return ReportNowResult.NO_ENDPOINT;
+        }
+        final Context appContext = context.getApplicationContext();
+        String url = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        if (!KeepADBPreferences.isValidWebhookUrl(url)) {
+            return refuseReportNow(appContext, ReportNowResult.NEEDS_SETUP, "needs_setup", onDone);
+        }
+        String endpoint = verifiedWifiEndpoint(appContext);
+        if (endpoint == null) {
+            return refuseReportNow(appContext, ReportNowResult.NO_ENDPOINT, "no_endpoint", onDone);
+        }
+        if (KeepADBPreferences.isRegisterWebhookEnabled(appContext)) {
+            boolean running;
+            synchronized (KeepADBRegisterClient.class) {
+                running = wlanUpdateInFlight;
+            }
+            reportNowFromAlert(appContext, onDone);
+            return running ? ReportNowResult.JOINED : ReportNowResult.STARTED;
+        }
+        return startOneShot(appContext, url, endpoint, onDone);
+    }
+
+    private static ReportNowResult refuseReportNow(Context appContext, ReportNowResult result,
+            String reason, Runnable onDone) {
+        KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
+                "method=post reason=" + reason + " manual=true");
+        if (onDone != null) onDone.run();
+        return result;
+    }
+
+    /**
+     * The current endpoint, formatted like a report, but only while Wi-Fi is up (a cached endpoint
+     * is not believed without it, as in {@link KeepADBWidgetState}); null otherwise.
+     */
+    private static String verifiedWifiEndpoint(Context appContext) {
+        String endpoint = currentCoordinatorEndpoint();
+        return endpoint != null && KeepADBService.isWifiConnected(appContext) ? endpoint : null;
+    }
+
+    /**
+     * #911: the one deliberate report while automatic synchronization is off.
+     *
+     * <p><b>Authorization.</b> The grant is not state: it is this immutable {@link OneShot},
+     * captured here from the tap (destination, endpoint, operation generation) and handed by value
+     * to exactly one executor task. It is stored in no field or preference, so no automatic path
+     * (endpoint refresh, network callback, heartbeat, retry timer) can see or use it, and the
+     * opt-in guard of all of them stays unconditional. The task re-checks every part of it at the
+     * moment it would send ({@link #performOneShot}); a different destination, endpoint or
+     * synchronization state, or any newer operation, makes it obsolete and it sends nothing.
+     *
+     * <p><b>Lifecycle.</b> One POST, no retry series, no failure episode (so no alert and no
+     * heartbeat re-attempt), no cleanup of other destinations and no secondary transports. The
+     * preference stays off before, during and after. A tap while a POST is queued or running joins
+     * it.
+     */
+    private static ReportNowResult startOneShot(Context appContext, String url, String endpoint,
+            Runnable onDone) {
+        final OneShot shot;
+        synchronized (KeepADBRegisterClient.class) {
+            ensureStateInitializedLocked(appContext);
+            if (wlanUpdateInFlight) {
+                shot = null;
+            } else {
+                // Synchronization is off, so no series may linger and take the in-flight slot.
+                cancelPostRetryLocked();
+                wlanUpdateInFlight = true;
+                shot = new OneShot(url, endpoint, ++currentOpGeneration);
+            }
+        }
+        if (shot != null) {
+            notifyWidgetsReportQueued(appContext);
+            EXECUTOR.execute(() -> performOneShot(appContext, shot));
+        }
+        if (onDone != null) {
+            // Queued behind the running or just queued transaction on the single register executor.
+            mainHandler().post(() -> EXECUTOR.execute(onDone));
+        }
+        return shot == null ? ReportNowResult.JOINED : ReportNowResult.STARTED;
+    }
+
+    /** The captured scope of one deliberate report; see {@link #startOneShot}. */
+    private static final class OneShot {
+        final String url;
+        final String endpoint;
+        final long opGen;
+
+        OneShot(String url, String endpoint, long opGen) {
+            this.url = url;
+            this.endpoint = endpoint;
+            this.opGen = opGen;
+        }
+    }
+
+    private static void performOneShot(Context context, OneShot shot) {
+        // True once the in-flight slot is released (or was never ours): the finally below frees it
+        // after an unexpected exception, so a failed attempt cannot make every later tap a join.
+        boolean released = false;
+        try {
+            synchronized (KeepADBRegisterClient.class) {
+                // A newer operation owns all state, the in-flight flag included.
+                if (shot.opGen != currentOpGeneration) {
+                    released = true;
+                    return;
+                }
+            }
+            // Verified: the endpoint must still answer. The scope is re-read after this wait, so it
+            // is the state as of the moment of sending that decides.
+            String violation = endpointProbe.isReachable(shot.endpoint) ? null : "endpoint_unreachable";
+            if (violation == null) violation = oneShotScopeViolation(context, shot);
+            if (violation != null) {
+                released = true;
+                endOneShotWithoutRequest(context, shot, violation);
+                return;
+            }
+
+            lastTransportOutcome = "unknown";
+            boolean posted = postEndpoint(shot.url, shot.endpoint);
+            KeepADBReportHistory.report(context, shot.endpoint, posted, lastTransportOutcome, 0,
+                    KeepADBReportHistory.NO_MAX);
+            KeepADBDiagnostics.event(context, "register_report", "webhook",
+                    posted ? "success" : "failed",
+                    "method=post manual=true " + lastTransportOutcome);
+            released = true;
+            completeOneShot(context, shot, posted);
+        } finally {
+            if (!released) endOneShotWithoutRequest(context, shot, "exception");
+        }
+    }
+
+    /**
+     * The scope the tap was given, checked again right before the request: synchronization still
+     * off, the saved destination and the verified endpoint exactly as captured. Returns the reason
+     * it no longer holds, or null.
+     */
+    private static String oneShotScopeViolation(Context context, OneShot shot) {
+        if (KeepADBPreferences.isRegisterWebhookEnabled(context)) return "sync_enabled";
+        if (!shot.url.equals(KeepADBPreferences.getRegisterWebhookUrl(context))) {
+            return "destination_changed";
+        }
+        String endpoint = verifiedWifiEndpoint(context);
+        if (endpoint == null) return "endpoint_lost";
+        if (!shot.endpoint.equals(endpoint)) return "endpoint_changed";
+        return null;
+    }
+
+    private static void endOneShotWithoutRequest(Context context, OneShot shot, String reason) {
+        synchronized (KeepADBRegisterClient.class) {
+            if (shot.opGen == currentOpGeneration) {
+                wlanUpdateInFlight = false;
+            }
+        }
+        KeepADBDiagnostics.event(context, "register_report", "webhook", "skipped",
+                "method=post reason=" + reason + " manual=true");
+        notifyRegisterStateListener(context);
+    }
+
+    /**
+     * Records the one request's result like a regular report does, minus everything that would make
+     * it a series: no retry is scheduled and no failure episode starts. A completion that a newer
+     * operation superseded (a toggle, a new destination, a new endpoint) records nothing: that
+     * operation owns the state, and a late answer must not stand for its configuration.
+     */
+    private static void completeOneShot(Context context, OneShot shot, boolean posted) {
+        synchronized (KeepADBRegisterClient.class) {
+            if (shot.opGen != currentOpGeneration) return;
+            wlanUpdateInFlight = false;
+            if (posted) {
+                // The registration at another destination is not forgotten: it stays a pending
+                // cleanup, sent by the regular register activity, never by this one-shot.
+                if (lastRegisteredUrl != null && lastRegisteredEndpoint != null
+                        && !lastRegisteredUrl.equals(shot.url)) {
+                    String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context,
+                            lastRegisteredUrl);
+                    if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
+                }
+                removePendingCleanupsForResource(context, shot.url);
+                resetMarkUnavailableRetryLocked();
+                lastRegisteredUrl = shot.url;
+                lastRegisteredEndpoint = shot.endpoint;
+                KeepADBPreferences.setWebhookReportSnapshot(context, shot.url, shot.endpoint,
+                        KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+            } else {
+                KeepADBPreferences.setWebhookLastReportStatus(context,
+                        KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+            }
+            notifyRegisterStateListener(context);
+        }
+    }
+
     /**
      * #881: called on the service heartbeat. While a failure episode lasts and the retry series
      * has been given up on, nothing else reports until the endpoint or the default network
