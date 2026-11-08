@@ -227,10 +227,24 @@ final class KeepADBRegisterClient {
      * parallel POST nor postpones that retry; a debounced resync still waiting is replaced by it.
      */
     static void requestResyncNow(Context context) {
+        requestResyncNowSince(context, currentOpGeneration);
+    }
+
+    /** The operation generation now; pass it to {@link #requestResyncNowSince}. */
+    static long currentOperation() {
+        return currentOpGeneration;
+    }
+
+    /**
+     * #918: {@link #requestResyncNow} for a caller that has just kicked a refresh. Any report
+     * started since {@code generationBefore} (taken before that refresh) is the report this action
+     * asked for, so it is joined even when it already finished; without this, a refresh whose POST
+     * completed before this call caused a second, identical POST right after it.
+     */
+    static void requestResyncNowSince(Context context, long generationBefore) {
         if (context == null) return;
         final Context appContext = context.getApplicationContext();
         if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
-        long generationBefore = currentOpGeneration;
         String endpoint = currentCoordinatorEndpoint();
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;

@@ -87,6 +87,35 @@ public class KeepADBRegisterExplicitResyncTest {
         assertEquals(1, posts());
     }
 
+    /**
+     * #918: "Save URL" kicks a refresh and then asks for a report. When the refresh's POST already
+     * finished by then, the request still joins it: one save, one POST.
+     */
+    @Test
+    public void anExplicitRequestJoinsAReportStartedSinceItsRefreshEvenWhenItFinished() {
+        long beforeRefresh = KeepADBRegisterClient.currentOperation();
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT); // the refresh's report
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));   // ... already finished
+        assertEquals(1, posts());
+
+        KeepADBRegisterClient.requestResyncNowSince(context, beforeRefresh);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("joined, no second POST", 1, posts());
+    }
+
+    @Test
+    public void anExplicitRequestWithoutAReportSinceItsRefreshStillReports() {
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        long beforeRefresh = KeepADBRegisterClient.currentOperation(); // the refresh started nothing
+
+        KeepADBRegisterClient.requestResyncNowSince(context, beforeRefresh);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        assertEquals("the explicit request reports again", 2, posts());
+    }
+
     @Test
     public void explicitRequestRestartsAnExhaustedSeriesAtOnce() {
         exhaustSeries();
