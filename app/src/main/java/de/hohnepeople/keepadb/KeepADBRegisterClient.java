@@ -67,8 +67,23 @@ final class KeepADBRegisterClient {
         // coordinator monitor, which already calls into this class).
         if (context != null) {
             final Context appContext = context.getApplicationContext();
-            mainHandler().post(() -> KeepADBNotification.refreshIfActive(appContext));
+            mainHandler().post(() -> {
+                KeepADBNotification.refreshIfActive(appContext);
+                // #910: the widgets show the delivery state, so they follow every result as well.
+                // State only: re-rendering reads, it never reports or starts a discovery.
+                KeepADBWidget.refreshAllState(appContext);
+            });
         }
+    }
+
+    /**
+     * #910: a report was just queued. The widgets re-render so "sending" shows at once instead of
+     * after the answer. Posted to the main handler, outside the class monitor, and read-only.
+     */
+    private static void notifyWidgetsReportQueued(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        mainHandler().post(() -> KeepADBWidget.refreshAllState(appContext));
     }
 
     /**
@@ -414,6 +429,7 @@ final class KeepADBRegisterClient {
      */
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint,
             long opGen, boolean probeFirst) {
+        notifyWidgetsReportQueued(appContext);
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
             if (probeFirst && !endpointProbe.isReachable(endpoint)) {
