@@ -683,7 +683,19 @@ final class KeepADBRegisterClient {
     }
 
     static void unregisterAndDisableAsync(Context context) {
-        if (context == null) return;
+        unregisterAndDisableAsync(context, null);
+    }
+
+    /**
+     * @param onDone #911: runs on the register executor once the withdrawal queued here has been
+     *         attempted (or found obsolete), so a receiver can keep the process alive until then
+     *         ({@code goAsync}) instead of letting it die with the DELETE still queued.
+     */
+    static void unregisterAndDisableAsync(Context context, Runnable onDone) {
+        if (context == null) {
+            if (onDone != null) onDone.run();
+            return;
+        }
         Context appContext = context.getApplicationContext();
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
@@ -699,6 +711,28 @@ final class KeepADBRegisterClient {
             if (opGen != currentOpGeneration) return;
             performDeleteTransaction(appContext, targetUrl, opGen, false);
         });
+        // FIFO on the single register executor: behind the withdrawal just queued.
+        if (onDone != null) EXECUTOR.execute(onDone);
+    }
+
+    /** Runs {@code work} on the register executor behind everything queued so far. */
+    static void afterQueuedWork(Runnable work) {
+        EXECUTOR.execute(work);
+    }
+
+    /**
+     * #911: whether the persisted report snapshot still names the registration at the URL that is
+     * saved now, i.e. a report that nothing has withdrawn. A completed withdrawal clears the
+     * snapshot, a failed or interrupted one leaves it, so with synchronization off this is
+     * "an opt-out whose withdrawal is outstanding". It is deliberately limited to the saved URL:
+     * if the URL was cleared or replaced since, the old destination is not contacted from here.
+     * Read from the preferences, which survive the process, not from the in-memory copy.
+     */
+    static boolean hasOutstandingWithdrawalAtSavedUrl(Context context) {
+        Context app = context.getApplicationContext();
+        String recorded = KeepADBPreferences.getWebhookLastReportedUrl(app);
+        String saved = KeepADBPreferences.getRegisterWebhookUrl(app);
+        return recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved);
     }
 
     /**

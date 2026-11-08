@@ -68,10 +68,19 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleReportNowAction(context.getApplicationContext(), () -> {
                 if (pending != null) pending.finish();
             });
-        } else if (ACTION_WEBHOOK_SYNC_ENABLE.equals(action)) {
-            handleWebhookSyncAction(context.getApplicationContext(), true);
-        } else if (ACTION_WEBHOOK_SYNC_DISABLE.equals(action)) {
-            handleWebhookSyncAction(context.getApplicationContext(), false);
+        } else if (ACTION_WEBHOOK_SYNC_ENABLE.equals(action)
+                || ACTION_WEBHOOK_SYNC_DISABLE.equals(action)) {
+            // #911 (Codex review): the opt-out turns the preference off at once but sends its
+            // DELETE asynchronously, and enabling kicks the coordinator, which queues a report of
+            // a known endpoint. Keep the process alive until the work queued by then has been
+            // attempted, also without a running foreground service. A cold process that still has
+            // to discover its endpoint is not awaited: its report is sent by the next normal
+            // synchronization trigger, which stays on.
+            PendingResult pending = goAsync();
+            handleWebhookSyncAction(context.getApplicationContext(),
+                    ACTION_WEBHOOK_SYNC_ENABLE.equals(action), () -> {
+                        if (pending != null) pending.finish();
+                    });
         }
     }
 
@@ -93,24 +102,43 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      */
     static KeepADBRegisterClient.ReportNowResult handleReportNowAction(Context app,
             Runnable finishBroadcast) {
+        Runnable finish = boundedFinish(finishBroadcast);
+        KeepADBDiagnostics.event(app, "user_action", "webhook", "report_now", "tap");
+        return KeepADBRegisterClient.reportNow(app, finish);
+    }
+
+    /**
+     * Finishes the broadcast once, when the work is done or after {@link #REPORT_NOW_MAX_HOLD_MS},
+     * whichever comes first. The hold covers every request that can run before the one the action
+     * queued (the due cleanups and the DELETE at a previous URL), so it bounds the sync actions as
+     * well. When it expires first the process may die with the DELETE of an opt-out unsent; the
+     * registration then stays until the user switches off again (the report snapshot still names
+     * it).
+     */
+    private static Runnable boundedFinish(Runnable finishBroadcast) {
         AtomicBoolean finished = new AtomicBoolean(false);
         Runnable finish = () -> {
             if (finished.compareAndSet(false, true)) finishBroadcast.run();
         };
         new Handler(Looper.getMainLooper()).postDelayed(finish, REPORT_NOW_MAX_HOLD_MS);
-        KeepADBDiagnostics.event(app, "user_action", "webhook", "report_now", "tap");
-        return KeepADBRegisterClient.reportNow(app, finish);
+        return finish;
     }
 
     /**
      * #911: a widget asks for a target state of the automatic synchronization. Goes through the
      * form's validated path ({@link KeepADBWebhookSync}); without a valid saved URL it changes and
      * sends nothing, and the widget's setup action leads to the settings instead.
+     *
+     * @param finishBroadcast called once the work queued by the request (the DELETE of an opt-out,
+     *         the report of an endpoint an enable found already known) has been attempted, at the
+     *         latest after the hold limit.
      */
-    static KeepADBWebhookSync.Result handleWebhookSyncAction(Context app, boolean enable) {
+    static KeepADBWebhookSync.Result handleWebhookSyncAction(Context app, boolean enable,
+            Runnable finishBroadcast) {
+        Runnable finish = boundedFinish(finishBroadcast);
         KeepADBDiagnostics.event(app, "user_action", "widget", enable ? "enable" : "disable",
                 "webhook_sync");
-        KeepADBWebhookSync.Result result = KeepADBWebhookSync.setAutomaticSync(app, enable);
+        KeepADBWebhookSync.Result result = KeepADBWebhookSync.setAutomaticSync(app, enable, finish);
         if (result == KeepADBWebhookSync.Result.NEEDS_SETUP) {
             KeepADBDiagnostics.event(app, "user_action", "widget", "skipped",
                     "webhook_sync reason=needs_setup");

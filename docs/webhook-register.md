@@ -84,9 +84,34 @@ and never reuses an address while Wi-Fi is down.
 The widgets' synchronization switch asks for a target state (on or off), never a flip, so a
 repeated tap cannot undo itself. It uses the same enable and disable paths as the settings form:
 switching on needs a valid saved URL (without one nothing changes and nothing is sent, and the
-widget's setup action leads to the settings), switching off sends the DELETE before the preference
-goes off, exactly as the opt-out always does. The app, the notification and every widget are
+widget's setup action leads to the settings). The app, the notification and every widget are
 refreshed afterwards.
+
+**Switching off: what happens in which order.** The preference goes off at once; the withdrawal
+does not wait for the network. The DELETE at the last reported URL is queued on the sender's single
+background thread (behind any request already running or due) and sent from there; the URL is read
+when the switch is tapped. Until the DELETE has succeeded, the stored report record (the last
+reported URL and endpoint) still names the registration; its success clears the record and shows
+the report as withdrawn, its failure keeps the record and shows the last report as failed.
+
+- **While the process is needed:** a switch tapped on a widget keeps its broadcast open until the
+  DELETE has been attempted (or the hold limit of the broadcast has passed, which is shorter than
+  the system's window), so the process is not stopped with the request still queued. Switching on
+  keeps it open until the work queued behind it has run, such as the report of an endpoint the
+  process already knows. A freshly started process that still has to discover its endpoint is not
+  awaited: the broadcast ends once the refresh is dispatched, synchronization stays on, and the
+  report is sent by the next normal synchronization trigger, such as the endpoint being found or a
+  network change.
+- **If the process dies mid-DELETE, the hold limit passes or the request fails:** the preference is
+  already off, so the registration may remain at the receiver. The stored report record still names
+  it. Only a DELETE that returned a failure marks the last report as failed; after process death or
+  an expired hold the stored status can still read as the earlier success. Nothing sends the DELETE
+  again on its own, not at the next start of the app and not on a timer. Tapping "off" again is the
+  retry: it withdraws the report record only while the record names the URL that is saved now (a
+  record of a replaced or cleared URL is not retried from there), and, like every opt-out, it also
+  flushes withdrawals already queued for earlier URLs whose DELETE failed (pending cleanups of
+  registrations the app made itself). Without such a record, "off" while already off sends nothing;
+  queued cleanups then wait for the next register activity.
 
 ## What the widgets and the tile show of the delivery (#910)
 

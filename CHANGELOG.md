@@ -114,15 +114,40 @@ are retrospective issue-version records and were never published as separate rel
   immutable; the broadcasts go to the non-exported receiver and are not in its intent filter. No
   widget uses them yet.
 
+### Fixed
+- **A widget's opt-out could lose its DELETE to process death (#911, Codex review):** switching
+  synchronization off turns the preference off at once and sends the DELETE asynchronously, but the
+  receiver returned immediately, so with no service or screen alive the process could be stopped
+  with the DELETE still queued. The widget actions now keep their broadcast open (`goAsync`) until
+  the DELETE has been attempted, bounded by the same hold limit as "Report now" and finished only
+  once. Enabling holds it until the work queued behind it has run; a freshly started process that
+  still has to discover its endpoint is not awaited, and its report is sent by the next normal
+  synchronization trigger.
+- **Limits, stated rather than hidden:** if the process dies mid-DELETE, the hold limit passes or
+  the request fails, the registration may remain at the receiver until the user taps "off" again;
+  the app never sends a withdrawal on its own at start or on a timer. That retry withdraws the
+  report record only while it names the URL saved now; a record of a replaced or cleared URL is not
+  retried from there. Like every opt-out, the retry also flushes withdrawals already queued for
+  earlier URLs whose DELETE failed (the existing pending-cleanup list): those are registrations the
+  app itself made and still owes a withdrawal for.
+
 ### Changed
 - **The alert's "Report now" needs Wi-Fi:** like the widgets, it reports only while Wi-Fi is up and
   a valid URL is saved; before, it could send a cached endpoint without Wi-Fi.
 
 ### Documentation
 - `docs/webhook-register.md` describes "Report now" (a push of an enabled synchronization, nothing
-  with it off) and the widgets' switch, without assuming any receiver behavior.
+  with it off) and the widgets' switch, including the actual order of an opt-out (preference off at
+  once, asynchronous DELETE) and what remains after a failure or a process death, without assuming
+  any receiver behavior.
 
 ### Testing
+- `KeepADBWebhookWithdrawalTest`: the disable and enable broadcasts stay open (real pending result)
+  until the DELETE or the queued report is out, a hung DELETE is released by the hold limit and only
+  once, a cold-start enable ends after the refresh and the next trigger reports; an outstanding
+  withdrawal is never sent on its own (not at the application start, not by any trigger or time),
+  "off" again retries it only while the record names the saved URL, and a replaced or cleared URL
+  leaves the old destination alone.
 - `KeepADBReportNowTest`, `KeepADBWebhookActionsTest`, `KeepADBWebhookSyncTest` and
   `KeepADBWidgetStateReportNowTest`: with synchronization off a tap sends nothing and changes no
   preference, also for repeated taps and hours later; with it on a tap reports at once, joins a
