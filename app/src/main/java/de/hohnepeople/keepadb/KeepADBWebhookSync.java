@@ -52,7 +52,8 @@ final class KeepADBWebhookSync {
      * The one disable path. The withdrawal is queued first (it reads the saved URL right away) and
      * the preference goes off at once; the DELETE itself runs asynchronously. Until it has
      * succeeded the report snapshot still names the registration. Nothing sends it again on its
-     * own: only another explicit "off" retries it ({@link #setAutomaticSync}).
+     * own while synchronization is off: another explicit "off" retries it
+     * ({@link #setAutomaticSync}); queued withdrawals also follow at the next register activity.
      *
      * @param onDone runs on the register executor once the withdrawal has been attempted, so a
      *         receiver can hold its broadcast open until then.
@@ -73,11 +74,12 @@ final class KeepADBWebhookSync {
      * only and never invents, repairs or replaces one.
      *
      * <p>Asking for "off" while it already is off is the user's retry of a withdrawal that an
-     * earlier opt-out left outstanding (the result is then {@link Result#DISABLED}), but only
-     * while the report snapshot still names the URL that is saved now; if the URL was cleared or
-     * replaced since, the old destination is not contacted and the result is
-     * {@link Result#UNCHANGED}. The app, the notification and every widget are refreshed
-     * afterwards, whatever the result.
+     * earlier opt-out left outstanding (the result is then {@link Result#DISABLED}): while the
+     * report snapshot still names the URL that is saved now, or (#935) while a destination the app
+     * may have registered to without a record is outstanding (a dispatch marker or a due queued
+     * withdrawal, #923). A report record of a URL that was cleared or replaced since is not
+     * contacted from here. Otherwise the result is {@link Result#UNCHANGED}. The app, the
+     * notification and every widget are refreshed afterwards, whatever the result.
      *
      * @param onDone runs once the work this request queued has been attempted (on the register
      *         executor), or at once when it queued none, so a receiver can keep its broadcast

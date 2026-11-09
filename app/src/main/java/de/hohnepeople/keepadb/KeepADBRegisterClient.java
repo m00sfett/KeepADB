@@ -753,7 +753,14 @@ final class KeepADBRegisterClient {
      * local bookkeeping on the preferences file: it runs here, on the register executor and outside
      * the class monitor, sends nothing and changes no entry.
      */
+    /**
+     * #934 (review): the due entries the last flush left to the transaction that runs next (it
+     * deletes or posts their resource itself). Confined to the register executor.
+     */
+    private static final java.util.List<String> entriesLeftToTransaction = new java.util.ArrayList<>();
+
     private static void flushPendingCleanups(Context context, String targetUrl, boolean deleting) {
+        entriesLeftToTransaction.clear();
         if (context == null) return;
         PendingCleanupRetryRepository.removeOrphans(context,
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
@@ -784,6 +791,7 @@ final class KeepADBRegisterClient {
             // and settles the entry with it (#934: a failed DELETE is booked on the entry); a
             // second request from here would only duplicate it.
             if (inUseUrl != null && sameRegistrationResource(sanitizedUrl, inUseUrl)) {
+                entriesLeftToTransaction.add(url);
                 continue;
             }
             boolean deleted = false;
@@ -882,14 +890,14 @@ final class KeepADBRegisterClient {
         return false;
     }
 
-    /** #934: books a failed attempt on every queued entry of {@code url}'s resource. */
-    private static void recordPendingCleanupFailuresForResource(Context context, String url) {
-        if (context == null || url == null) return;
-        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            if (sameRegistrationResource(sanitizePendingCleanupUrl(entry), url)) {
-                recordPendingCleanupFailure(context, entry);
-            }
+    /** #934: books a failed attempt on every due entry the flush left to this transaction. */
+    private static void recordPendingCleanupFailuresLeftToTransaction(Context context) {
+        if (context == null) return;
+        java.util.Set<String> pending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        for (String entry : new java.util.ArrayList<>(entriesLeftToTransaction)) {
+            if (pending.contains(entry)) recordPendingCleanupFailure(context, entry);
         }
+        entriesLeftToTransaction.clear();
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {
@@ -1156,9 +1164,10 @@ final class KeepADBRegisterClient {
                 }
             }
         } else {
-            // #934: a queued withdrawal of this resource was left to this DELETE by the flush; its
-            // failure counts against that entry's budget and expiry as well.
-            recordPendingCleanupFailuresForResource(context, urlToDelete);
+            // #934: a due queued withdrawal of this resource that the flush left to this DELETE
+            // has its failure booked, so its budget, backoff and expiry apply; an entry that was
+            // not due is not charged for the transaction's own (#562-paced) attempt.
+            recordPendingCleanupFailuresLeftToTransaction(context);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
@@ -1244,6 +1253,7 @@ final class KeepADBRegisterClient {
     }
 
     static synchronized void resetForTesting() {
+        entriesLeftToTransaction.clear();
         lastGiveUpOrReattemptAt = 0L;
         endpointProbe = KeepADBRegisterClient::probeEndpoint;
         lastRegisteredUrl = null;

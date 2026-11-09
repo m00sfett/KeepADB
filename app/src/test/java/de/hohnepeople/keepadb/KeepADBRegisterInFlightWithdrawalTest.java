@@ -436,4 +436,32 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         drain();
         assertTrue(requests().toString(), requests().isEmpty());
     }
+
+    @Test
+    public void anExpiredEntryInUseIsDiscardedByTheFlushAndNotChargedAgain() {
+        // #934 (review): the flush decides on expiry before it leaves an entry to the transaction.
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        transport.setPostSuccess(false); // answer lost
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+        transport.setPostSuccess(true);
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.markUnavailableAsync(context); // queues B, one failed attempt booked
+        drain();
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+
+        // A day later the entry has expired; the opt-out deletes B itself and fails again.
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L
+                + PendingCleanupRetryRepository.EXPIRY_MS + 60_000L);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        drain();
+
+        assertTrue("the expired entry is gone, not kept alive by the transaction's attempt: "
+                        + KeepADBPreferences.getPendingWebhookCleanupUrls(context),
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
 }

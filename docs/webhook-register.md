@@ -129,8 +129,8 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   recorded as possibly registered until its next successful report, and any withdrawal before that
   (switching off, an endpoint loss, also when nothing else is recorded) takes it along. A failed
   withdrawal stays queued with the usual retry rules (#934: three attempts with growing pauses,
-  dropped after 24 hours), also when the transaction's own DELETE carried it out; a later endpoint
-  loss or "off" tries it again once it is due. A POST the receiver answered with an HTTP error
+  dropped after 24 hours); when the transaction's own DELETE carried out a due entry, its failure
+  counts as one of those attempts. A later endpoint loss or "off" tries it again once it is due. A POST the receiver answered with an HTTP error
   counts as not registered; one that ended with a network error (for example a lost answer) counts
   as possibly registered, because the request may have arrived.
 
