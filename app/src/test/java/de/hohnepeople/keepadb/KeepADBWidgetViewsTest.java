@@ -592,7 +592,7 @@ public class KeepADBWidgetViewsTest {
     // -- text fitting and touch targets ------------------------------------------------------------
 
     @Test
-    public void textsAreOneShrinkingLineUpTo85PercentAndThePortNeverWraps() {
+    public void textsShrinkWithinTheirRangeNeverEllipsizeAndThePortNeverWraps() {
         float density = context.getResources().getDisplayMetrics().scaledDensity;
         for (SizeClass sizeClass : SizeClass.values()) {
             View widget = render(sizeClass);
@@ -602,13 +602,20 @@ public class KeepADBWidgetViewsTest {
                     View view = tile.findViewById(id);
                     if (!(view instanceof android.widget.TextView)) continue;
                     android.widget.TextView text = (android.widget.TextView) view;
-                    assertEquals(sizeClass + " " + id, 1, text.getMaxLines());
+                    // #927: the pill's label may wrap to a second line and shrink further, so a
+                    // long label ("Sinkron otomatis") never loses a word at two cells.
+                    boolean pillLabel = isPill(tile) && id == R.id.widget_tile_label;
+                    assertEquals(sizeClass + " " + id, pillLabel ? 2 : 1, text.getMaxLines());
                     assertEquals(android.widget.TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM,
                             text.getAutoSizeTextType());
                     assertEquals("never cut with an ellipsis", null, text.getEllipsize());
                     float max = text.getAutoSizeMaxTextSize();
                     float min = text.getAutoSizeMinTextSize();
-                    if (id == R.id.widget_tile_port) {
+                    if (isPill(tile) && id != R.id.widget_tile_port) {
+                        // sp scales with the font scale: the floor is what lets 2.0 fit.
+                        assertTrue(sizeClass + " pill " + id + " min " + min + " max " + max,
+                                min >= 0.5f * max && min <= 0.7f * max);
+                    } else if (id == R.id.widget_tile_port) {
                         assertTrue("the port may shrink further than words, but never wraps",
                                 min >= 0.45f * max);
                     } else {
@@ -619,6 +626,13 @@ public class KeepADBWidgetViewsTest {
                 }
             }
         }
+    }
+
+    /** The pill is the only control anatomy laid out horizontally (symbol beside the text). */
+    private static boolean isPill(View tile) {
+        return tile instanceof android.widget.LinearLayout
+                && ((android.widget.LinearLayout) tile).getOrientation()
+                        == android.widget.LinearLayout.HORIZONTAL;
     }
 
     /**

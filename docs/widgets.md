@@ -36,7 +36,11 @@ All text and symbol colors have at least 4.5:1 contrast on their fill (`KeepADBW
 The surface is `#0B0806` with a 28 dp radius, the controls have a 23 dp radius and a 5 dp gap.
 Controls are at least 48 dp high and wide. The words shrink (not below 85 percent of their size)
 before they could be cut, and never get an ellipsis; the port is one line in bold tabular figures and never
-wraps. TalkBack reads "name: state, port N" from the control's description, in full, even where only
+wraps. The pill (Auto-sync, Keep-Alive beside the main control) is the exception: its label may wrap
+to two lines and shrink to about half its size (13 to 7 sp; its state word 12 to 8 sp), so a long
+label ("Sinkron otomatis", "Автосинхр.") stays whole at two cells and at large font scales; the
+floors are in sp and grow with the font scale. The text sits slightly below the pill's middle: an
+equal split between label and state would cut a two-line label at font scale 2.0. TalkBack reads "name: state, port N" from the control's description, in full, even where only
 "ADB" or a symbol is visible.
 
 ## Sizes

@@ -1,0 +1,1 @@
+Widget buttons keep their whole label in long languages and at large text sizes; a long label wraps to two lines instead of being cut off.
