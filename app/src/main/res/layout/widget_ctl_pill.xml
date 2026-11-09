@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #912: a secondary control as a horizontal pill (2x2 and 4x2): symbol, label and state word. -->
+<!-- #912: a secondary control as a horizontal pill (2x2 and 4x2): symbol, label and state word.
+     #927: the label may wrap to two lines and the text column fills the pill's height, so autosize
+     is bounded in both directions: a long label ("Sinkron otomatis") wraps and shrinks instead of
+     losing its second word or its last letter at two cells and large font scales. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_tile"
     android:layout_width="match_parent"
@@ -11,8 +14,8 @@
     android:minWidth="48dp"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="14dp"
-    android:paddingEnd="10dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="8dp">
 
     <ImageView
         android:id="@+id/widget_tile_icon"
@@ -23,34 +26,40 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp">
 
     <TextView
         android:id="@+id/widget_tile_label"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:autoSizeMaxTextSize="13sp"
-        android:autoSizeMinTextSize="11sp"
+        android:autoSizeMinTextSize="7sp"
         android:autoSizeStepGranularity="0.5sp"
         android:autoSizeTextType="uniform"
         android:fontFamily="sans-serif"
+        android:gravity="bottom|start"
         android:includeFontPadding="false"
-        android:maxLines="1"
+        android:maxLines="2"
         android:textColor="@color/widget_text"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/widget_tile_state"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.6"
         android:autoSizeMaxTextSize="12sp"
-        android:autoSizeMinTextSize="10sp"
+        android:autoSizeMinTextSize="8sp"
         android:autoSizeStepGranularity="0.5sp"
         android:autoSizeTextType="uniform"
         android:fontFamily="sans-serif"
+        android:gravity="top|start"
         android:includeFontPadding="false"
         android:maxLines="1"
         android:textColor="@color/widget_text_soft"
