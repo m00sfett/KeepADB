@@ -82,7 +82,7 @@ numbers. What that gives at the measured sizes:
 | | Android 14 launcher (144 / 296 dp wide, 193 dp for two rows) | Android 11 launcher (137 / 291 dp wide, 176 dp for two rows) |
 |---|---|---|
 | font 1.0 | 2x2 grid, 4x2 panel | 2x2 **stack** (176 < 184 dp), 4x2 panel |
-| font 1.3 | 2x2 stack, 4x2 grid, 2x1 only the hero, 4x1 the hero and two buttons | 2x2 and 4x2 stack (176 dp), the rest as on Android 14 |
+| font 1.3 | 2x2 stack, 4x2 **stack** (its entry is keyed 2 dp below the 193 reported, the grid needs 193), 2x1 only the hero, 4x1 the hero and two buttons | 2x2 and 4x2 stack (176 dp), the rest as on Android 14 |
 | font 2.0 | 2x2 and 4x2 stack (193 < 220 dp), 2x1 only the hero, 4x1 the hero and two buttons | the same |
 
 A room that is neither (for example 152 x 140 dp at font 1.0, as on some other launchers) is the

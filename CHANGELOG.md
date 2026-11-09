@@ -106,7 +106,8 @@ are retrospective issue-version records and were never published as separate rel
   220, 244 at 2.0), and a room that cannot hold a class gets the next smaller one (panel, grid,
   stack, strip or row). A 152 x 140 dp room used to be a grid whose hero had about 24 dp. Results:
   on the Android 14 launcher (193 dp for two rows) a 2x2 is the grid at font 1.0, the stack at 1.3
-  and 2.0, a 4x2 the panel, the grid at 1.3 and the stack at 2.0; on the Android 11 launcher (176 dp)
+  and 2.0, a 4x2 the panel, the stack at 1.3 (its entry is keyed 2 dp below the 193 reported, the grid needs
+  193) and at 2.0; on the Android 11 launcher (176 dp)
   a 2x2 is the stack at every font scale and a 4x2 the panel at font 1.0, the stack above.
 - **Port and square buttons of the widget (#912, review of round 3):** the port in the 2x2 and 4x2
   hero was shrunk to about 13 sp and looked thin, because the uniform autosize of a
