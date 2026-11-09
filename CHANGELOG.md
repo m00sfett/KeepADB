@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the next stable candidate and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the next stable candidate and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.12.1] - Unreleased
+
+Test-only candidate after the 1.12.0 preparation (versionCode 255); no app change.
+
+### Testing
+- **Flaky notification privacy test (#922):**
+  `SettingsActivityTest.notificationPrivacySwitchAlsoRerendersTheVisibleMainNotification` seeded a
+  cached endpoint and called `KeepADBEndpointCoordinator.refresh`, which verifies that endpoint on a
+  worker thread with a real socket probe. Against the unroutable test address the probe failed late
+  under load and invalidated the endpoint while the assertions ran ("Resolving endpoint on local
+  network"). The test now confirms reachability through `setReachabilityProbeForTesting`, runs the
+  worker inline through `setWorkerStarterForTesting(Thread::run)` and asserts that exactly one
+  verification ran and finished. Counter-check: with a probe that reports "unreachable" the test
+  fails with the same message as the flake.
 
 ## [1.12.0] - Unreleased
 
