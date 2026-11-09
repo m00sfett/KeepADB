@@ -345,11 +345,11 @@ Force mode (#763) is the only exception to the precedence above: for a chosen pe
 Keep-Alive re-enables Wireless debugging on **every** Wi-Fi network, including foreign, blocked,
 and unreadable networks. It is an overlay, not a mode in the trust model. Starting and ending it
 do not read or change anything stored by the model (trusted access points, blocks, the convenience
-switch, or the previous setting). “Return to the previous protection level” therefore means only
+switch, or the previous setting). “Protection level back to: …” therefore means only
 that the overlay is removed. The overlay acts at the one decision point used by every automatic
 path (`KeepADBTrustedNetwork.evaluateCurrent`): the service (observer and minute interval),
 recovery pulse, USB handover, and protection checks immediately before writing. It does not replace
-Keep-Alive or a Wi-Fi connection, and a manual “Turn Wireless debugging off” remains in effect.
+Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wireless Debugging remains in effect.
 Adding trust to a blocked network remains impossible even in Force mode; Force mode changes neither
 blocks nor trust.
 
