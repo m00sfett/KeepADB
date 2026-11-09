@@ -23,6 +23,22 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.12.3] - Unreleased
+
+### Fixed
+- **Pill label clipped at two cells (#927):** the auto-sync pill (`widget_ctl_pill.xml`, control
+  widget and overview) kept its label on one line with a floor of 11 sp. At two cells and font scale
+  1.3 the Russian "Автосинхр." lost its last character, and the Indonesian "Sinkron otomatis" showed
+  only "Sinkron" (a one-line `TextView` drops everything after the first line break). The label may
+  now wrap to two lines; label and state take their height from the pill (weights instead of
+  `wrap_content`), so autosize is bounded in both directions; the label's floor is 7 sp and the state word's 8 sp (in sp, so they grow with the font scale; at
+  2.0 the label is still larger than the normal label at 1.0); start,
+  end and symbol gaps are 2 dp narrower. Checked on the API 34 emulator at two cells: en at 1.0 and
+  2.0, id at 1.3 and 2.0, ru, es and ar at 1.3, all whole, no ellipsis. The other control anatomies
+  keep their one-line, 85 percent contract. The text sits slightly below the pill's middle: an equal
+  label/state split (review suggestion) cut a two-line label at font scale 2.0 and was not taken. `KeepADBWidgetViewsTest` pins the pill exception, the new
+  `KeepADBWidgetPillLayoutTest` the bounded heights and the floor.
+
 ## [1.12.2] - Unreleased
 
 ### Fixed
