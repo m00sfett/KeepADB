@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- #912: the main control over two rows (4x2): the symbol on top, below it the label, the state
-     word and the port large in monospace. -->
+     word and the port large in sans-serif-condensed bold with tabular figures. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_tile"
     android:layout_width="match_parent"
@@ -61,12 +61,13 @@
     <TextView
         android:id="@+id/widget_tile_port"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="28sp"
         android:autoSizeMaxTextSize="22sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeStepGranularity="0.5sp"
         android:autoSizeTextType="uniform"
-        android:fontFamily="monospace"
+        android:fontFamily="sans-serif-condensed"
+        android:fontFeatureSettings="tnum"
         android:includeFontPadding="false"
         android:maxLines="1"
         android:textColor="@color/widget_text"

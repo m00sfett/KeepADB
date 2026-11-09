@@ -35,7 +35,7 @@ look; the state is never told by color alone:
 All text and symbol colors have at least 4.5:1 contrast on their fill (`KeepADBWidgetColorsTest`).
 The surface is `#0B0806` with a 28 dp radius, the controls have a 23 dp radius and a 5 dp gap.
 Controls are at least 48 dp high and wide. The words shrink (not below 85 percent of their size)
-before they could be cut, and never get an ellipsis; the port is one line in monospace and never
+before they could be cut, and never get an ellipsis; the port is one line in bold tabular figures and never
 wraps. TalkBack reads "name: state, port N" from the control's description, in full, even where only
 "ADB" or a symbol is visible.
 

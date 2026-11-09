@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- #912: a secondary control as a square symbol button, no text: the state is the fill and the
-     symbol variant; TalkBack reads "label, state" from the content description. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     symbol variant; TalkBack reads "label, state" from the content description. One ImageView:
+     52 dp wide, and with adjustViewBounds as high as it is wide, centered in its slot, so a tall
+     widget (a large font in a 4x2) never stretches it into a pillar. The widget_tile id carries
+     the background, the symbol and the tap. -->
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_tile"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="52dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:adjustViewBounds="true"
     android:background="@drawable/bg_widget_tile_off"
     android:clickable="true"
     android:focusable="true"
+    android:maxHeight="52dp"
     android:minHeight="48dp"
-    android:minWidth="48dp"
-    android:gravity="center"
-    android:orientation="vertical">
-
-    <ImageView
-        android:id="@+id/widget_tile_icon"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:importantForAccessibility="no"
-        android:scaleType="fitCenter" />
-</LinearLayout>
+    android:padding="12dp"
+    android:scaleType="fitCenter" />

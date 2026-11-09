@@ -81,6 +81,14 @@ are retrospective issue-version records and were never published as separate rel
   force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Fixed
+- **Port and square buttons of the widget (#912, review of round 3):** the port in the 2x2 and 4x2
+  hero was shrunk to about 13 sp and looked thin, because the uniform autosize of a
+  `wrap_content` box collapsed and the monospace family has no bold face. The port now sits in a
+  box of fixed height (28 sp for the 22 sp port, 21 sp for the 16 sp one) in
+  `sans-serif-condensed` bold with tabular figures, and uses the full size whenever it fits. The
+  square symbol buttons of the one-row classes were stretched to the height of the widget (a
+  pillar at font 2.0 in a 4x2); they are now one `ImageView` of 52 x 52 dp, centered in their
+  slot (the stack keeps its two buttons, each as wide as its half).
 - **The widget settings screen hid its last row (#912):** "Hide connection details in this widget"
   sat half (API 34) or wholly (API 30) behind the edge of the scrolling part until scrolled. The
   Save button was already outside the `ScrollView`, so nothing was drawn under it; the scrolling

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- #912: the main control in a short or compact widget (2x1, 4x1, the compact classes): the
-     symbol and under it only the port in monospace, or the short state word while there is no
+     symbol and under it only the port in sans-serif-condensed bold with tabular figures, or the short state word while there is no
      port. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_tile"
@@ -28,12 +28,13 @@
     <TextView
         android:id="@+id/widget_tile_port"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="21sp"
         android:autoSizeMaxTextSize="16sp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeStepGranularity="0.5sp"
         android:autoSizeTextType="uniform"
-        android:fontFamily="monospace"
+        android:fontFamily="sans-serif-condensed"
+        android:fontFeatureSettings="tnum"
         android:includeFontPadding="false"
         android:maxLines="1"
         android:textColor="@color/widget_text"

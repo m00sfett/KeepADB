@@ -144,8 +144,11 @@ public class KeepADBWidgetViewsTest {
     }
 
     private static String ico(View tile) {
-        return String.valueOf(((android.widget.ImageView) tile.findViewById(R.id.widget_tile_icon))
-                .getDrawable() == null ? "none" : "icon");
+        // The square button is one ImageView: the tile itself carries the symbol.
+        android.widget.ImageView icon = tile instanceof android.widget.ImageView
+                ? (android.widget.ImageView) tile
+                : (android.widget.ImageView) tile.findViewById(R.id.widget_tile_icon);
+        return icon.getDrawable() == null ? "none" : "icon";
     }
 
     // -- controls per size class ---------------------------------------------------------------
@@ -682,6 +685,49 @@ public class KeepADBWidgetViewsTest {
             for (View tile : tiles(widget)) {
                 assertEquals(sizeClass + " has a symbol", "icon", ico(tile));
             }
+        }
+    }
+
+    /**
+     * Round 3 follow-up: at a large font a one-row class can be 190 dp high (a 4x2 at font 2.0), and
+     * the square buttons used to stretch to that height and become pillars. They stay square.
+     */
+    @Test
+    public void theSquareButtonsStaySquareHoweverHighTheWidgetIs() {
+        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        for (SizeClass sizeClass : new SizeClass[] {SizeClass.ROW1, SizeClass.ROW2}) {
+            for (int height : new int[] {89, 193, 260}) {
+                View widget = applyAndMeasure(context, KeepADBWidgetViews.forSize(context, WIDGET_ID,
+                        defaults, projection, sizeClass), 296, height);
+                for (View square : tiles(widget).subList(1, tiles(widget).size())) {
+                    assertEquals(sizeClass + " @" + height + " width", 52, square.getMeasuredWidth());
+                    assertEquals(sizeClass + " @" + height + " is square", 52,
+                            square.getMeasuredHeight());
+                }
+                assertTrue("the hero still fills the height",
+                        hero(widget).getMeasuredHeight() >= height - 20);
+            }
+        }
+    }
+
+    /**
+     * The port uses tabular figures and sits in a box of fixed height (the font is sans-serif-condensed
+     * bold, which has a real bold face; the monospace family has none), so uniform autosize can use
+     * the full nominal size instead of collapsing around wrap_content.
+     */
+    @Test
+    public void thePortIsRealBoldTabularAndInAFixedHeightBoxSoItIsNotShrunkNeedlessly() {
+        float density = context.getResources().getDisplayMetrics().scaledDensity;
+        int[][] expected = {{22, 28}, {22, 28}, {16, 21}};
+        SizeClass[] classes = {SizeClass.PANEL, SizeClass.GRID, SizeClass.ROW1};
+        for (int i = 0; i < classes.length; i++) {
+            android.widget.TextView port = hero(render(classes[i])).findViewById(R.id.widget_tile_port);
+            assertEquals(classes[i] + " tabular figures", "tnum", port.getFontFeatureSettings());
+            assertEquals(classes[i] + " max size", expected[i][0] * density, port.getAutoSizeMaxTextSize(), 0.6f);
+            assertEquals(classes[i] + " box height", Math.round(expected[i][1] * density),
+                    port.getLayoutParams().height);
+            assertEquals(classes[i] + " one line", 1, port.getMaxLines());
         }
     }
 }

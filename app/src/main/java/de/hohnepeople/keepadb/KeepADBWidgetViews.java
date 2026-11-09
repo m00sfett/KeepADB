@@ -47,8 +47,10 @@ final class KeepADBWidgetViews {
         PILL(R.layout.widget_ctl_pill),
         /** Upright tile: symbol, label and state word, centered. */
         TILE_V(R.layout.widget_ctl_tile_v),
-        /** Square symbol button, no text. */
-        SQUARE(R.layout.widget_ctl_square);
+        /** Square symbol button, no text, 52 x 52 dp centered in its slot. */
+        SQUARE(R.layout.widget_ctl_square),
+        /** Symbol button without text that is as wide as its slot (the stack). */
+        SQUARE_WIDE(R.layout.widget_ctl_square_wide);
 
         final int layoutRes;
 
@@ -148,8 +150,9 @@ final class KeepADBWidgetViews {
         switch (sizeClass) {
             case ROW1:
             case ROW2:
-            case STACK:
                 return Anatomy.SQUARE;
+            case STACK:
+                return Anatomy.SQUARE_WIDE;
             case STRIP:
                 return Anatomy.TILE_V;
             case GRID:
@@ -190,8 +193,11 @@ final class KeepADBWidgetViews {
         int soft = ctx.getColor(softInkOf(content.style));
         tile.setInt(R.id.widget_tile, "setBackgroundResource",
                 background(content.style, anatomy.isHero()));
-        tile.setImageViewResource(R.id.widget_tile_icon, content.iconRes);
-        tile.setInt(R.id.widget_tile_icon, "setColorFilter", ctx.getColor(iconOf(content.style)));
+        // The square button is one ImageView: the same view is the tile and the symbol (the color
+        // filter tints the symbol only, never the background).
+        int iconId = anatomy == Anatomy.SQUARE ? R.id.widget_tile : R.id.widget_tile_icon;
+        tile.setImageViewResource(iconId, content.iconRes);
+        tile.setInt(iconId, "setColorFilter", ctx.getColor(iconOf(content.style)));
 
         switch (anatomy) {
             case ONE:
@@ -233,6 +239,7 @@ final class KeepADBWidgetViews {
                 if (anatomy == Anatomy.HERO_L) port(tile, content.port, ink);
                 break;
             case SQUARE:
+            case SQUARE_WIDE:
             default:
                 break;
         }
