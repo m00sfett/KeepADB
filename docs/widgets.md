@@ -1,4 +1,4 @@
-# Control widget (#912)
+# Home-screen widgets (#912, #913)
 
 The home-screen widget **KeepADB controls** holds up to three controls. The larger the widget, the
 more of them it shows and the more it explains. It only reads the app's state
