@@ -108,10 +108,11 @@ inside the app an IPv4 address keeps its first number and the port stays visible
 (`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
 has a “Show”. It lifts the mask for one part of one screen (the Networks list, the assistant's
 network page, the trust dialog, the webhook field, the USB profile dialog) until that part is
-left, the screen stops or the switch is turned on again. The eye in the title bars (on the home
-screen: the header menu) opens a menu with “Show on this screen” / “Hide on this screen”, which
-applies to every part of that screen until it is left and never changes a stored switch, plus the
-three stored switches. Shared diagnostics and toasts that name a network stay masked under any
+left, the screen stops or the switch is turned on again. A tap on the eye in the title bars (home
+screen included, #941) toggles “Show on this screen” / “Hide on this screen”, which applies to
+every part of that screen until it is left and never changes a stored switch; a long press opens a
+menu with the four stored switches (lock screen included) and a link to Settings → Privacy. Shared
+diagnostics and toasts that name a network stay masked under any
 “Show”, because they can outlive the screen; they are masked whenever the app switch is on or the
 screen is hidden. In the trust dialog and on the Settings network card, trusting needs a “Show”
 while the network is masked; blocking does not.
