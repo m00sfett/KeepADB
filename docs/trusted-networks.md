@@ -188,7 +188,7 @@ A block made from a notice or dialog is lifted in the **Networks** list (next se
 name block preserves saved trust, which becomes effective again.
 
 **Unreadable network.** If the identity cannot be read, there is nothing to trust or block, so
-KeepADB shows the separate “Current Wi-Fi is not readable” notice instead (#460), which leads to
+KeepADB shows the separate “Current Wi-Fi network is unreadable” notice instead (#460), which leads to
 the likely fix. Roaming between access points briefly makes the identity unreadable while Wi-Fi
 still counts as connected, so the notice is not posted on the first unreadable read (#872): KeepADB
 checks again after 5 seconds and after a further 10 seconds, and posts it only if the identity is
@@ -210,7 +210,7 @@ background access.
 (`KeepADBTrustedNetwork.evaluate`); the list does not calculate a separate policy. It shows
 *Trusted*, *Blocked*, *Unknown*, or *Unreadable*, and for the current network also *Trusted by name*
 (through the convenience switch). If an access point is trusted but its name is blocked, it shows
-*Blocked* with the reason (“Blocked by name…”), never *Trusted*. The saved trust remains under the
+*Blocked* with the reason (“Blocked via the Wi-Fi name …”), never *Trusted*. The saved trust remains under the
 name block. Force mode does not change the labels (it changes nothing stored); the list only notes
 that trust and blocks are overridden while Force mode is active.
 
@@ -249,7 +249,7 @@ so the user can explicitly trust or block that individual access point.
 **Convenience switch.** The “Also trust by Wi-Fi name” switch replaces the list's three modes:
 off = trusted access points only (BSSID); on = also access points with the name of a trusted one.
 The protection level is shown beside it. If both the convenience switch and legacy name list are
-on, the level is labeled “Name allowlist (previous setting)” because the saved list extends access
+on, the level is labeled “Wi-Fi name list (previous setting)” because the saved list extends access
 beyond names derived from trusted access points. Under the previous “All Wi-Fi networks” setting,
 the switch has no effect and the list says so.
 
@@ -305,7 +305,7 @@ the “Wi-Fi name unknown” group, as does a trust entry whose label is only it
 and blocks save their own name, see “Stored names” above); and bands are no longer saved (only the
 current band is shown). The previously enabled `wifi_aps_feature_enabled` option remains
 unchanged, but no code reads or writes it. A saved name list (`trusted_ssid_*`,
-`trusted_network_ssid_matching`) also remains active (“Name allowlist (previous setting)”); it
+`trusted_network_ssid_matching`) also remains active (“Wi-Fi name list (previous setting)”); it
 can no longer be edited without its former interface. The assistant's “Protection level” step
 (#761) provides the way to change it: the previous setting (“All Wi-Fi networks” or name allowlist)
 is preselected and marked “Less secure” or “Notice,” and a selected preset replaces it without
@@ -355,9 +355,9 @@ blocks nor trust.
 
 **Starting and ending.** Force mode can be started only through the confirmation dialog
 (Settings → Network → Force mode), with a required duration: 1 hour (preselected), 24 hours,
-7 days, 30 days, or “No expiry.” The dialog gives staged warnings (a general warning; an
+7 days, 30 days, or “No end time.” The dialog gives staged warnings (a general warning; an
 additional warning about using it while away from trusted networks for 7 days or longer; and, with
-no expiry, an additional warning that it persists through reboots and updates). “No expiry” can
+no expiry, an additional warning that it persists through reboots and updates). “No end time” can
 be confirmed only after checking its box. Keep-Alive is also enabled if it was off (the dialog
 says so). Choosing another duration is a new full start through the same dialog; there is no silent
 extension. The user can end Force mode at any time without confirmation: the card on the home
@@ -404,11 +404,11 @@ safe direction: sooner, never later.
 
 If the system boot counter cannot be read, a time-limited mode ends immediately: the first read
 returns “off,” and the one-time expiry notice follows (#773, with its own wording that identifies
-the early safety end rather than saying “The selected time has expired”; the same applies after
+the early safety end rather than saying “The selected time is up”; the same applies after
 reboot if the wall clock is earlier than its base). A time-limited mode cannot be started while
 the counter is unreadable; the dialog explains this and stays open. If the counter becomes
 readable again, the mode remains ended and can be started again from its dialog; nothing remains
-blocked. “No expiry” has no deadline, does not need the counter, and remains active until ended,
+blocked. “No end time” has no deadline, does not need the counter, and remains active until ended,
 including across reboots and updates.
 
 Known remaining case: a wall clock reset after reboot but before the first driver runs (a short
