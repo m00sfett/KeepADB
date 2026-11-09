@@ -66,6 +66,8 @@
     <string name="privacy_app_body">हर स्क्रीन और हर डायलॉग में Wi-Fi नाम, ऐक्सेस पॉइंट पते, IP पते और वेबहुक होस्ट को मास्क करता है। “दिखाएँ” स्क्रीन छोड़ने तक उन्हें दिखाता है।</string>
     <string name="privacy_notifications_title">सूचनाओं में छिपाएँ</string>
     <string name="privacy_notifications_body">सूचनाएँ केवल स्थिति दिखाती हैं, पोर्ट, IP पता, USB प्रोफ़ाइल या Wi-Fi नाम के बिना। तब नए Wi-Fi की सूचना में बटन नहीं होते और वह ऐप खोलती है। जब तक यह बंद है, ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं।</string>
+    <string name="privacy_lockscreen_title">लॉक स्क्रीन पर छिपाएँ</string>
+    <string name="privacy_lockscreen_body">KeepADB की सूचनाएँ लॉक स्क्रीन पर नहीं दिखतीं, चाहे Android वहाँ कुछ भी दिखाए। अनलॉक होने पर वे ऊपर की सेटिंग के अनुसार दिखती हैं।</string>
     <string name="privacy_widgets_title">विजेट और टाइल में छिपाएँ</string>
     <string name="privacy_widgets_body">होम स्क्रीन विजेट और त्वरित सेटिंग टाइल केवल स्थिति दिखाते हैं, पोर्ट या पते के बिना।</string>
     <string name="usb_profile_hidden_numbered">प्रोफ़ाइल %1$d</string>

@@ -66,6 +66,8 @@
     <string name="privacy_app_body">Enmascara los nombres de Wi-Fi, las direcciones de los puntos de acceso, las direcciones IP y el host del webhook en todas las pantallas y diálogos. «Mostrar» los revela hasta que salgas de la pantalla.</string>
     <string name="privacy_notifications_title">Ocultar en las notificaciones</string>
     <string name="privacy_notifications_body">Las notificaciones solo muestran el estado, sin puerto, dirección IP, perfil USB ni nombre de Wi-Fi. Un aviso de una nueva Wi-Fi no tiene entonces botones y abre la app. Mientras esto esté desactivado, esos detalles también pueden aparecer en la pantalla de bloqueo.</string>
+    <string name="privacy_lockscreen_title">Ocultar en la pantalla de bloqueo</string>
+    <string name="privacy_lockscreen_body">Las notificaciones de KeepADB no aparecen en la pantalla de bloqueo, muestre Android lo que muestre allí. Con el dispositivo desbloqueado, aparecen según lo ajustado arriba.</string>
     <string name="privacy_widgets_title">Ocultar en los widgets y el mosaico</string>
     <string name="privacy_widgets_body">El widget de la pantalla de inicio y el mosaico de ajustes rápidos solo muestran el estado, sin el puerto ni una dirección.</string>
     <string name="usb_profile_hidden_numbered">Perfil %1$d</string>

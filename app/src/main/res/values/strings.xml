@@ -94,6 +94,8 @@
     <string name="privacy_app_body">Masks Wi-Fi names, access point addresses, IP addresses and the webhook host on every screen and in every dialog. “Show” reveals them until you leave the screen.</string>
     <string name="privacy_notifications_title">Hide in notifications</string>
     <string name="privacy_notifications_body">Notifications show only the state, without port, IP address, USB profile or Wi-Fi name. A notice about a new Wi-Fi then has no buttons and opens the app. While this is off, these details can also appear on the lock screen.</string>
+    <string name="privacy_lockscreen_title">Hide on the lock screen</string>
+    <string name="privacy_lockscreen_body">KeepADB notifications do not appear on the lock screen, whatever Android shows there. Unlocked, they appear as set above.</string>
     <string name="privacy_widgets_title">Hide in widgets and the tile</string>
     <string name="privacy_widgets_body">The home-screen widget and the Quick Settings tile show only the state, without the port or an address.</string>
     <string name="usb_profile_hidden_numbered">Profile %1$d</string>

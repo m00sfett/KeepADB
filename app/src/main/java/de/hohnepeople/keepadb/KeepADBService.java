@@ -215,7 +215,7 @@ public class KeepADBService extends Service {
      */
     void promoteToForeground(int serviceType) {
         startForeground(KeepADBNotification.NOTIFICATION_ID,
-                KeepADBNotification.getServiceNotification(this),
+                KeepADBLockScreen.apply(this, KeepADBNotification.getServiceNotification(this)),
                 serviceType);
     }
 

@@ -154,6 +154,8 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isNotificationPrivacyEnabled(c)),
             new Setting("widget_privacy_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isWidgetPrivacyEnabled(c)),
+            new Setting("lockscreen_privacy_enabled", Kind.CONVENIENCE, false, true,
+                    c -> KeepADBPreferences.isLockScreenPrivacyEnabled(c)),
             new Setting("hide_notification_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isNotificationHidden(c)),
             new Setting("keep_display_on_enabled", Kind.CONVENIENCE, false, true,

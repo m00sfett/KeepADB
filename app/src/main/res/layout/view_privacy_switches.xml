@@ -57,6 +57,29 @@
         android:textColor="@color/night_muted"
         android:textSize="13sp" />
 
+    <!-- #920: a sub-option of the notification switch, indented under it. -->
+    <Switch
+        android:id="@+id/privacy_switch_lockscreen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/privacy_lockscreen_title"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingStart="16dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/privacy_lockscreen_body"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
     <Switch
         android:id="@+id/privacy_switch_widgets"
         android:layout_width="match_parent"

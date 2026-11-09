@@ -525,7 +525,7 @@ final class KeepADBNetworkTrustPrompt {
                     KeepADBReceiver.ACTION_BLOCK_NETWORK, REQUEST_CODE_BLOCK, bssid, label,
                     false));
         }
-        manager.notify(NOTIFICATION_ID, builder.build());
+        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, builder.build()));
         return true;
     }
 
@@ -596,7 +596,7 @@ final class KeepADBNetworkTrustPrompt {
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .build();
-        manager.notify(NOTIFICATION_ID, notification);
+        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, notification));
         return true;
     }
 

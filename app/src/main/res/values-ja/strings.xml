@@ -66,6 +66,8 @@
     <string name="privacy_app_body">すべての画面とダイアログで、Wi-Fi 名、アクセスポイントのアドレス、IP アドレス、Webhook のホストをマスクします。「表示」を押すと、その画面を離れるまで表示されます。</string>
     <string name="privacy_notifications_title">通知で非表示</string>
     <string name="privacy_notifications_body">通知には状態のみを表示し、ポート、IP アドレス、USB プロファイル、Wi-Fi 名は含めません。新しい Wi-Fi の通知にはボタンがなくなり、アプリが開きます。オフの間は、これらの詳細がロック画面にも表示されることがあります。</string>
+    <string name="privacy_lockscreen_title">ロック画面で非表示</string>
+    <string name="privacy_lockscreen_body">KeepADB の通知は、Android のロック画面の表示設定にかかわらず、ロック画面に表示されません。ロック解除後は上の設定どおりに表示されます。</string>
     <string name="privacy_widgets_title">ウィジェットとタイルで非表示</string>
     <string name="privacy_widgets_body">ホーム画面のウィジェットとクイック設定タイルには状態のみを表示し、ポートやアドレスは表示しません。</string>
     <string name="usb_profile_hidden_numbered">プロファイル %1$d</string>

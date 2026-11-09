@@ -91,6 +91,8 @@
     <string name="privacy_app_body">Maskiert WLAN-Namen, Access-Point-Adressen, IP-Adressen und den Webhook-Host auf jedem Bildschirm und in jedem Dialog. „Anzeigen“ blendet sie ein, bis du den Bildschirm verlässt.</string>
     <string name="privacy_notifications_title">In Benachrichtigungen ausblenden</string>
     <string name="privacy_notifications_body">Benachrichtigungen zeigen nur den Zustand, ohne Port, IP-Adresse, USB-Profil oder WLAN-Name. Ein Hinweis auf ein neues WLAN hat dann keine Schaltflächen und öffnet die App. Solange das aus ist, können diese Details auch auf dem Sperrbildschirm erscheinen.</string>
+    <string name="privacy_lockscreen_title">Auf dem Sperrbildschirm ausblenden</string>
+    <string name="privacy_lockscreen_body">KeepADB-Benachrichtigungen erscheinen nicht auf dem Sperrbildschirm, egal was Android dort anzeigt. Entsperrt erscheinen sie wie oben eingestellt.</string>
     <string name="privacy_widgets_title">In Widgets und der Kachel ausblenden</string>
     <string name="privacy_widgets_body">Das Startbildschirm-Widget und die Schnelleinstellungs-Kachel zeigen nur den Zustand, ohne Port oder Adresse.</string>
     <string name="usb_profile_hidden_numbered">Profil %1$d</string>
