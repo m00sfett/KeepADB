@@ -149,7 +149,10 @@ offered; it stays in the webhook failure notification.
 endpoint reported, current endpoint not reported yet, no endpoint to report. The claim "reported"
 comes only from the projection's currentness guard (the last accepted report names the current
 endpoint and the configured URL). The time of the last accepted report is shown on its own line as
-history (in both shapes, drawn, not only spoken) and never turns into that claim. A tap on the block opens the webhook form when it is not
+history (in both shapes, drawn, not only spoken) and never turns into that claim. The compact shape
+draws short forms of both ("Reported", "Not reported", "No endpoint"; "Last 14:03", "None yet"),
+so they stay readable at two cells, in long languages and at large font scales; TalkBack reads the
+full sentences in both shapes. A tap on the block opens the webhook form when it is not
 set up or failing, otherwise the app.
 
 **Wi-Fi name.** Android withholds the name without location access; the row then says "Name not
