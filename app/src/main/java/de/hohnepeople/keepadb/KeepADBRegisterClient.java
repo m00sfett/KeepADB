@@ -727,18 +727,19 @@ final class KeepADBRegisterClient {
     }
 
     /**
-     * #911: whether the persisted report snapshot still names the registration at the URL that is
-     * saved now, i.e. a report that nothing has withdrawn. A completed withdrawal clears the
-     * snapshot, a failed or interrupted one leaves it, so with synchronization off this is
-     * "an opt-out whose withdrawal is outstanding". It is deliberately limited to the saved URL:
-     * if the URL was cleared or replaced since, the old destination is not contacted from here.
-     * Read from the preferences, which survive the process, not from the in-memory copy.
+     * #911: whether an opt-out has a withdrawal outstanding, so "off" while already off retries it.
+     * That is the persisted report snapshot still naming the registration at the URL that is saved
+     * now (a completed withdrawal clears the snapshot, a failed or interrupted one leaves it; a
+     * record of a replaced or cleared URL is not contacted from here), and (#935) a destination the
+     * app may have registered to without a record: a dispatch marker or a queued withdrawal that
+     * is due now (#923). Read from the preferences, which survive the process.
      */
-    static boolean hasOutstandingWithdrawalAtSavedUrl(Context context) {
+    static boolean hasOutstandingWithdrawal(Context context) {
         Context app = context.getApplicationContext();
         String recorded = KeepADBPreferences.getWebhookLastReportedUrl(app);
         String saved = KeepADBPreferences.getRegisterWebhookUrl(app);
-        return recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved);
+        if (recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved)) return true;
+        return KeepADBPreferences.getWebhookDispatchedUrl(app) != null || hasDuePendingCleanup(app);
     }
 
     /**
@@ -774,13 +775,15 @@ final class KeepADBRegisterClient {
                 removePendingCleanupsForResource(context, sanitizedUrl);
                 continue;
             }
-            // #923: the transaction that runs next sends its own DELETE or POST to this resource
-            // and settles the entry with it; a second request from here would only duplicate it.
-            if (inUseUrl != null && sameRegistrationResource(sanitizedUrl, inUseUrl)) {
-                continue;
-            }
+            // #934: decide first, so an expired or spent entry is discarded even when it is in use.
             PendingCleanupRetryRepository.RetryState due = duePendingCleanup(context, url);
             if (due == null) {
+                continue;
+            }
+            // #923: the transaction that runs next sends its own DELETE or POST to this resource
+            // and settles the entry with it (#934: a failed DELETE is booked on the entry); a
+            // second request from here would only duplicate it.
+            if (inUseUrl != null && sameRegistrationResource(sanitizedUrl, inUseUrl)) {
                 continue;
             }
             boolean deleted = false;
@@ -877,6 +880,16 @@ final class KeepADBRegisterClient {
             if (!state.isExpired(now) && !state.isExhausted() && state.isDue(now)) return true;
         }
         return false;
+    }
+
+    /** #934: books a failed attempt on every queued entry of {@code url}'s resource. */
+    private static void recordPendingCleanupFailuresForResource(Context context, String url) {
+        if (context == null || url == null) return;
+        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            if (sameRegistrationResource(sanitizePendingCleanupUrl(entry), url)) {
+                recordPendingCleanupFailure(context, entry);
+            }
+        }
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {
@@ -1143,6 +1156,9 @@ final class KeepADBRegisterClient {
                 }
             }
         } else {
+            // #934: a queued withdrawal of this resource was left to this DELETE by the flush; its
+            // failure counts against that entry's budget and expiry as well.
+            recordPendingCleanupFailuresForResource(context, urlToDelete);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;

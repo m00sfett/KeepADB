@@ -113,8 +113,10 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   retry: it withdraws the report record only while the record names the URL that is saved now (a
   record of a replaced or cleared URL is not retried from there), and, like every opt-out, it also
   flushes withdrawals already queued for earlier URLs whose DELETE failed (pending cleanups of
-  registrations the app made itself). Without such a record, "off" while already off sends nothing;
-  queued cleanups then wait for the next register activity.
+  registrations the app made itself). "Off" again also retries a destination the app may have
+  registered to without a record (#923, #935): a possibly delivered report or a queued withdrawal
+  that is due. With none of these, "off" while already off sends nothing; queued cleanups that are
+  not due yet wait for their retry and the next register activity.
 - **A report in flight when you switch off or change the URL (#923):** a POST that is already
   running when synchronization goes off, the URL changes or the endpoint is lost may still register
   at the receiver after the switch. Its answer arrives too late to update the stored report record,
@@ -125,8 +127,10 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   the process dies with the POST in flight, the next register activity treats it the same way. A
   destination that is still the saved URL with synchronization on is not queued yet; it stays
   recorded as possibly registered until its next successful report, and any withdrawal before that
-  (switching off, an endpoint loss, also when nothing else is recorded) takes it along. If that
-  withdrawal fails, a later endpoint loss tries it again once its retry is due. A POST the receiver answered with an HTTP error
+  (switching off, an endpoint loss, also when nothing else is recorded) takes it along. A failed
+  withdrawal stays queued with the usual retry rules (#934: three attempts with growing pauses,
+  dropped after 24 hours), also when the transaction's own DELETE carried it out; a later endpoint
+  loss or "off" tries it again once it is due. A POST the receiver answered with an HTTP error
   counts as not registered; one that ended with a network error (for example a lost answer) counts
   as possibly registered, because the request may have arrived.
 

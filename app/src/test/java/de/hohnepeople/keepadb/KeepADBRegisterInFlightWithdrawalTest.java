@@ -343,6 +343,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         transport.setPostSuccess(true);
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.markUnavailableAsync(context);
         drain();
         assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
@@ -357,10 +358,82 @@ public class KeepADBRegisterInFlightWithdrawalTest {
 
         // ... after it, the withdrawal is attempted again and succeeds.
         transport.setDeleteSuccess(true);
+        // (#934: the entry has its own backoff too, booked by the failed DELETE.)
         KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L + 60L * 60L * 1000L);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L + 60L * 60L * 1000L);
         KeepADBRegisterClient.markUnavailableAsync(context);
         drain();
         assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
         assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void aWithdrawalTheTransactionCarriesOutUsesUpTheEntrysBudget() {
+        // #934: an entry the flush leaves to the transaction's own DELETE gets its failures booked,
+        // so repeated endpoint losses against an unreachable receiver stop after the budget.
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        transport.setPostSuccess(false); // answer lost: the marker keeps B
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+
+        transport.setPostSuccess(true);
+        transport.setDeleteSuccess(false);
+        transport.clearRequests();
+        long now = 1_000L;
+        for (int i = 0; i < 8; i++) {
+            KeepADBRegisterClient.setMarkUnavailableNowForTesting(now);
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.markUnavailableAsync(context);
+            drain();
+            now += 60L * 60L * 1000L; // past every backoff
+        }
+
+        int deletes = 0;
+        for (String request : requests()) if (request.equals("DELETE " + URL_B)) deletes++;
+        assertEquals("the attempt budget bounds the DELETEs: " + requests(),
+                PendingCleanupRetryRepository.MAX_ATTEMPTS, deletes);
+        assertTrue("the spent entry is discarded",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+    }
+
+    @Test
+    public void aSecondOffRetriesAQueuedWithdrawalOfTheNewDestination() {
+        // #935: a stale POST to B queues B; the opt-out's DELETEs fail; "off" again retries B.
+        registeredAtAWithBSaved();
+        transport.setFailingUrl(URL_A);
+        duringFirstPostTo(URL_B, () -> {
+            KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+            KeepADBRegisterClient.unregisterAndDisableAsync(context);
+            transport.setFailingUrl(null);
+            transport.setDeleteSuccess(false); // the opt-out's withdrawals fail (offline)
+        });
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+
+        transport.setRequestCallback(null);
+        transport.setDeleteSuccess(true);
+        transport.clearRequests();
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(System.currentTimeMillis()
+                + PendingCleanupRetryRepository.MAX_BACKOFF_MS + 1_000L);
+        assertEquals(KeepADBWebhookSync.Result.DISABLED,
+                KeepADBWebhookSync.setAutomaticSync(context, false, null));
+        drain();
+
+        assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void aSecondOffWithNothingOutstandingSendsNothing() {
+        // Counter-check for #935.
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        assertEquals(KeepADBWebhookSync.Result.UNCHANGED,
+                KeepADBWebhookSync.setAutomaticSync(context, false, null));
+        drain();
+        assertTrue(requests().toString(), requests().isEmpty());
     }
 }

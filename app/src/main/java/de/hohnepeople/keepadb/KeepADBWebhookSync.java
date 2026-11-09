@@ -90,7 +90,7 @@ final class KeepADBWebhookSync {
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(app);
         Result result;
         if (wanted == enabled) {
-            if (!wanted && KeepADBRegisterClient.hasOutstandingWithdrawalAtSavedUrl(app)) {
+            if (!wanted && KeepADBRegisterClient.hasOutstandingWithdrawal(app)) {
                 disable(app, onDone);
                 result = Result.DISABLED;
             } else {
