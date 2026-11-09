@@ -60,6 +60,13 @@ are retrospective issue-version records and were never published as separate rel
 ### Fixed
 - README no longer lists Report now among the control widget's actions (removed in #912).
 
+### Testing
+- `KeepADBWidgetLifecycleTest.renderingAndRestoringLeaveTheAppSettingsAlone` failed on CI since the
+  #912 merge (master 04238a2c) but never locally: placing the widget may report in the background,
+  and on the runner that report wrote its record after the "before" snapshot. The test now lets the
+  placement's work finish before the snapshot and waits again after rendering (so a background
+  write caused by rendering would still fail it), and names the changed keys on failure.
+
 ## [1.11.8] - Unreleased
 
 ### Added

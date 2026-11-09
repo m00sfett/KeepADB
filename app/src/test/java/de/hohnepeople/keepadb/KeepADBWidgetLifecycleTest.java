@@ -153,18 +153,39 @@ public class KeepADBWidgetLifecycleTest {
     @Test
     public void renderingAndRestoringLeaveTheAppSettingsAlone() {
         int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
-        shadowOf(Looper.getMainLooper()).idle();
+        // Placing is an update and may report in the background; let that finish first, so the
+        // snapshot measures rendering only (on a slow runner the report landed after it).
+        settle();
         TreeMap<String, ?> before = new TreeMap<>(
                 context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).getAll());
 
         KeepADBWidget.refreshAllState(context);
         KeepADBWidget.refresh(context, id);
         new KeepADBWidget().onAppWidgetOptionsChanged(context, manager, id, new Bundle());
-        shadowOf(Looper.getMainLooper()).idle();
+        // Anything rendering started in the background would write by now.
+        settle();
 
-        assertEquals(before, new TreeMap<>(
-                context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).getAll()));
+        TreeMap<String, ?> after = new TreeMap<>(
+                context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).getAll());
+        assertEquals("changed keys: " + changedKeys(before, after), before, after);
         assertFalse(KeepADBWidgetConfig.isStored(context, id));
+    }
+
+    /** Runs the main looper and waits for the report client, twice, so chained work completes. */
+    private static void settle() {
+        for (int i = 0; i < 2; i++) {
+            shadowOf(Looper.getMainLooper()).idle();
+            KeepADBRegisterClientResetRule.awaitIdle();
+        }
+        shadowOf(Looper.getMainLooper()).idle();
+    }
+
+    private static java.util.Set<String> changedKeys(java.util.Map<String, ?> before,
+            java.util.Map<String, ?> after) {
+        java.util.Set<String> keys = new java.util.TreeSet<>(before.keySet());
+        keys.addAll(after.keySet());
+        keys.removeIf(key -> java.util.Objects.equals(before.get(key), after.get(key)));
+        return keys;
     }
 
     // -- no send, no poll on render and resize ----------------------------------------------------
