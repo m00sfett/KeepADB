@@ -139,7 +139,7 @@ final class KeepADBForceNotice {
                     PendingIntent.getBroadcast(app, KeepADBForceMode.REQUEST_CODE_EXPIRED_TURN_OFF,
                             turnOff, flags)).build());
         }
-        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(app, builder.build()));
+        KeepADBLockScreen.post(app, manager, NOTIFICATION_ID, builder.build());
         return true;
     }
 

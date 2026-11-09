@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">在通知中隐藏</string>
     <string name="privacy_notifications_body">通知只显示状态，不含端口、IP 地址、USB 配置或 Wi-Fi 名称。此时新 Wi-Fi 的通知没有按钮，点击后会打开应用。此项关闭时，这些详情也可能出现在锁屏上。</string>
     <string name="privacy_lockscreen_title">在锁屏上隐藏</string>
-    <string name="privacy_lockscreen_body">无论 Android 在锁屏上显示什么，KeepADB 的通知都不会出现在锁屏上。解锁后，它们按上面的设置显示。</string>
+    <string name="privacy_lockscreen_body">无论 Android 在锁屏上显示什么，KeepADB 的通知都不会出现在锁屏上。解锁后，它们按上面的设置显示。需要设置 PIN 码、图案或密码屏幕锁定。</string>
     <string name="privacy_widgets_title">在小组件和快捷设置磁贴中隐藏</string>
     <string name="privacy_widgets_body">主屏幕小组件和快捷设置磁贴只显示状态，不含端口或地址。</string>
     <string name="usb_profile_hidden_numbered">配置 %1$d</string>

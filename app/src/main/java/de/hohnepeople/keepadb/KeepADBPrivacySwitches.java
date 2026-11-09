@@ -86,8 +86,15 @@ final class KeepADBPrivacySwitches {
     static void setLockScreen(Activity activity, boolean want) {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
                 "privacy_lockscreen_switch");
-        KeepADBPreferences.setLockScreenPrivacyEnabled(activity, want);
-        KeepADBLockScreen.applyToPosted(activity);
+        KeepADBLockScreen.setEnabled(activity, want);
+        // The owners re-render the notifications that can carry details (#904's pattern): the
+        // main card and the USB card. A posted trust notice with the network name and its buttons
+        // is removed, as #904 does; it comes back in the neutral form. Notifications without
+        // network details (webhook warning, Force Mode and shutdown notices) follow at their next
+        // posting.
+        KeepADBUsbReceiver.refresh(activity);
+        KeepADBEndpointCoordinator.refresh(activity);
+        if (want) KeepADBNetworkTrustPrompt.applyNotificationPrivacy(activity);
     }
 
     /** Stores the widget switch and redraws every widget and the tile. */

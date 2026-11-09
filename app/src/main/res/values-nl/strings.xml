@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">Verbergen in meldingen</string>
     <string name="privacy_notifications_body">Meldingen tonen alleen de status, zonder poort, IP-adres, USB-profiel of wifi-naam. Een melding over een nieuw wifi-netwerk heeft dan geen knoppen en opent de app. Zolang dit uit staat, kunnen deze gegevens ook op het vergrendelscherm verschijnen.</string>
     <string name="privacy_lockscreen_title">Verbergen op het vergrendelscherm</string>
-    <string name="privacy_lockscreen_body">Meldingen van KeepADB verschijnen niet op het vergrendelscherm, wat Android daar ook toont. Ontgrendeld verschijnen ze zoals hierboven ingesteld.</string>
+    <string name="privacy_lockscreen_body">Meldingen van KeepADB verschijnen niet op het vergrendelscherm, wat Android daar ook toont. Ontgrendeld verschijnen ze zoals hierboven ingesteld. Vereist een schermvergrendeling met pincode, patroon of wachtwoord.</string>
     <string name="privacy_widgets_title">Verbergen in widgets en de tegel</string>
     <string name="privacy_widgets_body">De widget op het startscherm en de tegel in de snelle instellingen tonen alleen de status, zonder de poort of een adres.</string>
     <string name="usb_profile_hidden_numbered">Profiel %1$d</string>

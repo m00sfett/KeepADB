@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">Ocultar nas notificações</string>
     <string name="privacy_notifications_body">As notificações mostram apenas o estado, sem porta, endereço IP, perfil USB ou nome Wi-Fi. Um aviso sobre uma nova rede Wi-Fi fica então sem botões e abre a app. Enquanto isto estiver desativado, estes detalhes também podem aparecer no ecrã de bloqueio.</string>
     <string name="privacy_lockscreen_title">Ocultar no ecrã de bloqueio</string>
-    <string name="privacy_lockscreen_body">As notificações do KeepADB não aparecem no ecrã de bloqueio, seja o que for que o Android mostre lá. Desbloqueado, aparecem conforme definido acima.</string>
+    <string name="privacy_lockscreen_body">As notificações do KeepADB não aparecem no ecrã de bloqueio, seja o que for que o Android mostre lá. Desbloqueado, aparecem conforme definido acima. Requer um bloqueio de ecrã com PIN, padrão ou palavra-passe.</string>
     <string name="privacy_widgets_title">Ocultar nos widgets e no mosaico</string>
     <string name="privacy_widgets_body">O widget do ecrã principal e o mosaico das definições rápidas mostram apenas o estado, sem a porta ou um endereço.</string>
     <string name="usb_profile_hidden_numbered">Perfil %1$d</string>

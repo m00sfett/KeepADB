@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">알림에서 숨기기</string>
     <string name="privacy_notifications_body">알림에는 상태만 표시하며 포트, IP 주소, USB 프로필, Wi-Fi 이름은 포함하지 않습니다. 새 Wi-Fi 알림에는 버튼이 없고 탭하면 앱이 열립니다. 꺼져 있는 동안에는 이러한 세부정보가 잠금 화면에도 표시될 수 있습니다.</string>
     <string name="privacy_lockscreen_title">잠금 화면에서 숨기기</string>
-    <string name="privacy_lockscreen_body">Android가 잠금 화면에 무엇을 표시하든 KeepADB 알림은 잠금 화면에 나타나지 않습니다. 잠금 해제 후에는 위 설정대로 표시됩니다.</string>
+    <string name="privacy_lockscreen_body">Android가 잠금 화면에 무엇을 표시하든 KeepADB 알림은 잠금 화면에 나타나지 않습니다. 잠금 해제 후에는 위 설정대로 표시됩니다. PIN, 패턴 또는 비밀번호로 된 화면 잠금이 필요합니다.</string>
     <string name="privacy_widgets_title">위젯과 타일에서 숨기기</string>
     <string name="privacy_widgets_body">홈 화면 위젯과 빠른 설정 타일에는 상태만 표시하며 포트나 주소는 표시하지 않습니다.</string>
     <string name="usb_profile_hidden_numbered">프로필 %1$d</string>

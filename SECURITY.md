@@ -127,8 +127,11 @@ which network may enable Wireless debugging.
 **Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
 every KeepADB notification is posted with `VISIBILITY_SECRET`, so none of them (main, USB, network
 trust notice with its Allow/Block buttons, webhook warning, Force Mode and network shutdown notices)
-appears on the lock screen, whether or not Android shows sensitive content there. A change
-re-posts the visible notifications at once without alerting again. Unlocked, the shade shows them
+appears on the lock screen, whether or not Android shows sensitive content there. The option is
+read and each notification posted under one lock, so a post cannot slip past a change. A change
+re-renders the main and USB notifications at once and removes a posted trust notice with network
+details (it returns in the neutral form, as with the notification switch); notifications without
+network details follow at their next posting. Unlocked, the shade shows them
 as the notification switch decides. Per-channel lock-screen settings chosen in Android can only
 hide more: a channel set to hide on the lock screen stays hidden either way. Android applies this
 only with a secure screen lock (PIN, pattern or password); a swipe-only lock screen shows every

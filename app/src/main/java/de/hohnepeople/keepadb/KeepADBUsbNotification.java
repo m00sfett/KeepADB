@@ -64,8 +64,8 @@ final class KeepADBUsbNotification {
             manager.cancel(NOTIFICATION_ID);
             return;
         }
-        manager.notify(NOTIFICATION_ID,
-                KeepADBLockScreen.apply(appContext, build(appContext, handoverActionVisible)));
+        KeepADBLockScreen.post(appContext, manager, NOTIFICATION_ID,
+                build(appContext, handoverActionVisible));
     }
 
     static boolean isLastHandoverActionFailed() {

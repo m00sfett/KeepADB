@@ -298,14 +298,14 @@ final class KeepADBUntrustedShutdown {
         PendingIntent open = PendingIntent.getActivity(localized, NOTIFICATION_ID,
                 new Intent(localized, MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(app, new Notification.Builder(localized, CHANNEL_ID)
+        KeepADBLockScreen.post(app, manager, NOTIFICATION_ID, new Notification.Builder(localized, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(open)
                 .setAutoCancel(true)
-                .build()));
+                .build());
     }
 
     private static boolean hasNotificationPermission(Context context) {

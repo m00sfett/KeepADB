@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">Sembunyikan di notifikasi</string>
     <string name="privacy_notifications_body">Notifikasi hanya menampilkan status, tanpa port, alamat IP, profil USB, atau nama Wi-Fi. Pemberitahuan tentang Wi-Fi baru lalu tidak punya tombol dan membuka aplikasi. Selama ini nonaktif, detail tersebut juga dapat muncul di layar kunci.</string>
     <string name="privacy_lockscreen_title">Sembunyikan di layar kunci</string>
-    <string name="privacy_lockscreen_body">Notifikasi KeepADB tidak muncul di layar kunci, apa pun yang ditampilkan Android di sana. Saat tidak terkunci, notifikasi muncul sesuai pengaturan di atas.</string>
+    <string name="privacy_lockscreen_body">Notifikasi KeepADB tidak muncul di layar kunci, apa pun yang ditampilkan Android di sana. Saat tidak terkunci, notifikasi muncul sesuai pengaturan di atas. Memerlukan kunci layar dengan PIN, pola, atau sandi.</string>
     <string name="privacy_widgets_title">Sembunyikan di widget dan kartu</string>
     <string name="privacy_widgets_body">Widget layar utama dan kartu Pengaturan Cepat hanya menampilkan status, tanpa port atau alamat.</string>
     <string name="usb_profile_hidden_numbered">Profil %1$d</string>

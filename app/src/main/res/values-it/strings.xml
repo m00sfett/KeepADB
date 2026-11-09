@@ -67,7 +67,7 @@
     <string name="privacy_notifications_title">Nascondi nelle notifiche</string>
     <string name="privacy_notifications_body">Le notifiche mostrano solo lo stato, senza porta, indirizzo IP, profilo USB o nome Wi-Fi. Un avviso su un nuovo Wi-Fi non ha allora pulsanti e apre l’app. Finché è disattivato, questi dettagli possono comparire anche nella schermata di blocco.</string>
     <string name="privacy_lockscreen_title">Nascondi nella schermata di blocco</string>
-    <string name="privacy_lockscreen_body">Le notifiche di KeepADB non compaiono nella schermata di blocco, qualunque cosa Android vi mostri. Con il dispositivo sbloccato, compaiono come impostato sopra.</string>
+    <string name="privacy_lockscreen_body">Le notifiche di KeepADB non compaiono nella schermata di blocco, qualunque cosa Android vi mostri. Con il dispositivo sbloccato, compaiono come impostato sopra. Richiede un blocco schermo con PIN, sequenza o password.</string>
     <string name="privacy_widgets_title">Nascondi nei widget e nel riquadro</string>
     <string name="privacy_widgets_body">Il widget della schermata Home e il riquadro delle impostazioni rapide mostrano solo lo stato, senza la porta o un indirizzo.</string>
     <string name="usb_profile_hidden_numbered">Profilo %1$d</string>

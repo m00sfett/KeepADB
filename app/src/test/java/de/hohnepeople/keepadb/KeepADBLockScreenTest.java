@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -68,12 +69,23 @@ public class KeepADBLockScreenTest {
     }
 
     @Test
-    public void theOptionIsOffByDefaultAndAMigrationLeavesItOff() {
+    public void theOptionIsOffByDefault() {
         assertFalse(KeepADBPreferences.isLockScreenPrivacyEnabled(app));
-        // An existing installation from before #904/#920: the privacy split migrates, this stays off.
-        prefs().edit().putBoolean("privacy_mode_enabled", true).commit();
-        KeepADBPreferences.isNotificationPrivacyEnabled(app);
-        assertFalse(KeepADBPreferences.isLockScreenPrivacyEnabled(app));
+    }
+
+    @Test
+    public void theMigrationOfAnExistingInstallationLeavesTheOptionOff() {
+        // Review R1: an installation from before #904 with only legacy values stored.
+        prefs().edit().clear().commit();
+        prefs().edit().putBoolean("privacy_mode_enabled", true)
+                .putBoolean("keep_alive_enabled", true).commit();
+        KeepADBPreferences.migratePrivacySplit(app);
+        assertTrue("the split ran: details hidden, as the old default",
+                KeepADBPreferences.isNotificationPrivacyEnabled(app));
+        assertTrue(KeepADBPreferences.isWidgetPrivacyEnabled(app));
+        assertFalse("and the lock-screen option was not derived",
+                KeepADBPreferences.isLockScreenPrivacyEnabled(app));
+        assertFalse(prefs().contains("lockscreen_privacy_enabled"));
     }
 
     @Test
@@ -125,30 +137,69 @@ public class KeepADBLockScreenTest {
     }
 
     @Test
-    public void changingTheOptionRepostsWhatIsVisibleAtOnceWithoutAlertingAgain() {
-        KeepADBNotification.renderEndpoint(app, "192.168.1.50", 39123);
-        KeepADBNetworkTrustPrompt.reshow(app, BSSID, SSID);
+    public void aPostThatReadTheOldValueReachesTheSystemBeforeTheOptionChanges() throws Exception {
+        // Review R1: the option is read and the notification posted under one lock, and the
+        // option is written under it too, so a toggle cannot slip between the two.
+        java.util.concurrent.CountDownLatch inPost = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        KeepADBLockScreen.beforePostForTesting = () -> {
+            inPost.countDown();
+            try {
+                release.await(3, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        };
+        try {
+            Thread poster = new Thread(() ->
+                    KeepADBNotification.renderEndpoint(app, "192.168.1.50", 39123));
+            poster.start();
+            assertTrue(inPost.await(3, java.util.concurrent.TimeUnit.SECONDS));
 
-        KeepADBPreferences.setLockScreenPrivacyEnabled(app, true);
-        KeepADBLockScreen.applyToPosted(app);
-        for (int id : new int[] {KeepADBNotification.NOTIFICATION_ID,
-                KeepADBNetworkTrustPrompt.NOTIFICATION_ID}) {
-            Notification n = posted(id);
-            assertEquals(Notification.VISIBILITY_SECRET, n.visibility);
-            assertTrue((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0);
+            Thread toggler = new Thread(() -> KeepADBLockScreen.setEnabled(app, true));
+            toggler.start();
+            toggler.join(300);
+            assertTrue("the toggle waits for the post that read the old value", toggler.isAlive());
+            assertFalse(KeepADBPreferences.isLockScreenPrivacyEnabled(app));
+
+            release.countDown();
+            poster.join(3000);
+            toggler.join(3000);
+            assertTrue(KeepADBPreferences.isLockScreenPrivacyEnabled(app));
+            assertNotEquals("the old post went out with the old value",
+                    Notification.VISIBILITY_SECRET,
+                    posted(KeepADBNotification.NOTIFICATION_ID).visibility);
+        } finally {
+            KeepADBLockScreen.beforePostForTesting = null;
+            release.countDown();
         }
-
-        KeepADBPreferences.setLockScreenPrivacyEnabled(app, false);
-        KeepADBLockScreen.applyToPosted(app);
-        assertEquals(Notification.VISIBILITY_PRIVATE,
+        // Every post from now on carries the new value.
+        KeepADBNotification.renderEndpoint(app, "192.168.1.50", 39123);
+        assertEquals(Notification.VISIBILITY_SECRET,
                 posted(KeepADBNotification.NOTIFICATION_ID).visibility);
-        assertEquals(Notification.VISIBILITY_PRIVATE,
-                posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID).visibility);
+    }
+
+    @Test
+    public void turningItOnRemovesAPostedTrustNoticeWithDetails() {
+        KeepADBNetworkTrustPrompt.reshow(app, BSSID, SSID);
+        assertNotNull(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ((Switch) activity.findViewById(R.id.privacy_switch_lockscreen)).performClick();
+        assertNull("the notice with the network name and buttons is gone; it returns neutral",
+                posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
     }
 
     @Test
     public void theSettingsShowTheSwitchUnderTheNotificationSwitchAndItAppliesAtOnce() {
-        KeepADBNotification.renderEndpoint(app, "192.168.1.50", 39123);
+        // A running Keep-Alive with a verified endpoint, so the coordinator re-renders the card.
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBPreferences.setKeepAliveEnabled(app, true);
+        KeepADBEndpointCoordinator.seedEndpointForTesting("192.168.1.50", 39123,
+                System.currentTimeMillis());
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
+        KeepADBEndpointCoordinator.setWorkerStarterForTesting(Thread::run);
+        KeepADBEndpointCoordinator.refresh(app);
+        assertNotNull(posted(KeepADBNotification.NOTIFICATION_ID));
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         Switch notifications = activity.findViewById(R.id.privacy_switch_notifications);
         Switch lockScreen = activity.findViewById(R.id.privacy_switch_lockscreen);
@@ -162,6 +213,8 @@ public class KeepADBLockScreenTest {
         assertTrue(KeepADBPreferences.isLockScreenPrivacyEnabled(app));
         assertFalse("it does not switch the notification details off",
                 KeepADBPreferences.isNotificationPrivacyEnabled(app));
+        // The owner re-renders the main card at once, now secret.
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
         assertEquals(Notification.VISIBILITY_SECRET,
                 posted(KeepADBNotification.NOTIFICATION_ID).visibility);
     }

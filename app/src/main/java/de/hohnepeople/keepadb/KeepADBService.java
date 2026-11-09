@@ -214,9 +214,8 @@ public class KeepADBService extends Service {
      * location-type promotion without mocking the Android service API.
      */
     void promoteToForeground(int serviceType) {
-        startForeground(KeepADBNotification.NOTIFICATION_ID,
-                KeepADBLockScreen.apply(this, KeepADBNotification.getServiceNotification(this)),
-                serviceType);
+        KeepADBLockScreen.startForeground(this, KeepADBNotification.NOTIFICATION_ID,
+                KeepADBNotification.getServiceNotification(this), serviceType);
     }
 
     @Override

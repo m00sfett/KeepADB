@@ -129,8 +129,8 @@ final class KeepADBNotification {
             if (!isEndpointCardActive(manager)) return;
             KeepADBEndpointCoordinator.Snapshot snapshot = KeepADBEndpointCoordinator.snapshot();
             if (!snapshot.hasEndpoint()) return;
-            manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(appContext,
-                    buildNotification(appContext, snapshot.host, snapshot.port)));
+            KeepADBLockScreen.post(appContext, manager, NOTIFICATION_ID,
+                    buildNotification(appContext, snapshot.host, snapshot.port));
         }
     }
 
@@ -184,14 +184,14 @@ final class KeepADBNotification {
             // on the still-foreground notification instead of an update, leaving stale content.
             if (KeepADBService.shouldRun(context)) {
                 Notification notification = buildNotification(context, host, port);
-                manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, notification));
+                KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
                 return;
             }
             manager.cancel(NOTIFICATION_ID);
             return;
         }
         Notification notification = buildNotification(context, host, port);
-        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, notification));
+        KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
     }
 
     private static void showPlaceholder(Context context, NotificationManager manager, String title,
@@ -205,7 +205,7 @@ final class KeepADBNotification {
             if (KeepADBService.shouldRun(context)) {
                 Notification notification = buildPlaceholderNotification(context, title, text,
                         target, requestCode);
-                manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, notification));
+                KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
                 return;
             }
             manager.cancel(NOTIFICATION_ID);
@@ -213,7 +213,7 @@ final class KeepADBNotification {
         }
         Notification notification = buildPlaceholderNotification(context, title, text, target,
                 requestCode);
-        manager.notify(NOTIFICATION_ID, KeepADBLockScreen.apply(context, notification));
+        KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
