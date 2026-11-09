@@ -17,11 +17,50 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.11.1` and later sections below are unreleased candidates. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the next stable candidate and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.12.0] - Unreleased
+
+Stable candidate after `1.11.0`. It contains no code change of its own on top of 1.11.9; it bundles
+the candidates `1.11.1` through `1.11.9` below. Minor bump by project decision (Tobias, 2026-11-07):
+the two new home-screen widgets and the reworked privacy model together are a feature package that
+justifies a new minor version instead of another 1.11.x patch.
+
+### Summary since 1.11.0
+- **Two home-screen widgets.** *KeepADB controls* (the existing widget, same provider) grows with
+  its size, from one large main button to Wireless Debugging, Keep-Alive and webhook auto-sync with
+  a status line and settings at 4x2; each widget has its own main action, order and detail setting.
+  *KeepADB overview* (new) shows Wireless Debugging with its address, the Wi-Fi network, Keep-Alive
+  with its reason and the webhook delivery, and offers only the auto-sync switch. Both share one
+  read-only state (no polling, no report from drawing or resizing) and follow external changes of
+  Wireless Debugging through a content-triggered job. Widgets placed before keep working.
+- **Privacy in three switches.** Hide names and addresses in the app, in notifications, and in
+  widgets and the Quick Settings tile; all start off on a new install and sit on the first page of
+  the setup assistant and in Settings. Existing installations keep their privacy choices and never
+  lose protection: hidden notification details become "hide in notifications", and the former app
+  privacy mode also turns on "hide in widgets and the tile", so those widgets now hide the port too.
+  The eye in the title bars shows or hides the current screen until it is left, instead of
+  switching the persistent setting.
+- **Webhook.** Saving the URL sends one report instead of sometimes two; Report now stays in the
+  webhook failure notification (it joins a running report or sends a waiting retry at once).
+- **Warnings and polish.** Swipe away the feedback bar after closing a warning card; dialog margins
+  fixed; documentation brought in line with the app.
+
+### Changed
+- **Version:** versionName `1.12.0`, versionCode 254; Fastlane note `254.txt` summarizes everything
+  since 1.11.0 within the F-Droid limit.
+
+### Documentation
+- Release documentation check (CONTRIBUTING.md): `docs/trusted-networks.md` and `docs/defaults.md`
+  now quote the current labels ("Current Wi-Fi network is unreadable", "Wi-Fi name list (previous
+  setting)", "No end time", "New Wi-Fi / access point detected", "Note", "The selected time is up", "Blocked via the Wi-Fi name …", "Only
+  trusted access points", "Host profile selected — details in the app"); the widget defaults row
+  no longer lists Report now and names the overview widget's option. The store description
+  describes both widgets and the three privacy switches.
 
 ## [1.11.9] - Unreleased
 
