@@ -178,4 +178,42 @@ public class KeepADBWidgetApi30Test {
         tilesAfterResizeTo(w, h);
         return KeepADBWidgetTestSupport.actions(context, widgets.getViewFor(id));
     }
+
+    /**
+     * Review finding: the Android 11 path built views for the current orientation only. A rotation
+     * changes neither min nor max and sends no update, so a widget that was a 2x2 grid in portrait
+     * stayed one when the screen turned (where it is a 4x1 strip). Both orientations are supplied.
+     */
+    @Test
+    public void bothOrientationsAreSuppliedSoARotationNeedsNoUpdate() {
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 152);
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 196);
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 304);
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 92);
+        android.widget.RemoteViews views = KeepADBWidget.legacyViews(context, id,
+                KeepADBWidgetConfig.defaults(), KeepADBWidgetState.project(context, false), options, 1f);
+
+        // The same RemoteViews, applied on a portrait and on a landscape screen.
+        android.content.res.Configuration config =
+                new android.content.res.Configuration(context.getResources().getConfiguration());
+        config.orientation = android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        View portrait = views.apply(context.createConfigurationContext(config),
+                new android.widget.FrameLayout(context));
+        config.orientation = android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        View landscape = views.apply(context.createConfigurationContext(config),
+                new android.widget.FrameLayout(context));
+
+        // Portrait 152 x 196 dp: the grid, the hero names itself and the pills have labels.
+        assertEquals(3, tiles(portrait).size());
+        assertEquals(context.getString(R.string.widget_action_adb),
+                KeepADBWidgetTestSupport.label(KeepADBWidgetTestSupport.hero(portrait)));
+        assertTrue(KeepADBWidgetTestSupport.label(tiles(portrait).get(1)) != null);
+        // Landscape 304 x 92 dp: the strip, a compact hero without a label and upright tiles.
+        assertEquals(3, tiles(landscape).size());
+        assertTrue(KeepADBWidgetTestSupport.label(KeepADBWidgetTestSupport.hero(landscape)) == null);
+        assertTrue(KeepADBWidgetTestSupport.label(tiles(landscape).get(1)) != null);
+        assertTrue("the strip has no status line, the grid has none either",
+                !KeepADBWidgetTestSupport.statusVisible(landscape));
+    }
 }

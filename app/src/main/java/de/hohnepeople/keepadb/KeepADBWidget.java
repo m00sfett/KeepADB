@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -120,13 +119,25 @@ public class KeepADBWidget extends AppWidgetProvider {
             // Android 12+: the launcher picks the fitting size class itself while the user resizes.
             views = KeepADBWidgetViews.responsive(localizedContext, id, config, projection, fontScale);
         } else {
-            boolean landscape = context.getResources().getConfiguration().orientation
-                    == Configuration.ORIENTATION_LANDSCAPE;
-            KeepADBWidgetLayout.SizeClass sizeClass = KeepADBWidgetLayout.choose(
-                    mgr.getAppWidgetOptions(id), landscape, fontScale);
-            views = KeepADBWidgetViews.forSize(localizedContext, id, config, projection, sizeClass);
+            views = legacyViews(localizedContext, id, config, projection,
+                    mgr.getAppWidgetOptions(id), fontScale);
         }
         mgr.updateAppWidget(id, views);
+    }
+
+    /**
+     * Android 11 has no sized entries, so both orientations are supplied and the host picks the
+     * one that matches the screen. A rotation changes neither the options nor sends an update
+     * (AOSP does not call onAppWidgetOptionsChanged when min and max stay the same), so a view
+     * built for the current orientation only would stay as it was.
+     */
+    static RemoteViews legacyViews(Context localizedContext, int id, KeepADBWidgetConfig config,
+            KeepADBWidgetState projection, Bundle options, float fontScale) {
+        RemoteViews landscape = KeepADBWidgetViews.forSize(localizedContext, id, config,
+                projection, KeepADBWidgetLayout.choose(options, true, fontScale));
+        RemoteViews portrait = KeepADBWidgetViews.forSize(localizedContext, id, config,
+                projection, KeepADBWidgetLayout.choose(options, false, fontScale));
+        return new RemoteViews(landscape, portrait);
     }
 
     /**
