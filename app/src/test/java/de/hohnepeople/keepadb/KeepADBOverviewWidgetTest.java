@@ -351,6 +351,17 @@ public class KeepADBOverviewWidgetTest {
     }
 
     @Test
+    public void symbolsOnTheDarkCardUseTheBrandYellowWhenOn() {
+        // The control widget's "on" ink is dark for the yellow fill; on the dark card it would vanish.
+        assertEquals(R.color.widget_on,
+                KeepADBOverviewViews.iconOnDark(KeepADBWidgetContent.Style.ON));
+        assertEquals(R.color.widget_off_icon,
+                KeepADBOverviewViews.iconOnDark(KeepADBWidgetContent.Style.OFF));
+        assertEquals(R.color.widget_warn_icon,
+                KeepADBOverviewViews.iconOnDark(KeepADBWidgetContent.Style.ATTENTION));
+    }
+
+    @Test
     public void controlsKeepTheirTouchTargets() {
         for (Shape shape : Shape.values()) {
             View root = render(shape, false);

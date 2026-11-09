@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/widget_gap_half"
-        android:layout_weight="1.1"
+        android:layout_weight="1.3"
         android:background="@drawable/bg_widget_tile_off"
         android:clickable="true"
         android:focusable="true"
@@ -90,7 +90,7 @@
                 android:fontFamily="sans-serif"
                 android:importantForAccessibility="no"
                 android:includeFontPadding="false"
-                android:maxLines="2"
+                android:maxLines="3"
                 android:textColor="@color/widget_text"
                 android:textStyle="bold" />
 

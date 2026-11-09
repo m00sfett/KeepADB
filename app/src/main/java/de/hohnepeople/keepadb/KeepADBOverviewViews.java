@@ -69,7 +69,7 @@ final class KeepADBOverviewViews {
         } else {
             views.setImageViewResource(R.id.widget_ov_delivery_icon, content.delivery.iconRes);
             views.setInt(R.id.widget_ov_delivery_icon, "setColorFilter",
-                    ctx.getColor(KeepADBWidgetViews.iconOf(content.delivery.style)));
+                    ctx.getColor(iconOnDark(content.delivery.style)));
             views.setTextViewText(R.id.widget_ov_delivery_label, content.delivery.label);
             views.setTextViewText(R.id.widget_ov_delivery_value, content.delivery.value);
             views.setTextColor(R.id.widget_ov_delivery_value, ctx.getColor(
@@ -97,14 +97,32 @@ final class KeepADBOverviewViews {
     private static RemoteViews row(Context ctx, Shape shape, KeepADBOverviewContent.Row row) {
         RemoteViews views = new RemoteViews(ctx.getPackageName(), shape.rowRes);
         views.setImageViewResource(R.id.widget_ov_icon, row.iconRes);
-        views.setInt(R.id.widget_ov_icon, "setColorFilter",
-                ctx.getColor(KeepADBWidgetViews.iconOf(row.style)));
+        views.setInt(R.id.widget_ov_icon, "setColorFilter", ctx.getColor(iconOnDark(row.style)));
         if (shape == Shape.WIDE) views.setTextViewText(R.id.widget_ov_label, row.label);
         views.setTextViewText(R.id.widget_ov_value, row.value);
         views.setTextColor(R.id.widget_ov_value, ctx.getColor(
                 row.style == KeepADBWidgetContent.Style.ATTENTION
                         ? R.color.widget_warn_icon : R.color.widget_text));
         return views;
+    }
+
+    /**
+     * The symbol color on the dark card. The control widget's "on" ink is dark because it sits on
+     * the yellow fill; here every row is on the dark surface, so "on" is the brand yellow and the
+     * symbol variant (filled, outlined, struck through) still tells the state without color.
+     */
+    static int iconOnDark(KeepADBWidgetContent.Style style) {
+        switch (style) {
+            case ON:
+                return R.color.widget_on;
+            case ATTENTION:
+                return R.color.widget_warn_icon;
+            case BUSY:
+                return R.color.widget_busy_icon;
+            case OFF:
+            default:
+                return R.color.widget_off_icon;
+        }
     }
 
     /**
