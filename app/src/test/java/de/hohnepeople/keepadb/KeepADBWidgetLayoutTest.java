@@ -221,4 +221,45 @@ public class KeepADBWidgetLayoutTest {
         assertEquals(SizeClass.GRID, KeepADBWidgetLayout.choose(options, false, 1f));
         assertEquals(SizeClass.STRIP, KeepADBWidgetLayout.choose(options, true, 1f));
     }
+
+    @Test
+    public void theReportedSizesComeFromTheListThenTheClassicOptionsThenTheDefault() {
+        Bundle list = new Bundle();
+        java.util.ArrayList<android.util.SizeF> sizes = new java.util.ArrayList<>();
+        sizes.add(new android.util.SizeF(144, 193));
+        sizes.add(new android.util.SizeF(296, 89));
+        sizes.add(new android.util.SizeF(144, 193));   // a duplicate
+        sizes.add(new android.util.SizeF(0, 50));      // unusable
+        list.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizes);
+        list.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 10);   // ignored: the list wins
+        list.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 10);
+        assertEquals(java.util.Arrays.asList(new android.util.SizeF(144, 193), new android.util.SizeF(296, 89)),
+                KeepADBWidgetLayout.reportedSizes(list));
+
+        Bundle classic = new Bundle();
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 137);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 176);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 291);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80);
+        assertEquals("portrait is min width x max height, landscape max width x min height",
+                java.util.Arrays.asList(new android.util.SizeF(137, 176), new android.util.SizeF(291, 80)),
+                KeepADBWidgetLayout.reportedSizes(classic));
+        classic.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                new java.util.ArrayList<android.util.SizeF>());
+        assertEquals("an empty list is no list", 2, KeepADBWidgetLayout.reportedSizes(classic).size());
+
+        android.util.SizeF fallback = new android.util.SizeF(KeepADBWidgetLayout.DEFAULT_WIDTH_DP,
+                KeepADBWidgetLayout.DEFAULT_HEIGHT_DP);
+        assertEquals(java.util.Arrays.asList(fallback), KeepADBWidgetLayout.reportedSizes(null));
+        assertEquals(java.util.Arrays.asList(fallback), KeepADBWidgetLayout.reportedSizes(new Bundle()));
+    }
+
+    @Test
+    public void aReportedSizeIsRoundedDownAndNeverGetsMoreRoomThanItHas() {
+        assertEquals(SizeClass.HERO, KeepADBWidgetLayout.choose(new android.util.SizeF(136.9f, 89f), 1f));
+        assertEquals(SizeClass.ROW1, KeepADBWidgetLayout.choose(new android.util.SizeF(137f, 89f), 1f));
+        assertEquals(SizeClass.ROW1, KeepADBWidgetLayout.choose(new android.util.SizeF(193.9f, 89f), 1f));
+        assertEquals("the size the review measured: 304 x 140 dp is the stack",
+                SizeClass.STACK, KeepADBWidgetLayout.choose(new android.util.SizeF(304f, 140f), 1f));
+    }
 }

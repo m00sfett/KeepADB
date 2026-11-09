@@ -41,9 +41,14 @@ wraps. TalkBack reads "name: state, port N" from the control's description, in f
 
 ## Sizes
 
-The layout follows the size the launcher reports (and, on Android 12 and newer, the launcher picks
-it while the user resizes; on Android 11 both orientations are supplied, so a rotation needs no
-update). With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`. All thresholds
+The layout follows the size the launcher reports. On Android 12 and newer the widget gives the
+launcher one view per size it reports (`OPTION_APPWIDGET_SIZES`, else the portrait and landscape
+sizes of the classic options, else the declared 152 x 92 dp), each drawn as the class
+`KeepADBWidgetLayout.choose` gives that size; the launcher picks the entry for the size the widget
+has while the user resizes, and a resize rebuilds the entries. (Entries keyed by each class's
+minimum size would disagree with the class choice: the host takes the entry with the smallest
+distance, not the largest class that fits.) On Android 11 both orientations are supplied, so a
+rotation needs no update. With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`. All thresholds
 grow with the font scale, so a larger font falls back to a layout with fewer, still readable
 controls. The hero is in every class. A tall class is chosen only when everything it stacks fits
 (`KeepADBWidgetLayout.minHeightDp`: the frame, the gaps, the fixed 48 dp pills, 52 dp buttons and

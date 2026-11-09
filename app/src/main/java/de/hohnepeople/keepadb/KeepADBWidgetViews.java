@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -11,7 +12,7 @@ import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +27,8 @@ import java.util.Map;
  * color alone; there are no borders. {@link KeepADBWidgetLayout} decides what a class shows, this
  * class draws it.
  *
- * <p>On Android 12+ ({@link #responsive}) the launcher gets one view per size class and picks the
- * fitting one itself while the user resizes, without calling the app. Android 11 has no such API;
+ * <p>On Android 12+ ({@link #responsive}) the launcher gets one view per size it reports and picks
+ * the fitting one itself while the user resizes, without calling the app. Android 11 has no such API;
  * there {@link #forSize} builds the one class the reported size selects, and the provider rebuilds
  * it when the options change.
  */
@@ -166,22 +167,35 @@ final class KeepADBWidgetViews {
     }
 
     /**
-     * Android 12+: one entry per size class, keyed by the room the class is meant for (made larger
-     * by the font scale, so a larger font keeps the launcher from choosing a class that no longer
-     * fits). The launcher shows the largest entry that fits.
+     * Android 12+: one entry per size the launcher reports, each drawn as the class
+     * {@link KeepADBWidgetLayout#choose(SizeF, float)} gives that size. The host picks the entry
+     * whose key is closest to the widget's size, which for a reported size is that very entry, so
+     * the host cannot disagree with the class choice (keys at each class's minimum size did: the
+     * host takes the smallest distance, not the class order). The launcher reports the sizes with
+     * {@code OPTION_APPWIDGET_SIZES}; {@code onAppWidgetOptionsChanged} rebuilds the map on a resize.
      */
     static RemoteViews responsive(Context ctx, int appWidgetId, KeepADBWidgetConfig config,
-            KeepADBWidgetState projection, float fontScale) {
+            KeepADBWidgetState projection, float fontScale, Bundle options) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             throw new IllegalStateException("responsive RemoteViews need Android 12");
         }
-        Map<SizeF, RemoteViews> sizes = new HashMap<>();
-        for (KeepADBWidgetLayout.SizeClass sizeClass : KeepADBWidgetLayout.SizeClass.values()) {
-            sizes.put(new SizeF(KeepADBWidgetLayout.responsiveWidthDp(sizeClass, fontScale),
-                            KeepADBWidgetLayout.responsiveHeightDp(sizeClass, fontScale)),
-                    forSize(ctx, appWidgetId, config, projection, sizeClass));
+        return new RemoteViews(responsiveEntries(ctx, appWidgetId, config, projection, fontScale,
+                options));
+    }
+
+    /**
+     * The entries of {@link #responsive}: one per reported size, each its own RemoteViews (the
+     * platform stores the ideal size in the views it is given, so they are not shared).
+     */
+    static Map<SizeF, RemoteViews> responsiveEntries(Context ctx, int appWidgetId,
+            KeepADBWidgetConfig config, KeepADBWidgetState projection, float fontScale,
+            Bundle options) {
+        Map<SizeF, RemoteViews> entries = new LinkedHashMap<>();
+        for (SizeF size : KeepADBWidgetLayout.reportedSizes(options)) {
+            entries.put(size, forSize(ctx, appWidgetId, config, projection,
+                    KeepADBWidgetLayout.choose(size, fontScale)));
         }
-        return new RemoteViews(sizes);
+        return entries;
     }
 
     // -- one control ---------------------------------------------------------------------------

@@ -2,6 +2,10 @@ package de.hohnepeople.keepadb;
 
 import android.appwidget.AppWidgetManager;
 import android.os.Bundle;
+import android.util.SizeF;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * #912: which layout the control widget uses for the room it has. The room is the size the
@@ -60,7 +64,7 @@ final class KeepADBWidgetLayout {
             return hasStatus;
         }
 
-        /** The smallest width in dp the class is chosen for (see {@link #responsiveWidthDp}). */
+        /** The smallest width in dp the class is chosen for. */
         int minWidthDp(float fontScale) {
             float s = scaleOf(fontScale);
             switch (this) {
@@ -247,12 +251,52 @@ final class KeepADBWidgetLayout {
         return choose(width, height, fontScale);
     }
 
-    /** The room in dp a responsive (Android 12+) entry for this class is keyed by. */
-    static float responsiveWidthDp(SizeClass sizeClass, float fontScale) {
-        return Math.max(1f, sizeClass.minWidthDp(fontScale));
+    /**
+     * The sizes in dp the launcher says the widget can have, for the Android 12+ entries:
+     * {@link AppWidgetManager#OPTION_APPWIDGET_SIZES} when it reports them, otherwise the
+     * portrait (minimum width x maximum height) and landscape (maximum width x minimum height)
+     * rooms of the classic options, otherwise the declared default size. Never empty, every size
+     * positive.
+     */
+    @SuppressWarnings({"deprecation", "unchecked"})
+    static List<SizeF> reportedSizes(Bundle options) {
+        List<SizeF> sizes = new ArrayList<>();
+        if (options != null) {
+            List<SizeF> reported = null;
+            try {
+                reported = options.getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES);
+            } catch (RuntimeException ignored) {
+                // A malformed list is the same as none.
+            }
+            if (reported != null) {
+                for (SizeF size : reported) {
+                    if (size != null && size.getWidth() > 0 && size.getHeight() > 0
+                            && !sizes.contains(size)) {
+                        sizes.add(size);
+                    }
+                }
+            }
+            if (sizes.isEmpty()) {
+                addIfUsable(sizes,
+                        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0),
+                        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0));
+                addIfUsable(sizes,
+                        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0),
+                        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0));
+            }
+        }
+        if (sizes.isEmpty()) sizes.add(new SizeF(DEFAULT_WIDTH_DP, DEFAULT_HEIGHT_DP));
+        return sizes;
     }
 
-    static float responsiveHeightDp(SizeClass sizeClass, float fontScale) {
-        return Math.max(1f, sizeClass.minHeightDp(fontScale));
+    private static void addIfUsable(List<SizeF> sizes, int widthDp, int heightDp) {
+        SizeF size = new SizeF(widthDp, heightDp);
+        if (widthDp > 0 && heightDp > 0 && !sizes.contains(size)) sizes.add(size);
+    }
+
+    /** The class for a reported size (whole dp, rounded down: never more room than there is). */
+    static SizeClass choose(SizeF size, float fontScale) {
+        return choose((int) Math.floor(size.getWidth() + 0.001f),
+                (int) Math.floor(size.getHeight() + 0.001f), fontScale);
     }
 }

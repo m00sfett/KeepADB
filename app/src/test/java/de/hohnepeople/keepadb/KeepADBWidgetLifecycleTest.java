@@ -565,51 +565,120 @@ public class KeepADBWidgetLifecycleTest {
         assertNull("nothing else started", shadowOf(app).getNextStartedActivity());
     }
 
-    // -- responsive keys agree with the code path used below Android 12 ---------------------------
+    // -- the Android 12+ entries are keyed by the sizes the launcher reports --------------------------
 
+    private static Bundle sizesOptions(android.util.SizeF... sizes) {
+        Bundle options = new Bundle();
+        options.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                new java.util.ArrayList<>(Arrays.asList(sizes)));
+        return options;
+    }
+
+    /**
+     * Review R2: the entries used to be keyed by each class's minimum size, and the host takes the
+     * entry with the smallest distance to the widget, not the class order: 304 x 140 dp was the
+     * stack for choose() and the strip for the host. Now there is one entry per reported size, so
+     * the host's pick for a reported size is that entry, drawn as choose()'s class.
+     */
     @Test
-    public void theLaunchersBestFitOfTheResponsiveKeysEqualsTheFallbackChoice() {
-        // The platform shows the largest entry that fits the room, else the smallest. Replaying that
-        // rule over many rooms and font scales must give the class the Android 11 path computes.
-        for (float scale : new float[] {1f, 1.15f, 1.3f, 1.5f, 2f}) {
-            for (int width = 40; width <= 420; width += 7) {
-                for (int height = 40; height <= 320; height += 7) {
-                    assertEquals(width + "x" + height + " @" + scale,
-                            KeepADBWidgetLayout.choose(width, height, scale),
-                            bestFit(width, height, scale));
+    public void everyReportedSizeIsItsOwnEntryDrawnAsTheClassChooseGivesIt() {
+        android.util.SizeF[][] reported = {
+                {new android.util.SizeF(304, 140)},
+                {new android.util.SizeF(144, 193), new android.util.SizeF(296, 89)},   // Android 14
+                {new android.util.SizeF(137, 176), new android.util.SizeF(291, 80)},   // Android 11
+                {new android.util.SizeF(144, 89), new android.util.SizeF(220, 193),
+                        new android.util.SizeF(500, 300), new android.util.SizeF(68, 193)}};
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        for (float fs : new float[] {1f, 1.3f, 2f}) {
+            for (android.util.SizeF[] sizes : reported) {
+                java.util.Map<android.util.SizeF, RemoteViews> entries =
+                        KeepADBWidgetViews.responsiveEntries(context, 9, config, projection, fs,
+                                sizesOptions(sizes));
+                assertEquals("one entry per reported size", new java.util.LinkedHashSet<>(
+                        Arrays.asList(sizes)), entries.keySet());
+                for (android.util.SizeF size : sizes) {
+                    SizeClass expected = KeepADBWidgetLayout.choose(size, fs);
+                    View view = entries.get(size).apply(context, new FrameLayout(context));
+                    String where = size + " @" + fs + " is " + expected;
+                    assertEquals(where, expected.actionCount(), tiles(view).size());
+                    assertEquals(where, expected.hasStatus,
+                            KeepADBWidgetTestSupport.statusVisible(view));
                 }
             }
         }
-    }
-
-    private static SizeClass bestFit(int width, int height, float scale) {
-        SizeClass best = null;
-        float bestArea = -1f;
-        SizeClass smallest = null;
-        float smallestArea = Float.MAX_VALUE;
-        for (SizeClass sizeClass : SizeClass.values()) {
-            float w = KeepADBWidgetLayout.responsiveWidthDp(sizeClass, scale);
-            float h = KeepADBWidgetLayout.responsiveHeightDp(sizeClass, scale);
-            float area = w * h;
-            if (area < smallestArea) {
-                smallestArea = area;
-                smallest = sizeClass;
-            }
-            if (w <= width && h <= height && area > bestArea) {
-                bestArea = area;
-                best = sizeClass;
-            }
-        }
-        return best != null ? best : smallest;
+        // The size of the review: 304 x 140 dp at font 1.0 is the stack, and nothing else is keyed.
+        assertEquals(SizeClass.STACK, KeepADBWidgetLayout.choose(new android.util.SizeF(304, 140), 1f));
+        java.util.Map<android.util.SizeF, RemoteViews> entries = KeepADBWidgetViews.responsiveEntries(
+                context, 9, config, projection, 1f, sizesOptions(new android.util.SizeF(304, 140)));
+        assertEquals(Arrays.asList(new android.util.SizeF(304, 140)), new java.util.ArrayList<>(entries.keySet()));
     }
 
     @Test
-    public void theResponsiveViewsBuildAndTheSmallestIsShownWhenNoSizeIsKnown() {
+    public void withoutAListOfSizesTheClassicOptionsAreUsedThenTheDeclaredDefault() {
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.defaults();
         KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
-        RemoteViews responsive = KeepADBWidgetViews.responsive(context, 9,
-                KeepADBWidgetConfig.defaults(), projection, 1f);
-        View view = responsive.apply(context, new FrameLayout(context));
-        assertEquals("one control before any size is known", 1, tiles(view).size());
+
+        // Portrait (min width x max height) and landscape (max width x min height) of the options.
+        Bundle classic = new Bundle();
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 144);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 193);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 296);
+        classic.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 89);
+        java.util.Map<android.util.SizeF, RemoteViews> entries = KeepADBWidgetViews
+                .responsiveEntries(context, 9, config, projection, 1f, classic);
+        assertEquals(new java.util.LinkedHashSet<>(Arrays.asList(
+                new android.util.SizeF(144, 193), new android.util.SizeF(296, 89))), entries.keySet());
+        assertEquals(3, tiles(entries.get(new android.util.SizeF(144, 193))
+                .apply(context, new FrameLayout(context))).size());
+        assertFalse(KeepADBWidgetTestSupport.statusVisible(entries.get(new android.util.SizeF(296, 89))
+                .apply(context, new FrameLayout(context))));
+
+        // An empty list is no list.
+        assertEquals(entries.keySet(), KeepADBWidgetViews.responsiveEntries(context, 9, config,
+                projection, 1f, mergedWithEmptyList(classic)).keySet());
+
+        // Nothing usable at all: the declared default (about 2x1: the hero and one square button).
+        for (Bundle none : new Bundle[] {null, new Bundle()}) {
+            java.util.Map<android.util.SizeF, RemoteViews> fallback = KeepADBWidgetViews
+                    .responsiveEntries(context, 9, config, projection, 1f, none);
+            assertEquals(Arrays.asList(new android.util.SizeF(KeepADBWidgetLayout.DEFAULT_WIDTH_DP,
+                    KeepADBWidgetLayout.DEFAULT_HEIGHT_DP)), new java.util.ArrayList<>(fallback.keySet()));
+            assertEquals("one control before any size is known", 2, tiles(fallback.values().iterator()
+                    .next().apply(context, new FrameLayout(context))).size());
+        }
+    }
+
+    private static Bundle mergedWithEmptyList(Bundle classic) {
+        Bundle merged = new Bundle(classic);
+        merged.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                new java.util.ArrayList<android.util.SizeF>());
+        return merged;
+    }
+
+    @Test
+    public void aResizeRebuildsTheEntriesFromTheNewSizes() {
+        int id = widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        shadowOf(Looper.getMainLooper()).idle();
+        // The provider reads the options of the widget when it renders: what the launcher reports
+        // after a resize decides the entries.
+        manager.updateAppWidgetOptions(id, sizesOptions(new android.util.SizeF(304, 140)));
+        new KeepADBWidget().onAppWidgetOptionsChanged(context, manager, id,
+                manager.getAppWidgetOptions(id));
+        shadowOf(Looper.getMainLooper()).idle();
+        View stack = widgets.getViewFor(id);
+        assertEquals("304 x 140 dp is the stack", 3, tiles(stack).size());
+        assertNull(stack.findViewById(R.id.widget_status_row));
+        assertNull("the stack's buttons have no label (the strip's tiles do)",
+                KeepADBWidgetTestSupport.label(tiles(stack).get(1)));
+        assertFalse("and are as wide as their half, not the 52 dp square of a row",
+                tiles(stack).get(1) instanceof android.widget.ImageView);
+        // A new size from the launcher: 144 x 89 dp, the hero and one square button.
+        manager.updateAppWidgetOptions(id, sizesOptions(new android.util.SizeF(144, 89)));
+        new KeepADBWidget().onAppWidgetOptionsChanged(context, manager, id,
+                manager.getAppWidgetOptions(id));
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(2, tiles(widgets.getViewFor(id)).size());
     }
 
     @Test

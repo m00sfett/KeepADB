@@ -737,31 +737,62 @@ public class KeepADBWidgetViewsTest {
      * worst case a launcher can give it - every control still has its 48 dp, the hero its symbol
      * and port box, and the status line its row.
      */
+    /** A context whose configuration has the font scale: the sp boxes of the layouts follow it. */
+    private Context withFontScale(float fontScale) {
+        android.content.res.Configuration config =
+                new android.content.res.Configuration(context.getResources().getConfiguration());
+        config.fontScale = fontScale;
+        return context.createConfigurationContext(config);
+    }
+
+    /** Hides the texts, but keeps the port's box (fixed height, so no text metrics are involved). */
+    private static void blankExceptPort(View view) {
+        if (view instanceof android.widget.TextView) {
+            view.setVisibility(view.getId() == R.id.widget_tile_port && view.getVisibility() == View.VISIBLE
+                    ? View.INVISIBLE : View.GONE);
+        }
+        if (view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup group = (android.view.ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) blankExceptPort(group.getChildAt(i));
+        }
+    }
+
     @Test
     public void atTheSmallestHeightOfATallClassEveryControlStillHasItsRoom() {
         KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
         KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
         for (float fs : new float[] {1f, 1.3f, 2f}) {
+            // The font scale is applied to the context the views are inflated with, so the port
+            // box (28 sp, 21 sp) really has its scaled height; the other texts are left out
+            // because Robolectric's text metrics are not a device's.
+            Context scaled = withFontScale(fs);
+            android.util.DisplayMetrics metrics = scaled.getResources().getDisplayMetrics();
+            assertEquals("the font scale reaches the context", fs * metrics.density, metrics.scaledDensity, 0.01f);
             for (SizeClass sizeClass : new SizeClass[] {SizeClass.STACK, SizeClass.GRID, SizeClass.PANEL}) {
                 int width = sizeClass.minWidthDp(fs);
                 int height = sizeClass.minHeightDp(fs);
-                View widget = applyAndMeasure(context, KeepADBWidgetViews.forSize(context, WIDGET_ID,
+                View widget = applyAndMeasure(scaled, KeepADBWidgetViews.forSize(scaled, WIDGET_ID,
                         defaults, projection, sizeClass), width, height);
-                blank(widget);
+                blankExceptPort(widget);
                 KeepADBWidgetTestSupport.measure(widget, width, height);
                 String where = sizeClass + " @" + fs + " in " + width + " x " + height;
                 for (View tile : tiles(widget)) {
                     assertTrue(where + " width " + tile.getMeasuredWidth(), tile.getMeasuredWidth() >= 48);
                     assertTrue(where + " height " + tile.getMeasuredHeight(), tile.getMeasuredHeight() >= 48);
                 }
-                // The hero holds its symbol and the port box: more than a bare touch target.
-                int heroNeeds = sizeClass == SizeClass.STACK ? Math.round(16 + 26 + 4 + 21 * fs)
-                        : sizeClass == SizeClass.GRID ? Math.round(12 + 24 + 4 + 28 * fs)
-                        : Math.round(24 + 34 + 28 * fs);
+                // The hero holds its symbol and the port box (28 sp in the grid and the panel, 21 sp
+                // in the stack) at the scaled size: the box is there and fits.
+                View port = hero(widget).findViewById(R.id.widget_tile_port);
+                float boxSp = sizeClass == SizeClass.STACK ? 21 : 28;
+                int box = Math.round(android.util.TypedValue.applyDimension(
+                        android.util.TypedValue.COMPLEX_UNIT_SP, boxSp, metrics));
+                assertEquals(where + " the port box keeps its scaled height", box, port.getMeasuredHeight());
+                float fixed = sizeClass == SizeClass.STACK ? 16 + 26 + 4
+                        : sizeClass == SizeClass.GRID ? 12 + 24 + 4 : 24 + 34;
                 // The test density is 1, where each 2.5 dp frame or gap rounds up to 3 px: up to
                 // 3 px more of the room goes to those than the exact sum, on a real screen less.
-                assertTrue(where + " hero " + hero(widget).getMeasuredHeight() + " needs " + heroNeeds,
-                        hero(widget).getMeasuredHeight() >= heroNeeds - 4);
+                assertTrue(where + " hero " + hero(widget).getMeasuredHeight() + " needs " + (fixed + box),
+                        hero(widget).getMeasuredHeight() >= fixed + box - 4);
                 if (sizeClass == SizeClass.PANEL) {
                     assertTrue(where + " status row",
                             widget.findViewById(R.id.widget_status_row).getMeasuredHeight() >= 48);

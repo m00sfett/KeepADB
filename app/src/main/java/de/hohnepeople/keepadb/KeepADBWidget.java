@@ -116,8 +116,10 @@ public class KeepADBWidget extends AppWidgetProvider {
         float fontScale = context.getResources().getConfiguration().fontScale;
         RemoteViews views;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+: the launcher picks the fitting size class itself while the user resizes.
-            views = KeepADBWidgetViews.responsive(localizedContext, id, config, projection, fontScale);
+            // Android 12+: one entry per size the launcher reports; it picks the entry for the size the
+            // widget has while the user resizes.
+            views = KeepADBWidgetViews.responsive(localizedContext, id, config, projection, fontScale,
+                    mgr.getAppWidgetOptions(id));
         } else {
             views = legacyViews(localizedContext, id, config, projection,
                     mgr.getAppWidgetOptions(id), fontScale);

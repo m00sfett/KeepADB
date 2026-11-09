@@ -43,8 +43,8 @@ are retrospective issue-version records and were never published as separate rel
   plus one status line (endpoint or reason, then the webhook state; "Details hidden" while the
   details are withheld) and the settings gear, which exists only there. Narrow and tall is a stack
   (hero over two square buttons, from 114 dp). A larger font falls back to a smaller class. Android
-  12+ gets one view per class and lets the launcher pick while resizing, Android 11 rebuilds the
-  one class the options select (`onAppWidgetOptionsChanged`). Words shrink to 85 percent before
+  12+ gets one view per size the launcher reports and lets it pick while resizing, Android 11 supplies
+  both orientations of the class the options select (`onAppWidgetOptionsChanged` rebuilds them). Words shrink to 85 percent before
   they could be cut (never an ellipsis), the port never wraps, controls are at least 48 dp, and
   TalkBack reads "name: state, port N" in full from the control's description even where only a
   symbol or "ADB" is visible. The port is never shown in the 1x1; while the widget privacy switch or
@@ -81,6 +81,13 @@ are retrospective issue-version records and were never published as separate rel
   force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Fixed
+- **The Android 12+ entries follow the class choice (#912, re-review):** the responsive map was
+  keyed by each class's minimum size, but the host takes the entry with the smallest distance to
+  the widget, not the class order: 304 x 140 dp was the stack for `choose()` and the strip for the
+  host. `KeepADBWidgetViews.responsive` now builds one entry per size the launcher reports
+  (`OPTION_APPWIDGET_SIZES`, else the portrait and landscape sizes of the classic options, else the
+  declared default), each drawn as the class `choose()` gives that size, so the host's pick for a
+  reported size is that entry. `responsiveWidthDp` and `responsiveHeightDp` are gone.
 - **Widget layout on Android 11 and in small rooms (#912, Codex review):** (1) The Android 11 path
   (`KeepADBWidget.legacyViews`) now supplies both orientations with
   `RemoteViews(landscape, portrait)`; a rotation changes neither the options nor sends an update, so a
