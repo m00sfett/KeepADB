@@ -23,6 +23,24 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.12.2] - Unreleased
+
+### Fixed
+- **Overview 2x2: short delivery words (#928):** in the compact overview (about 2x2), the delivery
+  row showed the full sentence ("Current endpoint reported", in other languages the even longer
+  "not reported yet" sentence) and fit only by shrinking to the 8 sp minimum. The compact row now
+  draws a short word ("Reported", "Not reported", "No endpoint", "Sending…", "Failed"); the wide
+  shape keeps the full sentence, and TalkBack reads the full sentence in both shapes. The history
+  line under it lost its time at two cells in long languages at font scale 1.3 ("Последняя
+  достав…", already at the 8 sp minimum); the compact shape now draws a short form ("Last 14:03",
+  "None yet") and TalkBack keeps the full line.
+  `KeepADBOverviewContent.Row` carries an optional `shortValue` and the content a
+  `lastDeliveryShort`; seven new strings (`overview_delivery_short_*`,
+  `overview_last_delivery_short`, `overview_last_delivery_short_none`) in all 18 locales, the
+  format string with a resource contract witness. `KeepADBOverviewWidgetTest` checks the
+  short words on screen, the full sentences in the description and on the wide shape, and that every
+  short form is shorter than its sentence.
+
 ## [1.12.1] - Unreleased
 
 Test-only candidate after the 1.12.0 preparation (versionCode 255); no app change.
