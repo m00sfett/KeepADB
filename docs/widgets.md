@@ -134,7 +134,7 @@ the width (`KeepADBOverviewViews`, wide from 250 x font scale dp):
 
 | Shape | Content |
 |---|---|
-| Compact | One card with four rows (symbol and value): Wireless Debugging with the verified `host:port`, the Wi-Fi name, Keep-Alive with its reason, the webhook delivery. Under it the auto-sync pill. |
+| Compact | One card with four rows (symbol and value): Wireless Debugging with the verified `host:port`, the Wi-Fi name, Keep-Alive with its reason, the webhook delivery; under the delivery a quieter line with the last delivery. Under the card the auto-sync pill. |
 | Wide | The card with labelled rows (Debugging, Wi-Fi, Keep-Alive); beside it the webhook block (delivery state, last delivery) and the auto-sync pill. |
 
 **Informational rows.** The card is one tap target. It opens the app, or the network card of the
@@ -149,13 +149,16 @@ offered; it stays in the webhook failure notification.
 endpoint reported, current endpoint not reported yet, no endpoint to report. The claim "reported"
 comes only from the projection's currentness guard (the last accepted report names the current
 endpoint and the configured URL). The time of the last accepted report is shown on its own line as
-history and never turns into that claim. A tap on the block opens the webhook form when it is not
+history (in both shapes, drawn, not only spoken) and never turns into that claim. A tap on the block opens the webhook form when it is not
 set up or failing, otherwise the app.
 
 **Wi-Fi name.** Android withholds the name without location access; the row then says "Name not
 readable" instead of inventing one. With details hidden the name is not read at all. The row
 follows the same refresh signals as everything else, so a network change is drawn when the app,
 the service or a state change next refreshes the widgets.
+
+**Picker.** Android 12+ shows a preview layout (`widget_preview_overview`); Android 11 a picker
+image of its own (`ic_widget_preview_overview`), so the two widgets never look alike there.
 
 **Settings and lifecycle.** The overview has one option, "Hide connection details in this widget",
 in the same configure screen (it hides the primary and order sections for an overview id) and the

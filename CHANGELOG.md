@@ -31,8 +31,9 @@ are retrospective issue-version records and were never published as separate rel
   4x2 on Android 12+) that shows Wireless Debugging with the verified endpoint, the connected Wi-Fi
   name, Keep-Alive with its reason ("Waiting · no Wi-Fi", "Paused · network not trusted") and the
   webhook delivery. Two shapes from the width (`KeepADBOverviewViews`, wide from 250 x font scale
-  dp): compact (one card with four rows, the auto-sync pill under it) and wide (labelled rows, the
-  webhook block with delivery state and last delivery beside them). Same design language as the
+  dp): compact (one card with four rows and a quieter last-delivery line, the auto-sync pill under
+  it) and wide (labelled rows, the webhook block with delivery state and last delivery beside
+  them). Android 11 gets a picker image of its own (`ic_widget_preview_overview`). Same design language as the
   control widget: dark surface, flat rounded tiles, a symbol variant and a word per state, no
   borders.
 - **Informational by design:** Wireless Debugging, Wi-Fi and Keep-Alive are one read-only card whose

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #913: the picker image of the overview widget for Android 11 (no preview layout there): the
+     surface with the information card (three rows: symbol and value bar), the webhook block and
+     the yellow auto-sync pill, as the 4x2 widget draws them, without text. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="220dp"
+    android:height="110dp"
+    android:viewportWidth="220"
+    android:viewportHeight="110">
+    <path
+        android:fillColor="#0B0806"
+        android:pathData="M24,0h172a24,24 0 0 1 24,24v62a24,24 0 0 1 -24,24h-172a24,24 0 0 1 -24,-24v-62a24,24 0 0 1 24,-24z" />
+    <!-- information card -->
+    <path
+        android:fillColor="#1E1814"
+        android:pathData="M24,5h76a19,19 0 0 1 19,19v62a19,19 0 0 1 -19,19h-76a19,19 0 0 1 -19,-19v-62a19,19 0 0 1 19,-19z" />
+    <path android:fillColor="#FFD21F" android:pathData="M24,28m-6,0a6,6 0 1 1 12,0a6,6 0 1 1 -12,0" />
+    <path android:fillColor="#EDE6DC" android:pathData="M36,25h56a3,3 0 0 1 0,6h-56a3,3 0 0 1 0,-6z" />
+    <path android:fillColor="#FFD21F" android:pathData="M24,55m-6,0a6,6 0 1 1 12,0a6,6 0 1 1 -12,0" />
+    <path android:fillColor="#EDE6DC" android:pathData="M36,52h40a3,3 0 0 1 0,6h-40a3,3 0 0 1 0,-6z" />
+    <path android:fillColor="#E0B83A" android:pathData="M24,82m-6,0a6,6 0 1 1 12,0a6,6 0 1 1 -12,0" />
+    <path android:fillColor="#EDE6DC" android:pathData="M36,79h24a3,3 0 0 1 0,6h-24a3,3 0 0 1 0,-6z" />
+    <!-- webhook block -->
+    <path
+        android:fillColor="#1E1814"
+        android:pathData="M141,5h55a19,19 0 0 1 19,19v20a19,19 0 0 1 -19,19h-55a19,19 0 0 1 -19,-19v-20a19,19 0 0 1 19,-19z" />
+    <path android:fillColor="#CFC8BD" android:pathData="M134,22h30a2.5,2.5 0 0 1 0,5h-30a2.5,2.5 0 0 1 0,-5z" />
+    <path android:fillColor="#EDE6DC" android:pathData="M134,34h60a3,3 0 0 1 0,6h-60a3,3 0 0 1 0,-6z" />
+    <!-- auto-sync pill -->
+    <path
+        android:fillColor="#FFD21F"
+        android:pathData="M141,68h55a18.5,18.5 0 0 1 0,37h-55a18.5,18.5 0 0 1 0,-37z" />
+    <path android:fillColor="#140E02" android:pathData="M142,86.5m-7,0a7,7 0 1 1 14,0a7,7 0 1 1 -14,0" />
+    <path android:fillColor="#140E02" android:pathData="M156,83.5h36a3,3 0 0 1 0,6h-36a3,3 0 0 1 0,-6z" />
+</vector>

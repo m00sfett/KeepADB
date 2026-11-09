@@ -14,8 +14,8 @@ import java.util.Map;
  * {@link KeepADBWidgetViews} it reads nothing itself and starts nothing, so building or resizing the
  * widget can neither send a report nor poll anything.
  *
- * <p>Two shapes: {@link Shape#COMPACT} (about 2x2 to 3 cells wide: one card with four rows and the
- * auto-sync pill) and {@link Shape#WIDE} (about 4 cells wide and more: the card with labelled rows,
+ * <p>Two shapes: {@link Shape#COMPACT} (about 2x2 to 3 cells wide: one card with four rows, the
+ * last-delivery line and the auto-sync pill) and {@link Shape#WIDE} (about 4 cells wide and more: the card with labelled rows,
  * beside it the webhook block and the pill). Both grow with the height. The design language is the
  * control widget's: dark surface, flat rounded tiles, a symbol variant and a word per state, the
  * yellow pill while synchronization is on, no borders.
@@ -65,6 +65,10 @@ final class KeepADBOverviewViews {
         String cardDescription = content.cardDescription(ctx);
         if (shape == Shape.COMPACT) {
             views.addView(R.id.widget_ov_card, row(ctx, shape, content.delivery));
+            // The history stays visible on its own quieter line, apart from the current claim.
+            RemoteViews note = new RemoteViews(ctx.getPackageName(), R.layout.widget_ov_note);
+            note.setTextViewText(R.id.widget_ov_value, content.lastDelivery);
+            views.addView(R.id.widget_ov_card, note);
             cardDescription = cardDescription + ". " + content.deliveryDescription(ctx);
         } else {
             views.setImageViewResource(R.id.widget_ov_delivery_icon, content.delivery.iconRes);
@@ -132,12 +136,19 @@ final class KeepADBOverviewViews {
     @android.annotation.TargetApi(Build.VERSION_CODES.S)
     static RemoteViews responsive(Context ctx, KeepADBWidgetState projection, float fontScale,
             Bundle options) {
+        Map<SizeF, RemoteViews> entries = responsiveEntries(ctx, projection, fontScale, options);
+        RemoteViews fallback = forShape(ctx, projection, choose(
+                KeepADBWidgetLayout.reportedSizes(options).get(0).getWidth(), fontScale));
+        return KeepADBWidgetViews.sizedOrFallback(entries, fallback);
+    }
+
+    /** The entries of {@link #responsive}: one per launcher-reported size, in the shape of its key. */
+    static Map<SizeF, RemoteViews> responsiveEntries(Context ctx, KeepADBWidgetState projection,
+            float fontScale, Bundle options) {
         Map<SizeF, RemoteViews> entries = new LinkedHashMap<>();
         for (SizeF key : KeepADBWidgetLayout.entryKeys(options)) {
             entries.put(key, forShape(ctx, projection, choose(key.getWidth(), fontScale)));
         }
-        RemoteViews fallback = forShape(ctx, projection, choose(
-                KeepADBWidgetLayout.reportedSizes(options).get(0).getWidth(), fontScale));
-        return KeepADBWidgetViews.sizedOrFallback(entries, fallback);
+        return entries;
     }
 }

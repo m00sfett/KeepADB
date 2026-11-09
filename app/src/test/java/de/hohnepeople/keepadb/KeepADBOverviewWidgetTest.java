@@ -133,6 +133,22 @@ public class KeepADBOverviewWidgetTest {
         return context.getString(resId, args);
     }
 
+    /** Only what is drawn: the text of visible TextViews, never a content description. */
+    static String visibleText(View view) {
+        StringBuilder into = new StringBuilder();
+        appendVisible(view, into);
+        return into.toString();
+    }
+
+    private static void appendVisible(View view, StringBuilder into) {
+        if (view.getVisibility() != View.VISIBLE) return;
+        if (view instanceof TextView) into.append(((TextView) view).getText()).append('\n');
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) appendVisible(group.getChildAt(i), into);
+        }
+    }
+
     private static View descendantWithText(View view, String text) {
         if (view instanceof TextView && text.contentEquals(((TextView) view).getText())) return view;
         if (view instanceof ViewGroup) {
@@ -270,6 +286,12 @@ public class KeepADBOverviewWidgetTest {
         KeepADBOverviewContent c = content(false);
         assertEquals(name(R.string.overview_delivery_not_current), c.delivery.value);
         assertFalse(c.lastDelivery.equals(name(R.string.overview_last_delivery_none)));
+        // The history is drawn in both shapes, apart from the claim, not only spoken.
+        for (Shape shape : Shape.values()) {
+            String drawn = visibleText(render(shape, false));
+            assertTrue(shape + ": history visible", drawn.contains(c.lastDelivery));
+            assertTrue(shape + ": claim visible", drawn.contains(c.delivery.value));
+        }
 
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
         assertEquals(name(R.string.overview_delivery_current), content(false).delivery.value);
@@ -293,8 +315,12 @@ public class KeepADBOverviewWidgetTest {
     }
 
     @Test
-    public void withoutAnyDeliveryTheHistorySaysSo() {
+    public void withoutAnyDeliveryTheHistorySaysSoVisibly() {
         assertEquals(name(R.string.overview_last_delivery_none), content(false).lastDelivery);
+        for (Shape shape : Shape.values()) {
+            assertTrue(shape.toString(), visibleText(render(shape, false))
+                    .contains(name(R.string.overview_last_delivery_none)));
+        }
     }
 
     // -- privacy ------------------------------------------------------------------------------------
@@ -421,7 +447,36 @@ public class KeepADBOverviewWidgetTest {
     }
 
     @Test
-    public void renderingAndResizingNeverSendOrPoll() {
+    public void eachReportedSizeGetsTheShapeOfItsWidth() {
+        android.os.Bundle options = new android.os.Bundle();
+        java.util.ArrayList<android.util.SizeF> sizes = new java.util.ArrayList<>();
+        sizes.add(new android.util.SizeF(144f, 193f));
+        sizes.add(new android.util.SizeF(296f, 193f));
+        options.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizes);
+        java.util.Map<android.util.SizeF, android.widget.RemoteViews> entries =
+                KeepADBOverviewViews.responsiveEntries(context, projection(false), 1f, options);
+        int compact = 0;
+        int wide = 0;
+        for (java.util.Map.Entry<android.util.SizeF, android.widget.RemoteViews> entry
+                : entries.entrySet()) {
+            View root = applyAndMeasure(context, entry.getValue(),
+                    Math.max(110, (int) entry.getKey().getWidth()), 193);
+            boolean isWide = root.findViewById(R.id.widget_ov_delivery) != null;
+            assertEquals(entry.getKey().toString(),
+                    entry.getKey().getWidth() >= KeepADBOverviewViews.WIDE_DP, isWide);
+            if (isWide) wide++; else compact++;
+        }
+        assertTrue("a wide entry", wide > 0);
+        assertTrue("a compact entry", compact > 0);
+        // At font scale 1.3 the same wide size falls back to the compact shape.
+        for (android.widget.RemoteViews views : KeepADBOverviewViews.responsiveEntries(
+                context, projection(false), 1.3f, options).values()) {
+            assertNull(applyAndMeasure(context, views, 296, 193).findViewById(R.id.widget_ov_delivery));
+        }
+    }
+
+    @Test
+    public void resizingRedrawsWithTheNewSizeAndNeverSendsOrPolls() {
         int id = widgets.createWidget(KeepADBOverviewWidget.class, R.layout.widget_overview_compact);
         shadowOf(Looper.getMainLooper()).idle();
         KeepADBRegisterClientResetRule.awaitIdle();
@@ -430,11 +485,18 @@ public class KeepADBOverviewWidgetTest {
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
 
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        android.os.Bundle options = new android.os.Bundle();
-        for (int width : new int[] {110, 180, 250, 330}) {
-            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width);
-            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 180);
+        for (float width : new float[] {144f, 296f}) {
+            android.os.Bundle options = new android.os.Bundle();
+            java.util.ArrayList<android.util.SizeF> sizes = new java.util.ArrayList<>();
+            sizes.add(new android.util.SizeF(width, 193f));
+            options.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizes);
+            // The stored options are what rendering reads.
+            manager.updateAppWidgetOptions(id, options);
             new KeepADBOverviewWidget().onAppWidgetOptionsChanged(context, manager, id, options);
+            shadowOf(Looper.getMainLooper()).idle();
+            assertEquals(width, manager.getAppWidgetOptions(id)
+                    .<android.util.SizeF>getParcelableArrayList(
+                            AppWidgetManager.OPTION_APPWIDGET_SIZES).get(0).getWidth(), 0f);
         }
         KeepADBWidget.refreshAllState(context);
         shadowOf(Looper.getMainLooper()).idle();
