@@ -43,8 +43,8 @@ wraps. TalkBack reads "name: state, port N" from the control's description, in f
 
 The layout follows the size the launcher reports. On Android 12 and newer the widget gives the
 launcher one view per size it reports (`OPTION_APPWIDGET_SIZES`, else the portrait and landscape
-sizes of the classic options, else the declared 152 x 92 dp), each drawn as the class
-`KeepADBWidgetLayout.choose` gives that size; the launcher picks the entry for the size the widget
+sizes of the classic options, else the declared 152 x 92 dp), each keyed 2 dp below that size
+and drawn as the class `KeepADBWidgetLayout.choose` gives the key; the launcher picks the entry for the size the widget
 has while the user resizes, and a resize rebuilds the entries. (Entries keyed by each class's
 minimum size would disagree with the class choice: the host takes the entry with the smallest
 distance, not the largest class that fits.) Limits of the platform's selection, which the entries
