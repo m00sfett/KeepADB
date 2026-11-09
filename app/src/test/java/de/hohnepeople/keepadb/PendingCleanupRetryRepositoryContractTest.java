@@ -183,7 +183,8 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertEquals("the client books a failure in exactly one place", 1,
                 count(client, "PendingCleanupRetryRepository.recordFailure("));
         assertEquals("the client removes a record when it discards or drops an entry, and (#707) "
-                + "in the commit block for the entry a full backlog evicted", 3,
+                + "for the entry a full backlog evicted: in the commit block and (#923) where a "
+                + "possible registration is queued", 4,
                 count(client, "PendingCleanupRetryRepository.remove("));
         assertEquals("the client sweeps the records of dead entries in exactly one place (#707)", 1,
                 count(client, "PendingCleanupRetryRepository.removeOrphans("));
@@ -275,10 +276,15 @@ public class PendingCleanupRetryRepositoryContractTest {
 
         int post = update.indexOf("postEndpoint(targetUrl, targetEndpoint)");
         assertTrue(post > 0);
-        int recheck = update.indexOf("if (opGen != currentOpGeneration) return;", post);
+        int recheck = update.indexOf("if (opGen != currentOpGeneration) {", post);
         int secondary = update.indexOf("reportAdditionalVerifiedTransports(context, targetUrl);");
         assertTrue("the operation is checked after the POST", recheck > post);
         assertTrue("and before any secondary transport is reported", secondary > recheck);
+        // #923: a superseded POST may still have registered; its withdrawal is queued before the
+        // transaction gives up.
+        String stale = update.substring(recheck, secondary);
+        int remembered = stale.indexOf("rememberPossibleRegistration(context, targetUrl, false);");
+        assertTrue(stale, remembered >= 0 && remembered < stale.indexOf("return;"));
 
         int commit = update.indexOf("synchronized (KeepADBRegisterClient.class)", secondary);
         int remember = update.indexOf("KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember)",
@@ -340,7 +346,9 @@ public class PendingCleanupRetryRepositoryContractTest {
         for (String transaction : new String[] {"private static void performUpdateTransaction(",
                 "private static void performDeleteTransaction("}) {
             String body = bodyOf(client, transaction);
-            int call = body.indexOf("flushPendingCleanups(context);");
+            Matcher flushCall = Pattern.compile(
+                    "flushPendingCleanups\\(context, targetUrl, (true|false)\\);").matcher(body);
+            int call = flushCall.find() ? flushCall.start() : -1;
             assertTrue("the transaction flushes first: " + transaction,
                     call > 0 && body.substring(1, call).trim().isEmpty());
             assertTrue("and before it takes the monitor: " + transaction,

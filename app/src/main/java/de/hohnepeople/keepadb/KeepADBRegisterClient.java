@@ -643,8 +643,14 @@ final class KeepADBRegisterClient {
                 return;
             }
             boolean wasInFlight = wlanUpdateInFlight;
+            // #923 (review R2): an unsettled dispatch (a POST whose answer was lost, or a stale
+            // success at the target) may hold a registration as well; it is withdrawn here too.
+            // Review R3: so is a queued withdrawal that is due again after a failed DELETE; only a
+            // due one counts, so its own backoff and attempt budget still bound the traffic.
             boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
-                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty());
+                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty())
+                    || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null
+                    || hasDuePendingCleanup(appContext);
             if (!wasInFlight && !hadPrior) {
                 return;
             }
@@ -746,10 +752,17 @@ final class KeepADBRegisterClient {
      * local bookkeeping on the preferences file: it runs here, on the register executor and outside
      * the class monitor, sends nothing and changes no entry.
      */
-    private static void flushPendingCleanups(Context context) {
+    private static void flushPendingCleanups(Context context, String targetUrl, boolean deleting) {
         if (context == null) return;
         PendingCleanupRetryRepository.removeOrphans(context,
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
+        // #923: a dispatch marker left here is a POST whose process died before its outcome was
+        // settled (every POST that returns settles its own marker on this executor first).
+        String interrupted = KeepADBPreferences.getWebhookDispatchedUrl(context);
+        // A withdrawing transaction always queues it; an update keeps it while it is the target.
+        if (interrupted != null) rememberPossibleRegistration(context, interrupted, deleting);
+        // #923: the resource the transaction that runs next sends its own DELETE or POST to.
+        String inUseUrl = deleting ? plannedDeleteUrl(targetUrl) : targetUrl;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
             // #710: an earlier iteration may already have removed this snapshot entry (another
             // spelling of the same resource); skip it so no redundant DELETE or orphan record.
@@ -759,6 +772,11 @@ final class KeepADBRegisterClient {
             String sanitizedUrl = sanitizePendingCleanupUrl(url);
             if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
                 removePendingCleanupsForResource(context, sanitizedUrl);
+                continue;
+            }
+            // #923: the transaction that runs next sends its own DELETE or POST to this resource
+            // and settles the entry with it; a second request from here would only duplicate it.
+            if (inUseUrl != null && sameRegistrationResource(sanitizedUrl, inUseUrl)) {
                 continue;
             }
             PendingCleanupRetryRepository.RetryState due = duePendingCleanup(context, url);
@@ -785,6 +803,41 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #923: {@code url} may hold a registration that the local report snapshot does not record --
+     * a POST that succeeded after its transaction went stale, one whose answer was lost, or one
+     * interrupted by process death. If the snapshot names that resource, the next withdrawal
+     * targets it anyway and the dispatch marker is cleared. If it is still the saved URL with
+     * synchronization on and nothing is being withdrawn, the marker is kept as durable evidence
+     * (its next successful report clears it, any later withdrawal queues it). Otherwise it is
+     * queued as a pending cleanup (#317: persisted, retried with backoff, withdrawn at the next
+     * register activity) and the marker is cleared.
+     *
+     * @param withdrawing the caller is a DELETE transaction (opt-out, endpoint loss)
+     */
+    private static void rememberPossibleRegistration(Context context, String url,
+            boolean withdrawing) {
+        boolean recorded;
+        synchronized (KeepADBRegisterClient.class) {
+            recorded = lastRegisteredUrl != null && sameRegistrationResource(url, lastRegisteredUrl);
+        }
+        if (recorded) {
+            KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+            return;
+        }
+        boolean stillTheTarget = KeepADBPreferences.isRegisterWebhookEnabled(context)
+                && sameRegistrationResource(url, KeepADBPreferences.getRegisterWebhookUrl(context));
+        if (stillTheTarget && !withdrawing) {
+            // Queuing it now would also evict an older cleanup from a full backlog.
+            KeepADBPreferences.setWebhookDispatchedUrl(context, url);
+            return;
+        }
+        String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
+        // #707: an evicted entry's retry record goes with it.
+        if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
+        KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+    }
+
+    /**
      * A pending cleanup is deliberately bounded independently of the four-entry FIFO cap in
      * {@link KeepADBPreferences}. Each entry gets a persisted expiry, attempt budget and
      * exponential backoff, so an unreachable host cannot block every later register transaction.
@@ -794,8 +847,7 @@ final class KeepADBRegisterClient {
     private static PendingCleanupRetryRepository.RetryState duePendingCleanup(Context context,
             String entry) {
         long now = pendingCleanupNow();
-        PendingCleanupRetryRepository.RetryState state =
-                PendingCleanupRetryRepository.read(context, entry, now);
+        PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
         if (state.isExpired(now)) {
             discardPendingCleanup(context, entry, "expired");
             return null;
@@ -805,6 +857,26 @@ final class KeepADBRegisterClient {
             return null;
         }
         return state.isDue(now) ? state : null;
+    }
+
+    /** The one place the client reads a retry record (#701). */
+    private static PendingCleanupRetryRepository.RetryState readPendingCleanup(Context context,
+            String entry, long now) {
+        return PendingCleanupRetryRepository.read(context, entry, now);
+    }
+
+    /**
+     * #923 (review R3): whether a queued withdrawal would be attempted now -- the decision of
+     * {@link #duePendingCleanup} without its side effects (an expired or spent entry is discarded
+     * there, by the flush, not here).
+     */
+    private static boolean hasDuePendingCleanup(Context context) {
+        long now = pendingCleanupNow();
+        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
+            if (!state.isExpired(now) && !state.isExhausted() && state.isDue(now)) return true;
+        }
+        return false;
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {
@@ -886,7 +958,7 @@ final class KeepADBRegisterClient {
     }
 
     private static void performUpdateTransaction(Context context, String targetUrl, String targetEndpoint, long opGen) {
-        flushPendingCleanups(context);
+        flushPendingCleanups(context, targetUrl, false);
 
         String oldUrl;
         String oldEndpoint;
@@ -935,7 +1007,17 @@ final class KeepADBRegisterClient {
         // Codex review: the budget in effect when the request is sent, not after its answer.
         int maxRetries = KeepADBPreferences.getWebhookRetryCount(context);
         lastTransportOutcome = "unknown";
+        // #923: persisted before the request, settled after it (below), so a registration made by
+        // a POST whose transaction went stale, or whose process died, is still withdrawn later.
+        String markerBefore = KeepADBPreferences.getWebhookDispatchedUrl(context);
+        KeepADBPreferences.setWebhookDispatchedUrl(context, targetUrl);
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
+        // #923 (review): only an HTTP answer proves this request registered nothing; an I/O error
+        // can come after the body was delivered, so the marker stays as evidence then. A definite
+        // rejection restores the marker this POST found (an earlier, unsettled one stays).
+        if (!posted && lastTransportOutcome != null && lastTransportOutcome.startsWith("http=")) {
+            KeepADBPreferences.setWebhookDispatchedUrl(context, markerBefore);
+        }
         recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry,
                 maxRetries);
         if (posted) {
@@ -943,8 +1025,12 @@ final class KeepADBRegisterClient {
             // endpoint may have superseded this transaction. Abort before any secondary transport
             // is sent, so a stale snapshot never goes out for an outdated target. Same outcome as
             // the stale branch of the synchronized block below: no state, preference or listener
-            // side effects (the newer operation owns those).
-            if (opGen != currentOpGeneration) return;
+            // side effects (the newer operation owns those) -- except #923: the receiver may now
+            // hold a registration at targetUrl that no state accounts for; queue its withdrawal.
+            if (opGen != currentOpGeneration) {
+                rememberPossibleRegistration(context, targetUrl, false);
+                return;
+            }
             // Consider other verified transport candidates only after the WLAN POST. The local
             // sender allowlist currently holds these candidates back; WLAN success accounting and
             // the stored report snapshot remain owned by this transaction.
@@ -980,9 +1066,14 @@ final class KeepADBRegisterClient {
                     // by a crash and leave a URL without its endpoint.
                     KeepADBPreferences.setWebhookReportSnapshot(context, targetUrl, targetEndpoint,
                             KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+                    // #923: the snapshot (which also clears the dispatch marker) now accounts
+                    // for this registration.
                     notifyRegisterStateListener(context);
+                    return;
                 }
             }
+            // #923: superseded during the secondary transports.
+            rememberPossibleRegistration(context, targetUrl, false);
         } else {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
@@ -1003,7 +1094,7 @@ final class KeepADBRegisterClient {
      */
     private static void performDeleteTransaction(Context context, String targetUrl, long opGen,
             boolean endpointLoss) {
-        flushPendingCleanups(context);
+        flushPendingCleanups(context, targetUrl, true);
 
         String urlToDelete;
         synchronized (KeepADBRegisterClient.class) {
@@ -1088,6 +1179,11 @@ final class KeepADBRegisterClient {
             return MARK_UNAVAILABLE_RETRY_BACKOFFS_MS[consecutiveFailures - 1];
         }
         return MARK_UNAVAILABLE_MAX_BACKOFF_MS;
+    }
+
+    /** #923: the URL {@link #performDeleteTransaction} deletes, computed the same way. */
+    private static synchronized String plannedDeleteUrl(String targetUrl) {
+        return (lastRegisteredUrl != null) ? lastRegisteredUrl : targetUrl;
     }
 
     private static synchronized boolean hasLiveRegistrationAtUrl(String cleanupUrl) {
@@ -1193,7 +1289,7 @@ final class KeepADBRegisterClient {
     }
 
     static void flushPendingCleanupsForTesting(Context context) {
-        flushPendingCleanups(context);
+        flushPendingCleanups(context, null, false);
     }
 
     static void setPendingCleanupNowForTesting(long now) {

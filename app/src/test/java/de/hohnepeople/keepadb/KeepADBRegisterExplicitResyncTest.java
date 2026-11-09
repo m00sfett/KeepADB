@@ -79,7 +79,10 @@ public class KeepADBRegisterExplicitResyncTest {
     }
 
     private void exhaustSeries() {
-        transport.setPostSuccess(false);
+        // An HTTP rejection, not a lost answer: since #923 a POST that ended with an I/O error may
+        // have registered, and the refresh behind "Save URL" (no endpoint in the real coordinator
+        // here) would then withdraw it before reporting again.
+        transport.setPostResponseCode(500);
         KeepADBPreferences.setWebhookRetryCount(context, 0);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));

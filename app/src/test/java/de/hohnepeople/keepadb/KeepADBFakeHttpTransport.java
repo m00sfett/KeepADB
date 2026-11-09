@@ -135,7 +135,10 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
         }
 
         if (!postSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
-            KeepADBRegisterClient.noteTransportOutcome("error=FakeIOException");
+            // #923: a configured non-2xx code is an HTTP answer, everything else an I/O error.
+            boolean httpAnswer = postResponseCode < 200 || postResponseCode >= 300;
+            KeepADBRegisterClient.noteTransportOutcome(httpAnswer
+                    ? "http=" + postResponseCode : "error=FakeIOException");
             if (failureCallback != null) {
                 failureCallback.run();
             }

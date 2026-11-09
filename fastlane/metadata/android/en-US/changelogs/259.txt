@@ -1,0 +1,1 @@
+If you switch webhook sync off or change the URL while a report is still being sent, KeepADB now also withdraws the new destination instead of leaving it registered.

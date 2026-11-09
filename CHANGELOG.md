@@ -23,6 +23,34 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.12.5] - Unreleased
+
+### Fixed
+- **Opt-out during a POST to a new URL left the new destination registered (#923):** with a
+  registration at A, changing the URL to B (DELETE at A failing) and switching synchronization off
+  while the POST to B was in flight, the POST could still register at B; its stale completion
+  recorded nothing, and the opt-out withdrew only A. A superseded POST that succeeded now queues
+  its destination as a pending cleanup (#317: persisted, retried with backoff, withdrawn at the next
+  register activity, here the opt-out itself) unless the report record already names it; while it
+  is still the saved URL with synchronization on, it stays recorded as possibly registered (no
+  backlog eviction) until its next successful report, and any withdrawal (opt-out, endpoint loss)
+  queues it. A POST that ended with a network error instead of an HTTP answer may have arrived and
+  counts as possibly registered too, and an endpoint loss also withdraws a destination known only
+  through the marker or a due queued entry (review rounds R2/R3). Follow-ups from the final review:
+  #934, #935, #936. The destination of every POST is persisted before the
+  request (`register_webhook_dispatched_url`, written with `commit()`) and settled afterwards (the
+  report snapshot clears it in the same editor transaction), so a POST interrupted by process death
+  is withdrawn the same way. The flush in front of a transaction now leaves an entry for the
+  resource that transaction deletes or posts to itself, so a resource gets one DELETE instead of two.
+  New `KeepADBRegisterInFlightWithdrawalTest` (opt-out A→B, persistence across process death, a POST
+  interrupted by process death, a URL change in flight, toggling off and on in flight, an endpoint
+  loss in flight, a lost answer, a stale success kept across a restart, an HTTP rejection); the
+  scenario tests fail without the fix. `KeepADBFakeHttpTransport` reports a configured non-2xx code
+  as an HTTP answer. Source contracts in
+  `PendingCleanupRetryRepositoryContractTest` and two lifecycle expectations follow the new shape
+  (one DELETE per resource; marker plus snapshot are two editor transactions).
+  `docs/webhook-register.md` describes the behaviour.
+
 ## [1.12.4] - Unreleased
 
 ### Added
