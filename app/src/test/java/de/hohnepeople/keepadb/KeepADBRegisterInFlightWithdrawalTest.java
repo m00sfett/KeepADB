@@ -329,4 +329,38 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
         assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
     }
+
+    @Test
+    public void anEndpointLossRetriesAWithdrawalThatFailedUntilItSucceeds() {
+        // Review R3: the lost answer moves B into the queue at the first endpoint loss; that DELETE
+        // fails, and a later endpoint loss (after the backoff) must still reach it.
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        transport.setPostSuccess(false); // answer lost
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+
+        transport.setPostSuccess(true);
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        drain();
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue("B stays queued after the failed DELETE",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+
+        // Within the backoff a repeated endpoint loss sends nothing ...
+        transport.clearRequests();
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        drain();
+        assertTrue(requests().toString(), requests().isEmpty());
+
+        // ... after it, the withdrawal is attempted again and succeeds.
+        transport.setDeleteSuccess(true);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L + 60L * 60L * 1000L);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        drain();
+        assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
 }

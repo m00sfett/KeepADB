@@ -645,9 +645,12 @@ final class KeepADBRegisterClient {
             boolean wasInFlight = wlanUpdateInFlight;
             // #923 (review R2): an unsettled dispatch (a POST whose answer was lost, or a stale
             // success at the target) may hold a registration as well; it is withdrawn here too.
+            // Review R3: so is a queued withdrawal that is due again after a failed DELETE; only a
+            // due one counts, so its own backoff and attempt budget still bound the traffic.
             boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
                     || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty())
-                    || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null;
+                    || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null
+                    || hasDuePendingCleanup(appContext);
             if (!wasInFlight && !hadPrior) {
                 return;
             }
@@ -844,8 +847,7 @@ final class KeepADBRegisterClient {
     private static PendingCleanupRetryRepository.RetryState duePendingCleanup(Context context,
             String entry) {
         long now = pendingCleanupNow();
-        PendingCleanupRetryRepository.RetryState state =
-                PendingCleanupRetryRepository.read(context, entry, now);
+        PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
         if (state.isExpired(now)) {
             discardPendingCleanup(context, entry, "expired");
             return null;
@@ -855,6 +857,26 @@ final class KeepADBRegisterClient {
             return null;
         }
         return state.isDue(now) ? state : null;
+    }
+
+    /** The one place the client reads a retry record (#701). */
+    private static PendingCleanupRetryRepository.RetryState readPendingCleanup(Context context,
+            String entry, long now) {
+        return PendingCleanupRetryRepository.read(context, entry, now);
+    }
+
+    /**
+     * #923 (review R3): whether a queued withdrawal would be attempted now -- the decision of
+     * {@link #duePendingCleanup} without its side effects (an expired or spent entry is discarded
+     * there, by the flush, not here).
+     */
+    private static boolean hasDuePendingCleanup(Context context) {
+        long now = pendingCleanupNow();
+        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
+            if (!state.isExpired(now) && !state.isExhausted() && state.isDue(now)) return true;
+        }
+        return false;
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {

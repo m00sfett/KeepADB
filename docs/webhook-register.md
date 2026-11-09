@@ -125,7 +125,8 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   the process dies with the POST in flight, the next register activity treats it the same way. A
   destination that is still the saved URL with synchronization on is not queued yet; it stays
   recorded as possibly registered until its next successful report, and any withdrawal before that
-  (switching off, an endpoint loss, also when nothing else is recorded) takes it along. A POST the receiver answered with an HTTP error
+  (switching off, an endpoint loss, also when nothing else is recorded) takes it along. If that
+  withdrawal fails, a later endpoint loss tries it again once its retry is due. A POST the receiver answered with an HTTP error
   counts as not registered; one that ended with a network error (for example a lost answer) counts
   as possibly registered, because the request may have arrived.
 
