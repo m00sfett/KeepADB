@@ -43,9 +43,10 @@ command in the app while the permission is missing.
   network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
 
 The home-screen widget **KeepADB controls** grows with its size, from the main action alone to
-Wireless Debugging, Keep-Alive, webhook synchronization and Report now with status lines; each
-placed widget has its own main action, order and detail setting (see
-[docs/widgets.md](docs/widgets.md)).
+Wireless Debugging, Keep-Alive and webhook synchronization with a status line; each placed widget
+has its own main action, order and detail setting. The second widget, **KeepADB overview**, shows
+the connection, Wi-Fi, Keep-Alive and webhook delivery at a glance and offers only the auto-sync
+switch (see [docs/widgets.md](docs/widgets.md)).
 
 Settings also include local USB host profiles, optional USB-to-Wi-Fi ADB handover, notification
 privacy, diagnostics export, and optional webhook synchronization. Three optional privacy switches
