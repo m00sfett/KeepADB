@@ -670,6 +670,13 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="overview_delivery_current">Punto final actual comunicado</string>
     <string name="overview_delivery_not_current">Punto final actual aún no comunicado</string>
     <string name="overview_delivery_no_endpoint">Ningún punto final que comunicar</string>
+    <string name="overview_delivery_short_current">Comunicado</string>
+    <string name="overview_delivery_short_not_current">No comunicado</string>
+    <string name="overview_delivery_short_no_endpoint">Sin punto final</string>
+    <string name="overview_delivery_short_sending">Enviando…</string>
+    <string name="overview_delivery_short_failed">Fallo</string>
     <string name="overview_last_delivery">Última entrega %1$s</string>
     <string name="overview_last_delivery_none">Aún sin entregas</string>
+    <string name="overview_last_delivery_short">Últ. %1$s</string>
+    <string name="overview_last_delivery_short_none">Aún ninguna</string>
 </resources>

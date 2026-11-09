@@ -668,6 +668,13 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="overview_delivery_current">Endpoint saat ini dilaporkan</string>
     <string name="overview_delivery_not_current">Endpoint saat ini belum dilaporkan</string>
     <string name="overview_delivery_no_endpoint">Tidak ada endpoint untuk dilaporkan</string>
+    <string name="overview_delivery_short_current">Dilaporkan</string>
+    <string name="overview_delivery_short_not_current">Belum dilaporkan</string>
+    <string name="overview_delivery_short_no_endpoint">Tanpa endpoint</string>
+    <string name="overview_delivery_short_sending">Mengirim…</string>
+    <string name="overview_delivery_short_failed">Gagal</string>
     <string name="overview_last_delivery">Terakhir terkirim %1$s</string>
     <string name="overview_last_delivery_none">Belum ada pengiriman</string>
+    <string name="overview_last_delivery_short">Terakhir %1$s</string>
+    <string name="overview_last_delivery_short_none">Belum ada</string>
 </resources>

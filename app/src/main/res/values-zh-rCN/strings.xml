@@ -668,6 +668,13 @@
     <string name="overview_delivery_current">已报告当前端点</string>
     <string name="overview_delivery_not_current">尚未报告当前端点</string>
     <string name="overview_delivery_no_endpoint">没有可报告的端点</string>
+    <string name="overview_delivery_short_current">已报告</string>
+    <string name="overview_delivery_short_not_current">未报告</string>
+    <string name="overview_delivery_short_no_endpoint">无端点</string>
+    <string name="overview_delivery_short_sending">正在发送…</string>
+    <string name="overview_delivery_short_failed">失败</string>
     <string name="overview_last_delivery">上次投递 %1$s</string>
     <string name="overview_last_delivery_none">尚无投递</string>
+    <string name="overview_last_delivery_short">上次 %1$s</string>
+    <string name="overview_last_delivery_short_none">尚无</string>
 </resources>

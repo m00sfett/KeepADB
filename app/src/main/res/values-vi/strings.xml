@@ -668,6 +668,13 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="overview_delivery_current">Đã báo endpoint hiện tại</string>
     <string name="overview_delivery_not_current">Chưa báo endpoint hiện tại</string>
     <string name="overview_delivery_no_endpoint">Không có endpoint để báo</string>
+    <string name="overview_delivery_short_current">Đã báo</string>
+    <string name="overview_delivery_short_not_current">Chưa báo</string>
+    <string name="overview_delivery_short_no_endpoint">Không có endpoint</string>
+    <string name="overview_delivery_short_sending">Đang gửi…</string>
+    <string name="overview_delivery_short_failed">Thất bại</string>
     <string name="overview_last_delivery">Gửi lần cuối %1$s</string>
     <string name="overview_last_delivery_none">Chưa gửi lần nào</string>
+    <string name="overview_last_delivery_short">Lần cuối %1$s</string>
+    <string name="overview_last_delivery_short_none">Chưa có</string>
 </resources>

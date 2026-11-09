@@ -669,6 +669,13 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="overview_delivery_current">Huidig eindpunt gemeld</string>
     <string name="overview_delivery_not_current">Huidig eindpunt nog niet gemeld</string>
     <string name="overview_delivery_no_endpoint">Geen eindpunt om te melden</string>
+    <string name="overview_delivery_short_current">Gemeld</string>
+    <string name="overview_delivery_short_not_current">Niet gemeld</string>
+    <string name="overview_delivery_short_no_endpoint">Geen eindpunt</string>
+    <string name="overview_delivery_short_sending">Verzenden…</string>
+    <string name="overview_delivery_short_failed">Mislukt</string>
     <string name="overview_last_delivery">Laatst geleverd %1$s</string>
     <string name="overview_last_delivery_none">Nog geen levering</string>
+    <string name="overview_last_delivery_short">Laatst %1$s</string>
+    <string name="overview_last_delivery_short_none">Nog geen</string>
 </resources>

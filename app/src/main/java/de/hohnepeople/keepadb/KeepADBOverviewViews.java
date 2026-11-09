@@ -67,7 +67,7 @@ final class KeepADBOverviewViews {
             views.addView(R.id.widget_ov_card, row(ctx, shape, content.delivery));
             // The history stays visible on its own quieter line, apart from the current claim.
             RemoteViews note = new RemoteViews(ctx.getPackageName(), R.layout.widget_ov_note);
-            note.setTextViewText(R.id.widget_ov_value, content.lastDelivery);
+            note.setTextViewText(R.id.widget_ov_value, content.lastDeliveryShort);
             views.addView(R.id.widget_ov_card, note);
             cardDescription = cardDescription + ". " + content.deliveryDescription(ctx);
         } else {
@@ -103,7 +103,8 @@ final class KeepADBOverviewViews {
         views.setImageViewResource(R.id.widget_ov_icon, row.iconRes);
         views.setInt(R.id.widget_ov_icon, "setColorFilter", ctx.getColor(iconOnDark(row.style)));
         if (shape == Shape.WIDE) views.setTextViewText(R.id.widget_ov_label, row.label);
-        views.setTextViewText(R.id.widget_ov_value, row.value);
+        views.setTextViewText(R.id.widget_ov_value,
+                shape == Shape.COMPACT ? row.shortValue : row.value);
         views.setTextColor(R.id.widget_ov_value, ctx.getColor(
                 row.style == KeepADBWidgetContent.Style.ATTENTION
                         ? R.color.widget_warn_icon : R.color.widget_text));
