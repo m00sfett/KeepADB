@@ -15,7 +15,7 @@ unexpected pairing prompt, or an attacker on a Wi-Fi network explicitly trusted 
 A new installation starts in allowlist mode: automatic re-enabling occurs only when KeepADB can
 read the current Wi-Fi identity and match it to an allowed BSSID. An unknown or system-masked
 identity remains blocked. Existing installations retain their previous setting unchanged,
-including “All Wi-Fi networks”; **Settings → Network** still lets users choose between all Wi-Fi
+including “In all Wi-Fi networks”; **Settings → Network** still lets users choose between all Wi-Fi
 networks and the allowlist.
 
 The data model also supports blocks for individual BSSIDs and Wi-Fi names. In every mode, a block

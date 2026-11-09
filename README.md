@@ -60,7 +60,7 @@ every host name (DNS and Tailnet names, in endpoint rows, report history, USB pr
 webhook address) is masked as `***`.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
-points. Existing installations keep their previous setting, including “All Wi-Fi networks.” Change
+points. Existing installations keep their previous setting, including “In all Wi-Fi networks.” Change
 the rule under **Settings → Network**. It controls automatic actions; manually turning Wireless
 debugging on remains a separate user action.
 

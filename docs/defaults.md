@@ -16,7 +16,7 @@ used, and what happens to existing installations. It is the result of the audit 
 ## Audit results
 
 Every setting with a security impact already has its safest value on a new installation. The
-network default was the only exception (“All Wi-Fi networks”, `all_wifi`); #760 changed it to
+network default was the only exception (“In all Wi-Fi networks”, `all_wifi`); #760 changed it to
 “Only trusted access points.” The finding in issue #765 that the current default is
 `MODE_ALL_WIFI` describes the state before #760 and is no longer accurate. No default therefore
 changes here; #765 documents them and protects them against unnoticed changes (see “Evidence”).
@@ -31,7 +31,7 @@ below for what existing installations keep.
 | Setting | Key | Default | Effect | Assessment |
 |---|---|---|---|---|
 | Keep-Alive | `keep_alive_enabled` | off | The service does not re-enable Wireless debugging on its own; boot and update receivers do not start anything | Safe; decision (F2 from #758): also preselected as “Off” in the assistant (#761) |
-| Network rule | `trusted_network_mode` | `allowlist` | Automatic enabling is allowed only on trusted access points (BSSID); recovery pauses when identity cannot be read | Safe (#760); only the exact value `all_wifi` means the previous “All Wi-Fi networks” setting; every other value means `allowlist` |
+| Network rule | `trusted_network_mode` | `allowlist` | Automatic enabling is allowed only on trusted access points (BSSID); recovery pauses when identity cannot be read | Safe (#760); only the exact value `all_wifi` means the previous “In all Wi-Fi networks” setting; every other value means `allowlist` |
 | Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (convenience switch, available only in “Balanced”) |
 | Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; available only through the previous network-card switch |
 | USB handover | `usb_wlan_handover_mode` | `off` | Plugging in does not enable anything or offer an action; an unknown saved value is treated as `off` | Safe |
