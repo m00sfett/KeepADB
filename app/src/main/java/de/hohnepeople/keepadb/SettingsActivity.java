@@ -63,7 +63,7 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
-    /** #904: the block with the three privacy switches. */
+    /** #904, #941: the block with the privacy switches, in the Privacy card. */
     private View privacySwitches;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
