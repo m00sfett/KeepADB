@@ -156,7 +156,16 @@ public class SettingsActivityTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(app, true);
         setCoordinatorEndpoint("192.168.1.50", 39123);
+        // #922: refresh() verifies the cached endpoint on a worker thread with a real socket probe.
+        // Against the unroutable test address that probe fails late and invalidates the endpoint
+        // while the assertions below run. Confirm reachability and run the worker inline instead.
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
+        KeepADBEndpointCoordinator.setWorkerStarterForTesting(Thread::run);
         KeepADBEndpointCoordinator.refresh(app);
+        assertEquals("refresh() must have verified the cached endpoint once", 1,
+                KeepADBEndpointCoordinator.getVerificationWorkerStartCountForTesting());
+        assertFalse("The verification must have finished before the assertions",
+                KeepADBEndpointCoordinator.isVerificationInFlightForTesting());
 
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         Switch toggle = activity.findViewById(R.id.privacy_switch_notifications);
