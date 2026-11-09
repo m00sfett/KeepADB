@@ -33,8 +33,8 @@ are retrospective issue-version records and were never published as separate rel
   Fill, symbol variant (filled, outlined, with dots, with an exclamation mark) and a word carry
   every state, never the color alone; every text and symbol color has at least 4.5:1 contrast on
   its fill (`KeepADBWidgetColorsTest`). `KeepADBWidgetLayout` chooses one of eight classes from the
-  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 136 x `fs`, tall = 140 x `fs`
-  dp; in a short widget as many square buttons as fit beside 70 x `fs` dp of room for the hero;
+  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 136 x `fs` dp; the tall classes
+  (stack, grid, panel) need the height of what they stack, see below; in a short widget as many square buttons as fit beside 70 x `fs` dp of room for the hero;
   the thresholds follow what the launchers report, 137/144 dp for two cells and 176/193 dp for
   two rows on Android 11/14):
   1x1 the hero with the short label "ADB" and a short state word (no port), 2x1 the hero with its
@@ -81,6 +81,18 @@ are retrospective issue-version records and were never published as separate rel
   force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
 
 ### Fixed
+- **Widget layout on Android 11 and in small rooms (#912, Codex review):** (1) The Android 11 path
+  (`KeepADBWidget.legacyViews`) now supplies both orientations with
+  `RemoteViews(landscape, portrait)`; a rotation changes neither the options nor sends an update, so a
+  widget built for one orientation kept its layout (a 2x2 grid in landscape instead of the strip).
+  (2) A tall class is chosen only when its content fits: `SizeClass.minHeightDp` adds the root
+  padding, the slot gaps, the fixed 48 dp pills, 52 dp buttons and status line and a hero that holds
+  its symbol and port box (stack 134, grid 184, panel 176 dp at font 1.0; 141, 193, 194 at 1.3; 155,
+  220, 244 at 2.0), and a room that cannot hold a class gets the next smaller one (panel, grid,
+  stack, strip or row). A 152 x 140 dp room used to be a grid whose hero had about 24 dp. Results:
+  on the Android 14 launcher (193 dp for two rows) a 2x2 is the grid at font 1.0, the stack at 1.3
+  and 2.0, a 4x2 the panel, the grid at 1.3 and the stack at 2.0; on the Android 11 launcher (176 dp)
+  a 2x2 is the stack at every font scale and a 4x2 the panel at font 1.0, the stack above.
 - **Port and square buttons of the widget (#912, review of round 3):** the port in the 2x2 and 4x2
   hero was shrunk to about 13 sp and looked thin, because the uniform autosize of a
   `wrap_content` box collapsed and the monospace family has no bold face. The port now sits in a

@@ -15,8 +15,11 @@ import de.hohnepeople.keepadb.KeepADBWidgetLayout.SizeClass;
 
 /**
  * #912: the layout follows the actual size and the font scale. The thresholds grow with the scale
- * ({@code wide4 = w >= 250 fs}, {@code wide2 = w >= 136 fs}, {@code tall = h >= 140 fs}); in a
- * short widget the hero gets as many square buttons as fit beside 70 dp of room for it.
+ * ({@code wide4 = w >= 250 fs}, {@code wide2 = w >= 136 fs}); in a short widget the hero gets as
+ * many square buttons as fit beside 70 dp x fs of room for it. A tall class (stack, grid, panel)
+ * is chosen only when everything it stacks fits: the frame, the gaps, the 48 dp pills, the 52 dp
+ * buttons, the status line and a hero that holds its symbol and port box. Otherwise the next smaller
+ * class applies.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -41,25 +44,75 @@ public class KeepADBWidgetLayoutTest {
         assertEquals("a big widget stays the panel", SizeClass.PANEL, cell(500, 400, 1f));
     }
 
+    /** The content heights of the tall classes: what each one stacks, at font 1.0, 1.3 and 2.0. */
+    @Test
+    public void theTallClassesNeedTheHeightOfWhatTheyStack() {
+        // Stack: 5 root + 5 slot + hero (16 + 26 + 4 + 21 fs) + 57 for the buttons.
+        assertEquals(134, SizeClass.STACK.minHeightDp(1f));
+        assertEquals(141, SizeClass.STACK.minHeightDp(1.3f));
+        assertEquals(155, SizeClass.STACK.minHeightDp(2f));
+        // Grid: 5 root + 5 slot + hero (12 + 24 + 4 + 28 fs) + two pills of 48 + 5.
+        assertEquals(184, SizeClass.GRID.minHeightDp(1f));
+        assertEquals(193, SizeClass.GRID.minHeightDp(1.3f));
+        assertEquals(220, SizeClass.GRID.minHeightDp(2f));
+        // Panel: 5 root + the hero over two rows (24 + 34 + texts + port box) + the status line.
+        assertEquals(176, SizeClass.PANEL.minHeightDp(1f));
+        assertEquals(194, SizeClass.PANEL.minHeightDp(1.3f));
+        assertEquals(244, SizeClass.PANEL.minHeightDp(2f));
+        for (float fs : new float[] {1f, 1.3f, 2f}) {
+            // Whatever the scale: two 48 dp pills with their gaps (106 dp) plus the frame fit.
+            assertTrue(SizeClass.GRID.minHeightDp(fs) >= 5 + 5 + 48 + 106);
+            assertTrue(SizeClass.PANEL.minHeightDp(fs) >= 5 + 106 + 48);
+            assertTrue(SizeClass.STACK.minHeightDp(fs) >= 5 + 5 + 48 + 57);
+        }
+    }
+
+    /**
+     * Review finding: at font 1.0 and 152 x 140 dp both paths chose the grid, whose two fixed pills
+     * and gaps left about 24 dp for the hero (symbol and port clipped, touch target under 48 dp).
+     * The grid now needs 184 dp; a room that cannot hold it gets the stack.
+     */
+    @Test
+    public void aRoomThatCannotHoldTheContentOfAClassGetsTheNextSmallerOne() {
+        assertEquals("152 x 140", SizeClass.STACK, cell(152, 140, 1f));
+        assertEquals(SizeClass.STACK, cell(152, 183, 1f));
+        assertEquals(SizeClass.GRID, cell(152, 184, 1f));
+        assertEquals("the panel (176 dp) falls back to the stack, wide as it is", SizeClass.STACK,
+                cell(250, 175, 1f));
+        assertEquals(SizeClass.PANEL, cell(250, 176, 1f));
+        assertEquals(SizeClass.STACK, cell(250, 133 + 1, 1f));
+        assertEquals(SizeClass.STRIP, cell(250, 133, 1f));
+        assertEquals(SizeClass.STACK, cell(249, 183, 1f));
+        assertEquals(SizeClass.GRID, cell(249, 184, 1f));
+    }
+
     @Test
     public void aLargerFontFallsBackToASmallerClass() {
-        // Font 1.3 (the matrix rows): the thresholds are 177 / 325 dp wide and 182 dp high, one
-        // square button needs 158 dp, two need 215 dp.
+        // Font 1.3: widths 177 / 325 dp; one square button needs 158 dp, two need 215 dp; the stack
+        // needs 141 dp, the grid 193 dp, the panel 194 dp.
         assertEquals("2x2 falls back to the stack", SizeClass.STACK, cell(152, 196, 1.3f));
         assertEquals("4x1 keeps the hero and two square buttons", SizeClass.ROW2, cell(304, 92, 1.3f));
         assertEquals("2x1 keeps only the hero, with its port", SizeClass.HERO, cell(152, 92, 1.3f));
         assertEquals(SizeClass.ONE, cell(72, 92, 1.3f));
         assertEquals("4x2 falls back to the grid", SizeClass.GRID, cell(304, 196, 1.3f));
-        assertEquals(SizeClass.PANEL, cell(325, 182, 1.3f));
-        assertEquals(SizeClass.GRID, cell(177, 182, 1.3f));
-        assertEquals(SizeClass.STRIP, cell(325, 181, 1.3f));
-        // Font 2.0: the grid needs 272 x 280 dp, the strip 500 dp, one square button 207 dp.
-        assertEquals(SizeClass.HERO, cell(152, 196, 2f));
+        assertEquals(SizeClass.PANEL, cell(325, 194, 1.3f));
+        assertEquals("one dp short of the panel", SizeClass.GRID, cell(325, 193, 1.3f));
+        assertEquals(SizeClass.GRID, cell(177, 193, 1.3f));
+        assertEquals(SizeClass.STACK, cell(177, 192, 1.3f));
+        assertEquals(SizeClass.STRIP, cell(325, 140, 1.3f));
+        assertEquals(SizeClass.STACK, cell(325, 141, 1.3f));
+        // Font 2.0: the grid needs 272 x 220 dp, the panel 500 x 244, the stack 155 dp, the strip
+        // 500 dp wide, one square button 207 dp and two 264 dp.
+        assertEquals("a 2x2 is the stack", SizeClass.STACK, cell(152, 196, 2f));
+        assertEquals("a 4x2 is the stack too: 193 dp are not enough for the grid", SizeClass.STACK,
+                cell(304, 196, 2f));
         assertEquals(SizeClass.ROW2, cell(304, 92, 2f));
         assertEquals(SizeClass.STRIP, cell(500, 92, 2f));
-        assertEquals(SizeClass.PANEL, cell(500, 280, 2f));
-        assertEquals(SizeClass.STACK, cell(152, 280, 2f));
-        assertEquals(SizeClass.GRID, cell(272, 280, 2f));
+        assertEquals(SizeClass.PANEL, cell(500, 244, 2f));
+        assertEquals(SizeClass.GRID, cell(500, 243, 2f));
+        assertEquals(SizeClass.STACK, cell(500, 219, 2f));
+        assertEquals(SizeClass.GRID, cell(272, 220, 2f));
+        assertEquals(SizeClass.HERO, cell(152, 154, 2f));
     }
 
     @Test
@@ -67,9 +120,9 @@ public class KeepADBWidgetLayoutTest {
         assertEquals("narrow and tall: the hero over two square buttons", SizeClass.STACK, cell(114, 140, 1f));
         assertEquals("below 114 dp the two square buttons would be under 48 dp", SizeClass.ONE, cell(113, 140, 1f));
         assertEquals(SizeClass.ONE, cell(109, 400, 1f));
-        assertEquals(SizeClass.GRID, cell(136, 140, 1f));
-        assertEquals(SizeClass.STACK, cell(135, 140, 1f));
-        assertEquals("tall but not wide: the compact classes", SizeClass.ROW1, cell(150, 139, 1f));
+        assertEquals(SizeClass.GRID, cell(136, 184, 1f));
+        assertEquals(SizeClass.STACK, cell(135, 400, 1f));
+        assertEquals("not tall enough for the stack: the compact classes", SizeClass.ROW1, cell(150, 133, 1f));
     }
 
     @Test
@@ -84,9 +137,9 @@ public class KeepADBWidgetLayoutTest {
         assertEquals(SizeClass.ROW2, cell(194, 100, 1f));
         assertEquals(SizeClass.ROW2, cell(249, 100, 1f));
         assertEquals(SizeClass.STRIP, cell(250, 100, 1f));
-        assertEquals(SizeClass.STRIP, cell(250, 139, 1f));
-        assertEquals(SizeClass.PANEL, cell(250, 140, 1f));
-        assertEquals(SizeClass.GRID, cell(249, 140, 1f));
+        assertEquals(SizeClass.STRIP, cell(250, 133, 1f));
+        assertEquals(SizeClass.STACK, cell(250, 134, 1f));
+        assertEquals(SizeClass.PANEL, cell(250, 176, 1f));
     }
 
     /**
@@ -102,27 +155,27 @@ public class KeepADBWidgetLayoutTest {
                 {60, 137, 214, 291, 80, 176}};
         for (int[] l : launchers) {
             String which = "cells " + l[1];
+            boolean tall = l[5] >= 193;   // two rows of the Android 14 launcher
             assertEquals(which + " 1x1", SizeClass.ONE, cell(l[0], l[4], 1f));
             assertEquals(which + " 2x1", SizeClass.ROW1, cell(l[1], l[4], 1f));
             assertEquals(which + " 3x1", SizeClass.ROW2, cell(l[2], l[4], 1f));
             assertEquals(which + " 4x1", SizeClass.STRIP, cell(l[3], l[4], 1f));
             assertEquals(which + " 1x2", SizeClass.ONE, cell(l[0], l[5], 1f));
-            assertEquals(which + " 2x2", SizeClass.GRID, cell(l[1], l[5], 1f));
+            // 2x2: the grid needs 184 dp. Android 14 has 193, Android 11 only 176: the stack.
+            assertEquals(which + " 2x2", tall ? SizeClass.GRID : SizeClass.STACK, cell(l[1], l[5], 1f));
             assertEquals(which + " 4x2", SizeClass.PANEL, cell(l[3], l[5], 1f));
-            // Font 1.3: 2x1 only the hero, 4x1 the hero and two square buttons; with 182 dp for
-            // two rows (Android 14) 2x2 is the stack and 4x2 the grid, with 176 dp (Android 11)
-            // the hero of the grid would be too short for its text, so both stay one row.
+            // Font 1.3: 2x1 only the hero, 4x1 the hero and two square buttons, 2x2 the stack; 4x2
+            // the grid on Android 14 (193 dp), the stack on Android 11 (176 dp, grid needs 193).
             assertEquals(which + " 2x1 @1.3", SizeClass.HERO, cell(l[1], l[4], 1.3f));
             assertEquals(which + " 4x1 @1.3", SizeClass.ROW2, cell(l[3], l[4], 1.3f));
-            boolean roomy = l[5] >= 182;
-            assertEquals(which + " 2x2 @1.3", roomy ? SizeClass.STACK : SizeClass.HERO,
-                    cell(l[1], l[5], 1.3f));
-            assertEquals(which + " 4x2 @1.3", roomy ? SizeClass.GRID : SizeClass.ROW2,
+            assertEquals(which + " 2x2 @1.3", SizeClass.STACK, cell(l[1], l[5], 1.3f));
+            assertEquals(which + " 4x2 @1.3", tall ? SizeClass.GRID : SizeClass.STACK,
                     cell(l[3], l[5], 1.3f));
-            // Font 2.0: the hero alone in a 2x2 and a 2x1, the hero with two buttons in a 4x1.
-            assertEquals(which + " 2x2 @2", SizeClass.HERO, cell(l[1], l[5], 2f));
+            // Font 2.0: the stack needs 155 dp, so 2x2 and 4x2 are the stack on both.
             assertEquals(which + " 2x1 @2", SizeClass.HERO, cell(l[1], l[4], 2f));
             assertEquals(which + " 4x1 @2", SizeClass.ROW2, cell(l[3], l[4], 2f));
+            assertEquals(which + " 2x2 @2", SizeClass.STACK, cell(l[1], l[5], 2f));
+            assertEquals(which + " 4x2 @2", SizeClass.STACK, cell(l[3], l[5], 2f));
         }
     }
 

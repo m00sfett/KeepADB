@@ -42,27 +42,38 @@ wraps. TalkBack reads "name: state, port N" from the control's description, in f
 ## Sizes
 
 The layout follows the size the launcher reports (and, on Android 12 and newer, the launcher picks
-it while the user resizes). With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`,
-tall = 140 dp x `fs`. All thresholds grow with the font scale, so a larger font falls back to a
-layout with fewer, still readable controls. The hero is in every class:
+it while the user resizes; on Android 11 both orientations are supplied, so a rotation needs no
+update). With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`. All thresholds
+grow with the font scale, so a larger font falls back to a layout with fewer, still readable
+controls. The hero is in every class. A tall class is chosen only when everything it stacks fits
+(`KeepADBWidgetLayout.minHeightDp`: the frame, the gaps, the fixed 48 dp pills, 52 dp buttons and
+status line, and a hero that holds its symbol and port box, each at least 48 dp); a room that
+cannot hold it gets the next smaller class:
 
-| About | Class | Shows |
-|---|---|---|
-| 1x1 | `ONE` | the hero alone: symbol, "ADB" (not translated) and a short state word (On, Off, Scan…); no port |
-| 2x1 | `ROW1` | the hero (symbol and port) and one square symbol button |
-| 3x1 | `ROW2` | the hero and two square symbol buttons |
-| 4x1 (wide, not tall) | `STRIP` | the hero and two upright tiles (symbol, label, state word) |
-| 2x2 (medium and tall) | `GRID` | the hero (symbol, label, large port) and two 48 dp pills under it |
-| 4x2 (wide and tall) | `PANEL` | the hero over two rows on the left, two pills growing with the height on the right, and under them one status line with the settings gear |
-| tall, narrower than medium | `STACK` | the hero on top, two square buttons below (needs 114 dp) |
-| short, under 130 dp | `ONE`; from 130 dp `HERO` | the hero alone (with its port from 130 dp) |
+| About | Class | Shows | Needs (fs 1.0 / 1.3 / 2.0) |
+|---|---|---|---|
+| 1x1 | `ONE` | the hero alone: symbol, "ADB" (not translated) and a short state word (On, Off, Scan…); no port | whatever there is |
+| 2x1 | `ROW1` | the hero (symbol and port) and one square symbol button | 137 / 158 / 207 dp wide |
+| 3x1 | `ROW2` | the hero and two square symbol buttons | 194 / 215 / 264 dp wide |
+| 4x1 | `STRIP` | the hero and two upright tiles (symbol, label, state word) | 250 / 325 / 500 dp wide |
+| tall, at least 114 dp wide | `STACK` | the hero on top, two square buttons below | 134 / 141 / 155 dp high |
+| 2x2 | `GRID` | the hero (symbol, label, large port) and two 48 dp pills under it | 136 / 177 / 272 dp wide, 184 / 193 / 220 dp high |
+| 4x2 | `PANEL` | the hero over two rows on the left, two pills growing with the height on the right, and under them one status line with the settings gear | 250 / 325 / 500 dp wide, 176 / 194 / 244 dp high |
+| under 130 dp wide | `ONE`; from 130 dp `HERO` | the hero alone (with its port from 130 dp) | |
 
 In a short widget the hero gets as many square buttons (at most two) as fit beside 70 dp x `fs` of
-room for it. The launchers report less than the cell grid suggests (two cells: 144 dp on Android 14, 137 dp on
-Android 11; two rows: 193 and 176 dp), so the thresholds sit a little below the round numbers.
-Examples: at font 1.3 (Android 14 launcher; on Android 11 two rows are 176 dp, too little for the
-grid at this font, so it stays one row) a 2x2 is the stack, a 2x1 only the hero, a 4x1 the hero with two
-square buttons; at font 2.0 a 2x2 is only the hero.
+room for it. The launchers report less than the cell grid suggests (two cells: 144 dp on Android 14,
+137 dp on Android 11; two rows: 193 and 176 dp), so the thresholds sit a little below the round
+numbers. What that gives at the measured sizes:
+
+| | Android 14 launcher (144 / 296 dp wide, 193 dp for two rows) | Android 11 launcher (137 / 291 dp wide, 176 dp for two rows) |
+|---|---|---|
+| font 1.0 | 2x2 grid, 4x2 panel | 2x2 **stack** (176 < 184 dp), 4x2 panel |
+| font 1.3 | 2x2 stack, 4x2 grid, 2x1 only the hero, 4x1 the hero and two buttons | 2x2 and 4x2 stack (176 dp), the rest as on Android 14 |
+| font 2.0 | 2x2 and 4x2 stack (193 < 220 dp), 2x1 only the hero, 4x1 the hero and two buttons | the same |
+
+A room that is neither (for example 152 x 140 dp at font 1.0, as on some other launchers) is the
+stack, not the grid.
 
 The **port** is shown in the hero from the compact shape (130 dp) up, never in the smallest one
 (`ONE`); without a port the short or full state word stands there. While the widget privacy switch

@@ -730,4 +730,43 @@ public class KeepADBWidgetViewsTest {
             assertEquals(classes[i] + " one line", 1, port.getMaxLines());
         }
     }
+
+    /**
+     * Review finding: at 152 x 140 dp the grid left about 24 dp for its hero. Each tall class is
+     * chosen only from its content height (KeepADBWidgetLayout), so at exactly that height - the
+     * worst case a launcher can give it - every control still has its 48 dp, the hero its symbol
+     * and port box, and the status line its row.
+     */
+    @Test
+    public void atTheSmallestHeightOfATallClassEveryControlStillHasItsRoom() {
+        KeepADBWidgetConfig defaults = KeepADBWidgetConfig.defaults();
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, false);
+        for (float fs : new float[] {1f, 1.3f, 2f}) {
+            for (SizeClass sizeClass : new SizeClass[] {SizeClass.STACK, SizeClass.GRID, SizeClass.PANEL}) {
+                int width = sizeClass.minWidthDp(fs);
+                int height = sizeClass.minHeightDp(fs);
+                View widget = applyAndMeasure(context, KeepADBWidgetViews.forSize(context, WIDGET_ID,
+                        defaults, projection, sizeClass), width, height);
+                blank(widget);
+                KeepADBWidgetTestSupport.measure(widget, width, height);
+                String where = sizeClass + " @" + fs + " in " + width + " x " + height;
+                for (View tile : tiles(widget)) {
+                    assertTrue(where + " width " + tile.getMeasuredWidth(), tile.getMeasuredWidth() >= 48);
+                    assertTrue(where + " height " + tile.getMeasuredHeight(), tile.getMeasuredHeight() >= 48);
+                }
+                // The hero holds its symbol and the port box: more than a bare touch target.
+                int heroNeeds = sizeClass == SizeClass.STACK ? Math.round(16 + 26 + 4 + 21 * fs)
+                        : sizeClass == SizeClass.GRID ? Math.round(12 + 24 + 4 + 28 * fs)
+                        : Math.round(24 + 34 + 28 * fs);
+                // The test density is 1, where each 2.5 dp frame or gap rounds up to 3 px: up to
+                // 3 px more of the room goes to those than the exact sum, on a real screen less.
+                assertTrue(where + " hero " + hero(widget).getMeasuredHeight() + " needs " + heroNeeds,
+                        hero(widget).getMeasuredHeight() >= heroNeeds - 4);
+                if (sizeClass == SizeClass.PANEL) {
+                    assertTrue(where + " status row",
+                            widget.findViewById(R.id.widget_status_row).getMeasuredHeight() >= 48);
+                }
+            }
+        }
+    }
 }

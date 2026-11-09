@@ -83,13 +83,22 @@ final class KeepADBWidgetLayout {
             }
         }
 
-        /** The smallest height in dp: only the tall classes need more than a row. */
+        /**
+         * The smallest height in dp. The one-row classes take whatever a row gives (their texts
+         * shrink); each tall class needs the height of what it stacks: the frame, the gaps, the
+         * fixed rows (48 dp pills, 52 dp buttons, the status line) and a hero that still holds its
+         * symbol and port box, see the constants below. Below it the next smaller class is chosen.
+         */
         int minHeightDp(float fontScale) {
+            float s = scaleOf(fontScale);
             switch (this) {
                 case STACK:
+                    return ceil(ROOT_PAD_DP + GAP_DP + heroSHeight(s) + SQUARE_DP + GAP_DP);
                 case GRID:
+                    return ceil(ROOT_PAD_DP + GAP_DP + heroMHeight(s) + 2 * (PILL_DP + GAP_DP));
                 case PANEL:
-                    return ceil(TALL_DP * scaleOf(fontScale));
+                    return ceil(ROOT_PAD_DP + Math.max(GAP_DP + heroLHeight(s), 2 * (PILL_DP + GAP_DP))
+                            + statusHeight(s));
                 default:
                     return 1;
             }
@@ -112,14 +121,6 @@ final class KeepADBWidgetLayout {
     private static final float WIDE2_DP = 136f;
     private static final float WIDE4_DP = 250f;
     /**
-     * Height from which a second row of controls fits, before the font scale. The reference
-     * matrix says 150; the launchers report 176 (Android 11) and 193 (Android 14) dp for two rows,
-     * so 150 x 1.3 = 195 would turn a 2x2 at font 1.3 into a single row on both. 140 keeps the
-     * stack and the grid at font 1.3 on Android 14 (182 dp needed); on Android 11 (176 dp) a larger
-     * font falls back to one row, because the hero of the grid is then too short for its text.
-     */
-    private static final float TALL_DP = 140f;
-    /**
      * Narrow and tall: the hero over two square buttons needs this width, not scaled. 114 dp is
      * 10 (frame) + 5 (gap) + 2 x 48 plus one dp for pixel rounding: the two buttons stay at the 48 dp
      * touch size. (The reference
@@ -131,10 +132,17 @@ final class KeepADBWidgetLayout {
      * below the 137 dp the Android 11 launcher reports for two cells (the matrix says 140).
      */
     private static final int HERO_MIN_DP = 130;
-    /** A square symbol button, the gap, and the frame of the widget. */
+    /** A square symbol button, a pill, the gap around a control and the frame of the widget. */
     private static final int SQUARE_DP = 52;
+    private static final int PILL_DP = 48;
+    /** Both margins of a slot (2 x 2.5 dp); a row or column of slots adds this per slot. */
     private static final int GAP_DP = 5;
+    /** Root padding on both sides (2 x 2.5 dp), top and bottom or left and right. */
+    private static final int ROOT_PAD_DP = 5;
+    /** The frame across a row: the root padding plus the margins of the slot at each end. */
     private static final int FRAME_DP = 10;
+    /** Line height of a text, as a multiple of its size (no font padding). */
+    private static final float LINE = 1.2f;
     /**
      * The hero keeps at least this much room (before the font scale) next to the square buttons.
      * The reference matrix says 80, which assumes 152 dp for two cells. The launchers report 137
@@ -143,6 +151,42 @@ final class KeepADBWidgetLayout {
      * (214 or 220 dp) has two.
      */
     private static final float HERO_ROOM_DP = 70f;
+
+    // -- what the tall classes stack (dp at font scale 1; texts and boxes in sp grow with the scale)
+
+    /** A line of text of the given size in sp at the font scale. */
+    private static float line(float sp, float scale) {
+        return sp * LINE * scale;
+    }
+
+    /**
+     * The compact hero (widget_ctl_hero_s): 8 dp padding twice, the 26 dp symbol, 4 dp, and the
+     * port box of 21 sp. At least the 48 dp a control keeps.
+     */
+    private static float heroSHeight(float scale) {
+        return Math.max(PILL_DP, 16 + 26 + 4 + 21 * scale);
+    }
+
+    /**
+     * The 2x2 hero (widget_ctl_hero_m): 6 dp padding twice, the row of the 24 dp symbol and the
+     * 13 sp label, 4 dp, and the port box of 28 sp.
+     */
+    private static float heroMHeight(float scale) {
+        return Math.max(PILL_DP, 12 + Math.max(24, line(13, scale)) + 4 + 28 * scale);
+    }
+
+    /**
+     * The 4x2 hero (widget_ctl_hero_l): 12 dp padding twice, the 34 dp symbol, and under it the
+     * 13 sp label, the 12 sp state word, 2 dp and the port box of 28 sp.
+     */
+    private static float heroLHeight(float scale) {
+        return Math.max(PILL_DP, 24 + 34 + line(13, scale) + line(12, scale) + 2 + 28 * scale);
+    }
+
+    /** The status line of the 4x2: two lines of 12 sp, at least the 48 dp of the gear. */
+    private static float statusHeight(float scale) {
+        return Math.max(PILL_DP, 2 * line(12, scale));
+    }
 
     private KeepADBWidgetLayout() {}
 
@@ -161,20 +205,24 @@ final class KeepADBWidgetLayout {
     }
 
     /**
-     * The class for a room. Every comparison is against the same whole-dp keys the Android 12+
-     * entries use, so the launcher's best fit and this choice cannot disagree on a boundary.
+     * The class for a room: the largest class whose width and whole content height fit, falling
+     * back one class at a time (panel, grid, stack, then the one-row classes by width). Every
+     * comparison is against the same whole-dp keys the Android 12+ entries use, so the launcher's
+     * best fit and this choice cannot disagree on a boundary.
      */
     static SizeClass choose(int widthDp, int heightDp, float fontScale) {
-        boolean wide4 = widthDp >= SizeClass.STRIP.minWidthDp(fontScale);
-        boolean wide2 = widthDp >= SizeClass.GRID.minWidthDp(fontScale);
-        boolean tall = heightDp >= SizeClass.GRID.minHeightDp(fontScale);
-        if (wide4) return tall ? SizeClass.PANEL : SizeClass.STRIP;
-        if (wide2 && tall) return SizeClass.GRID;
-        if (tall) return widthDp >= SizeClass.STACK.minWidthDp(fontScale)
-                ? SizeClass.STACK : SizeClass.ONE;
-        if (widthDp >= SizeClass.ROW2.minWidthDp(fontScale)) return SizeClass.ROW2;
-        if (widthDp >= SizeClass.ROW1.minWidthDp(fontScale)) return SizeClass.ROW1;
-        return widthDp >= SizeClass.HERO.minWidthDp(fontScale) ? SizeClass.HERO : SizeClass.ONE;
+        if (fits(SizeClass.PANEL, widthDp, heightDp, fontScale)) return SizeClass.PANEL;
+        if (fits(SizeClass.GRID, widthDp, heightDp, fontScale)) return SizeClass.GRID;
+        if (fits(SizeClass.STACK, widthDp, heightDp, fontScale)) return SizeClass.STACK;
+        if (fits(SizeClass.STRIP, widthDp, heightDp, fontScale)) return SizeClass.STRIP;
+        if (fits(SizeClass.ROW2, widthDp, heightDp, fontScale)) return SizeClass.ROW2;
+        if (fits(SizeClass.ROW1, widthDp, heightDp, fontScale)) return SizeClass.ROW1;
+        return fits(SizeClass.HERO, widthDp, heightDp, fontScale) ? SizeClass.HERO : SizeClass.ONE;
+    }
+
+    private static boolean fits(SizeClass sizeClass, int widthDp, int heightDp, float fontScale) {
+        return widthDp >= sizeClass.minWidthDp(fontScale)
+                && heightDp >= sizeClass.minHeightDp(fontScale);
     }
 
     /**
