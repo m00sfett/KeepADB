@@ -23,6 +23,29 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.12.6] - Unreleased
+
+### Fixed
+- **Queued withdrawals of unrecorded destinations are bounded and retried (#934, #935):** follow-ups
+  from the final review of #923.
+  - #934: a queued entry that the flush leaves to the following transaction (it deletes or posts the
+    same resource) never got a retry record, so it never expired and every endpoint loss resent a
+    DELETE (at most every 5 minutes) to a destination that may never have registered. The flush now
+    decides on expiry and budget before it leaves an entry to the transaction, and a failed DELETE
+    of the transaction is booked on the due entries it was left (not on entries that were not due,
+    since the transaction's own attempt is paced by the faster #562 gate).
+  - #935: "off" while already off (Settings, widgets) also retries a destination the app may have
+    registered to without a record: a dispatch marker or a due queued withdrawal.
+    `hasOutstandingWithdrawalAtSavedUrl` is now `hasOutstandingWithdrawal`.
+
+### Testing
+- **#936:** `KeepADBRegisterCleanupLifecycleTest.wlanSuccessSnapshotIsWrittenAsASingleApply` counts
+  only the writes after the POST started again (one editor transaction for the snapshot, which also
+  clears the #923 marker). New tests in `KeepADBRegisterInFlightWithdrawalTest`: the attempt budget
+  bounds repeated endpoint losses, an expired entry in use is discarded by the flush, a second "off"
+  retries a queued withdrawal, and "off" with nothing outstanding sends nothing; the first, third and
+  fourth scenario fail without the fix. docs/webhook-register.md wording.
+
 ## [1.12.5] - Unreleased
 
 ### Fixed
