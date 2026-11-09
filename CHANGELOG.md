@@ -40,7 +40,11 @@ justifies a new minor version instead of another 1.11.x patch.
   Wireless Debugging through a content-triggered job. Widgets placed before keep working.
 - **Privacy in three switches.** Hide names and addresses in the app, in notifications, and in
   widgets and the Quick Settings tile; all start off on a new install and sit on the first page of
-  the setup assistant and in Settings. Existing installations keep their previous behavior.
+  the setup assistant and in Settings. Existing installations keep their privacy choices and never
+  lose protection: hidden notification details become "hide in notifications", and the former app
+  privacy mode also turns on "hide in widgets and the tile", so those widgets now hide the port too.
+  The eye in the title bars shows or hides the current screen until it is left, instead of
+  switching the persistent setting.
 - **Webhook.** Saving the URL sends one report instead of sometimes two; Report now stays in the
   webhook failure notification (it joins a running report or sends a waiting retry at once).
 - **Warnings and polish.** Swipe away the feedback bar after closing a warning card; dialog margins
@@ -53,7 +57,7 @@ justifies a new minor version instead of another 1.11.x patch.
 ### Documentation
 - Release documentation check (CONTRIBUTING.md): `docs/trusted-networks.md` and `docs/defaults.md`
   now quote the current labels ("Current Wi-Fi network is unreadable", "Wi-Fi name list (previous
-  setting)", "No end time", "The selected time is up", "Blocked via the Wi-Fi name …", "Only
+  setting)", "No end time", "New Wi-Fi / access point detected", "Note", "The selected time is up", "Blocked via the Wi-Fi name …", "Only
   trusted access points", "Host profile selected — details in the app"); the widget defaults row
   no longer lists Report now and names the overview widget's option. The store description
   describes both widgets and the three privacy switches.

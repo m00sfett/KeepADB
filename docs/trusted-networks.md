@@ -145,7 +145,7 @@ It is defense in depth for automatic enabling, not authentication of the access 
 ## Prompt and decision dialog
 
 When automatic enabling encounters a readable access point that is neither trusted nor blocked,
-KeepADB shows the “New Wi-Fi network / new access point detected” notice (#446, #766). It has two
+KeepADB shows the “New Wi-Fi / access point detected” notice (#446, #766). It has two
 forms and one tap target.
 
 - **Notification privacy off (default since #904):** the name and BSSID appear in the text, with
@@ -308,7 +308,7 @@ unchanged, but no code reads or writes it. A saved name list (`trusted_ssid_*`,
 `trusted_network_ssid_matching`) also remains active (“Wi-Fi name list (previous setting)”); it
 can no longer be edited without its former interface. The assistant's “Protection level” step
 (#761) provides the way to change it: the previous setting (“All Wi-Fi networks” or name allowlist)
-is preselected and marked “Less secure” or “Notice,” and a selected preset replaces it without
+is preselected and marked “Less secure” or “Note,” and a selected preset replaces it without
 deleting saved lists (the name allowlist is disabled, not cleared). Open this step by selecting the
 “Protection level” row in Settings, or open the full assistant using the top “Setup assistant”
 entry. `SettingsCleanupMigrationTest` records this: saved data is unchanged, the decision is the
