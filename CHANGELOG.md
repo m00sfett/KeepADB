@@ -23,6 +23,32 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.12.4] - Unreleased
+
+### Added
+- **Hide on the lock screen (#920):** a new opt-in privacy option under “Hide in notifications”, in
+  the Settings and on the first page of the setup assistant (`lockscreen_privacy_enabled`, default
+  off, a new key, so existing installations keep what they had). When on, every KeepADB notification
+  (main, USB, network trust notice with its Allow/Block buttons, webhook warning, Force Mode and
+  network shutdown notices) is posted with `VISIBILITY_SECRET`, so none appears on the lock screen,
+  whatever Android's sensitive-content setting is; unlocked, the shade shows them as the
+  notification switch decides. `VISIBILITY_SECRET` was chosen over swapping content on lock and
+  unlock: no keyguard tracking, so no window in which stale details could show. Every post goes
+  through the new `KeepADBLockScreen.post` / `startForeground`, which read the option and hand the
+  notification to the system under one lock; the option is written under the same lock, so a post
+  cannot slip past a change. A change re-renders the main and USB notifications through their
+  owners and removes a posted trust notice with details (#904's pattern); notifications without
+  network details follow at their next posting. Android applies it only with a secure screen lock,
+  which the switch text says. The eye menu
+  keeps its three switches; this is a standing preference, not a quick reveal. Strings in all 18
+  locales. `KeepADBLockScreenTest` covers the default, the migration, each notification kind with
+  counter-checks, the lock between a post and a change (a deterministic interleaving), the
+  immediate re-render, the removed trust notice, the Settings switch and a real migration; `KeepADBDefaultsAuditTest`
+  classifies the key. Checked on the API 34 emulator with a test PIN: with the option off and
+  Android showing all content the lock screen showed port and IP; with it on, KeepADB was not on
+  the lock screen (also with Android hiding sensitive content), and the unlocked shade still showed
+  the details. Docs: SECURITY.md, docs/defaults.md, README.
+
 ## [1.12.3] - Unreleased
 
 ### Fixed

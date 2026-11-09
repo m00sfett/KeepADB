@@ -1,0 +1,1 @@
+New privacy option: hide KeepADB notifications on the lock screen (needs a PIN, pattern or password lock). Unlocked, they still show their details.
