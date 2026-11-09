@@ -80,8 +80,9 @@ final class KeepADBPrivacySwitches {
     }
 
     /**
-     * #920: stores the lock-screen option and re-posts the visible notifications with it. It is a
-     * standing preference, not a quick reveal, so the eye menu does not offer it.
+     * #920: stores the lock-screen option and has the notifications that can carry details
+     * re-rendered with it. It is a standing preference, not a quick reveal, so the eye menu does
+     * not offer it.
      */
     static void setLockScreen(Activity activity, boolean want) {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
@@ -89,7 +90,8 @@ final class KeepADBPrivacySwitches {
         KeepADBLockScreen.setEnabled(activity, want);
         // The owners re-render the notifications that can carry details (#904's pattern): the
         // main card and the USB card. A posted trust notice with the network name and its buttons
-        // is removed, as #904 does; it comes back in the neutral form. Notifications without
+        // is removed, as #904 does; it comes back after the repeat interval, then secret (with
+        // details only while the notification switch is off). Notifications without
         // network details (webhook warning, Force Mode and shutdown notices) follow at their next
         // posting.
         KeepADBUsbReceiver.refresh(activity);
