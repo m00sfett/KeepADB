@@ -35,12 +35,24 @@ final class KeepADBOverviewContent {
     static final class Row {
         final String label;
         final String value;
+        /**
+         * #928: the value for the compact (about 2x2) shape, where a long sentence would shrink to
+         * the minimum text size; the same as {@link #value} unless a short word exists. TalkBack
+         * always reads the full {@link #value}.
+         */
+        final String shortValue;
         final KeepADBWidgetContent.Style style;
         final int iconRes;
 
         Row(String label, String value, KeepADBWidgetContent.Style style, int iconRes) {
+            this(label, value, value, style, iconRes);
+        }
+
+        Row(String label, String value, String shortValue, KeepADBWidgetContent.Style style,
+                int iconRes) {
             this.label = label;
             this.value = value;
+            this.shortValue = shortValue;
             this.style = style;
             this.iconRes = iconRes;
         }
@@ -56,6 +68,8 @@ final class KeepADBOverviewContent {
     final Row delivery;
     /** "Last delivery 14:03" or "No delivery yet": history, never the current claim. */
     final String lastDelivery;
+    /** #928: the same history, short ("Last 14:03"), for the compact shape; never spoken. */
+    final String lastDeliveryShort;
     /** Where a tap on the information card leads; never a toggle. */
     final KeepADBWidgetContent.Click cardClick;
     /** Where a tap on the delivery block leads: the webhook form to solve it, else the app. */
@@ -64,13 +78,14 @@ final class KeepADBOverviewContent {
     final KeepADBWidgetContent.Tile sync;
 
     private KeepADBOverviewContent(Row adb, Row wifi, Row keepAlive, Row delivery,
-            String lastDelivery, KeepADBWidgetContent.Click cardClick,
+            String lastDelivery, String lastDeliveryShort, KeepADBWidgetContent.Click cardClick,
             KeepADBWidgetContent.Click deliveryClick, KeepADBWidgetContent.Tile sync) {
         this.adb = adb;
         this.wifi = wifi;
         this.keepAlive = keepAlive;
         this.delivery = delivery;
         this.lastDelivery = lastDelivery;
+        this.lastDeliveryShort = lastDeliveryShort;
         this.cardClick = cardClick;
         this.deliveryClick = deliveryClick;
         this.sync = sync;
@@ -89,7 +104,8 @@ final class KeepADBOverviewContent {
 
     static KeepADBOverviewContent of(Context ctx, KeepADBWidgetState p) {
         return new KeepADBOverviewContent(adbRow(ctx, p), wifiRow(ctx, p), keepAliveRow(ctx, p),
-                deliveryRow(ctx, p), lastDelivery(ctx, p), cardClick(p), deliveryClick(p),
+                deliveryRow(ctx, p), lastDelivery(ctx, p, false), lastDelivery(ctx, p, true),
+                cardClick(p), deliveryClick(p),
                 KeepADBWidgetContent.tile(ctx, KeepADBWidgetConfig.Action.WEBHOOK_SYNC, p));
     }
 
@@ -210,29 +226,37 @@ final class KeepADBOverviewContent {
         }
         if (w.activity == KeepADBWidgetState.Activity.SENDING) {
             return new Row(label, ctx.getString(R.string.overview_delivery_sending),
+                    ctx.getString(R.string.overview_delivery_short_sending),
                     KeepADBWidgetContent.Style.BUSY, R.drawable.ic_widget_sync);
         }
         if (w.activity == KeepADBWidgetState.Activity.RETRY_WAITING
                 || w.latestOutcome == KeepADBWidgetState.Outcome.FAILED) {
             return new Row(label, ctx.getString(R.string.overview_delivery_failed),
+                    ctx.getString(R.string.overview_delivery_short_failed),
                     KeepADBWidgetContent.Style.ATTENTION, R.drawable.ic_widget_sync_warn);
         }
         if (w.delivery == KeepADBWidgetState.Delivery.CURRENT) {
             return new Row(label, ctx.getString(R.string.overview_delivery_current),
+                    ctx.getString(R.string.overview_delivery_short_current),
                     KeepADBWidgetContent.Style.ON, R.drawable.ic_widget_sync);
         }
         if (w.delivery == KeepADBWidgetState.Delivery.UNKNOWN) {
             return new Row(label, ctx.getString(R.string.overview_delivery_no_endpoint),
+                    ctx.getString(R.string.overview_delivery_short_no_endpoint),
                     KeepADBWidgetContent.Style.OFF, R.drawable.ic_widget_sync);
         }
         return new Row(label, ctx.getString(R.string.overview_delivery_not_current),
+                ctx.getString(R.string.overview_delivery_short_not_current),
                 KeepADBWidgetContent.Style.OFF, R.drawable.ic_widget_sync);
     }
 
-    private static String lastDelivery(Context ctx, KeepADBWidgetState p) {
+    private static String lastDelivery(Context ctx, KeepADBWidgetState p, boolean compact) {
         long at = p.webhook.lastSuccessAtMs;
-        if (at <= 0) return ctx.getString(R.string.overview_last_delivery_none);
-        return ctx.getString(R.string.overview_last_delivery,
+        if (at <= 0) {
+            return ctx.getString(compact ? R.string.overview_last_delivery_short_none
+                    : R.string.overview_last_delivery_none);
+        }
+        return ctx.getString(compact ? R.string.overview_last_delivery_short : R.string.overview_last_delivery,
                 DateUtils.formatSameDayTime(at, System.currentTimeMillis(),
                         java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).toString());
     }

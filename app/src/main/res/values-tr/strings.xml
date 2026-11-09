@@ -669,6 +669,13 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="overview_delivery_current">Geçerli uç nokta bildirildi</string>
     <string name="overview_delivery_not_current">Geçerli uç nokta henüz bildirilmedi</string>
     <string name="overview_delivery_no_endpoint">Bildirilecek uç nokta yok</string>
+    <string name="overview_delivery_short_current">Bildirildi</string>
+    <string name="overview_delivery_short_not_current">Bildirilmedi</string>
+    <string name="overview_delivery_short_no_endpoint">Uç nokta yok</string>
+    <string name="overview_delivery_short_sending">Gönderiliyor…</string>
+    <string name="overview_delivery_short_failed">Başarısız</string>
     <string name="overview_last_delivery">Son teslim %1$s</string>
     <string name="overview_last_delivery_none">Henüz teslim yok</string>
+    <string name="overview_last_delivery_short">Son %1$s</string>
+    <string name="overview_last_delivery_short_none">Henüz yok</string>
 </resources>

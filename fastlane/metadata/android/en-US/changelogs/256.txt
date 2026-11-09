@@ -1,0 +1,1 @@
+In the 2x2 overview, the webhook state and the last delivery show short words, so they stay readable instead of shrinking to tiny text.

@@ -678,6 +678,15 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="overview_delivery_current">Current endpoint reported</string>
     <string name="overview_delivery_not_current">Current endpoint not reported yet</string>
     <string name="overview_delivery_no_endpoint">No endpoint to report</string>
+    <!-- #928: short delivery words for the compact (about 2x2) overview row; the full sentence above stays in the wide shape and in the TalkBack description. -->
+    <string name="overview_delivery_short_current">Reported</string>
+    <string name="overview_delivery_short_not_current">Not reported</string>
+    <string name="overview_delivery_short_no_endpoint">No endpoint</string>
+    <string name="overview_delivery_short_sending">Sending…</string>
+    <string name="overview_delivery_short_failed">Failed</string>
     <string name="overview_last_delivery">Last delivery %1$s</string>
     <string name="overview_last_delivery_none">No delivery yet</string>
+    <!-- #928: the history line of the compact overview, where the full line above did not fit at large font scales in long languages; TalkBack reads the full line. -->
+    <string name="overview_last_delivery_short">Last %1$s</string>
+    <string name="overview_last_delivery_short_none">None yet</string>
 </resources>

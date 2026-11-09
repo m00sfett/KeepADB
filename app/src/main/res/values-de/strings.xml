@@ -669,6 +669,13 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="overview_delivery_current">Aktueller Endpunkt gemeldet</string>
     <string name="overview_delivery_not_current">Aktueller Endpunkt noch nicht gemeldet</string>
     <string name="overview_delivery_no_endpoint">Kein Endpunkt zum Melden</string>
+    <string name="overview_delivery_short_current">Gemeldet</string>
+    <string name="overview_delivery_short_not_current">Nicht gemeldet</string>
+    <string name="overview_delivery_short_no_endpoint">Kein Endpunkt</string>
+    <string name="overview_delivery_short_sending">Sendet…</string>
+    <string name="overview_delivery_short_failed">Fehlgeschlagen</string>
     <string name="overview_last_delivery">Zuletzt zugestellt %1$s</string>
     <string name="overview_last_delivery_none">Noch keine Zustellung</string>
+    <string name="overview_last_delivery_short">Zuletzt %1$s</string>
+    <string name="overview_last_delivery_short_none">Noch keine</string>
 </resources>

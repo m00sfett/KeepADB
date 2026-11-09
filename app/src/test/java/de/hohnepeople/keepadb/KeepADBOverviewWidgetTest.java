@@ -285,12 +285,15 @@ public class KeepADBOverviewWidgetTest {
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, "192.168.178.40:40000");
         KeepADBOverviewContent c = content(false);
         assertEquals(name(R.string.overview_delivery_not_current), c.delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_not_current), c.delivery.shortValue);
         assertFalse(c.lastDelivery.equals(name(R.string.overview_last_delivery_none)));
         // The history is drawn in both shapes, apart from the claim, not only spoken.
         for (Shape shape : Shape.values()) {
             String drawn = visibleText(render(shape, false));
-            assertTrue(shape + ": history visible", drawn.contains(c.lastDelivery));
-            assertTrue(shape + ": claim visible", drawn.contains(c.delivery.value));
+            assertTrue(shape + ": history visible", drawn.contains(
+                    shape == Shape.COMPACT ? c.lastDeliveryShort : c.lastDelivery));
+            assertTrue(shape + ": claim visible", drawn.contains(
+                    shape == Shape.COMPACT ? c.delivery.shortValue : c.delivery.value));
         }
 
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
@@ -299,6 +302,8 @@ public class KeepADBOverviewWidgetTest {
         // Without a verified endpoint nothing is claimed, whatever the history says.
         KeepADBEndpointCoordinator.resetForTesting();
         assertEquals(name(R.string.overview_delivery_no_endpoint), content(false).delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_no_endpoint),
+                content(false).delivery.shortValue);
     }
 
     @Test
@@ -306,21 +311,64 @@ public class KeepADBOverviewWidgetTest {
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_FAILED, HOST + ":" + PORT);
         KeepADBOverviewContent failed = content(false);
         assertEquals(name(R.string.overview_delivery_failed), failed.delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_failed), failed.delivery.shortValue);
         assertEquals(Click.SETUP_WEBHOOK, failed.deliveryClick);
 
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         KeepADBOverviewContent off = content(false);
         assertEquals(name(R.string.overview_delivery_sync_off), off.delivery.value);
+        assertEquals("no short form of its own", off.delivery.value, off.delivery.shortValue);
         assertEquals(Click.OPEN_APP, off.deliveryClick);
+    }
+
+    @Test
+    public void theCompactShapeDrawsShortDeliveryWordsAndSpeaksTheFullSentence() {
+        // #928: the full sentence only fit the compact row at the minimum text size.
+        storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
+        KeepADBOverviewContent c = content(false);
+        assertEquals(name(R.string.overview_delivery_current), c.delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_current), c.delivery.shortValue);
+
+        View compact = render(Shape.COMPACT, false);
+        String drawn = visibleText(compact);
+        assertTrue(drawn, drawn.contains(c.delivery.shortValue));
+        assertFalse("compact must not draw the full sentence: " + drawn,
+                drawn.contains(c.delivery.value));
+        assertTrue("TalkBack keeps the full sentence",
+                String.valueOf(compact.findViewById(R.id.widget_ov_card).getContentDescription())
+                        .contains(c.delivery.value));
+
+        assertFalse("compact draws the short history: " + drawn, drawn.contains(c.lastDelivery));
+        assertTrue(drawn.contains(c.lastDeliveryShort));
+        assertTrue(c.lastDeliveryShort.length() < c.lastDelivery.length());
+
+        // Counter-check: the wide shape keeps the full sentence on screen.
+        assertTrue(visibleText(render(Shape.WIDE, false)).contains(c.delivery.value));
+
+        // Every short word is shorter than its sentence, in every state that has one.
+        int[][] pairs = {
+                {R.string.overview_delivery_current, R.string.overview_delivery_short_current},
+                {R.string.overview_delivery_not_current, R.string.overview_delivery_short_not_current},
+                {R.string.overview_delivery_no_endpoint, R.string.overview_delivery_short_no_endpoint},
+                {R.string.overview_delivery_sending, R.string.overview_delivery_short_sending},
+                {R.string.overview_delivery_failed, R.string.overview_delivery_short_failed}};
+        for (int[] pair : pairs) {
+            assertTrue(name(pair[1]), name(pair[1]).length() < name(pair[0]).length());
+        }
     }
 
     @Test
     public void withoutAnyDeliveryTheHistorySaysSoVisibly() {
         assertEquals(name(R.string.overview_last_delivery_none), content(false).lastDelivery);
-        for (Shape shape : Shape.values()) {
-            assertTrue(shape.toString(), visibleText(render(shape, false))
-                    .contains(name(R.string.overview_last_delivery_none)));
-        }
+        assertEquals(name(R.string.overview_last_delivery_short_none),
+                content(false).lastDeliveryShort);
+        assertTrue(visibleText(render(Shape.WIDE, false))
+                .contains(name(R.string.overview_last_delivery_none)));
+        // #928: the compact shape draws the short form; TalkBack keeps the full line.
+        View compact = render(Shape.COMPACT, false);
+        assertTrue(visibleText(compact).contains(name(R.string.overview_last_delivery_short_none)));
+        assertTrue(String.valueOf(compact.findViewById(R.id.widget_ov_card).getContentDescription())
+                .contains(name(R.string.overview_last_delivery_none)));
     }
 
     // -- privacy ------------------------------------------------------------------------------------

@@ -671,6 +671,13 @@
     <string name="overview_delivery_current">Текущая конечная точка передана</string>
     <string name="overview_delivery_not_current">Текущая конечная точка ещё не передана</string>
     <string name="overview_delivery_no_endpoint">Нет конечной точки для передачи</string>
+    <string name="overview_delivery_short_current">Передано</string>
+    <string name="overview_delivery_short_not_current">Не передано</string>
+    <string name="overview_delivery_short_no_endpoint">Нет конечной точки</string>
+    <string name="overview_delivery_short_sending">Отправка…</string>
+    <string name="overview_delivery_short_failed">Ошибка</string>
     <string name="overview_last_delivery">Последняя доставка %1$s</string>
     <string name="overview_last_delivery_none">Доставок ещё не было</string>
+    <string name="overview_last_delivery_short">Посл. %1$s</string>
+    <string name="overview_last_delivery_short_none">Ещё нет</string>
 </resources>
