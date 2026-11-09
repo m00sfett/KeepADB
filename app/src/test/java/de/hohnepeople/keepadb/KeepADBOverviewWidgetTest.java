@@ -285,6 +285,7 @@ public class KeepADBOverviewWidgetTest {
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, "192.168.178.40:40000");
         KeepADBOverviewContent c = content(false);
         assertEquals(name(R.string.overview_delivery_not_current), c.delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_not_current), c.delivery.shortValue);
         assertFalse(c.lastDelivery.equals(name(R.string.overview_last_delivery_none)));
         // The history is drawn in both shapes, apart from the claim, not only spoken.
         for (Shape shape : Shape.values()) {
@@ -301,6 +302,8 @@ public class KeepADBOverviewWidgetTest {
         // Without a verified endpoint nothing is claimed, whatever the history says.
         KeepADBEndpointCoordinator.resetForTesting();
         assertEquals(name(R.string.overview_delivery_no_endpoint), content(false).delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_no_endpoint),
+                content(false).delivery.shortValue);
     }
 
     @Test
@@ -308,11 +311,13 @@ public class KeepADBOverviewWidgetTest {
         storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_FAILED, HOST + ":" + PORT);
         KeepADBOverviewContent failed = content(false);
         assertEquals(name(R.string.overview_delivery_failed), failed.delivery.value);
+        assertEquals(name(R.string.overview_delivery_short_failed), failed.delivery.shortValue);
         assertEquals(Click.SETUP_WEBHOOK, failed.deliveryClick);
 
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         KeepADBOverviewContent off = content(false);
         assertEquals(name(R.string.overview_delivery_sync_off), off.delivery.value);
+        assertEquals("no short form of its own", off.delivery.value, off.delivery.shortValue);
         assertEquals(Click.OPEN_APP, off.deliveryClick);
     }
 

@@ -672,7 +672,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="overview_delivery_no_endpoint">Aucun point de terminaison à signaler</string>
     <string name="overview_delivery_short_current">Signalé</string>
     <string name="overview_delivery_short_not_current">Non signalé</string>
-    <string name="overview_delivery_short_no_endpoint">Rien à signaler</string>
+    <string name="overview_delivery_short_no_endpoint">Aucun point de terminaison</string>
     <string name="overview_delivery_short_sending">Envoi…</string>
     <string name="overview_delivery_short_failed">Échec</string>
     <string name="overview_last_delivery">Dernière livraison %1$s</string>
