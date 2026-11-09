@@ -90,7 +90,7 @@ public class KeepADBMultiStateContractTest {
         activity.pause().close();
 
         View widget = renderWidget();
-        assertEquals(context.getString(R.string.widget_text_off), widgetText(widget));
+        assertEquals(context.getString(R.string.tile_state_off), widgetText(widget));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -114,7 +114,7 @@ public class KeepADBMultiStateContractTest {
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
         activity.pause().close();
 
-        assertEquals(context.getString(R.string.widget_text_keep_alive_waiting), widgetText(renderWidget()));
+        assertEquals(context.getString(R.string.widget_state_off_waiting), widgetText(renderWidget()));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -135,7 +135,7 @@ public class KeepADBMultiStateContractTest {
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
         activity.pause().close();
 
-        assertEquals(context.getString(R.string.widget_text_disconnected), widgetText(renderWidget()));
+        assertEquals(context.getString(R.string.tile_state_disconnected), widgetText(renderWidget()));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -163,8 +163,9 @@ public class KeepADBMultiStateContractTest {
                 ((TextView) activity.get().findViewById(R.id.endpoint)).getText().toString());
         activity.pause().close();
 
-        assertEquals(context.getString(R.string.widget_text_connected_format, endpointPort),
-                widgetText(renderWidget()));
+        assertEquals(context.getString(R.string.tile_state_connected), widgetText(renderWidget()));
+        assertTrue("the status box of the larger sizes names the endpoint",
+                panelText().contains(context.getString(R.string.tile_state_connected_format, "127.0.0.1", endpointPort)));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
@@ -223,13 +224,14 @@ public class KeepADBMultiStateContractTest {
         KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
 
-        assertEquals(context.getString(R.string.widget_text_connected_format, endpointPort),
-                widgetText(renderWidget()));
+        assertTrue(panelText().contains(String.valueOf(endpointPort)));
 
         KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
         String text = widgetText(renderWidget());
-        assertEquals(context.getString(R.string.widget_text_on), text);
-        assertFalse(text, text.contains(String.valueOf(endpointPort)));
+        assertEquals(context.getString(R.string.tile_state_connected), text);
+        String panel = panelText();
+        assertFalse(panel, panel.contains(String.valueOf(endpointPort)));
+        assertFalse(panel, panel.contains("127.0.0.1"));
     }
 
     /**
@@ -275,10 +277,10 @@ public class KeepADBMultiStateContractTest {
             }
 
             // Widgets: the widget and the tile.
-            assertEquals(only + ": widget", "widgets".equals(only)
-                    ? context.getString(R.string.widget_text_on)
-                    : context.getString(R.string.widget_text_connected_format, endpointPort),
+            assertEquals(only + ": widget", context.getString(R.string.tile_state_connected),
                     widgetText(renderWidget()));
+            assertEquals(only + ": widget status box", !"widgets".equals(only),
+                    panelText().contains("127.0.0.1") && panelText().contains(String.valueOf(endpointPort)));
             KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                     .create().get();
             tileService.onStartListening();
@@ -347,8 +349,13 @@ public class KeepADBMultiStateContractTest {
         activity.pause().close();
 
         View widget = renderWidget();
-        assertEquals(context.getString(R.string.widget_text_permission_missing, context.getString(R.string.app_name)), widgetText(widget));
-        clickWidget(widget);
+        assertEquals(context.getString(R.string.tile_state_permission_missing), widgetText(widget));
+        // #912: without the grant a tap leads to the setup instead of a failing write.
+        widget.findViewById(R.id.widget_tile).performClick();
+        shadowOf(Looper.getMainLooper()).idle();
+        Intent opened = shadowOf((Application) context).getNextStartedActivity();
+        assertNotNull(opened);
+        assertEquals(MainActivity.class.getName(), opened.getComponent().getClassName());
         assertTrue(gateway.writes.isEmpty());
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
@@ -400,7 +407,7 @@ public class KeepADBMultiStateContractTest {
         assertTrue(context.getString(R.string.tile_state_disconnected).length() > 0);
         assertTrue(context.getString(R.string.tile_state_searching).length() > 0);
         assertTrue(context.getString(R.string.tile_state_connected).length() > 0);
-        assertTrue(context.getString(R.string.widget_text_disconnected).length() > 0);
+        assertTrue(context.getString(R.string.widget_state_off_waiting).length() > 0);
     }
 
     private View renderWidget() {
@@ -413,11 +420,21 @@ public class KeepADBMultiStateContractTest {
         return view;
     }
 
+    /** Everything the 4x2 widget shows and says, built from the current state (#912). */
+    private String panelText() {
+        return KeepADBWidgetTestSupport.allText(KeepADBWidgetTestSupport.applyAndMeasure(context,
+                KeepADBWidgetViews.forSize(context, 77, KeepADBWidgetConfig.defaults(),
+                        KeepADBWidgetState.project(context, false),
+                        KeepADBWidgetLayout.SizeClass.PANEL), 304, 196));
+    }
+
     private String widgetText(View view) {
-        TextView label = view.findViewById(R.id.widget_label);
-        assertNotNull(label);
-        assertTrue(label.getText().length() > 0);
-        return label.getText().toString();
+        // The main control is Wireless Debugging in the default configuration, in every size
+        // class; its state word is what TalkBack reads after the name (and before a port).
+        assertNotNull(KeepADBWidgetTestSupport.hero(view));
+        String state = KeepADBWidgetTestSupport.heroStateWord(context, view);
+        assertTrue(state.length() > 0);
+        return state;
     }
 
     private void stopTileService(KeepADBTileService tileService) {
@@ -451,7 +468,7 @@ public class KeepADBMultiStateContractTest {
     private void clickWidget(View widget) {
         int before = shadowOf((Application) context).getBroadcastIntents().size();
         assertTrue("The rendered RemoteViews label must dispatch its PendingIntent",
-                widget.findViewById(R.id.widget_label).performClick());
+                widget.findViewById(R.id.widget_tile).performClick());
         shadowOf(Looper.getMainLooper()).idle();
         // This also guards the Robolectric dispatch path: use the manifest receiver, never
         // manually call onReceive or install a test-owned listener/receiver.

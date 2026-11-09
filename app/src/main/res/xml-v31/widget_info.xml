@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: Android 12+ additions to xml/widget_info.xml: the default size (2x1, the size of the
+     single-button widget before), the description and the preview shown by the widget picker, and
+     configuration_optional: the widget is placed with the defaults and configured afterwards from
+     the gear or the launcher's reconfigure. Android 11 keeps the configuration screen at placement. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="de.hohnepeople.keepadb.KeepADBWidgetConfigActivity"
+    android:description="@string/widget_picker_description"
+    android:initialLayout="@layout/widget_keepadb"
+    android:minHeight="56dp"
+    android:minResizeHeight="56dp"
+    android:minResizeWidth="56dp"
+    android:minWidth="110dp"
+    android:previewImage="@drawable/ic_widget_preview"
+    android:previewLayout="@layout/widget_preview_control"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="1"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

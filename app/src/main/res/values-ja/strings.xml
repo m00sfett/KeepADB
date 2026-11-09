@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Wi-Fi経由のADB用にワイヤレスデバッグのオン/オフを切り替えます。</string>
     <string name="keep_alive_toggle">常にアクティブに保つ</string>
     <string name="keep_alive_subtext">切断、ネットワーク変更、または再起動時に自動再接続</string>
-    <string name="widget_text_on">ワイヤレスデバッグ: ON</string>
-    <string name="widget_text_off">ワイヤレスデバッグ: OFF</string>
     <string name="tile_permission_error">%1$s: 権限がありません (pm grant が必要)</string>
     <string name="permission_error_toast">権限がありません。PCから一度実行してください:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">ワイヤレスデバッグ エンドポイント</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Wifi-ADBを無効化</string>
     <string name="status_enabled_disconnected">ワイヤレスデバッグ: オン（未接続）</string>
     <string name="status_permission_missing">システム権限がありません</string>
-    <string name="widget_text_disconnected">ワイヤレスデバッグ: 未接続</string>
-    <string name="widget_text_connected_format">ワイヤレスデバッグ: オン（:%1$d）</string>
-    <string name="widget_text_permission_missing">%1$s: 権限がありません</string>
     <string name="tile_state_off">オフ</string>
     <string name="tile_state_disconnected">未接続</string>
     <string name="tile_state_searching">検索中…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">切り替え中…</string>
     <string name="state_pending">切り替え中…</string>
     <string name="tile_state_keep_alive_waiting">オフ – Keep-Alive 待機中</string>
-    <string name="widget_text_keep_alive_waiting">ワイヤレスデバッグ: OFF（待機中）</string>
-    <string name="widget_text_pending">ワイヤレスデバッグ: 切り替え中…</string>
     <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
     <string name="settings_section_network">ネットワーク</string>
     <string name="network_head_mode">自動再有効化：%1$s</string>
@@ -623,4 +616,37 @@
     <string name="webhook_alert_text_vpn">Webhook が VPN アプリを経由している場合は、そのアプリをバッテリーの最適化から除外してください。</string>
     <string name="webhook_alert_action_battery">バッテリーのヒント</string>
     <string name="webhook_alert_action_report_now">今すぐ報告</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB コントロール</string>
+    <string name="widget_picker_description">ワイヤレスデバッグ、Keep-Alive、Webhook の操作。大きくするほど多く表示されます。</string>
+    <string name="widget_action_adb">デバッグ</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">自動同期</string>
+    <string name="widget_action_sync_description">Webhook 自動同期</string>
+    <string name="widget_state_on">オン</string>
+    <string name="widget_state_off_waiting">オフ（待機中）</string>
+    <string name="widget_state_waiting">待機中</string>
+    <string name="widget_state_paused">一時停止中</string>
+    <string name="widget_state_setup">設定が必要</string>
+    <string name="widget_webhook_unconfigured">Webhook: 未設定</string>
+    <string name="widget_webhook_sync_off">Webhook: 同期オフ</string>
+    <string name="widget_webhook_sending">Webhook: 報告を送信中…</string>
+    <string name="widget_webhook_current">Webhook: 現在のエンドポイントを報告済み</string>
+    <string name="widget_webhook_not_current">Webhook: 現在のエンドポイントは未報告</string>
+    <string name="widget_webhook_no_endpoint">Webhook: 報告するエンドポイントなし</string>
+    <string name="widget_config_title">ウィジェットをカスタマイズ</string>
+    <string name="widget_config_primary">メインの操作（小さいウィジェットでは単独で表示）</string>
+    <string name="widget_config_order">操作の順序</string>
+    <string name="widget_config_move_up">%1$s を上へ移動</string>
+    <string name="widget_config_move_down">%1$s を下へ移動</string>
+    <string name="widget_config_hide_details">このウィジェットで接続の詳細を隠す</string>
+    <string name="widget_config_hide_details_global">ウィジェットのプライバシー設定により、すべてのウィジェットで詳細は既に非表示です。</string>
+    <string name="widget_config_save">保存</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">オン</string>
+    <string name="widget_short_off">オフ</string>
+    <string name="widget_short_scan">検索…</string>
+    <string name="widget_status_details_hidden">詳細は非表示</string>
+    <string name="widget_description_port_format">%1$s、ポート %2$d</string>
 </resources>

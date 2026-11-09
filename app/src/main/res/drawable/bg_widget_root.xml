@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the control widget's surface. The controls on it carry the state; there are no borders. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/widget_root" />
+    <corners android:radius="@dimen/widget_radius_root" />
+</shape>

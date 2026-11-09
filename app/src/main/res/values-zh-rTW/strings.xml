@@ -26,8 +26,6 @@
     <string name="toggle_subtext">開啟或關閉無線偵錯，以便透過 Wi-Fi 使用 ADB。</string>
     <string name="keep_alive_toggle">保持永久啟用</string>
     <string name="keep_alive_subtext">斷線、網路變更或重開機時自動重新連線</string>
-    <string name="widget_text_on">無線偵錯：開</string>
-    <string name="widget_text_off">無線偵錯：關</string>
     <string name="tile_permission_error">%1$s：缺少權限（需要 pm grant）</string>
     <string name="permission_error_toast">缺少權限。請在電腦上執行一次：\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">無線偵錯端點</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
     <string name="status_enabled_disconnected">無線偵錯已開啟（未連線）</string>
     <string name="status_permission_missing">缺少系統權限</string>
-    <string name="widget_text_disconnected">無線偵錯：未連線</string>
-    <string name="widget_text_connected_format">無線偵錯：已開啟（:%1$d）</string>
-    <string name="widget_text_permission_missing">%1$s：缺少權限</string>
     <string name="tile_state_off">關閉</string>
     <string name="tile_state_disconnected">未連線</string>
     <string name="tile_state_searching">搜尋中…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">正在切換…</string>
     <string name="state_pending">正在切換…</string>
     <string name="tile_state_keep_alive_waiting">關閉 – Keep-Alive 等待中</string>
-    <string name="widget_text_keep_alive_waiting">無線偵錯：關（等待中）</string>
-    <string name="widget_text_pending">無線偵錯：正在切換…</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
     <string name="settings_section_network">網路</string>
     <string name="network_head_mode">自動重新啟用：%1$s</string>
@@ -623,4 +616,37 @@
     <string name="webhook_alert_text_vpn">如果你的 Webhook 經由 VPN 應用程式傳送,請將該應用程式排除在電池最佳化之外。</string>
     <string name="webhook_alert_action_battery">電池提示</string>
     <string name="webhook_alert_action_report_now">立即回報</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB 控制</string>
+    <string name="widget_picker_description">無線偵錯、Keep-Alive 與 Webhook 控制。尺寸越大，顯示越多。</string>
+    <string name="widget_action_adb">偵錯</string>
+    <string name="widget_action_keep_alive">常駐</string>
+    <string name="widget_action_sync">自動同步</string>
+    <string name="widget_action_sync_description">自動 Webhook 同步</string>
+    <string name="widget_state_on">開啟</string>
+    <string name="widget_state_off_waiting">關閉，等待中</string>
+    <string name="widget_state_waiting">等待中</string>
+    <string name="widget_state_paused">已暫停</string>
+    <string name="widget_state_setup">前往設定</string>
+    <string name="widget_webhook_unconfigured">Webhook：未設定</string>
+    <string name="widget_webhook_sync_off">Webhook：同步已關閉</string>
+    <string name="widget_webhook_sending">Webhook：正在傳送回報…</string>
+    <string name="widget_webhook_current">Webhook：已回報目前端點</string>
+    <string name="widget_webhook_not_current">Webhook：尚未回報目前端點</string>
+    <string name="widget_webhook_no_endpoint">Webhook：沒有可回報的端點</string>
+    <string name="widget_config_title">自訂小工具</string>
+    <string name="widget_config_primary">主要操作（小工具較小時單獨顯示）</string>
+    <string name="widget_config_order">操作順序</string>
+    <string name="widget_config_move_up">上移 %1$s</string>
+    <string name="widget_config_move_down">下移 %1$s</string>
+    <string name="widget_config_hide_details">在此小工具中隱藏連線詳情</string>
+    <string name="widget_config_hide_details_global">小工具隱私設定已在所有小工具中隱藏詳情。</string>
+    <string name="widget_config_save">儲存</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">開</string>
+    <string name="widget_short_off">關</string>
+    <string name="widget_short_scan">搜尋…</string>
+    <string name="widget_status_details_hidden">詳細資料已隱藏</string>
+    <string name="widget_description_port_format">%1$s，連接埠 %2$d</string>
 </resources>

@@ -54,9 +54,11 @@ public class KeepADBResourceContractTest {
      * #690: brand strings are translatable="false" and live only in values/, so that the debug
      * overlay ("(DBG) KeepADB") applies to every locale. A locale bucket for one of these keys
      * would shadow that overlay again, hence the table must contain the default entry only.
+     * {@code widget_label_adb_short} (#912, "ADB" on the 1x1 widget) is not a brand but follows the
+     * same rule: it is never translated, so it is defined in values/ only.
      */
     private static final Set<String> BRAND_KEYS =
-            Set.of("app_name", "title_keepadb", "tile_label");
+            Set.of("app_name", "title_keepadb", "tile_label", "widget_label_adb_short");
     private static final int[] TRANSLATED_CONTRACTS = {
             R.string.notification_permission_panel_title,
             R.string.battery_optimization_body,
@@ -620,7 +622,10 @@ public class KeepADBResourceContractTest {
         result.put("onboarding_settings_summary", new Object[] {stringWitness, stringWitness});
         result.put("onboarding_keep_alive_notification_hint", new Object[] {integerWitness});
         result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});
-        result.put("widget_text_connected_format", new Object[] {integerWitness});
+        result.put("widget_config_move_up", new Object[] {stringWitness});
+        result.put("widget_config_move_down", new Object[] {stringWitness});
+        result.put("widget_description_format", new Object[] {stringWitness, stringWitness});
+        result.put("widget_description_port_format", new Object[] {stringWitness, integerWitness});
         result.put("settings_webhook_retry_count_value", new Object[] {integerWitness});
         result.put("webhook_alert_status_since", new Object[] {stringWitness, stringWitness});
         result.put("webhook_alert_status_never", new Object[] {stringWitness});
@@ -635,7 +640,6 @@ public class KeepADBResourceContractTest {
         result.put("notification_text_webhook_synced", new Object[] {stringWitness});
         result.put("notification_text_webhook_last_success", new Object[] {stringWitness});
         result.put("notification_permission_missing_title", new Object[] {stringWitness});
-        result.put("widget_text_permission_missing", new Object[] {stringWitness});
         result.put("tile_permission_error", new Object[] {stringWitness});
         result.put("setup_command", new Object[] {stringWitness});
         result.put("setup_command_multi", new Object[] {stringWitness});

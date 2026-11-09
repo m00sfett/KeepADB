@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the control widget in one row: the main control, then up to two square buttons
+     (about 1x1 to 3x1, the compact classes). Also the first-update state (an empty surface).
+     KeepADBWidgetViews puts the controls into the slots; only classes RemoteViews supports. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:padding="8dp"
-    android:background="@color/ground">
+    android:background="@drawable/bg_widget_root"
+    android:padding="@dimen/widget_gap_half"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/widget_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_widget"
-        android:contentDescription="@string/widget_text_off"
-        android:minWidth="48dp"
-        android:minHeight="48dp"
-        android:padding="12dp"
-        android:textColor="@color/text_yellow"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-condensed"
-        android:text="@string/widget_text_off" />
+    <FrameLayout
+        android:id="@+id/widget_slot_hero"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/widget_gap_half"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/widget_slot_a"
+        android:layout_width="52dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/widget_gap_half"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/widget_slot_b"
+        android:layout_width="52dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/widget_gap_half"
+        android:visibility="gone" />
 </LinearLayout>

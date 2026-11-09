@@ -42,6 +42,11 @@ command in the app while the permission is missing.
   Android may show its own confirmation the first time Wireless debugging is enabled on a Wi-Fi
   network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
 
+The home-screen widget **KeepADB controls** grows with its size, from the main action alone to
+Wireless Debugging, Keep-Alive, webhook synchronization and Report now with status lines; each
+placed widget has its own main action, order and detail setting (see
+[docs/widgets.md](docs/widgets.md)).
+
 Settings also include local USB host profiles, optional USB-to-Wi-Fi ADB handover, notification
 privacy, diagnostics export, and optional webhook synchronization. Three optional privacy switches
 (first page of the setup assistant, also in Settings) hide Wi-Fi names and addresses in the app,

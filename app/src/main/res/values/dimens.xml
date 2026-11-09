@@ -6,4 +6,9 @@
     <dimen name="radius_large">16dp</dimen>
     <!-- #838: max width for centered content on wide displays >= 840dp -->
     <dimen name="main_content_max_width">800dp</dimen>
+
+    <!-- #912 control widget: the surface, the controls on it and the gap between them. -->
+    <dimen name="widget_radius_root">28dp</dimen>
+    <dimen name="widget_radius_tile">23dp</dimen>
+    <dimen name="widget_gap_half">2.5dp</dimen>
 </resources>

@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Mengaktifkan atau menonaktifkan Debugging Nirkabel untuk ADB melalui Wi-Fi.</string>
     <string name="keep_alive_toggle">Pertahankan selalu aktif</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>
-    <string name="widget_text_on">Debugging Nirkabel: AKTIF</string>
-    <string name="widget_text_off">Debugging Nirkabel: NONAKTIF</string>
     <string name="tile_permission_error">%1$s: Izin kurang (perlu pm grant)</string>
     <string name="permission_error_toast">Izin kurang. Jalankan sekali dari PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint Debugging Nirkabel</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugging Nirkabel AKTIF (Terputus)</string>
     <string name="status_permission_missing">Izin sistem tidak ada</string>
-    <string name="widget_text_disconnected">Debugging Nirkabel: Terputus</string>
-    <string name="widget_text_connected_format">Debugging Nirkabel: AKTIF (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Izin tidak ada</string>
     <string name="tile_state_off">Nonaktif</string>
     <string name="tile_state_disconnected">Terputus</string>
     <string name="tile_state_searching">Mencari…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Mengalihkan…</string>
     <string name="state_pending">Mengalihkan…</string>
     <string name="tile_state_keep_alive_waiting">Nonaktif – Keep-Alive menunggu</string>
-    <string name="widget_text_keep_alive_waiting">Debugging Nirkabel: NONAKTIF (menunggu)</string>
-    <string name="widget_text_pending">Debugging Nirkabel: mengalihkan…</string>
     <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
     <string name="settings_section_network">Jaringan</string>
     <string name="network_head_mode">Pengaktifan ulang otomatis: %1$s</string>
@@ -623,4 +616,37 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="webhook_alert_text_vpn">Jika webhook Anda berjalan melalui aplikasi VPN, kecualikan aplikasi itu dari pengoptimalan baterai.</string>
     <string name="webhook_alert_action_battery">Tips baterai</string>
     <string name="webhook_alert_action_report_now">Laporkan sekarang</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Kontrol KeepADB</string>
+    <string name="widget_picker_description">Kontrol Debugging Nirkabel, Keep-Alive, dan Webhook. Menampilkan lebih banyak saat diperbesar.</string>
+    <string name="widget_action_adb">Debug nirkabel</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Sinkron otomatis</string>
+    <string name="widget_action_sync_description">Sinkronisasi Webhook otomatis</string>
+    <string name="widget_state_on">Aktif</string>
+    <string name="widget_state_off_waiting">Nonaktif, menunggu</string>
+    <string name="widget_state_waiting">Menunggu</string>
+    <string name="widget_state_paused">Dijeda</string>
+    <string name="widget_state_setup">Atur</string>
+    <string name="widget_webhook_unconfigured">Webhook: belum diatur</string>
+    <string name="widget_webhook_sync_off">Webhook: sinkronisasi nonaktif</string>
+    <string name="widget_webhook_sending">Webhook: mengirim laporan…</string>
+    <string name="widget_webhook_current">Webhook: endpoint saat ini sudah dilaporkan</string>
+    <string name="widget_webhook_not_current">Webhook: endpoint saat ini belum dilaporkan</string>
+    <string name="widget_webhook_no_endpoint">Webhook: tidak ada endpoint untuk dilaporkan</string>
+    <string name="widget_config_title">Sesuaikan widget</string>
+    <string name="widget_config_primary">Aksi utama (tampil sendiri di widget kecil)</string>
+    <string name="widget_config_order">Urutan aksi</string>
+    <string name="widget_config_move_up">Naikkan %1$s</string>
+    <string name="widget_config_move_down">Turunkan %1$s</string>
+    <string name="widget_config_hide_details">Sembunyikan detail koneksi di widget ini</string>
+    <string name="widget_config_hide_details_global">Pengaturan privasi widget sudah menyembunyikan detail di semua widget.</string>
+    <string name="widget_config_save">Simpan</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Aktif</string>
+    <string name="widget_short_off">Mati</string>
+    <string name="widget_short_scan">Cari…</string>
+    <string name="widget_status_details_hidden">Detail disembunyikan</string>
+    <string name="widget_description_port_format">%1$s, port %2$d</string>
 </resources>

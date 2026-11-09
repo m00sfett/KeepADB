@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- #912: the adaptive control widget. Resizable in both directions; the layout follows the size
+     (KeepADBWidgetLayout). Android 12+ adds the default size, the picker preview and the
+     description in xml-v31/widget_info.xml. A widget placed before this version keeps working:
+     same provider, same component. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="110dp"
-    android:minHeight="40dp"
-    android:resizeMode="horizontal"
-    android:widgetCategory="home_screen"
-    android:previewImage="@drawable/ic_keepadb"
+    android:configure="de.hohnepeople.keepadb.KeepADBWidgetConfigActivity"
     android:initialLayout="@layout/widget_keepadb"
-    android:updatePeriodMillis="0" />
+    android:minHeight="56dp"
+    android:minResizeHeight="56dp"
+    android:minResizeWidth="56dp"
+    android:minWidth="110dp"
+    android:previewImage="@drawable/ic_widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable" />

@@ -61,10 +61,12 @@ The HTTP client does not follow redirects. An HTTP status from 200 through 299 c
 successful request. This does not prove that a receiver accepted the data semantically, stored it
 permanently, or made it available to clients.
 
-## Report now and the widgets' synchronization switch (#911)
+## Report now and the widgets' synchronization switch (#911, #912)
 
-"Report now" (the webhook warning's button and the widgets) is a manual push into the normal flow
-of an enabled synchronization, and nothing else. A tap reports the current, verified Wi-Fi ADB
+"Report now" is the button of the webhook failure notification (#893). The control widget has no
+such control any more (#912): the receiver action `ACTION_WEBHOOK_REPORT_NOW` stays for the
+notification only. It is a manual push into the normal flow of an enabled synchronization, and
+nothing else. A tap reports the current, verified Wi-Fi ADB
 endpoint to the saved URL at once, with the same message as any other report, whether or not the
 connected network is trusted. It behaves exactly like the automatic report would: a request that is
 already running is joined, a retry that is only waiting for its timer is sent at once, and a
@@ -74,7 +76,8 @@ episode, a success ends them, and the opt-out, a URL change and the endpoint los
 registration as before.
 
 **With synchronization off, "Report now" does nothing:** no request, no change of any preference,
-nothing recorded. It never switches synchronization on; the widget offers the switch instead.
+nothing recorded. It never switches synchronization on; the Auto-sync control of the widget and the
+settings form are the way to do that.
 Without a valid saved URL, or without a verified Wi-Fi endpoint (Wi-Fi is up and the app holds a
 discovered endpoint), nothing is sent either. The cause is returned to the caller and written to the
 diagnostics as `register_report skipped reason=needs_setup`, `reason=sync_off` or
@@ -126,10 +129,6 @@ The webhook part keeps these apart:
 - **Activity:** nothing in flight, a report being sent, or a retry waiting.
 - **Newest outcome, last success, last failure:** what the sender recorded. A success from before
   a later failure stays visible as history and is not the current state.
-- **Report now:** needs setup (no valid destination), sync off (the switch is the offer, "Report
-  now" does nothing), no endpoint (no verified Wi-Fi endpoint) or ready (synchronization is on and
-  both exist). It follows the facts the action checks, in the order the action checks them; the
-  action checks them again when it is tapped.
 - **Current delivery:** claimed only while the last report the server accepted names exactly the
   verified endpoint that is current now and the destination that is configured now, and no later
   report failed or was withdrawn. A changed endpoint, a changed or removed destination, a later

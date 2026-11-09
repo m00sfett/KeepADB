@@ -85,6 +85,13 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice|location" />
 
+        <!-- #912: re-renders the placed widgets when adb_wifi_enabled changes while no screen or
+             service is running. Only the system can bind it. -->
+        <service
+            android:name=".KeepADBWidgetRefreshJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".KeepADBTileService"
             android:exported="true"
@@ -96,17 +103,35 @@
             </intent-filter>
         </service>
 
+        <!-- #912: the control widget. The label and description are what the widget picker shows;
+             the settings screen below is the widget's configure activity. -->
         <receiver
             android:name=".KeepADBWidget"
-            android:exported="false">
+            android:description="@string/widget_picker_description"
+            android:exported="false"
+            android:label="@string/widget_picker_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="de.hohnepeople.keepadb.TOGGLE" />
+                <!-- #912: a system language change redraws the placed widgets in the new language. -->
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <!-- #912: per-widget settings (main action, order, details). Exported because the launcher
+             starts it for "place" and "reconfigure"; it only accepts the id of an existing
+             widget of this app and changes nothing but that widget's own entry. -->
+        <activity
+            android:name=".KeepADBWidgetConfigActivity"
+            android:exported="true"
+            android:label="@string/widget_config_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".BootReceiver"

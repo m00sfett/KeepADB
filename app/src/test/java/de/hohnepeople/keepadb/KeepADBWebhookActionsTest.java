@@ -107,6 +107,12 @@ public class KeepADBWebhookActionsTest {
         new KeepADBReceiver().onReceive(context, intent);
     }
 
+    /** The notification button: an explicit broadcast to the non-exported receiver. */
+    private void tapReportNow() {
+        new KeepADBReceiver().onReceive(context, new Intent(context, KeepADBReceiver.class)
+                .setAction(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW));
+    }
+
     // ---- PendingIntent contracts -------------------------------------------------------------
 
     private void assertExplicitImmutableBroadcast(PendingIntent pendingIntent, String action) {
@@ -123,8 +129,6 @@ public class KeepADBWebhookActionsTest {
 
     @Test
     public void everyBroadcastActionIsExplicitImmutableAndForTheNonExportedReceiver() {
-        assertExplicitImmutableBroadcast(KeepADBWebhookActions.reportNow(context),
-                KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW);
         assertExplicitImmutableBroadcast(KeepADBWebhookActions.setAutomaticSync(context, true),
                 KeepADBReceiver.ACTION_WEBHOOK_SYNC_ENABLE);
         assertExplicitImmutableBroadcast(KeepADBWebhookActions.setAutomaticSync(context, false),
@@ -147,22 +151,10 @@ public class KeepADBWebhookActionsTest {
     @Test
     public void everyControlHasItsOwnPendingIntentIdentity() {
         Set<Integer> codes = new HashSet<>();
-        codes.add(shadowOf(KeepADBWebhookActions.reportNow(context)).getRequestCode());
         codes.add(shadowOf(KeepADBWebhookActions.setAutomaticSync(context, true)).getRequestCode());
         codes.add(shadowOf(KeepADBWebhookActions.setAutomaticSync(context, false)).getRequestCode());
         codes.add(shadowOf(KeepADBWebhookActions.setup(context)).getRequestCode());
-        assertEquals(4, codes.size());
-    }
-
-    /** The alert's own "Report now" keeps its identity; a widget must not replace it. */
-    @Test
-    public void aWidgetControlDoesNotReplaceTheAlertsReportNow() {
-        PendingIntent widget = KeepADBWebhookActions.reportNow(context);
-        PendingIntent alert = PendingIntent.getBroadcast(context, 52,
-                new Intent(context, KeepADBReceiver.class)
-                        .setAction(KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        assertNotEquals(shadowOf(widget).getRequestCode(), shadowOf(alert).getRequestCode());
+        assertEquals(3, codes.size());
     }
 
     @Test
@@ -180,12 +172,12 @@ public class KeepADBWebhookActionsTest {
         assertFalse(receiver.contains(KeepADBReceiver.ACTION_WEBHOOK_SYNC_DISABLE));
     }
 
-    // ---- Report now, tapped on a widget ------------------------------------------------------------
+    // ---- Report now, tapped on the webhook failure notification (the only place it is offered) ------------------------------------------------------------
 
     @Test
-    public void aWidgetTapWithSyncOffSendsNothingAndLeavesItOff() {
-        tap(KeepADBWebhookActions.reportNow(context));
-        tap(KeepADBWebhookActions.reportNow(context));
+    public void aReportNowTapWithSyncOffSendsNothingAndLeavesItOff() {
+        tapReportNow();
+        tapReportNow();
         settle();
 
         assertEquals("report now is a push of an enabled synchronization", 0,
@@ -194,10 +186,10 @@ public class KeepADBWebhookActionsTest {
     }
 
     @Test
-    public void aWidgetTapWithSyncOnReportsOnce() {
+    public void aReportNowTapWithSyncOnReportsOnce() {
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
 
-        tap(KeepADBWebhookActions.reportNow(context));
+        tapReportNow();
         settle();
 
         assertEquals(1, count("POST"));
@@ -207,11 +199,11 @@ public class KeepADBWebhookActionsTest {
 
     /** The receiver goes through the one entry point, which does not reuse a cached address. */
     @Test
-    public void aWidgetTapWithoutWifiSendsNothingEvenWithSyncOnAndACachedEndpoint() {
+    public void aReportNowTapWithoutWifiSendsNothingEvenWithSyncOnAndACachedEndpoint() {
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
 
-        tap(KeepADBWebhookActions.reportNow(context));
+        tapReportNow();
         settle();
 
         assertEquals(0, transport.getRequestCount());
@@ -219,7 +211,7 @@ public class KeepADBWebhookActionsTest {
     }
 
     @Test
-    public void tapsOnTwoWidgetsWhileAReportIsOnTheWireSendOneRequest() throws Exception {
+    public void tapsOnTwoButtonsWhileAReportIsOnTheWireSendOneRequest() throws Exception {
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         CountDownLatch started = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
@@ -232,10 +224,10 @@ public class KeepADBWebhookActionsTest {
             }
         });
 
-        tap(KeepADBWebhookActions.reportNow(context));   // the control widget
+        tapReportNow();   // the first notification button
         assertTrue(started.await(5, TimeUnit.SECONDS));
-        tap(KeepADBWebhookActions.reportNow(context));   // the overview widget
-        tap(KeepADBWebhookActions.reportNow(context));   // and a double tap
+        tapReportNow();   // a second button, for example after the shade was refreshed
+        tapReportNow();   // and a double tap
         release.countDown();
         settle();
 
@@ -243,10 +235,10 @@ public class KeepADBWebhookActionsTest {
     }
 
     @Test
-    public void aWidgetTapWithoutADestinationSendsNothingAndChangesNothing() {
+    public void aReportNowTapWithoutADestinationSendsNothingAndChangesNothing() {
         KeepADBPreferences.setRegisterWebhookUrl(context, null);
 
-        tap(KeepADBWebhookActions.reportNow(context));
+        tapReportNow();
         settle();
 
         assertEquals(0, transport.getRequestCount());
@@ -274,8 +266,8 @@ public class KeepADBWebhookActionsTest {
 
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
         assertEquals(0, transport.getRequestCount());
-        assertEquals(KeepADBWidgetState.ReportNow.NEEDS_SETUP,
-                KeepADBWidgetState.project(context).webhook.reportNow);
+        assertEquals(KeepADBWidgetState.Sync.UNCONFIGURED,
+                KeepADBWidgetState.project(context).webhook.sync);
     }
 
     @Test

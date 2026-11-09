@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: Wireless Debugging while it looks for its port: a lighter dark surface. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/widget_ripple_on_dark">
+    <item>
+        <shape>
+            <solid android:color="@color/widget_busy" />
+            <corners android:radius="@dimen/widget_radius_tile" />
+        </shape>
+    </item>
+    <item android:id="@android:id/mask">
+        <shape>
+            <solid android:color="@android:color/white" />
+            <corners android:radius="@dimen/widget_radius_tile" />
+        </shape>
+    </item>
+</ripple>

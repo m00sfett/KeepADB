@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #912: a secondary control as an upright tile (4x1): symbol, label and state word, centered. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_tile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget_tile_off"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="48dp"
+    android:minWidth="48dp"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="4dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="6dp">
+
+    <ImageView
+        android:id="@+id/widget_tile_icon"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/widget_tile_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/widget_text"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="3dp" />
+
+    <TextView
+        android:id="@+id/widget_tile_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeMaxTextSize="12sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="@color/widget_text_soft"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:layout_marginTop="1dp" />
+</LinearLayout>

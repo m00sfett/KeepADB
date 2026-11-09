@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Schakelt draadloze foutopsporing in of uit voor ADB via wifi.</string>
     <string name="keep_alive_toggle">Permanent actief houden</string>
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>
-    <string name="widget_text_on">Draadloze foutopsporing: AAN</string>
-    <string name="widget_text_off">Draadloze foutopsporing: UIT</string>
     <string name="tile_permission_error">%1$s: Toestemming ontbreekt (pm grant vereist)</string>
     <string name="permission_error_toast">Toestemming ontbreekt. Voer eenmalig uit op PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Eindpunt voor draadloze foutopsporing</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Wifi-ADB uitschakelen</string>
     <string name="status_enabled_disconnected">Draadloze foutopsporing is AAN (Verbinding verbroken)</string>
     <string name="status_permission_missing">Systeemtoestemming ontbreekt</string>
-    <string name="widget_text_disconnected">Draadloze foutopsporing: Verbinding verbroken</string>
-    <string name="widget_text_connected_format">Draadloze foutopsporing: AAN (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Toestemming ontbreekt</string>
     <string name="tile_state_off">Uit</string>
     <string name="tile_state_disconnected">Niet verbonden</string>
     <string name="tile_state_searching">Zoeken…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Bezig met omschakelen…</string>
     <string name="state_pending">Bezig met omschakelen…</string>
     <string name="tile_state_keep_alive_waiting">Uit – Keep-Alive wacht</string>
-    <string name="widget_text_keep_alive_waiting">Draadloze foutopsporing: UIT (wacht)</string>
-    <string name="widget_text_pending">Draadloze foutopsporing: omschakelen…</string>
     <string name="toggle_failed_toast">Draadloze foutopsporing kon niet worden omgeschakeld. Probeer het opnieuw.</string>
     <string name="settings_section_network">Netwerk</string>
     <string name="network_head_mode">Automatisch opnieuw inschakelen: %1$s</string>
@@ -624,4 +617,37 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="webhook_alert_text_vpn">Loopt je webhook via een VPN-app, zonder die dan uit van batterijoptimalisatie.</string>
     <string name="webhook_alert_action_battery">Batterijtips</string>
     <string name="webhook_alert_action_report_now">Nu melden</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB-bediening</string>
+    <string name="widget_picker_description">Bediening voor draadloze foutopsporing, Keep-Alive en webhook. Toont meer naarmate je hem groter maakt.</string>
+    <string name="widget_action_adb">Foutopsp.</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Auto-synchr.</string>
+    <string name="widget_action_sync_description">Automatische webhook-synchronisatie</string>
+    <string name="widget_state_on">Aan</string>
+    <string name="widget_state_off_waiting">Uit, wacht</string>
+    <string name="widget_state_waiting">Wacht</string>
+    <string name="widget_state_paused">Gepauzeerd</string>
+    <string name="widget_state_setup">Instellen</string>
+    <string name="widget_webhook_unconfigured">Webhook: niet ingesteld</string>
+    <string name="widget_webhook_sync_off">Webhook: synchronisatie uit</string>
+    <string name="widget_webhook_sending">Webhook: melding wordt verzonden…</string>
+    <string name="widget_webhook_current">Webhook: huidig eindpunt gemeld</string>
+    <string name="widget_webhook_not_current">Webhook: huidig eindpunt nog niet gemeld</string>
+    <string name="widget_webhook_no_endpoint">Webhook: geen eindpunt om te melden</string>
+    <string name="widget_config_title">Widget aanpassen</string>
+    <string name="widget_config_primary">Hoofdactie (staat alleen in een kleine widget)</string>
+    <string name="widget_config_order">Volgorde van de acties</string>
+    <string name="widget_config_move_up">%1$s omhoog</string>
+    <string name="widget_config_move_down">%1$s omlaag</string>
+    <string name="widget_config_hide_details">Verbindingsgegevens in deze widget verbergen</string>
+    <string name="widget_config_hide_details_global">De privacyinstelling voor widgets verbergt de gegevens al in alle widgets.</string>
+    <string name="widget_config_save">Opslaan</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Aan</string>
+    <string name="widget_short_off">Uit</string>
+    <string name="widget_short_scan">Zoeken…</string>
+    <string name="widget_status_details_hidden">Details verborgen</string>
+    <string name="widget_description_port_format">%1$s, poort %2$d</string>
 </resources>

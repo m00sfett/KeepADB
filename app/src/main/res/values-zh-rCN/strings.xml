@@ -26,8 +26,6 @@
     <string name="toggle_subtext">开启或关闭无线调试，以便通过 Wi-Fi 使用 ADB。</string>
     <string name="keep_alive_toggle">保持持久启用</string>
     <string name="keep_alive_subtext">断开连接、网络变更或重启时自动重新连接</string>
-    <string name="widget_text_on">无线调试：开</string>
-    <string name="widget_text_off">无线调试：关</string>
     <string name="tile_permission_error">%1$s：缺少权限（需要 pm grant）</string>
     <string name="permission_error_toast">缺少权限。请在电脑上运行一次：\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">无线调试端点</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">关闭 Wifi-ADB</string>
     <string name="status_enabled_disconnected">无线调试已开启（未连接）</string>
     <string name="status_permission_missing">缺少系统权限</string>
-    <string name="widget_text_disconnected">无线调试：未连接</string>
-    <string name="widget_text_connected_format">无线调试：已开启（:%1$d）</string>
-    <string name="widget_text_permission_missing">%1$s：缺少权限</string>
     <string name="tile_state_off">关闭</string>
     <string name="tile_state_disconnected">未连接</string>
     <string name="tile_state_searching">搜索中…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">正在切换…</string>
     <string name="state_pending">正在切换…</string>
     <string name="tile_state_keep_alive_waiting">关闭 – Keep-Alive 等待中</string>
-    <string name="widget_text_keep_alive_waiting">无线调试：关（等待中）</string>
-    <string name="widget_text_pending">无线调试：正在切换…</string>
     <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
     <string name="settings_section_network">网络</string>
     <string name="network_head_mode">自动重新启用：%1$s</string>
@@ -623,4 +616,37 @@
     <string name="webhook_alert_text_vpn">如果你的 Webhook 通过 VPN 应用传输,请将该应用排除在电池优化之外。</string>
     <string name="webhook_alert_action_battery">电池提示</string>
     <string name="webhook_alert_action_report_now">立即报告</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB 控制</string>
+    <string name="widget_picker_description">无线调试、Keep-Alive 和 Webhook 控制。尺寸越大，显示越多。</string>
+    <string name="widget_action_adb">调试</string>
+    <string name="widget_action_keep_alive">常驻</string>
+    <string name="widget_action_sync">自动同步</string>
+    <string name="widget_action_sync_description">自动 Webhook 同步</string>
+    <string name="widget_state_on">开启</string>
+    <string name="widget_state_off_waiting">关闭，等待中</string>
+    <string name="widget_state_waiting">等待中</string>
+    <string name="widget_state_paused">已暂停</string>
+    <string name="widget_state_setup">去设置</string>
+    <string name="widget_webhook_unconfigured">Webhook：未设置</string>
+    <string name="widget_webhook_sync_off">Webhook：同步已关闭</string>
+    <string name="widget_webhook_sending">Webhook：正在发送报告…</string>
+    <string name="widget_webhook_current">Webhook：已报告当前端点</string>
+    <string name="widget_webhook_not_current">Webhook：尚未报告当前端点</string>
+    <string name="widget_webhook_no_endpoint">Webhook：没有可报告的端点</string>
+    <string name="widget_config_title">自定义小组件</string>
+    <string name="widget_config_primary">主要操作（小组件较小时单独显示）</string>
+    <string name="widget_config_order">操作顺序</string>
+    <string name="widget_config_move_up">上移 %1$s</string>
+    <string name="widget_config_move_down">下移 %1$s</string>
+    <string name="widget_config_hide_details">在此小组件中隐藏连接详情</string>
+    <string name="widget_config_hide_details_global">小组件隐私设置已在所有小组件中隐藏详情。</string>
+    <string name="widget_config_save">保存</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">开</string>
+    <string name="widget_short_off">关</string>
+    <string name="widget_short_scan">搜索…</string>
+    <string name="widget_status_details_hidden">详情已隐藏</string>
+    <string name="widget_description_port_format">%1$s，端口 %2$d</string>
 </resources>

@@ -23,6 +23,141 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.8] - Unreleased
+
+### Added
+- **Adaptive control widget (#912), design "hero and rail":** the placed widget (same provider,
+  same component) holds up to three controls: Wireless Debugging, Keep-Alive and automatic webhook
+  synchronization. The main action is the *hero*, a large tile that is a yellow gradient while it
+  is on; the others are flat pills, upright tiles or square symbol buttons. There are no borders.
+  Fill, symbol variant (filled, outlined, with dots, with an exclamation mark) and a word carry
+  every state, never the color alone; every text and symbol color has at least 4.5:1 contrast on
+  its fill (`KeepADBWidgetColorsTest`). `KeepADBWidgetLayout` chooses one of eight classes from the
+  reported size and the font scale `fs` (wide = 250 x `fs`, medium = 136 x `fs` dp; the tall classes
+  (stack, grid, panel) need the height of what they stack, see below; in a short widget as many square buttons as fit beside 70 x `fs` dp of room for the hero;
+  the thresholds follow what the launchers report, 137/144 dp for two cells and 176/193 dp for
+  two rows on Android 11/14):
+  1x1 the hero with the short label "ADB" and a short state word (no port), 2x1 the hero with its
+  port and one square button, 4x1 the hero and two upright tiles, 2x2 the hero (label, large port)
+  over two 48 dp pills, 4x2 the hero over two rows beside two pills that grow with the height,
+  plus one status line (endpoint or reason, then the webhook state; "Details hidden" while the
+  details are withheld) and the settings gear, which exists only there. Narrow and tall is a stack
+  (hero over two square buttons, from 114 dp). A larger font falls back to a smaller class. Android
+  12+ gets one view per size the launcher reports and lets it pick while resizing, Android 11 supplies
+  both orientations of the class the options select (`onAppWidgetOptionsChanged` rebuilds them). Words shrink to 85 percent before
+  they could be cut (never an ellipsis), the port never wraps, controls are at least 48 dp, and
+  TalkBack reads "name: state, port N" in full from the control's description even where only a
+  symbol or "ADB" is visible. The port is never shown in the 1x1; while the widget privacy switch or
+  the per-widget option hides the details it is `•••••`. Replaces the outlined tiles, the dashed
+  attention outline and the flat status box; the old `bg_widget_tile_*` drawables, `widget_tile`,
+  `widget_keepadb_flat` and the label-gives-way-at-large-fonts rule are gone. New strings (short
+  On/Off/Scan words, "Details hidden", the port description) in all 18 locales; "ADB" is not
+  translated.
+- **Per-widget settings (#912):** `KeepADBWidgetConfigActivity` (the widget's configure and
+  reconfigure activity, also reachable from the gear in the larger layouts) sets the main action,
+  the order of the three actions and "hide connection details" for that one widget.
+  `KeepADBWidgetConfig` stores them per `appWidgetId` in the private file `keepadb_widget_config`,
+  never in `keepadb_prefs`; `onDeleted` removes the instance's entry, `onDisabled` all of them.
+  The main action is the hero and the only control a small widget shows, the order fixes the
+  sequence of the others, so nothing moves when the widget grows. A widget placed before this version has no entry and shows
+  the defaults (Debugging, Keep-Alive, Auto-sync).
+- **Controls reuse the app's entry points:** Wireless Debugging uses the widget's existing toggle
+  broadcast (same action, request code and component as before, so already placed widgets keep
+  working), Keep-Alive the notification's action, the webhook controls `KeepADBWebhookActions`.
+  A missing grant opens the home screen instead of a failing write; the status line opens the
+  relevant place (home screen, network settings, webhook form). The webhook line
+  says "sync off" while it is off, never an old failure.
+- Widget picker label and description, a preview layout for the default 2x1 (Android 12+: the
+  hero with its port and a square button) and a picker image for Android 11, default size 2x1, resizable in both directions, `reconfigurable`;
+  on Android 12+ also `configuration_optional` (placed with the defaults, configured from the gear
+  or the launcher), Android 11 keeps the settings screen at placement. The settings screen's Save
+  button sits below the scrolling part, above the navigation bar; the move buttons are 52 dp.
+- **Widgets follow the setting while nothing runs:** `KeepADBWidgetRefreshJob` (a `JobScheduler`
+  content trigger on `adb_wifi_enabled`, scheduled while a widget exists) re-renders the widgets
+  after a change made elsewhere; read-only, no report, no discovery, no polling. Measured on an
+  API 34 emulator: the job fires within a second and survives `install -r`, but a force-stop
+  deletes it, so `KeepADBApplication.onCreate` now schedules it again at every process start when
+  a widget is placed and no job is pending (idempotent, no network). Remaining limit: between a
+  force-stop and the next process start the widget shows its last drawn state. New strings in all 18 locales; `docs/widgets.md`.
+
+### Fixed
+- **The Android 12+ entries follow the class choice (#912, re-review):** the responsive map was
+  keyed by each class's minimum size, but the host takes the entry with the smallest distance to
+  the widget, not the class order: 304 x 140 dp was the stack for `choose()` and the strip for the
+  host. `KeepADBWidgetViews.responsive` now builds one entry per size the launcher reports
+  (`OPTION_APPWIDGET_SIZES`, else the portrait and landscape sizes of the classic options, else the
+  declared default), each drawn as the class `choose()` gives that size, so the host's pick for a
+  reported size is that entry. `responsiveWidthDp` and `responsiveHeightDp` are gone. Hardened
+  against the platform's rules (re-review R3): at most 16 entries (the platform throws above
+  that; the largest sizes by area are kept and a refused map falls back to one view instead of a
+  crash), each key 2 dp below the reported size and drawn as the class of that key (an entry fits
+  only a widget that is not smaller than its key, so a widget a dp smaller than reported fit
+  nothing and got the smallest entry by area), and a 1 x 1 dp entry (the hero alone) that fits
+  every widget and so only wins where nothing else fits. Tests run the platform's own selection
+  (`RemoteViews.apply(…, size)`) for the reported sizes, a dp or two less, a rotation and a
+  widget smaller than every entry.
+- **Widget layout on Android 11 and in small rooms (#912, Codex review):** (1) The Android 11 path
+  (`KeepADBWidget.legacyViews`) now supplies both orientations with
+  `RemoteViews(landscape, portrait)`; a rotation changes neither the options nor sends an update, so a
+  widget built for one orientation kept its layout (a 2x2 grid in landscape instead of the strip).
+  (2) A tall class is chosen only when its content fits: `SizeClass.minHeightDp` adds the root
+  padding, the slot gaps, the fixed 48 dp pills, 52 dp buttons and status line and a hero that holds
+  its symbol and port box (stack 134, grid 184, panel 176 dp at font 1.0; 141, 193, 194 at 1.3; 155,
+  220, 244 at 2.0), and a room that cannot hold a class gets the next smaller one (panel, grid,
+  stack, strip or row). A 152 x 140 dp room used to be a grid whose hero had about 24 dp. Results:
+  on the Android 14 launcher (193 dp for two rows) a 2x2 is the grid at font 1.0, the stack at 1.3
+  and 2.0, a 4x2 the panel, the stack at 1.3 (its entry is keyed 2 dp below the 193 reported, the grid needs
+  193) and at 2.0; on the Android 11 launcher (176 dp)
+  a 2x2 is the stack at every font scale and a 4x2 the panel at font 1.0, the stack above.
+- **Port and square buttons of the widget (#912, review of round 3):** the port in the 2x2 and 4x2
+  hero was shrunk to about 13 sp and looked thin, because the uniform autosize of a
+  `wrap_content` box collapsed and the monospace family has no bold face. The port now sits in a
+  box of fixed height (28 sp for the 22 sp port, 21 sp for the 16 sp one) in
+  `sans-serif-condensed` bold with tabular figures, and uses the full size whenever it fits. The
+  square symbol buttons of the one-row classes were stretched to the height of the widget (a
+  pillar at font 2.0 in a 4x2); they are now one `ImageView` of 52 x 52 dp, centered in their
+  slot (the stack keeps its two buttons, each as wide as its half).
+- **The widget settings screen hid its last row (#912):** "Hide connection details in this widget"
+  sat half (API 34) or wholly (API 30) behind the edge of the scrolling part until scrolled. The
+  Save button was already outside the `ScrollView`, so nothing was drawn under it; the scrolling
+  part now fades at its bottom edge to show there is more, and its content ends 24 dp (was 16)
+  above the edge, so the row is fully visible when scrolled down, also at font scale 2.0.
+- **The widget did not redraw after a language change (#912):** a system language change
+  (`ACTION_LOCALE_CHANGED`, now in the widget receiver's filter), the in-app language below
+  Android 13 (`KeepADBLocaleHelper.setAppLanguage`) and a language or font scale change of a running
+  process (`KeepADBApplication.onConfigurationChanged`, which is how the in-app language arrives on
+  Android 13+) redraw the placed widgets from the read-only projection. Nothing is sent and no
+  discovery starts.
+
+### Changed
+- **Rendering is read-only:** `KeepADBWidget.refreshAll` no longer asks the endpoint coordinator
+  for a refresh once per widget; every caller already refreshes the coordinator itself. Resizing
+  and state refreshes never send or poll. `onUpdate` (placement and boot) keeps one coordinator
+  refresh per update, because with Keep-Alive off nothing else restarts the coordinator after a
+  restart (`BootReceiver` starts the service only for Keep-Alive).
+- **"Report now" left the widget (#912):** the control widget has three controls (Debugging,
+  Keep-Alive, Auto-sync). `KeepADBWebhookActions.reportNow`, the widget tile and the
+  `KeepADBWidgetState.Webhook.reportNow` projection are removed, as are the five tile strings only
+  that tile used (`widget_state_ready`, `_sending`, `_sent`, `_failed`, `_no_endpoint`, all
+  locales) and `ic_widget_report`. Kept: `KeepADBReceiver.ACTION_WEBHOOK_REPORT_NOW`,
+  `KeepADBRegisterClient.reportNow` and the "Report now" button of the webhook failure
+  notification (#893). A stored widget configuration that names `report_now` still decodes: the
+  token is ignored and a main action that was "Report now" becomes Debugging.
+- The one-line `widget_text_*` strings are gone; the Wireless Debugging tile uses the tile's
+  state words.
+- The manifest now has a third exported component, the widget's configure activity, which the
+  launcher has to start; it accepts only the id of an existing widget of this app and changes only
+  that widget's own display settings. `KeepADBForceContractTest` pins the count and the filter.
+
+### Testing
+- `KeepADBWidgetConfigTest`, `KeepADBWidgetLayoutTest`, `KeepADBWidgetViewsTest`,
+  `KeepADBWidgetLifecycleTest`, `KeepADBWidgetApi30Test` and `KeepADBWidgetConfigActivityTest`:
+  the real RemoteViews per size class (tiles, order, main action, state words, details, touch
+  targets), per-instance persistence and cleanup, the privacy precedence, no send or discovery on
+  render and resize with a positive control, independent PendingIntent routing per widget, legacy
+  instances, the Android 11 fallback and re-applying a view without stacking tiles, and the
+  configure screen.
+
 ## [1.11.7] - Unreleased
 
 ### Added

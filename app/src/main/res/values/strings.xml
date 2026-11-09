@@ -30,11 +30,6 @@
     <string name="toggle_subtext">Turns Wireless Debugging on or off for ADB over Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep persistently active</string>
     <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>
-    <string name="widget_text_on">Wireless Debugging: ON</string>
-    <string name="widget_text_off">Wireless Debugging: OFF</string>
-    <string name="widget_text_disconnected">Wireless Debugging: Disconnected</string>
-    <string name="widget_text_connected_format">Wireless Debugging: ON (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Permission missing</string>
     <string name="tile_label" translatable="false">@string/app_name</string>
     <string name="tile_state_off">Off</string>
     <string name="tile_state_disconnected">Disconnected</string>
@@ -313,8 +308,6 @@
     <string name="status_pending">Switching…</string>
     <string name="state_pending">Switching…</string>
     <string name="tile_state_keep_alive_waiting">Off – Keep-Alive waiting</string>
-    <string name="widget_text_keep_alive_waiting">Wireless Debugging: OFF (waiting)</string>
-    <string name="widget_text_pending">Wireless Debugging: switching…</string>
     <string name="toggle_failed_toast">Wireless Debugging could not be switched. Please try again.</string>
     <string name="network_head_mode">Automatic re-enable: %1$s</string>
     <string name="network_mode_option_all_wifi">In all Wi-Fi networks</string>
@@ -631,4 +624,38 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="webhook_alert_text_vpn">If your webhook runs through a VPN app, exempt it from battery optimization.</string>
     <string name="webhook_alert_action_battery">Battery tips</string>
     <string name="webhook_alert_action_report_now">Report now</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">KeepADB controls</string>
+    <string name="widget_picker_description">Wireless Debugging, Keep-Alive and webhook controls. Shows more as you make it bigger.</string>
+    <string name="widget_action_adb">Debugging</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Auto-sync</string>
+    <string name="widget_action_sync_description">Automatic webhook synchronization</string>
+    <string name="widget_state_on">On</string>
+    <string name="widget_state_off_waiting">Off, waiting</string>
+    <string name="widget_state_waiting">Waiting</string>
+    <string name="widget_state_paused">Paused</string>
+    <string name="widget_state_setup">Set up</string>
+    <string name="widget_webhook_unconfigured">Webhook: not set up</string>
+    <string name="widget_webhook_sync_off">Webhook: sync off</string>
+    <string name="widget_webhook_sending">Webhook: sending report…</string>
+    <string name="widget_webhook_current">Webhook: current endpoint reported</string>
+    <string name="widget_webhook_not_current">Webhook: current endpoint not reported yet</string>
+    <string name="widget_webhook_no_endpoint">Webhook: no endpoint to report</string>
+    <string name="widget_config_title">Customize widget</string>
+    <string name="widget_config_primary">Main action (shown alone in a small widget)</string>
+    <string name="widget_config_order">Order of the actions</string>
+    <string name="widget_config_move_up">Move %1$s up</string>
+    <string name="widget_config_move_down">Move %1$s down</string>
+    <string name="widget_config_hide_details">Hide connection details in this widget</string>
+    <string name="widget_config_hide_details_global">The widget privacy setting already hides the details in every widget.</string>
+    <string name="widget_config_save">Save</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">On</string>
+    <string name="widget_short_off">Off</string>
+    <string name="widget_short_scan">Scan…</string>
+    <string name="widget_status_details_hidden">Details hidden</string>
+    <string name="widget_description_port_format">%1$s, port %2$d</string>
+    <string name="widget_label_adb_short" translatable="false">ADB</string>
 </resources>

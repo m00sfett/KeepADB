@@ -1,28 +1,81 @@
 package de.hohnepeople.keepadb;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+/**
+ * The control widget (#912): up to three controls (Wireless Debugging, Keep-Alive, automatic
+ * webhook synchronization), more of them and more detail the larger the widget is. Which
+ * ones, in which order and with which main action is configured per placed instance
+ * ({@link KeepADBWidgetConfig}); a widget placed before that existed shows the defaults and keeps
+ * its single Wireless Debugging toggle as the first control.
+ *
+ * <p><b>Rendering is read-only.</b> A render, a resize and a refresh after a state change only
+ * read the projection ({@link KeepADBWidgetState}); none of them sends a report or starts a
+ * discovery. The one place that asks the endpoint coordinator for work is {@link #onUpdate}, see
+ * there.
+ */
 public class KeepADBWidget extends AppWidgetProvider {
-    private static final String ACTION_TOGGLE = "de.hohnepeople.keepadb.TOGGLE";
+    private static final String ACTION_TOGGLE = KeepADBWidgetActions.ACTION_TOGGLE;
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
+    /**
+     * Placement and boot (the system sends this for each; {@code updatePeriodMillis} is 0, so it
+     * never repeats on a timer). It renders and then asks the endpoint coordinator for one refresh.
+     *
+     * <p>The refresh stays on purpose: after a restart {@link BootReceiver} starts the service (and
+     * with it the coordinator) only when Keep-Alive is on. With Keep-Alive off nothing else runs
+     * the coordinator then, so a placed widget is what makes the notification and the endpoint
+     * discovery pick up an already enabled Wireless Debugging. It is one call per update, not one
+     * per widget and not one per render, and an unchanged endpoint is not reported again (#866).
+     * Resizing and state changes never get here.
+     */
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
-        for (int id : ids) render(context, mgr, id, true);
+        for (int id : ids) render(context, mgr, id);
+        // Watch the setting for the widget while no screen or service is running (see the job).
+        KeepADBWidgetRefreshJob.schedule(context);
+        KeepADBEndpointCoordinator.refresh(context);
+    }
+
+    /** The launcher resized the widget (Android 11: the only signal; 12+: harmless). Render only. */
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager mgr, int id,
+            Bundle newOptions) {
+        render(context, mgr, id);
+    }
+
+    /** A removed instance takes its configuration with it and nothing else. */
+    @Override
+    public void onDeleted(Context context, int[] ids) {
+        KeepADBWidgetConfig.delete(context, ids);
+    }
+
+    /** The last instance is gone: no entry can belong to a widget any more. */
+    @Override
+    public void onDisabled(Context context) {
+        KeepADBWidgetRefreshJob.cancel(context);
+        KeepADBWidgetConfig.clearAll(context);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+        if (Intent.ACTION_LOCALE_CHANGED.equals(intent.getAction())) {
+            // The system language changed while the widgets were drawn in the old one (#912).
+            // Draw only; nothing is sent and no discovery starts.
+            refreshAllState(context);
+            return;
+        }
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");
@@ -48,72 +101,59 @@ public class KeepADBWidget extends AppWidgetProvider {
         }
     }
 
-    private void render(Context context, AppWidgetManager mgr, int id, boolean refreshNotification) {
+    /**
+     * Renders one instance from the read-only projection. Rendering sends nothing and starts no
+     * discovery (#912): a resize, a state change and a re-render only read; the coordinator is
+     * asked for a refresh by {@link #onUpdate} (placement, boot) and by the components that change
+     * the state, never from here.
+     */
+    private void render(Context context, AppWidgetManager mgr, int id) {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
-        // #910: one read-only projection; it also decides what the widget may reveal (#904).
-        KeepADBWidgetState projection = KeepADBWidgetState.project(context);
-        KeepADB.State state = projection.systemState;
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
-        String widgetText;
-        switch (state) {
-            case PERMISSION_MISSING:
-                widgetText = localizedContext.getString(R.string.widget_text_permission_missing, localizedContext.getString(R.string.app_name));
-                break;
-            case OFF:
-                widgetText = localizedContext.getString(R.string.widget_text_off);
-                break;
-            case OFF_KEEP_ALIVE_WAITING:
-                // #318: off, with the Keep-Alive wait as the explanation -- not an on state.
-                widgetText = localizedContext.getString(R.string.widget_text_keep_alive_waiting);
-                break;
-            case ENABLED_DISCONNECTED:
-                widgetText = localizedContext.getString(R.string.widget_text_disconnected);
-                break;
-            case ENABLED_CONNECTED:
-                // #904: with the widget privacy switch on, the projection carries no port and the
-                // widget shows the state only.
-                int port = projection.endpointPort;
-                if (port > 0) {
-                    widgetText = localizedContext.getString(R.string.widget_text_connected_format, port);
-                } else {
-                    widgetText = localizedContext.getString(R.string.widget_text_on);
-                }
-                break;
-            default:
-                widgetText = localizedContext.getString(R.string.widget_text_off);
-                break;
+        KeepADBWidgetConfig config = KeepADBWidgetConfig.load(context, id);
+        // #910/#904: one projection; the widget privacy switch decides first, the per-widget
+        // option can only hide more.
+        KeepADBWidgetState projection = KeepADBWidgetState.project(context, config.hideDetails);
+        float fontScale = context.getResources().getConfiguration().fontScale;
+        RemoteViews views;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+: one entry per size the launcher reports; it picks the entry for the size the
+            // widget has while the user resizes.
+            views = KeepADBWidgetViews.responsive(localizedContext, id, config, projection, fontScale,
+                    mgr.getAppWidgetOptions(id));
+        } else {
+            views = legacyViews(localizedContext, id, config, projection,
+                    mgr.getAppWidgetOptions(id), fontScale);
         }
-        // #318: show the debounce window instead of the stale pre-toggle value.
-        if (projection.adb == KeepADBWidgetState.Adb.PENDING) {
-            widgetText = localizedContext.getString(R.string.widget_text_pending);
-        }
-        views.setTextViewText(R.id.widget_label, widgetText);
-        views.setContentDescription(R.id.widget_label, widgetText);
-
-        Intent i = new Intent(context, KeepADBWidget.class).setAction(ACTION_TOGGLE);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        views.setOnClickPendingIntent(R.id.widget_label, pi);
-
         mgr.updateAppWidget(id, views);
-        if (refreshNotification) {
-            KeepADBEndpointCoordinator.refresh(context);
-        }
     }
 
-    /** Refreshes all placed widgets (also callable after a change through the app or tile). */
+    /**
+     * Android 11 has no sized entries, so both orientations are supplied and the host picks the
+     * one that matches the screen. A rotation changes neither the options nor sends an update
+     * (AOSP does not call onAppWidgetOptionsChanged when min and max stay the same), so a view
+     * built for the current orientation only would stay as it was.
+     */
+    static RemoteViews legacyViews(Context localizedContext, int id, KeepADBWidgetConfig config,
+            KeepADBWidgetState projection, Bundle options, float fontScale) {
+        RemoteViews landscape = KeepADBWidgetViews.forSize(localizedContext, id, config,
+                projection, KeepADBWidgetLayout.choose(options, true, fontScale));
+        RemoteViews portrait = KeepADBWidgetViews.forSize(localizedContext, id, config,
+                projection, KeepADBWidgetLayout.choose(options, false, fontScale));
+        return new RemoteViews(landscape, portrait);
+    }
+
+    /**
+     * Re-renders all placed widgets after a change through the app, the tile or a setting. Callers
+     * that change the state ask the endpoint coordinator themselves; this only draws.
+     */
     static void refreshAll(Context context) {
-        refreshAll(context, true);
+        refreshAllState(context);
     }
 
     /** Renders the current state without starting another endpoint discovery pass. */
     static void refreshAllState(Context context) {
-        refreshAll(context, false);
-    }
-
-    private static void refreshAll(Context context, boolean refreshNotification) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            MAIN_HANDLER.post(() -> refreshAll(context, refreshNotification));
+            MAIN_HANDLER.post(() -> refreshAllState(context));
             return;
         }
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
@@ -123,7 +163,18 @@ public class KeepADBWidget extends AppWidgetProvider {
         if (ids == null || ids.length == 0) return;
         KeepADBWidget provider = new KeepADBWidget();
         for (int id : ids) {
-            provider.render(context, mgr, id, refreshNotification);
+            provider.render(context, mgr, id);
         }
+    }
+
+    /** Re-renders one instance, for example after its configuration was saved. */
+    static void refresh(Context context, int appWidgetId) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            MAIN_HANDLER.post(() -> refresh(context, appWidgetId));
+            return;
+        }
+        AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        if (mgr == null) return;
+        new KeepADBWidget().render(context, mgr, appWidgetId);
     }
 }

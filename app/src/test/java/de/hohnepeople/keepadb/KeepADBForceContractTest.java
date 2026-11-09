@@ -120,8 +120,19 @@ public class KeepADBForceContractTest {
         assertTrue(receiver.contains("de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE"));
         assertFalse("The expiry alarm is inexact on purpose; no exact alarm permission",
                 manifest.contains("SCHEDULE_EXACT_ALARM") || manifest.contains("USE_EXACT_ALARM"));
-        assertEquals("The force mode adds no exported component: still exactly the launcher activity"
-                + " and the quick settings tile", 2, countOccurrences(manifest, "android:exported=\"true\""));
+        // The force mode adds none. #912 added one deliberately: the widget's configure activity,
+        // which the launcher must be able to start (it only accepts the id of an existing widget of
+        // this app and changes that widget's own display settings, see KeepADBWidgetConfigActivity).
+        assertEquals("exported components: the launcher activity, the quick settings tile and the"
+                + " widget's configure activity", 3, countOccurrences(manifest, "android:exported=\"true\""));
+        int configureStart = manifest.indexOf("android:name=\".KeepADBWidgetConfigActivity\"");
+        assertTrue(configureStart >= 0);
+        String configure = manifest.substring(configureStart, manifest.indexOf("</activity>", configureStart));
+        assertTrue(configure.contains("android.appwidget.action.APPWIDGET_CONFIGURE"));
+        assertFalse("the configure activity answers to the launcher only, no other action",
+                configure.contains("android.intent.action.MAIN")
+                        || configure.contains("android.intent.action.VIEW")
+                        || configure.contains("android.intent.category.BROWSABLE"));
     }
 
     @Test

@@ -26,8 +26,6 @@
     <string name="toggle_subtext">Ativa ou desativa a depuração sem fio para ADB via Wi-Fi.</string>
     <string name="keep_alive_toggle">Manter sempre ativo</string>
     <string name="keep_alive_subtext">Reconexão automática em caso de queda, troca de rede ou reinicialização</string>
-    <string name="widget_text_on">Depuração sem fio: SIM</string>
-    <string name="widget_text_off">Depuração sem fio: NÃO</string>
     <string name="tile_permission_error">%1$s: Permissão ausente (pm grant necessário)</string>
     <string name="permission_error_toast">Permissão ausente. Execute uma vez no PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint de depuração sem fio</string>
@@ -217,9 +215,6 @@
     <string name="notification_action_disable">Desativar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuração sem fio ATIVADA (Desconectada)</string>
     <string name="status_permission_missing">Permissão do sistema ausente</string>
-    <string name="widget_text_disconnected">Depuração sem fio: Desconectada</string>
-    <string name="widget_text_connected_format">Depuração sem fio: ATIVADA (:%1$d)</string>
-    <string name="widget_text_permission_missing">%1$s: Permissão ausente</string>
     <string name="tile_state_off">Desativado</string>
     <string name="tile_state_disconnected">Desconectado</string>
     <string name="tile_state_searching">Procurando…</string>
@@ -307,8 +302,6 @@
     <string name="status_pending">Alternando…</string>
     <string name="state_pending">Alternando…</string>
     <string name="tile_state_keep_alive_waiting">Desativado – Keep-Alive aguardando</string>
-    <string name="widget_text_keep_alive_waiting">Depuração sem fio: NÃO (aguardando)</string>
-    <string name="widget_text_pending">Depuração sem fio: alternando…</string>
     <string name="toggle_failed_toast">Não foi possível alternar a depuração sem fio. Tente novamente.</string>
     <string name="settings_section_network">Rede</string>
     <string name="network_head_mode">Reativação automática: %1$s</string>
@@ -625,4 +618,37 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="webhook_alert_text_vpn">Se o seu webhook passa por um app de VPN, exclua-o da otimização de bateria.</string>
     <string name="webhook_alert_action_battery">Dicas de bateria</string>
     <string name="webhook_alert_action_report_now">Relatar agora</string>
+
+    <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
+    <string name="widget_picker_label">Controles do KeepADB</string>
+    <string name="widget_picker_description">Controles de depuração sem fio, Keep-Alive e Webhook. Mostra mais quanto maior for.</string>
+    <string name="widget_action_adb">Depuração</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
+    <string name="widget_action_sync">Sincr. auto</string>
+    <string name="widget_action_sync_description">Sincronização automática do Webhook</string>
+    <string name="widget_state_on">Ativado</string>
+    <string name="widget_state_off_waiting">Desativado, aguardando</string>
+    <string name="widget_state_waiting">Aguardando</string>
+    <string name="widget_state_paused">Pausado</string>
+    <string name="widget_state_setup">Configurar</string>
+    <string name="widget_webhook_unconfigured">Webhook: não configurado</string>
+    <string name="widget_webhook_sync_off">Webhook: sincronização desativada</string>
+    <string name="widget_webhook_sending">Webhook: enviando relatório…</string>
+    <string name="widget_webhook_current">Webhook: endpoint atual relatado</string>
+    <string name="widget_webhook_not_current">Webhook: endpoint atual ainda não relatado</string>
+    <string name="widget_webhook_no_endpoint">Webhook: nenhum endpoint para relatar</string>
+    <string name="widget_config_title">Personalizar widget</string>
+    <string name="widget_config_primary">Ação principal (sozinha em um widget pequeno)</string>
+    <string name="widget_config_order">Ordem das ações</string>
+    <string name="widget_config_move_up">Subir %1$s</string>
+    <string name="widget_config_move_down">Descer %1$s</string>
+    <string name="widget_config_hide_details">Ocultar detalhes da conexão neste widget</string>
+    <string name="widget_config_hide_details_global">A configuração de privacidade dos widgets já oculta os detalhes em todos os widgets.</string>
+    <string name="widget_config_save">Salvar</string>
+    <string name="widget_description_format">%1$s: %2$s</string>
+    <string name="widget_short_on">Ativo</string>
+    <string name="widget_short_off">Inativo</string>
+    <string name="widget_short_scan">Busca…</string>
+    <string name="widget_status_details_hidden">Detalhes ocultos</string>
+    <string name="widget_description_port_format">%1$s, porta %2$d</string>
 </resources>
