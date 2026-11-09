@@ -308,4 +308,25 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertTrue(sent.toString(), sent.contains("DELETE " + URL_A));
         assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
     }
+
+    @Test
+    public void anEndpointLossAfterALostAnswerWithdrawsTheUnsettledDestination() {
+        // Review R2: nothing is recorded, nothing is in flight, only the marker says B may hold
+        // the registration; the endpoint loss must not return early.
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        transport.setPostSuccess(false); // the POST ends with an I/O error (answer lost)
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+        assertEquals(URL_B, KeepADBPreferences.getWebhookDispatchedUrl(context));
+
+        transport.setPostSuccess(true);
+        transport.clearRequests();
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        drain();
+
+        assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
 }

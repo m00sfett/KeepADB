@@ -643,8 +643,11 @@ final class KeepADBRegisterClient {
                 return;
             }
             boolean wasInFlight = wlanUpdateInFlight;
+            // #923 (review R2): an unsettled dispatch (a POST whose answer was lost, or a stale
+            // success at the target) may hold a registration as well; it is withdrawn here too.
             boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
-                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty());
+                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty())
+                    || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null;
             if (!wasInFlight && !hadPrior) {
                 return;
             }

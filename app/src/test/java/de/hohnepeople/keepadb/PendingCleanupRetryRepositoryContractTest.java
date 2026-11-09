@@ -283,8 +283,8 @@ public class PendingCleanupRetryRepositoryContractTest {
         // #923: a superseded POST may still have registered; its withdrawal is queued before the
         // transaction gives up.
         String stale = update.substring(recheck, secondary);
-        assertTrue(stale, stale.indexOf("rememberPossibleRegistration(context, targetUrl);")
-                < stale.indexOf("return;"));
+        int remembered = stale.indexOf("rememberPossibleRegistration(context, targetUrl, false);");
+        assertTrue(stale, remembered >= 0 && remembered < stale.indexOf("return;"));
 
         int commit = update.indexOf("synchronized (KeepADBRegisterClient.class)", secondary);
         int remember = update.indexOf("KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember)",
