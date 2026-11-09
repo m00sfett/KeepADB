@@ -163,8 +163,9 @@ public class KeepADBRegisterCleanupLifecycleTest {
         Thread.sleep(100);
 
         // Timestamp, URL, endpoint and status used to be four independent apply() calls, so a
-        // crash between them could persist a URL without its endpoint.
-        assertEquals(1, context.preferences.applyCount.get());
+        // crash between them could persist a URL without its endpoint. #923: the dispatch marker
+        // is written before the POST (its own transaction); the snapshot clears it in its own.
+        assertEquals(2, context.preferences.applyCount.get());
         assertEquals(NEW_URL, KeepADBPreferences.getWebhookLastReportedUrl(context));
         assertEquals("192.168.1.51:41235", KeepADBPreferences.getWebhookLastReportedEndpoint(context));
         assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
@@ -655,8 +656,10 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
         Thread.sleep(100);
 
-        assertEquals("the queued spelling is attempted first and fails, then the URL is deleted",
-                2, transport.getRequestCount());
+        // #923: the flush leaves an entry for the resource the transaction deletes itself, so the
+        // resource gets one DELETE, not a failing one for the queued spelling first.
+        assertEquals("one DELETE for the resource, from the transaction", 1,
+                transport.getRequestCount());
         assertEquals(NEW_URL, transport.getLastRequest().url);
         assertTrue("the resource is gone, so its queued cleanup is obsolete: "
                         + KeepADBPreferences.getPendingWebhookCleanupUrls(context),

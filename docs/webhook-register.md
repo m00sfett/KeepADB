@@ -115,6 +115,16 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   flushes withdrawals already queued for earlier URLs whose DELETE failed (pending cleanups of
   registrations the app made itself). Without such a record, "off" while already off sends nothing;
   queued cleanups then wait for the next register activity.
+- **A report in flight when you switch off or change the URL (#923):** a POST that is already
+  running when synchronization goes off, the URL changes or the endpoint is lost may still register
+  at the receiver after the switch. Its answer arrives too late to update the stored report record,
+  so the app queues that destination as a pending cleanup instead: it is withdrawn with the next
+  register activity, which is the opt-out itself when you switch off, together with the last
+  recorded registration (so changing A to B and switching off during the POST to B withdraws both).
+  The destination of every POST is also written to the preferences before the request is sent; if
+  the process dies with the POST in flight, the next register activity treats it the same way. A
+  destination that is still the saved URL with synchronization on is not queued: its next report
+  overwrites that registration. A POST that returned a failure counts as not registered, as before.
 
 ## What the widgets and the tile show of the delivery (#910)
 

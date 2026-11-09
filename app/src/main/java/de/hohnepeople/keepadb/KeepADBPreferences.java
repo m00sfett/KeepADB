@@ -18,6 +18,8 @@ final class KeepADBPreferences {
     /** #893 (Codex review): the URL that accepted the success at {@link #KEY_WEBHOOK_LAST_SUCCESS_AT}. */
     private static final String KEY_WEBHOOK_LAST_SUCCESS_URL = "register_webhook_last_success_url";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
+    /** #923: the URL of a registering POST whose outcome is not settled yet (see the accessor). */
+    private static final String KEY_WEBHOOK_DISPATCHED_URL = "register_webhook_dispatched_url";
     private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
     private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
     /** #864: opt-in policy that turns Wireless Debugging off on an untrusted Wi-Fi; default off. */
@@ -418,6 +420,9 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
+        // #923: every snapshot is written by a settled register transaction, which also settles
+        // the dispatch marker; in the same editor transaction, so no crash can split the two.
+        editor.remove(KEY_WEBHOOK_DISPATCHED_URL);
         String sanitizedUrl = sanitizeWebhookUrl(url);
         if (sanitizedUrl == null) {
             editor.remove(KEY_WEBHOOK_LAST_URL);
@@ -601,6 +606,30 @@ final class KeepADBPreferences {
 
     static void removePendingWebhookCleanupUrl(Context context, String url) {
         removePendingCleanup(context, KEY_WEBHOOK_PENDING_CLEANUP, url);
+    }
+
+    /**
+     * #923: the destination of a registering POST that has been sent but whose outcome nothing has
+     * settled yet, or {@code null}. Written synchronously before the request, so a process that
+     * dies while the POST is in flight still knows where it may have registered. Like the pending
+     * cleanups, the raw URL is kept (the DELETE needs it) and sanitized only where it is used.
+     */
+    static String getWebhookDispatchedUrl(Context context) {
+        String url = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(KEY_WEBHOOK_DISPATCHED_URL, null);
+        return url == null || url.trim().isEmpty() ? null : url;
+    }
+
+    /** Writes or clears the #923 dispatch marker with {@code commit()}: it must land before the POST. */
+    static void setWebhookDispatchedUrl(Context context, String url) {
+        SharedPreferences.Editor editor =
+                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+        if (url == null || url.trim().isEmpty()) {
+            editor.remove(KEY_WEBHOOK_DISPATCHED_URL);
+        } else {
+            editor.putString(KEY_WEBHOOK_DISPATCHED_URL, url);
+        }
+        editor.commit();
     }
 
     /** The ordered shadow key for a legacy pending-cleanup {@code StringSet} key. */
