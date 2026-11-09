@@ -3,11 +3,13 @@ KeepADB helps keep Android Wireless Debugging available across device restarts, 
 Toggle Wireless Debugging from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and attempts recovery when Android disables it. Android may ask for approval to enable Wireless Debugging on Wi-Fi. Approve only expected prompts on a private network you trust. Select “Always allow on this network” if you want Android to allow Wireless Debugging automatically when your device reconnects to that network. KeepADB cannot grant this Android approval itself; its trusted-network rule is separate and only controls where automatic recovery may run. If Android does not confirm an automatic enable, KeepADB backs off instead of retrying rapidly.
 
 Features:
-* Quick Settings tile, home-screen widget, and main app controls
+* Quick Settings tile and main app controls
+* Two home-screen widgets: KeepADB controls grows with its size (Wireless Debugging, Keep-Alive, webhook auto-sync; main action and order per widget), KeepADB overview shows address, Wi-Fi, Keep-Alive and webhook delivery at a glance
 * Optional Keep-Alive service across restarts and network changes
 * Endpoint discovery through Android NSD/mDNS (_adb-tls-connect._tcp); timing depends on network conditions
 * Optional HTTP(S) webhook, disabled by default, for verified Wifi-ADB endpoints
-* Configurable status notification, endpoint display, and privacy mode to hide addresses in the app
+* Configurable status notification and endpoint display
+* Three optional privacy switches that hide names and addresses in the app, in notifications, and in widgets and the tile
 * Networks list to trust, block, and name Wi-Fi access points; optional Force mode, for a chosen time or until you end it
 * 19 interface languages and right-to-left layout support
 * No advertising, analytics, tracking, or third-party runtime libraries
