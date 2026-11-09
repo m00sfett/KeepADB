@@ -658,4 +658,26 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="widget_status_details_hidden">Details hidden</string>
     <string name="widget_description_port_format">%1$s, port %2$d</string>
     <string name="widget_label_adb_short" translatable="false">ADB</string>
+    <!-- #913: overview widget -->
+    <string name="overview_picker_label">KeepADB overview</string>
+    <string name="overview_picker_description">Connection, Wi-Fi, Keep-Alive and webhook delivery at a glance, with the auto-sync switch.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Not connected</string>
+    <string name="overview_wifi_name_unavailable">Name not readable</string>
+    <string name="overview_reason_permission">setup missing</string>
+    <string name="overview_reason_manual_off">turned off manually</string>
+    <string name="overview_reason_no_wifi">no Wi-Fi</string>
+    <string name="overview_reason_untrusted">network not trusted</string>
+    <string name="overview_reason_identity">network unknown</string>
+    <string name="overview_reason_backoff">retries paused</string>
+    <string name="overview_delivery_unconfigured">Not set up</string>
+    <string name="overview_delivery_sync_off">Sync off</string>
+    <string name="overview_delivery_sending">Sending report…</string>
+    <string name="overview_delivery_failed">Delivery failed</string>
+    <string name="overview_delivery_current">Current endpoint reported</string>
+    <string name="overview_delivery_not_current">Current endpoint not reported yet</string>
+    <string name="overview_delivery_no_endpoint">No endpoint to report</string>
+    <string name="overview_last_delivery">Last delivery %1$s</string>
+    <string name="overview_last_delivery_none">No delivery yet</string>
 </resources>

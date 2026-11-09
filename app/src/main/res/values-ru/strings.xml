@@ -652,4 +652,25 @@
     <string name="widget_short_scan">Поиск…</string>
     <string name="widget_status_details_hidden">Детали скрыты</string>
     <string name="widget_description_port_format">%1$s, порт %2$d</string>
+    <string name="overview_picker_label">Обзор KeepADB</string>
+    <string name="overview_picker_description">Подключение, Wi-Fi, Keep-Alive и доставка webhook с первого взгляда, с переключателем автосинхронизации.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Не подключено</string>
+    <string name="overview_wifi_name_unavailable">Имя недоступно</string>
+    <string name="overview_reason_permission">нет настройки</string>
+    <string name="overview_reason_manual_off">выключено вручную</string>
+    <string name="overview_reason_no_wifi">нет Wi-Fi</string>
+    <string name="overview_reason_untrusted">сеть не доверенная</string>
+    <string name="overview_reason_identity">сеть неизвестна</string>
+    <string name="overview_reason_backoff">повторы приостановлены</string>
+    <string name="overview_delivery_unconfigured">Не настроено</string>
+    <string name="overview_delivery_sync_off">Синхр. выкл.</string>
+    <string name="overview_delivery_sending">Отправка отчёта…</string>
+    <string name="overview_delivery_failed">Ошибка доставки</string>
+    <string name="overview_delivery_current">Текущая конечная точка передана</string>
+    <string name="overview_delivery_not_current">Текущая конечная точка ещё не передана</string>
+    <string name="overview_delivery_no_endpoint">Нет конечной точки для передачи</string>
+    <string name="overview_last_delivery">Последняя доставка %1$s</string>
+    <string name="overview_last_delivery_none">Доставок ещё не было</string>
 </resources>

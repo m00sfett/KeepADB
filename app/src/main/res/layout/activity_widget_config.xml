@@ -70,6 +70,7 @@
             android:paddingBottom="24dp">
 
             <TextView
+                android:id="@+id/widget_config_primary_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:accessibilityHeading="true"
@@ -88,6 +89,7 @@
                 android:orientation="vertical" />
 
             <TextView
+                android:id="@+id/widget_config_order_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

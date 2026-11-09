@@ -4,7 +4,6 @@ import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
 import android.app.job.JobService;
-import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.provider.Settings;
@@ -19,8 +18,9 @@ import android.provider.Settings;
  * the job when the setting changes, in a process that is started for it, and costs nothing while it
  * does not. The job only re-renders the placed widgets from the read-only projection; it sends
  * nothing, starts no discovery and does not poll. A content-triggered job runs once, so it schedules
- * itself again. {@link KeepADBWidget} schedules it when a widget is placed or the device started
- * (its {@code onUpdate}) and cancels it with the last widget.
+ * itself again. Both widget providers ({@link KeepADBWidget}, {@link KeepADBOverviewWidget}, #913)
+ * schedule it when a widget is placed or the device started (their {@code onUpdate}); it is
+ * cancelled when the last widget of either kind is gone.
  *
  * <p><b>After a force-stop.</b> {@code am force-stop} (and "Force stop" in the system settings)
  * deletes the app's scheduled jobs, and {@code onUpdate} does not run again by itself, so a widget
@@ -68,10 +68,8 @@ public class KeepADBWidgetRefreshJob extends JobService {
             Context app = context.getApplicationContext();
             JobScheduler scheduler = app.getSystemService(JobScheduler.class);
             if (scheduler == null || scheduler.getPendingJob(JOB_ID) != null) return;
-            AppWidgetManager manager = AppWidgetManager.getInstance(app);
-            if (manager == null) return;
-            int[] ids = manager.getAppWidgetIds(new ComponentName(app, KeepADBWidget.class));
-            if (ids != null && ids.length > 0) schedule(app);
+            // #913: either kind of widget (control or overview) needs the setting watched.
+            if (KeepADBWidget.anyPlaced(app)) schedule(app);
         } catch (RuntimeException ignored) {
             // Starting the process must never fail on this; the widget stays as it was.
         }

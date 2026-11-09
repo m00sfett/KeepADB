@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #913: the overview widget up to about 3 cells wide: one information card (Wireless Debugging,
+     Wi-Fi, Keep-Alive, webhook delivery; one tap target that only opens the app) and the
+     auto-sync pill under it, the widget's only control. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget_root"
+    android:orientation="vertical"
+    android:padding="@dimen/widget_gap_half">
+
+    <LinearLayout
+        android:id="@+id/widget_ov_card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/widget_gap_half"
+        android:layout_weight="1"
+        android:background="@drawable/bg_widget_tile_off"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:orientation="vertical"
+        android:paddingStart="14dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp" />
+
+    <FrameLayout
+        android:id="@+id/widget_ov_sync"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/widget_ov_sync_height"
+        android:layout_margin="@dimen/widget_gap_half" />
+</LinearLayout>

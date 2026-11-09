@@ -651,4 +651,25 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="widget_short_scan">Busca…</string>
     <string name="widget_status_details_hidden">Detalhes ocultos</string>
     <string name="widget_description_port_format">%1$s, porta %2$d</string>
+    <string name="overview_picker_label">Visão geral do KeepADB</string>
+    <string name="overview_picker_description">Conexão, Wi-Fi, Keep-Alive e entrega do webhook num relance, com o interruptor de sincronização automática.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Não conectado</string>
+    <string name="overview_wifi_name_unavailable">Nome ilegível</string>
+    <string name="overview_reason_permission">configuração em falta</string>
+    <string name="overview_reason_manual_off">desligado manualmente</string>
+    <string name="overview_reason_no_wifi">sem Wi-Fi</string>
+    <string name="overview_reason_untrusted">rede não fiável</string>
+    <string name="overview_reason_identity">rede desconhecida</string>
+    <string name="overview_reason_backoff">novas tentativas pausadas</string>
+    <string name="overview_delivery_unconfigured">Não configurado</string>
+    <string name="overview_delivery_sync_off">Sinc. desligada</string>
+    <string name="overview_delivery_sending">Enviando relatório…</string>
+    <string name="overview_delivery_failed">Falha na entrega</string>
+    <string name="overview_delivery_current">Endpoint atual comunicado</string>
+    <string name="overview_delivery_not_current">Endpoint atual ainda não comunicado</string>
+    <string name="overview_delivery_no_endpoint">Nenhum endpoint para comunicar</string>
+    <string name="overview_last_delivery">Última entrega %1$s</string>
+    <string name="overview_last_delivery_none">Nenhuma entrega ainda</string>
 </resources>

@@ -650,4 +650,25 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="widget_short_scan">Aranıyor…</string>
     <string name="widget_status_details_hidden">Ayrıntılar gizli</string>
     <string name="widget_description_port_format">%1$s, bağlantı noktası %2$d</string>
+    <string name="overview_picker_label">KeepADB özeti</string>
+    <string name="overview_picker_description">Bağlantı, Wi-Fi, Keep-Alive ve webhook teslimi tek bakışta, otomatik senkronizasyon anahtarıyla.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Bağlı değil</string>
+    <string name="overview_wifi_name_unavailable">Ad okunamıyor</string>
+    <string name="overview_reason_permission">kurulum eksik</string>
+    <string name="overview_reason_manual_off">elle kapatıldı</string>
+    <string name="overview_reason_no_wifi">Wi-Fi yok</string>
+    <string name="overview_reason_untrusted">ağ güvenilir değil</string>
+    <string name="overview_reason_identity">ağ bilinmiyor</string>
+    <string name="overview_reason_backoff">yeniden denemeler duraklatıldı</string>
+    <string name="overview_delivery_unconfigured">Kurulmadı</string>
+    <string name="overview_delivery_sync_off">Senk. kapalı</string>
+    <string name="overview_delivery_sending">Rapor gönderiliyor…</string>
+    <string name="overview_delivery_failed">Teslim başarısız</string>
+    <string name="overview_delivery_current">Geçerli uç nokta bildirildi</string>
+    <string name="overview_delivery_not_current">Geçerli uç nokta henüz bildirilmedi</string>
+    <string name="overview_delivery_no_endpoint">Bildirilecek uç nokta yok</string>
+    <string name="overview_last_delivery">Son teslim %1$s</string>
+    <string name="overview_last_delivery_none">Henüz teslim yok</string>
 </resources>
