@@ -46,6 +46,12 @@ are retrospective issue-version records and were never published as separate rel
   retries a queued withdrawal, and "off" with nothing outstanding sends nothing; the first, third and
   fourth scenario fail without the fix. docs/webhook-register.md wording.
 
+### Documentation
+- Documentation since 1.11.0 checked against the code: the previous network setting is quoted by its
+  Settings label (“In all Wi-Fi networks”), the diagnostics export is named “Export diagnostics”,
+  `docs/README.md` lists the home-screen widgets, and the store description and `260.txt` cover the
+  lock-screen option and the changes since 1.11.0. No app code changed; versionCode is unchanged.
+
 ## [1.12.5] - Unreleased
 
 ### Fixed
@@ -178,7 +184,8 @@ justifies a new minor version instead of another 1.11.x patch.
 
 ### Changed
 - **Version:** versionName `1.12.0`, versionCode 254; Fastlane note `254.txt` summarizes everything
-  since 1.11.0 within the F-Droid limit.
+  since 1.11.0 within the F-Droid limit. The stable release takes the newest versionCode, so its
+  note carries the same summary (`260.txt` at present; CONTRIBUTING documentation check, item 2).
 
 ### Documentation
 - Release documentation check (CONTRIBUTING.md): `docs/trusted-networks.md` and `docs/defaults.md`

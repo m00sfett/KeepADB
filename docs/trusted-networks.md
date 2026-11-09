@@ -24,7 +24,7 @@ updated with the Networks list (#762).
   points with the name of a trusted access point are trusted too. Names are derived from trusted
   access points; there is no separate name list. A blocked access point does not contribute its
   name. Because names can be imitated, this switch is off by default.
-- **Previous “All Wi-Fi networks” setting** (saved value `all_wifi`): every network is trusted,
+- **Previous “In all Wi-Fi networks” setting** (saved value `all_wifi`): every network is trusted,
   including a network whose identity cannot be read, **unless it is blocked**. Existing
   installations keep this setting unchanged; it is neither Force mode nor one of the protection
   levels (see Migration).
@@ -37,7 +37,7 @@ updated with the Networks list (#762).
 
 1. Block by BSSID.
 2. Block by Wi-Fi name (also applies when only the name is readable).
-3. Previous “All Wi-Fi networks” setting: trusted.
+3. Previous “In all Wi-Fi networks” setting: trusted.
 4. Trusted access point.
 5. Trusted name: derived (convenience switch) or legacy name allowlist, with an exact,
    case-sensitive match.
@@ -49,7 +49,7 @@ notification, list, or card; nothing is saved in that case. Blocked networks do 
 recorded as “recently prevented,” and are never enabled automatically. Only Force mode
 ([see below](#force-mode)) overrides a block; it is an overlay above this precedence order.
 
-Known limit: under “All Wi-Fi networks,” a network whose identity cannot be read remains trusted,
+Known limit: under “In all Wi-Fi networks,” a network whose identity cannot be read remains trusted,
 as it did before #760. A block cannot identify it without a readable identity. In allowlist mode,
 the same network is paused. Force mode does not change this behavior: while active it overrides
 blocks and trust, and afterward the exact saved setting applies again.
@@ -243,14 +243,14 @@ debugging on or off.
 
 **Current network, undecided.** Instead of a separate dialog, the decision view from #766
 (`NetworkDecisionView`) is embedded in the card, without “Decide later.” It also appears when the
-network is accepted only through the convenience switch or previous “All Wi-Fi networks” setting,
+network is accepted only through the convenience switch or previous “In all Wi-Fi networks” setting,
 so the user can explicitly trust or block that individual access point.
 
 **Convenience switch.** The “Also trust by Wi-Fi name” switch replaces the list's three modes:
 off = trusted access points only (BSSID); on = also access points with the name of a trusted one.
 The protection level is shown beside it. If both the convenience switch and legacy name list are
 on, the level is labeled “Wi-Fi name list (previous setting)” because the saved list extends access
-beyond names derived from trusted access points. Under the previous “All Wi-Fi networks” setting,
+beyond names derived from trusted access points. Under the previous “In all Wi-Fi networks” setting,
 the switch has no effect and the list says so.
 
 **Privacy (app switch, #904).** It replaces the entire list with a placeholder. No views or
@@ -260,7 +260,7 @@ this for the list until the screen stops; it does not change the switch. In the 
 the same “Show” belongs to the network page only and ends when the page changes.
 
 **Limit.** A block can affect only a network whose name or address is readable. If the network
-cannot be read and the previous “All Wi-Fi networks” setting is active, KeepADB continues enabling
+cannot be read and the previous “In all Wi-Fi networks” setting is active, KeepADB continues enabling
 it as before #760 (the card describes it as “unreadable” and says recovery is not paused).
 
 ## Migration and rollback
@@ -270,14 +270,14 @@ nothing, and does not silently tighten or relax the policy.
 
 | Saved state | Model interpretation (`getProtectionLevel`) | Behavior |
 |---|---|---|
-| Mode `all_wifi` | Previous “All Wi-Fi networks” setting | Unchanged; blocks also apply |
+| Mode `all_wifi` | Previous “In all Wi-Fi networks” setting | Unchanged; blocks also apply |
 | Allowlist mode, name allowlist off or empty | Most secure | Unchanged |
 | Allowlist mode, name allowlist on with entries | Previous name allowlist | Unchanged; the name list remains in effect |
 | Allowlist mode, new convenience switch on | Balanced | Names of trusted access points |
 | Nothing saved (new installation) | Most secure | Trusted BSSIDs only |
 
 The two “previous” states are settings that do not map exactly to either protection level. They
-are therefore shown as-is rather than mapped to a level. Mapping “All Wi-Fi networks” to “Most
+are therefore shown as-is rather than mapped to a level. Mapping “In all Wi-Fi networks” to “Most
 secure” or “Balanced” would silently tighten it; mapping the name list to the derived convenience
 switch would both lose names (those allowed only through the list without a trusted access point)
 and add new ones (the names of every trusted access point). They are replaced only by an explicit
@@ -307,7 +307,7 @@ current band is shown). The previously enabled `wifi_aps_feature_enabled` option
 unchanged, but no code reads or writes it. A saved name list (`trusted_ssid_*`,
 `trusted_network_ssid_matching`) also remains active (“Wi-Fi name list (previous setting)”); it
 can no longer be edited without its former interface. The assistant's “Protection level” step
-(#761) provides the way to change it: the previous setting (“All Wi-Fi networks” or name allowlist)
+(#761) provides the way to change it: the previous setting (“In all Wi-Fi networks” or name allowlist)
 is preselected and marked “Less secure” or “Note,” and a selected preset replaces it without
 deleting saved lists (the name allowlist is disabled, not cleared). Open this step by selecting the
 “Protection level” row in Settings, or open the full assistant using the top “Setup assistant”
@@ -345,11 +345,11 @@ Force mode (#763) is the only exception to the precedence above: for a chosen pe
 Keep-Alive re-enables Wireless debugging on **every** Wi-Fi network, including foreign, blocked,
 and unreadable networks. It is an overlay, not a mode in the trust model. Starting and ending it
 do not read or change anything stored by the model (trusted access points, blocks, the convenience
-switch, or the previous setting). “Return to the previous protection level” therefore means only
+switch, or the previous setting). “Protection level back to: …” therefore means only
 that the overlay is removed. The overlay acts at the one decision point used by every automatic
 path (`KeepADBTrustedNetwork.evaluateCurrent`): the service (observer and minute interval),
 recovery pulse, USB handover, and protection checks immediately before writing. It does not replace
-Keep-Alive or a Wi-Fi connection, and a manual “Turn Wireless debugging off” remains in effect.
+Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wireless Debugging remains in effect.
 Adding trust to a blocked network remains impossible even in Force mode; Force mode changes neither
 blocks nor trust.
 
