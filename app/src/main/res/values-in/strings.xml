@@ -56,8 +56,10 @@
     <string name="action_settings">Pengaturan</string>
     <string name="privacy_menu_show_screen">Tampilkan di layar ini</string>
     <string name="privacy_menu_hide_screen">Sembunyikan di layar ini</string>
-    <string name="privacy_eye_masked_accessibility">Opsi privasi. Detail disembunyikan di layar ini.</string>
-    <string name="privacy_eye_shown_accessibility">Opsi privasi. Detail ditampilkan di layar ini.</string>
+    <string name="privacy_eye_masked_state">Detail disembunyikan di layar ini.</string>
+    <string name="privacy_eye_shown_state">Detail ditampilkan di layar ini.</string>
+    <string name="privacy_eye_long_press_action">Opsi privasi</string>
+    <string name="privacy_menu_settings">Setelan privasi…</string>
     <string name="menu_item_state_on">Aktif</string>
     <string name="menu_item_state_off">Nonaktif</string>
     <string name="privacy_switches_title">Privasi</string>

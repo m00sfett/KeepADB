@@ -12,15 +12,12 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
@@ -39,6 +36,10 @@ public class SettingsActivity extends Activity {
     /** #891/#893: the webhook alert's "Battery tips" action lands on the VPN battery hint. */
     public static final String EXTRA_FOCUS_WEBHOOK_VPN_HINT = "focus_webhook_vpn_hint";
     public static final String EXTRA_FOCUS_MISC = "focus_misc";
+    /** #941: expands and scrolls to the Privacy card (eye long-press menu, home menu). */
+    public static final String EXTRA_FOCUS_PRIVACY = "focus_privacy";
+    /** #940: expands and scrolls to the Diagnostics and Maintenance card (home menu). */
+    public static final String EXTRA_FOCUS_DIAGNOSTICS = "focus_diagnostics";
     // The menu opens the card heading; the existing Keep-Alive entry keeps its level-row target.
     public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
     private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
@@ -57,7 +58,7 @@ public class SettingsActivity extends Activity {
 
     private ScrollView scrollView;
     private View permissionPanel;
-    private MenuItem languageMenuItem;
+    private View languageButton;
     private TextView onboardingSummary;
 
     private Switch hideNotificationToggle;
@@ -109,6 +110,8 @@ public class SettingsActivity extends Activity {
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
             {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
                     R.id.settings_network_beta_arrow},
+            {R.id.settings_privacy_header, R.id.settings_privacy_body,
+                    R.id.settings_privacy_arrow},
             {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
     };
@@ -149,15 +152,9 @@ public class SettingsActivity extends Activity {
             bindCollapsibleCard(card[0], card[1], card[2]);
         }
 
-        Toolbar toolbar = findViewById(R.id.header_bar);
-        languageMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.settings_language_menu_item,
-                Menu.NONE, R.string.settings_language_menu_label);
-        languageMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() != R.id.settings_language_menu_item) return false;
-            showLanguageSelectionDialog();
-            return true;
-        });
+        // #942: the language button replaces the overflow menu whose only entry was Language.
+        languageButton = findViewById(R.id.btn_settings_language);
+        languageButton.setOnClickListener(v -> showLanguageSelectionDialog());
 
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
@@ -308,8 +305,15 @@ public class SettingsActivity extends Activity {
             }
         }
         if (consumeFocus(EXTRA_FOCUS_DETAILS)) {
-            focusCard(R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow);
+            focusPrivacyCard();
             focusWarningTarget(findViewById(R.id.privacy_switch_notifications));
+        }
+        if (consumeFocus(EXTRA_FOCUS_PRIVACY)) {
+            focusPrivacyCard();
+        }
+        if (consumeFocus(EXTRA_FOCUS_DIAGNOSTICS)) {
+            focusCard(R.id.settings_diagnostics_header, R.id.settings_diagnostics_body,
+                    R.id.settings_diagnostics_arrow);
         }
         if (consumeFocus(EXTRA_FOCUS_MISC)) {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body,
@@ -412,6 +416,12 @@ public class SettingsActivity extends Activity {
         if (consumedFocus.contains(extra)) return false;
         consumedFocus.add(extra);
         return true;
+    }
+
+    /** #941: expands the Privacy card and scrolls to it (also the eye menu's link on this page). */
+    void focusPrivacyCard() {
+        focusCard(R.id.settings_privacy_header, R.id.settings_privacy_body,
+                R.id.settings_privacy_arrow);
     }
 
     private void focusCard(int headerId, int bodyId, int arrowId) {
@@ -649,7 +659,7 @@ public class SettingsActivity extends Activity {
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
         String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
-        languageMenuItem.setContentDescription(
+        languageButton.setContentDescription(
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();

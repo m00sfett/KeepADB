@@ -56,8 +56,10 @@
     <string name="action_settings">設定</string>
     <string name="privacy_menu_show_screen">在此畫面顯示</string>
     <string name="privacy_menu_hide_screen">在此畫面隱藏</string>
-    <string name="privacy_eye_masked_accessibility">隱私選項。此畫面上的詳細資訊已隱藏。</string>
-    <string name="privacy_eye_shown_accessibility">隱私選項。此畫面上的詳細資訊已顯示。</string>
+    <string name="privacy_eye_masked_state">此畫面上的詳細資訊已隱藏。</string>
+    <string name="privacy_eye_shown_state">此畫面上的詳細資訊已顯示。</string>
+    <string name="privacy_eye_long_press_action">隱私選項</string>
+    <string name="privacy_menu_settings">隱私設定…</string>
     <string name="menu_item_state_on">開</string>
     <string name="menu_item_state_off">關</string>
     <string name="privacy_switches_title">隱私</string>

@@ -56,8 +56,10 @@
     <string name="action_settings">設定</string>
     <string name="privacy_menu_show_screen">この画面で表示</string>
     <string name="privacy_menu_hide_screen">この画面で非表示</string>
-    <string name="privacy_eye_masked_accessibility">プライバシーオプション。この画面では詳細が非表示です。</string>
-    <string name="privacy_eye_shown_accessibility">プライバシーオプション。この画面では詳細が表示されています。</string>
+    <string name="privacy_eye_masked_state">この画面では詳細が非表示です。</string>
+    <string name="privacy_eye_shown_state">この画面では詳細が表示されています。</string>
+    <string name="privacy_eye_long_press_action">プライバシーオプション</string>
+    <string name="privacy_menu_settings">プライバシー設定…</string>
     <string name="menu_item_state_on">オン</string>
     <string name="menu_item_state_off">オフ</string>
     <string name="privacy_switches_title">プライバシー</string>

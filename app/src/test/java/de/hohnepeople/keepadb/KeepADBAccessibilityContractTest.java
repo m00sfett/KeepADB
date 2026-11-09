@@ -200,8 +200,8 @@ public class KeepADBAccessibilityContractTest {
         KeepADBSettingsMenu menu = main.getSettingsMenu();
         assertNotNull(menu);
         assertTrue(menu.isShowing());
-        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
-                KeepADBSettingsMenu.ID_ALL_SETTINGS, R.string.menu_item_all_settings));
+        menu.onMenuItemClicked(menu.getItems().get(2));
+        assertEquals(KeepADBSettingsMenu.ID_ALL_SETTINGS, menu.getItems().get(2).id);
         Intent openedSettings = shadowOf(main).getNextStartedActivity();
         assertNotNull(openedSettings);
         assertEquals(SettingsActivity.class.getName(), openedSettings.getComponent().getClassName());
@@ -210,7 +210,8 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
-                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
+                R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
@@ -235,8 +236,7 @@ public class KeepADBAccessibilityContractTest {
         String languageTag = KeepADBLocaleHelper.getSelectedLanguageTag(settings);
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
-                ((android.widget.Toolbar) settings.findViewById(R.id.header_bar)).getMenu()
-                        .findItem(R.id.settings_language_menu_item).getContentDescription());
+                settings.findViewById(R.id.btn_settings_language).getContentDescription());
         assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
                         settings.getString(R.string.settings_usb_handover_mode_off)),
                 settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());

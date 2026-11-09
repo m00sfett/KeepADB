@@ -13,8 +13,8 @@ import android.widget.Switch;
  * reaches the affected surfaces at once.
  *
  * <p>All three are opt-in and off on a new installation. A switch hides data in its own area only;
- * the eye menu of the title bars and the header menu offer the same three switches ({@link
- * KeepADBPrivacyToggle}, {@link KeepADBSettingsMenu}) through the setters below.
+ * #941: the long-press menu of every eye button ({@link KeepADBPrivacyToggle}) offers the same
+ * switches, the lock-screen option included, through the setters below.
  */
 final class KeepADBPrivacySwitches {
     private KeepADBPrivacySwitches() {}
@@ -81,8 +81,7 @@ final class KeepADBPrivacySwitches {
 
     /**
      * #920: stores the lock-screen option and has the notifications that can carry details
-     * re-rendered with it. It is a standing preference, not a quick reveal, so the eye menu does
-     * not offer it.
+     * re-rendered with it. #941: the long-press menu of the eye offers it too.
      */
     static void setLockScreen(Activity activity, boolean want) {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",

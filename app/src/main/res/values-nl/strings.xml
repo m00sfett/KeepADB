@@ -56,8 +56,10 @@
     <string name="action_settings">Instellingen</string>
     <string name="privacy_menu_show_screen">Tonen op dit scherm</string>
     <string name="privacy_menu_hide_screen">Verbergen op dit scherm</string>
-    <string name="privacy_eye_masked_accessibility">Privacyopties. Details zijn verborgen op dit scherm.</string>
-    <string name="privacy_eye_shown_accessibility">Privacyopties. Details worden getoond op dit scherm.</string>
+    <string name="privacy_eye_masked_state">Details zijn verborgen op dit scherm.</string>
+    <string name="privacy_eye_shown_state">Details worden getoond op dit scherm.</string>
+    <string name="privacy_eye_long_press_action">Privacyopties</string>
+    <string name="privacy_menu_settings">Privacyinstellingen…</string>
     <string name="menu_item_state_on">Aan</string>
     <string name="menu_item_state_off">Uit</string>
     <string name="privacy_switches_title">Privacy</string>

@@ -42,6 +42,43 @@ public class SettingsEntryPointsTest {
                 R.id.settings_network_beta_body, R.id.settings_network_beta_arrow, R.id.settings_misc_body);
     }
 
+    @Test public void privacyIntentExpandsOnlyThePrivacyCard() {
+        // #941: home menu "Privacy" and the eye menu's link.
+        assertEntry(SettingsActivity.EXTRA_FOCUS_PRIVACY, R.id.settings_privacy_header,
+                R.id.settings_privacy_body, R.id.settings_privacy_arrow, R.id.settings_misc_body);
+    }
+
+    @Test public void diagnosticsIntentExpandsOnlyTheDiagnosticsCard() {
+        // #940: home menu "Diagnostics & Maintenance".
+        assertEntry(SettingsActivity.EXTRA_FOCUS_DIAGNOSTICS, R.id.settings_diagnostics_header,
+                R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow,
+                R.id.settings_privacy_body);
+    }
+
+    /** #941: the Privacy card sits between USB-ADB and Other and holds the four switches. */
+    @Test public void privacyCardSitsBetweenUsbAdbAndOtherAndHoldsTheSwitches() {
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        View usb = activity.findViewById(R.id.settings_usb_adb_header);
+        View privacy = activity.findViewById(R.id.settings_privacy_panel);
+        View misc = activity.findViewById(R.id.settings_misc_panel);
+        android.view.ViewGroup column = (android.view.ViewGroup) privacy.getParent();
+        assertEquals(column, misc.getParent());
+        int privacyIndex = column.indexOfChild(privacy);
+        assertEquals(privacyIndex + 1, column.indexOfChild(misc));
+        assertEquals(column.indexOfChild((View) usb.getParent()) + 1, privacyIndex);
+        View body = activity.findViewById(R.id.settings_privacy_body);
+        for (int id : new int[]{R.id.privacy_switch_app, R.id.privacy_switch_notifications,
+                R.id.privacy_switch_lockscreen, R.id.privacy_switch_widgets}) {
+            View view = activity.findViewById(id);
+            boolean inBody = false;
+            for (android.view.ViewParent p = view.getParent(); p != null; p = p.getParent()) {
+                if (p == body) inBody = true;
+                if (p == misc) throw new AssertionError("switch still under Other: " + id);
+            }
+            assertEquals("switch in the Privacy card: " + id, true, inBody);
+        }
+    }
+
     private void assertEntry(String extra, int header, int body, int arrow, int otherBody) {
         Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
                 .putExtra(extra, true);
