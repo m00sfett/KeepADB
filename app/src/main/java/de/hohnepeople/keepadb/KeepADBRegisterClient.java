@@ -743,6 +743,12 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #934 (review): the due entries the last flush left to the transaction that runs next (it
+     * deletes or posts their resource itself). Confined to the register executor.
+     */
+    private static final java.util.List<String> entriesLeftToTransaction = new java.util.ArrayList<>();
+
+    /**
      * #317: retries cleanups that a previous URL change could not deliver. Runs on the register
      * executor before the transaction that triggered it, so a lost cleanup is retried at the next
      * register activity (endpoint change, deregistration) rather than being forgotten.
@@ -753,12 +759,6 @@ final class KeepADBRegisterClient {
      * local bookkeeping on the preferences file: it runs here, on the register executor and outside
      * the class monitor, sends nothing and changes no entry.
      */
-    /**
-     * #934 (review): the due entries the last flush left to the transaction that runs next (it
-     * deletes or posts their resource itself). Confined to the register executor.
-     */
-    private static final java.util.List<String> entriesLeftToTransaction = new java.util.ArrayList<>();
-
     private static void flushPendingCleanups(Context context, String targetUrl, boolean deleting) {
         entriesLeftToTransaction.clear();
         if (context == null) return;
