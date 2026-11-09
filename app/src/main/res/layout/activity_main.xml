@@ -46,6 +46,12 @@
             android:padding="10dp"
             android:src="@drawable/ic_warning"
             android:visibility="gone" />
+        <!-- #941: the same privacy eye as in the other title bars, left of the gear. -->
+        <include
+            layout="@layout/view_privacy_toggle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp" />
         <ImageButton
             android:id="@+id/btn_open_settings"
             android:layout_width="48dp"

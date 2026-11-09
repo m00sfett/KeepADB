@@ -677,8 +677,7 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        MenuItem languageSelector = ((Toolbar) activity.findViewById(R.id.header_bar))
-                .getMenu().findItem(R.id.settings_language_menu_item);
+        View languageSelector = activity.findViewById(R.id.btn_settings_language);
         assertNotNull(languageSelector);
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(activity);
         String languageDisplayName = KeepADBLocaleHelper.getLanguageDisplayName(activity, currentLanguageTag);
@@ -693,24 +692,21 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void languageIsOnlyInNativeOverflowAndOpensExistingDialog() {
+    public void languageButtonReplacesTheOverflowAndOpensExistingDialog() {
+        // #942: no overflow menu any more; the language button opens the dialog directly.
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
         Toolbar toolbar = activity.findViewById(R.id.header_bar);
-        assertEquals(1, toolbar.getMenu().size());
-        MenuItem language = toolbar.getMenu().findItem(R.id.settings_language_menu_item);
+        assertEquals(0, toolbar.getMenu().size());
+        View language = activity.findViewById(R.id.btn_settings_language);
         assertNotNull(language);
-        assertEquals(activity.getString(R.string.settings_language_menu_label), language.getTitle());
-        assertFalse((Boolean) org.robolectric.util.ReflectionHelpers.callInstanceMethod(
-                language, "requiresActionButton"));
-        assertFalse((Boolean) org.robolectric.util.ReflectionHelpers.callInstanceMethod(
-                language, "requestsActionButton"));
+        assertTrue(language instanceof android.widget.ImageButton);
         assertNotNull(activity.findViewById(R.id.btn_back));
         assertTrue(activity.findViewById(R.id.btn_back).hasOnClickListeners());
         assertNotNull(activity.findViewById(R.id.btn_toggle_privacy_mode));
         assertTrue(activity.findViewById(R.id.btn_toggle_privacy_mode).hasOnClickListeners());
-        assertTrue(toolbar.getMenu().performIdentifierAction(R.id.settings_language_menu_item, 0));
+        assertTrue(language.performClick());
         assertDialogShowingWithTitle(R.string.settings_language_dialog_title, activity);
         ShadowAlertDialog.getLatestAlertDialog().dismiss();
         activity.findViewById(R.id.btn_back).performClick();
@@ -734,8 +730,7 @@ public class SettingsActivityTest {
                 .putExtra("adb", true);
         RuntimeEnvironment.getApplication().sendStickyBroadcast(stickyUsbState);
 
-        ((Toolbar) activity.findViewById(R.id.header_bar)).getMenu()
-                .performIdentifierAction(R.id.settings_language_menu_item, 0);
+        activity.findViewById(R.id.btn_settings_language).performClick();
         ShadowLooper.idleMainLooper();
 
         AlertDialog dialog = (AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
@@ -870,6 +865,7 @@ public class SettingsActivityTest {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body},
             {R.id.settings_network_beta_header, R.id.settings_network_beta_body},
+            {R.id.settings_privacy_header, R.id.settings_privacy_body},
             {R.id.settings_misc_header, R.id.settings_misc_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
     };
@@ -952,8 +948,7 @@ public class SettingsActivityTest {
     /**
      * #478: the last (version) settings entry is pinned -- always visible and never collapsible
      * -- unlike every other card in {@link #COLLAPSIBLE_CARDS}. #518: the former language entry
-     * was removed from this content column entirely (it is now in native toolbar overflow in the
-     * header), so it is no longer part of this contract.
+     * was removed from this content column entirely (it is now a button in the header, #942), so it is no longer part of this contract.
      */
     @Test
     public void versionCardIsPermanentlyVisibleAndDoesNotCollapse() {
@@ -1506,8 +1501,7 @@ public class SettingsActivityTest {
     public void languageSelectionDialogSurvivesRotation() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
-        ((Toolbar) controller.get().findViewById(R.id.header_bar)).getMenu()
-                .performIdentifierAction(R.id.settings_language_menu_item, 0);
+        controller.get().findViewById(R.id.btn_settings_language).performClick();
         assertDialogShowingWithTitle(R.string.settings_language_dialog_title, controller.get());
 
         ActivityController<SettingsActivity> restored = rotate(controller);

@@ -56,8 +56,10 @@
     <string name="action_settings">Configurações</string>
     <string name="privacy_menu_show_screen">Mostrar nesta tela</string>
     <string name="privacy_menu_hide_screen">Ocultar nesta tela</string>
-    <string name="privacy_eye_masked_accessibility">Opções de privacidade. Os detalhes estão ocultos nesta tela.</string>
-    <string name="privacy_eye_shown_accessibility">Opções de privacidade. Os detalhes são exibidos nesta tela.</string>
+    <string name="privacy_eye_masked_state">Os detalhes estão ocultos nesta tela.</string>
+    <string name="privacy_eye_shown_state">Os detalhes são exibidos nesta tela.</string>
+    <string name="privacy_eye_long_press_action">Opções de privacidade</string>
+    <string name="privacy_menu_settings">Configurações de privacidade…</string>
     <string name="menu_item_state_on">Ativado</string>
     <string name="menu_item_state_off">Desativado</string>
     <string name="privacy_switches_title">Privacidade</string>

@@ -360,7 +360,7 @@ public class MainActivityWarningInteractionTest {
             SettingsActivity activity = controller.get();
             shadowOf(android.os.Looper.getMainLooper()).idle();
             boolean details = extra.equals(SettingsActivity.EXTRA_FOCUS_DETAILS);
-            assertEquals(View.VISIBLE, activity.findViewById(details ? R.id.settings_misc_body
+            assertEquals(View.VISIBLE, activity.findViewById(details ? R.id.settings_privacy_body
                     : R.id.settings_webhook_body).getVisibility());
             assertTrue(activity.findViewById(details ? R.id.privacy_switch_notifications
                     : R.id.settings_webhook_url).hasFocus());

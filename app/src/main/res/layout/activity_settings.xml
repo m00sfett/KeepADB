@@ -5,7 +5,7 @@
     android:background="@color/ground"
     android:orientation="vertical">
 
-    <!-- Back navigation and the privacy action stay visible; Language is in native overflow. -->
+    <!-- Back navigation, the privacy eye and the language button (#942) stay visible. -->
     <Toolbar
         android:id="@+id/header_bar"
         android:layout_width="match_parent"
@@ -49,6 +49,18 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="4dp" />
 
+            <!-- #942: opens the language selection directly (replaces the overflow menu whose
+                 only entry was Language). -->
+            <ImageButton
+                android:id="@+id/btn_settings_language"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_btn_header"
+                android:contentDescription="@string/settings_language_menu_label"
+                android:padding="10dp"
+                android:src="@drawable/ic_language" />
+
         </LinearLayout>
     </Toolbar>
 
@@ -81,6 +93,14 @@
             android:paddingTop="8dp"
             android:paddingEnd="12dp"
             android:paddingBottom="8dp">
+
+            <!-- #943: decorative icon, kept out of the accessibility tree; the title names it. -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_settings_assistant" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -954,6 +974,70 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- #941: the stored privacy switches (#904, lock screen #920) in their own card between
+             USB-ADB and Other; the long press on any eye button offers the same switches. -->
+        <LinearLayout
+            android:id="@+id/settings_privacy_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_privacy_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <!-- Decorative card icon, kept out of the accessibility tree since the adjacent
+                     title text already names the section. -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_settings_privacy" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/privacy_switches_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_privacy_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_privacy_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <include layout="@layout/view_privacy_switches" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- #521: "Sonstiges" is now itself a collapsible outer card (previously #510's plain,
              permanently visible group heading), same pattern as the "Network (Beta)" (#519) and
              "USB-ADB" (#520) cards. Collapsed, only the title is visible; expanding it reveals
@@ -1058,26 +1142,6 @@
                     android:text="@string/settings_hide_notification_subtext"
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@color/border_red" />
-
-                <!-- #904: the three privacy switches (they replace the #592 opt-in for
-                     connection details in notifications) -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/privacy_switches_title"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <include layout="@layout/view_privacy_switches" />
 
                 <View
                     android:layout_width="match_parent"

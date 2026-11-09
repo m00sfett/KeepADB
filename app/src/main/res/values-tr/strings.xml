@@ -56,8 +56,10 @@
     <string name="action_settings">Ayarlar</string>
     <string name="privacy_menu_show_screen">Bu ekranda göster</string>
     <string name="privacy_menu_hide_screen">Bu ekranda gizle</string>
-    <string name="privacy_eye_masked_accessibility">Gizlilik seçenekleri. Ayrıntılar bu ekranda gizli.</string>
-    <string name="privacy_eye_shown_accessibility">Gizlilik seçenekleri. Ayrıntılar bu ekranda gösteriliyor.</string>
+    <string name="privacy_eye_masked_state">Ayrıntılar bu ekranda gizli.</string>
+    <string name="privacy_eye_shown_state">Ayrıntılar bu ekranda gösteriliyor.</string>
+    <string name="privacy_eye_long_press_action">Gizlilik seçenekleri</string>
+    <string name="privacy_menu_settings">Gizlilik ayarları…</string>
     <string name="menu_item_state_on">Açık</string>
     <string name="menu_item_state_off">Kapalı</string>
     <string name="privacy_switches_title">Gizlilik</string>

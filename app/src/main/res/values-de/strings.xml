@@ -81,8 +81,10 @@
     <string name="action_settings">Einstellungen</string>
     <string name="privacy_menu_show_screen">Auf diesem Bildschirm anzeigen</string>
     <string name="privacy_menu_hide_screen">Auf diesem Bildschirm ausblenden</string>
-    <string name="privacy_eye_masked_accessibility">Privatsphäre-Optionen. Details sind auf diesem Bildschirm ausgeblendet.</string>
-    <string name="privacy_eye_shown_accessibility">Privatsphäre-Optionen. Details werden auf diesem Bildschirm angezeigt.</string>
+    <string name="privacy_eye_masked_state">Details sind auf diesem Bildschirm ausgeblendet.</string>
+    <string name="privacy_eye_shown_state">Details werden auf diesem Bildschirm angezeigt.</string>
+    <string name="privacy_eye_long_press_action">Privatsphäre-Optionen</string>
+    <string name="privacy_menu_settings">Privatsphäre-Einstellungen…</string>
     <string name="menu_item_state_on">An</string>
     <string name="menu_item_state_off">Aus</string>
     <string name="privacy_switches_title">Privatsphäre</string>

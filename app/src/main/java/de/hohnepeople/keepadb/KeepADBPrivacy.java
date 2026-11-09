@@ -33,8 +33,8 @@ import java.util.WeakHashMap;
  *       turns the switch on again, and it never changes the stored switch.</li>
  * </ul>
  *
- * <p>On top of that the eye menu ({@link KeepADBPrivacyToggle}) sets a <b>screen override</b>
- * (Q9/Q13 of the PR #917 review): "Show on this screen" unmasks every part of the screen,
+ * <p>On top of that a tap on the eye ({@link KeepADBPrivacyToggle}, #941) sets a <b>screen
+ * override</b> (Q9/Q13 of the PR #917 review): "Show on this screen" unmasks every part of the screen,
  * "Hide on this screen" masks every part even while the switch is off. Like a scope reveal it
  * ends when the screen stops or is recreated, when the assistant changes its page, or when one of
  * the switches is changed; it never changes the stored switch. A "Show" of a part still works

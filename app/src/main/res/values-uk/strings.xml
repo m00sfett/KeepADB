@@ -56,8 +56,10 @@
     <string name="action_settings">Налаштування</string>
     <string name="privacy_menu_show_screen">Показати на цьому екрані</string>
     <string name="privacy_menu_hide_screen">Приховати на цьому екрані</string>
-    <string name="privacy_eye_masked_accessibility">Параметри конфіденційності. Подробиці на цьому екрані приховано.</string>
-    <string name="privacy_eye_shown_accessibility">Параметри конфіденційності. Подробиці на цьому екрані показано.</string>
+    <string name="privacy_eye_masked_state">Подробиці на цьому екрані приховано.</string>
+    <string name="privacy_eye_shown_state">Подробиці на цьому екрані показано.</string>
+    <string name="privacy_eye_long_press_action">Параметри конфіденційності</string>
+    <string name="privacy_menu_settings">Налаштування конфіденційності…</string>
     <string name="menu_item_state_on">Увімк.</string>
     <string name="menu_item_state_off">Вимк.</string>
     <string name="privacy_switches_title">Конфіденційність</string>

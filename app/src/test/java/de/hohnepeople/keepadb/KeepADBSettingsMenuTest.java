@@ -11,7 +11,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.junit.After;
@@ -29,8 +28,8 @@ import org.robolectric.shadows.ShadowAlertDialog;
 import java.util.List;
 
 /**
- * #823: Unit tests for the main view's settings dropdown menu (order, target intents,
- * inline privacy mode toggle without dismiss, dismiss on destroy).
+ * #823, #940: Unit tests for the main view's settings dropdown menu (order, icons, target
+ * intents, dismiss on open).
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -59,57 +58,37 @@ public class KeepADBSettingsMenuTest {
         KeepADB.resetForTesting();
     }
 
+    private static final int[] ORDER = {
+            KeepADBSettingsMenu.ID_LANGUAGE, KeepADBSettingsMenu.ID_DIVIDER_1,
+            KeepADBSettingsMenu.ID_ALL_SETTINGS, KeepADBSettingsMenu.ID_DIVIDER_2,
+            KeepADBSettingsMenu.ID_SETUP_ASSISTANT, KeepADBSettingsMenu.ID_NETWORK,
+            KeepADBSettingsMenu.ID_WEBHOOK, KeepADBSettingsMenu.ID_USB_ADB,
+            KeepADBSettingsMenu.ID_PRIVACY, KeepADBSettingsMenu.ID_MISC,
+            KeepADBSettingsMenu.ID_DIAGNOSTICS};
+    private static final int[] TITLES = {
+            R.string.menu_item_language, 0, R.string.menu_item_all_settings, 0,
+            R.string.settings_onboarding_title, R.string.settings_section_network,
+            R.string.settings_section_webhook, R.string.settings_section_usb_adb,
+            R.string.privacy_switches_title, R.string.settings_section_misc,
+            R.string.settings_diagnostics_title};
+    private static final int[] ICONS = {
+            R.drawable.ic_language, 0, R.drawable.ic_settings_gear, 0,
+            R.drawable.ic_settings_assistant, R.drawable.ic_settings_network,
+            R.drawable.ic_settings_sync, R.drawable.ic_usb, R.drawable.ic_settings_privacy,
+            R.drawable.ic_more_horiz, R.drawable.ic_settings_diagnostics};
+
     @Test
-    public void menuItemsMatchExactPrescribedOrderAndCount() {
+    public void menuItemsMatchExactPrescribedOrderTitlesAndIcons() {
         List<KeepADBSettingsMenu.MenuItem> items = KeepADBSettingsMenu.buildMenuItems();
-        assertEquals(13, items.size());
-
-        assertEquals(KeepADBSettingsMenu.ID_LANGUAGE, items.get(0).id);
-        assertEquals(R.string.menu_item_language, items.get(0).titleResId);
-        assertFalse(items.get(0).isDivider);
-        assertFalse(items.get(0).isCheckable);
-
-        assertEquals(KeepADBSettingsMenu.ID_PRIVACY_SCREEN, items.get(1).id);
-        assertEquals(R.string.privacy_menu_show_screen, items.get(1).titleResId);
-        assertFalse(items.get(1).isCheckable);
-
-        assertEquals(KeepADBSettingsMenu.ID_PRIVACY_MODE, items.get(2).id);
-        assertEquals(R.string.privacy_app_title, items.get(2).titleResId);
-        assertFalse(items.get(2).isDivider);
-        assertTrue(items.get(2).isCheckable);
-
-        assertEquals(KeepADBSettingsMenu.ID_PRIVACY_NOTIFICATIONS, items.get(3).id);
-        assertEquals(R.string.privacy_notifications_title, items.get(3).titleResId);
-        assertTrue(items.get(3).isCheckable);
-
-        assertEquals(KeepADBSettingsMenu.ID_PRIVACY_WIDGETS, items.get(4).id);
-        assertEquals(R.string.privacy_widgets_title, items.get(4).titleResId);
-        assertTrue(items.get(4).isCheckable);
-
-        assertEquals(KeepADBSettingsMenu.ID_DIVIDER_1, items.get(5).id);
-        assertTrue(items.get(5).isDivider);
-
-        assertEquals(KeepADBSettingsMenu.ID_ALL_SETTINGS, items.get(6).id);
-        assertEquals(R.string.menu_item_all_settings, items.get(6).titleResId);
-        assertFalse(items.get(6).isDivider);
-
-        assertEquals(KeepADBSettingsMenu.ID_DIVIDER_2, items.get(7).id);
-        assertTrue(items.get(7).isDivider);
-
-        assertEquals(KeepADBSettingsMenu.ID_SETUP_ASSISTANT, items.get(8).id);
-        assertEquals(R.string.settings_onboarding_title, items.get(8).titleResId);
-
-        assertEquals(KeepADBSettingsMenu.ID_NETWORK, items.get(9).id);
-        assertEquals(R.string.settings_section_network, items.get(9).titleResId);
-
-        assertEquals(KeepADBSettingsMenu.ID_WEBHOOK, items.get(10).id);
-        assertEquals(R.string.settings_section_webhook, items.get(10).titleResId);
-
-        assertEquals(KeepADBSettingsMenu.ID_USB_ADB, items.get(11).id);
-        assertEquals(R.string.settings_section_usb_adb, items.get(11).titleResId);
-
-        assertEquals(KeepADBSettingsMenu.ID_MISC, items.get(12).id);
-        assertEquals(R.string.settings_section_misc, items.get(12).titleResId);
+        assertEquals(ORDER.length, items.size());
+        for (int i = 0; i < ORDER.length; i++) {
+            KeepADBSettingsMenu.MenuItem item = items.get(i);
+            assertEquals("id at " + i, ORDER[i], item.id);
+            assertEquals("divider at " + i, ORDER[i] < 0, item.isDivider);
+            assertFalse("no check entry in the home menu (#940)", item.isCheckable);
+            assertEquals("title at " + i, TITLES[i], item.titleResId);
+            assertEquals("icon at " + i, ICONS[i], item.iconResId);
+        }
     }
 
     @Test
@@ -124,36 +103,9 @@ public class KeepADBSettingsMenuTest {
     }
 
     @Test
-    public void privacyModeItemTogglesPreferenceWithoutDismissingMenu() {
-        View settingsBtn = activity.findViewById(R.id.btn_open_settings);
-        settingsBtn.performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-        assertTrue(menu.isShowing());
-
-        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
-
-        KeepADBSettingsMenu.MenuItem privacyItem = menu.getItems().get(2);
-        menu.onMenuItemClicked(privacyItem);
-
-        // Preference flipped to true
-        assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
-        // Menu remains open
-        assertTrue(menu.isShowing());
-
-        // Toggle back
-        menu.onMenuItemClicked(privacyItem);
-        assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertTrue(menu.isShowing());
-    }
-
-    @Test
     public void languageItemLaunchesLanguageDialogAndDismissesMenu() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-        assertTrue(menu.isShowing());
-
-        KeepADBSettingsMenu.MenuItem langItem = menu.getItems().get(0);
-        menu.onMenuItemClicked(langItem);
+        KeepADBSettingsMenu menu = openMenu();
+        menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_LANGUAGE));
 
         assertFalse(menu.isShowing());
         AlertDialog latestDialog = (AlertDialog) ShadowAlertDialog.getLatestDialog();
@@ -163,11 +115,8 @@ public class KeepADBSettingsMenuTest {
 
     @Test
     public void allSettingsItemLaunchesSettingsActivityAndDismissesMenu() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(6);
-        menu.onMenuItemClicked(item);
+        KeepADBSettingsMenu menu = openMenu();
+        menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_ALL_SETTINGS));
 
         assertFalse(menu.isShowing());
         Intent nextIntent = shadowOf(activity).getNextStartedActivity();
@@ -178,11 +127,8 @@ public class KeepADBSettingsMenuTest {
 
     @Test
     public void setupAssistantItemLaunchesOnboardingActivityDirectlyAndDismissesMenu() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(8);
-        menu.onMenuItemClicked(item);
+        KeepADBSettingsMenu menu = openMenu();
+        menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_SETUP_ASSISTANT));
 
         assertFalse(menu.isShowing());
         Intent nextIntent = shadowOf(activity).getNextStartedActivity();
@@ -192,124 +138,89 @@ public class KeepADBSettingsMenuTest {
 
     @Test
     public void networkItemLaunchesSettingsWithNetworkCardExtra() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(9);
-        menu.onMenuItemClicked(item);
-
-        assertFalse(menu.isShowing());
-        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(nextIntent);
-        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
-        assertTrue(nextIntent.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK_CARD, false));
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_NETWORK,
+                SettingsActivity.EXTRA_FOCUS_NETWORK_CARD);
     }
 
     @Test
     public void webhookItemLaunchesSettingsWithWebhookExtra() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
-
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(10);
-        menu.onMenuItemClicked(item);
-
-        assertFalse(menu.isShowing());
-        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(nextIntent);
-        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
-        assertTrue(nextIntent.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_WEBHOOK, SettingsActivity.EXTRA_FOCUS_WEBHOOK);
     }
 
     @Test
     public void usbAdbItemLaunchesSettingsWithUsbExtra() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_USB_ADB, SettingsActivity.EXTRA_FOCUS_USB);
+    }
 
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(11);
-        menu.onMenuItemClicked(item);
-
-        assertFalse(menu.isShowing());
-        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(nextIntent);
-        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
-        assertTrue(nextIntent.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_USB, false));
+    @Test
+    public void privacyItemLaunchesSettingsWithPrivacyExtra() {
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_PRIVACY, SettingsActivity.EXTRA_FOCUS_PRIVACY);
     }
 
     @Test
     public void miscItemLaunchesSettingsWithMiscExtra() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_MISC, SettingsActivity.EXTRA_FOCUS_MISC);
+    }
 
-        KeepADBSettingsMenu.MenuItem item = menu.getItems().get(12);
-        menu.onMenuItemClicked(item);
-
-        assertFalse(menu.isShowing());
-        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(nextIntent);
-        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
-        assertTrue(nextIntent.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_MISC, false));
+    @Test
+    public void diagnosticsItemLaunchesSettingsWithDiagnosticsExtra() {
+        assertOpensSettingsWith(KeepADBSettingsMenu.ID_DIAGNOSTICS,
+                SettingsActivity.EXTRA_FOCUS_DIAGNOSTICS);
     }
 
     @Test
     public void dividersAreDisabledAndUnclickable() {
-        activity.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = activity.getSettingsMenu();
+        KeepADBSettingsMenu menu = openMenu();
         KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
 
         assertFalse(adapter.areAllItemsEnabled());
-        assertTrue(adapter.isEnabled(0)); // Language
-        assertTrue(adapter.isEnabled(1)); // Privacy
-        assertFalse(adapter.isEnabled(5)); // Divider 1
-        assertTrue(adapter.isEnabled(6)); // All settings
-        assertFalse(adapter.isEnabled(7)); // Divider 2
-        assertTrue(adapter.isEnabled(8)); // Assistant
-        assertTrue(adapter.isEnabled(9)); // Network
-        assertTrue(adapter.isEnabled(10)); // Webhook
-        assertTrue(adapter.isEnabled(11)); // USB
-        assertTrue(adapter.isEnabled(12)); // Misc
+        for (int i = 0; i < ORDER.length; i++) {
+            assertEquals("enabled at " + i, ORDER[i] >= 0, adapter.isEnabled(i));
+        }
 
-        // Clicking a divider does nothing
-        menu.onMenuItemClicked(menu.getItems().get(5));
+        menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_DIVIDER_1));
         assertTrue(menu.isShowing());
         assertNull(shadowOf(activity).getNextStartedActivity());
     }
 
     @Test
-    public void menuAdapterRendersCheckboxForPrivacyModeOnly() {
+    public void menuAdapterRendersIconsAndNoCheckboxes() {
+        KeepADBSettingsMenu menu = openMenu();
+        KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
+        for (int i = 0; i < ORDER.length; i++) {
+            if (ORDER[i] < 0) continue;
+            View row = adapter.getView(i, null, null);
+            assertEquals("icon at " + i, View.VISIBLE,
+                    row.findViewById(R.id.menu_item_icon).getVisibility());
+            assertEquals("no checkbox at " + i, View.GONE,
+                    row.findViewById(R.id.menu_item_checkbox).getVisibility());
+            assertEquals(activity.getString(TITLES[i]),
+                    ((TextView) row.findViewById(R.id.menu_item_title)).getText().toString());
+        }
+    }
+
+    private KeepADBSettingsMenu openMenu() {
         activity.findViewById(R.id.btn_open_settings).performClick();
         KeepADBSettingsMenu menu = activity.getSettingsMenu();
-        KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
+        assertTrue(menu.isShowing());
+        return menu;
+    }
 
-        // Language item
-        View langView = adapter.getView(0, null, null);
-        assertEquals(View.GONE, langView.findViewById(R.id.menu_item_checkbox).getVisibility());
-        assertEquals(activity.getString(R.string.menu_item_language),
-                ((TextView) langView.findViewById(R.id.menu_item_title)).getText().toString());
+    private static KeepADBSettingsMenu.MenuItem item(KeepADBSettingsMenu menu, int id) {
+        for (KeepADBSettingsMenu.MenuItem item : menu.getItems()) {
+            if (item.id == id) return item;
+        }
+        throw new AssertionError("no menu item " + id);
+    }
 
-        // "Hide on this screen" (nothing is masked yet): no checkbox, title follows the screen
-        View screenView = adapter.getView(1, null, null);
-        assertEquals(View.GONE, screenView.findViewById(R.id.menu_item_checkbox).getVisibility());
-        assertEquals(activity.getString(R.string.privacy_menu_hide_screen),
-                ((TextView) screenView.findViewById(R.id.menu_item_title)).getText().toString());
+    private void assertOpensSettingsWith(int id, String extra) {
+        KeepADBSettingsMenu menu = openMenu();
+        menu.onMenuItemClicked(item(menu, id));
 
-        // App privacy item
-        View privView = adapter.getView(2, null, null);
-        assertEquals(View.VISIBLE, privView.findViewById(R.id.menu_item_checkbox).getVisibility());
-        assertFalse(((CheckBox) privView.findViewById(R.id.menu_item_checkbox)).isChecked());
-
-        // Toggle preference and re-render
-        KeepADBPreferences.setAppPrivacyEnabled(activity, true);
-        View privViewChecked = adapter.getView(2, null, null);
-        assertTrue(((CheckBox) privViewChecked.findViewById(R.id.menu_item_checkbox)).isChecked());
-        assertEquals(activity.getString(R.string.privacy_menu_show_screen),
-                ((TextView) adapter.getView(1, null, null).findViewById(R.id.menu_item_title))
-                        .getText().toString());
-
-        // Notification and widget items reflect their own switches
-        KeepADBPreferences.setNotificationPrivacyEnabled(activity, true);
-        assertTrue(((CheckBox) adapter.getView(3, null, null)
-                .findViewById(R.id.menu_item_checkbox)).isChecked());
-        assertFalse(((CheckBox) adapter.getView(4, null, null)
-                .findViewById(R.id.menu_item_checkbox)).isChecked());
+        assertFalse(menu.isShowing());
+        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
+        assertNotNull(nextIntent);
+        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
+        assertTrue(nextIntent.getBooleanExtra(extra, false));
     }
 }

@@ -109,14 +109,17 @@ public class KeepADBAccessibilityContractTest {
         measureAndLayout(widget, 360, 160);
 
         int[] mainControls = {
-                R.id.btn_open_settings, R.id.btn_dismiss_advice_banner,
+                R.id.btn_open_settings, R.id.btn_toggle_privacy_mode, R.id.btn_dismiss_advice_banner,
                 R.id.toggle, R.id.keep_alive_toggle
         };
         for (int id : mainControls) assertMinSize(main.findViewById(id));
         assertMinSize(systemWarningAction);
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.btn_toggle_privacy_mode,
+                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
+                R.id.settings_privacy_header, R.id.privacy_switch_app,
+                R.id.privacy_switch_notifications, R.id.privacy_switch_lockscreen,
+                R.id.privacy_switch_widgets,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_adb_header,
@@ -154,6 +157,7 @@ public class KeepADBAccessibilityContractTest {
                 // #521: the outer "Sonstiges" card must be expanded to make its four directly
                 // nested sections' controls measurable/reachable; like #529's USB sections,
                 // they are not independently collapsible sub-cards with headers of their own.
+                R.id.settings_privacy_header,
                 R.id.settings_misc_header,
                 R.id.settings_diagnostics_header
         };
@@ -200,8 +204,8 @@ public class KeepADBAccessibilityContractTest {
         KeepADBSettingsMenu menu = main.getSettingsMenu();
         assertNotNull(menu);
         assertTrue(menu.isShowing());
-        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
-                KeepADBSettingsMenu.ID_ALL_SETTINGS, R.string.menu_item_all_settings));
+        menu.onMenuItemClicked(menu.getItems().get(2));
+        assertEquals(KeepADBSettingsMenu.ID_ALL_SETTINGS, menu.getItems().get(2).id);
         Intent openedSettings = shadowOf(main).getNextStartedActivity();
         assertNotNull(openedSettings);
         assertEquals(SettingsActivity.class.getName(), openedSettings.getComponent().getClassName());
@@ -210,7 +214,8 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
-                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
+                R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
@@ -235,8 +240,7 @@ public class KeepADBAccessibilityContractTest {
         String languageTag = KeepADBLocaleHelper.getSelectedLanguageTag(settings);
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
-                ((android.widget.Toolbar) settings.findViewById(R.id.header_bar)).getMenu()
-                        .findItem(R.id.settings_language_menu_item).getContentDescription());
+                settings.findViewById(R.id.btn_settings_language).getContentDescription());
         assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
                         settings.getString(R.string.settings_usb_handover_mode_off)),
                 settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());
@@ -365,7 +369,7 @@ public class KeepADBAccessibilityContractTest {
         // with the four notice/display-preference sections shown directly inside its body,
         // matching #529's one-level USB-ADB structure.
         // #518: the language panel no longer exists in this content column at all -- it moved to
-        // native toolbar overflow in the header -- so it is no longer part of this table.
+        // the header (a language button since #942) -- so it is no longer part of this table.
         int[] panels = {
                 R.id.settings_network_beta_panel,
                 R.id.settings_webhook_panel,

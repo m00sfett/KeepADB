@@ -56,8 +56,10 @@
     <string name="action_settings">설정</string>
     <string name="privacy_menu_show_screen">이 화면에서 표시</string>
     <string name="privacy_menu_hide_screen">이 화면에서 숨기기</string>
-    <string name="privacy_eye_masked_accessibility">개인정보 보호 옵션. 이 화면에서 세부 정보가 숨겨져 있습니다.</string>
-    <string name="privacy_eye_shown_accessibility">개인정보 보호 옵션. 이 화면에서 세부 정보가 표시됩니다.</string>
+    <string name="privacy_eye_masked_state">이 화면에서 세부 정보가 숨겨져 있습니다.</string>
+    <string name="privacy_eye_shown_state">이 화면에서 세부 정보가 표시됩니다.</string>
+    <string name="privacy_eye_long_press_action">개인정보 보호 옵션</string>
+    <string name="privacy_menu_settings">개인정보 보호 설정…</string>
     <string name="menu_item_state_on">켜짐</string>
     <string name="menu_item_state_off">꺼짐</string>
     <string name="privacy_switches_title">개인정보 보호</string>

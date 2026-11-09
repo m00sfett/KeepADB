@@ -65,13 +65,10 @@ public class PrivacyToggleTitleBarsTest {
     // --- presence ------------------------------------------------------------------------------
 
     @Test
-    public void settingsAndNetworkListHaveTheEyeInsideTheirHeaderAndMainViewUsesMenu() {
-        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
-        // #823: the eye is removed from MainActivity header (at most 2 header buttons: optional warning + settings).
-        assertNull("MainActivity header has no direct privacy eye (#823)",
-                main.findViewById(R.id.btn_toggle_privacy_mode));
-
+    public void mainViewSettingsAndNetworkListHaveTheEyeInsideTheirHeader() {
+        // #941: the main view has the eye again, left of the gear (replacing #823's menu entries).
         List<Activity> pages = new ArrayList<>();
+        pages.add(Robolectric.buildActivity(MainActivity.class).setup().get());
         pages.add(Robolectric.buildActivity(SettingsActivity.class).setup().get());
         pages.add(openList());
         for (Activity page : pages) {
@@ -109,8 +106,6 @@ public class PrivacyToggleTitleBarsTest {
                 // #761: the setup assistant shows no network name or address (its steps are choices
                 // between stored settings), so it has nothing for the eye to hide.
                 if (file.getFileName().toString().equals("activity_onboarding.xml")) continue;
-                // #823: the main view header is limited to at most 2 buttons; privacy toggle lives in the settings menu.
-                if (file.getFileName().toString().equals("activity_main.xml")) continue;
                 // #897: the warnings screen lists warning reasons and mute switches only, never a
                 // network name or address.
                 if (file.getFileName().toString().equals("activity_warnings.xml")) continue;
@@ -124,7 +119,7 @@ public class PrivacyToggleTitleBarsTest {
                 }
             }
         }
-        assertEquals("settings, network list, report history", 3, redBars);
+        assertEquals("main view, settings, network list, report history", 4, redBars);
         assertTrue(new File(layouts.toFile(), "view_privacy_toggle.xml").isFile());
     }
 
@@ -137,7 +132,7 @@ public class PrivacyToggleTitleBarsTest {
         KeepADBEyeMenuTestSupport.choose(list, KeepADBPrivacyToggle.ITEM_APP);
         assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
 
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 Robolectric.buildActivity(SettingsActivity.class).setup().get()
                         .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
     }
@@ -145,17 +140,13 @@ public class PrivacyToggleTitleBarsTest {
     @Test
     public void switchingOnTheMainViewIsSeenByTheListViewAndSettings() {
         MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
-        main.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = main.getSettingsMenu();
-        assertNotNull(menu);
-        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
-                KeepADBSettingsMenu.ID_PRIVACY_MODE, R.string.privacy_app_title, false, true));
+        KeepADBEyeMenuTestSupport.choose(main, KeepADBPrivacyToggle.ITEM_APP);
         assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
 
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 openList()
                         .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 Robolectric.buildActivity(SettingsActivity.class).setup().get()
                         .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
     }
@@ -166,11 +157,11 @@ public class PrivacyToggleTitleBarsTest {
         View eye = settings.findViewById(R.id.btn_toggle_privacy_mode);
         KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_APP);
         assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 eye.getContentDescription());
         KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_APP);
         assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertEquals(context.getString(R.string.privacy_eye_shown_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_shown_state),
                 eye.getContentDescription());
     }
 
@@ -210,22 +201,138 @@ public class PrivacyToggleTitleBarsTest {
                 shown(settings).contains("HomeMesh"));
     }
 
-    // --- the eye menu (#904, Q9/Q12/Q13 of the PR #917 review) ---------------------------------
+    // --- tap and long press (#941) ------------------------------------------------------------
 
     @Test
-    public void theEyeOpensAMenuWithTheScreenChoiceAndTheThreeStoredSwitches() {
-        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+    public void aTapTogglesOnlyThisScreenAndOpensNoMenu() {
         SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        android.widget.PopupMenu popup = KeepADBEyeMenuTestSupport.open(settings);
-        android.view.Menu menu = popup.getMenu();
-        assertEquals(4, menu.size());
-        assertEquals(context.getString(R.string.privacy_menu_hide_screen),
-                menu.findItem(KeepADBPrivacyToggle.ITEM_SCREEN).getTitle().toString());
-        assertFalse(menu.findItem(KeepADBPrivacyToggle.ITEM_SCREEN).isCheckable());
-        assertFalse(menu.findItem(KeepADBPrivacyToggle.ITEM_APP).isChecked());
-        assertTrue(menu.findItem(KeepADBPrivacyToggle.ITEM_NOTIFICATIONS).isChecked());
-        assertFalse(menu.findItem(KeepADBPrivacyToggle.ITEM_WIDGETS).isChecked());
+        assertFalse(KeepADBPrivacy.isScreenMasked(settings));
+        settings.findViewById(R.id.btn_toggle_privacy_mode).performClick();
+        assertTrue("the tap hides this screen", KeepADBPrivacy.isScreenMasked(settings));
+        assertNull("the tap opens no menu", KeepADBPrivacyToggle.menuOf(settings));
+        assertFalse("no stored switch changes", KeepADBPreferences.isAppPrivacyEnabled(context));
+        settings.findViewById(R.id.btn_toggle_privacy_mode).performClick();
+        assertFalse("a second tap shows it again", KeepADBPrivacy.isScreenMasked(settings));
+    }
+
+    @Test
+    public void theLongPressOpensTheFourStoredSwitchesAndTheSettingsLink() {
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+        KeepADBPreferences.setLockScreenPrivacyEnabled(context, true);
+        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(settings);
+        List<KeepADBSettingsMenu.MenuItem> items = menu.getItems();
+        int[] order = {KeepADBPrivacyToggle.ITEM_APP, KeepADBPrivacyToggle.ITEM_NOTIFICATIONS,
+                KeepADBPrivacyToggle.ITEM_LOCKSCREEN, KeepADBPrivacyToggle.ITEM_WIDGETS,
+                KeepADBPrivacyToggle.ITEM_DIVIDER, KeepADBPrivacyToggle.ITEM_PRIVACY_SETTINGS};
+        assertEquals(order.length, items.size());
+        for (int i = 0; i < order.length; i++) assertEquals(order[i], items.get(i).id);
+        for (int i = 0; i < 4; i++) assertTrue(items.get(i).isCheckable);
+        assertTrue(items.get(4).isDivider);
+        assertFalse(items.get(5).isCheckable);
+        assertEquals(R.string.privacy_menu_settings, items.get(5).titleResId);
+
+        KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
+        boolean[] checked = {false, true, true, false};
+        for (int i = 0; i < 4; i++) {
+            assertEquals("entry " + i, checked[i], ((android.widget.CheckBox) adapter
+                    .getView(i, null, null).findViewById(R.id.menu_item_checkbox)).isChecked());
+        }
         assertFalse("Opening the menu changes nothing", KeepADBPreferences.isAppPrivacyEnabled(context));
+        assertFalse("nor the screen", KeepADBPrivacy.isScreenMasked(settings));
+    }
+
+    @Test
+    public void aCheckInTheLongPressMenuKeepsItOpen() {
+        NetworkListActivity list = openList();
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(list);
+        menu.onMenuItemClicked(KeepADBEyeMenuTestSupport.find(menu,
+                KeepADBPrivacyToggle.ITEM_LOCKSCREEN));
+        assertTrue(KeepADBPreferences.isLockScreenPrivacyEnabled(context));
+        assertTrue("the menu stays open", menu.isShowing());
+        menu.onMenuItemClicked(KeepADBEyeMenuTestSupport.find(menu,
+                KeepADBPrivacyToggle.ITEM_LOCKSCREEN));
+        assertFalse(KeepADBPreferences.isLockScreenPrivacyEnabled(context));
+        assertTrue(menu.isShowing());
+    }
+
+    @Test
+    public void theSettingsLinkOpensSettingsAtThePrivacyCard() {
+        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(main);
+        menu.onMenuItemClicked(KeepADBEyeMenuTestSupport.find(menu,
+                KeepADBPrivacyToggle.ITEM_PRIVACY_SETTINGS));
+        assertFalse("the link closes the menu", menu.isShowing());
+        android.content.Intent next = shadowOf(main).getNextStartedActivity();
+        assertNotNull(next);
+        assertEquals(SettingsActivity.class.getName(), next.getComponent().getClassName());
+        assertTrue(next.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_PRIVACY, false));
+    }
+
+    @Test
+    public void onSettingsTheLinkOpensThePrivacyCardInPlace() {
+        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        assertEquals(View.GONE, settings.findViewById(R.id.settings_privacy_body).getVisibility());
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(settings);
+        menu.onMenuItemClicked(KeepADBEyeMenuTestSupport.find(menu,
+                KeepADBPrivacyToggle.ITEM_PRIVACY_SETTINGS));
+        ShadowLooper.idleMainLooper();
+        assertEquals(View.VISIBLE, settings.findViewById(R.id.settings_privacy_body).getVisibility());
+        assertNull("no second Settings screen", shadowOf(settings).getNextStartedActivity());
+    }
+
+    @Test
+    public void theLongPressMenuClosesWithTheScreenAndARecreatedScreenStartsWithoutOne() {
+        org.robolectric.android.controller.ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(controller.get());
+        controller.recreate();
+        ShadowLooper.idleMainLooper();
+        assertFalse("the menu closes when its screen goes away", menu.isShowing());
+        assertNull("the recreated eye has no menu until the next long press",
+                KeepADBPrivacyToggle.menuOf(controller.get()));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void theHomeEyeSitsLeftOfTheGear() {
+        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
+        View eye = main.findViewById(R.id.btn_toggle_privacy_mode);
+        View gear = main.findViewById(R.id.btn_open_settings);
+        ViewGroup bar = (ViewGroup) gear.getParent();
+        assertSame(bar, eye.getParent());
+        assertEquals(bar.indexOfChild(gear) - 1, bar.indexOfChild(eye));
+    }
+
+    @Test
+    public void talkBackNamesTheTapAndTheLongPress() {
+        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        View eye = settings.findViewById(R.id.btn_toggle_privacy_mode);
+        android.view.accessibility.AccessibilityNodeInfo info = eye.createAccessibilityNodeInfo();
+        String click = null;
+        String longClick = null;
+        for (android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction action
+                : info.getActionList()) {
+            if (action.getId() == android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) {
+                click = String.valueOf(action.getLabel());
+            } else if (action.getId()
+                    == android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK) {
+                longClick = String.valueOf(action.getLabel());
+            }
+        }
+        assertEquals(context.getString(R.string.privacy_menu_hide_screen), click);
+        assertEquals(context.getString(R.string.privacy_eye_long_press_action), longClick);
+
+        eye.performClick();
+        String clickAfter = null;
+        for (android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction action
+                : eye.createAccessibilityNodeInfo().getActionList()) {
+            if (action.getId() == android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) {
+                clickAfter = String.valueOf(action.getLabel());
+            }
+        }
+        assertEquals("the tap label follows the screen",
+                context.getString(R.string.privacy_menu_show_screen), clickAfter);
     }
 
     @Test
@@ -244,14 +351,14 @@ public class PrivacyToggleTitleBarsTest {
         assertTrue("Show on this screen unmasks: " + shown(list), shown(list).contains("Cafe-WLAN"));
         assertTrue("the stored switch stays on", KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals("the eye shows what the screen does",
-                context.getString(R.string.privacy_eye_shown_accessibility),
+                context.getString(R.string.privacy_eye_shown_state),
                 list.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
 
         controller.pause().stop();
         controller.start().resume().visible();
         ShadowLooper.idleMainLooper();
         assertFalse("leaving the screen ends it: " + shown(list), shown(list).contains("Cafe-WLAN"));
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 list.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
         controller.pause().stop().destroy();
     }
@@ -272,7 +379,7 @@ public class PrivacyToggleTitleBarsTest {
         assertFalse("Hide on this screen masks: " + hidden, hidden.contains("Cafe-WLAN"));
         assertFalse(hidden.contains("EE:02"));
         assertFalse("the stored switch stays off", KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 list.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
 
         controller.pause().stop();
@@ -297,16 +404,15 @@ public class PrivacyToggleTitleBarsTest {
     }
 
     @Test
-    public void theHeaderMenuOffersTheSameScreenChoiceOnTheHomeScreen() {
+    public void theHomeEyeTapShowsTheHomeScreenWithoutTouchingTheSwitch() {
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
-        main.findViewById(R.id.btn_open_settings).performClick();
-        KeepADBSettingsMenu menu = main.getSettingsMenu();
-        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
-                KeepADBSettingsMenu.ID_PRIVACY_SCREEN, R.string.privacy_menu_show_screen));
+        assertTrue(KeepADBPrivacy.isScreenMasked(main));
+        main.findViewById(R.id.btn_toggle_privacy_mode).performClick();
         assertFalse("the home screen is shown now", KeepADBPrivacy.isScreenMasked(main));
         assertTrue("the stored switch stays on", KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertTrue("the menu stays open", menu.isShowing());
+        assertEquals(context.getString(R.string.privacy_eye_shown_state),
+                main.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
     }
 
     @Test
@@ -338,7 +444,7 @@ public class PrivacyToggleTitleBarsTest {
         settings.findViewById(R.id.privacy_switch_widgets).performClick();
         ShadowLooper.idleMainLooper();
         assertTrue("also from the Settings switch", KeepADBPrivacy.isScreenMasked(settings));
-        assertEquals(context.getString(R.string.privacy_eye_masked_accessibility),
+        assertEquals(context.getString(R.string.privacy_eye_masked_state),
                 settings.findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
     }
 

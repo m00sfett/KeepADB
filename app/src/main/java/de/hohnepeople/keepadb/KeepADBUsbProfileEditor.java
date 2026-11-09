@@ -149,7 +149,7 @@ final class KeepADBUsbProfileEditor {
         // nothing was revealed either.
         boolean temporary = KeepADBPrivacy.hasTemporaryState(activity);
         if (!temporary && !KeepADBPreferences.isAppPrivacyEnabled(activity)) return;
-        // A list drawn under a temporary state (eye-menu override or "Show") would come back
+        // A list drawn under a temporary state (eye override or "Show") would come back
         // drawn for a state that has ended, unmasked or masked; it is closed either way.
         if (activeSwitchDialog != null
                 && (temporary || !KeepADBPrivacy.isMasked(activity, KeepADBPrivacy.SCOPE_USB))) {

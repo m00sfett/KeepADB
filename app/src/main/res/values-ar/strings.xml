@@ -56,8 +56,10 @@
     <string name="action_settings">الإعدادات</string>
     <string name="privacy_menu_show_screen">إظهار على هذه الشاشة</string>
     <string name="privacy_menu_hide_screen">إخفاء على هذه الشاشة</string>
-    <string name="privacy_eye_masked_accessibility">خيارات الخصوصية. التفاصيل مخفية على هذه الشاشة.</string>
-    <string name="privacy_eye_shown_accessibility">خيارات الخصوصية. التفاصيل ظاهرة على هذه الشاشة.</string>
+    <string name="privacy_eye_masked_state">التفاصيل مخفية على هذه الشاشة.</string>
+    <string name="privacy_eye_shown_state">التفاصيل ظاهرة على هذه الشاشة.</string>
+    <string name="privacy_eye_long_press_action">خيارات الخصوصية</string>
+    <string name="privacy_menu_settings">إعدادات الخصوصية…</string>
     <string name="menu_item_state_on">تشغيل</string>
     <string name="menu_item_state_off">إيقاف</string>
     <string name="privacy_switches_title">الخصوصية</string>

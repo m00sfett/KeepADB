@@ -118,7 +118,9 @@ public class MainActivity extends Activity {
             intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
             startActivity(intent);
         });
-        settingsMenu = new KeepADBSettingsMenu(this, findViewById(R.id.btn_open_settings));
+        settingsMenu = KeepADBSettingsMenu.forHome(this, findViewById(R.id.btn_open_settings));
+        // #941: tap masks or shows this screen, long press opens the privacy switches.
+        KeepADBPrivacyToggle.bind(this, this::refreshUiAndComponents);
         findViewById(R.id.btn_open_settings).setOnClickListener(v -> settingsMenu.show());
         findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
@@ -274,6 +276,7 @@ public class MainActivity extends Activity {
             recreate();
             return;
         }
+        KeepADBPrivacyToggle.update(this);
         if (adbContentObserver == null) {
             adbContentObserver = new android.database.ContentObserver(new android.os.Handler(android.os.Looper.getMainLooper())) {
                 @Override

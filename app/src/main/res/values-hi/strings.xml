@@ -56,8 +56,10 @@
     <string name="action_settings">सेटिंग्स</string>
     <string name="privacy_menu_show_screen">इस स्क्रीन पर दिखाएँ</string>
     <string name="privacy_menu_hide_screen">इस स्क्रीन पर छिपाएँ</string>
-    <string name="privacy_eye_masked_accessibility">गोपनीयता विकल्प। इस स्क्रीन पर विवरण छिपे हैं।</string>
-    <string name="privacy_eye_shown_accessibility">गोपनीयता विकल्प। इस स्क्रीन पर विवरण दिख रहे हैं।</string>
+    <string name="privacy_eye_masked_state">इस स्क्रीन पर विवरण छिपे हैं।</string>
+    <string name="privacy_eye_shown_state">इस स्क्रीन पर विवरण दिख रहे हैं।</string>
+    <string name="privacy_eye_long_press_action">गोपनीयता विकल्प</string>
+    <string name="privacy_menu_settings">गोपनीयता सेटिंग्स…</string>
     <string name="menu_item_state_on">चालू</string>
     <string name="menu_item_state_off">बंद</string>
     <string name="privacy_switches_title">गोपनीयता</string>

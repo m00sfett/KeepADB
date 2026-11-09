@@ -56,8 +56,10 @@
     <string name="action_settings">Cài đặt</string>
     <string name="privacy_menu_show_screen">Hiện trên màn hình này</string>
     <string name="privacy_menu_hide_screen">Ẩn trên màn hình này</string>
-    <string name="privacy_eye_masked_accessibility">Tùy chọn quyền riêng tư. Chi tiết đang ẩn trên màn hình này.</string>
-    <string name="privacy_eye_shown_accessibility">Tùy chọn quyền riêng tư. Chi tiết đang hiện trên màn hình này.</string>
+    <string name="privacy_eye_masked_state">Chi tiết đang ẩn trên màn hình này.</string>
+    <string name="privacy_eye_shown_state">Chi tiết đang hiện trên màn hình này.</string>
+    <string name="privacy_eye_long_press_action">Tùy chọn quyền riêng tư</string>
+    <string name="privacy_menu_settings">Cài đặt quyền riêng tư…</string>
     <string name="menu_item_state_on">Bật</string>
     <string name="menu_item_state_off">Tắt</string>
     <string name="privacy_switches_title">Quyền riêng tư</string>

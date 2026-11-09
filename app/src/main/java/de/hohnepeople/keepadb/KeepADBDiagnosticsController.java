@@ -129,7 +129,7 @@ final class KeepADBDiagnosticsController {
         KeepADBDiagnostics.event(activity, "diagnostics_export", "settings", "requested",
                 "share_sheet");
         String export = KeepADBDiagnostics.export(activity);
-        // #904: while the app privacy switch is on (or the screen is hidden from the eye menu), the
+        // #904: while the app privacy switch is on (or the screen is hidden with the eye), the
         // export leaves the app with the host, port, BSSID and SSID redacted in full, like the
         // feedback report draft; "Show on this screen" does not lift that.
         if (KeepADBPrivacy.isExportRedacted(activity)) {

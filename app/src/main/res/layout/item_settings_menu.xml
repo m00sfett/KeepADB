@@ -11,6 +11,16 @@
     android:paddingTop="12dp"
     android:paddingBottom="12dp">
 
+    <!-- #940: the icon of the section the entry opens; gone for check entries. Decorative, the
+         title names the entry. -->
+    <ImageView
+        android:id="@+id/menu_item_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="12dp"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/menu_item_title"
         android:layout_width="0dp"

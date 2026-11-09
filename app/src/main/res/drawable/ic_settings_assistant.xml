@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Magic wand with sparkles for the setup assistant row in Settings and the home menu (#943). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:strokeColor="@color/title_yellow"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M4,20L14.5,9.5" />
+    <path
+        android:fillColor="@color/title_yellow"
+        android:pathData="M17,2L17.8,4.2L20,5L17.8,5.8L17,8L16.2,5.8L14,5L16.2,4.2ZM20.5,9.5L21,11L22.5,11.5L21,12L20.5,13.5L20,12L18.5,11.5L20,11ZM9.5,3L10,4.5L11.5,5L10,5.5L9.5,7L9,5.5L7.5,5L9,4.5Z" />
+</vector>

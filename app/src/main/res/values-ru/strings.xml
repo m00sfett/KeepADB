@@ -56,8 +56,10 @@
     <string name="action_settings">Настройки</string>
     <string name="privacy_menu_show_screen">Показать на этом экране</string>
     <string name="privacy_menu_hide_screen">Скрыть на этом экране</string>
-    <string name="privacy_eye_masked_accessibility">Параметры конфиденциальности. Подробности на этом экране скрыты.</string>
-    <string name="privacy_eye_shown_accessibility">Параметры конфиденциальности. Подробности на этом экране показаны.</string>
+    <string name="privacy_eye_masked_state">Подробности на этом экране скрыты.</string>
+    <string name="privacy_eye_shown_state">Подробности на этом экране показаны.</string>
+    <string name="privacy_eye_long_press_action">Параметры конфиденциальности</string>
+    <string name="privacy_menu_settings">Настройки конфиденциальности…</string>
     <string name="menu_item_state_on">Вкл.</string>
     <string name="menu_item_state_off">Выкл.</string>
     <string name="privacy_switches_title">Конфиденциальность</string>
