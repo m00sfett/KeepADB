@@ -10,8 +10,8 @@
   for existing installations.
 - [Webhook contract](webhook-register.md): what the Android sender actually transmits and which
   receiver-side claims this repository does not establish.
-- [Control widget](widgets.md): the adaptive widget, its sizes and controls, the per-widget
-  settings and the privacy rules.
+- [Home-screen widgets](widgets.md): the control and overview widgets, their sizes and controls,
+  the per-widget settings and the privacy rules.
 - [Diagnostics export](diagnostics.md): local event buffer, debug journal, redaction, and manual
   sharing.
 - [Application ID](package-id.md): why `de.hohnepeople.keepadb` remains after the website move.
