@@ -32,8 +32,9 @@ final class KeepADBWidgetLayout {
 
     /**
      * The classes in the order of the room they need. {@link #minWidthDp} and {@link #minHeightDp}
-     * are the room a class is keyed by on Android 12+ (the launcher shows the largest entry that
-     * fits); {@link #choose(int, int, float)} yields the same class for every room.
+     * are the smallest room a class is chosen for: {@link #choose(int, int, float)} takes the
+     * largest class that fits and falls back one class at a time. (The Android 12+ entries are
+     * not keyed by these, see {@link #entryKeys}.)
      */
     enum SizeClass {
         ONE(0, false),
@@ -210,9 +211,8 @@ final class KeepADBWidgetLayout {
 
     /**
      * The class for a room: the largest class whose width and whole content height fit, falling
-     * back one class at a time (panel, grid, stack, then the one-row classes by width). Every
-     * comparison is against the same whole-dp keys the Android 12+ entries use, so the launcher's
-     * best fit and this choice cannot disagree on a boundary.
+     * back one class at a time (panel, grid, stack, then the one-row classes by width). Both paths
+     * use it: Android 11 for the portrait and the landscape room, Android 12+ for each entry key.
      */
     static SizeClass choose(int widthDp, int heightDp, float fontScale) {
         if (fits(SizeClass.PANEL, widthDp, heightDp, fontScale)) return SizeClass.PANEL;
@@ -292,6 +292,51 @@ final class KeepADBWidgetLayout {
     private static void addIfUsable(List<SizeF> sizes, int widthDp, int heightDp) {
         SizeF size = new SizeF(widthDp, heightDp);
         if (widthDp > 0 && heightDp > 0 && !sizes.contains(size)) sizes.add(size);
+    }
+
+    /** The most views {@code RemoteViews(Map)} accepts (it throws above 16; same in Android 12 to 15). */
+    static final int MAX_SIZED_VIEWS = 16;
+    /**
+     * An entry is keyed this many dp below the size the launcher reported. The platform takes an
+     * entry only when {@code ceil(width) + 1 > key}, so a widget a dp or two smaller than reported
+     * (rounding between the launcher's and the platform's dp) would otherwise fit no entry and get
+     * the smallest by area, a squeezed strip.
+     */
+    static final int FIT_TOLERANCE_DP = 2;
+    /** The entry that fits every widget: the hero alone, so nothing is ever squeezed. */
+    static final SizeF SAFE_KEY = new SizeF(1f, 1f);
+
+    /** The key of the entry for a reported size: whole dp, a little below it, at least 1. */
+    static SizeF keyFor(SizeF reported) {
+        return new SizeF(
+                Math.max(1, (int) Math.floor(reported.getWidth() + 0.001f) - FIT_TOLERANCE_DP),
+                Math.max(1, (int) Math.floor(reported.getHeight() + 0.001f) - FIT_TOLERANCE_DP));
+    }
+
+    /**
+     * The keys of the Android 12+ entries, at most {@link #MAX_SIZED_VIEWS}, in a fixed order. One
+     * per reported size ({@link #keyFor}), because the platform takes, among the entries that fit
+     * the widget, the one with the smallest squared distance to its size: an entry at a reported
+     * size is the nearest one for a widget of that size. Entries keyed at each class's minimum
+     * size are not (the 304 x 140 dp of the review was the stack for {@link #choose} and the
+     * strip for the host). Plus {@link #SAFE_KEY}, which fits every widget and so is taken only
+     * when nothing else fits (where the platform would otherwise take the smallest by area). More
+     * sizes than fit under the limit keep the largest ones by area (a launcher reports two to
+     * four).
+     */
+    static List<SizeF> entryKeys(Bundle options) {
+        List<SizeF> keys = new ArrayList<>();
+        for (SizeF reported : reportedSizes(options)) {
+            SizeF key = keyFor(reported);
+            if (!keys.contains(key) && !key.equals(SAFE_KEY)) keys.add(key);
+        }
+        if (keys.size() > MAX_SIZED_VIEWS - 1) {
+            java.util.Collections.sort(keys, (a, b) -> Float.compare(
+                    b.getWidth() * b.getHeight(), a.getWidth() * a.getHeight()));
+            keys = new ArrayList<>(keys.subList(0, MAX_SIZED_VIEWS - 1));
+        }
+        keys.add(SAFE_KEY);
+        return keys;
     }
 
     /** The class for a reported size (whole dp, rounded down: never more room than there is). */

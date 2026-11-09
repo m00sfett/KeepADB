@@ -87,7 +87,15 @@ are retrospective issue-version records and were never published as separate rel
   host. `KeepADBWidgetViews.responsive` now builds one entry per size the launcher reports
   (`OPTION_APPWIDGET_SIZES`, else the portrait and landscape sizes of the classic options, else the
   declared default), each drawn as the class `choose()` gives that size, so the host's pick for a
-  reported size is that entry. `responsiveWidthDp` and `responsiveHeightDp` are gone.
+  reported size is that entry. `responsiveWidthDp` and `responsiveHeightDp` are gone. Hardened
+  against the platform's rules (re-review R3): at most 16 entries (the platform throws above
+  that; the largest sizes by area are kept and a refused map falls back to one view instead of a
+  crash), each key 2 dp below the reported size and drawn as the class of that key (an entry fits
+  only a widget that is not smaller than its key, so a widget a dp smaller than reported fit
+  nothing and got the smallest entry by area), and a 1 x 1 dp entry (the hero alone) that fits
+  every widget and so only wins where nothing else fits. Tests run the platform's own selection
+  (`RemoteViews.apply(…, size)`) for the reported sizes, a dp or two less, a rotation and a
+  widget smaller than every entry.
 - **Widget layout on Android 11 and in small rooms (#912, Codex review):** (1) The Android 11 path
   (`KeepADBWidget.legacyViews`) now supplies both orientations with
   `RemoteViews(landscape, portrait)`; a rotation changes neither the options nor sends an update, so a

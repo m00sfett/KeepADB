@@ -47,7 +47,15 @@ sizes of the classic options, else the declared 152 x 92 dp), each drawn as the 
 `KeepADBWidgetLayout.choose` gives that size; the launcher picks the entry for the size the widget
 has while the user resizes, and a resize rebuilds the entries. (Entries keyed by each class's
 minimum size would disagree with the class choice: the host takes the entry with the smallest
-distance, not the largest class that fits.) On Android 11 both orientations are supplied, so a
+distance, not the largest class that fits.) Limits of the platform's selection, which the entries
+account for: the platform accepts at most 16 entries (`RemoteViews(Map)` throws above that, so
+there are never more, the largest sizes by area are kept, and a refused map falls back to one
+view for the first reported size); an entry fits a widget only if the widget is not smaller than
+its key (`ceil(width) + 1 > key`), so each key is 2 dp below the reported size and drawn as the
+class of that key, because a widget a dp smaller than reported would otherwise fit nothing; and
+where nothing fits the platform takes the smallest entry by area, so one more entry keyed 1 x 1
+dp shows the hero alone (it fits every widget but is only taken when no other entry fits). On
+Android 11 both orientations are supplied, so a
 rotation needs no update. With the font scale `fs`: wide = 250 dp x `fs`, medium = 136 dp x `fs`. All thresholds
 grow with the font scale, so a larger font falls back to a layout with fewer, still readable
 controls. The hero is in every class. A tall class is chosen only when everything it stacks fits

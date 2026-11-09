@@ -167,33 +167,49 @@ final class KeepADBWidgetViews {
     }
 
     /**
-     * Android 12+: one entry per size the launcher reports, each drawn as the class
-     * {@link KeepADBWidgetLayout#choose(SizeF, float)} gives that size. The host picks the entry
-     * whose key is closest to the widget's size, which for a reported size is that very entry, so
-     * the host cannot disagree with the class choice (keys at each class's minimum size did: the
-     * host takes the smallest distance, not the class order). The launcher reports the sizes with
-     * {@code OPTION_APPWIDGET_SIZES}; {@code onAppWidgetOptionsChanged} rebuilds the map on a resize.
+     * Android 12+: one entry per size the launcher reports (see
+     * {@link KeepADBWidgetLayout#entryKeys}), each drawn as the class
+     * {@link KeepADBWidgetLayout#choose(SizeF, float)} gives its key, plus an entry that fits every
+     * widget and shows the hero alone. The host takes, among the entries that fit, the one nearest
+     * to the widget's size, which for a reported size is its own entry; {@code
+     * onAppWidgetOptionsChanged} rebuilds the map on a resize. Should the platform refuse the map
+     * (it throws above 16 entries; this builds at most 16) the widget is one view for the first
+     * reported size instead of a crash.
      */
     static RemoteViews responsive(Context ctx, int appWidgetId, KeepADBWidgetConfig config,
             KeepADBWidgetState projection, float fontScale, Bundle options) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             throw new IllegalStateException("responsive RemoteViews need Android 12");
         }
-        return new RemoteViews(responsiveEntries(ctx, appWidgetId, config, projection, fontScale,
-                options));
+        RemoteViews fallback = forSize(ctx, appWidgetId, config, projection,
+                KeepADBWidgetLayout.choose(KeepADBWidgetLayout.reportedSizes(options).get(0), fontScale));
+        return sizedOrFallback(responsiveEntries(ctx, appWidgetId, config, projection, fontScale,
+                options), fallback);
+    }
+
+    /** The sized views (Android 12+), or the fallback when the platform refuses the map. */
+    @android.annotation.TargetApi(Build.VERSION_CODES.S)
+    static RemoteViews sizedOrFallback(Map<SizeF, RemoteViews> entries, RemoteViews fallback) {
+        try {
+            return new RemoteViews(entries);
+        } catch (RuntimeException refused) {
+            return fallback;
+        }
     }
 
     /**
-     * The entries of {@link #responsive}: one per reported size, each its own RemoteViews (the
-     * platform stores the ideal size in the views it is given, so they are not shared).
+     * The entries of {@link #responsive}: each its own RemoteViews (the platform stores the ideal
+     * size in the views it is given, so they are not shared), keyed by
+     * {@link KeepADBWidgetLayout#entryKeys} and drawn as the class of the key, so a widget a dp or
+     * two smaller than reported still gets a class that fits it.
      */
     static Map<SizeF, RemoteViews> responsiveEntries(Context ctx, int appWidgetId,
             KeepADBWidgetConfig config, KeepADBWidgetState projection, float fontScale,
             Bundle options) {
         Map<SizeF, RemoteViews> entries = new LinkedHashMap<>();
-        for (SizeF size : KeepADBWidgetLayout.reportedSizes(options)) {
-            entries.put(size, forSize(ctx, appWidgetId, config, projection,
-                    KeepADBWidgetLayout.choose(size, fontScale)));
+        for (SizeF key : KeepADBWidgetLayout.entryKeys(options)) {
+            entries.put(key, forSize(ctx, appWidgetId, config, projection,
+                    KeepADBWidgetLayout.choose(key, fontScale)));
         }
         return entries;
     }
