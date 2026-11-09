@@ -1,0 +1,1 @@
+Webhook withdrawals of a possibly registered address now stop after a few attempts, and switching sync off again retries them.

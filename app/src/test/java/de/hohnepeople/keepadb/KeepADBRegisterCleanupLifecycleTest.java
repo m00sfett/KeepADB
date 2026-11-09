@@ -156,6 +156,11 @@ public class KeepADBRegisterCleanupLifecycleTest {
     public void wlanSuccessSnapshotIsWrittenAsASingleApply() throws Exception {
         configureWebhook(NEW_URL);
         context.preferences.applyCount.set(0);
+        // #936: count from inside the POST, after the #923 dispatch marker was written before it,
+        // so only the writes that record the result are measured.
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method)) context.preferences.applyCount.set(0);
+        });
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
         waitUntil(() -> "192.168.1.51:41235".equals(
@@ -163,9 +168,9 @@ public class KeepADBRegisterCleanupLifecycleTest {
         Thread.sleep(100);
 
         // Timestamp, URL, endpoint and status used to be four independent apply() calls, so a
-        // crash between them could persist a URL without its endpoint. #923: the dispatch marker
-        // is written before the POST (its own transaction); the snapshot clears it in its own.
-        assertEquals(2, context.preferences.applyCount.get());
+        // crash between them could persist a URL without its endpoint. The snapshot also clears
+        // the #923 dispatch marker, in the same transaction.
+        assertEquals(1, context.preferences.applyCount.get());
         assertEquals(NEW_URL, KeepADBPreferences.getWebhookLastReportedUrl(context));
         assertEquals("192.168.1.51:41235", KeepADBPreferences.getWebhookLastReportedEndpoint(context));
         assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
