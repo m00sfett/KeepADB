@@ -56,6 +56,8 @@ final class KeepADBPreferences {
     private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
     static final String KEY_NOTIFICATION_PRIVACY_ENABLED = "notification_privacy_enabled";
     static final String KEY_WIDGET_PRIVACY_ENABLED = "widget_privacy_enabled";
+    /** #920: keep every KeepADB notification off the lock screen. */
+    static final String KEY_LOCKSCREEN_PRIVACY_ENABLED = "lockscreen_privacy_enabled";
     /** #904: bookkeeping, not a setting. Set once when the three switches were derived. */
     static final String KEY_PRIVACY_SPLIT_INITIALIZED = "privacy_split_initialized";
     // #507: former opt-in toggle for Wi-Fi & access point discovery. Since #769 no UI, since #788
@@ -144,6 +146,24 @@ final class KeepADBPreferences {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         ensurePrivacySplit(prefs);
         prefs.edit().putBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, enabled).apply();
+    }
+
+    /**
+     * #920: whether KeepADB notifications are kept off the lock screen entirely
+     * ({@code VISIBILITY_SECRET}), independent of Android's "sensitive content" setting. Default
+     * OFF; it is a new key, so existing installations keep what they had. Unlocked, the shade
+     * shows the notifications as the notification switch above decides.
+     */
+    static boolean isLockScreenPrivacyEnabled(Context context) {
+        if (context == null) return false;
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_LOCKSCREEN_PRIVACY_ENABLED, false);
+    }
+
+    static void setLockScreenPrivacyEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_LOCKSCREEN_PRIVACY_ENABLED, enabled).apply();
     }
 
     /**

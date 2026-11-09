@@ -66,6 +66,8 @@
     <string name="privacy_app_body">Masque les noms Wi-Fi, les adresses des points d’accès, les adresses IP et l’hôte du webhook sur chaque écran et dans chaque boîte de dialogue. « Afficher » les révèle jusqu’à ce que vous quittiez l’écran.</string>
     <string name="privacy_notifications_title">Masquer dans les notifications</string>
     <string name="privacy_notifications_body">Les notifications n’affichent que l’état, sans port, adresse IP, profil USB ni nom Wi-Fi. Un avis sur un nouveau Wi-Fi n’a alors pas de boutons et ouvre l’application. Tant que cette option est désactivée, ces détails peuvent aussi apparaître sur l’écran de verrouillage.</string>
+    <string name="privacy_lockscreen_title">Masquer sur l’écran de verrouillage</string>
+    <string name="privacy_lockscreen_body">Les notifications de KeepADB n’apparaissent pas sur l’écran de verrouillage, quoi qu’Android y affiche. Une fois déverrouillé, elles apparaissent comme réglé ci-dessus. Nécessite un verrouillage de l’écran par code, schéma ou mot de passe.</string>
     <string name="privacy_widgets_title">Masquer dans les widgets et la vignette</string>
     <string name="privacy_widgets_body">Le widget de l’écran d’accueil et la vignette des réglages rapides n’affichent que l’état, sans port ni adresse.</string>
     <string name="usb_profile_hidden_numbered">Profil %1$d</string>

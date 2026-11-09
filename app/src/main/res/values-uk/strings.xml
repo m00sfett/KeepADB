@@ -66,6 +66,8 @@
     <string name="privacy_app_body">Маскує назви Wi-Fi, адреси точок доступу, IP-адреси та хост вебхука на кожному екрані й у кожному діалозі. «Показати» відкриває їх, доки ви не залишите екран.</string>
     <string name="privacy_notifications_title">Приховувати в сповіщеннях</string>
     <string name="privacy_notifications_body">Сповіщення показують лише стан, без порту, IP-адреси, профілю USB і назви Wi-Fi. Повідомлення про нову мережу Wi-Fi тоді не має кнопок і відкриває застосунок. Поки параметр вимкнено, ці відомості можуть з’являтися й на екрані блокування.</string>
+    <string name="privacy_lockscreen_title">Приховувати на екрані блокування</string>
+    <string name="privacy_lockscreen_body">Сповіщення KeepADB не з’являються на екрані блокування, що б Android там не показував. Після розблокування вони з’являються так, як налаштовано вище. Потрібне блокування екрана з PIN-кодом, графічним ключем або паролем.</string>
     <string name="privacy_widgets_title">Приховувати у віджетах і плитці</string>
     <string name="privacy_widgets_body">Віджет на головному екрані та плитка швидких налаштувань показують лише стан, без порту й адреси.</string>
     <string name="usb_profile_hidden_numbered">Профіль %1$d</string>

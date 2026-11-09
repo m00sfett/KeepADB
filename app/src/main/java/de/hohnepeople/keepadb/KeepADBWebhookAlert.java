@@ -228,7 +228,7 @@ final class KeepADBWebhookAlert {
                         .setContentTitle(title)
                         .build())
                 .build();
-        manager.notify(NOTIFICATION_ID, notification);
+        KeepADBLockScreen.post(app, manager, NOTIFICATION_ID, notification);
         return true;
     }
 

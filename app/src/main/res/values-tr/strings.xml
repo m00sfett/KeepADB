@@ -66,6 +66,8 @@
     <string name="privacy_app_body">Wi-Fi adlarını, erişim noktası adreslerini, IP adreslerini ve webhook ana bilgisayarını her ekranda ve her iletişim kutusunda maskeler. “Göster” bunları ekrandan ayrılana kadar görünür yapar.</string>
     <string name="privacy_notifications_title">Bildirimlerde gizle</string>
     <string name="privacy_notifications_body">Bildirimler yalnızca durumu gösterir; bağlantı noktası, IP adresi, USB profili veya Wi-Fi adı olmaz. Yeni bir Wi-Fi ile ilgili bildirimde bu durumda düğme bulunmaz ve uygulamayı açar. Bu kapalıyken bu ayrıntılar kilit ekranında da görünebilir.</string>
+    <string name="privacy_lockscreen_title">Kilit ekranında gizle</string>
+    <string name="privacy_lockscreen_body">KeepADB bildirimleri, Android orada ne gösterirse göstersin kilit ekranında görünmez. Kilit açıkken yukarıdaki ayara göre görünür. PIN, desen veya şifreli bir ekran kilidi gerekir.</string>
     <string name="privacy_widgets_title">Widget’larda ve karoda gizle</string>
     <string name="privacy_widgets_body">Ana ekran widget’ı ve Hızlı Ayarlar karosu yalnızca durumu gösterir; bağlantı noktası veya adres olmaz.</string>
     <string name="usb_profile_hidden_numbered">Profil %1$d</string>

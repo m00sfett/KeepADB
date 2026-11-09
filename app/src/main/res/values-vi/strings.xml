@@ -66,6 +66,8 @@
     <string name="privacy_app_body">Che tên Wi-Fi, địa chỉ điểm truy cập, địa chỉ IP và máy chủ webhook trên mọi màn hình và mọi hộp thoại. “Hiển thị” sẽ hiện chúng cho đến khi bạn rời màn hình.</string>
     <string name="privacy_notifications_title">Ẩn trong thông báo</string>
     <string name="privacy_notifications_body">Thông báo chỉ hiện trạng thái, không có cổng, địa chỉ IP, hồ sơ USB hay tên Wi-Fi. Khi đó thông báo về Wi-Fi mới không có nút và sẽ mở ứng dụng. Khi tùy chọn này tắt, các chi tiết đó cũng có thể xuất hiện trên màn hình khóa.</string>
+    <string name="privacy_lockscreen_title">Ẩn trên màn hình khóa</string>
+    <string name="privacy_lockscreen_body">Thông báo của KeepADB không xuất hiện trên màn hình khóa, bất kể Android hiển thị gì ở đó. Khi đã mở khóa, chúng xuất hiện theo cài đặt ở trên. Cần khóa màn hình bằng mã PIN, hình mở khóa hoặc mật khẩu.</string>
     <string name="privacy_widgets_title">Ẩn trong tiện ích và ô</string>
     <string name="privacy_widgets_body">Tiện ích trên màn hình chính và ô Cài đặt nhanh chỉ hiện trạng thái, không có cổng hoặc địa chỉ.</string>
     <string name="usb_profile_hidden_numbered">Hồ sơ %1$d</string>

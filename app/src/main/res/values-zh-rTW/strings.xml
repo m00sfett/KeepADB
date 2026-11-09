@@ -66,6 +66,8 @@
     <string name="privacy_app_body">在每個畫面和每個對話框中遮蔽 Wi-Fi 名稱、存取點位址、IP 位址和 Webhook 主機。點選「顯示」後，在離開該畫面前會一直顯示。</string>
     <string name="privacy_notifications_title">在通知中隱藏</string>
     <string name="privacy_notifications_body">通知只顯示狀態，不含連接埠、IP 位址、USB 設定檔或 Wi-Fi 名稱。此時新 Wi-Fi 的通知沒有按鈕，點選後會開啟應用程式。此項關閉時，這些詳細資料也可能出現在鎖定畫面上。</string>
+    <string name="privacy_lockscreen_title">在鎖定畫面上隱藏</string>
+    <string name="privacy_lockscreen_body">無論 Android 在鎖定畫面上顯示什麼，KeepADB 的通知都不會出現在那裡。解鎖後，它們會依上面的設定顯示。需要設定 PIN 碼、圖案或密碼螢幕鎖定。</string>
     <string name="privacy_widgets_title">在小工具和快速設定圖塊中隱藏</string>
     <string name="privacy_widgets_body">主畫面小工具和快速設定圖塊只顯示狀態，不含連接埠或位址。</string>
     <string name="usb_profile_hidden_numbered">設定檔 %1$d</string>

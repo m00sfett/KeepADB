@@ -66,6 +66,8 @@
     <string name="privacy_app_body">يحجب أسماء Wi-Fi وعناوين نقاط الوصول وعناوين IP ومضيف webhook على كل شاشة وفي كل مربع حوار. يعرضها «إظهار» إلى أن تغادر الشاشة.</string>
     <string name="privacy_notifications_title">الإخفاء في الإشعارات</string>
     <string name="privacy_notifications_body">تعرض الإشعارات الحالة فقط، دون المنفذ أو عنوان IP أو ملف USB أو اسم Wi-Fi. عندها لا يحتوي إشعار شبكة Wi-Fi جديدة على أزرار ويفتح التطبيق. وما دام هذا الخيار معطّلًا قد تظهر هذه التفاصيل أيضًا على شاشة القفل.</string>
+    <string name="privacy_lockscreen_title">الإخفاء على شاشة القفل</string>
+    <string name="privacy_lockscreen_body">لا تظهر إشعارات KeepADB على شاشة القفل، أيًا كان ما يعرضه Android هناك. وبعد فتح القفل تظهر حسب الإعداد أعلاه. يتطلب ذلك قفل شاشة برقم PIN أو نقش أو كلمة مرور.</string>
     <string name="privacy_widgets_title">الإخفاء في الأدوات والبلاطة</string>
     <string name="privacy_widgets_body">تعرض أداة الشاشة الرئيسية وبلاطة الإعدادات السريعة الحالة فقط، دون المنفذ أو عنوان.</string>
     <string name="usb_profile_hidden_numbered">الملف %1$d</string>

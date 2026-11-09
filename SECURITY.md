@@ -124,6 +124,19 @@ updated from an earlier version keeps its behavior: details stay hidden unless i
 on. The privacy switches are display settings; they do not change what an enabled webhook sends or
 which network may enable Wireless debugging.
 
+**Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
+every KeepADB notification is posted with `VISIBILITY_SECRET`, so none of them (main, USB, network
+trust notice with its Allow/Block buttons, webhook warning, Force Mode and network shutdown notices)
+appears on the lock screen, whether or not Android shows sensitive content there. The option is
+read and each notification posted under one lock, so a post cannot slip past a change. A change
+re-renders the main and USB notifications at once and removes a posted trust notice with network
+details (it returns after the repeat interval, then secret; with details only if the notification
+switch is off); notifications without network details follow at their next posting. Unlocked, the shade shows them
+as the notification switch decides. Per-channel lock-screen settings chosen in Android can only
+hide more: a channel set to hide on the lock screen stays hidden either way. Android applies this
+only with a secure screen lock (PIN, pattern or password); a swipe-only lock screen shows every
+notification, as anyone can open it.
+
 Webhook traffic is off by default and goes only to the URL entered by the user. The
 [webhook contract](docs/webhook-register.md) describes the payload created by the app code and
 distinguishes it from unverified claims about an external server. HTTPS is recommended; HTTP is

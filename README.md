@@ -85,7 +85,9 @@ local opt-in rule, and the boundary between the app sender and an external recei
 
 KeepADB sends no analytics or crash reports. The privacy switches are off by default, so a new
 installation shows network addresses in notifications; turn on “Hide in notifications” to keep
-them off the lock screen. Diagnostic history is not transmitted automatically; an export is shared only after you
+them out of every notification, or “Hide on the lock screen” to keep KeepADB notifications off the
+lock screen (with a PIN, pattern or password screen lock) while the unlocked shade still shows the
+details. Diagnostic history is not transmitted automatically; an export is shared only after you
 select a destination in Android. The [security policy](SECURITY.md) and
 [documentation index](docs/README.md) explain webhook, network-trust, and lock-screen behavior.
 

@@ -5,7 +5,8 @@ import android.view.View;
 import android.widget.Switch;
 
 /**
- * #904: the three privacy switches as one reusable block ({@code view_privacy_switches.xml}): "app"
+ * #904: the three privacy switches (and, #920, the lock-screen option under the notification
+ * switch) as one reusable block ({@code view_privacy_switches.xml}): "app"
  * (every screen and dialog), "notifications" (every KeepADB notification) and "widgets" (every
  * widget and the Quick Settings tile). The Settings include the block, the setup assistant
  * inflates it onto its intro page, so both read and write the same three preferences and a change
@@ -28,6 +29,7 @@ final class KeepADBPrivacySwitches {
         Switch app = root.findViewById(R.id.privacy_switch_app);
         Switch notifications = root.findViewById(R.id.privacy_switch_notifications);
         Switch widgets = root.findViewById(R.id.privacy_switch_widgets);
+        Switch lockScreen = root.findViewById(R.id.privacy_switch_lockscreen);
 
         app.setOnClickListener(v -> {
             setApp(activity, app.isChecked());
@@ -36,6 +38,10 @@ final class KeepADBPrivacySwitches {
         // Every switch change ends this screen's reveals and eye-menu override, so the host redraws.
         notifications.setOnClickListener(v -> {
             setNotifications(activity, notifications.isChecked());
+            if (onAppChanged != null) onAppChanged.run();
+        });
+        lockScreen.setOnClickListener(v -> {
+            setLockScreen(activity, lockScreen.isChecked());
             if (onAppChanged != null) onAppChanged.run();
         });
         widgets.setOnClickListener(v -> {
@@ -73,6 +79,26 @@ final class KeepADBPrivacySwitches {
         if (want) KeepADBNetworkTrustPrompt.applyNotificationPrivacy(activity);
     }
 
+    /**
+     * #920: stores the lock-screen option and has the notifications that can carry details
+     * re-rendered with it. It is a standing preference, not a quick reveal, so the eye menu does
+     * not offer it.
+     */
+    static void setLockScreen(Activity activity, boolean want) {
+        KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
+                "privacy_lockscreen_switch");
+        KeepADBLockScreen.setEnabled(activity, want);
+        // The owners re-render the notifications that can carry details (#904's pattern): the
+        // main card and the USB card. A posted trust notice with the network name and its buttons
+        // is removed, as #904 does; it comes back after the repeat interval, then secret (with
+        // details only while the notification switch is off). Notifications without
+        // network details (webhook warning, Force Mode and shutdown notices) follow at their next
+        // posting.
+        KeepADBUsbReceiver.refresh(activity);
+        KeepADBEndpointCoordinator.refresh(activity);
+        if (want) KeepADBNetworkTrustPrompt.applyNotificationPrivacy(activity);
+    }
+
     /** Stores the widget switch and redraws every widget and the tile. */
     static void setWidgets(Activity activity, boolean want) {
         KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
@@ -98,5 +124,7 @@ final class KeepADBPrivacySwitches {
                 .setChecked(KeepADBPreferences.isNotificationPrivacyEnabled(activity));
         ((Switch) root.findViewById(R.id.privacy_switch_widgets))
                 .setChecked(KeepADBPreferences.isWidgetPrivacyEnabled(activity));
+        ((Switch) root.findViewById(R.id.privacy_switch_lockscreen))
+                .setChecked(KeepADBPreferences.isLockScreenPrivacyEnabled(activity));
     }
 }
