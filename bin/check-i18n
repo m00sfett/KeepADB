@@ -101,6 +101,16 @@ ALLOWLIST = {
         "nl", "pl", "pt", "ru", "tr", "uk", "vi",
     },
     "widget_action_adb": {"de"},
+    # Overview widget (#913): "Wi-Fi" is the system's own term in most languages (German and
+    # Simplified Chinese say "WLAN", Dutch "Wifi", Hindi transliterates); "Webhook" as above.
+    "overview_label_wifi": {
+        "ar", "es", "fr", "in", "it", "ja", "ko", "pl",
+        "pt", "ru", "tr", "uk", "vi", "zh-rTW",
+    },
+    "overview_label_webhook": {
+        "ar", "de", "es", "fr", "in", "it", "ja", "nl",
+        "pl", "pt", "ru", "tr", "uk", "vi", "zh-rCN", "zh-rTW",
+    },
     # Widget port description (#912): "port" is the same word in these languages.
     "widget_description_port_format": {"fr", "in", "pl"},
     "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form

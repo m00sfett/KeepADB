@@ -651,4 +651,25 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="widget_short_scan">Ricerca…</string>
     <string name="widget_status_details_hidden">Dettagli nascosti</string>
     <string name="widget_description_port_format">%1$s, porta %2$d</string>
+    <string name="overview_picker_label">Panoramica KeepADB</string>
+    <string name="overview_picker_description">Connessione, Wi-Fi, Keep-Alive e consegna webhook a colpo d\'occhio, con l\'interruttore di sincronizzazione automatica.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Non connesso</string>
+    <string name="overview_wifi_name_unavailable">Nome non leggibile</string>
+    <string name="overview_reason_permission">configurazione mancante</string>
+    <string name="overview_reason_manual_off">disattivato manualmente</string>
+    <string name="overview_reason_no_wifi">nessun Wi-Fi</string>
+    <string name="overview_reason_untrusted">rete non affidabile</string>
+    <string name="overview_reason_identity">rete sconosciuta</string>
+    <string name="overview_reason_backoff">tentativi in pausa</string>
+    <string name="overview_delivery_unconfigured">Non configurato</string>
+    <string name="overview_delivery_sync_off">Sincr. disattivata</string>
+    <string name="overview_delivery_sending">Invio del rapporto…</string>
+    <string name="overview_delivery_failed">Consegna non riuscita</string>
+    <string name="overview_delivery_current">Endpoint attuale segnalato</string>
+    <string name="overview_delivery_not_current">Endpoint attuale non ancora segnalato</string>
+    <string name="overview_delivery_no_endpoint">Nessun endpoint da segnalare</string>
+    <string name="overview_last_delivery">Ultima consegna %1$s</string>
+    <string name="overview_last_delivery_none">Ancora nessuna consegna</string>
 </resources>

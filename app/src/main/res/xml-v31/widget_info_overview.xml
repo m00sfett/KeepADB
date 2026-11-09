@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #913: Android 12+ additions to xml/widget_info_overview.xml: the default size (4x2, where the
+     labelled shape fits), the description and the picker preview, and configuration_optional: the
+     widget is placed with details visible and the option is changed from the launcher's
+     reconfigure. Android 11 keeps the configuration screen at placement. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="de.hohnepeople.keepadb.KeepADBWidgetConfigActivity"
+    android:description="@string/overview_picker_description"
+    android:initialLayout="@layout/widget_overview_compact"
+    android:minHeight="110dp"
+    android:minResizeHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minWidth="110dp"
+    android:previewImage="@drawable/ic_widget_preview_overview"
+    android:previewLayout="@layout/widget_preview_overview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

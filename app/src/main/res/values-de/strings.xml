@@ -650,4 +650,25 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="widget_short_scan">Suche…</string>
     <string name="widget_status_details_hidden">Details ausgeblendet</string>
     <string name="widget_description_port_format">%1$s, Port %2$d</string>
+    <string name="overview_picker_label">KeepADB-Übersicht</string>
+    <string name="overview_picker_description">Verbindung, WLAN, Keep-Alive und Webhook-Zustellung auf einen Blick, mit dem Auto-Sync-Schalter.</string>
+    <string name="overview_label_wifi">WLAN</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Nicht verbunden</string>
+    <string name="overview_wifi_name_unavailable">Name nicht lesbar</string>
+    <string name="overview_reason_permission">Einrichtung fehlt</string>
+    <string name="overview_reason_manual_off">manuell ausgeschaltet</string>
+    <string name="overview_reason_no_wifi">kein WLAN</string>
+    <string name="overview_reason_untrusted">Netz nicht vertraut</string>
+    <string name="overview_reason_identity">Netz unbekannt</string>
+    <string name="overview_reason_backoff">Wiederholung pausiert</string>
+    <string name="overview_delivery_unconfigured">Nicht eingerichtet</string>
+    <string name="overview_delivery_sync_off">Sync aus</string>
+    <string name="overview_delivery_sending">Meldung wird gesendet…</string>
+    <string name="overview_delivery_failed">Zustellung fehlgeschlagen</string>
+    <string name="overview_delivery_current">Aktueller Endpunkt gemeldet</string>
+    <string name="overview_delivery_not_current">Aktueller Endpunkt noch nicht gemeldet</string>
+    <string name="overview_delivery_no_endpoint">Kein Endpunkt zum Melden</string>
+    <string name="overview_last_delivery">Zuletzt zugestellt %1$s</string>
+    <string name="overview_last_delivery_none">Noch keine Zustellung</string>
 </resources>

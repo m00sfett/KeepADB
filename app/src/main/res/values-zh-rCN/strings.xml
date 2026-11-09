@@ -649,4 +649,25 @@
     <string name="widget_short_scan">搜索…</string>
     <string name="widget_status_details_hidden">详情已隐藏</string>
     <string name="widget_description_port_format">%1$s，端口 %2$d</string>
+    <string name="overview_picker_label">KeepADB 概览</string>
+    <string name="overview_picker_description">一目了然地查看连接、WLAN、Keep-Alive 和 Webhook 投递状态，并可切换自动同步。</string>
+    <string name="overview_label_wifi">WLAN</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">未连接</string>
+    <string name="overview_wifi_name_unavailable">无法读取名称</string>
+    <string name="overview_reason_permission">缺少设置</string>
+    <string name="overview_reason_manual_off">已手动关闭</string>
+    <string name="overview_reason_no_wifi">无 WLAN</string>
+    <string name="overview_reason_untrusted">网络未信任</string>
+    <string name="overview_reason_identity">网络未知</string>
+    <string name="overview_reason_backoff">重试已暂停</string>
+    <string name="overview_delivery_unconfigured">未设置</string>
+    <string name="overview_delivery_sync_off">同步已关</string>
+    <string name="overview_delivery_sending">正在发送报告…</string>
+    <string name="overview_delivery_failed">投递失败</string>
+    <string name="overview_delivery_current">已报告当前端点</string>
+    <string name="overview_delivery_not_current">尚未报告当前端点</string>
+    <string name="overview_delivery_no_endpoint">没有可报告的端点</string>
+    <string name="overview_last_delivery">上次投递 %1$s</string>
+    <string name="overview_last_delivery_none">尚无投递</string>
 </resources>

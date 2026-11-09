@@ -23,6 +23,50 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.11.9] - Unreleased
+
+### Added
+- **Overview widget (#913), "KeepADB overview":** a second home-screen widget (its own provider
+  `KeepADBOverviewWidget`, picker label, description and preview; about 2x2 and larger, default
+  4x2 on Android 12+) that shows Wireless Debugging with the verified endpoint, the connected Wi-Fi
+  name, Keep-Alive with its reason ("Waiting · no Wi-Fi", "Paused · network not trusted") and the
+  webhook delivery. Two shapes from the width (`KeepADBOverviewViews`, wide from 250 x font scale
+  dp): compact (one card with four rows and a quieter last-delivery line, the auto-sync pill under
+  it) and wide (labelled rows, the webhook block with delivery state and last delivery beside
+  them). Android 11 gets a picker image of its own (`ic_widget_preview_overview`). Same design language as the
+  control widget: dark surface, flat rounded tiles, a symbol variant and a word per state, no
+  borders.
+- **Informational by design:** Wireless Debugging, Wi-Fi and Keep-Alive are one read-only card whose
+  only tap opens the app (or the network card for an untrusted network); it can never toggle them.
+  The one control is the automatic webhook synchronization, the same tile and action path as the
+  control widget (setup when no URL is saved). Report now is not offered, following the #912
+  decision to keep it in the webhook failure notification only.
+- **Delivery wording keeps history apart from now:** not set up, sync off, sending, failed, current
+  endpoint reported, not reported yet and no endpoint come from the shared projection's
+  currentness guard; the time of the last accepted report is shown separately ("Last delivery
+  14:03") and never makes the current endpoint read as reported.
+- **Projection:** `KeepADBWidgetState` now carries whether Wi-Fi is connected and, only where it may
+  be shown, the network name; with the widget privacy switch or the per-widget option the name is
+  not even read. Android's placeholder name counts as unreadable ("Name not readable").
+
+### Changed
+- **Shared widget lifecycle for both kinds:** `KeepADBWidget.refreshAllState` draws the overview
+  widgets too, so every existing refresh signal reaches them; the refresh job is scheduled at
+  process start when a widget of either kind is placed; removing the last widget of one kind no
+  longer clears the other kind's per-widget settings or cancels the job it still needs.
+- **Configure screen:** `KeepADBWidgetConfigActivity` accepts ids of both providers; for an overview
+  widget it shows only "Hide connection details in this widget".
+
+### Fixed
+- README no longer lists Report now among the control widget's actions (removed in #912).
+
+### Testing
+- `KeepADBWidgetLifecycleTest.renderingAndRestoringLeaveTheAppSettingsAlone` failed on CI since the
+  #912 merge (master 04238a2c) but never locally: placing the widget may report in the background,
+  and on the runner that report wrote its record after the "before" snapshot. The test now lets the
+  placement's work finish before the snapshot and waits again after rendering (so a background
+  write caused by rendering would still fail it), and names the changed keys on failure.
+
 ## [1.11.8] - Unreleased
 
 ### Added

@@ -652,4 +652,25 @@
     <string name="widget_short_scan">Пошук…</string>
     <string name="widget_status_details_hidden">Подробиці приховано</string>
     <string name="widget_description_port_format">%1$s, порт %2$d</string>
+    <string name="overview_picker_label">Огляд KeepADB</string>
+    <string name="overview_picker_description">Підключення, Wi-Fi, Keep-Alive і доставка webhook з першого погляду, з перемикачем автосинхронізації.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Не підключено</string>
+    <string name="overview_wifi_name_unavailable">Назва недоступна</string>
+    <string name="overview_reason_permission">немає налаштування</string>
+    <string name="overview_reason_manual_off">вимкнено вручну</string>
+    <string name="overview_reason_no_wifi">немає Wi-Fi</string>
+    <string name="overview_reason_untrusted">мережа не довірена</string>
+    <string name="overview_reason_identity">мережа невідома</string>
+    <string name="overview_reason_backoff">повтори призупинено</string>
+    <string name="overview_delivery_unconfigured">Не налаштовано</string>
+    <string name="overview_delivery_sync_off">Синхр. вимк.</string>
+    <string name="overview_delivery_sending">Надсилання звіту…</string>
+    <string name="overview_delivery_failed">Помилка доставки</string>
+    <string name="overview_delivery_current">Поточну кінцеву точку передано</string>
+    <string name="overview_delivery_not_current">Поточну кінцеву точку ще не передано</string>
+    <string name="overview_delivery_no_endpoint">Немає кінцевої точки для передачі</string>
+    <string name="overview_last_delivery">Остання доставка %1$s</string>
+    <string name="overview_last_delivery_none">Доставок ще не було</string>
 </resources>

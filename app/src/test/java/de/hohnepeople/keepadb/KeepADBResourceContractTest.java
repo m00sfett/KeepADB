@@ -626,6 +626,7 @@ public class KeepADBResourceContractTest {
         result.put("widget_config_move_down", new Object[] {stringWitness});
         result.put("widget_description_format", new Object[] {stringWitness, stringWitness});
         result.put("widget_description_port_format", new Object[] {stringWitness, integerWitness});
+        result.put("overview_last_delivery", new Object[] {stringWitness});
         result.put("settings_webhook_retry_count_value", new Object[] {integerWitness});
         result.put("webhook_alert_status_since", new Object[] {stringWitness, stringWitness});
         result.put("webhook_alert_status_never", new Object[] {stringWitness});

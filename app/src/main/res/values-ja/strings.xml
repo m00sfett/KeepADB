@@ -649,4 +649,25 @@
     <string name="widget_short_scan">検索…</string>
     <string name="widget_status_details_hidden">詳細は非表示</string>
     <string name="widget_description_port_format">%1$s、ポート %2$d</string>
+    <string name="overview_picker_label">KeepADB 概要</string>
+    <string name="overview_picker_description">接続、Wi-Fi、Keep-Alive、Webhook の配信状況をひと目で確認。自動同期スイッチ付き。</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">未接続</string>
+    <string name="overview_wifi_name_unavailable">名前を読み取れません</string>
+    <string name="overview_reason_permission">セットアップ未完了</string>
+    <string name="overview_reason_manual_off">手動でオフ</string>
+    <string name="overview_reason_no_wifi">Wi-Fi なし</string>
+    <string name="overview_reason_untrusted">信頼されていないネットワーク</string>
+    <string name="overview_reason_identity">不明なネットワーク</string>
+    <string name="overview_reason_backoff">再試行を一時停止中</string>
+    <string name="overview_delivery_unconfigured">未設定</string>
+    <string name="overview_delivery_sync_off">同期オフ</string>
+    <string name="overview_delivery_sending">レポートを送信中…</string>
+    <string name="overview_delivery_failed">配信に失敗</string>
+    <string name="overview_delivery_current">現在のエンドポイントを報告済み</string>
+    <string name="overview_delivery_not_current">現在のエンドポイントは未報告</string>
+    <string name="overview_delivery_no_endpoint">報告するエンドポイントなし</string>
+    <string name="overview_last_delivery">最終配信 %1$s</string>
+    <string name="overview_last_delivery_none">まだ配信なし</string>
 </resources>

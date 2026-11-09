@@ -649,4 +649,25 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="widget_short_scan">Cari…</string>
     <string name="widget_status_details_hidden">Detail disembunyikan</string>
     <string name="widget_description_port_format">%1$s, port %2$d</string>
+    <string name="overview_picker_label">Ringkasan KeepADB</string>
+    <string name="overview_picker_description">Koneksi, Wi-Fi, Keep-Alive, dan pengiriman webhook sekilas pandang, dengan sakelar sinkronisasi otomatis.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Tidak terhubung</string>
+    <string name="overview_wifi_name_unavailable">Nama tidak terbaca</string>
+    <string name="overview_reason_permission">penyiapan belum ada</string>
+    <string name="overview_reason_manual_off">dimatikan manual</string>
+    <string name="overview_reason_no_wifi">tidak ada Wi-Fi</string>
+    <string name="overview_reason_untrusted">jaringan tidak dipercaya</string>
+    <string name="overview_reason_identity">jaringan tidak dikenal</string>
+    <string name="overview_reason_backoff">percobaan ulang dijeda</string>
+    <string name="overview_delivery_unconfigured">Belum disiapkan</string>
+    <string name="overview_delivery_sync_off">Sinkron mati</string>
+    <string name="overview_delivery_sending">Mengirim laporan…</string>
+    <string name="overview_delivery_failed">Pengiriman gagal</string>
+    <string name="overview_delivery_current">Endpoint saat ini dilaporkan</string>
+    <string name="overview_delivery_not_current">Endpoint saat ini belum dilaporkan</string>
+    <string name="overview_delivery_no_endpoint">Tidak ada endpoint untuk dilaporkan</string>
+    <string name="overview_last_delivery">Terakhir terkirim %1$s</string>
+    <string name="overview_last_delivery_none">Belum ada pengiriman</string>
 </resources>

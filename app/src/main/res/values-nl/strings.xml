@@ -650,4 +650,25 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="widget_short_scan">Zoeken…</string>
     <string name="widget_status_details_hidden">Details verborgen</string>
     <string name="widget_description_port_format">%1$s, poort %2$d</string>
+    <string name="overview_picker_label">KeepADB-overzicht</string>
+    <string name="overview_picker_description">Verbinding, wifi, Keep-Alive en webhook-levering in één oogopslag, met de schakelaar voor automatische synchronisatie.</string>
+    <string name="overview_label_wifi">Wifi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Niet verbonden</string>
+    <string name="overview_wifi_name_unavailable">Naam niet leesbaar</string>
+    <string name="overview_reason_permission">installatie ontbreekt</string>
+    <string name="overview_reason_manual_off">handmatig uitgeschakeld</string>
+    <string name="overview_reason_no_wifi">geen wifi</string>
+    <string name="overview_reason_untrusted">netwerk niet vertrouwd</string>
+    <string name="overview_reason_identity">netwerk onbekend</string>
+    <string name="overview_reason_backoff">nieuwe pogingen gepauzeerd</string>
+    <string name="overview_delivery_unconfigured">Niet ingesteld</string>
+    <string name="overview_delivery_sync_off">Sync uit</string>
+    <string name="overview_delivery_sending">Melding wordt verzonden…</string>
+    <string name="overview_delivery_failed">Levering mislukt</string>
+    <string name="overview_delivery_current">Huidig eindpunt gemeld</string>
+    <string name="overview_delivery_not_current">Huidig eindpunt nog niet gemeld</string>
+    <string name="overview_delivery_no_endpoint">Geen eindpunt om te melden</string>
+    <string name="overview_last_delivery">Laatst geleverd %1$s</string>
+    <string name="overview_last_delivery_none">Nog geen levering</string>
 </resources>

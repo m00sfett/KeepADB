@@ -60,12 +60,47 @@ public class KeepADBWidget extends AppWidgetProvider {
         KeepADBWidgetConfig.delete(context, ids);
     }
 
-    /** The last instance is gone: no entry can belong to a widget any more. */
+    /** The last control widget is gone; see {@link #lastWidgetOfAKindRemoved}. */
     @Override
     public void onDisabled(Context context) {
+        lastWidgetOfAKindRemoved(context, KeepADBWidget.class);
+    }
+
+    /**
+     * The last widget of one kind (control or overview, #913) is gone. Only when no widget of the
+     * other kind is left either can no entry belong to a widget any more and nothing needs the
+     * setting watched; otherwise the other kind's entries and the job stay. The removed kind itself
+     * is not asked: {@code onDisabled} already means it has no instance left.
+     */
+    static void lastWidgetOfAKindRemoved(Context context, Class<?> removedKind) {
+        if (anyPlaced(context, removedKind)) return;
         KeepADBWidgetRefreshJob.cancel(context);
         KeepADBWidgetConfig.clearAll(context);
     }
+
+    /** Whether any KeepADB widget (control or overview) is placed. */
+    static boolean anyPlaced(Context context) {
+        return anyPlaced(context, null);
+    }
+
+    /** Whether a KeepADB widget of a kind other than {@code except} (null: any kind) is placed. */
+    static boolean anyPlaced(Context context, Class<?> except) {
+        try {
+            AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+            if (mgr == null) return false;
+            for (Class<?> provider : PROVIDERS) {
+                if (provider == except) continue;
+                int[] ids = mgr.getAppWidgetIds(new ComponentName(context, provider));
+                if (ids != null && ids.length > 0) return true;
+            }
+        } catch (RuntimeException ignored) {
+            // Unknown: reported as none placed.
+        }
+        return false;
+    }
+
+    /** Both widget providers of the app. */
+    static final Class<?>[] PROVIDERS = {KeepADBWidget.class, KeepADBOverviewWidget.class};
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -160,11 +195,14 @@ public class KeepADBWidget extends AppWidgetProvider {
         if (mgr == null) return;
         ComponentName cn = new ComponentName(context, KeepADBWidget.class);
         int[] ids = mgr.getAppWidgetIds(cn);
-        if (ids == null || ids.length == 0) return;
-        KeepADBWidget provider = new KeepADBWidget();
-        for (int id : ids) {
-            provider.render(context, mgr, id);
+        if (ids != null && ids.length > 0) {
+            KeepADBWidget provider = new KeepADBWidget();
+            for (int id : ids) {
+                provider.render(context, mgr, id);
+            }
         }
+        // #913: the overview widgets draw from the same projection on the same signals.
+        KeepADBOverviewWidget.refreshAllState(context);
     }
 
     /** Re-renders one instance, for example after its configuration was saved. */
@@ -175,6 +213,21 @@ public class KeepADBWidget extends AppWidgetProvider {
         }
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         if (mgr == null) return;
-        new KeepADBWidget().render(context, mgr, appWidgetId);
+        if (isOverview(mgr, appWidgetId)) {
+            KeepADBOverviewWidget.render(context, mgr, appWidgetId);
+        } else {
+            new KeepADBWidget().render(context, mgr, appWidgetId);
+        }
+    }
+
+    /** Whether the id belongs to an overview widget (#913) rather than a control widget. */
+    static boolean isOverview(AppWidgetManager mgr, int appWidgetId) {
+        try {
+            android.appwidget.AppWidgetProviderInfo info = mgr.getAppWidgetInfo(appWidgetId);
+            return info != null && info.provider != null
+                    && KeepADBOverviewWidget.class.getName().equals(info.provider.getClassName());
+        } catch (RuntimeException unknown) {
+            return false;
+        }
     }
 }

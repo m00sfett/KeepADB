@@ -652,4 +652,25 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="widget_short_scan">Szukam…</string>
     <string name="widget_status_details_hidden">Szczegóły ukryte</string>
     <string name="widget_description_port_format">%1$s, port %2$d</string>
+    <string name="overview_picker_label">Przegląd KeepADB</string>
+    <string name="overview_picker_description">Połączenie, Wi-Fi, Keep-Alive i dostarczanie webhooka w jednym miejscu, z przełącznikiem autosynchronizacji.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Brak połączenia</string>
+    <string name="overview_wifi_name_unavailable">Nazwa nieczytelna</string>
+    <string name="overview_reason_permission">brak konfiguracji</string>
+    <string name="overview_reason_manual_off">wyłączone ręcznie</string>
+    <string name="overview_reason_no_wifi">brak Wi-Fi</string>
+    <string name="overview_reason_untrusted">sieć niezaufana</string>
+    <string name="overview_reason_identity">sieć nieznana</string>
+    <string name="overview_reason_backoff">ponowienia wstrzymane</string>
+    <string name="overview_delivery_unconfigured">Nie skonfigurowano</string>
+    <string name="overview_delivery_sync_off">Synchr. wyłączona</string>
+    <string name="overview_delivery_sending">Wysyłanie raportu…</string>
+    <string name="overview_delivery_failed">Dostarczenie nieudane</string>
+    <string name="overview_delivery_current">Bieżący punkt końcowy zgłoszony</string>
+    <string name="overview_delivery_not_current">Bieżący punkt końcowy jeszcze niezgłoszony</string>
+    <string name="overview_delivery_no_endpoint">Brak punktu końcowego do zgłoszenia</string>
+    <string name="overview_last_delivery">Ostatnio dostarczono %1$s</string>
+    <string name="overview_last_delivery_none">Jeszcze nic nie dostarczono</string>
 </resources>

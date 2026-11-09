@@ -121,6 +121,22 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
+        <!-- #913: the overview widget (connection, Keep-Alive, webhook delivery; auto-sync is its
+             one control). Same configure activity, its own picker label, preview and info. -->
+        <receiver
+            android:name=".KeepADBOverviewWidget"
+            android:description="@string/overview_picker_description"
+            android:exported="false"
+            android:label="@string/overview_picker_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_overview" />
+        </receiver>
+
         <!-- #912: per-widget settings (main action, order, details). Exported because the launcher
              starts it for "place" and "reconfigure"; it only accepts the id of an existing
              widget of this app and changes nothing but that widget's own entry. -->

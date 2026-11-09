@@ -21,7 +21,10 @@ import java.util.List;
 
 /**
  * #912: the settings of one placed control widget: its main action, the order of its actions and
- * whether it hides the connection details. The launcher opens it when the widget is placed and, on
+ * whether it hides the connection details. #913: for an overview widget it shows only the
+ * "hide details" option; the overview has no actions to choose or order.
+ *
+ * <p>The launcher opens it when the widget is placed and, on
  * launchers that offer it, from "reconfigure"; the widget itself opens it from its details row.
  *
  * <p>It writes the one instance's entry in {@link KeepADBWidgetConfig} and nothing else: no app
@@ -34,6 +37,8 @@ import java.util.List;
 public class KeepADBWidgetConfigActivity extends Activity {
 
     private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+    /** #913: true for an overview widget, which has only the "hide details" option. */
+    private boolean overview;
     private KeepADBWidgetConfig.Action primary = KeepADBWidgetConfig.Action.ADB;
     private final List<KeepADBWidgetConfig.Action> order = new ArrayList<>();
 
@@ -72,8 +77,15 @@ public class KeepADBWidgetConfigActivity extends Activity {
                 KeepADBPreferences.isWidgetPrivacyEnabled(this)
                         ? android.view.View.VISIBLE : android.view.View.GONE);
 
-        buildPrimaryChoices();
-        renderOrder();
+        if (overview) {
+            // The overview's one control is fixed; only its details option applies.
+            int[] actionViews = {R.id.widget_config_primary_title, R.id.widget_config_primary,
+                    R.id.widget_config_order_title, R.id.widget_config_order_rows};
+            for (int id : actionViews) findViewById(id).setVisibility(android.view.View.GONE);
+        } else {
+            buildPrimaryChoices();
+            renderOrder();
+        }
         findViewById(R.id.widget_config_save).setOnClickListener(v -> save());
     }
 
@@ -85,6 +97,7 @@ public class KeepADBWidgetConfigActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID || order.isEmpty()) return;
+        // order is filled for both kinds (from the stored entry), so the overview's switch is kept too.
         outState.putString(STATE_PRIMARY, primary.id);
         StringBuilder ids = new StringBuilder();
         for (KeepADBWidgetConfig.Action action : order) {
@@ -111,15 +124,24 @@ public class KeepADBWidgetConfigActivity extends Activity {
         }
     }
 
+    /**
+     * Whether the id is a placed widget of one of this app's two providers (#913); remembers which
+     * one in {@link #overview}.
+     */
     private boolean isOurWidget(int id) {
         if (id == AppWidgetManager.INVALID_APPWIDGET_ID) return false;
         try {
             AppWidgetManager manager = AppWidgetManager.getInstance(this);
-            int[] ids = manager == null ? null
-                    : manager.getAppWidgetIds(new ComponentName(this, KeepADBWidget.class));
-            if (ids == null) return false;
-            for (int existing : ids) {
-                if (existing == id) return true;
+            if (manager == null) return false;
+            for (Class<?> provider : KeepADBWidget.PROVIDERS) {
+                int[] ids = manager.getAppWidgetIds(new ComponentName(this, provider));
+                if (ids == null) continue;
+                for (int existing : ids) {
+                    if (existing == id) {
+                        overview = provider == KeepADBOverviewWidget.class;
+                        return true;
+                    }
+                }
             }
         } catch (RuntimeException ignored) {
             // A caller that may not ask is not one of ours.

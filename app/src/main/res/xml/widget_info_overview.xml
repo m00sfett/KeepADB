@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #913: the overview widget, about 2x2 and larger. Resizable in both directions; the shape
+     follows the width (KeepADBOverviewViews). Android 12+ additions in xml-v31. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="de.hohnepeople.keepadb.KeepADBWidgetConfigActivity"
+    android:initialLayout="@layout/widget_overview_compact"
+    android:minHeight="110dp"
+    android:minResizeHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minWidth="110dp"
+    android:previewImage="@drawable/ic_widget_preview_overview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable" />

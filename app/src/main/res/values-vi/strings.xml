@@ -649,4 +649,25 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="widget_short_scan">Đang tìm…</string>
     <string name="widget_status_details_hidden">Chi tiết đã ẩn</string>
     <string name="widget_description_port_format">%1$s, cổng %2$d</string>
+    <string name="overview_picker_label">Tổng quan KeepADB</string>
+    <string name="overview_picker_description">Kết nối, Wi-Fi, Keep-Alive và gửi webhook trong nháy mắt, kèm công tắc tự động đồng bộ.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Chưa kết nối</string>
+    <string name="overview_wifi_name_unavailable">Không đọc được tên</string>
+    <string name="overview_reason_permission">thiếu thiết lập</string>
+    <string name="overview_reason_manual_off">đã tắt thủ công</string>
+    <string name="overview_reason_no_wifi">không có Wi-Fi</string>
+    <string name="overview_reason_untrusted">mạng không tin cậy</string>
+    <string name="overview_reason_identity">mạng không xác định</string>
+    <string name="overview_reason_backoff">tạm dừng thử lại</string>
+    <string name="overview_delivery_unconfigured">Chưa thiết lập</string>
+    <string name="overview_delivery_sync_off">Đồng bộ tắt</string>
+    <string name="overview_delivery_sending">Đang gửi báo cáo…</string>
+    <string name="overview_delivery_failed">Gửi thất bại</string>
+    <string name="overview_delivery_current">Đã báo endpoint hiện tại</string>
+    <string name="overview_delivery_not_current">Chưa báo endpoint hiện tại</string>
+    <string name="overview_delivery_no_endpoint">Không có endpoint để báo</string>
+    <string name="overview_last_delivery">Gửi lần cuối %1$s</string>
+    <string name="overview_last_delivery_none">Chưa gửi lần nào</string>
 </resources>

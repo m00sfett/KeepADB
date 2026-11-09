@@ -11,4 +11,6 @@
     <dimen name="widget_radius_root">28dp</dimen>
     <dimen name="widget_radius_tile">23dp</dimen>
     <dimen name="widget_gap_half">2.5dp</dimen>
+    <!-- #913 overview widget: the auto-sync pill keeps a 48 dp touch target with room to spare. -->
+    <dimen name="widget_ov_sync_height">52dp</dimen>
 </resources>

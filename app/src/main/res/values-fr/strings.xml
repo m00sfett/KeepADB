@@ -651,4 +651,25 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="widget_short_scan">Recherche…</string>
     <string name="widget_status_details_hidden">Détails masqués</string>
     <string name="widget_description_port_format">%1$s, port %2$d</string>
+    <string name="overview_picker_label">Aperçu KeepADB</string>
+    <string name="overview_picker_description">Connexion, Wi-Fi, Keep-Alive et livraison webhook en un coup d\'œil, avec l\'interrupteur de synchro auto.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Non connecté</string>
+    <string name="overview_wifi_name_unavailable">Nom illisible</string>
+    <string name="overview_reason_permission">configuration manquante</string>
+    <string name="overview_reason_manual_off">désactivé manuellement</string>
+    <string name="overview_reason_no_wifi">pas de Wi-Fi</string>
+    <string name="overview_reason_untrusted">réseau non approuvé</string>
+    <string name="overview_reason_identity">réseau inconnu</string>
+    <string name="overview_reason_backoff">nouvelles tentatives en pause</string>
+    <string name="overview_delivery_unconfigured">Non configuré</string>
+    <string name="overview_delivery_sync_off">Synchro désactivée</string>
+    <string name="overview_delivery_sending">Envoi du rapport…</string>
+    <string name="overview_delivery_failed">Échec de la livraison</string>
+    <string name="overview_delivery_current">Point de terminaison actuel signalé</string>
+    <string name="overview_delivery_not_current">Point de terminaison actuel pas encore signalé</string>
+    <string name="overview_delivery_no_endpoint">Aucun point de terminaison à signaler</string>
+    <string name="overview_last_delivery">Dernière livraison %1$s</string>
+    <string name="overview_last_delivery_none">Aucune livraison</string>
 </resources>

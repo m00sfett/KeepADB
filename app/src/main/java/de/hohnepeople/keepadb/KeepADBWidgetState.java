@@ -16,7 +16,8 @@ import android.content.Context;
  *
  * <p><b>Privacy.</b> With the widget privacy switch on ({@link
  * KeepADBPreferences#isWidgetPrivacyEnabled}) or the stricter per-widget "hide details" option, the
- * projection carries the state only: no host, port, IP address, Wi-Fi name or BSSID. The global
+ * projection carries the state only: no host, port, IP address, Wi-Fi name or BSSID. Whether Wi-Fi
+ * is connected is state and stays visible; the network name is detail and does not (#913). The global
  * switch takes precedence; a per-widget option can only hide more, never show what the switch hides.
  * Availability of an endpoint is state and stays visible; the address is detail and does not.
  * The webhook URL is never part of the projection.
@@ -148,12 +149,19 @@ final class KeepADBWidgetState {
     final long endpointVerifiedAtMs;
     /** True when the global switch or the per-widget option withholds the connection details. */
     final boolean detailsHidden;
+    /** Whether a Wi-Fi network is connected. State, so it is shown even with details hidden. */
+    final boolean wifiConnected;
+    /**
+     * #913: the connected network's name without quotes; null while details are hidden, without
+     * Wi-Fi, or when Android withholds it (location access). The BSSID is never projected.
+     */
+    final String wifiName;
     final Webhook webhook;
 
     private KeepADBWidgetState(KeepADB.State systemState, Adb adb, Reason adbFailure,
             KeepAlive keepAlive, Reason keepAliveReason, EndpointAvailability endpoint,
             String endpointHost, int endpointPort, long endpointVerifiedAtMs,
-            boolean detailsHidden, Webhook webhook) {
+            boolean detailsHidden, boolean wifiConnected, String wifiName, Webhook webhook) {
         this.systemState = systemState;
         this.adb = adb;
         this.adbFailure = adbFailure;
@@ -164,6 +172,8 @@ final class KeepADBWidgetState {
         this.endpointPort = endpointPort;
         this.endpointVerifiedAtMs = endpointVerifiedAtMs;
         this.detailsHidden = detailsHidden;
+        this.wifiConnected = wifiConnected;
+        this.wifiName = wifiName;
         this.webhook = webhook;
     }
 
@@ -251,12 +261,25 @@ final class KeepADBWidgetState {
 
         Webhook webhook = projectWebhook(app, currentEndpoint);
 
+        boolean wifiConnected = KeepADBService.isWifiConnected(app);
+        // The name is only read where it may be shown; hidden details never touch it.
+        String wifiName = wifiConnected && !hidden
+                ? usableName(KeepADBNetworkIdentity.current(app).displaySsid()) : null;
+
         return new KeepADBWidgetState(system, adb, adbFailure, keepAlive, keepAliveReason,
                 availability,
                 endpointKnown && !hidden ? snapshot.host : null,
                 endpointKnown && !hidden ? snapshot.port : 0,
                 endpointKnown ? snapshot.verifiedAtMs : 0L,
-                hidden, webhook);
+                hidden, wifiConnected, wifiName, webhook);
+    }
+
+    /** A readable network name, or null for an empty one or Android's placeholder in any form. */
+    static String usableName(String name) {
+        if (name == null) return null;
+        String trimmed = name.trim();
+        if (trimmed.isEmpty() || android.net.wifi.WifiManager.UNKNOWN_SSID.equals(trimmed)) return null;
+        return name;
     }
 
     private static Webhook projectWebhook(Context app, String currentEndpoint) {

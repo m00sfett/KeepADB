@@ -651,4 +651,25 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="widget_short_scan">Buscando…</string>
     <string name="widget_status_details_hidden">Detalles ocultos</string>
     <string name="widget_description_port_format">%1$s, puerto %2$d</string>
+    <string name="overview_picker_label">Resumen de KeepADB</string>
+    <string name="overview_picker_description">Conexión, Wi-Fi, Keep-Alive y entrega del webhook de un vistazo, con el interruptor de sincronización automática.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">Sin conexión</string>
+    <string name="overview_wifi_name_unavailable">Nombre no legible</string>
+    <string name="overview_reason_permission">falta configuración</string>
+    <string name="overview_reason_manual_off">desactivado manualmente</string>
+    <string name="overview_reason_no_wifi">sin Wi-Fi</string>
+    <string name="overview_reason_untrusted">red no es de confianza</string>
+    <string name="overview_reason_identity">red desconocida</string>
+    <string name="overview_reason_backoff">reintentos en pausa</string>
+    <string name="overview_delivery_unconfigured">Sin configurar</string>
+    <string name="overview_delivery_sync_off">Sinc. desactivada</string>
+    <string name="overview_delivery_sending">Enviando informe…</string>
+    <string name="overview_delivery_failed">Entrega fallida</string>
+    <string name="overview_delivery_current">Punto final actual comunicado</string>
+    <string name="overview_delivery_not_current">Punto final actual aún no comunicado</string>
+    <string name="overview_delivery_no_endpoint">Ningún punto final que comunicar</string>
+    <string name="overview_last_delivery">Última entrega %1$s</string>
+    <string name="overview_last_delivery_none">Aún sin entregas</string>
 </resources>

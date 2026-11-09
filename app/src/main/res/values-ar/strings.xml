@@ -654,4 +654,25 @@
     <string name="widget_short_scan">بحث…</string>
     <string name="widget_status_details_hidden">التفاصيل مخفية</string>
     <string name="widget_description_port_format">%1$s، المنفذ %2$d</string>
+    <string name="overview_picker_label">نظرة عامة على KeepADB</string>
+    <string name="overview_picker_description">الاتصال وWi-Fi وKeep-Alive وتسليم Webhook في لمحة واحدة، مع مفتاح المزامنة التلقائية.</string>
+    <string name="overview_label_wifi">Wi-Fi</string>
+    <string name="overview_label_webhook">Webhook</string>
+    <string name="overview_wifi_none">غير متصل</string>
+    <string name="overview_wifi_name_unavailable">الاسم غير مقروء</string>
+    <string name="overview_reason_permission">الإعداد ناقص</string>
+    <string name="overview_reason_manual_off">أُوقف يدويًا</string>
+    <string name="overview_reason_no_wifi">لا يوجد Wi-Fi</string>
+    <string name="overview_reason_untrusted">شبكة غير موثوقة</string>
+    <string name="overview_reason_identity">شبكة غير معروفة</string>
+    <string name="overview_reason_backoff">إعادة المحاولة متوقفة</string>
+    <string name="overview_delivery_unconfigured">غير مُعَد</string>
+    <string name="overview_delivery_sync_off">المزامنة متوقفة</string>
+    <string name="overview_delivery_sending">جارٍ إرسال التقرير…</string>
+    <string name="overview_delivery_failed">فشل التسليم</string>
+    <string name="overview_delivery_current">تم الإبلاغ عن نقطة النهاية الحالية</string>
+    <string name="overview_delivery_not_current">لم يُبلَّغ عن نقطة النهاية الحالية بعد</string>
+    <string name="overview_delivery_no_endpoint">لا توجد نقطة نهاية للإبلاغ</string>
+    <string name="overview_last_delivery">آخر تسليم %1$s</string>
+    <string name="overview_last_delivery_none">لا تسليم بعد</string>
 </resources>

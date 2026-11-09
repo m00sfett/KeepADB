@@ -650,4 +650,25 @@
     <string name="widget_short_scan">खोज…</string>
     <string name="widget_status_details_hidden">विवरण छिपे हैं</string>
     <string name="widget_description_port_format">%1$s, पोर्ट %2$d</string>
+    <string name="overview_picker_label">KeepADB अवलोकन</string>
+    <string name="overview_picker_description">कनेक्शन, वाई-फ़ाई, Keep-Alive और वेबहुक डिलीवरी एक नज़र में, ऑटो-सिंक स्विच के साथ।</string>
+    <string name="overview_label_wifi">वाई-फ़ाई</string>
+    <string name="overview_label_webhook">वेबहुक</string>
+    <string name="overview_wifi_none">कनेक्ट नहीं</string>
+    <string name="overview_wifi_name_unavailable">नाम पढ़ा नहीं जा सकता</string>
+    <string name="overview_reason_permission">सेटअप बाकी</string>
+    <string name="overview_reason_manual_off">हाथ से बंद किया</string>
+    <string name="overview_reason_no_wifi">वाई-फ़ाई नहीं</string>
+    <string name="overview_reason_untrusted">नेटवर्क भरोसेमंद नहीं</string>
+    <string name="overview_reason_identity">नेटवर्क अज्ञात</string>
+    <string name="overview_reason_backoff">दोबारा कोशिश रुकी</string>
+    <string name="overview_delivery_unconfigured">सेट नहीं</string>
+    <string name="overview_delivery_sync_off">सिंक बंद</string>
+    <string name="overview_delivery_sending">रिपोर्ट भेजी जा रही है…</string>
+    <string name="overview_delivery_failed">डिलीवरी विफल</string>
+    <string name="overview_delivery_current">मौजूदा एंडपॉइंट रिपोर्ट किया गया</string>
+    <string name="overview_delivery_not_current">मौजूदा एंडपॉइंट अभी रिपोर्ट नहीं हुआ</string>
+    <string name="overview_delivery_no_endpoint">रिपोर्ट करने को कोई एंडपॉइंट नहीं</string>
+    <string name="overview_last_delivery">आख़िरी डिलीवरी %1$s</string>
+    <string name="overview_last_delivery_none">अभी कोई डिलीवरी नहीं</string>
 </resources>

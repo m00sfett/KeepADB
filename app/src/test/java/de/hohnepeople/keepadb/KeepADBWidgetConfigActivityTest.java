@@ -105,6 +105,26 @@ public class KeepADBWidgetConfigActivityTest {
     private static final int DOWN = 2;
 
     @Test
+    public void anOverviewWidgetOffersOnlyItsDetailsOptionAndSavesIt() {
+        // #913: the overview uses the same screen; it has no actions to choose or order.
+        int overview = widgets.createWidget(KeepADBOverviewWidget.class,
+                R.layout.widget_overview_compact);
+        ActivityController<KeepADBWidgetConfigActivity> controller = open(overview);
+        Activity activity = controller.get();
+        assertFalse(activity.isFinishing());
+        assertEquals(View.GONE, activity.findViewById(R.id.widget_config_primary).getVisibility());
+        assertEquals(View.GONE, activity.findViewById(R.id.widget_config_order_rows).getVisibility());
+        assertEquals(View.GONE, activity.findViewById(R.id.widget_config_primary_title).getVisibility());
+        assertEquals(View.GONE, activity.findViewById(R.id.widget_config_order_title).getVisibility());
+
+        ((Switch) activity.findViewById(R.id.widget_config_hide_details)).setChecked(true);
+        activity.findViewById(R.id.widget_config_save).performClick();
+        assertTrue(KeepADBWidgetConfig.load(context, overview).hideDetails);
+        assertEquals(Activity.RESULT_OK, shadowOf(activity).getResultCode());
+        assertFalse("another widget is untouched", KeepADBWidgetConfig.isStored(context, widgetId));
+    }
+
+    @Test
     public void aNewWidgetStartsFromTheDefaults() {
         Activity activity = open(widgetId).get();
         assertTrue(primaryChoice(activity, Action.ADB).isChecked());
