@@ -282,6 +282,29 @@ public class PrivacyToggleTitleBarsTest {
     }
 
     @Test
+    public void theLongPressMenuClosesWithTheScreenAndARecreatedScreenStartsWithoutOne() {
+        org.robolectric.android.controller.ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(controller.get());
+        controller.recreate();
+        ShadowLooper.idleMainLooper();
+        assertFalse("the menu closes when its screen goes away", menu.isShowing());
+        assertNull("the recreated eye has no menu until the next long press",
+                KeepADBPrivacyToggle.menuOf(controller.get()));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void theHomeEyeSitsLeftOfTheGear() {
+        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
+        View eye = main.findViewById(R.id.btn_toggle_privacy_mode);
+        View gear = main.findViewById(R.id.btn_open_settings);
+        ViewGroup bar = (ViewGroup) gear.getParent();
+        assertSame(bar, eye.getParent());
+        assertEquals(bar.indexOfChild(gear) - 1, bar.indexOfChild(eye));
+    }
+
+    @Test
     public void talkBackNamesTheTapAndTheLongPress() {
         SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         View eye = settings.findViewById(R.id.btn_toggle_privacy_mode);
@@ -299,6 +322,17 @@ public class PrivacyToggleTitleBarsTest {
         }
         assertEquals(context.getString(R.string.privacy_menu_hide_screen), click);
         assertEquals(context.getString(R.string.privacy_eye_long_press_action), longClick);
+
+        eye.performClick();
+        String clickAfter = null;
+        for (android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction action
+                : eye.createAccessibilityNodeInfo().getActionList()) {
+            if (action.getId() == android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) {
+                clickAfter = String.valueOf(action.getLabel());
+            }
+        }
+        assertEquals("the tap label follows the screen",
+                context.getString(R.string.privacy_menu_show_screen), clickAfter);
     }
 
     @Test

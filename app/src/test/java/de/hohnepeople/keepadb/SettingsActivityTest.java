@@ -948,8 +948,7 @@ public class SettingsActivityTest {
     /**
      * #478: the last (version) settings entry is pinned -- always visible and never collapsible
      * -- unlike every other card in {@link #COLLAPSIBLE_CARDS}. #518: the former language entry
-     * was removed from this content column entirely (it is now in native toolbar overflow in the
-     * header), so it is no longer part of this contract.
+     * was removed from this content column entirely (it is now a button in the header, #942), so it is no longer part of this contract.
      */
     @Test
     public void versionCardIsPermanentlyVisibleAndDoesNotCollapse() {
