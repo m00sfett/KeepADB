@@ -221,10 +221,10 @@ public class KeepADBRegisterInFlightWithdrawalTest {
     }
 
     @Test
-    public void aFailedPostLeavesNoMarkerAndQueuesNothing() {
+    public void aPostTheServerRejectedLeavesNoMarkerAndQueuesNothing() {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        transport.setPostSuccess(false);
+        transport.setPostResponseCode(500); // an HTTP answer: nothing was registered
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
         drain();
@@ -232,5 +232,80 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertFalse(requests().isEmpty());
         assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
         assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void aPostWhoseAnswerWasLostIsWithdrawnAtTheOptOut() {
+        // Review R1: the request reached B, then reading the answer failed (an I/O error, not an
+        // HTTP answer); meanwhile the user opts out.
+        registeredAtAWithBSaved();
+        transport.setFailingUrl(URL_A);
+        duringFirstPostTo(URL_B, () -> {
+            transport.setPostSuccess(false); // this POST now ends with an I/O error
+            KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+            KeepADBRegisterClient.unregisterAndDisableAsync(context);
+            transport.setFailingUrl(null);
+        });
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+
+        List<String> sent = requests();
+        int post = sent.indexOf("POST " + URL_B);
+        assertTrue(sent.toString(), post >= 0);
+        assertTrue("B may hold the registration and must be withdrawn: " + sent,
+                lastIndexOf(sent, "DELETE " + URL_B) > post);
+        assertTrue(sent.toString(), lastIndexOf(sent, "DELETE " + URL_A) > post);
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void anEndpointLossDuringThePostKeepsTheEvidenceAndWithdrawsB() {
+        // Review R1: sync stays on, so B is still the target when its stale POST succeeds; the
+        // endpoint loss that superseded it is a withdrawal and must take B along.
+        registeredAtAWithBSaved();
+        transport.setFailingUrl(URL_A);
+        duringFirstPostTo(URL_B, () -> KeepADBRegisterClient.markUnavailableAsync(context));
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+
+        List<String> sent = requests();
+        int post = sent.indexOf("POST " + URL_B);
+        assertTrue(sent.toString(), post >= 0);
+        assertTrue("the endpoint loss withdraws B as well: " + sent,
+                lastIndexOf(sent, "DELETE " + URL_B) > post);
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+    }
+
+    @Test
+    public void aStaleSuccessWhileBIsStillTheTargetIsKeptUntilAnOptOutWithdrawsIt() {
+        // Review R1: nothing is queued while B is the target, but the evidence survives, so an
+        // opt-out much later (after a failed withdrawal of A, even after a restart) still finds B.
+        registeredAtAWithBSaved();
+        transport.setFailingUrl(URL_A);
+        duringFirstPostTo(URL_B, KeepADBRegisterClient::bumpOpGenerationForTesting);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
+        drain();
+        assertEquals("the marker keeps B", URL_B, KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue("and nothing is evicted from the backlog",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+
+        // Process death, then the opt-out.
+        KeepADBRegisterClient.resetForTesting();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        transport.setRequestCallback(null);
+        transport.setFailingUrl(null);
+        transport.clearRequests();
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        drain();
+
+        List<String> sent = requests();
+        assertTrue(sent.toString(), sent.contains("DELETE " + URL_B));
+        assertTrue(sent.toString(), sent.contains("DELETE " + URL_A));
+        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
     }
 }

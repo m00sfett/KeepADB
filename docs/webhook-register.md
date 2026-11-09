@@ -123,8 +123,11 @@ the report as withdrawn, its failure keeps the record and shows the last report 
   recorded registration (so changing A to B and switching off during the POST to B withdraws both).
   The destination of every POST is also written to the preferences before the request is sent; if
   the process dies with the POST in flight, the next register activity treats it the same way. A
-  destination that is still the saved URL with synchronization on is not queued: its next report
-  overwrites that registration. A POST that returned a failure counts as not registered, as before.
+  destination that is still the saved URL with synchronization on is not queued yet; it stays
+  recorded as possibly registered until its next successful report, and any withdrawal before that
+  (switching off, an endpoint loss) takes it along. A POST the receiver answered with an HTTP error
+  counts as not registered; one that ended with a network error (for example a lost answer) counts
+  as possibly registered, because the request may have arrived.
 
 ## What the widgets and the tile show of the delivery (#910)
 

@@ -753,7 +753,8 @@ final class KeepADBRegisterClient {
         // #923: a dispatch marker left here is a POST whose process died before its outcome was
         // settled (every POST that returns settles its own marker on this executor first).
         String interrupted = KeepADBPreferences.getWebhookDispatchedUrl(context);
-        if (interrupted != null) rememberPossibleRegistration(context, interrupted);
+        // A withdrawing transaction always queues it; an update keeps it while it is the target.
+        if (interrupted != null) rememberPossibleRegistration(context, interrupted, deleting);
         // #923: the resource the transaction that runs next sends its own DELETE or POST to.
         String inUseUrl = deleting ? plannedDeleteUrl(targetUrl) : targetUrl;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
@@ -797,26 +798,36 @@ final class KeepADBRegisterClient {
 
     /**
      * #923: {@code url} may hold a registration that the local report snapshot does not record --
-     * a POST that succeeded after its transaction went stale, or one interrupted by process death.
-     * Unless the snapshot names that resource anyway (the next withdrawal targets it then), it is
-     * queued as a pending cleanup (#317): persisted, retried with backoff, and withdrawn at the
-     * next register activity, which includes an opt-out, a URL change and an endpoint loss. A newer
-     * successful POST to the same resource removes the entry again. Clears the dispatch marker.
+     * a POST that succeeded after its transaction went stale, one whose answer was lost, or one
+     * interrupted by process death. If the snapshot names that resource, the next withdrawal
+     * targets it anyway and the dispatch marker is cleared. If it is still the saved URL with
+     * synchronization on and nothing is being withdrawn, the marker is kept as durable evidence
+     * (its next successful report clears it, any later withdrawal queues it). Otherwise it is
+     * queued as a pending cleanup (#317: persisted, retried with backoff, withdrawn at the next
+     * register activity) and the marker is cleared.
+     *
+     * @param withdrawing the caller is a DELETE transaction (opt-out, endpoint loss)
      */
-    private static void rememberPossibleRegistration(Context context, String url) {
+    private static void rememberPossibleRegistration(Context context, String url,
+            boolean withdrawing) {
         boolean recorded;
         synchronized (KeepADBRegisterClient.class) {
             recorded = lastRegisteredUrl != null && sameRegistrationResource(url, lastRegisteredUrl);
         }
-        // Still the destination with sync on: its next report overwrites that registration, and a
-        // queued entry would only evict an older cleanup from a full backlog.
+        if (recorded) {
+            KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+            return;
+        }
         boolean stillTheTarget = KeepADBPreferences.isRegisterWebhookEnabled(context)
                 && sameRegistrationResource(url, KeepADBPreferences.getRegisterWebhookUrl(context));
-        if (!recorded && !stillTheTarget) {
-            String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
-            // #707: an evicted entry's retry record goes with it.
-            if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
+        if (stillTheTarget && !withdrawing) {
+            // Queuing it now would also evict an older cleanup from a full backlog.
+            KeepADBPreferences.setWebhookDispatchedUrl(context, url);
+            return;
         }
+        String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
+        // #707: an evicted entry's retry record goes with it.
+        if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
         KeepADBPreferences.setWebhookDispatchedUrl(context, null);
     }
 
@@ -973,10 +984,15 @@ final class KeepADBRegisterClient {
         lastTransportOutcome = "unknown";
         // #923: persisted before the request, settled after it (below), so a registration made by
         // a POST whose transaction went stale, or whose process died, is still withdrawn later.
+        String markerBefore = KeepADBPreferences.getWebhookDispatchedUrl(context);
         KeepADBPreferences.setWebhookDispatchedUrl(context, targetUrl);
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        // A failed POST registered nothing (the client's model since #317).
-        if (!posted) KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+        // #923 (review): only an HTTP answer proves this request registered nothing; an I/O error
+        // can come after the body was delivered, so the marker stays as evidence then. A definite
+        // rejection restores the marker this POST found (an earlier, unsettled one stays).
+        if (!posted && lastTransportOutcome != null && lastTransportOutcome.startsWith("http=")) {
+            KeepADBPreferences.setWebhookDispatchedUrl(context, markerBefore);
+        }
         recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry,
                 maxRetries);
         if (posted) {
@@ -987,7 +1003,7 @@ final class KeepADBRegisterClient {
             // side effects (the newer operation owns those) -- except #923: the receiver may now
             // hold a registration at targetUrl that no state accounts for; queue its withdrawal.
             if (opGen != currentOpGeneration) {
-                rememberPossibleRegistration(context, targetUrl);
+                rememberPossibleRegistration(context, targetUrl, false);
                 return;
             }
             // Consider other verified transport candidates only after the WLAN POST. The local
@@ -1032,7 +1048,7 @@ final class KeepADBRegisterClient {
                 }
             }
             // #923: superseded during the secondary transports.
-            rememberPossibleRegistration(context, targetUrl);
+            rememberPossibleRegistration(context, targetUrl, false);
         } else {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
