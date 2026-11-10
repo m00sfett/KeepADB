@@ -28,12 +28,12 @@ are retrospective issue-version records and were never published as separate rel
 ### Changed
 - **Eye button: a tap hides or shows this screen, a long press opens the privacy switches (#941):**
   every eye button, now also on the home screen left of the gear, toggles "Hide/Show on this
-  screen" on a tap (temporary, never stored). A long press opens a menu with the four stored
-  switches (in the app, in notifications, on the lock screen, in widgets and the tile) and a
+  screen" on a tap (temporary, never stored). A long press opens a menu with the switches
+  (in the app, in notifications, on the lock screen, in widgets and the tile) and a
   "Privacy settings…" link to the Privacy card; the menu stays open after a check. TalkBack names
   both gestures (custom click and long-click labels). The lock-screen option (#920) is in this menu
   for the first time.
-- **Privacy card in Settings (#941):** the four switches move from "Other" into their own collapsible
+- **Privacy card in Settings (#941):** the privacy switches move from "Other" into their own collapsible
   card between USB-ADB and Other. The notification-details review (`EXTRA_FOCUS_DETAILS`) now opens
   it; `EXTRA_FOCUS_PRIVACY` opens it from the eye menu and the home menu.
 - **Home menu (#940):** Language, All settings, then Setup assistant, Network, Webhook, USB-ADB,
