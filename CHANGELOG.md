@@ -144,6 +144,15 @@ name and raise only the code.
   count (the test runtime does not measure real text). Not verified in this change: the acceptance
   that with two warnings in German at font scale 1.3 on a 360dp phone the main switch and its state
   are visible without scrolling, and the rendering on tablets (needs the emulators).
+  - **Follow-up after the emulator check: the explanation of a stacked row.** When a long title
+    (large font, long translation) puts the action on its own line, the opened explanation used to
+    appear below the button. It now sits between the title and the button. The explanation
+    (`warning_details`) is the optional fifth child of `KeepADBWarningRow` in `view_home_warning.xml`
+    and `view_force_warning.xml`, so the row can place it; collapsed rows and the side-by-side
+    layout are unchanged. A tap on the explanation is not a tap on the row (it does not toggle and
+    draws no press feedback), and its text is marked focusable, because a focusable row would
+    otherwise hide plain text inside it from TalkBack. `KeepADBWarningRowLayoutTest` pins the order
+    for a stacked and an inline action, the unchanged collapsed layouts and the touch behavior.
   - **Checked for the maintainer: "Keep-Alive is limited" and the header warning icon.** The card
     is shown but not counted by the icon, and that is intended: `KeepADBWarningState.Reason` marks
     the three reasons of that card (`NOTIFICATIONS_MISSING`, `BACKGROUND_LOCATION_MISSING`,

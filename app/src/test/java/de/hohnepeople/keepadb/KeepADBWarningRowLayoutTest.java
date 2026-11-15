@@ -100,6 +100,87 @@ public class KeepADBWarningRowLayoutTest {
         assertFalse(rows.row.isActionStacked());
     }
 
+    /** #963: an explanation sits below the title line; stacked it sits between title and action. */
+    @Test
+    public void anOpenExplanationSitsBetweenTheTitleAndAStackedAction() {
+        Rows rows = new Rows(dp(330));
+        View details = rows.addDetails(dp(40));
+
+        rows.row.measure(View.MeasureSpec.makeMeasureSpec(dp(328), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        rows.row.layout(0, 0, rows.row.getMeasuredWidth(), rows.row.getMeasuredHeight());
+
+        assertTrue(rows.row.isActionStacked());
+        assertTrue("below the title", details.getTop() >= rows.title.getBottom());
+        assertTrue("above the action", details.getBottom() <= rows.action.getTop());
+        assertEquals("aligned with the title text", rows.title.getLeft(), details.getLeft());
+        assertEquals("the action keeps its start alignment", rows.title.getLeft(), rows.action.getLeft());
+        assertTrue("the row holds all three", rows.row.getMeasuredHeight() >= rows.action.getBottom());
+        assertEquals(0, rows.close.getTop());
+    }
+
+    @Test
+    public void anOpenExplanationSitsBelowTheHeaderWhenTheActionIsInline() {
+        Rows rows = new Rows(dp(100));
+        View details = rows.addDetails(dp(40));
+
+        rows.row.measure(View.MeasureSpec.makeMeasureSpec(dp(328), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        rows.row.layout(0, 0, rows.row.getMeasuredWidth(), rows.row.getMeasuredHeight());
+
+        assertFalse(rows.row.isActionStacked());
+        assertEquals("the header is the same one line as without the explanation",
+                dp(48), rows.close.getBottom());
+        assertEquals(dp(48), details.getTop());
+        assertEquals(dp(48) + dp(40), rows.row.getMeasuredHeight());
+        assertEquals("the action ends where the close button starts",
+                rows.close.getLeft() - dp(8), rows.action.getRight());
+    }
+
+    @Test
+    public void aClosedExplanationChangesNothingInEitherLayout() {
+        for (int natural : new int[] {dp(100), dp(330)}) {
+            Rows without = new Rows(natural);
+            Rows closed = new Rows(natural);
+            View details = closed.addDetails(dp(40));
+            details.setVisibility(View.GONE);
+            int width = View.MeasureSpec.makeMeasureSpec(dp(328), View.MeasureSpec.EXACTLY);
+            int height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            without.row.measure(width, height);
+            without.row.layout(0, 0, without.row.getMeasuredWidth(), without.row.getMeasuredHeight());
+            closed.row.measure(width, height);
+            closed.row.layout(0, 0, closed.row.getMeasuredWidth(), closed.row.getMeasuredHeight());
+
+            assertEquals(without.row.getMeasuredHeight(), closed.row.getMeasuredHeight());
+            assertEquals(without.action.getTop(), closed.action.getTop());
+            assertEquals(without.action.getLeft(), closed.action.getLeft());
+            assertEquals(without.row.isActionStacked(), closed.row.isActionStacked());
+        }
+    }
+
+    @Test
+    public void aTapOnTheExplanationIsNoTapOnTheRow() {
+        Rows rows = new Rows(dp(330));
+        View details = rows.addDetails(dp(40));
+        rows.row.measure(View.MeasureSpec.makeMeasureSpec(dp(328), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        rows.row.layout(0, 0, rows.row.getMeasuredWidth(), rows.row.getMeasuredHeight());
+
+        assertFalse("the explanation is not a toggle",
+                down(rows.row, dp(40), details.getTop() + details.getHeight() / 2f));
+        assertTrue("the header is", down(rows.row, dp(10), 2f));
+    }
+
+    /** Whether the row consumed a press at that point (a press it refuses falls through). */
+    private static boolean down(View view, float x, float y) {
+        long now = android.os.SystemClock.uptimeMillis();
+        boolean handled = view.dispatchTouchEvent(android.view.MotionEvent.obtain(now, now,
+                android.view.MotionEvent.ACTION_DOWN, x, y, 0));
+        view.dispatchTouchEvent(android.view.MotionEvent.obtain(now, now + 20,
+                android.view.MotionEvent.ACTION_CANCEL, x, y, 0));
+        return handled;
+    }
+
     @Test
     public void aRightToLeftRowIsTheMirrorImage() {
         Rows rows = new Rows(dp(100));
@@ -136,6 +217,17 @@ public class KeepADBWarningRowLayoutTest {
             closeParams.setMarginStart(dp(8));
             row.addView(close, closeParams);
             row.setMinimumHeight(dp(48));
+        }
+
+        /** The explanation as view_home_warning.xml has it: a fifth child with 36dp and 8dp margins. */
+        View addDetails(int height) {
+            View details = new View(context);
+            ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, height);
+            params.setMarginStart(dp(36));
+            params.setMarginEnd(dp(8));
+            row.addView(details, params);
+            return details;
         }
     }
 

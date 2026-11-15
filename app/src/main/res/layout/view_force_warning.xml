@@ -66,43 +66,44 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:padding="12dp"
             android:src="@drawable/ic_close" />
-    </de.hohnepeople.keepadb.KeepADBWarningRow>
 
-    <!-- The explanation and the way to the force row of Settings, aligned with the title. -->
-    <LinearLayout
-        android:id="@+id/warning_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="vertical"
-        android:paddingBottom="4dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/force_warning_text"
+        <!-- The explanation and the way to the force row of Settings, aligned with the title. -->
+        <LinearLayout
+            android:id="@+id/warning_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:accessibilityLiveRegion="polite"
-            android:fontFamily="sans-serif"
-            android:lineSpacingExtra="3dp"
-            android:textColor="@color/night_text"
-            android:textSize="13sp" />
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:visibility="gone">
 
-        <Button
-            android:id="@+id/btn_force_settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_btn_secondary"
-            android:fontFamily="sans-serif-condensed"
-            android:minHeight="48dp"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
-            android:text="@string/action_settings"
-            android:textColor="@color/text_yellow"
-            android:textSize="15sp" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/force_warning_text"
+                android:focusable="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="3dp"
+                android:textColor="@color/night_text"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btn_force_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_btn_secondary"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/action_settings"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </de.hohnepeople.keepadb.KeepADBWarningRow>
 </LinearLayout>

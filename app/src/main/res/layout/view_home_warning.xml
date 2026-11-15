@@ -65,27 +65,28 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:padding="12dp"
             android:src="@drawable/ic_close" />
-    </de.hohnepeople.keepadb.KeepADBWarningRow>
 
-    <!-- The explanation, aligned with the start of the title (icon 24dp + gap 12dp). -->
-    <LinearLayout
-        android:id="@+id/warning_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="vertical"
-        android:paddingBottom="4dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/home_warning_text"
-            android:accessibilityLiveRegion="polite"
+        <!-- The explanation, aligned with the start of the title (icon 24dp + gap 12dp). -->
+        <LinearLayout
+            android:id="@+id/warning_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:lineSpacingExtra="3dp"
-            android:textColor="@color/night_text"
-            android:textSize="13sp" />
-    </LinearLayout>
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/home_warning_text"
+                android:focusable="true"
+                android:accessibilityLiveRegion="polite"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="3dp"
+                android:textColor="@color/night_text"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </de.hohnepeople.keepadb.KeepADBWarningRow>
 </LinearLayout>

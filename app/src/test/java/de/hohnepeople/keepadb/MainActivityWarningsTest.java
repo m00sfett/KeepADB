@@ -425,7 +425,10 @@ public class MainActivityWarningsTest {
             if (row.getChildAt(i) instanceof android.widget.Button) buttons++;
         }
         assertEquals("one review action in the card row", 1, buttons);
-        assertEquals("icon, title, action and independent close target", 4, row.getChildCount());
+        assertEquals("icon, title, action, independent close target and the explanation", 5, row.getChildCount());
+        assertEquals(R.id.warning_details, row.getChildAt(4).getId());
+        assertTrue("TalkBack still reaches the explanation inside the focusable row",
+                card.findViewById(R.id.home_warning_text).isFocusable());
         assertTrue(card.findViewById(R.id.home_warning_dismiss).isClickable());
         assertEquals(48, card.findViewById(R.id.home_warning_dismiss).getLayoutParams().width);
     }
