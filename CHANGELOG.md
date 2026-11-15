@@ -26,7 +26,9 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.13.0] - Unreleased
 
 Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264 and
-265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. The version carries a minor bump (approved by the
+265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. Block 3
+(versionCode 266): the home screen, so far the security advice (#958) and the warning rows (#963).
+The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
 
@@ -47,6 +49,23 @@ name and raise only the code.
   `KeepADBShortcutsContractTest` checks both against `app/build.gradle`. Labels in all 19 locales.
 
 ### Changed
+- **Security advice and privacy switches on the assistant's intro page (#958).** Maintainer
+  decision of 2026-11-14 and 2026-11-15. The general "Security & network advice"
+  (`advice_banner_title`, `advice_banner_text`, wording unchanged) is a static row directly under
+  the intro text of the setup assistant (`OnboardingActivity#securityAdviceRow`, no dismiss button,
+  so everyone sees it on a first start, also with "Later") and stays readable through Settings >
+  Setup assistant. The four privacy switches below it collapse to one row
+  (`OnboardingPrivacyRow`): a summary ("Privacy: nothing hidden" with every switch off, otherwise
+  "Privacy: 2 of 4 on", counting app, notifications, lock screen and widgets) and a "Change"
+  button; a tap on the button or the row opens the switches in place and the button reads "Done"
+  while they are open. The row announces the summary and "Collapsed"/"Expanded" (the existing
+  `card_state_*` strings) to TalkBack, the button is a real 48dp button, and an open row stays open
+  across a rotation. Keys and behavior of the switches are unchanged, and the row stays on the
+  first page, so it still comes before any step that shows a network name (#904). Three new strings
+  (`onboarding_privacy_summary_off`, `onboarding_privacy_summary_on`, `onboarding_privacy_change`)
+  in 19 locales; "Done" reuses `onboarding_done`. Not verified in this change: the target that the
+  intro text, the advice and the collapsed row fit one 360dp phone screen in English and German
+  (needs the emulator).
 - **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
   this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
   Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay
@@ -76,6 +95,19 @@ name and raise only the code.
   an invalid URL is unchanged.
 
 ### Removed
+- **The advice card on the home screen (#958).** `advice_banner` and `btn_dismiss_advice_banner`
+  leave all six `activity_main.xml` variants and `MainActivity` (`updateAdviceBannerVisibility`),
+  the Settings > Other switch "Show Security & Network Advice" (`settings_advice_banner_toggle` and
+  its subtext) goes, and so does the preference `advice_banner_visible`
+  (`KeepADBPreferences#isAdviceBannerVisible`/`setAdviceBannerVisible`). The stored key is deleted
+  on the first start after the update (`KeepADBPreferences#removeObsoleteAdviceBannerKey`, called
+  from `KeepADBApplication#onCreate` like the USB and webhook cleanups; the assistant's
+  existing/new decision is frozen first), whether or not the card had been dismissed.
+  `KeepADBAdviceBannerRemovalMigrationTest` fails without it. Existing installations lose the card
+  on update and do not get the assistant again for this. `security_notice_dismiss`,
+  `settings_advice_banner_toggle` and `settings_advice_banner_subtext` are removed from the 19
+  locales; the warning cards keep their place above the main switch
+  (`MainActivityWarningPositionTest`, replacing the advice position test).
 - **The USB-ADB feature area (#956).** Maintainer decision of 2026-11-14: the card, a second
   notification and 48 strings in 19 languages did not serve the purpose of the app, keeping
   Wireless Debugging available, and host profiles were hand-maintained labels because KeepADB

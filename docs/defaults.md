@@ -57,7 +57,6 @@ reason for each documented here.
 | Keep display on | `keep_display_on_enabled` | off | Convenience with battery cost; turning it on adds no protection |
 | App language | `app_language` | empty (system language) | No security impact |
 | Webhook retries | none | fixed: 4 retries after 5, 15, 30, 60 s | Only used while webhook sync is on and a report failed; bounded, no polling (#866). Not a setting since #960. After a given-up series, one single re-attempt at most every 15 minutes while the failure lasts (#881) |
-| Home-screen advice card | `advice_banner_visible` | visible | “Do not show again” flag; display only. The flags for the other cards (`notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible`) were removed in #764 and are cleared on first start |
 
 Removed in 1.13.0 (#956): the USB-ADB area (USB notification, host profiles, handover mode). The
 application deletes its stored keys on the first start after the update (`usb_notification_enabled`,
@@ -71,6 +70,15 @@ Removed in 1.13.0 (#960): the two webhook retry selectors. `register_webhook_ret
 fixed at 4 retries after 5, 15, 30 and 60 seconds, which is what an installation that never touched
 the selectors already did. An installation set to “Fast” or “Gentle”, or to fewer retries, changes
 to that series.
+
+Removed in 1.13.0 (#958): the general security and network advice left the home screen for the
+intro page of the setup assistant, where it is always shown without a dismiss button. The stored
+dismiss flag `advice_banner_visible` (“Do not show again”, #225; default visible) is deleted on the
+first start after the update, whether the card had been dismissed or not, together with the
+Settings switch “Show Security & Network Advice”. The flags of the other home cards
+(`notification_permission_panel_visible`, `battery_optimization_panel_visible`,
+`network_onboarding_panel_visible`, `background_location_panel_visible`) were removed in #764 and
+are cleared on first start. The advice stays readable under Settings → Setup assistant.
 
 ### Not a setting
 
