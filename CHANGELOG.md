@@ -25,8 +25,8 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.13.0] - Unreleased
 
-Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264):
-the USB-ADB feature area is removed. The version carries a minor bump (approved by the
+Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264 and
+265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
 
@@ -105,6 +105,24 @@ name and raise only the code.
   inactive WLAN and VPN events, the schema constants, the allowlist and the request that leaves the
   app with a verified VPN; it was added before the removal and passes unchanged after it.
 
+- **The webhook retry selectors (#960).** Maintainer decision of 2026-11-14: "Retry timing" (fast 2,
+  5, 10, 20 s; standard 5, 15, 30, 60 s; gentle 15, 30, 60, 120 s) and "Number of retries" (0 to 4),
+  added with #866 and shipped in 1.11.0, tuned a background detail few can judge. Gone:
+  `KeepADBWebhookRetrySettings`, the two selector rows in the webhook card
+  (`settings_webhook_retry_timing_selector`, `settings_webhook_retry_count_selector`) with their
+  dialogs and wiring in `SettingsActivity`, the preferences `register_webhook_retry_profile` and
+  `register_webhook_retry_count`, the fast and gentle delay tables and their accessors in
+  `KeepADBPreferences`, and nine of the ten `settings_webhook_retry_*` strings in all 19 locales.
+  The series is fixed: `KeepADBRegisterClient` reads `WEBHOOK_MAX_RETRIES` (4) and the delays 5,
+  15, 30 and 60 s from `KeepADBPreferences#webhookRetryDelayMs`, which is what an installation that
+  never touched the selectors already did. The one line that stays in the card
+  (`settings_webhook_retry_subtext`) now names the fixed numbers, reworded in every locale. Unchanged:
+  when a series starts, how it is bounded, what the report history records (`report_history_retry`
+  stays), when the alert appears, and the wire format. Tests that used the setter to switch retries
+  off use the new test seam `KeepADBRegisterClient#setRetryBudgetForTesting` (reset by
+  `resetForTesting`); the test that changed the count while a request was in flight is gone with
+  its premise.
+
 ### Upgrade notes
 - **Stored data is deleted on the first start after the update.** `KeepADBApplication.onCreate`
   (every component of the app runs in that process, so whichever one starts first after the
@@ -118,12 +136,19 @@ name and raise only the code.
   (like #764). `KeepADBUsbRemovalMigrationTest` covers it and is red without the cleanup.
   "Reset App Completely" clears the whole app data and needed no change; `allowBackup` is off and
   `data_extraction_rules.xml` named no USB key.
+- **The webhook retry keys are deleted the same way (#960).** `KeepADBPreferences#removeObsoleteWebhookRetryKeys`
+  runs from `KeepADBApplication.onCreate` next to the USB cleanup. An installation set to "fast",
+  "gentle" or fewer than four retries changes to the fixed series on update.
+  `KeepADBRegisterRetryTest` stores "fast" and one retry, starts the app, and asserts that both keys
+  are gone and that a failed report is retried after 5, 15, 30 and 60 s and then given up on; the
+  key assertion is red without the cleanup.
 - **An installation with the handover mode "automatic" loses that behavior.** Keep-Alive is the
   replacement for switching Wireless Debugging on again unattended; the user-facing note says so
   (`264.txt`).
 
 ### Documentation
 - `docs/trusted-networks.md` names the entry point "Wi-Fi networks".
+- `docs/defaults.md` and `docs/webhook-register.md` describe the fixed retry series.
 - The USB-ADB feature area is removed from `README.md`, `SECURITY.md`, `docs/defaults.md` (which
   also records the deleted keys), `docs/trusted-networks.md`, `docs/webhook-register.md` and the
   store description (`full_description.txt`). The dated records under `docs/archive`,
