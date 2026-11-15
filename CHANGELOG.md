@@ -66,6 +66,41 @@ name and raise only the code.
   in 19 locales; "Done" reuses `onboarding_done`. Not verified in this change: the target that the
   intro text, the advice and the collapsed row fit one 360dp phone screen in English and German
   (needs the emulator).
+- **Compact warning rows that open on tap (#963).** Maintainer decision of 2026-11-15 after a
+  design critique of 1.12.8: each home warning (`view_home_warning.xml`) and the force-mode panel
+  (now `view_force_warning.xml`, included as `force_warning_panel` by the six `activity_main.xml`
+  variants instead of six copies of the markup) shrink to one row of at least 48dp: warning icon,
+  title with a small chevron (`ic_expand_more`/`ic_expand_less`, decorative), the action button in
+  its existing style and the 48dp close button. A tap on the row, not on a button, opens the
+  explanation below it (aligned with the title, including the list of missing items of "Keep-Alive
+  is limited") and a second tap closes it; "Settings" of the force panel moved into its explanation,
+  and the remaining time ("Active until 14:30", `force_status_until`/`force_status_unlimited`) is
+  state and stays in the collapsed row under the title. No text changed and no string was added.
+  `KeepADBWarningRow` lays the row out: the title takes what is left and may use two lines next to
+  the action; when it needs more (large font scale, long translation) the action moves to its own
+  line below the title, start-aligned with it, instead of squeezing or clipping the title. The
+  decision (`KeepADBWarningRow#stackAction`) is made inside the measure pass from the title's
+  measured line count, with a second measure of the title only when it applies, so nothing is
+  posted and no layout is requested from within a pass. Expanded or collapsed is kept per warning
+  in `MainActivity` (not stored): it survives the periodic refresh and a rotation, and a warning
+  that goes away and returns starts collapsed. Unchanged: order of the cards, the conditions under
+  which each appears, close, undo and mute, the header counter. TalkBack: the row is one focus
+  target announced as a button, labelled with the title and carrying the state "Collapsed" or
+  "Expanded" (the existing `card_state_*` strings, `View#setStateDescription`); the explanation
+  (a polite live region) follows the row in focus order; action and close stay separate targets.
+  The list of security reasons (`WarningsActivity`) reuses the card and switches the row to inert
+  (`setExpandable(false)`). `MainActivityWarningRowTest` fails without the state handling,
+  `KeepADBWarningRowLayoutTest` covers the placement of the action with a title that reports a line
+  count (the test runtime does not measure real text). Not verified in this change: the acceptance
+  that with two warnings in German at font scale 1.3 on a 360dp phone the main switch and its state
+  are visible without scrolling, and the rendering on tablets (needs the emulators).
+  - **Checked for the maintainer: "Keep-Alive is limited" and the header warning icon.** The card
+    is shown but not counted by the icon, and that is intended: `KeepADBWarningState.Reason` marks
+    the three reasons of that card (`NOTIFICATIONS_MISSING`, `BACKGROUND_LOCATION_MISSING`,
+    `BATTERY_EXEMPTION_MISSING`) as `security = false`, like `NETWORK_IDENTITY_UNAVAILABLE` of the
+    "Keep-Alive paused" card, since #826 introduced the reason table. The icon and its list
+    ("Security warnings") count only reasons that weaken protection; a missing permission limits
+    reliability and is not a security reason. Nothing changed.
 - **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
   this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
   Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay
