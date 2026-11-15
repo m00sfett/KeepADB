@@ -20,10 +20,13 @@ updated with the Networks list (#762).
   are compared exactly, as Android compares saved networks. A placeholder (masked or empty BSSID,
   unknown name) cannot be blocked, because that would block every network whose identity cannot be
   read.
-- **Convenience switch “Also trust by Wi-Fi name”** (`trust_by_name`, off by default): access
-  points with the name of a trusted access point are trusted too. Names are derived from trusted
-  access points; there is no separate name list. A blocked access point does not contribute its
-  name. Because names can be imitated, this switch is off by default.
+- **Trust by Wi-Fi name** (`trust_by_name`, off by default): access points with the name of a
+  trusted access point are trusted too. Names are derived from trusted access points; there is no
+  separate name list. A blocked access point does not contribute its name. Because names can be
+  imitated, this is off by default. It is the protection level “Balanced”: the level is chosen on
+  the Protection page (Settings → Protection, #959), and there is no separate switch for it
+  anywhere (before 1.13.0: the “Also trust by Wi-Fi name” switch in Settings and in the list).
+  The stored key and its meaning are unchanged.
 - **Previous “In all Wi-Fi networks” setting** (saved value `all_wifi`): every network is trusted,
   including a network whose identity cannot be read, **unless it is blocked**. Existing
   installations keep this setting unchanged; it is neither Force mode nor one of the protection
@@ -39,7 +42,7 @@ updated with the Networks list (#762).
 2. Block by Wi-Fi name (also applies when only the name is readable).
 3. Previous “In all Wi-Fi networks” setting: trusted.
 4. Trusted access point.
-5. Trusted name: derived (convenience switch) or legacy name allowlist, with an exact,
+5. Trusted name: derived (trust by name, the level “Balanced”) or legacy name allowlist, with an exact,
    case-sensitive match.
 6. Otherwise: readable identity = unknown, and KeepADB asks; unreadable identity = pause.
 
@@ -84,7 +87,7 @@ for #863.
 
 ## Turn off on untrusted Wi-Fi (#864)
 
-An optional setting in the network section, off by default. While Keep-Alive runs, KeepADB turns
+An optional setting in the “Automatic behavior” section of the Protection page, off by default. While Keep-Alive runs, KeepADB turns
 Wireless debugging off when it is on in a Wi-Fi that is not trusted, is blocked, or cannot be
 identified, instead of only notifying:
 
@@ -112,7 +115,7 @@ identified, instead of only notifying:
 
 ## Check Wi-Fi security of trusted access points (#860)
 
-An optional setting in the network section, off by default and shown on Android 12 and later only.
+An optional setting in the “Automatic behavior” section of the Protection page, off by default and shown on Android 12 and later only.
 It is defense in depth for automatic enabling, not authentication of the access point.
 
 - **Baseline:** whenever you trust the access point the phone is connected to (prompt, decision
@@ -160,7 +163,7 @@ forms and one tap target.
   and access-point BSSID, masked while the app privacy switch is on (#904; a “Show” button in the
   dialog lifts that for the dialog until it is left or the screen stops), and offers: Trust, “Block this access
   point only,” “Always block Wi-Fi name…” (unavailable if the name is hidden or unreadable), and
-  “Decide later.” If the convenience switch is on, a note explains that other access points with
+  “Decide later.” If trust by name (“Balanced”) is on, a note explains that other access points with
   this name will also be accepted. The dialog is built as a reusable view
   (`NetworkDecisionView`) that the Networks list (#762), assistant (#761), and home screen (#764)
   can use.
@@ -198,21 +201,35 @@ used up.
 
 ## The “Networks” list
 
-The list (#762, part a; Settings → Network → “Wi-Fi networks”, or “Wi-Fi networks” in the home menu since #949;
+The list (#762, part a; Settings → Protection → “Wi-Fi networks”, or “Wi-Fi networks” in the home menu since #949;
 renamed from “Networks” in 1.13.0, #964)
 shows trust and blocks in one place: the current network at the top, then recently asked access
-points (#949), then saved access points grouped by Wi-Fi name. A “Settings” heading at the end holds
-the convenience switch, the protection level, the Force mode note and the glossary. In #769, the
-older views (“Allowed access points,” “Recently prevented re-enabling,” and observation list), mode
-selector, observation option, and separate name list were removed from Settings. The network area
-there still shows the current network with its action, the protection level (display only; the
-assistant changes it, #761), the convenience switch, Force mode, the “Wi-Fi networks” entry point, and
-background access.
+points (#949), then saved access points grouped by Wi-Fi name. A “Protection” heading at the end
+holds one row with the current protection level (a tap leads to its choice on the Protection page;
+since #959 the list has no switch), the Force mode note and the glossary. In #769, the older views
+(“Allowed access points,” “Recently prevented re-enabling,” and observation list), mode selector,
+observation option, and separate name list were removed from Settings.
+
+**The Protection page (#959).** Settings shows “Protection” as one row (with the protection level
+and the trusted/blocked count as its summary); it opens its own page, which holds what the
+collapsible “Network” card held before 1.13.0, in this order: the current connection with its
+action, the **protection level** (chosen right there: “Maximum security” or “Balanced”; a previous
+setting stays visible while it is active), the **automatic behavior** (“Turn off on untrusted
+Wi-Fi”, “Check Wi-Fi security of trusted access points”; one help line each, “More” shows the
+full text), Force mode, the entry to the “Wi-Fi networks” list with its count, and the detection in
+the background (one line, “More” shows the full status and the current reading). Choosing a level
+writes through the same rule as the setup assistant (`KeepADBOnboarding.commitProtection`): the
+policy goes back to the allowlist, a previous name list is switched off and not emptied, and
+`trust_by_name` is set to whether “Balanced” was chosen. The assistant keeps its protection step for
+the first setup. Every way into the former card lands on the page at the matching section:
+the home Keep-Alive line, the “all Wi-Fi networks” warning and the widget at the level; the Force
+mode card, its warning and the end notice at the Force mode row; a notification of an older
+version that still opens Settings with a former focus extra is forwarded to the page.
 
 **One status per network.** Status comes from the same evaluation as automatic enabling
 (`KeepADBTrustedNetwork.evaluate`); the list does not calculate a separate policy. It shows
 *Trusted*, *Blocked*, *Unknown*, or *Unreadable*, and for the current network also *Trusted by name*
-(through the convenience switch). If an access point is trusted but its name is blocked, it shows
+(through the level “Balanced”). If an access point is trusted but its name is blocked, it shows
 *Blocked* with the reason (“Blocked via the Wi-Fi name …”), never *Trusted*. The saved trust remains under the
 name block. Force mode does not change the labels (it changes nothing stored); the list only notes
 that trust and blocks are overridden while Force mode is active.
@@ -225,7 +242,7 @@ label nor the current connection provides one, and derives the status from it: a
 point whose stored name is blocked still appears as *Blocked* (reason: name) even when it is not
 the current network. The stored name is from the time it was trusted or blocked and may be stale.
 It describes the row only and makes no decision: when connecting, the live connection name is used,
-and derived name trust (the convenience switch) still reads only the label. In a blocked row filed
+and derived name trust (trust by name) still reads only the label. In a blocked row filed
 under a stored name, the dialog does not offer “Trust” while that name is blocked; the Trust action
 itself checks only the name from the label or current connection, never the stored name. Entries
 trusted and blocks saved before this feature have no name and are not backfilled. Such a trust entry
@@ -253,7 +270,7 @@ of the notice for that access point (Trust, “Block this access point only,” 
 name…”); “Remove” deletes only the record and decides nothing. The section exists
 only while the list is shown, so the privacy mode hides it like everything else.
 
-**Other ways in (#949).** In Settings → Network, an undecided current access point offers “Block
+**Other ways in (#949).** On the Protection page, an undecided current access point offers “Block
 or decide…” next to “Trust this access point”; it opens this list on that access point. On the home
 screen, while Wireless Debugging is on and Keep-Alive is enabled, the reason line below the state
 says when the current Wi-Fi is not trusted or blocked ("Keep-Alive stays off here: Wi-Fi not
@@ -262,19 +279,19 @@ prompt record), as it already did while Keep-Alive was paused (#957).
 
 **Current network, undecided.** Instead of a separate dialog, the decision view from #766
 (`NetworkDecisionView`) is embedded in the card, without “Decide later.” It also appears when the
-network is accepted only through the convenience switch or previous “In all Wi-Fi networks” setting,
+network is accepted only through trust by name (“Balanced”) or previous “In all Wi-Fi networks” setting,
 so the user can explicitly trust or block that individual access point.
 
-**Convenience switch.** The “Also trust by Wi-Fi name” switch replaces the list's three modes:
-off = trusted access points only (BSSID); on = also access points with the name of a trusted one.
-The protection level is shown beside it. If both the convenience switch and legacy name list are
-on, the level is labeled “Wi-Fi name list (previous setting)” because the saved list extends access
-beyond names derived from trusted access points. Under the previous “In all Wi-Fi networks” setting,
-the switch has no effect and the list says so.
+**Trust by name.** One value replaces the list's three modes and is chosen as the protection level
+(#959; before: a switch “Also trust by Wi-Fi name”): “Maximum security” = trusted access points only
+(BSSID); “Balanced” = also access points with the name of a trusted one. If both trust by name and
+the legacy name list are on, the level is labeled “Wi-Fi name list (previous setting)” because the
+saved list extends access beyond names derived from trusted access points. The previous “In all
+Wi-Fi networks” setting is shown as such until one of the two levels is chosen.
 
 **Privacy (app switch, #904).** It replaces the entire list with a placeholder. No views or
 descriptions with Wi-Fi names or BSSIDs are built, including the embedded decision view (#766).
-The Settings count (“3 trusted · 1 blocked”) becomes “Hidden.” “Show” in the placeholder lifts
+The counts (“3 trusted · 1 blocked”, on the Protection page and in the Settings row) become “Hidden.” “Show” in the placeholder lifts
 this for the list until the screen stops; it does not change the switch. In the setup assistant
 the same “Show” belongs to the network page only and ends when the page changes.
 
@@ -292,7 +309,7 @@ nothing, and does not silently tighten or relax the policy.
 | Mode `all_wifi` | Previous “In all Wi-Fi networks” setting | Unchanged; blocks also apply |
 | Allowlist mode, name allowlist off or empty | Most secure | Unchanged |
 | Allowlist mode, name allowlist on with entries | Previous name allowlist | Unchanged; the name list remains in effect |
-| Allowlist mode, new convenience switch on | Balanced | Names of trusted access points |
+| Allowlist mode, trust by name on | Balanced | Names of trusted access points |
 | Nothing saved (new installation) | Most secure | Trusted BSSIDs only |
 
 The two “previous” states are settings that do not map exactly to either protection level. They
@@ -374,7 +391,7 @@ Adding trust to a blocked network remains impossible even in Force mode; Force m
 blocks nor trust.
 
 **Starting and ending.** Force mode can be started only through the confirmation dialog
-(Settings → Network → Force mode), with a required duration: 1 hour (preselected), 24 hours,
+(Settings → Protection → Force mode), with a required duration: 1 hour (preselected), 24 hours,
 7 days, 30 days, or “No end time.” The dialog gives staged warnings (a general warning; an
 additional warning about using it while away from trusted networks for 7 days or longer; and, with
 no expiry, an additional warning that it persists through reboots and updates). “No end time” can

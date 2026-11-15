@@ -32,8 +32,8 @@ below for what existing installations keep.
 |---|---|---|---|---|
 | Keep-Alive | `keep_alive_enabled` | off | The service does not re-enable Wireless debugging on its own; boot and update receivers do not start anything | Safe; decision (F2 from #758): also preselected as “Off” in the assistant (#761) |
 | Network rule | `trusted_network_mode` | `allowlist` | Automatic enabling is allowed only on trusted access points (BSSID); recovery pauses when identity cannot be read | Safe (#760); only the exact value `all_wifi` means the previous “In all Wi-Fi networks” setting; every other value means `allowlist` |
-| Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (convenience switch, available only in “Balanced”) |
-| Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; available only through the previous network-card switch |
+| Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (the stored value behind the level “Balanced”, chosen under Settings → Protection since #959; no switch of its own) |
+| Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; kept only as the previous setting (“Wi-Fi name list”), shown on the Protection page while active |
 | Check Wi-Fi security of trusted access points | `trusted_network_security_check` | off | Trusted access points are matched by address only, as before | Off by user decision (#860): an opt-in hardening for Android 12 and later; existing trust entries are never tightened silently |
 | Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wireless debugging that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
@@ -135,7 +135,7 @@ update and changes no settings. Assistant steps write a value only if the user c
 pressing “Next” without input leaves every key unchanged, so a new installation keeps the same safe
 defaults. This also applies to the “Permissions” and “Trusted Wi-Fi” steps (#767): their actions
 (requesting a permission, trusting or blocking a network) take effect immediately and are explicit
-actions; “Next” and “Skip” write nothing. Like the buttons on the home screen and Networks list,
+actions; “Next” and “Skip” write nothing. Like the buttons on the home screen and Wi-Fi networks list,
 the marker that records whether a permission was requested before—used to distinguish “denied”
 from “permanently denied”—is stored in Activity preferences, not `keepadb_prefs`.
 
