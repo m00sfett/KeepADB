@@ -443,6 +443,9 @@
     <string name="onboarding_intro_title_existing">新しいセキュリティ設定</string>
     <string name="onboarding_intro_body_existing">KeepADBは主な設定を1つのアシスタントにまとめました。現在の値はそのまま引き継がれ、選択済みになっています。「次へ」では何も変わりません。推奨より安全性が低いものには印が付いています。</string>
     <string name="onboarding_intro_less_secure">一部の設定が推奨よりも安全性の低い状態です。</string>
+    <string name="onboarding_privacy_summary_off">プライバシー: 非表示なし</string>
+    <string name="onboarding_privacy_summary_on">プライバシー: %1$d/%2$d件がオン</string>
+    <string name="onboarding_privacy_change">変更</string>
     <string name="onboarding_keep_alive_question">再起動や接続切れのあと、ワイヤレスデバッグを自動でオンに戻しますか？</string>
     <string name="onboarding_keep_alive_off_body">ワイヤレスデバッグは、アプリ、タイル、ウィジェットから自分でオンにします。再起動後はオフのままです。</string>
     <string name="onboarding_keep_alive_on_body">KeepADBは、再起動や接続切れのあとにワイヤレスデバッグをオンに戻します。ただし、保護レベルが許可する場所に限ります（次のステップ）。</string>

@@ -443,6 +443,9 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_intro_title_existing">Pengaturan keamanan baru</string>
     <string name="onboarding_intro_body_existing">KeepADB kini menyatukan pengaturan utamanya dalam satu asisten. Nilai Anda saat ini dipertahankan dan sudah dipilih. Lanjut tidak mengubah apa pun. Yang kurang aman dari yang disarankan diberi tanda.</string>
     <string name="onboarding_intro_less_secure">Beberapa pengaturan kurang aman dari yang disarankan.</string>
+    <string name="onboarding_privacy_summary_off">Privasi: tidak ada yang disembunyikan</string>
+    <string name="onboarding_privacy_summary_on">Privasi: %1$d dari %2$d aktif</string>
+    <string name="onboarding_privacy_change">Ubah</string>
     <string name="onboarding_keep_alive_question">Haruskah Debugging Nirkabel menyala lagi sendiri setelah restart atau koneksi terputus?</string>
     <string name="onboarding_keep_alive_off_body">Anda menyalakan Debugging Nirkabel sendiri, lewat aplikasi, ubin, atau widget. Setelah restart tetap mati.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB menyalakan kembali Debugging Nirkabel setelah restart atau koneksi terputus, tetapi hanya di tempat yang diizinkan tingkat perlindungan Anda (langkah berikutnya).</string>

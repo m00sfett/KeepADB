@@ -443,6 +443,9 @@
     <string name="onboarding_intro_title_existing">Нові налаштування безпеки</string>
     <string name="onboarding_intro_body_existing">KeepADB тепер збирає основні налаштування в одному помічнику. Ваші поточні значення збережено й вибрано наперед. «Далі» нічого не змінює. Те, що менш безпечне, ніж рекомендовано, позначено.</string>
     <string name="onboarding_intro_less_secure">Деякі налаштування менш безпечні, ніж рекомендовано.</string>
+    <string name="onboarding_privacy_summary_off">Конфіденційність: нічого не приховано</string>
+    <string name="onboarding_privacy_summary_on">Конфіденційність: увімкнено %1$d з %2$d</string>
+    <string name="onboarding_privacy_change">Змінити</string>
     <string name="onboarding_keep_alive_question">Чи має бездротове налагодження вмикатися саме після перезавантаження або обриву з’єднання?</string>
     <string name="onboarding_keep_alive_off_body">Ви вмикаєте бездротове налагодження самі: у застосунку, плитці чи віджеті. Після перезавантаження воно лишається вимкненим.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB знову вмикає бездротове налагодження після перезавантаження або обриву з’єднання, але лише там, де це дозволяє ваш рівень захисту (наступний крок).</string>

@@ -443,6 +443,9 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_intro_title_existing">Yeni güvenlik ayarları</string>
     <string name="onboarding_intro_body_existing">KeepADB artık ana ayarlarını tek bir sihirbazda topluyor. Mevcut değerleriniz korunur ve önceden seçilidir. İleri hiçbir şeyi değiştirmez. Önerilenden daha az güvenli olanlar işaretlidir.</string>
     <string name="onboarding_intro_less_secure">Bazı ayarlar önerilenden daha az güvenli.</string>
+    <string name="onboarding_privacy_summary_off">Gizlilik: hiçbir şey gizli değil</string>
+    <string name="onboarding_privacy_summary_on">Gizlilik: %1$d / %2$d açık</string>
+    <string name="onboarding_privacy_change">Değiştir</string>
     <string name="onboarding_keep_alive_question">Kablosuz Hata Ayıklama yeniden başlatma veya bağlantı kopmasından sonra kendiliğinden tekrar açılsın mı?</string>
     <string name="onboarding_keep_alive_off_body">Kablosuz Hata Ayıklamayı uygulamadan, karodan veya widget’tan kendiniz açarsınız. Yeniden başlatmadan sonra kapalı kalır.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB, yeniden başlatma veya bağlantı kopmasından sonra Kablosuz Hata Ayıklamayı tekrar açar; ancak yalnızca koruma düzeyinizin izin verdiği yerlerde (sonraki adım).</string>

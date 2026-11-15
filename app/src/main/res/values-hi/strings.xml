@@ -443,6 +443,9 @@
     <string name="onboarding_intro_title_existing">नई सुरक्षा सेटिंग</string>
     <string name="onboarding_intro_body_existing">KeepADB अब अपनी मुख्य सेटिंग एक सहायक में एक साथ लाता है। आपके मौजूदा मान बने रहते हैं और पहले से चुने हुए हैं। “आगे” कुछ नहीं बदलता। जो सेटिंग अनुशंसित से कम सुरक्षित है, उस पर निशान है।</string>
     <string name="onboarding_intro_less_secure">कुछ सेटिंग सुझाए गए स्तर से कम सुरक्षित हैं।</string>
+    <string name="onboarding_privacy_summary_off">गोपनीयता: कुछ भी छिपा नहीं</string>
+    <string name="onboarding_privacy_summary_on">गोपनीयता: %1$d/%2$d चालू</string>
+    <string name="onboarding_privacy_change">बदलें</string>
     <string name="onboarding_keep_alive_question">क्या रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग अपने आप फिर चालू होनी चाहिए?</string>
     <string name="onboarding_keep_alive_off_body">आप वायरलेस डीबगिंग खुद चालू करते हैं — ऐप, टाइल या विजेट से। रीस्टार्ट के बाद यह बंद रहती है।</string>
     <string name="onboarding_keep_alive_on_body">KeepADB रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग फिर चालू करता है, लेकिन केवल वहीं जहाँ आपका सुरक्षा स्तर इसकी अनुमति दे (अगला चरण)।</string>

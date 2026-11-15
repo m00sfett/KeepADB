@@ -443,6 +443,9 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_intro_title_existing">Nuove impostazioni di sicurezza</string>
     <string name="onboarding_intro_body_existing">KeepADB riunisce ora le impostazioni principali in un’unica procedura guidata. I tuoi valori attuali vengono mantenuti e preselezionati. Avanti non cambia nulla. Ciò che è meno sicuro del consigliato è contrassegnato.</string>
     <string name="onboarding_intro_less_secure">Alcune impostazioni sono meno sicure di quanto consigliato.</string>
+    <string name="onboarding_privacy_summary_off">Privacy: niente nascosto</string>
+    <string name="onboarding_privacy_summary_on">Privacy: %1$d su %2$d attivi</string>
+    <string name="onboarding_privacy_change">Modifica</string>
     <string name="onboarding_keep_alive_question">Il debug wireless deve riattivarsi da solo dopo un riavvio o una connessione persa?</string>
     <string name="onboarding_keep_alive_off_body">Attivi tu il debug wireless, nell’app, nel riquadro o nel widget. Dopo un riavvio resta disattivo.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB riattiva il debug wireless dopo un riavvio o una connessione persa, ma solo dove il tuo livello di protezione lo consente (passaggio successivo).</string>

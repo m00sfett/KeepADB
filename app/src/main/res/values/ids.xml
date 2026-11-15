@@ -2,4 +2,9 @@
 <resources>
     <item name="onboarding_upgrade_notice" type="id" />
     <item name="privacy_menu" type="id" />
+    <!-- #958: the advice and the collapsed privacy row on the intro page of the assistant. -->
+    <item name="onboarding_advice_title" type="id" />
+    <item name="onboarding_advice_text" type="id" />
+    <item name="onboarding_privacy_summary" type="id" />
+    <item name="onboarding_privacy_toggle" type="id" />
 </resources>

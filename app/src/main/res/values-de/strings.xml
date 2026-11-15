@@ -443,6 +443,9 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_intro_title_existing">Neue Sicherheitseinstellungen</string>
     <string name="onboarding_intro_body_existing">KeepADB fasst die wichtigsten Einstellungen jetzt in einem Assistenten zusammen. Deine bisherigen Werte sind übernommen und vorausgewählt. „Weiter“ ändert nichts. Was weniger sicher ist als empfohlen, ist markiert.</string>
     <string name="onboarding_intro_less_secure">Einige Einstellungen sind weniger sicher als empfohlen.</string>
+    <string name="onboarding_privacy_summary_off">Privatsphäre: nichts ausgeblendet</string>
+    <string name="onboarding_privacy_summary_on">Privatsphäre: %1$d von %2$d an</string>
+    <string name="onboarding_privacy_change">Ändern</string>
     <string name="onboarding_keep_alive_question">Soll Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch von selbst wieder angehen?</string>
     <string name="onboarding_keep_alive_off_body">Du schaltest Drahtloses Debugging selbst ein, in der App, per Kachel oder Widget. Nach einem Neustart bleibt es aus.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB schaltet Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch wieder ein, aber nur dort, wo deine Schutzstufe es erlaubt (nächster Schritt).</string>

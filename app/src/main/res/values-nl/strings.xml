@@ -443,6 +443,9 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_intro_title_existing">Nieuwe beveiligingsinstellingen</string>
     <string name="onboarding_intro_body_existing">KeepADB bundelt de belangrijkste instellingen nu in één assistent. Je huidige waarden blijven behouden en zijn voorgeselecteerd. Volgende wijzigt niets. Wat minder veilig is dan aanbevolen, is gemarkeerd.</string>
     <string name="onboarding_intro_less_secure">Sommige instellingen zijn minder veilig dan aanbevolen.</string>
+    <string name="onboarding_privacy_summary_off">Privacy: niets verborgen</string>
+    <string name="onboarding_privacy_summary_on">Privacy: %1$d van %2$d aan</string>
+    <string name="onboarding_privacy_change">Wijzigen</string>
     <string name="onboarding_keep_alive_question">Moet draadloze foutopsporing zichzelf weer inschakelen na een herstart of een verbroken verbinding?</string>
     <string name="onboarding_keep_alive_off_body">Je schakelt draadloze foutopsporing zelf in, in de app, via de tegel of de widget. Na een herstart blijft het uit.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB schakelt draadloze foutopsporing na een herstart of een verbroken verbinding weer in, maar alleen waar je beveiligingsniveau dat toestaat (volgende stap).</string>

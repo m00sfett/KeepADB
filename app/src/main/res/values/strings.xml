@@ -450,6 +450,9 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_intro_title_existing">New security settings</string>
     <string name="onboarding_intro_body_existing">KeepADB now brings its main settings together in one assistant. Your current values are kept and preselected. Next changes nothing. Anything less secure than recommended is marked.</string>
     <string name="onboarding_intro_less_secure">Some settings are less secure than recommended.</string>
+    <string name="onboarding_privacy_summary_off">Privacy: nothing hidden</string>
+    <string name="onboarding_privacy_summary_on">Privacy: %1$d of %2$d on</string>
+    <string name="onboarding_privacy_change">Change</string>
     <string name="onboarding_keep_alive_question">Should Wireless Debugging switch itself back on after a restart or a lost connection?</string>
     <string name="onboarding_keep_alive_off_body">You switch Wireless Debugging on yourself, in the app, the tile or the widget. After a restart it stays off.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB switches Wireless Debugging back on after a restart or a lost connection, but only where your protection level allows it (next step).</string>

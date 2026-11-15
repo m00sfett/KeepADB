@@ -443,6 +443,9 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_intro_title_existing">Nouveaux réglages de sécurité</string>
     <string name="onboarding_intro_body_existing">KeepADB réunit désormais ses réglages principaux dans un assistant. Vos valeurs actuelles sont conservées et présélectionnées. Suivant ne change rien. Ce qui est moins sûr que recommandé est signalé.</string>
     <string name="onboarding_intro_less_secure">Certains réglages sont moins sûrs que recommandé.</string>
+    <string name="onboarding_privacy_summary_off">Confidentialité : rien de masqué</string>
+    <string name="onboarding_privacy_summary_on">Confidentialité : %1$d sur %2$d activés</string>
+    <string name="onboarding_privacy_change">Modifier</string>
     <string name="onboarding_keep_alive_question">Le débogage sans fil doit-il se réactiver tout seul après un redémarrage ou une connexion perdue ?</string>
     <string name="onboarding_keep_alive_off_body">Vous activez vous-même le débogage sans fil, dans l’appli, la tuile ou le widget. Après un redémarrage, il reste désactivé.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB réactive le débogage sans fil après un redémarrage ou une connexion perdue, mais seulement là où votre niveau de protection l’autorise (étape suivante).</string>

@@ -443,6 +443,9 @@
     <string name="onboarding_intro_title_existing">새 보안 설정</string>
     <string name="onboarding_intro_body_existing">이제 KeepADB가 주요 설정을 하나의 도우미에 모았습니다. 현재 값은 그대로 유지되고 미리 선택되어 있습니다. 다음을 눌러도 아무것도 바뀌지 않습니다. 권장보다 보안이 낮은 항목에는 표시가 있습니다.</string>
     <string name="onboarding_intro_less_secure">일부 설정이 권장 수준보다 보안이 낮습니다.</string>
+    <string name="onboarding_privacy_summary_off">개인정보 보호: 숨김 없음</string>
+    <string name="onboarding_privacy_summary_on">개인정보 보호: %1$d/%2$d 켜짐</string>
+    <string name="onboarding_privacy_change">변경</string>
     <string name="onboarding_keep_alive_question">재부팅하거나 연결이 끊긴 뒤 무선 디버깅이 스스로 다시 켜지게 할까요?</string>
     <string name="onboarding_keep_alive_off_body">무선 디버깅은 앱, 타일, 위젯에서 직접 켭니다. 재부팅 후에는 꺼진 상태로 유지됩니다.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB가 재부팅이나 연결 끊김 뒤에 무선 디버깅을 다시 켭니다. 단, 보호 수준이 허용하는 곳에서만 켭니다(다음 단계).</string>

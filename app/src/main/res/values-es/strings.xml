@@ -443,6 +443,9 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_intro_title_existing">Nuevos ajustes de seguridad</string>
     <string name="onboarding_intro_body_existing">KeepADB reúne ahora sus ajustes principales en un asistente. Tus valores actuales se conservan y quedan preseleccionados. Siguiente no cambia nada. Lo que sea menos seguro de lo recomendado aparece marcado.</string>
     <string name="onboarding_intro_less_secure">Algunos ajustes son menos seguros de lo recomendado.</string>
+    <string name="onboarding_privacy_summary_off">Privacidad: nada oculto</string>
+    <string name="onboarding_privacy_summary_on">Privacidad: %1$d de %2$d activados</string>
+    <string name="onboarding_privacy_change">Cambiar</string>
     <string name="onboarding_keep_alive_question">¿Debe la depuración inalámbrica volver a activarse sola tras un reinicio o una conexión perdida?</string>
     <string name="onboarding_keep_alive_off_body">Activas la depuración inalámbrica tú mismo, en la app, en el mosaico o en el widget. Tras un reinicio sigue desactivada.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB vuelve a activar la depuración inalámbrica tras un reinicio o una conexión perdida, pero solo donde tu nivel de protección lo permite (siguiente paso).</string>

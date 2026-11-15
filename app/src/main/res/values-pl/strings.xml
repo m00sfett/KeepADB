@@ -443,6 +443,9 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_intro_title_existing">Nowe ustawienia bezpieczeństwa</string>
     <string name="onboarding_intro_body_existing">KeepADB zbiera teraz najważniejsze ustawienia w jednym kreatorze. Twoje dotychczasowe wartości zostają zachowane i są zaznaczone. Dalej niczego nie zmienia. To, co jest mniej bezpieczne niż zalecane, jest oznaczone.</string>
     <string name="onboarding_intro_less_secure">Niektóre ustawienia są mniej bezpieczne, niż zalecane.</string>
+    <string name="onboarding_privacy_summary_off">Prywatność: nic nie jest ukryte</string>
+    <string name="onboarding_privacy_summary_on">Prywatność: włączono %1$d z %2$d</string>
+    <string name="onboarding_privacy_change">Zmień</string>
     <string name="onboarding_keep_alive_question">Czy debugowanie bezprzewodowe ma włączać się samo po ponownym uruchomieniu lub utracie połączenia?</string>
     <string name="onboarding_keep_alive_off_body">Debugowanie bezprzewodowe włączasz sam w aplikacji, na kafelku lub w widżecie. Po ponownym uruchomieniu pozostaje wyłączone.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB włącza debugowanie bezprzewodowe ponownie po ponownym uruchomieniu lub utracie połączenia, ale tylko tam, gdzie pozwala na to Twój poziom ochrony (następny krok).</string>

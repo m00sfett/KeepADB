@@ -443,6 +443,9 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_intro_title_existing">Cài đặt bảo mật mới</string>
     <string name="onboarding_intro_body_existing">KeepADB nay gom các cài đặt chính vào một trình hướng dẫn. Giá trị hiện tại của bạn được giữ nguyên và chọn sẵn. Nhấn Tiếp không thay đổi gì. Mục kém an toàn hơn khuyến nghị sẽ được đánh dấu.</string>
     <string name="onboarding_intro_less_secure">Một số cài đặt kém an toàn hơn mức khuyến nghị.</string>
+    <string name="onboarding_privacy_summary_off">Quyền riêng tư: không ẩn gì</string>
+    <string name="onboarding_privacy_summary_on">Quyền riêng tư: bật %1$d trên %2$d</string>
+    <string name="onboarding_privacy_change">Thay đổi</string>
     <string name="onboarding_keep_alive_question">Gỡ lỗi không dây có nên tự bật lại sau khi khởi động lại hoặc mất kết nối không?</string>
     <string name="onboarding_keep_alive_off_body">Bạn tự bật Gỡ lỗi không dây trong ứng dụng, ô cài đặt nhanh hoặc widget. Sau khi khởi động lại, nó vẫn tắt.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB bật lại Gỡ lỗi không dây sau khi khởi động lại hoặc mất kết nối, nhưng chỉ ở nơi mức bảo vệ của bạn cho phép (bước tiếp theo).</string>

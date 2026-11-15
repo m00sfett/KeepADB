@@ -443,6 +443,9 @@
     <string name="onboarding_intro_title_existing">Новые настройки безопасности</string>
     <string name="onboarding_intro_body_existing">KeepADB теперь собирает основные настройки в одном помощнике. Ваши текущие значения сохранены и выбраны заранее. «Далее» ничего не меняет. То, что менее безопасно, чем рекомендуется, отмечено.</string>
     <string name="onboarding_intro_less_secure">Некоторые настройки менее безопасны, чем рекомендуется.</string>
+    <string name="onboarding_privacy_summary_off">Конфиденциальность: ничего не скрыто</string>
+    <string name="onboarding_privacy_summary_on">Конфиденциальность: включено %1$d из %2$d</string>
+    <string name="onboarding_privacy_change">Изменить</string>
     <string name="onboarding_keep_alive_question">Должна ли беспроводная отладка сама включаться снова после перезагрузки или обрыва соединения?</string>
     <string name="onboarding_keep_alive_off_body">Вы включаете беспроводную отладку сами: в приложении, плитке или виджете. После перезагрузки она остаётся выключенной.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB снова включает беспроводную отладку после перезагрузки или обрыва соединения, но только там, где это позволяет ваш уровень защиты (следующий шаг).</string>

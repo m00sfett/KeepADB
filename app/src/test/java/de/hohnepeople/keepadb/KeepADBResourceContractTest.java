@@ -663,6 +663,7 @@ public class KeepADBResourceContractTest {
         }
         result.put("networks_group_saved", new Object[] {integerWitness});
         result.put("networks_count", new Object[] {integerWitness, integerWitness});
+        result.put("onboarding_privacy_summary_on", new Object[] {integerWitness, integerWitness});
         result.put("network_head_mode", new Object[] {stringWitness});
         result.put("network_action_allow_ap_accessibility", new Object[] {stringWitness});
         result.put("network_ap_allowed_toast", new Object[] {stringWitness});
