@@ -79,7 +79,7 @@ public class KeepADBShortcutsContractTest {
             assertTrue(activity + " must stay unexported (#954)",
                     tag.contains("android:exported=\"false\""));
             assertFalse(activity + " must not answer any intent filter by itself",
-                    manifest.substring(m.end()).startsWith("\n            <intent-filter"));
+                    declaresIntentFilter(activity));
         }
     }
 
@@ -98,6 +98,22 @@ public class KeepADBShortcutsContractTest {
                         m.group(1).contains("Wifi-ADB"));
             }
         }
+    }
+
+    /** Parsed, so a comment or other whitespace before a filter cannot hide it. */
+    private static boolean declaresIntentFilter(String activityName) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Document document = factory.newDocumentBuilder()
+                .parse(Paths.get(root().toString(), "app/src/main/AndroidManifest.xml").toFile());
+        NodeList activities = document.getElementsByTagName("activity");
+        for (int i = 0; i < activities.getLength(); i++) {
+            Element activity = (Element) activities.item(i);
+            if (activityName.equals(activity.getAttributeNS(ANDROID, "name"))) {
+                return activity.getElementsByTagName("intent-filter").getLength() > 0;
+            }
+        }
+        throw new AssertionError(activityName + " is not declared");
     }
 
     private static void assertShortcuts(String file, String expectedPackage) throws Exception {

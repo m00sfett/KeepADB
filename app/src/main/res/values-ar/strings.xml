@@ -73,7 +73,6 @@
     <string name="title_settings">الإعدادات</string>
     <string name="settings_section_general">عام</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">مزامنة Webhook</string>
     <string name="settings_webhook_title">مزامنة Webhook ونقطة النهاية</string>
     <string name="settings_webhook_toggle">تفعيل مزامنة Webhook</string>
     <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة (IP:منفذ) عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل).</string>

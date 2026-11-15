@@ -73,7 +73,6 @@
     <string name="title_settings">Pengaturan</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Sinkronisasi Webhook</string>
     <string name="settings_webhook_title">Sinkronisasi Webhook &amp; Endpoint</string>
     <string name="settings_webhook_toggle">Aktifkan Sinkronisasi Webhook</string>
     <string name="settings_webhook_subtext">Mengirim endpoint aktif (IP:port) melalui HTTP POST saat diaktifkan, dan mencoba mengirim DELETE saat dimatikan (dicoba lagi nanti jika gagal).</string>

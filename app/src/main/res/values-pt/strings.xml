@@ -73,7 +73,6 @@
     <string name="title_settings">Configurações</string>
     <string name="settings_section_general">Geral</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Sincronização Webhook</string>
     <string name="settings_webhook_title">Sincronização de Webhook e endpoint</string>
     <string name="settings_webhook_toggle">Ativar sincronização Webhook</string>
     <string name="settings_webhook_subtext">Envia o endpoint ativo (IP:porta) via HTTP POST quando ativado e tenta enviar DELETE ao desativar (repetido mais tarde em caso de falha).</string>

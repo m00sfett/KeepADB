@@ -73,7 +73,6 @@
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook 同期</string>
     <string name="settings_webhook_title">Webhook &amp; エンドポイント同期</string>
     <string name="settings_webhook_toggle">Webhook 同期を有効にする</string>
     <string name="settings_webhook_subtext">有効時はアクティブなエンドポイント (IP:ポート) を HTTP POST で送信し、停止時は DELETE の送信を試みます（失敗した場合は後で再試行）。</string>

@@ -98,7 +98,6 @@
     <string name="title_settings">Einstellungen</string>
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
-    <string name="settings_section_webhook">Webhook-Synchronisierung</string>
     <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
     <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
     <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht).</string>
