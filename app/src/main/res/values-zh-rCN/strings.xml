@@ -73,7 +73,6 @@
     <string name="title_settings">设置</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_section_keep_alive">保持常驻 (Keep-Alive)</string>
-    <string name="settings_section_webhook">Webhook 同步</string>
     <string name="settings_webhook_title">Webhook 与端点同步</string>
     <string name="settings_webhook_toggle">启用 Webhook 同步</string>
     <string name="settings_webhook_subtext">启用后通过 HTTP POST 发送活动的无线调试端点 (IP:端口)，关闭时尝试发送 DELETE（失败后稍后重试）。</string>

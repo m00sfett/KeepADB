@@ -73,7 +73,6 @@
     <string name="title_settings">Paramètres</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Synchronisation Webhook</string>
     <string name="settings_webhook_title">Synchronisation Webhook et point de terminaison</string>
     <string name="settings_webhook_toggle">Activer la synchronisation Webhook</string>
     <string name="settings_webhook_subtext">Envoie le point de terminaison actif (IP:port) par HTTP POST lorsqu\'il est activé, et tente d\'envoyer DELETE lors de la désactivation (nouvelle tentative plus tard en cas d\'échec).</string>

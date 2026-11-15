@@ -73,7 +73,6 @@
     <string name="title_settings">Instellingen</string>
     <string name="settings_section_general">Algemeen</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook-synchronisatie</string>
     <string name="settings_webhook_title">Webhook- &amp; eindpuntsynchronisatie</string>
     <string name="settings_webhook_toggle">Webhook-synchronisatie inschakelen</string>
     <string name="settings_webhook_subtext">Verzendt het actieve eindpunt (IP:poort) via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>

@@ -73,7 +73,6 @@
     <string name="title_settings">Ayarlar</string>
     <string name="settings_section_general">Genel</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook Senkronizasyonu</string>
     <string name="settings_webhook_title">Webhook &amp; Uç Nokta Senkronizasyonu</string>
     <string name="settings_webhook_toggle">Webhook Senkronizasyonunu Etkinleştir</string>
     <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı (IP:port) HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>

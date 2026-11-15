@@ -73,7 +73,6 @@
     <string name="title_settings">Cài đặt</string>
     <string name="settings_section_general">Chung</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Đồng bộ hóa Webhook</string>
     <string name="settings_webhook_title">Đồng bộ hóa Webhook &amp; Điểm cuối</string>
     <string name="settings_webhook_toggle">Bật đồng bộ hóa Webhook</string>
     <string name="settings_webhook_subtext">Gửi điểm cuối đang hoạt động (IP:cổng) qua HTTP POST khi bật và cố gắng gửi DELETE khi tắt (thử lại sau nếu thất bại).</string>

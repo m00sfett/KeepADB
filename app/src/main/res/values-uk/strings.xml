@@ -73,7 +73,6 @@
     <string name="title_settings">Налаштування</string>
     <string name="settings_section_general">Загальні</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Синхронізація Webhook</string>
     <string name="settings_webhook_title">Синхронізація Webhook та кінцевої точки</string>
     <string name="settings_webhook_toggle">Увімкнути синхронізацію Webhook</string>
     <string name="settings_webhook_subtext">Надсилає активну кінцеву точку (IP:порт) через HTTP POST при увімкненні та намагається надіслати DELETE при вимкненні (повторюється пізніше в разі невдачі).</string>

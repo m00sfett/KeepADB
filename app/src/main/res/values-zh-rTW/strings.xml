@@ -73,7 +73,6 @@
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">保持常駐 (Keep-Alive)</string>
-    <string name="settings_section_webhook">Webhook 同步</string>
     <string name="settings_webhook_title">Webhook 與端點同步</string>
     <string name="settings_webhook_toggle">啟用 Webhook 同步</string>
     <string name="settings_webhook_subtext">啟用後透過 HTTP POST 傳送作用中的無線偵錯端點 (IP:連接埠)，關閉時嘗試傳送 DELETE（失敗時稍後重試）。</string>

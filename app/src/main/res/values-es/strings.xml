@@ -73,7 +73,6 @@
     <string name="title_settings">Ajustes</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_keep_alive">Mantener activo</string>
-    <string name="settings_section_webhook">Sincronización Webhook</string>
     <string name="settings_webhook_title">Sincronización de Webhook y punto final</string>
     <string name="settings_webhook_toggle">Activar sincronización Webhook</string>
     <string name="settings_webhook_subtext">Envía el punto final activo (IP:puerto) mediante HTTP POST al activarse e intenta enviar DELETE al desactivarse (se reintenta más tarde si falla).</string>
