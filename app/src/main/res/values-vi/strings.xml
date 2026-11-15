@@ -242,9 +242,6 @@
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
     <string name="advice_banner_title">Bảo mật và mạng</string>
     <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi tin cậy hoặc VPN và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ điểm cuối công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
-    <string name="security_notice_dismiss">Đóng thông báo</string>
-    <string name="settings_advice_banner_toggle">Hiển thị lời khuyên bảo mật &amp; mạng</string>
-    <string name="settings_advice_banner_subtext">Hiển thị biểu ngữ cảnh báo bảo mật ở đầu màn hình chính.</string>
     <string name="settings_license_line">Được cấp phép theo GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Mở keepadb.roteson.de trong trình duyệt</string>

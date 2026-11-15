@@ -242,9 +242,6 @@
     <string name="issue_report_diagnostics_section">Datos de diagnóstico opcionales redactados de KeepADB (revísalos antes de enviarlos)</string>
     <string name="advice_banner_title">Seguridad y red</string>
     <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Usa una red Wi-Fi de confianza o una VPN y desactívala en puntos de acceso públicos. Nunca compartas tu punto final públicamente ni aceptes solicitudes de vinculación inesperadas.</string>
-    <string name="security_notice_dismiss">Cerrar aviso</string>
-    <string name="settings_advice_banner_toggle">Mostrar aviso de seguridad y red</string>
-    <string name="settings_advice_banner_subtext">Muestra un aviso de seguridad en la parte superior de la pantalla principal.</string>
     <string name="settings_license_line">Licenciado bajo la GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Abrir keepadb.roteson.de en el navegador</string>

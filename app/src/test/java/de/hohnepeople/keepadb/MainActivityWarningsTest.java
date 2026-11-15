@@ -657,7 +657,6 @@ public class MainActivityWarningsTest {
                 .putBoolean("battery_optimization_panel_visible", false)
                 .putBoolean("network_onboarding_panel_visible", false)
                 .putBoolean("background_location_panel_visible", false)
-                .putBoolean("advice_banner_visible", false)
                 .commit();
 
         open();
@@ -666,7 +665,6 @@ public class MainActivityWarningsTest {
         assertFalse(prefs.contains("battery_optimization_panel_visible"));
         assertFalse(prefs.contains("network_onboarding_panel_visible"));
         assertFalse(prefs.contains("background_location_panel_visible"));
-        assertTrue("the advice banner flag is not part of this", prefs.contains("advice_banner_visible"));
     }
 
     @Test

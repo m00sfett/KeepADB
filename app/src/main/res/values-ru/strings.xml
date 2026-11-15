@@ -242,9 +242,6 @@
     <string name="issue_report_diagnostics_section">Дополнительные отредактированные диагностические данные KeepADB (проверьте перед отправкой)</string>
     <string name="advice_banner_title">Безопасность и сеть</string>
     <string name="advice_banner_text">Беспроводная отладка открывает порт ADB в вашей сети. Используйте доверенную сеть Wi-Fi или VPN и отключайте её в публичных точках доступа. Никогда не публикуйте свою конечную точку и не подтверждайте неожиданные запросы сопряжения.</string>
-    <string name="security_notice_dismiss">Закрыть уведомление</string>
-    <string name="settings_advice_banner_toggle">Показывать рекомендации по безопасности и сети</string>
-    <string name="settings_advice_banner_subtext">Показывает баннер предупреждения о безопасности вверху главного экрана.</string>
     <string name="settings_license_line">Распространяется по лицензии GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Открыть keepadb.roteson.de в браузере</string>

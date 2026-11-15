@@ -14,7 +14,8 @@ import android.content.res.Configuration;
  *       that. Every component of the app (screens, boot receiver, service, tile, widgets) runs in
  *       this process, so whichever one is the first after an update, this runs before it. The
  *       work is idempotent and writes nothing once the old data is gone. The same goes for the
- *       two retry settings of the webhook (#960), whose selectors are gone.</li>
+ *       two retry settings of the webhook (#960), whose selectors are gone, and for the dismiss
+ *       flag of the advice card that left the home screen (#958).</li>
  *   <li>It ends the per-screen "Show" of the app privacy switch when the screen stops ({@link
  *       KeepADBPrivacy#LIFECYCLE}).</li>
  *   <li>It re-arms the widgets' watch of the Wireless Debugging setting at every process start
@@ -38,6 +39,7 @@ public class KeepADBApplication extends Application {
         KeepADBPreferences.migratePrivacySplit(this);
         KeepADBPreferences.removeObsoleteUsbKeys(this);
         KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);
+        KeepADBPreferences.removeObsoleteAdviceBannerKey(this);
         KeepADBNotification.removeObsoleteUsbNotification(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);
         KeepADBWidgetRefreshJob.scheduleIfWidgetPlaced(this);

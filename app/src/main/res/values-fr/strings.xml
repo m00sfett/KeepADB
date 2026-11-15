@@ -242,9 +242,6 @@
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
     <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN, et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
-    <string name="security_notice_dismiss">Fermer l\'avis</string>
-    <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
-    <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Ouvrir keepadb.roteson.de dans le navigateur</string>

@@ -76,7 +76,6 @@ public class MainActivityTwoColumnLayoutTest {
         View transportOverview = activity.findViewById(R.id.transport_overview_panel);
         Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
         TextView keepAliveSubtext = activity.findViewById(R.id.keep_alive_subtext);
-        View adviceBanner = activity.findViewById(R.id.advice_banner);
         View webhookPanel = activity.findViewById(R.id.webhook_status_panel);
 
         assertNotNull(toggle);
@@ -86,7 +85,6 @@ public class MainActivityTwoColumnLayoutTest {
         assertNotNull(transportOverview);
         assertNotNull(keepAliveToggle);
         assertNotNull(keepAliveSubtext);
-        assertNotNull(adviceBanner);
         assertNotNull(webhookPanel);
 
         // In standard single column layout, main_task_areas_panel does not exist
@@ -111,7 +109,6 @@ public class MainActivityTwoColumnLayoutTest {
         View transportOverview = activity.findViewById(R.id.transport_overview_panel);
         Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
         TextView keepAliveSubtext = activity.findViewById(R.id.keep_alive_subtext);
-        View adviceBanner = activity.findViewById(R.id.advice_banner);
         View forcePanel = activity.findViewById(R.id.force_warning_panel);
         View warningLimited = activity.findViewById(R.id.warning_limited);
         View webhookPanel = activity.findViewById(R.id.webhook_status_panel);
@@ -123,7 +120,6 @@ public class MainActivityTwoColumnLayoutTest {
         assertNotNull(transportOverview);
         assertNotNull(keepAliveToggle);
         assertNotNull(keepAliveSubtext);
-        assertNotNull(adviceBanner);
         assertNotNull(forcePanel);
         assertNotNull(warningLimited);
         assertNotNull(webhookPanel);
@@ -163,22 +159,17 @@ public class MainActivityTwoColumnLayoutTest {
         assertTrue("ADB column must precede divider", adbIndex < dividerIndex);
         assertTrue("Divider must precede Keep-Alive column", dividerIndex < keepAliveIndex);
 
-        // 7. Warnings and advice banner must be full-width above the two-column panel
+        // 7. Warnings must be full-width above the two-column panel
         ViewGroup contentContainer = (ViewGroup) mainPanel.getParent();
         assertNotNull(contentContainer);
-        assertEquals("Advice banner and task areas panel must share parent content container",
-                contentContainer, adviceBanner.getParent());
         assertEquals("Warning cards and task areas panel must share parent content container",
                 contentContainer, warningLimited.getParent());
 
-        int adviceIndex = contentContainer.indexOfChild(adviceBanner);
         int warningIndex = contentContainer.indexOfChild(warningLimited);
         int mainPanelIndex = contentContainer.indexOfChild(mainPanel);
         int webhookIndex = contentContainer.indexOfChild(webhookPanel);
 
         assertTrue("Warning cards must be above task areas panel", warningIndex < mainPanelIndex);
-        assertTrue("Advice banner must be above task areas panel", adviceIndex < mainPanelIndex);
-        assertTrue("Advice banner must be directly above task areas panel", adviceIndex == mainPanelIndex - 1);
         assertTrue("Webhook status panel must be below task areas panel", mainPanelIndex < webhookIndex);
     }
 
@@ -312,19 +303,19 @@ public class MainActivityTwoColumnLayoutTest {
     public void focusTraversalOrder_followsLogicalPath() {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
 
-        View adviceBanner = activity.findViewById(R.id.advice_banner);
         View adbColumn = activity.findViewById(R.id.panel_adb_column);
         View keepAliveColumn = activity.findViewById(R.id.panel_keep_alive_column);
         View mainPanel = activity.findViewById(R.id.main_task_areas_panel);
         View webhookPanel = activity.findViewById(R.id.webhook_status_panel);
 
         ViewGroup contentContainer = (ViewGroup) mainPanel.getParent();
-        int adviceIndex = contentContainer.indexOfChild(adviceBanner);
         int mainPanelIndex = contentContainer.indexOfChild(mainPanel);
         int webhookIndex = contentContainer.indexOfChild(webhookPanel);
 
-        // Top banners -> Main task areas -> Webhook status
-        assertTrue("Top advice banner precedes task areas panel", adviceIndex < mainPanelIndex);
+        // Warnings -> Main task areas -> Webhook status
+        View warningLimited = activity.findViewById(R.id.warning_limited);
+        assertTrue("Warning cards precede task areas panel",
+                contentContainer.indexOfChild(warningLimited) < mainPanelIndex);
         assertTrue("Task areas panel precedes webhook panel", mainPanelIndex < webhookIndex);
 
         // Left column precedes right column within task areas

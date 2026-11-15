@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
     private long transportOverviewGeneration;
     private TextView webhookStatus;
     private View webhookStatusPanel;
-    private View adviceBanner;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
     private KeepADBWarningState.Snapshot warningSnapshot;
     private KeepADBWarningState.Snapshot dismissedSnapshot;
@@ -106,7 +105,6 @@ public class MainActivity extends Activity {
         // #906: swiping the feedback bar away ends it early, like its timeout; the card stays closed.
         ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback))
                 .setOnDismissListener(expireWarningFeedback::run);
-        adviceBanner = findViewById(R.id.advice_banner);
         forceWarningPanel = findViewById(R.id.force_warning_panel);
         forceWarningText = findViewById(R.id.force_warning_text);
         findViewById(R.id.btn_force_end).setOnClickListener(v -> {
@@ -122,10 +120,6 @@ public class MainActivity extends Activity {
         // #941: tap masks or shows this screen, long press opens the privacy switches.
         KeepADBPrivacyToggle.bind(this, this::refreshUiAndComponents);
         findViewById(R.id.btn_open_settings).setOnClickListener(v -> settingsMenu.show());
-        findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
-            KeepADBPreferences.setAdviceBannerVisible(this, false);
-            updateAdviceBannerVisibility();
-        });
 
         findViewById(R.id.btn_security_warnings).setOnClickListener(v -> {
             returningFromWarnings = true;
@@ -147,7 +141,6 @@ public class MainActivity extends Activity {
             returningFromWarnings = savedInstanceState.getBoolean("warnings_return_to_triangle");
             if (dismissedCard != null) armWarningFeedbackTimeout();
         }
-        updateAdviceBannerVisibility();
 
         // #764: no setup cards here any more. What is missing is shown as a warning (see
         // renderWarnings) and the assistant asks for it, including the notification permission,
@@ -325,9 +318,6 @@ public class MainActivity extends Activity {
         } else {
             getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-        // #226: re-read the preference on every resume, since it may have changed in
-        // SettingsActivity while this activity was paused.
-        updateAdviceBannerVisibility();
         // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
         KeepADBForceMode.finishIfExpired(this);
         KeepADBForceMode.setStateListener(this::refresh);
@@ -1043,10 +1033,5 @@ public class MainActivity extends Activity {
             return;
         }
         Toast.makeText(this, getString(R.string.toggle_failed_toast), Toast.LENGTH_LONG).show();
-    }
-
-    private void updateAdviceBannerVisibility() {
-        boolean visible = KeepADBPreferences.isAdviceBannerVisible(this);
-        adviceBanner.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }

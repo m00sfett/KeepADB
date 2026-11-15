@@ -242,9 +242,6 @@
     <string name="issue_report_diagnostics_section">İsteğe bağlı redakte edilmiş KeepADB tanılama verileri (göndermeden önce inceleyin)</string>
     <string name="advice_banner_title">Güvenlik ve ağ</string>
     <string name="advice_banner_text">Kablosuz hata ayıklama, ağınızda bir ADB bağlantı noktası açar. Güvenilir Wi-Fi veya bir VPN kullanın ve halka açık ağlarda kapatın. Uç noktanızı herkese açık paylaşmayın ve beklenmedik eşleştirme isteklerini kabul etmeyin.</string>
-    <string name="security_notice_dismiss">Uyarıyı kapat</string>
-    <string name="settings_advice_banner_toggle">Güvenlik ve Ağ Önerisini Göster</string>
-    <string name="settings_advice_banner_subtext">Ana ekranın üst kısmında bir güvenlik uyarısı gösterir.</string>
     <string name="settings_license_line">GNU Affero General Public License v3 (AGPLv3) ile lisanslanmıştır</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de\'yi tarayıcıda aç</string>
