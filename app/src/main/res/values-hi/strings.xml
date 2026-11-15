@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">डिवाइस "unauthorized" दिखा रहा है?</string>
     <string name="setup_state_unauthorized_body">इस फोन की स्क्रीन पर दिखने वाले डीबगिंग अनुमति संकेत की पुष्टि करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_refresh">अनुमति जांचें</string>
-    <string name="status_off">वायरलेस डीबगिंग बंद है</string>
     <string name="endpoint_searching">एंडपॉइंट खोजा जा रहा है…</string>
     <string name="endpoint_unavailable">एंडपॉइंट अनुपलब्ध है</string>
     <string name="connect_help_link">कंप्यूटर कनेक्ट करें…</string>

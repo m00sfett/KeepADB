@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">L\'appareil apparaît comme "unauthorized" ?</string>
     <string name="setup_state_unauthorized_body">Confirmez l\'invite d\'autorisation de débogage sur l\'écran de ce téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
-    <string name="status_off">Débogage sans fil DÉSACTIVÉ</string>
     <string name="endpoint_searching">Recherche du point de terminaison…</string>
     <string name="endpoint_unavailable">Point de terminaison indisponible</string>
     <string name="connect_help_link">Connecter un ordinateur…</string>

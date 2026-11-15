@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
     <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
-    <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>
     <string name="endpoint_searching">Uç nokta aranıyor…</string>
     <string name="endpoint_unavailable">Uç nokta kullanılamıyor</string>
     <string name="connect_help_link">Bilgisayar bağla…</string>

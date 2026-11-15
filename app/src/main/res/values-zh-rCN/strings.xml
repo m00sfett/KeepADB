@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">设备显示为“unauthorized”？</string>
     <string name="setup_state_unauthorized_body">请在此手机屏幕上确认调试授权提示，然后重复运行 "adb devices"，直到状态变为“device”。</string>
     <string name="setup_refresh">检查权限</string>
-    <string name="status_off">无线调试已关闭</string>
     <string name="endpoint_searching">正在搜索端点…</string>
     <string name="endpoint_unavailable">端点不可用</string>
     <string name="connect_help_link">连接电脑…</string>

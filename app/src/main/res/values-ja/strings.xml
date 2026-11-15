@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">デバイスが"unauthorized"と表示される場合は？</string>
     <string name="setup_state_unauthorized_body">このスマートフォンの画面に表示されるデバッグ許可のダイアログを確認してから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_refresh">権限を確認</string>
-    <string name="status_off">ワイヤレスデバッグは OFF です</string>
     <string name="endpoint_searching">エンドポイントを検索中…</string>
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
     <string name="connect_help_link">パソコンを接続…</string>

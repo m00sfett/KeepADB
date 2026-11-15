@@ -339,7 +339,7 @@ final class KeepADBWidgetContent {
                     return ctx.getString(R.string.status_off_keep_alive_blocked_identity_unavailable);
                 }
                 // The last explicit intent was off: nothing to solve, the plain state is the answer.
-                return ctx.getString(R.string.status_off);
+                return ctx.getString(R.string.home_state_off);
             case WAITING:
                 if (p.keepAliveReason == KeepADBWidgetState.Reason.RECOVERY_BACKOFF) {
                     click[0] = Click.OPEN_APP;
@@ -349,7 +349,7 @@ final class KeepADBWidgetContent {
             case ACTIVE:
             case DISABLED:
             default:
-                return ctx.getString(R.string.status_off);
+                return ctx.getString(R.string.home_state_off);
         }
     }
 

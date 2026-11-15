@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">Apparaat toont "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bevestig de foutopsporingsautorisatiemelding op het scherm van deze telefoon en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_refresh">Toestemming controleren</string>
-    <string name="status_off">Draadloze foutopsporing is UIT</string>
     <string name="endpoint_searching">Zoeken naar eindpunt…</string>
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
     <string name="connect_help_link">Computer verbinden…</string>

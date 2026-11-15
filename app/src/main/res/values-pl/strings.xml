@@ -11,7 +11,6 @@
     <string name="setup_state_unauthorized_title">Urządzenie pokazuje "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Potwierdź monit o autoryzację debugowania na ekranie tego telefonu, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_refresh">Sprawdź uprawnienia</string>
-    <string name="status_off">Debugowanie bezprzewodowe: WYŁĄCZONE</string>
     <string name="endpoint_searching">Wyszukiwanie punktu końcowego…</string>
     <string name="endpoint_unavailable">Punkt końcowy niedostępny</string>
     <string name="connect_help_link">Połącz komputer…</string>

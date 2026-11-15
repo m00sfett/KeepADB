@@ -13,7 +13,6 @@
     <string name="setup_state_unauthorized_title">Device shown as \"unauthorized\"?</string>
     <string name="setup_state_unauthorized_body">Confirm the debugging authorization prompt on this phone\'s screen, then run \"adb devices\" again until the state changes to \"device\".</string>
     <string name="setup_refresh">Check permission</string>
-    <string name="status_off">Wireless Debugging is OFF</string>
     <string name="status_permission_missing">System permission missing</string>
     <string name="endpoint_searching">Searching for endpoint…</string>
     <string name="endpoint_unavailable">Endpoint unavailable</string>
