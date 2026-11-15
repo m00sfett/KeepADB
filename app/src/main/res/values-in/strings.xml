@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">Akses lokasi diperlukan untuk mengenali jaringan Wi-Fi saat ini dan titik akses.</string>
     <string name="location_permission_settings_button">Buka setelan</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
+    <string name="notification_action_copy">Salin</string>
+    <string name="endpoint_copy_action">Salin perintah adb connect</string>
     <string name="status_permission_missing">Izin sistem tidak ada</string>
     <string name="tile_state_off">Nonaktif</string>
     <string name="tile_state_disconnected">Terputus</string>

@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">Se necesita acceso a la ubicación para identificar la red Wi-Fi actual y los puntos de acceso.</string>
     <string name="location_permission_settings_button">Abrir ajustes</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
+    <string name="notification_action_copy">Copiar</string>
+    <string name="endpoint_copy_action">Copiar comando adb connect</string>
     <string name="status_permission_missing">Falta el permiso del sistema</string>
     <string name="tile_state_off">Desactivado</string>
     <string name="tile_state_disconnected">Desconectado</string>

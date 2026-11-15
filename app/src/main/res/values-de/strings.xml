@@ -173,6 +173,8 @@
     <string name="settings_notification_visible_toast">Dauerhafte Benachrichtigung eingeschaltet</string>
     <string name="back">Zurück</string>
     <string name="notification_action_disable">Wifi-ADB ausschalten</string>
+    <string name="notification_action_copy">Kopieren</string>
+    <string name="endpoint_copy_action">adb-connect-Befehl kopieren</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App-Version: %1$s</string>
     <string name="settings_version_code_value">Versionscode: %1$d</string>

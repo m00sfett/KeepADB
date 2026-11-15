@@ -2,8 +2,8 @@
 <!-- #957/#951/#952: the block of the main panel below the switch and its one-line description, in
      one place so the six activity_main.xml variants cannot drift. Top to bottom: the state, the
      reason (only when there is one; a tap target with an info mark when a long explanation
-     exists), the action button (only when the user can act) and the endpoint row.
-     MainActivity renders it. -->
+     exists), the action button (only when the user can act) and the endpoint row (the whole row
+     copies the adb connect command while an address is known, #951). MainActivity renders it. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -91,5 +91,15 @@
             android:text="@string/endpoint_unavailable"
             android:textColor="@color/night_muted"
             android:textSize="15sp" />
+
+        <!-- Decorative: the row is the control, and TalkBack gets its click label. -->
+        <ImageView
+            android:id="@+id/endpoint_copy_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_copy"
+            android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>

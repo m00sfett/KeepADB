@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">Доступ к геолокации необходим для распознавания текущей сети Wi-Fi и точек доступа.</string>
     <string name="location_permission_settings_button">Открыть настройки</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
+    <string name="notification_action_copy">Копировать</string>
+    <string name="endpoint_copy_action">Скопировать команду adb connect</string>
     <string name="status_permission_missing">Нет системного разрешения</string>
     <string name="tile_state_off">Отключено</string>
     <string name="tile_state_disconnected">Нет подключения</string>

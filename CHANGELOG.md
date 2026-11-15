@@ -48,6 +48,33 @@ name and raise only the code.
   (`app/src/debug/res/xml/shortcuts.xml`, package id with the `.debug` suffix);
   `KeepADBShortcutsContractTest` checks both against `app/build.gradle`. Labels in all 19 locales.
 
+- **Copy the Wi-Fi ADB endpoint as an `adb connect` command (#951).** A tap on the endpoint row of
+  the home screen ("Port 5555 @ 192.168.0.5") puts exactly `adb connect <host>:<port>` on the
+  clipboard (IPv6 hosts in brackets; the command is technical and not translated). The row is a
+  48dp borderless tap target with a small copy icon at its end, not the card background, and only
+  while an address is known: while it is unknown or still searched, the "unavailable"/"searching"
+  text stays in the secondary color, with no icon and no tap. A verified transport row (the debug
+  VPN row of #538) copies its own command the same way. With "Hide in the app" on, the row shows the
+  masked address, the clip holds the real one and is flagged sensitive
+  (`ClipDescription.EXTRA_IS_SENSITIVE` on Android 13+, the string key
+  `android.content.extra.IS_SENSITIVE` on 11 and 12); without the switch the clip is not flagged
+  (`KeepADBEndpointText#isCopySensitive`: the stored switch, or "Hide on this screen" of the eye
+  menu). Feedback: Android 13+ confirms by itself, below that a toast ("Command copied", the string
+  of the setup assistant). The assistant's `pm grant` copy and the endpoint share one routine,
+  `KeepADBClipboard#copy` (no second copy routine). The status notification gets a "Copy" action
+  (`notification_action_copy`) after "Turn off Wifi-ADB" and the Keep-Alive action, so the existing
+  actions keep their order, while an address is known and "Hide in notifications" is off; it goes
+  through the non-exported `KeepADBReceiver` (`ACTION_COPY_ENDPOINT`), which reads the endpoint at
+  the tap, so the intent carries no address, and refuses when details are hidden by then. The
+  card keeps at most three actions: while the force mode is on, "End force mode", "Turn off" and
+  Keep-Alive fill them (One UI cuts off the fourth, #593), so "Copy" is left out then. TalkBack
+  announces the row as "copy adb connect command" through the click action's label
+  (`endpoint_copy_action`); the content description is untouched. Two new strings in 19 locales.
+  `KeepADBEndpointCopyTest` fails without the sensitive flag, without the action's conditions and
+  without the real-address copy; `SECURITY.md` describes the copy. Not verified in this change:
+  the clipboard preview on a real Android 13+ device and the notification on One UI (needs the
+  emulator and the phone).
+
 ### Changed
 - **Security advice and privacy switches on the assistant's intro page (#958).** Maintainer
   decision of 2026-11-14 and 2026-11-15. The general "Security & network advice"

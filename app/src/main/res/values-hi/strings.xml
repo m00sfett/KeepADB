@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">वर्तमान Wi-Fi नेटवर्क और ऐक्सेस पॉइंट की पहचान के लिए स्थान एक्सेस की आवश्यकता है।</string>
     <string name="location_permission_settings_button">सेटिंग खोलें</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
+    <string name="notification_action_copy">कॉपी करें</string>
+    <string name="endpoint_copy_action">adb connect कमांड कॉपी करें</string>
     <string name="status_permission_missing">सिस्टम अनुमति नहीं है</string>
     <string name="tile_state_off">बंद</string>
     <string name="tile_state_disconnected">कनेक्ट नहीं है</string>

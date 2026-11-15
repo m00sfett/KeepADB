@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private Button statusAction;
     private AlertDialog activeStatusDetailsDialog;
     private View endpointRow;
+    private View endpointCopyIcon;
     private TextView endpoint;
     // #761: set when onCreate handed over to the setup assistant; nothing of the screen exists then.
     private boolean handedOverToAssistant;
@@ -112,6 +113,7 @@ public class MainActivity extends Activity {
         statusReasonInfo = findViewById(R.id.status_reason_info);
         statusAction = findViewById(R.id.status_action);
         endpointRow = findViewById(R.id.endpoint_row);
+        endpointCopyIcon = findViewById(R.id.endpoint_copy_icon);
         endpoint = findViewById(R.id.endpoint);
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
@@ -1049,9 +1051,11 @@ public class MainActivity extends Activity {
                     && KeepADB.getState(MainActivity.this) != KeepADB.State.PERMISSION_MISSING;
             endpoint.setText(searching
                     ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
-            // #957: no address yet is a status, not a value: secondary color, normal size.
+            // #957: no address yet is a status, not a value: secondary color, normal size, and
+            // nothing to copy (#951).
             endpoint.setTextColor(getColor(R.color.night_muted));
             endpoint.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+            clearEndpointCopy();
             return;
         }
         endpoint.setText(KeepADBEndpointText.display(MainActivity.this,
@@ -1060,6 +1064,55 @@ public class MainActivity extends Activity {
         // #957: the address is what people came for: primary color and larger.
         endpoint.setTextColor(getColor(R.color.night_text));
         endpoint.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18);
+        bindEndpointCopy();
+    }
+
+    /**
+     * #951: a tap on the row copies {@code adb connect <host>:<port>}. The real host is used
+     * whatever the row shows (a tap is an explicit action); {@code lastEndpointHost} is read when
+     * tapped, so a newer endpoint wins over the one the row was bound with.
+     */
+    private void bindEndpointCopy() {
+        endpointCopyIcon.setVisibility(View.VISIBLE);
+        endpointRow.setMinimumHeight(dp(48));
+        endpointRow.setClickable(true);
+        endpointRow.setFocusable(true);
+        endpointRow.setOnClickListener(v -> {
+            if (lastEndpointHost != null) {
+                KeepADBEndpointText.copyAdbConnect(this, lastEndpointHost, lastEndpointPort, "app");
+            }
+        });
+        setCopyClickLabel(endpointRow);
+    }
+
+    private void clearEndpointCopy() {
+        endpointCopyIcon.setVisibility(View.GONE);
+        endpointRow.setMinimumHeight(0);
+        endpointRow.setOnClickListener(null);
+        endpointRow.setClickable(false);
+        endpointRow.setFocusable(false);
+        endpointRow.setAccessibilityDelegate(null);
+    }
+
+    /**
+     * TalkBack announces the row as what a tap does, "copy adb connect command", through the click
+     * action's label; the content description is left alone.
+     */
+    private void setCopyClickLabel(View row) {
+        row.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    android.view.accessibility.AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK,
+                        getString(R.string.endpoint_copy_action)));
+            }
+        });
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density);
     }
 
     private boolean isEndpointSurfaceActive(long listenerGeneration) {
@@ -1144,6 +1197,19 @@ public class MainActivity extends Activity {
         if (transport.primary) {
             row.setContentDescription(getString(R.string.transport_primary_accessibility_format, text));
         }
+        // #951: a verified transport row copies its adb connect command like the WLAN/LAN row.
+        android.util.TypedValue ripple = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ripple, true);
+        row.setBackgroundResource(ripple.resourceId);
+        row.setMinHeight(dp(48));
+        row.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        row.setCompoundDrawablePadding(dp(8));
+        row.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_copy, 0);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setOnClickListener(v -> KeepADBEndpointText.copyAdbConnect(this, transport.host,
+                transport.port, "app"));
+        setCopyClickLabel(row);
         return row;
     }
 

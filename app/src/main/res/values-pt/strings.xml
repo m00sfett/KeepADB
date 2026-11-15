@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">O acesso à localização é necessário para identificar a rede Wi-Fi atual e os pontos de acesso.</string>
     <string name="location_permission_settings_button">Abrir definições</string>
     <string name="notification_action_disable">Desativar Wifi-ADB</string>
+    <string name="notification_action_copy">Copiar</string>
+    <string name="endpoint_copy_action">Copiar comando adb connect</string>
     <string name="status_permission_missing">Permissão do sistema ausente</string>
     <string name="tile_state_off">Desativado</string>
     <string name="tile_state_disconnected">Desconectado</string>

@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
     <string name="location_permission_settings_button">Ayarları aç</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
+    <string name="notification_action_copy">Kopyala</string>
+    <string name="endpoint_copy_action">adb connect komutunu kopyala</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
     <string name="tile_state_off">Kapalı</string>
     <string name="tile_state_disconnected">Bağlı değil</string>

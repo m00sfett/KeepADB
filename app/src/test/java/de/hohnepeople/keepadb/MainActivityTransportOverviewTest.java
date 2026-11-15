@@ -112,6 +112,28 @@ public class MainActivityTransportOverviewTest {
         assertFalse("No VPN product is named: " + row, row.toLowerCase(java.util.Locale.ROOT).contains("tailscale"));
     }
 
+    /** #951: the verified transport row copies its adb connect command like the WLAN/LAN row. */
+    @Test
+    public void vpnAdbVerified_theRowCopiesItsAdbConnectCommandAndReadsPortAtIp() throws Exception {
+        setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
+        addVpnNetwork("10.8.0.5");
+        KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
+
+        MainActivity activity = launch();
+        ViewGroup panel = transportOverviewPanel(activity);
+        awaitSnapshotApplied(activity);
+
+        TextView row = (TextView) panel.getChildAt(0);
+        assertTrue(row.getText().toString(), row.getText().toString().matches(
+                ".*: Port \\d+ @ 10\\.8\\.0\\.5 · .*"));
+        assertTrue(row.isClickable());
+        row.performClick();
+        android.content.ClipboardManager clipboard =
+                context.getSystemService(android.content.ClipboardManager.class);
+        String copied = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+        assertTrue(copied, copied.matches("adb connect 10\\.8\\.0\\.5:\\d+"));
+    }
+
     /**
      * Launches the activity and then drives one more {@code renderTransportOverview()} pass
      * explicitly. The activity's own lifecycle also calls {@code KeepADBEndpointCoordinator.refresh()},

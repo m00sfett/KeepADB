@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">Locatietoegang is vereist om het huidige wifi-netwerk en de access points te herkennen.</string>
     <string name="location_permission_settings_button">Instellingen openen</string>
     <string name="notification_action_disable">Wifi-ADB uitschakelen</string>
+    <string name="notification_action_copy">Kopiëren</string>
+    <string name="endpoint_copy_action">adb connect-opdracht kopiëren</string>
     <string name="status_permission_missing">Systeemtoestemming ontbreekt</string>
     <string name="tile_state_off">Uit</string>
     <string name="tile_state_disconnected">Niet verbonden</string>

@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">需要位置權限來識別目前的 Wi-Fi 網路和存取點。</string>
     <string name="location_permission_settings_button">開啟設定</string>
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
+    <string name="notification_action_copy">複製</string>
+    <string name="endpoint_copy_action">複製 adb connect 指令</string>
     <string name="status_permission_missing">缺少系統權限</string>
     <string name="tile_state_off">關閉</string>
     <string name="tile_state_disconnected">未連線</string>

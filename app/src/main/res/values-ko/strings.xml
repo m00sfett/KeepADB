@@ -166,6 +166,8 @@
     <string name="location_permission_panel_body_discovery">현재 Wi-Fi 네트워크와 액세스 포인트를 식별하려면 위치 액세스가 필요합니다.</string>
     <string name="location_permission_settings_button">설정 열기</string>
     <string name="notification_action_disable">Wifi-ADB 비활성화</string>
+    <string name="notification_action_copy">복사</string>
+    <string name="endpoint_copy_action">adb connect 명령어 복사</string>
     <string name="status_permission_missing">시스템 권한 없음</string>
     <string name="tile_state_off">꺼짐</string>
     <string name="tile_state_disconnected">연결 끊김</string>

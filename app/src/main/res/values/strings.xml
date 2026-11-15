@@ -179,6 +179,9 @@
     <string name="back">Back</string>
     <string name="settings_section_network">Network</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>
+    <!-- #951: copy the adb connect command of the endpoint (home screen rows, notification action). The command itself is not translated. -->
+    <string name="notification_action_copy">Copy</string>
+    <string name="endpoint_copy_action">Copy adb connect command</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App version: %1$s</string>
     <string name="settings_version_code_value">Version code: %1$d</string>

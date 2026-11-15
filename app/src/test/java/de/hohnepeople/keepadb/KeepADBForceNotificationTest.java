@@ -89,8 +89,10 @@ public class KeepADBForceNotificationTest {
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
 
         Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
-        assertEquals(2, card.actions.length);
+        // #951: "Copy" joins the two actions, last, so those keep their order.
+        assertEquals(3, card.actions.length);
         assertEquals("Turn off Wifi-ADB", card.actions[0].title.toString());
+        assertEquals("Copy", card.actions[2].title.toString());
         assertNull(card.extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
         assertFalse(card.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString().contains("Force"));
     }
