@@ -14,6 +14,12 @@
     <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>
     <string name="endpoint_searching">Uç nokta aranıyor…</string>
     <string name="endpoint_unavailable">Uç nokta kullanılamıyor</string>
+    <string name="connect_help_link">Bilgisayar bağla…</string>
+    <string name="connect_help_title">Bilgisayar bağla</string>
+    <string name="connect_help_step_phone">Telefonda Geliştirici seçenekleri › “Kablosuz hata ayıklama” › “Cihazı eşleme koduyla eşle” bölümünü açın.</string>
+    <string name="connect_help_step_pair">Bilgisayarda, her bilgisayar için bir kez: aşağıdaki komutu çalıştırın ve telefonda görünen kodu girin.</string>
+    <string name="connect_help_step_connect">Wifi-ADB açıkken bu komutu KeepADB\'nin gösterdiği adresle çalıştırın (komutu kopyalamak için adrese dokunun). Daha önce eşlenmiş bir bilgisayar çoğu zaman kendiliğinden bağlanır.</string>
+    <string name="connect_help_open_settings">Geliştirici seçeneklerini aç</string>
 
     <string name="transport_vpn_label">VPN üzerinden ADB</string>
     <string name="transport_row_format">%1$s: %2$s · son kontrol %3$s</string>

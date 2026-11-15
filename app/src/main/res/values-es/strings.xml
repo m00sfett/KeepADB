@@ -14,6 +14,12 @@
     <string name="status_off">Depuración inalámbrica DESACTIVADA</string>
     <string name="endpoint_searching">Buscando punto final…</string>
     <string name="endpoint_unavailable">Punto final no disponible</string>
+    <string name="connect_help_link">Conectar un ordenador…</string>
+    <string name="connect_help_title">Conectar un ordenador</string>
+    <string name="connect_help_step_phone">En el teléfono, abre Opciones para desarrolladores › «Depuración inalámbrica» › «Vincular dispositivo con código de sincronización».</string>
+    <string name="connect_help_step_pair">En el ordenador, una vez por cada ordenador: ejecuta el comando de abajo e introduce el código que muestra el teléfono.</string>
+    <string name="connect_help_step_connect">Con Wifi-ADB activado, ejecuta este comando con la dirección que muestra KeepADB (toca la dirección para copiar el comando). Un ordenador ya vinculado suele conectarse solo.</string>
+    <string name="connect_help_open_settings">Abrir opciones para desarrolladores</string>
 
     <string name="transport_vpn_label">ADB por VPN</string>
     <string name="transport_row_format">%1$s: %2$s · última verificación %3$s</string>

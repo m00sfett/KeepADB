@@ -14,6 +14,12 @@
     <string name="status_off">Бездротове налагодження ВИМКНЕНО</string>
     <string name="endpoint_searching">Пошук кінцевої точки…</string>
     <string name="endpoint_unavailable">Кінцева точка недоступна</string>
+    <string name="connect_help_link">Підключити комп’ютер…</string>
+    <string name="connect_help_title">Підключити комп’ютер</string>
+    <string name="connect_help_step_phone">На телефоні відкрийте «Для розробників» › «Бездротове налагодження» › «Підключити пристрій за допомогою коду підключення».</string>
+    <string name="connect_help_step_pair">На комп’ютері, один раз для кожного комп’ютера: виконайте команду нижче та введіть код, показаний на телефоні.</string>
+    <string name="connect_help_step_connect">Коли Wifi-ADB увімкнено, виконайте цю команду з адресою, яку показує KeepADB (торкніться адреси, щоб скопіювати команду). Комп’ютер, який уже підключали, часто підключається сам.</string>
+    <string name="connect_help_open_settings">Відкрити «Для розробників»</string>
 
     <string name="transport_vpn_label">ADB через VPN</string>
     <string name="transport_row_format">%1$s: %2$s · остання перевірка %3$s</string>

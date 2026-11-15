@@ -37,8 +37,9 @@ public class KeepADBGlossaryContractTest {
             // #954: launcher shortcut labels; the maintainer chose "Toggle Wifi-ADB" (2026-11-15).
             "shortcut_toggle_short", "shortcut_toggle_long",
             // #957: the state line of the home screen and the widgets names KeepADB's own switch;
-            // Android's setting keeps Android's name in the reason lines.
-            "home_state_on", "home_state_off"));
+            // Android's setting keeps Android's name in the reason lines. #952: so does the help
+            // for connecting a computer, where its third step names KeepADB's switch.
+            "home_state_on", "home_state_off", "connect_help_step_connect"));
 
     /** Retired terms per locale directory suffix ("" is the English reference). */
     private static final Map<String, List<String>> RETIRED = new LinkedHashMap<>();

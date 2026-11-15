@@ -53,6 +53,7 @@ public class OnboardingActivity extends Activity {
 
     private static final String STATE_PAGE = "onboarding_page";
     private static final String STATE_PRIVACY_EXPANDED = "onboarding_privacy_expanded";
+    private static final String STATE_CONNECT_HELP = "onboarding_connect_help_showing";
     private static final int PAGE_INTRO = 0;
 
     private List<OnboardingStep> steps;
@@ -65,6 +66,7 @@ public class OnboardingActivity extends Activity {
     /** #958: whether the privacy switches of the intro are open; survives a rotation. */
     private boolean privacyExpanded;
     private OnboardingPrivacyRow privacyRow;
+    private android.app.AlertDialog activeConnectHelpDialog;
 
     private TextView headerTitle;
     private TextView headerCounter;
@@ -179,6 +181,19 @@ public class OnboardingActivity extends Activity {
             for (OnboardingStep step : steps) step.restoreState(savedInstanceState);
         }
         showPage(single != null ? PAGE_INTRO : clampPage(page));
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_CONNECT_HELP, false)) {
+            showConnectHelp();
+        }
+    }
+
+    /** #952: how to connect a new computer, from the last page; the dialog survives a rotation. */
+    private void showConnectHelp() {
+        if (activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing()) return;
+        android.app.AlertDialog help = KeepADBConnectHelp.show(this);
+        activeConnectHelpDialog = help;
+        help.setOnDismissListener(d -> {
+            if (activeConnectHelpDialog == d) activeConnectHelpDialog = null;
+        });
     }
 
     @Override
@@ -195,6 +210,8 @@ public class OnboardingActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (activeConnectHelpDialog != null) activeConnectHelpDialog.dismiss();
+        activeConnectHelpDialog = null;
         for (OnboardingStep step : steps) step.onDestroy();
         super.onDestroy();
     }
@@ -214,6 +231,8 @@ public class OnboardingActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_PAGE, page);
         outState.putBoolean(STATE_PRIVACY_EXPANDED, privacyExpanded);
+        outState.putBoolean(STATE_CONNECT_HELP,
+                activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing());
         // Only the page that is showing has a pending choice; a left page's is discarded (Back).
         OnboardingStep current = currentStep();
         if (current != null) current.saveState(outState);
@@ -447,6 +466,23 @@ public class OnboardingActivity extends Activity {
             offParams.topMargin = dp(8);
             pageContent.addView(off, offParams);
         }
+        // #952: the one place of the assistant that says how to connect a computer afterwards.
+        Button help = new Button(this, null, android.R.attr.borderlessButtonStyle);
+        help.setId(R.id.onboarding_connect_help);
+        help.setText(R.string.connect_help_link);
+        help.setAllCaps(false);
+        help.setMinHeight(dp(48));
+        help.setPadding(0, 0, dp(16), 0);
+        help.setTextColor(getColor(R.color.text_yellow));
+        help.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        help.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        help.setOnClickListener(v -> showConnectHelp());
+        LinearLayout.LayoutParams helpParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        helpParams.topMargin = dp(8);
+        helpParams.gravity = Gravity.START;
+        pageContent.addView(help, helpParams);
         backButton.setVisibility(View.VISIBLE);
         secondaryButton.setVisibility(View.GONE);
         nextButton.setText(R.string.onboarding_done);

@@ -14,6 +14,12 @@
     <string name="status_off">वायरलेस डीबगिंग बंद है</string>
     <string name="endpoint_searching">एंडपॉइंट खोजा जा रहा है…</string>
     <string name="endpoint_unavailable">एंडपॉइंट अनुपलब्ध है</string>
+    <string name="connect_help_link">कंप्यूटर कनेक्ट करें…</string>
+    <string name="connect_help_title">कंप्यूटर कनेक्ट करें</string>
+    <string name="connect_help_step_phone">फ़ोन पर डेवलपर विकल्प › “वायरलेस डीबगिंग” › “पेयरिंग कोड से डिवाइस पेयर करें” खोलें।</string>
+    <string name="connect_help_step_pair">कंप्यूटर पर, हर कंप्यूटर के लिए एक बार: नीचे दिया कमांड चलाएँ और फ़ोन पर दिखा कोड दर्ज करें।</string>
+    <string name="connect_help_step_connect">Wifi-ADB चालू होने पर, KeepADB द्वारा दिखाए गए पते के साथ यह कमांड चलाएँ (कमांड कॉपी करने के लिए पते पर टैप करें)। पहले से पेयर किया गया कंप्यूटर अक्सर अपने आप कनेक्ट हो जाता है।</string>
+    <string name="connect_help_open_settings">डेवलपर विकल्प खोलें</string>
 
     <string name="transport_vpn_label">VPN के ज़रिए ADB</string>
     <string name="transport_row_format">%1$s: %2$s · अंतिम जाँच %3$s</string>

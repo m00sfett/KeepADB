@@ -14,6 +14,12 @@
     <string name="status_off">Débogage sans fil DÉSACTIVÉ</string>
     <string name="endpoint_searching">Recherche du point de terminaison…</string>
     <string name="endpoint_unavailable">Point de terminaison indisponible</string>
+    <string name="connect_help_link">Connecter un ordinateur…</string>
+    <string name="connect_help_title">Connecter un ordinateur</string>
+    <string name="connect_help_step_phone">Sur le téléphone, ouvrez Options pour les développeurs › « Débogage sans fil » › « Associer l\'appareil avec un code d\'association ».</string>
+    <string name="connect_help_step_pair">Sur l\'ordinateur, une fois par ordinateur : exécutez la commande ci-dessous, puis saisissez le code affiché sur le téléphone.</string>
+    <string name="connect_help_step_connect">Avec Wifi-ADB activé, exécutez cette commande avec l\'adresse affichée par KeepADB (touchez l\'adresse pour copier la commande). Un ordinateur déjà associé se connecte souvent tout seul.</string>
+    <string name="connect_help_open_settings">Ouvrir les options pour les développeurs</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s : %2$s · dernière vérification %3$s</string>

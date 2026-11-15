@@ -15,6 +15,12 @@
     <string name="status_permission_missing">Systemberechtigung fehlt</string>
     <string name="endpoint_searching">Endpunkt wird gesucht …</string>
     <string name="endpoint_unavailable">Endpunkt nicht verfügbar</string>
+    <string name="connect_help_link">Computer verbinden…</string>
+    <string name="connect_help_title">Computer verbinden</string>
+    <string name="connect_help_step_phone">Am Telefon: Entwickleroptionen › „Drahtloses Debugging“ › „Gerät mit Kopplungscode koppeln“ öffnen.</string>
+    <string name="connect_help_step_pair">Am Computer, einmal pro Computer: den Befehl unten ausführen und den Code eingeben, der am Telefon angezeigt wird.</string>
+    <string name="connect_help_step_connect">Bei eingeschaltetem Wifi-ADB den Befehl mit der Adresse ausführen, die KeepADB anzeigt (Adresse antippen kopiert den Befehl). Ein bereits gekoppelter Computer verbindet sich oft von selbst.</string>
+    <string name="connect_help_open_settings">Entwickleroptionen öffnen</string>
 
     <string name="transport_vpn_label">ADB über VPN</string>
     <string name="transport_row_format">%1$s: %2$s · zuletzt geprüft %3$s</string>

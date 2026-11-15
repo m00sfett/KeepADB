@@ -17,6 +17,13 @@
     <string name="status_permission_missing">System permission missing</string>
     <string name="endpoint_searching">Searching for endpoint…</string>
     <string name="endpoint_unavailable">Endpoint unavailable</string>
+    <!-- #952: help for connecting a computer. The adb commands are not translated; Android's own screens keep Android's names in quotation marks. -->
+    <string name="connect_help_link">Connect a computer…</string>
+    <string name="connect_help_title">Connect a computer</string>
+    <string name="connect_help_step_phone">On the phone, open Developer options › “Wireless debugging” › “Pair device with pairing code”.</string>
+    <string name="connect_help_step_pair">On the computer, once for each computer: run the command below and enter the code shown on the phone.</string>
+    <string name="connect_help_step_connect">With Wifi-ADB on, run this with the address KeepADB shows (tap the address to copy the command). A computer that is already paired often connects by itself.</string>
+    <string name="connect_help_open_settings">Open developer options</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · last checked %3$s</string>

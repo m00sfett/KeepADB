@@ -14,6 +14,12 @@
     <string name="status_off">Depuração sem fio DESATIVADA</string>
     <string name="endpoint_searching">Procurando endpoint…</string>
     <string name="endpoint_unavailable">Endpoint indisponível</string>
+    <string name="connect_help_link">Conectar um computador…</string>
+    <string name="connect_help_title">Conectar um computador</string>
+    <string name="connect_help_step_phone">No telefone, abra Opções do desenvolvedor › “Depuração sem fio” › “Parear dispositivo com código de pareamento”.</string>
+    <string name="connect_help_step_pair">No computador, uma vez por computador: execute o comando abaixo e digite o código exibido no telefone.</string>
+    <string name="connect_help_step_connect">Com o Wifi-ADB ativado, execute este comando com o endereço mostrado pelo KeepADB (toque no endereço para copiar o comando). Um computador já pareado costuma conectar sozinho.</string>
+    <string name="connect_help_open_settings">Abrir opções do desenvolvedor</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · última verificação %3$s</string>

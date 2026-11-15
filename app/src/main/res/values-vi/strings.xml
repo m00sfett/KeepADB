@@ -14,6 +14,12 @@
     <string name="status_off">Gỡ lỗi không dây đang TẮT</string>
     <string name="endpoint_searching">Đang tìm điểm cuối…</string>
     <string name="endpoint_unavailable">Điểm cuối không khả dụng</string>
+    <string name="connect_help_link">Kết nối máy tính…</string>
+    <string name="connect_help_title">Kết nối máy tính</string>
+    <string name="connect_help_step_phone">Trên điện thoại, mở Tùy chọn nhà phát triển › “Gỡ lỗi không dây” › “Ghép nối thiết bị bằng mã ghép nối”.</string>
+    <string name="connect_help_step_pair">Trên máy tính, một lần cho mỗi máy tính: chạy lệnh bên dưới rồi nhập mã hiển thị trên điện thoại.</string>
+    <string name="connect_help_step_connect">Khi Wifi-ADB đang bật, hãy chạy lệnh này với địa chỉ mà KeepADB hiển thị (nhấn vào địa chỉ để sao chép lệnh). Máy tính đã được ghép nối trước đó thường tự kết nối.</string>
+    <string name="connect_help_open_settings">Mở Tùy chọn nhà phát triển</string>
 
     <string name="transport_vpn_label">ADB qua VPN</string>
     <string name="transport_row_format">%1$s: %2$s · kiểm tra lần cuối %3$s</string>

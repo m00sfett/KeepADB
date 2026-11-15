@@ -14,6 +14,12 @@
     <string name="status_off">Debugging Nirkabel NONAKTIF</string>
     <string name="endpoint_searching">Mencari endpoint…</string>
     <string name="endpoint_unavailable">Endpoint tidak tersedia</string>
+    <string name="connect_help_link">Hubungkan komputer…</string>
+    <string name="connect_help_title">Hubungkan komputer</string>
+    <string name="connect_help_step_phone">Di ponsel, buka Opsi developer › “Debugging nirkabel” › “Sambungkan perangkat dengan kode penyambungan”.</string>
+    <string name="connect_help_step_pair">Di komputer, sekali untuk setiap komputer: jalankan perintah di bawah, lalu masukkan kode yang tampil di ponsel.</string>
+    <string name="connect_help_step_connect">Saat Wifi-ADB aktif, jalankan perintah ini dengan alamat yang ditampilkan KeepADB (ketuk alamat untuk menyalin perintah). Komputer yang sudah dipasangkan sering tersambung sendiri.</string>
+    <string name="connect_help_open_settings">Buka Opsi developer</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · terakhir diperiksa %3$s</string>

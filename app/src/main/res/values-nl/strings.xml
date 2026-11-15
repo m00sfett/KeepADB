@@ -14,6 +14,12 @@
     <string name="status_off">Draadloze foutopsporing is UIT</string>
     <string name="endpoint_searching">Zoeken naar eindpunt…</string>
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
+    <string name="connect_help_link">Computer verbinden…</string>
+    <string name="connect_help_title">Computer verbinden</string>
+    <string name="connect_help_step_phone">Open op de telefoon Ontwikkelaarsopties › ‘Draadloze foutopsporing’ › ‘Apparaat koppelen met koppelingscode’.</string>
+    <string name="connect_help_step_pair">Op de computer, eenmalig per computer: voer de onderstaande opdracht uit en voer de code in die op de telefoon staat.</string>
+    <string name="connect_help_step_connect">Voer met Wifi-ADB aan deze opdracht uit met het adres dat KeepADB toont (tik op het adres om de opdracht te kopiëren). Een computer die al gekoppeld is, verbindt vaak vanzelf.</string>
+    <string name="connect_help_open_settings">Ontwikkelaarsopties openen</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>

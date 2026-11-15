@@ -38,6 +38,9 @@ command in the app while the permission is missing.
 - **Widget:** toggle the state from the home screen.
 - **Quick Settings:** add the KeepADB tile to the active tiles and toggle from the Quick Settings
   panel.
+- **Connect a computer:** tap the address on the home screen to copy the `adb connect` command. The
+  link “Connect a computer…” below it, and the last page of the setup assistant, explain the one-time
+  pairing Android requires for each new computer and open Android's developer options.
 - **Keep-Alive:** enable it in the app if KeepADB should observe state changes and try to recover.
   Android may show its own confirmation the first time Wireless debugging is enabled on a Wi-Fi
   network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.

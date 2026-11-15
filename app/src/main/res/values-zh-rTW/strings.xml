@@ -14,6 +14,12 @@
     <string name="status_off">無線偵錯已關閉</string>
     <string name="endpoint_searching">正在搜尋端點…</string>
     <string name="endpoint_unavailable">端點無法使用</string>
+    <string name="connect_help_link">連接電腦…</string>
+    <string name="connect_help_title">連接電腦</string>
+    <string name="connect_help_step_phone">在手機上開啟「開發人員選項」›「無線偵錯」›「使用配對碼配對裝置」。</string>
+    <string name="connect_help_step_pair">在電腦上，每台電腦只需一次：執行下方指令，然後輸入手機上顯示的配對碼。</string>
+    <string name="connect_help_step_connect">開啟 Wifi-ADB 後，用 KeepADB 顯示的位址執行此指令（點選位址即可複製指令）。已配對的電腦通常會自動連線。</string>
+    <string name="connect_help_open_settings">開啟開發人員選項</string>
 
     <string name="transport_vpn_label">透過 VPN 的 ADB</string>
     <string name="transport_row_format">%1$s：%2$s · 上次檢查 %3$s</string>

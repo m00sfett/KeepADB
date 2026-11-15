@@ -14,6 +14,12 @@
     <string name="status_off">无线调试已关闭</string>
     <string name="endpoint_searching">正在搜索端点…</string>
     <string name="endpoint_unavailable">端点不可用</string>
+    <string name="connect_help_link">连接电脑…</string>
+    <string name="connect_help_title">连接电脑</string>
+    <string name="connect_help_step_phone">在手机上打开“开发者选项”›“无线调试”›“使用配对码配对设备”。</string>
+    <string name="connect_help_step_pair">在电脑上，每台电脑只需一次：运行下面的命令，然后输入手机上显示的配对码。</string>
+    <string name="connect_help_step_connect">开启 Wifi-ADB 后，用 KeepADB 显示的地址运行此命令（点按地址即可复制命令）。已配对的电脑通常会自动连接。</string>
+    <string name="connect_help_open_settings">打开开发者选项</string>
 
     <string name="transport_vpn_label">通过 VPN 的 ADB</string>
     <string name="transport_row_format">%1$s：%2$s · 上次检查 %3$s</string>

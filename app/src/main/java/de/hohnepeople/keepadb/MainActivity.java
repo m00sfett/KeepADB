@@ -20,7 +20,9 @@ public class MainActivity extends Activity {
     static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
 
     private static final String STATE_LANGUAGE_PICKER = "main_language_picker_showing";
+    private static final String STATE_CONNECT_HELP = "main_connect_help_showing";
     private AlertDialog activeLanguageSelectionDialog;
+    private AlertDialog activeConnectHelpDialog;
     private KeepADBSettingsMenu settingsMenu;
 
     private Switch toggle;
@@ -115,6 +117,7 @@ public class MainActivity extends Activity {
         endpointRow = findViewById(R.id.endpoint_row);
         endpointCopyIcon = findViewById(R.id.endpoint_copy_icon);
         endpoint = findViewById(R.id.endpoint);
+        findViewById(R.id.connect_help).setOnClickListener(v -> showConnectHelp());
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
@@ -211,6 +214,19 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_LANGUAGE_PICKER, false)) {
             showLanguageSelectionDialog();
         }
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_CONNECT_HELP, false)) {
+            showConnectHelp();
+        }
+    }
+
+    /** #952: how to connect a new computer; the dialog survives a rotation. */
+    private void showConnectHelp() {
+        if (activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing()) return;
+        AlertDialog help = KeepADBConnectHelp.show(this);
+        activeConnectHelpDialog = help;
+        help.setOnDismissListener(d -> {
+            if (activeConnectHelpDialog == d) activeConnectHelpDialog = null;
+        });
     }
 
     /**
@@ -269,6 +285,8 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_LANGUAGE_PICKER,
                 activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
+        outState.putBoolean(STATE_CONNECT_HELP,
+                activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing());
     }
 
     @Override
@@ -285,6 +303,8 @@ public class MainActivity extends Activity {
         activeLanguageSelectionDialog = null;
         if (activeStatusDetailsDialog != null) activeStatusDetailsDialog.dismiss();
         activeStatusDetailsDialog = null;
+        if (activeConnectHelpDialog != null) activeConnectHelpDialog.dismiss();
+        activeConnectHelpDialog = null;
         super.onDestroy();
     }
 

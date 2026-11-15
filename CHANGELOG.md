@@ -27,7 +27,9 @@ are retrospective issue-version records and were never published as separate rel
 
 Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264 and
 265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. Block 3
-(versionCode 266): the home screen, so far the security advice (#958) and the warning rows (#963).
+(versionCode 266 and 267): the home screen: the security advice (#958), the warning rows (#963), the
+status split into a state, a reason and an action (#957), copying the endpoint (#951) and the help
+for connecting a computer (#952).
 The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
@@ -74,6 +76,27 @@ name and raise only the code.
   without the real-address copy; `SECURITY.md` describes the copy. Not verified in this change:
   the clipboard preview on a real Android 13+ device and the notification on One UI (needs the
   emulator and the phone).
+
+- **"Connect a computer" help (#952).** Android needs its own TLS pairing before a new computer can
+  connect to Wireless debugging; the app never said so. `KeepADBConnectHelp` is a dialog with three
+  steps: on the phone open Developer options > "Wireless debugging" > "Pair device with pairing
+  code"; on the computer, once per computer, `adb pair <ip>:<pairing-port>` and enter the code; then
+  `adb connect <ip>:<port>` with the address KeepADB shows (a tap copies it, #951). The commands are
+  monospace, selectable and not translated; Android's own screens keep Android's names in quotation
+  marks (localized as the app already names the setting), KeepADB's switch is "Wifi-ADB". The steps
+  scroll, so the dialog also fits at font scale 1.3. Buttons: "Open developer options"
+  (`Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS`; a device without that screen gets the
+  existing "No app found" toast, `settings_no_browser_found`) and "Close". Reachable from the
+  text-style button "Connect a computer…" directly below the endpoint row (in the shared
+  `view_home_status.xml`, so in all six layout variants, no extra card) and from the last page of
+  the setup assistant (`OnboardingActivity`, the summary); the dialog survives a rotation on both.
+  KeepADB cannot read whether a computer is paired, pairs nothing itself and shows no code, so the
+  help claims no pairing state (`KeepADBConnectHelpTest` checks that no digit but the step numbers
+  appears). The security advice about unexpected pairing prompts is unchanged. Six new strings in
+  19 locales; the label wording of Android's own screens ("Pair device with pairing code", "Developer
+  options") follows what Android shows per language from memory of its translations, to be checked
+  against a device. README and the F-Droid description say where the help is. Not verified in this
+  change: the button on the emulator and on One UI, and the tablet layouts (needs the emulators).
 
 ### Changed
 - **Security advice and privacy switches on the assistant's intro page (#958).** Maintainer

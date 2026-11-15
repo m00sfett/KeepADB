@@ -14,6 +14,12 @@
     <string name="status_off">Debug wireless DISATTIVO</string>
     <string name="endpoint_searching">Ricerca dell’endpoint…</string>
     <string name="endpoint_unavailable">Endpoint non disponibile</string>
+    <string name="connect_help_link">Collega un computer…</string>
+    <string name="connect_help_title">Collega un computer</string>
+    <string name="connect_help_step_phone">Sul telefono, apri Opzioni sviluppatore › «Debug wireless» › «Associa dispositivo con codice di accoppiamento».</string>
+    <string name="connect_help_step_pair">Sul computer, una volta per computer: esegui il comando qui sotto e inserisci il codice mostrato sul telefono.</string>
+    <string name="connect_help_step_connect">Con Wifi-ADB attivo, esegui questo comando con l\'indirizzo mostrato da KeepADB (tocca l\'indirizzo per copiare il comando). Un computer già associato spesso si connette da solo.</string>
+    <string name="connect_help_open_settings">Apri opzioni sviluppatore</string>
 
     <string name="transport_vpn_label">ADB tramite VPN</string>
     <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
