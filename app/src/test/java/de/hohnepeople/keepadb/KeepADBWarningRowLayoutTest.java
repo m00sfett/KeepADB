@@ -131,8 +131,10 @@ public class KeepADBWarningRowLayoutTest {
         assertFalse(rows.row.isActionStacked());
         assertEquals("the header is the same one line as without the explanation",
                 dp(48), rows.close.getBottom());
-        assertEquals(dp(48), details.getTop());
-        assertEquals(dp(48) + dp(40), rows.row.getMeasuredHeight());
+        assertEquals("a small gap keeps the button off the explanation's first line",
+                dp(4), details.getTop() - rows.action.getBottom());
+        assertEquals(dp(48) + dp(4), details.getTop());
+        assertEquals(dp(48) + dp(4) + dp(40), rows.row.getMeasuredHeight());
         assertEquals("the action ends where the close button starts",
                 rows.close.getLeft() - dp(8), rows.action.getRight());
     }

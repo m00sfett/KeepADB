@@ -39,6 +39,8 @@ public class KeepADBWarningRow extends ViewGroup {
     static final int MAX_INLINE_TITLE_LINES = 2;
     /** Gap between the title and the action when the action sits below it, in dp. */
     private static final int STACKED_GAP_DP = 4;
+    /** Gap between the title/action line and the open explanation below it when the action is inline, in dp. */
+    private static final int INLINE_DETAILS_GAP_DP = 4;
 
     private boolean stacked;
     private boolean expanded;
@@ -191,6 +193,8 @@ public class KeepADBWarningRow extends ViewGroup {
         if (detailsShown()) {
             measureDetails(details(), available);
             detailsHeight = outerHeight(details());
+            // The inline action's bottom edge must not touch the explanation's first line.
+            if (!stacked && actionShown) detailsHeight += dp(INLINE_DETAILS_GAP_DP);
         }
 
         int inner;
@@ -221,6 +225,7 @@ public class KeepADBWarningRow extends ViewGroup {
         int innerTop = getPaddingTop();
         boolean detailsShown = detailsShown();
         int detailsHeight = detailsShown ? outerHeight(details()) : 0;
+        int inlineGap = detailsShown && !stacked && actionShown ? dp(INLINE_DETAILS_GAP_DP) : 0;
         int innerHeight = bottom - top - getPaddingTop() - getPaddingBottom();
         int start = getPaddingLeft();
         int end = total - getPaddingRight();
@@ -231,7 +236,7 @@ public class KeepADBWarningRow extends ViewGroup {
         int titleX = start + outerWidth(icon);
         if (!stacked) {
             // The header line, then the explanation (if shown) below it.
-            int header = innerHeight - detailsHeight;
+            int header = innerHeight - detailsHeight - inlineGap;
             place(icon, start, innerTop + centered(header, outerHeight(icon)), total);
             place(title, titleX, innerTop + centered(header, outerHeight(title)), total);
             if (actionShown) {
@@ -239,7 +244,7 @@ public class KeepADBWarningRow extends ViewGroup {
                 place(action, actionX, innerTop + centered(header, outerHeight(action)), total);
             }
             place(close, closeX, innerTop + centered(header, outerHeight(close)), total);
-            if (detailsShown) place(details(), start, innerTop + header, total);
+            if (detailsShown) place(details(), start, innerTop + header + inlineGap, total);
         } else {
             int first = innerHeight - detailsHeight - outerHeight(action) - dp(STACKED_GAP_DP);
             int titleY = innerTop + centered(first, outerHeight(title));
