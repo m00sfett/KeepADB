@@ -449,8 +449,8 @@ final class KeepADBRegisterClient {
             opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
             if (opGen == 0L) return;
             lastGiveUpOrReattemptAt = now;
-            // One attempt only, independent of the retry-count setting, which may change while
-            // the attempt runs (Codex review): a failure ends this series at once.
+            // One attempt only, independent of the fixed retry budget of a normal series: a
+            // failure ends this series at once.
             singleShotSeries = true;
         }
         dispatchUpdate(appContext, targetUrl, endpoint, opGen, true);
@@ -565,7 +565,7 @@ final class KeepADBRegisterClient {
 
     /**
      * #866: caller must hold the class monitor. Schedules the next retry of a failed POST once that
-     * attempt has completed, or marks the series exhausted after the selected number of retries.
+     * attempt has completed, or marks the series exhausted after the fixed number of retries (#960).
      *
      * <p>#870: deliberately a main-thread timer on uptime, unlike the alert's alarm. The series is
      * short and bounded, and a retry that waits through deep sleep loses nothing: the network event
