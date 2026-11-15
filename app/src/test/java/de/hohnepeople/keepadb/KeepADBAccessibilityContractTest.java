@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -165,8 +166,10 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity main = mainController.get();
         assertEquals(View.VISIBLE, main.findViewById(R.id.warning_system).getVisibility());
-        assertEquals(main.getString(R.string.status_permission_missing),
+        assertEquals(main.getString(R.string.home_state_setup),
                 ((TextView) main.findViewById(R.id.status)).getText().toString());
+        assertEquals(main.getString(R.string.home_reason_permission),
+                ((TextView) main.findViewById(R.id.status_reason)).getText().toString());
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         gateway.write(context, true);
         gateway.writes.clear();
@@ -175,8 +178,10 @@ public class KeepADBAccessibilityContractTest {
         assertEquals(View.GONE, main.findViewById(R.id.warning_system).getVisibility());
         assertTrue(main.findViewById(R.id.toggle).isEnabled());
         assertTrue(((android.widget.Switch) main.findViewById(R.id.toggle)).isChecked());
-        assertEquals(main.getString(R.string.status_enabled_disconnected),
+        assertEquals(main.getString(R.string.home_state_on),
                 ((TextView) main.findViewById(R.id.status)).getText().toString());
+        assertEquals(main.getString(R.string.home_reason_no_wifi),
+                ((TextView) main.findViewById(R.id.status_reason)).getText().toString());
         assertTrue(gateway.writes.isEmpty());
         assertNotNull(main.findViewById(R.id.toggle));
         assertTrue(main.findViewById(R.id.btn_open_settings).hasOnClickListeners());
@@ -274,7 +279,16 @@ public class KeepADBAccessibilityContractTest {
         assertPoliteLiveRegion(settings.findViewById(R.id.network_status_label));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_background_location_status));
 
-        assertPoliteLiveRegion(main.findViewById(R.id.status));
+        // #957: state and reason are one polite live region, so a change is announced as one
+        // message; the two lines inside it are not live regions of their own.
+        View summary = main.findViewById(R.id.status_summary);
+        assertPoliteLiveRegion(summary);
+        assertSame(summary, main.findViewById(R.id.status).getParent());
+        assertSame(summary, main.findViewById(R.id.status_reason_row).getParent());
+        assertEquals(View.ACCESSIBILITY_LIVE_REGION_NONE,
+                main.findViewById(R.id.status).getAccessibilityLiveRegion());
+        assertEquals(View.ACCESSIBILITY_LIVE_REGION_NONE,
+                main.findViewById(R.id.status_reason).getAccessibilityLiveRegion());
         assertPoliteLiveRegion(main.findViewById(R.id.webhook_status));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_webhook_error));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_webhook_cleartext_warning));

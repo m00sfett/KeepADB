@@ -194,26 +194,12 @@
                             android:textColor="@color/night_muted"
                             android:textSize="13sp" />
 
-                        <TextView
-                            android:id="@+id/status"
+                        <!-- #957/#951/#952: state, reason, action, endpoint and the connect help link; one
+                             shared block for all variants (view_home_status.xml). -->
+                        <include
+                            layout="@layout/view_home_status"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="6dp"
-                            android:accessibilityLiveRegion="polite"
-                            android:fontFamily="sans-serif"
-                            android:text="@string/status_off"
-                            android:textColor="@color/night_text"
-                            android:textSize="20sp" />
-
-                        <TextView
-                            android:id="@+id/endpoint"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:fontFamily="monospace"
-                            android:text="@string/endpoint_unavailable"
-                            android:textColor="@color/night_muted"
-                            android:textSize="15sp" />
+                            android:layout_height="wrap_content" />
 
                         <!-- #538: additional verified transports (VPN) beyond the
                              WLAN/LAN endpoint above; populated dynamically, one row per transport,

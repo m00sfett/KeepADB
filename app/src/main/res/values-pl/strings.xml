@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Urządzenie pokazuje "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Potwierdź monit o autoryzację debugowania na ekranie tego telefonu, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_refresh">Sprawdź uprawnienia</string>
-    <string name="status_on">Debugowanie bezprzewodowe: WŁĄCZONE</string>
     <string name="status_off">Debugowanie bezprzewodowe: WYŁĄCZONE</string>
-    <string name="endpoint_format">Punkt końcowy: %1$s:%2$d</string>
     <string name="endpoint_searching">Wyszukiwanie punktu końcowego…</string>
     <string name="endpoint_unavailable">Punkt końcowy niedostępny</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Bieżący adres IP i port debugowania bezprzewodowego</string>
     <string name="notification_title_active">%1$s: Wifi-ADB włączone</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB wyłączone</string>
-    <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Dotknij, aby zobaczyć szczegóły połączenia w aplikacji.</string>
     <string name="notification_title_searching">%1$s: Wyszukiwanie punktu końcowego…</string>
     <string name="notification_text_searching">Rozpoznawanie punktu końcowego w sieci lokalnej</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">Dostęp do lokalizacji jest wymagany do identyfikacji bieżącej sieci Wi-Fi i punktów dostępowych.</string>
     <string name="location_permission_settings_button">Otwórz ustawienia</string>
     <string name="notification_action_disable">Wyłącz Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Debugowanie bezprzewodowe jest WŁĄCZONE (Rozłączone)</string>
     <string name="status_permission_missing">Brak uprawnienia systemowego</string>
     <string name="tile_state_off">Wyłączone</string>
     <string name="tile_state_disconnected">Rozłączone</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: sieć jest nieczytelna, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci debugowania bezprzewodowego Androida, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
+    <string name="home_state_on">Wifi-ADB jest włączone</string>
+    <string name="home_state_off">Wifi-ADB jest wyłączone</string>
+    <string name="home_state_setup">Brak konfiguracji</string>
+    <string name="home_reason_permission">Uprawnienie systemowe nieprzyznane</string>
+    <string name="home_reason_waiting">Keep-Alive czeka na Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive wstrzymane: sieć Wi-Fi niezaufana</string>
+    <string name="home_reason_blocked">Keep-Alive wstrzymane: sieć Wi-Fi zablokowana</string>
+    <string name="home_reason_identity">Keep-Alive wstrzymane: sieć nieczytelna</string>
+    <string name="home_reason_backoff">Keep-Alive wstrzymane: okno „Debugowanie bezprzewodowe” niepotwierdzone</string>
+    <string name="home_reason_no_wifi">Brak połączenia Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive tu nie włączy: sieć Wi-Fi niezaufana</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive tu nie włączy: sieć Wi-Fi zablokowana</string>
+    <string name="home_action_networks">Sieci</string>
+    <string name="home_action_retry">Ponów</string>
+    <string name="home_reason_details_action">Pokaż szczegóły</string>
     <string name="state_pending">Przełączanie…</string>
     <string name="tile_state_keep_alive_waiting">Wyłączone – Keep-Alive czeka</string>
     <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
@@ -504,8 +516,6 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="home_warning_action_fix">Napraw</string>
     <string name="home_warning_limited_title">Keep-Alive ograniczone</string>
     <string name="home_warning_limited_text">Brakuje uprawnień potrzebnych do niezawodnego Keep-Alive.</string>
-    <string name="status_tap_to_decide">Dotknij, aby zdecydować</string>
-    <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Język</string>
     <string name="menu_item_all_settings">Ustawienia</string>

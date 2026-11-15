@@ -351,11 +351,7 @@ final class KeepADBNotification {
 
     private static CharSequence styledEndpointText(Context context, String host, int port) {
         // The app privacy switch does not apply here: this notification has its own (#904).
-        String displayHost = host;
-        if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
-            displayHost = "[" + displayHost + "]";
-        }
-        String content = context.getString(R.string.notification_text_active, port, displayHost);
+        String content = KeepADBEndpointText.display(context, host, port);
         SpannableString styled = new SpannableString(content);
         int portStart = content.indexOf(String.valueOf(port));
         if (portStart >= 0) {

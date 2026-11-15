@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Устройство показывает статус "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Подтвердите запрос на разрешение отладки на экране этого телефона, затем повторяйте "adb devices", пока статус не станет "device".</string>
     <string name="setup_refresh">Проверить разрешение</string>
-    <string name="status_on">Беспроводная отладка ВКЛЮЧЕНА</string>
     <string name="status_off">Беспроводная отладка ВЫКЛЮЧЕНА</string>
-    <string name="endpoint_format">Конечная точка: %1$s:%2$d</string>
     <string name="endpoint_searching">Поиск конечной точки…</string>
     <string name="endpoint_unavailable">Конечная точка недоступна</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Текущий IP-адрес и порт беспроводной отладки</string>
     <string name="notification_title_active">%1$s: Wifi-ADB включено</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB выключено</string>
-    <string name="notification_text_active">Порт %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Порт %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Нажмите, чтобы увидеть сведения о подключении в приложении.</string>
     <string name="notification_title_searching">%1$s: Поиск конечной точки…</string>
     <string name="notification_text_searching">Определение конечной точки в локальной сети</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">Доступ к геолокации необходим для распознавания текущей сети Wi-Fi и точек доступа.</string>
     <string name="location_permission_settings_button">Открыть настройки</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>
     <string name="status_permission_missing">Нет системного разрешения</string>
     <string name="tile_state_off">Отключено</string>
     <string name="tile_state_disconnected">Нет подключения</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: сеть не читается, проверьте разрешение на геолокацию («Разрешить в любом режиме») или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: подтвердите системный диалог Android о сети для беспроводной отладки, затем нажмите переключатель, чтобы повторить попытку</string>
     <string name="status_pending">Переключение…</string>
+    <string name="home_state_on">Wifi-ADB включён</string>
+    <string name="home_state_off">Wifi-ADB выключен</string>
+    <string name="home_state_setup">Настройка не завершена</string>
+    <string name="home_reason_permission">Системное разрешение не выдано</string>
+    <string name="home_reason_waiting">Keep-Alive ждёт Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive приостановлен: сеть Wi-Fi не доверенная</string>
+    <string name="home_reason_blocked">Keep-Alive приостановлен: сеть Wi-Fi заблокирована</string>
+    <string name="home_reason_identity">Keep-Alive приостановлен: сеть не читается</string>
+    <string name="home_reason_backoff">Keep-Alive приостановлен: диалог «Беспроводная отладка» не подтверждён</string>
+    <string name="home_reason_no_wifi">Нет подключения к Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive здесь не включится: сеть Wi-Fi не доверенная</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive здесь не включится: сеть Wi-Fi заблокирована</string>
+    <string name="home_action_networks">Сети</string>
+    <string name="home_action_retry">Повторить</string>
+    <string name="home_reason_details_action">Показать подробности</string>
     <string name="state_pending">Переключение…</string>
     <string name="tile_state_keep_alive_waiting">Выключено — Keep-Alive ждёт</string>
     <string name="toggle_failed_toast">Не удалось переключить беспроводную отладку. Повторите попытку.</string>
@@ -504,8 +516,6 @@
     <string name="home_warning_action_fix">Исправить</string>
     <string name="home_warning_limited_title">Keep-Alive ограничен</string>
     <string name="home_warning_limited_text">Не хватает разрешений для надёжной работы Keep-Alive.</string>
-    <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
-    <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Язык</string>
     <string name="menu_item_all_settings">Настройки</string>

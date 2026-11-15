@@ -614,7 +614,6 @@ public class KeepADBResourceContractTest {
         long longWitness = integerWitness;
         result.put("warnings_close", new Object[] {stringWitness});
         result.put("warnings_closed", new Object[] {stringWitness});
-        result.put("endpoint_format", new Object[] {stringWitness, integerWitness});
         result.put("onboarding_step_counter", new Object[] {integerWitness, integerWitness});
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});
         result.put("onboarding_intro_title_new", new Object[] {integerWitness});
@@ -643,7 +642,7 @@ public class KeepADBResourceContractTest {
         result.put("tile_permission_error", new Object[] {stringWitness});
         result.put("setup_command", new Object[] {stringWitness});
         result.put("setup_command_multi", new Object[] {stringWitness});
-        result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
+        result.put("endpoint_port_at_ip", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_added_toast", new Object[] {stringWitness});
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
         result.put("network_prompt_security_text", new Object[] {stringWitness, stringWitness});

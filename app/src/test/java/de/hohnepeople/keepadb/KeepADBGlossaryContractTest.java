@@ -35,7 +35,10 @@ public class KeepADBGlossaryContractTest {
             "notification_title_active", "notification_title_disabled",
             "notification_action_disable",
             // #954: launcher shortcut labels; the maintainer chose "Toggle Wifi-ADB" (2026-11-15).
-            "shortcut_toggle_short", "shortcut_toggle_long"));
+            "shortcut_toggle_short", "shortcut_toggle_long",
+            // #957: the state line of the home screen and the widgets names KeepADB's own switch;
+            // Android's setting keeps Android's name in the reason lines.
+            "home_state_on", "home_state_off"));
 
     /** Retired terms per locale directory suffix ("" is the English reference). */
     private static final Map<String, List<String>> RETIRED = new LinkedHashMap<>();
@@ -95,6 +98,18 @@ public class KeepADBGlossaryContractTest {
                 assertFalse("values" + locale + "/" + entry.getKey() + " uses 'Wifi-ADB'",
                         entry.getValue().contains("Wifi-ADB"));
             }
+        }
+    }
+
+    /** #957: "ON (Connected)" read as "a computer is connected"; the state never says that. */
+    @Test
+    public void noStateOfTheSwitchIsCalledConnectedOrDisconnected() throws IOException {
+        Map<String, String> english = strings("");
+        assertFalse(english.containsKey("status_on"));
+        assertFalse(english.containsKey("status_enabled_disconnected"));
+        for (String key : new String[] {"home_state_on", "home_state_off", "home_reason_no_wifi"}) {
+            String value = english.get(key);
+            assertFalse(key + ": " + value, value.contains("onnected"));
         }
     }
 

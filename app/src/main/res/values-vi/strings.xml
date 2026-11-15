@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Thiết bị hiển thị trạng thái "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Xác nhận lời nhắc cho phép gỡ lỗi trên màn hình điện thoại này, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
     <string name="setup_refresh">Kiểm tra quyền</string>
-    <string name="status_on">Gỡ lỗi không dây đang BẬT</string>
     <string name="status_off">Gỡ lỗi không dây đang TẮT</string>
-    <string name="endpoint_format">Điểm cuối: %1$s:%2$d</string>
     <string name="endpoint_searching">Đang tìm điểm cuối…</string>
     <string name="endpoint_unavailable">Điểm cuối không khả dụng</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Địa chỉ IP và cổng hiện tại của Gỡ lỗi không dây</string>
     <string name="notification_title_active">%1$s: Wifi-ADB bật</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB tắt</string>
-    <string name="notification_text_active">Cổng %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Cổng %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Nhấn để xem chi tiết kết nối trong ứng dụng.</string>
     <string name="notification_title_searching">%1$s: Đang tìm điểm cuối…</string>
     <string name="notification_text_searching">Đang phân giải điểm cuối trên mạng cục bộ</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">Cần quyền truy cập vị trí để nhận diện mạng Wi-Fi hiện tại và các điểm truy cập.</string>
     <string name="location_permission_settings_button">Mở cài đặt</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>
     <string name="tile_state_off">Tắt</string>
     <string name="tile_state_disconnected">Đã ngắt kết nối</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Gỡ lỗi không dây của Android, sau đó nhấn vào công tắc để thử lại</string>
     <string name="status_pending">Đang chuyển…</string>
+    <string name="home_state_on">Wifi-ADB đang bật</string>
+    <string name="home_state_off">Wifi-ADB đang tắt</string>
+    <string name="home_state_setup">Chưa thiết lập xong</string>
+    <string name="home_reason_permission">Chưa cấp quyền hệ thống</string>
+    <string name="home_reason_waiting">Keep-Alive đang chờ Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive đã tạm dừng: Wi-Fi không tin cậy</string>
+    <string name="home_reason_blocked">Keep-Alive đã tạm dừng: Wi-Fi bị chặn</string>
+    <string name="home_reason_identity">Keep-Alive đã tạm dừng: không đọc được mạng</string>
+    <string name="home_reason_backoff">Keep-Alive đã tạm dừng: hộp thoại “Gỡ lỗi không dây” chưa được xác nhận</string>
+    <string name="home_reason_no_wifi">Không có kết nối Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive sẽ không bật ở đây: Wi-Fi không tin cậy</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive sẽ không bật ở đây: Wi-Fi bị chặn</string>
+    <string name="home_action_networks">Mạng</string>
+    <string name="home_action_retry">Thử lại</string>
+    <string name="home_reason_details_action">Hiện chi tiết</string>
     <string name="state_pending">Đang chuyển…</string>
     <string name="tile_state_keep_alive_waiting">Tắt – Keep-Alive đang chờ</string>
     <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
@@ -504,8 +516,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_action_fix">Khắc phục</string>
     <string name="home_warning_limited_title">Keep-Alive bị hạn chế</string>
     <string name="home_warning_limited_text">Còn thiếu quyền để Keep-Alive hoạt động ổn định.</string>
-    <string name="status_tap_to_decide">Chạm để quyết định</string>
-    <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Ngôn ngữ</string>
     <string name="menu_item_all_settings">Cài đặt</string>

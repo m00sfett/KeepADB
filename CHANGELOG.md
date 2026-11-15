@@ -101,6 +101,41 @@ name and raise only the code.
     "Keep-Alive paused" card, since #826 introduced the reason table. The icon and its list
     ("Security warnings") count only reasons that weaken protection; a missing permission limits
     reliability and is not a security reason. Nothing changed.
+- **Home status split into a state, one reason line and an action button (#957).** Maintainer
+  decision of 2026-11-14 and 2026-11-15. The single status text (up to three sentences at 20sp,
+  with a card-backed `TextView` as tap target and "(Connected)" for "the phone has Wi-Fi") is now,
+  in `view_home_status.xml` (one include in the six `activity_main.xml` variants, so they cannot
+  drift): the **state** (`@+id/status`, 20sp, medium weight: "Wifi-ADB is on", "Wifi-ADB is off",
+  "Switching…", "Setup missing"), a **reason line** when there is one (14sp, secondary color) and a
+  real **button** when the user can act, below it the endpoint row. The mapping from the resolved
+  app state to state, reason, long explanation and action is one pure class,
+  `KeepADBHomeStatus`, covered row by row by `KeepADBHomeStatusTest` (the issue's table, including
+  both "on, but Keep-Alive stays off here" rows); `MainActivity` resolves the inputs
+  (`resolveHomeStatus`, the same checks as before) and renders. The state logic itself
+  (`KeepADB.State`, when Keep-Alive is blocked) is unchanged. Where a long sentence exists
+  (`status_off_keep_alive_*`, `status_on_network_*`, reused unchanged) the reason line ends in an
+  info mark, is a 48dp tap target and opens a plain dialog with that sentence and one "OK"; without
+  one the line is plain text. Actions: "Decide…" and "Networks" lead where the status line led
+  (`statusEntryIntent()`, read at tap time), "Fix" where the "Keep-Alive paused" warning leads,
+  "Retry" through the switch's own path (`requestMainSwitchChange()`), "Instructions" where the
+  permission warning leads; the button uses the primary style of the warning rows. No clickable
+  `TextView` with a card background remains (`makeStatusDecisionEntry` and its twin are gone).
+  TalkBack: state and reason are one polite live region (the container `status_summary`, text is
+  only set when it changed, so the periodic refresh stays silent), the reason line is announced as
+  a button with "Show details" as its click label, and the action is a separate button of at least
+  48dp. The endpoint row reads "Port 5555 @ 192.168.0.5" (primary color, 18sp, monospace) with the
+  one shared format string `endpoint_port_at_ip` (formerly `notification_text_active`, now used by
+  the home screen, the notification and the transport rows; `endpoint_format` is gone); while no
+  address is known it keeps the secondary color and size. The widgets no longer say
+  "(Connected)"/"(Disconnected)" either: their system line now reads "Wifi-ADB is on" or "Wifi-ADB
+  is on · No Wi-Fi connection" (`status_on`, `status_enabled_disconnected`, `status_tap_to_decide`
+  and `status_tap_to_open_list` are removed in all 19 locales). Fifteen new strings in 19 locales;
+  they say "Wifi-ADB" for KeepADB's switch and put Android's own name in quotation marks where
+  they point at its setting ("Wireless debugging" in the "dialog not confirmed" reason). The
+  glossary test allows "Wifi-ADB" only in the two new state strings. Not verified in this change:
+  the acceptance that no state needs more than one state line and one reason line at 360dp in
+  English and German and that nothing is cut off at font scale 1.3, and the tablet layouts (needs
+  the emulators).
 - **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
   this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
   Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay

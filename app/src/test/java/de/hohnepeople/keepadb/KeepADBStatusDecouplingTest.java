@@ -99,11 +99,11 @@ public class KeepADBStatusDecouplingTest {
         ActivityController<MainActivity> offController =
                 Robolectric.buildActivity(MainActivity.class).setup();
         Switch offToggle = offController.get().findViewById(R.id.toggle);
-        TextView offStatus = offController.get().findViewById(R.id.status);
+        TextView offStatus = offController.get().findViewById(R.id.status_reason);
         assertFalse("adb_wifi_enabled == 0 must never render as a checked switch",
                 offToggle.isChecked());
-        assertEquals("The Keep-Alive wait belongs in the subtext, not in the switch",
-                context.getString(R.string.status_off_keep_alive_waiting),
+        assertEquals("The Keep-Alive wait belongs in the reason line, not in the switch",
+                context.getString(R.string.home_reason_waiting),
                 offStatus.getText().toString());
         offController.pause().close();
 
@@ -176,11 +176,12 @@ public class KeepADBStatusDecouplingTest {
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView statusView = controller.get().findViewById(R.id.status);
-        // #764: the line is also the way into the decision for this access point.
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted) + "\n"
-                + context.getString(R.string.status_tap_to_decide),
-                statusView.getText().toString());
+        TextView statusView = controller.get().findViewById(R.id.status_reason);
+        // #764: the status is also the way into the decision for this access point.
+        assertEquals(context.getString(R.string.home_reason_untrusted), statusView.getText().toString());
+        assertEquals(context.getString(R.string.networks_recent_decide),
+                ((android.widget.Button) controller.get().findViewById(R.id.status_action))
+                        .getText().toString());
         controller.pause().close();
     }
 
@@ -201,9 +202,8 @@ public class KeepADBStatusDecouplingTest {
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView statusView = controller.get().findViewById(R.id.status);
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_identity_unavailable),
-                statusView.getText().toString());
+        TextView statusView = controller.get().findViewById(R.id.status_reason);
+        assertEquals(context.getString(R.string.home_reason_identity), statusView.getText().toString());
         controller.pause().close();
     }
 

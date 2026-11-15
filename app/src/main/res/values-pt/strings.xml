@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">O dispositivo aparece como "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Confirme o aviso de autorização de depuração na tela deste telefone e execute "adb devices" novamente até o estado mudar para "device".</string>
     <string name="setup_refresh">Verificar permissão</string>
-    <string name="status_on">Depuração sem fio ATIVADA</string>
     <string name="status_off">Depuração sem fio DESATIVADA</string>
-    <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Procurando endpoint…</string>
     <string name="endpoint_unavailable">Endpoint indisponível</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
     <string name="notification_title_active">%1$s: Wifi-ADB ativado</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB desativado</string>
-    <string name="notification_text_active">Porta %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Porta %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Toque para ver os detalhes da ligação na app.</string>
     <string name="notification_title_searching">%1$s: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">O acesso à localização é necessário para identificar a rede Wi-Fi atual e os pontos de acesso.</string>
     <string name="location_permission_settings_button">Abrir definições</string>
     <string name="notification_action_disable">Desativar Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Depuração sem fio ATIVADA (Desconectada)</string>
     <string name="status_permission_missing">Permissão do sistema ausente</string>
     <string name="tile_state_off">Desativado</string>
     <string name="tile_state_disconnected">Desconectado</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: rede ilegível, verifique a permissão de localização (“Permitir o tempo todo”) ou reabra o aplicativo</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
+    <string name="home_state_on">Wifi-ADB ativado</string>
+    <string name="home_state_off">Wifi-ADB desativado</string>
+    <string name="home_state_setup">Configuração ausente</string>
+    <string name="home_reason_permission">Permissão do sistema não concedida</string>
+    <string name="home_reason_waiting">Keep-Alive aguarda o Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive em pausa: Wi-Fi não fiável</string>
+    <string name="home_reason_blocked">Keep-Alive em pausa: Wi-Fi bloqueado</string>
+    <string name="home_reason_identity">Keep-Alive em pausa: rede ilegível</string>
+    <string name="home_reason_backoff">Keep-Alive em pausa: caixa de diálogo de “Depuração sem fio” não confirmada</string>
+    <string name="home_reason_no_wifi">Sem conexão Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive continua desativado aqui: Wi-Fi não fiável</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive continua desativado aqui: Wi-Fi bloqueado</string>
+    <string name="home_action_networks">Redes</string>
+    <string name="home_action_retry">Tentar novamente</string>
+    <string name="home_reason_details_action">Mostrar detalhes</string>
     <string name="state_pending">Alternando…</string>
     <string name="tile_state_keep_alive_waiting">Desativado – Keep-Alive aguardando</string>
     <string name="toggle_failed_toast">Não foi possível alternar a depuração sem fio. Tente novamente.</string>
@@ -504,8 +516,6 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="home_warning_action_fix">Corrigir</string>
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
     <string name="home_warning_limited_text">Faltam permissões para um Keep-Alive fiável.</string>
-    <string name="status_tap_to_decide">Toque para decidir</string>
-    <string name="status_tap_to_open_list">Toque para abrir a lista de redes</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Idioma</string>
     <string name="menu_item_all_settings">Configurações</string>

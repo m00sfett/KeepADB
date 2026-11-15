@@ -379,7 +379,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
                     toggle.isChecked());
             assertFalse("The switch must be disabled, exactly like a confirmed missing"
                     + " permission", toggle.isEnabled());
-            assertEquals(context.getString(R.string.status_permission_missing),
+            assertEquals(context.getString(R.string.home_state_setup),
                     status.getText().toString());
         } finally {
             activity.pause().close();

@@ -255,9 +255,10 @@ only while the list is shown, so the privacy mode hides it like everything else.
 
 **Other ways in (#949).** In Settings → Network, an undecided current access point offers “Block
 or decide…” next to “Trust this access point”; it opens this list on that access point. On the home
-screen, while Wireless Debugging is on and Keep-Alive is enabled, the status line says when the
-current Wi-Fi is not trusted or blocked and opens the decision (or this list for a blocked network or
-one without a prompt record), as it already did while Keep-Alive was paused.
+screen, while Wireless Debugging is on and Keep-Alive is enabled, the reason line below the state
+says when the current Wi-Fi is not trusted or blocked ("Keep-Alive stays off here: Wi-Fi not
+trusted") and its button opens the decision (or this list for a blocked network or one without a
+prompt record), as it already did while Keep-Alive was paused (#957).
 
 **Current network, undecided.** Instead of a separate dialog, the decision view from #766
 (`NetworkDecisionView`) is embedded in the card, without “Decide later.” It also appears when the

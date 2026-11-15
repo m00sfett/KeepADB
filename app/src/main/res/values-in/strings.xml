@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Perangkat menampilkan status "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Konfirmasi permintaan otorisasi debugging di layar ponsel ini, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_refresh">Periksa izin</string>
-    <string name="status_on">Debugging Nirkabel AKTIF</string>
     <string name="status_off">Debugging Nirkabel NONAKTIF</string>
-    <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Mencari endpoint…</string>
     <string name="endpoint_unavailable">Endpoint tidak tersedia</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Alamat IP dan port saat ini untuk Debugging Nirkabel</string>
     <string name="notification_title_active">%1$s: Wifi-ADB aktif</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB nonaktif</string>
-    <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Ketuk untuk melihat detail koneksi di aplikasi.</string>
     <string name="notification_title_searching">%1$s: Mencari endpoint…</string>
     <string name="notification_text_searching">Menyelesaikan endpoint di jaringan lokal</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">Akses lokasi diperlukan untuk mengenali jaringan Wi-Fi saat ini dan titik akses.</string>
     <string name="location_permission_settings_button">Buka setelan</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Debugging Nirkabel AKTIF (Terputus)</string>
     <string name="status_permission_missing">Izin sistem tidak ada</string>
     <string name="tile_state_off">Nonaktif</string>
     <string name="tile_state_disconnected">Terputus</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Debugging Nirkabel Android, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
+    <string name="home_state_on">Wifi-ADB aktif</string>
+    <string name="home_state_off">Wifi-ADB nonaktif</string>
+    <string name="home_state_setup">Penyiapan belum lengkap</string>
+    <string name="home_reason_permission">Izin sistem belum diberikan</string>
+    <string name="home_reason_waiting">Keep-Alive menunggu Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive dijeda: Wi-Fi tidak dipercaya</string>
+    <string name="home_reason_blocked">Keep-Alive dijeda: Wi-Fi diblokir</string>
+    <string name="home_reason_identity">Keep-Alive dijeda: jaringan tidak terbaca</string>
+    <string name="home_reason_backoff">Keep-Alive dijeda: dialog “Debugging nirkabel” belum dikonfirmasi</string>
+    <string name="home_reason_no_wifi">Tidak ada koneksi Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive tetap nonaktif di sini: Wi-Fi tidak dipercaya</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive tetap nonaktif di sini: Wi-Fi diblokir</string>
+    <string name="home_action_networks">Jaringan</string>
+    <string name="home_action_retry">Coba lagi</string>
+    <string name="home_reason_details_action">Tampilkan detail</string>
     <string name="state_pending">Mengalihkan…</string>
     <string name="tile_state_keep_alive_waiting">Nonaktif – Keep-Alive menunggu</string>
     <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
@@ -504,8 +516,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="home_warning_action_fix">Perbaiki</string>
     <string name="home_warning_limited_title">Keep-Alive terbatas</string>
     <string name="home_warning_limited_text">Izin yang dibutuhkan agar Keep-Alive andal belum lengkap.</string>
-    <string name="status_tap_to_decide">Ketuk untuk memutuskan</string>
-    <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Bahasa</string>
     <string name="menu_item_all_settings">Pengaturan</string>

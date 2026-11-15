@@ -169,7 +169,7 @@ public class MainActivityWarningsTest {
         assertEquals(0, visibleCards(activity));
         // The status stays: the switch, its status line and the Keep-Alive switch.
         assertNotNull(activity.findViewById(R.id.toggle));
-        assertEquals(context.getString(R.string.status_off),
+        assertEquals(context.getString(R.string.home_state_off),
                 ((TextView) activity.findViewById(R.id.status)).getText().toString());
     }
 
@@ -430,10 +430,40 @@ public class MainActivityWarningsTest {
         assertEquals(48, card.findViewById(R.id.home_warning_dismiss).getLayoutParams().width);
     }
 
-    // ---- The status line -----------------------------------------------------------------------------
+    // ---- The status: state, reason, action (#957) ---------------------------------------------------
+
+    private static TextView reason(MainActivity activity) {
+        return activity.findViewById(R.id.status_reason);
+    }
+
+    private static View reasonRow(MainActivity activity) {
+        return activity.findViewById(R.id.status_reason_row);
+    }
+
+    private static android.widget.Button action(MainActivity activity) {
+        return activity.findViewById(R.id.status_action);
+    }
+
+    private static String stateOf(MainActivity activity) {
+        return ((TextView) activity.findViewById(R.id.status)).getText().toString();
+    }
+
+    /** The plain dialog behind the reason line: the long sentence, one "OK" button. */
+    private static android.app.AlertDialog openDetails(MainActivity activity) {
+        reasonRow(activity).performClick();
+        android.app.AlertDialog dialog =
+                org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull(dialog);
+        assertTrue(dialog.isShowing());
+        return dialog;
+    }
+
+    private static String detailsMessage(android.app.AlertDialog dialog) {
+        return ((TextView) dialog.findViewById(android.R.id.message)).getText().toString();
+    }
 
     @Test
-    public void theUntrustedStatusLineOpensTheDecisionForTheCurrentAccessPoint() {
+    public void theUntrustedStatusIsOffWithAReasonAndAnActionThatOpensTheDecision() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
@@ -442,12 +472,15 @@ public class MainActivityWarningsTest {
         KeepADBBlockedNetworkHistory.record(context, KeepADBNetworkIdentity.current(context),
                 System.currentTimeMillis());
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted) + "\n"
-                + context.getString(R.string.status_tap_to_decide), status.getText().toString());
-        assertTrue(status.isClickable());
-        status.performClick();
+        assertEquals(context.getString(R.string.home_state_off), stateOf(activity));
+        assertEquals(context.getString(R.string.home_reason_untrusted), reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.networks_recent_decide), action(activity).getText().toString());
+        assertEquals(View.VISIBLE, action(activity).getVisibility());
+        // No longer a text with a card background that only looks like a field.
+        assertFalse(activity.findViewById(R.id.status).isClickable());
+        assertNull(activity.findViewById(R.id.status).getBackground());
+        action(activity).performClick();
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkDecisionActivity.class.getName(), intent.getComponent().getClassName());
@@ -456,9 +489,55 @@ public class MainActivityWarningsTest {
                 intent.hasExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
+    @Test
+    public void theReasonLineOpensTheLongSentenceInAPlainDialog() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        View row = reasonRow(activity);
+        assertTrue(row.isClickable());
+        assertTrue(row.isFocusable());
+        assertTrue("a 48dp tap target", row.getMinimumHeight()
+                >= 48 * context.getResources().getDisplayMetrics().density - 1);
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.status_reason_info).getVisibility());
+        android.app.AlertDialog dialog = openDetails(activity);
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted),
+                detailsMessage(dialog));
+        android.widget.Button ok = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+        assertEquals(context.getString(android.R.string.ok), ok.getText().toString());
+        assertEquals(View.GONE, dialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).getVisibility());
+        ok.performClick();
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+        assertFalse(dialog.isShowing());
+    }
+
+    @Test
+    public void theReasonLineAnnouncesItselfAsAButtonThatShowsDetails() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        android.view.accessibility.AccessibilityNodeInfo info =
+                reasonRow(activity).createAccessibilityNodeInfo();
+        assertEquals(android.widget.Button.class.getName(), info.getClassName().toString());
+        String label = null;
+        for (android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction candidate
+                : info.getActionList()) {
+            if (candidate.getId() == android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) {
+                label = String.valueOf(candidate.getLabel());
+            }
+        }
+        assertEquals(context.getString(R.string.home_reason_details_action), label);
+    }
+
     /**
      * #949: Wireless Debugging already on when the device joins a Wi-Fi that is not trusted. The
-     * status line says that Keep-Alive will not switch it back on here and opens the decision.
+     * reason says that Keep-Alive will not switch it back on here and the action opens the decision.
      */
     @Test
     public void anOnStatusOnAnUntrustedWifiSaysSoAndOpensTheDecision() {
@@ -469,13 +548,13 @@ public class MainActivityWarningsTest {
         KeepADBBlockedNetworkHistory.record(context, KeepADBNetworkIdentity.current(context),
                 System.currentTimeMillis());
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        String text = status.getText().toString();
-        assertTrue(text, text.contains(context.getString(R.string.status_on_network_untrusted)
-                + "\n" + context.getString(R.string.status_tap_to_decide)));
-        assertTrue(status.isClickable());
-        status.performClick();
+        assertEquals(context.getString(R.string.home_state_on), stateOf(activity));
+        assertEquals(context.getString(R.string.home_reason_stays_off_untrusted),
+                reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.status_on_network_untrusted),
+                detailsMessage(openDetails(activity)));
+        action(activity).performClick();
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkDecisionActivity.class.getName(), intent.getComponent().getClassName());
@@ -490,44 +569,46 @@ public class MainActivityWarningsTest {
         KeepADBNetworkBlocklist.blockBssid(context, BSSID);
         connectTo(BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        String text = status.getText().toString();
-        assertTrue(text, text.contains(context.getString(R.string.status_on_network_blocked)
-                + "\n" + context.getString(R.string.status_tap_to_open_list)));
-        status.performClick();
+        assertEquals(context.getString(R.string.home_state_on), stateOf(activity));
+        assertEquals(context.getString(R.string.home_reason_stays_off_blocked),
+                reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.home_action_networks),
+                action(activity).getText().toString());
+        assertEquals(context.getString(R.string.status_on_network_blocked),
+                detailsMessage(openDetails(activity)));
+        action(activity).performClick();
         assertEquals(NetworkListActivity.class.getName(),
                 shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
     }
 
-    /** Control: without Keep-Alive nothing would switch it back on anyway; no hint, no tap. */
+    /** Control: without Keep-Alive nothing would switch it back on anyway; no hint, no action. */
     @Test
     public void anOnStatusWithoutKeepAliveGetsNoNetworkHint() {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo(BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        assertFalse(status.getText().toString().contains(
-                context.getString(R.string.status_on_network_untrusted)));
-        assertFalse(status.isClickable());
+        assertEquals(context.getString(R.string.home_state_on), stateOf(activity));
+        assertFalse(reason(activity).getText().toString().contains(
+                context.getString(R.string.home_reason_stays_off_untrusted)));
+        assertEquals(View.GONE, action(activity).getVisibility());
     }
 
     /**
      * #949: an undecided access point the app has no record of (no prompt was raised for it) would
-     * only end in "expired" in the dialog; the line leads to the list, whose current card asks.
+     * only end in "expired" in the dialog; the action leads to the list, whose current card asks.
      */
     @Test
-    public void theUntrustedStatusLineWithoutARecordOpensTheNetworksListOnTheAccessPoint() {
+    public void theUntrustedActionWithoutARecordOpensTheNetworksListOnTheAccessPoint() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         connectTo(BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        status.performClick();
+        action(activity).performClick();
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkListActivity.class.getName(), intent.getComponent().getClassName());
@@ -535,64 +616,60 @@ public class MainActivityWarningsTest {
     }
 
     /**
-     * #790: a blocked access point is no open question. The line says "blocked" instead of "not
-     * trusted" and leads to the Networks list, not to a dialog that can only answer "already
-     * decided". Control: the test above, where nothing is decided, still opens the dialog.
+     * #790: a blocked access point is no open question. The reason says "blocked" instead of "not
+     * trusted" and the action leads to the Networks list, not to a dialog that can only answer
+     * "already decided". Control: the test above, where nothing is decided, still opens the dialog.
      */
     @Test
-    public void theStatusLineOfABlockedAccessPointSaysBlockedAndOpensTheNetworksList() {
+    public void theStatusOfABlockedAccessPointSaysBlockedAndOpensTheNetworksList() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         KeepADBNetworkBlocklist.blockBssid(context, BSSID);
         connectTo(BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_by_user) + "\n"
-                + context.getString(R.string.status_tap_to_open_list), status.getText().toString());
-        assertFalse(status.getText().toString().contains(
-                context.getString(R.string.status_off_keep_alive_blocked_untrusted)));
-        assertTrue(status.isClickable());
-        status.performClick();
+        assertEquals(context.getString(R.string.home_reason_blocked), reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_by_user),
+                detailsMessage(openDetails(activity)));
+        assertEquals(context.getString(R.string.home_action_networks),
+                action(activity).getText().toString());
+        action(activity).performClick();
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkListActivity.class.getName(), intent.getComponent().getClassName());
-        // #799: the list jumps to the row of the access point the line talks about.
+        // #799: the list jumps to the row of the access point the status talks about.
         assertEquals(BSSID, intent.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     @Test
-    public void theStatusLineOfABlockedNameAlsoOpensTheNetworksList() {
+    public void theStatusOfABlockedNameAlsoOpensTheNetworksList() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         KeepADBNetworkBlocklist.blockSsid(context, "Cafe");
         connectTo("Cafe", BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
 
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_by_user) + "\n"
-                + context.getString(R.string.status_tap_to_open_list), status.getText().toString());
-        status.performClick();
+        assertEquals(context.getString(R.string.home_reason_blocked), reason(activity).getText().toString());
+        action(activity).performClick();
         assertEquals(NetworkListActivity.class.getName(),
                 shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
     }
 
-    /** The tap reads the decision when it happens: trusted since the line was drawn, no dialog. */
+    /** The tap reads the decision when it happens: trusted since the status was drawn, no dialog. */
     @Test
-    public void aNetworkDecidedWhileTheLineWasShownOpensTheListAndNotTheDialog() {
+    public void aNetworkDecidedWhileTheStatusWasShownOpensTheListAndNotTheDialog() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         connectTo(BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
-        assertEquals(context.getString(R.string.status_tap_to_decide),
-                status.getText().toString().split("\n")[1]);
+        assertEquals(context.getString(R.string.networks_recent_decide),
+                action(activity).getText().toString());
 
         KeepADBTrustedNetwork.addBssid(context, BSSID, "Home");
-        status.performClick();
+        action(activity).performClick();
 
         Intent opened = shadowOf(activity).getNextStartedActivity();
         assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
@@ -601,15 +678,14 @@ public class MainActivityWarningsTest {
 
     /** #797 (point 3): the name-trusted branch of the same tap, on its own and not only by mutation. */
     @Test
-    public void aNameTrustedWhileTheLineWasShownOpensTheListOnThatAccessPoint() {
+    public void aNameTrustedWhileTheStatusWasShownOpensTheListOnThatAccessPoint() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         connectTo("Cafe", BSSID);
         MainActivity activity = open();
-        TextView status = activity.findViewById(R.id.status);
-        assertEquals(context.getString(R.string.status_tap_to_decide),
-                status.getText().toString().split("\n")[1]);
+        assertEquals(context.getString(R.string.networks_recent_decide),
+                action(activity).getText().toString());
 
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
         // Another access point of the same name is trusted; this one is covered by its name only.
@@ -617,7 +693,7 @@ public class MainActivityWarningsTest {
         assertEquals("control: trusted by name now, not by address",
                 KeepADBTrustedNetwork.Decision.TRUSTED_NAME,
                 KeepADBTrustedNetwork.evaluate(context, KeepADBNetworkIdentity.current(context)));
-        status.performClick();
+        action(activity).performClick();
 
         Intent opened = shadowOf(activity).getNextStartedActivity();
         assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
@@ -625,26 +701,99 @@ public class MainActivityWarningsTest {
     }
 
     @Test
-    public void otherStatusLinesAreNotTappableAndTheEntryIsRemovedWhenTheReasonGoes() {
-        // Plain "off": not tappable.
+    public void otherStatesHaveNoActionAndTheActionGoesWhenTheReasonGoes() {
+        // Plain "off": no reason, no action, nothing tappable.
         MainActivity off = open();
-        assertFalse(((TextView) off.findViewById(R.id.status)).isClickable());
+        assertEquals(View.GONE, reasonRow(off).getVisibility());
+        assertEquals(View.GONE, action(off).getVisibility());
+        assertFalse(off.findViewById(R.id.status).isClickable());
 
-        // Untrusted and then trusted again on the same screen: the tap target must not linger.
+        // Untrusted and then trusted again on the same screen: the action must not linger.
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADB.recordExplicitIntent(context, true);
         connectTo(BSSID);
         org.robolectric.android.controller.ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView status = controller.get().findViewById(R.id.status);
-        assertTrue(status.isClickable());
+        MainActivity activity = controller.get();
+        assertEquals(View.VISIBLE, action(activity).getVisibility());
         controller.pause();
         KeepADBTrustedNetwork.addBssid(context, BSSID, "Home");
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
         controller.resume();
-        assertFalse(status.isClickable());
-        assertNull(status.getBackground());
+        assertEquals(View.GONE, action(activity).getVisibility());
+        // What is left is the plain wait for Wi-Fi: a reason with its explanation, no action.
+        assertEquals(context.getString(R.string.home_reason_waiting), reason(activity).getText().toString());
+    }
+
+    @Test
+    public void aMissingPermissionShowsSetupMissingWithInstructionsThatLeadWhereTheWarningLeads() {
+        shadowOf((Application) context).denyPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        MainActivity activity = open();
+
+        assertEquals(context.getString(R.string.home_state_setup), stateOf(activity));
+        assertEquals(context.getString(R.string.home_reason_permission),
+                reason(activity).getText().toString());
+        assertFalse("no long sentence exists for this reason", reasonRow(activity).isClickable());
+        assertEquals(context.getString(R.string.home_warning_action_guide),
+                action(activity).getText().toString());
+        action(activity).performClick();
+        Intent expected = KeepADBHomeWarnings.systemIntent(context);
+        Intent started = shadowOf(activity).getNextStartedActivity();
+        assertEquals(expected.getComponent(), started.getComponent());
+        assertEquals(expected.getStringExtra(OnboardingActivity.EXTRA_STEP),
+                started.getStringExtra(OnboardingActivity.EXTRA_STEP));
+    }
+
+    /** "Retry" runs the switch's own path: the same click semantics, the same manual write. */
+    @Test
+    public void retryAfterAnUnconfirmedAndroidDialogRunsTheSwitchPath() {
+        KeepADBStuckOffSettingsGateway gateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check").isSuccess());
+        android.os.SystemClock.sleep(1600);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+        assertTrue("precondition: the accepted-but-ineffective write engaged the backoff",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+        int writesBefore = gateway.writes.size();
+        MainActivity activity = open();
+
+        assertEquals(context.getString(R.string.home_state_off), stateOf(activity));
+        assertEquals(context.getString(R.string.home_reason_backoff), reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_recovery_backoff),
+                detailsMessage(openDetails(activity)));
+        assertEquals(context.getString(R.string.home_action_retry), action(activity).getText().toString());
+
+        action(activity).performClick();
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+
+        assertTrue("the retry writes like the switch does", gateway.writes.size() > writesBefore);
+        assertEquals(Boolean.TRUE, gateway.writes.get(gateway.writes.size() - 1));
+    }
+
+    @Test
+    public void anUnreadableNetworkOffersFixWhereThePausedWarningLeads() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        // No BSSID configured: the identity stays unknown, as without the Location permission.
+        MainActivity activity = open();
+
+        assertEquals(context.getString(R.string.home_reason_identity), reason(activity).getText().toString());
+        assertEquals(context.getString(R.string.home_warning_action_fix),
+                action(activity).getText().toString());
+        action(activity).performClick();
+        Intent expected = KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(context);
+        Intent started = shadowOf(activity).getNextStartedActivity();
+        assertEquals(expected.getComponent(), started.getComponent());
+        assertEquals(expected.getStringExtra(OnboardingActivity.EXTRA_STEP),
+                started.getStringExtra(OnboardingActivity.EXTRA_STEP));
     }
 
     // ---- The keys of the removed cards ----------------------------------------------------------------

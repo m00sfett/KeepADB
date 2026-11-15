@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
     <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
-    <string name="status_on">Kablosuz Hata Ayıklama AÇIK</string>
     <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>
-    <string name="endpoint_format">Uç Nokta: %1$s:%2$d</string>
     <string name="endpoint_searching">Uç nokta aranıyor…</string>
     <string name="endpoint_unavailable">Uç nokta kullanılamıyor</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Kablosuz Hata Ayıklamanın geçerli IP adresi ve bağlantı noktası</string>
     <string name="notification_title_active">%1$s: Wifi-ADB açık</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB kapalı</string>
-    <string name="notification_text_active">Bağlantı noktası %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Bağlantı noktası %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Bağlantı ayrıntılarını uygulamada görmek için dokunun.</string>
     <string name="notification_title_searching">%1$s: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
     <string name="location_permission_settings_button">Ayarları aç</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
-    <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
     <string name="tile_state_off">Kapalı</string>
     <string name="tile_state_disconnected">Bağlı değil</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
+    <string name="home_state_on">Wifi-ADB açık</string>
+    <string name="home_state_off">Wifi-ADB kapalı</string>
+    <string name="home_state_setup">Kurulum eksik</string>
+    <string name="home_reason_permission">Sistem izni verilmedi</string>
+    <string name="home_reason_waiting">Keep-Alive Wi-Fi\'yi bekliyor</string>
+    <string name="home_reason_untrusted">Keep-Alive duraklatıldı: Wi-Fi güvenilir değil</string>
+    <string name="home_reason_blocked">Keep-Alive duraklatıldı: Wi-Fi engellendi</string>
+    <string name="home_reason_identity">Keep-Alive duraklatıldı: ağ okunamıyor</string>
+    <string name="home_reason_backoff">Keep-Alive duraklatıldı: “Kablosuz hata ayıklama” iletişim kutusu onaylanmadı</string>
+    <string name="home_reason_no_wifi">Wi-Fi bağlantısı yok</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive burada kapalı kalır: Wi-Fi güvenilir değil</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive burada kapalı kalır: Wi-Fi engellendi</string>
+    <string name="home_action_networks">Ağlar</string>
+    <string name="home_action_retry">Yeniden dene</string>
+    <string name="home_reason_details_action">Ayrıntıları göster</string>
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
@@ -504,8 +516,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="home_warning_action_fix">Düzelt</string>
     <string name="home_warning_limited_title">Keep-Alive sınırlı</string>
     <string name="home_warning_limited_text">Güvenilir Keep-Alive için bazı izinler eksik.</string>
-    <string name="status_tap_to_decide">Karar vermek için dokunun</string>
-    <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Dil</string>
     <string name="menu_item_all_settings">Ayarlar</string>

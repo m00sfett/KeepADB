@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">设备显示为“unauthorized”？</string>
     <string name="setup_state_unauthorized_body">请在此手机屏幕上确认调试授权提示，然后重复运行 "adb devices"，直到状态变为“device”。</string>
     <string name="setup_refresh">检查权限</string>
-    <string name="status_on">无线调试已开启</string>
     <string name="status_off">无线调试已关闭</string>
-    <string name="endpoint_format">端点：%1$s:%2$d</string>
     <string name="endpoint_searching">正在搜索端点…</string>
     <string name="endpoint_unavailable">端点不可用</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">无线调试的当前 IP 地址和端口</string>
     <string name="notification_title_active">%1$s：Wifi-ADB 已开启</string>
     <string name="notification_title_disabled">%1$s：Wifi-ADB 已关闭</string>
-    <string name="notification_text_active">端口 %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">端口 %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">点按以在应用中查看连接详情。</string>
     <string name="notification_title_searching">%1$s：正在搜索端点…</string>
     <string name="notification_text_searching">正在局域网中解析端点</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">需要位置权限来识别当前的 Wi-Fi 网络和接入点。</string>
     <string name="location_permission_settings_button">打开设置</string>
     <string name="notification_action_disable">关闭 Wifi-ADB</string>
-    <string name="status_enabled_disconnected">无线调试已开启（未连接）</string>
     <string name="status_permission_missing">缺少系统权限</string>
     <string name="tile_state_off">关闭</string>
     <string name="tile_state_disconnected">未连接</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:网络无法读取,请检查位置权限（“始终允许”）或重新打开应用</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">无线调试已关闭 – Keep-Alive 已暂停:请确认 Android 的无线调试网络对话框,然后点按开关重试</string>
     <string name="status_pending">正在切换…</string>
+    <string name="home_state_on">Wifi-ADB 已开启</string>
+    <string name="home_state_off">Wifi-ADB 已关闭</string>
+    <string name="home_state_setup">缺少设置</string>
+    <string name="home_reason_permission">未授予系统权限</string>
+    <string name="home_reason_waiting">Keep-Alive 正在等待 Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive 已暂停：Wi-Fi 未信任</string>
+    <string name="home_reason_blocked">Keep-Alive 已暂停：Wi-Fi 已被拦截</string>
+    <string name="home_reason_identity">Keep-Alive 已暂停：无法读取网络</string>
+    <string name="home_reason_backoff">Keep-Alive 已暂停：“无线调试”对话框尚未确认</string>
+    <string name="home_reason_no_wifi">无 Wi-Fi 连接</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive 在此保持关闭：Wi-Fi 未信任</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive 在此保持关闭：Wi-Fi 已被拦截</string>
+    <string name="home_action_networks">网络</string>
+    <string name="home_action_retry">重试</string>
+    <string name="home_reason_details_action">显示详情</string>
     <string name="state_pending">正在切换…</string>
     <string name="tile_state_keep_alive_waiting">关闭 – Keep-Alive 等待中</string>
     <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
@@ -504,8 +516,6 @@
     <string name="home_warning_action_fix">修复</string>
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
     <string name="home_warning_limited_text">缺少让 Keep-Alive 稳定运行所需的权限。</string>
-    <string name="status_tap_to_decide">点按以决定</string>
-    <string name="status_tap_to_open_list">点按以打开网络列表</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">语言</string>
     <string name="menu_item_all_settings">设置</string>

@@ -320,10 +320,13 @@ final class KeepADBWidgetContent {
         }
         if (p.systemState == KeepADB.State.ENABLED_CONNECTED) {
             // Details withheld (#904): the state only, never the address.
-            return ctx.getString(R.string.status_on);
+            return ctx.getString(R.string.home_state_on);
         }
         if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
-            return ctx.getString(R.string.status_enabled_disconnected);
+            // #957: "on" and why there is no connection, not "(Disconnected)" as if a computer
+            // were meant.
+            return KeepADBOverviewContent.withDetail(ctx.getString(R.string.home_state_on),
+                    ctx.getString(R.string.home_reason_no_wifi));
         }
         switch (p.keepAlive) {
             case BLOCKED:

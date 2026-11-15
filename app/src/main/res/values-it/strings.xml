@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">Il dispositivo risulta "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Conferma la richiesta di autorizzazione al debug sullo schermo di questo telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_refresh">Verifica autorizzazione</string>
-    <string name="status_on">Debug wireless ATTIVO</string>
     <string name="status_off">Debug wireless DISATTIVO</string>
-    <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Ricerca dell’endpoint…</string>
     <string name="endpoint_unavailable">Endpoint non disponibile</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">Indirizzo IP e porta correnti del debug wireless</string>
     <string name="notification_title_active">%1$s: Wifi-ADB attivo</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB disattivo</string>
-    <string name="notification_text_active">Porta %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Porta %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tocca per vedere i dettagli di connessione nell’app.</string>
     <string name="notification_title_searching">%1$s: Ricerca dell’endpoint…</string>
     <string name="notification_text_searching">Risoluzione dell’endpoint sulla rete locale</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">L’accesso alla posizione è necessario per identificare la rete Wi-Fi attuale e i punti di accesso.</string>
     <string name="location_permission_settings_button">Apri impostazioni</string>
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>
     <string name="status_permission_missing">Autorizzazione di sistema mancante</string>
     <string name="tile_state_off">Disattivato</string>
     <string name="tile_state_disconnected">Disconnesso</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debug wireless DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete del debug wireless di Android, poi tocca l\'interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
+    <string name="home_state_on">Wifi-ADB attivo</string>
+    <string name="home_state_off">Wifi-ADB disattivo</string>
+    <string name="home_state_setup">Configurazione mancante</string>
+    <string name="home_reason_permission">Autorizzazione di sistema non concessa</string>
+    <string name="home_reason_waiting">Keep-Alive attende il Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive in pausa: Wi-Fi non affidabile</string>
+    <string name="home_reason_blocked">Keep-Alive in pausa: Wi-Fi bloccato</string>
+    <string name="home_reason_identity">Keep-Alive in pausa: rete non leggibile</string>
+    <string name="home_reason_backoff">Keep-Alive in pausa: finestra di «Debug wireless» non confermata</string>
+    <string name="home_reason_no_wifi">Nessuna connessione Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive resta disattivato qui: Wi-Fi non affidabile</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive resta disattivato qui: Wi-Fi bloccato</string>
+    <string name="home_action_networks">Reti</string>
+    <string name="home_action_retry">Riprova</string>
+    <string name="home_reason_details_action">Mostra dettagli</string>
     <string name="state_pending">Cambio in corso…</string>
     <string name="tile_state_keep_alive_waiting">Disattivato – Keep-Alive in attesa</string>
     <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
@@ -504,8 +516,6 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="home_warning_action_fix">Risolvi</string>
     <string name="home_warning_limited_title">Keep-Alive limitato</string>
     <string name="home_warning_limited_text">Mancano autorizzazioni per un Keep-Alive affidabile.</string>
-    <string name="status_tap_to_decide">Tocca per decidere</string>
-    <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Lingua</string>
     <string name="menu_item_all_settings">Impostazioni</string>

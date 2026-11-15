@@ -11,9 +11,7 @@
     <string name="setup_state_unauthorized_title">الجهاز يظهر بحالة "unauthorized"؟</string>
     <string name="setup_state_unauthorized_body">أكّد نافذة السماح بالتصحيح التي تظهر على شاشة الهاتف، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
     <string name="setup_refresh">فحص الإذن</string>
-    <string name="status_on">تصحيح الأخطاء اللاسلكي مُفَعَّل</string>
     <string name="status_off">تصحيح الأخطاء اللاسلكي مُعَطَّل</string>
-    <string name="endpoint_format">نقطة النهاية: %1$s:%2$d</string>
     <string name="endpoint_searching">جارٍ البحث عن نقطة النهاية…</string>
     <string name="endpoint_unavailable">نقطة النهاية غير متوفرة</string>
 
@@ -30,7 +28,7 @@
     <string name="notification_channel_desc">عنوان IP والمنفذ الحالي لتصحيح الأخطاء اللاسلكي</string>
     <string name="notification_title_active">%1$s: Wifi-ADB مفعّل</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB معطّل</string>
-    <string name="notification_text_active">منفذ %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">منفذ %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">انقر لعرض تفاصيل الاتصال في التطبيق.</string>
     <string name="notification_title_searching">%1$s: جارٍ البحث عن نقطة النهاية…</string>
     <string name="notification_text_searching">جارٍ حل نقطة النهاية على الشبكة المحلية</string>
@@ -168,7 +166,6 @@
     <string name="location_permission_panel_body_discovery">يلزم الوصول إلى الموقع للتعرّف على شبكة Wi-Fi الحالية ونقاط الوصول.</string>
     <string name="location_permission_settings_button">فتح الإعدادات</string>
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
-    <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>
     <string name="status_permission_missing">إذن النظام مفقود</string>
     <string name="tile_state_off">متوقف</string>
     <string name="tile_state_disconnected">غير متصل</string>
@@ -252,6 +249,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة، تحقق من إذن الموقع («السماح طوال الوقت») أو أعد فتح التطبيق</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار شبكة تصحيح الأخطاء اللاسلكي في Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
     <string name="status_pending">جارٍ التبديل…</string>
+    <string name="home_state_on">Wifi-ADB قيد التشغيل</string>
+    <string name="home_state_off">Wifi-ADB متوقف</string>
+    <string name="home_state_setup">الإعداد غير مكتمل</string>
+    <string name="home_reason_permission">إذن النظام غير ممنوح</string>
+    <string name="home_reason_waiting">ينتظر Keep-Alive شبكة Wi-Fi</string>
+    <string name="home_reason_untrusted">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi غير موثوقة</string>
+    <string name="home_reason_blocked">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi محظورة</string>
+    <string name="home_reason_identity">تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة</string>
+    <string name="home_reason_backoff">تم إيقاف Keep-Alive مؤقتًا: لم يتم تأكيد مربع حوار «تصحيح الأخطاء اللاسلكي»</string>
+    <string name="home_reason_no_wifi">لا يوجد اتصال Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi غير موثوقة</string>
+    <string name="home_reason_stays_off_blocked">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi محظورة</string>
+    <string name="home_action_networks">الشبكات</string>
+    <string name="home_action_retry">إعادة المحاولة</string>
+    <string name="home_reason_details_action">عرض التفاصيل</string>
     <string name="state_pending">جارٍ التبديل…</string>
     <string name="tile_state_keep_alive_waiting">متوقف — ينتظر Keep-Alive</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
@@ -504,8 +516,6 @@
     <string name="home_warning_action_fix">إصلاح</string>
     <string name="home_warning_limited_title">Keep-Alive محدود</string>
     <string name="home_warning_limited_text">تنقص أذونات لعمل Keep-Alive بموثوقية.</string>
-    <string name="status_tap_to_decide">المس للقرار</string>
-    <string name="status_tap_to_open_list">المس لفتح قائمة الشبكات</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">اللغة</string>
     <string name="menu_item_all_settings">الإعدادات</string>

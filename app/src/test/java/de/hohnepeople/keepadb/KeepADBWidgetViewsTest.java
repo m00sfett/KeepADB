@@ -586,7 +586,7 @@ public class KeepADBWidgetViewsTest {
         String text = KeepADBWidgetTestSupport.allText(widget);
         assertFalse(text, text.contains(HOST));
         assertFalse(text, text.contains(String.valueOf(PORT)));
-        assertFalse(text, text.contains(name(R.string.endpoint_format, HOST, PORT)));
+        assertFalse(text, text.contains(name(R.string.endpoint_port_at_ip, PORT, HOST)));
     }
 
     // -- text fitting and touch targets ------------------------------------------------------------

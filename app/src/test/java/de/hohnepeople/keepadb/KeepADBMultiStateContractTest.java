@@ -85,7 +85,7 @@ public class KeepADBMultiStateContractTest {
 
         ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
         assertFalse(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
-        assertEquals(context.getString(R.string.status_off),
+        assertEquals(context.getString(R.string.home_state_off),
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
         activity.pause().close();
 
@@ -110,8 +110,10 @@ public class KeepADBMultiStateContractTest {
 
         ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
         assertFalse(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
-        assertEquals(context.getString(R.string.status_off_keep_alive_waiting),
+        assertEquals(context.getString(R.string.home_state_off),
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        assertEquals(context.getString(R.string.home_reason_waiting),
+                ((TextView) activity.get().findViewById(R.id.status_reason)).getText().toString());
         activity.pause().close();
 
         assertEquals(context.getString(R.string.widget_state_off_waiting), widgetText(renderWidget()));
@@ -131,8 +133,10 @@ public class KeepADBMultiStateContractTest {
 
         ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
         assertTrue(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
-        assertEquals(context.getString(R.string.status_enabled_disconnected),
+        assertEquals(context.getString(R.string.home_state_on),
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        assertEquals(context.getString(R.string.home_reason_no_wifi),
+                ((TextView) activity.get().findViewById(R.id.status_reason)).getText().toString());
         activity.pause().close();
 
         assertEquals(context.getString(R.string.tile_state_disconnected), widgetText(renderWidget()));
@@ -157,9 +161,10 @@ public class KeepADBMultiStateContractTest {
         ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
         shadowOf(Looper.getMainLooper()).idle();
         assertTrue(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
-        assertEquals(context.getString(R.string.status_on),
+        assertEquals(context.getString(R.string.home_state_on),
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
-        assertEquals(context.getString(R.string.endpoint_format, "127.0.0.1", endpointPort),
+        assertEquals(View.GONE, activity.get().findViewById(R.id.status_reason_row).getVisibility());
+        assertEquals(context.getString(R.string.endpoint_port_at_ip, endpointPort, "127.0.0.1"),
                 ((TextView) activity.get().findViewById(R.id.endpoint)).getText().toString());
         activity.pause().close();
 
@@ -342,7 +347,7 @@ public class KeepADBMultiStateContractTest {
 
         ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
         assertFalse(activity.get().findViewById(R.id.toggle).isEnabled());
-        assertEquals(context.getString(R.string.status_permission_missing),
+        assertEquals(context.getString(R.string.home_state_setup),
                 ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
         ((Switch) activity.get().findViewById(R.id.toggle)).performClick();
         assertTrue(gateway.writes.isEmpty());
@@ -403,7 +408,7 @@ public class KeepADBMultiStateContractTest {
 
     @Test
     public void allOperationalStateLabelsResolve() {
-        assertTrue(context.getString(R.string.status_enabled_disconnected).length() > 0);
+        assertTrue(context.getString(R.string.home_state_on).length() > 0);
         assertTrue(context.getString(R.string.tile_state_disconnected).length() > 0);
         assertTrue(context.getString(R.string.tile_state_searching).length() > 0);
         assertTrue(context.getString(R.string.tile_state_connected).length() > 0);

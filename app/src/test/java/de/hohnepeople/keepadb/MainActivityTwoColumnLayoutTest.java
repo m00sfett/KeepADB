@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import static org.robolectric.Shadows.shadowOf;
@@ -136,9 +137,14 @@ public class MainActivityTwoColumnLayoutTest {
         assertEquals(mainPanel, adbColumn.getParent());
         assertEquals(adbColumn, toggle.getParent());
         assertEquals(adbColumn, subtext.getParent());
-        assertEquals(adbColumn, status.getParent());
-        assertEquals(adbColumn, endpoint.getParent());
+        // #957: state and endpoint come from the shared block (view_home_status.xml), which is
+        // one child of the column, between the description and the transport panel.
+        View statusBlock = childOf(adbColumn, status);
+        assertNotNull("the status sits inside the ADB column", statusBlock);
+        assertSame("state and endpoint are in the same block", statusBlock, childOf(adbColumn, endpoint));
+        assertTrue(adbColumn.indexOfChild(subtext) < adbColumn.indexOfChild(statusBlock));
         assertEquals(adbColumn, transportOverview.getParent());
+        assertTrue(adbColumn.indexOfChild(statusBlock) < adbColumn.indexOfChild(transportOverview));
 
         // 4. Vertical divider
         View divider = activity.findViewById(R.id.task_areas_divider);
@@ -323,5 +329,14 @@ public class MainActivityTwoColumnLayoutTest {
         int adbColIndex = taskAreasGroup.indexOfChild(adbColumn);
         int keepAliveColIndex = taskAreasGroup.indexOfChild(keepAliveColumn);
         assertTrue("ADB task area precedes Keep-Alive task area", adbColIndex < keepAliveColIndex);
+    }
+
+    /** The child of {@code parent} that contains {@code view}, or null when it is not inside. */
+    private static View childOf(ViewGroup parent, View view) {
+        View current = view;
+        while (current != null && current.getParent() != parent) {
+            current = current.getParent() instanceof View ? (View) current.getParent() : null;
+        }
+        return current;
     }
 }
