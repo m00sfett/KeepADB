@@ -20,12 +20,16 @@ import android.widget.Toast;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
-    /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
+    /**
+     * #763: formerly the request to expand the force-mode row of the Network card. The card is the
+     * Protection page since #959 ({@link ProtectionActivity#EXTRA_FOCUS_FORCE}); a stale
+     * notification of an older version that still carries this extra is forwarded there.
+     */
     public static final String EXTRA_FOCUS_FORCE = "focus_force";
     /**
-     * #801: Intent extra requesting that the network card be expanded and its protection level row
-     * scrolled into view (the Keep-Alive line of the home screen). Not the removed
-     * {@code EXTRA_FOCUS_NETWORK} of #619: that one had no sender, this one has.
+     * #801: formerly the request to expand the Network card at its protection level row. Since
+     * #959 it is forwarded to {@link ProtectionActivity#EXTRA_FOCUS_LEVEL}, like the other two
+     * extras of the former card.
      */
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     public static final String EXTRA_FOCUS_DETAILS = "focus_notification_details";
@@ -37,17 +41,16 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_PRIVACY = "focus_privacy";
     /** #940: expands and scrolls to the Diagnostics and Maintenance card (home menu). */
     public static final String EXTRA_FOCUS_DIAGNOSTICS = "focus_diagnostics";
-    // The menu opens the card heading; the existing Keep-Alive entry keeps its level-row target.
+    /** Formerly the heading of the Network card; since #959 it opens the Protection page. */
     public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
     private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
     private final java.util.ArrayList<String> consumedFocus = new java.util.ArrayList<>();
     /**
      * #672: flags for the reset-app and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
-     * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
-     * card's dialog (background location) is owned by
-     * {@link KeepADBNetworkCard} (#697), those of the feedback report dialog by {@link
-     * KeepADBDiagnosticsController} (#698).
+     * only re-shown and still needs the user's own confirm tap. The Bundle keys of the feedback
+     * report dialog are owned by {@link KeepADBDiagnosticsController} (#698); those of the
+     * background-location dialog by {@link KeepADBNetworkCard}, on the Protection page (#959).
      */
     static final String STATE_RESET_APP_SHOWING = "settings_reset_app_showing";
     static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
@@ -63,11 +66,7 @@ public class SettingsActivity extends Activity {
     private View privacySwitches;
     private Switch keepDisplayOnToggle;
 
-    // #697: the Network card (views, rendered action snapshot, Wi-Fi callback and its dialogs).
-    private KeepADBNetworkCard networkCard;
-
-    // #763: the force-mode row inside the Network area and its confirmation dialog.
-    private KeepADBForceSection forceSection;
+    private TextView protectionSummary;
 
     private KeepADBWebhookForm webhookForm;
     private TextView versionNameText;
@@ -91,8 +90,6 @@ public class SettingsActivity extends Activity {
     // The permission notice remains visible when applicable, while the version entry is static.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
-            {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
-                    R.id.settings_network_beta_arrow},
             {R.id.settings_privacy_header, R.id.settings_privacy_body,
                     R.id.settings_privacy_arrow},
             {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
@@ -165,16 +162,15 @@ public class SettingsActivity extends Activity {
         keepDisplayOnToggle.setOnClickListener(v ->
                 KeepADBPreferences.setKeepDisplayOnEnabled(this, keepDisplayOnToggle.isChecked()));
 
-        // #761: the setup assistant, whole from the top row, the protection step from its level line.
+        // #761: the setup assistant, whole from the top row.
         onboardingSummary = findViewById(R.id.settings_onboarding_summary);
         findViewById(R.id.settings_onboarding_row).setOnClickListener(v ->
                 startActivity(OnboardingActivity.fullIntent(this)));
-        findViewById(R.id.network_level_line).setOnClickListener(v ->
-                startActivity(OnboardingActivity.stepIntent(this,
-                        KeepADBOnboarding.Step.PROTECTION)));
 
-        networkCard = new KeepADBNetworkCard(this, this::refresh);
-        forceSection = new KeepADBForceSection(this, this::refresh);
+        // #959: the Protection page holds the former Network card; the level is chosen there.
+        protectionSummary = findViewById(R.id.settings_protection_summary);
+        findViewById(R.id.settings_protection_row).setOnClickListener(v ->
+                startActivity(ProtectionActivity.intent(this)));
 
         diagnosticsController = new KeepADBDiagnosticsController(this, this::openWebLink);
         findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
@@ -189,10 +185,6 @@ public class SettingsActivity extends Activity {
                     savedInstanceState.getStringArrayList(STATE_CONSUMED_FOCUS);
             if (restoredFocus != null) consumedFocus.addAll(restoredFocus);
             diagnosticsController.restore(savedInstanceState);
-            // #672/#682 (#697): the Network card re-shows its own background-location and
-            // allowlist permission dialogs from the same bundle.
-            networkCard.restore(savedInstanceState);
-            forceSection.restore(savedInstanceState);
             // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
             // its destructive action still runs solely from the user's own confirm tap.
             if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
@@ -205,29 +197,24 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        networkCard.start();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         findViewById(R.id.settings_muted_warnings).setOnClickListener(v -> startActivity(
                 new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
-        // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
-        KeepADBForceMode.finishIfExpired(this);
-        KeepADBForceMode.setStateListener(this::refresh);
         refresh();
 
+        // #959: the three extras of the former Network card lead to the Protection page. Current
+        // senders open it directly; these only come from a notification an older version posted.
         if (consumeFocus(EXTRA_FOCUS_FORCE)) {
-            focusForcePanel();
+            startActivity(ProtectionActivity.forceIntent(this));
         }
-
         if (consumeFocus(EXTRA_FOCUS_NETWORK)) {
-            focusNetworkLevel();
+            startActivity(ProtectionActivity.levelIntent(this));
+        }
+        if (consumeFocus(EXTRA_FOCUS_NETWORK_CARD)) {
+            startActivity(ProtectionActivity.intent(this));
         }
         if (consumeFocus(EXTRA_FOCUS_WEBHOOK)) {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
@@ -260,34 +247,6 @@ public class SettingsActivity extends Activity {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body,
                     R.id.settings_misc_arrow);
         }
-        if (consumeFocus(EXTRA_FOCUS_NETWORK_CARD)) {
-            focusCard(R.id.settings_network_beta_header, R.id.settings_network_beta_body,
-                    R.id.settings_network_beta_arrow);
-        }
-
-    }
-
-    @Override
-    protected void onPause() {
-        KeepADBForceMode.clearStateListener();
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        networkCard.stop();
-        super.onStop();
-    }
-
-    /**
-     * #697: every permission result is handed to the Network card; the card owns the two request
-     * codes it asks for and acts only on those.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        networkCard.onRequestPermissionsResult(requestCode);
-        KeepADBWarningState.observe(this);
     }
 
     @Override
@@ -296,8 +255,6 @@ public class SettingsActivity extends Activity {
         outState.putStringArrayList(STATE_CONSUMED_FOCUS, new java.util.ArrayList<>(consumedFocus));
         webhookForm.saveState(outState);
         diagnosticsController.saveState(outState);
-        networkCard.saveState(outState);
-        forceSection.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
         outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
                 isShowing(activeLanguageSelectionDialog));
@@ -317,9 +274,6 @@ public class SettingsActivity extends Activity {
             }
             activeResetAppDialog = null;
         }
-
-        networkCard.destroy();
-        forceSection.destroy();
 
         if (activeLanguageSelectionDialog != null) {
             if (activeLanguageSelectionDialog.isShowing()) {
@@ -362,41 +316,6 @@ public class SettingsActivity extends Activity {
             scrollView.smoothScrollTo(0, rect.top);
             header.requestFocus();
         });
-    }
-
-    private void focusForcePanel() {
-        // #763: expand the network card and bring the force row into view.
-        setCardExpanded(this, findViewById(R.id.settings_network_beta_header),
-                findViewById(R.id.settings_network_beta_body),
-                findViewById(R.id.settings_network_beta_arrow), true);
-        View forcePanel = forceSection.getPanel();
-        if (forcePanel != null && scrollView != null) {
-            scrollView.post(() -> {
-                android.graphics.Rect rect = new android.graphics.Rect();
-                forcePanel.getDrawingRect(rect);
-                scrollView.offsetDescendantRectToMyCoords(forcePanel, rect);
-                scrollView.smoothScrollTo(0, rect.top);
-                focusWarningTarget(findViewById(KeepADBForceMode.isActive(this)
-                        ? R.id.settings_force_end : R.id.settings_force_activate));
-            });
-        }
-    }
-
-    private void focusNetworkLevel() {
-        // #801: expand the network card and bring the protection level row into view.
-        setCardExpanded(this, findViewById(R.id.settings_network_beta_header),
-                findViewById(R.id.settings_network_beta_body),
-                findViewById(R.id.settings_network_beta_arrow), true);
-        View levelPanel = findViewById(R.id.settings_network_level_panel);
-        if (levelPanel != null && scrollView != null) {
-            scrollView.post(() -> {
-                android.graphics.Rect rect = new android.graphics.Rect();
-                levelPanel.getDrawingRect(rect);
-                scrollView.offsetDescendantRectToMyCoords(levelPanel, rect);
-                scrollView.smoothScrollTo(0, rect.top);
-                focusWarningTarget(findViewById(R.id.network_level_line));
-            });
-        }
     }
 
     private void focusWarningTarget(View target) {
@@ -547,8 +466,8 @@ public class SettingsActivity extends Activity {
                 getString(keepAliveActive ? R.string.onboarding_value_on
                         : R.string.onboarding_value_off)));
 
-        networkCard.refresh();
-        forceSection.refresh();
+        // #959: the one Protection row; the page itself is drawn by ProtectionActivity.
+        protectionSummary.setText(KeepADBProtectionSummary.text(this));
     }
 
     private void bindVersionInfo() {

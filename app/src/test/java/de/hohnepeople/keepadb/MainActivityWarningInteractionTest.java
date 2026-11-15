@@ -262,8 +262,8 @@ public class MainActivityWarningInteractionTest {
         assertEquals(View.NO_ID, review.getNextFocusForwardId());
         review.performClick();
         Intent target = shadowOf(list).getNextStartedActivity();
-        assertEquals(SettingsActivity.class.getName(), target.getComponent().getClassName());
-        assertTrue(target.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_FORCE, false));
+        assertEquals(ProtectionActivity.class.getName(), target.getComponent().getClassName());
+        assertTrue(target.getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_FORCE, false));
     }
     @Test public void singleReasonMuteRemovesTriangleAndCanBeRestoredViaSettings() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
@@ -341,7 +341,7 @@ public class MainActivityWarningInteractionTest {
     }
     @Test public void reviewTargetsUseSpecificSettingsRowsAndSystemGuide() {
         assertTrue(KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.PROTECTION_ALL_WIFI)
-                .getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, false));
+                .getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_LEVEL, false));
         // #904: the retired reason is never active, but a stored link to it still lands on the
         // notification privacy switch.
         assertTrue(KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.NOTIFICATION_DETAILS)

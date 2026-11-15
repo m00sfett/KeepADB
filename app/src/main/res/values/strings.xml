@@ -183,7 +183,16 @@
     <string name="settings_notification_hidden_toast">Persistent notification turned off</string>
     <string name="settings_notification_visible_toast">Persistent notification turned on</string>
     <string name="back">Back</string>
-    <string name="settings_section_network">Network</string>
+    <!-- #959: the Protection page (and the Settings row that opens it); it replaces the "Network" card. -->
+    <string name="protection_title">Protection</string>
+    <string name="protection_automatic_title">Automatic behavior</string>
+    <string name="untrusted_shutdown_hint_short">Turns Wireless Debugging off in a Wi-Fi that is not trusted.</string>
+    <string name="security_check_hint_short">Pauses automatic turn-on at a trusted access point whose security gets weaker.</string>
+    <string name="hint_more">More ▾</string>
+    <string name="hint_less">Less ▴</string>
+    <string name="protection_background_short_granted">Allowed</string>
+    <string name="protection_background_short_missing">Restricted</string>
+    <string name="protection_background_short_inactive">Not needed in this setup</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>
     <!-- #951: copy the adb connect command of the endpoint (home screen rows, notification action). The command itself is not translated. -->
     <string name="notification_action_copy">Copy</string>
@@ -283,7 +292,6 @@
     <string name="state_pending">Switching…</string>
     <string name="tile_state_keep_alive_waiting">Off – Keep-Alive waiting</string>
     <string name="toggle_failed_toast">Wireless Debugging could not be switched. Please try again.</string>
-    <string name="network_head_mode">Automatic re-enable: %1$s</string>
     <string name="network_mode_option_all_wifi">In all Wi-Fi networks</string>
     <string name="network_mode_option_aps">Only trusted access points</string>
     <string name="network_mode_option_aps_names">Trusted access points and Wi-Fi names</string>
@@ -301,9 +309,6 @@
     <string name="networks_glossary_toggle">Terms explained</string>
     <string name="networks_glossary_ssid">Wi-Fi name (SSID): the name a Wi-Fi network broadcasts. Anyone can set up a network with the same name.</string>
     <string name="networks_glossary_bssid">Access point (BSSID): a single transmitter, such as a router, repeater or mesh node. Its hardware address, for example AA:BB:CC:11:22:33, is more specific than the name, but no proof either.</string>
-    <string name="networks_comfort_title">Also trust by Wi-Fi name</string>
-    <string name="networks_comfort_hint">More convenient with mesh and repeaters. A name is easy to imitate.</string>
-    <string name="networks_comfort_no_effect">No effect while the previous setting “In all Wi-Fi networks” applies.</string>
     <string name="untrusted_shutdown_title">Turn off on untrusted Wi-Fi</string>
     <string name="untrusted_shutdown_hint">While Keep-Alive is on, KeepADB turns Wireless Debugging off in a Wi-Fi that is not trusted, is blocked or cannot be identified, instead of only notifying you. A session you turned on yourself in KeepADB stays on at that access point. Force mode suspends this.</string>
     <string name="untrusted_shutdown_channel_name">Untrusted Wi-Fi shutdown</string>
@@ -379,7 +384,6 @@
     <string name="network_detection_readable">Right now: the network is readable. That doesn’t prove that a Keep-Alive start in the background can read it too.</string>
     <string name="network_detection_unreadable">Right now: the network can’t be read.</string>
     <string name="network_detection_no_wifi">Right now: no Wi-Fi is connected, so there is nothing to read.</string>
-    <string name="network_manage_title">Access points</string>
     <string name="card_state_expanded">Expanded</string>
     <string name="card_state_collapsed">Collapsed</string>
     <string name="network_ap_allowed_toast">Trusted access point “%1$s”</string>
@@ -660,7 +664,6 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="overview_last_delivery_short_none">None yet</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Recently asked</string>
-    <string name="networks_section_settings">Settings</string>
     <string name="networks_recent_hint">KeepADB asked about these Wi-Fi networks and got no answer, for example because the notification was swiped away.</string>
     <string name="networks_recent_asked">Last seen %1$s</string>
     <string name="networks_recent_decide">Decide…</string>

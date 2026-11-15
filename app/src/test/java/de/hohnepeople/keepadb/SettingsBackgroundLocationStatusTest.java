@@ -52,13 +52,16 @@ public class SettingsBackgroundLocationStatusTest {
         KeepADB.resetForTesting();
     }
 
-    private SettingsActivity open() {
-        return Robolectric.buildActivity(SettingsActivity.class).setup().get();
+    private ProtectionActivity open() {
+        return Robolectric.buildActivity(ProtectionActivity.class).setup().get();
     }
 
-    private void assertState(SettingsActivity settings, int textRes, int colorRes) {
+    private void assertState(ProtectionActivity settings, int textRes, int colorRes) {
         TextView status = settings.findViewById(R.id.settings_background_location_status);
-        assertEquals(context.getString(textRes), status.getText().toString());
+        // #959: one line with "More"; the tap shows the full status wording.
+        status.performClick();
+        assertEquals(context.getString(textRes) + "  " + context.getString(R.string.hint_less),
+                status.getText().toString());
         assertEquals(context.getColor(colorRes), status.getCurrentTextColor());
         Button button = settings.findViewById(R.id.settings_background_location_button);
         assertEquals(View.VISIBLE, button.getVisibility());
@@ -104,8 +107,8 @@ public class SettingsBackgroundLocationStatusTest {
     @Test
     public void stateChangeOnResumeUpdatesTextAndColourOfTheLiveRegion() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        org.robolectric.android.controller.ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
+        org.robolectric.android.controller.ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         TextView status = controller.get().findViewById(R.id.settings_background_location_status);
         assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE, status.getAccessibilityLiveRegion());
         assertEquals(context.getColor(R.color.text_yellow), status.getCurrentTextColor());
@@ -113,8 +116,8 @@ public class SettingsBackgroundLocationStatusTest {
         controller.pause();
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         controller.resume();
-        assertEquals(context.getString(R.string.background_location_status_granted),
-                status.getText().toString());
+        assertEquals(context.getString(R.string.protection_background_short_granted) + "  "
+                        + context.getString(R.string.hint_more), status.getText().toString());
         assertEquals(context.getColor(R.color.status_ok_green), status.getCurrentTextColor());
     }
 

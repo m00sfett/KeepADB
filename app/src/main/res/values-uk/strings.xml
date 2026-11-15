@@ -274,8 +274,15 @@
     <string name="state_pending">Перемикання…</string>
     <string name="tile_state_keep_alive_waiting">Вимкнено — Keep-Alive чекає</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
-    <string name="settings_section_network">Мережа</string>
-    <string name="network_head_mode">Автоматичне повторне ввімкнення: %1$s</string>
+    <string name="protection_title">Захист</string>
+    <string name="protection_automatic_title">Автоматична поведінка</string>
+    <string name="untrusted_shutdown_hint_short">Вимикає бездротове налагодження в недовіреній мережі Wi-Fi.</string>
+    <string name="security_check_hint_short">Призупиняє автоматичне вмикання, якщо захист довіреного роутера став слабшим.</string>
+    <string name="hint_more">Ще ▾</string>
+    <string name="hint_less">Менше ▴</string>
+    <string name="protection_background_short_granted">Дозволено</string>
+    <string name="protection_background_short_missing">Обмежено</string>
+    <string name="protection_background_short_inactive">У цій конфігурації не потрібне</string>
     <string name="network_mode_option_all_wifi">У всіх мережах Wi-Fi</string>
     <string name="network_mode_option_aps">Лише довірені точки доступу</string>
     <string name="network_mode_option_aps_names">Довірені точки доступу та назви Wi-Fi</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Терміни пояснено</string>
     <string name="networks_glossary_ssid">Назва Wi-Fi (SSID): назва, яку передає мережа Wi-Fi. Будь-хто може створити мережу з такою самою назвою.</string>
     <string name="networks_glossary_bssid">Точка доступу (BSSID): один передавач, наприклад роутер, репітер або вузол mesh. Її апаратна адреса, наприклад AA:BB:CC:11:22:33, точніша за назву, але теж не є доказом.</string>
-    <string name="networks_comfort_title">Довіряти також за назвою Wi-Fi</string>
-    <string name="networks_comfort_hint">Зручніше з mesh і репітерами. Назву легко підробити.</string>
-    <string name="networks_comfort_no_effect">Не діє, поки застосовується попереднє налаштування «У всіх мережах Wi-Fi».</string>
     <string name="untrusted_shutdown_title">Вимикати в недовірених мережах Wi-Fi</string>
     <string name="untrusted_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає бездротове налагодження в мережі Wi-Fi, яка не є довіреною, заблокована або не може бути визначена, а не лише сповіщає вас. Сеанс, який ви ввімкнули самі в KeepADB, залишається ввімкненим біля цього роутера Wi-Fi. Примусовий режим призупиняє це.</string>
     <string name="untrusted_shutdown_channel_name">Вимкнення в недовірених мережах Wi-Fi</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Зараз: мережу можна прочитати. Це не доводить, що запуск Keep-Alive у фоні теж зможе її прочитати.</string>
     <string name="network_detection_unreadable">Зараз: мережу не можна прочитати.</string>
     <string name="network_detection_no_wifi">Зараз: Wi-Fi не підключено, тож читати нічого.</string>
-    <string name="network_manage_title">Точки доступу</string>
     <string name="card_state_expanded">Розгорнуто</string>
     <string name="card_state_collapsed">Згорнуто</string>
     <string name="network_ap_allowed_toast">Точка доступу «%1$s» тепер довірена</string>
@@ -647,7 +650,6 @@
     <string name="overview_last_delivery_short_none">Ще немає</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Нещодавні запити</string>
-    <string name="networks_section_settings">Налаштування</string>
     <string name="networks_recent_hint">KeepADB питав про ці мережі Wi-Fi і не отримав відповіді, наприклад тому що сповіщення було змахнуто.</string>
     <string name="networks_recent_asked">Востаннє: %1$s</string>
     <string name="networks_recent_decide">Вирішити…</string>

@@ -274,8 +274,15 @@
     <string name="state_pending">Changement en cours…</string>
     <string name="tile_state_keep_alive_waiting">Désactivé – Keep-Alive en attente</string>
     <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
-    <string name="settings_section_network">Réseau</string>
-    <string name="network_head_mode">Réactivation automatique : %1$s</string>
+    <string name="protection_title">Protection</string>
+    <string name="protection_automatic_title">Comportement automatique</string>
+    <string name="untrusted_shutdown_hint_short">Désactive le débogage sans fil sur un Wi-Fi non approuvé.</string>
+    <string name="security_check_hint_short">Suspend l’activation automatique si un point d’accès approuvé présente une sécurité plus faible.</string>
+    <string name="hint_more">Plus ▾</string>
+    <string name="hint_less">Moins ▴</string>
+    <string name="protection_background_short_granted">Autorisée</string>
+    <string name="protection_background_short_missing">Restreinte</string>
+    <string name="protection_background_short_inactive">Non requise dans cette configuration</string>
     <string name="network_mode_option_all_wifi">Dans tous les réseaux Wi-Fi</string>
     <string name="network_mode_option_aps">Uniquement les points d’accès approuvés</string>
     <string name="network_mode_option_aps_names">Points d’accès et noms Wi-Fi approuvés</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Termes expliqués</string>
     <string name="networks_glossary_ssid">Nom du réseau Wi-Fi (SSID) : le nom que diffuse un réseau Wi-Fi. N’importe qui peut créer un réseau portant le même nom.</string>
     <string name="networks_glossary_bssid">Point d’accès (BSSID) : un émetteur unique, par exemple un routeur, un répéteur ou un nœud mesh. Son adresse matérielle, par exemple AA:BB:CC:11:22:33, est plus précise que le nom, mais ne prouve rien non plus.</string>
-    <string name="networks_comfort_title">Faire aussi confiance selon le nom Wi-Fi</string>
-    <string name="networks_comfort_hint">Plus pratique avec le mesh et les répéteurs. Un nom est facile à imiter.</string>
-    <string name="networks_comfort_no_effect">Sans effet tant que l’ancien réglage « Dans tous les réseaux Wi-Fi » s’applique.</string>
     <string name="untrusted_shutdown_title">Désactiver sur un Wi-Fi non approuvé</string>
     <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive le débogage sans fil sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même dans KeepADB reste active sur ce point d’accès. Le mode forcé suspend ce comportement.</string>
     <string name="untrusted_shutdown_channel_name">Désactivation sur Wi-Fi non approuvé</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">En ce moment : le réseau est lisible. Cela ne prouve pas qu’un démarrage de Keep-Alive en arrière-plan puisse aussi le lire.</string>
     <string name="network_detection_unreadable">En ce moment : le réseau est illisible.</string>
     <string name="network_detection_no_wifi">En ce moment : aucun Wi-Fi n’est connecté, il n’y a donc rien à lire.</string>
-    <string name="network_manage_title">Points d’accès</string>
     <string name="card_state_expanded">Déplié</string>
     <string name="card_state_collapsed">Replié</string>
     <string name="network_ap_allowed_toast">Point d’accès « %1$s » approuvé</string>
@@ -646,7 +649,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="overview_last_delivery_short_none">Aucune</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Demandés récemment</string>
-    <string name="networks_section_settings">Paramètres</string>
     <string name="networks_recent_hint">KeepADB a posé la question pour ces réseaux Wi-Fi sans obtenir de réponse, par exemple parce que la notification a été balayée.</string>
     <string name="networks_recent_asked">Vu pour la dernière fois %1$s</string>
     <string name="networks_recent_decide">Décider…</string>

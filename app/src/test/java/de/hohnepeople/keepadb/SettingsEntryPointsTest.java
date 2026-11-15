@@ -59,11 +59,6 @@ public class SettingsEntryPointsTest {
                 R.id.settings_misc_body, R.id.settings_misc_arrow, R.id.settings_webhook_body);
     }
 
-    @Test public void networkMenuIntentExpandsTheHeadingCard() {
-        assertEntry(SettingsActivity.EXTRA_FOCUS_NETWORK_CARD, R.id.settings_network_beta_header,
-                R.id.settings_network_beta_body, R.id.settings_network_beta_arrow, R.id.settings_misc_body);
-    }
-
     @Test public void privacyIntentExpandsOnlyThePrivacyCard() {
         // #941: home menu "Privacy" and the eye menu's link.
         assertEntry(SettingsActivity.EXTRA_FOCUS_PRIVACY, R.id.settings_privacy_header,
@@ -123,8 +118,7 @@ public class SettingsEntryPointsTest {
 
     @Test public void defaultEntryLeavesEveryTargetCollapsed() {
         ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
-        for (int body : new int[]{R.id.settings_webhook_body, R.id.settings_misc_body,
-                R.id.settings_network_beta_body}) {
+        for (int body : new int[]{R.id.settings_webhook_body, R.id.settings_misc_body}) {
             assertEquals(View.GONE, controller.get().findViewById(body).getVisibility());
         }
         controller.pause().stop().destroy();

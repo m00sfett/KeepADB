@@ -9,7 +9,7 @@ import de.hohnepeople.keepadb.KeepADBNetworkCardState.Mode;
 
 /**
  * #654/#655: the one place that maps {@link KeepADBNetworkCardState} values to string and colour
- * resources, shared by the card in {@link SettingsActivity} and the rows in {@link
+ * resources, shared by the Protection page ({@link ProtectionActivity}) and the rows in {@link
  * NetworkListActivity} so the same state never reads differently in two places. Every colour here
  * only reinforces a state whose text is always shown next to it.
  */
@@ -123,6 +123,19 @@ final class KeepADBNetworkCardText {
             case NOT_REQUIRED:
             default:
                 return R.string.background_location_status_missing_inactive;
+        }
+    }
+
+    /** #959: the one-line form of {@link #background}; the full wording sits behind "More". */
+    static int backgroundShort(Background background) {
+        switch (background) {
+            case ALLOWED:
+                return R.string.protection_background_short_granted;
+            case RESTRICTED:
+                return R.string.protection_background_short_missing;
+            case NOT_REQUIRED:
+            default:
+                return R.string.protection_background_short_inactive;
         }
     }
 

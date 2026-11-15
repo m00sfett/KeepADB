@@ -633,12 +633,13 @@ public class NetworkListNetworksViewTest {
         int current = all.indexOf(context.getString(R.string.networks_section_current));
         int recent = all.indexOf(context.getString(R.string.networks_section_recent));
         int saved = all.indexOf(context.getString(R.string.networks_section_saved));
-        int settings = all.indexOf(context.getString(R.string.networks_section_settings));
+        int settings = all.indexOf(context.getString(R.string.protection_title));
         int glossary = all.indexOf(context.getString(R.string.networks_glossary_toggle));
         assertTrue(all, current >= 0 && recent > current && saved > recent);
         assertTrue("Settings and glossary follow the networks: " + all,
                 settings > saved && glossary > settings
-                        && all.indexOf(context.getString(R.string.networks_comfort_title)) > settings);
+                        && all.indexOf(context.getString(R.string.networks_level,
+                                KeepADBForceNotice.levelLabel(context))) > settings);
         int store = all.indexOf(STORE);
         int cafe = all.indexOf(CAFE);
         assertTrue("Newest first: " + all, store > recent && cafe > store && cafe < saved);

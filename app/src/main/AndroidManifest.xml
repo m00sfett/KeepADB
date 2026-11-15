@@ -74,6 +74,13 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- #959: the Protection page (the former Network card of Settings), opened from the
+             "Protection" row, the home screen, the warnings, the widget and the force-mode
+             notice. Not exported: the extras only say which section to show, never a value. -->
+        <activity
+            android:name=".ProtectionActivity"
+            android:exported="false" />
+
         <!-- #761: the setup assistant. Not exported: the home screen hands over to it the first
              time, the Settings open it (all of it, or one step). The intent carries only the step
              to show, never a value. -->

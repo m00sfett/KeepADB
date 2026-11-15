@@ -63,7 +63,7 @@ public class LocationAskedAcrossScreensTest {
                 context.getString(R.string.location_permission_panel_grant_button)).performClick();
         assertNotNull(shadowOf(assistant).getLastRequestedPermission());
 
-        SettingsActivity settings = openSettings();
+        ProtectionActivity settings = openSettings();
         settings.findViewById(R.id.network_status_action).performClick();
 
         assertNull("no idle request the system answers at once",
@@ -75,7 +75,7 @@ public class LocationAskedAcrossScreensTest {
 
     @Test
     public void askingInTheSettingsMakesTheAssistantButtonOpenTheAppSettings() {
-        SettingsActivity settings = openSettings();
+        ProtectionActivity settings = openSettings();
         settings.findViewById(R.id.network_status_action).performClick();
         assertNotNull(shadowOf(settings).getLastRequestedPermission());
 
@@ -94,14 +94,13 @@ public class LocationAskedAcrossScreensTest {
     /** Control: nothing asked anywhere, the settings button asks. */
     @Test
     public void withoutAnyEarlierAskingTheSettingsButtonAsks() {
-        SettingsActivity settings = openSettings();
+        ProtectionActivity settings = openSettings();
         settings.findViewById(R.id.network_status_action).performClick();
         assertNotNull(shadowOf(settings).getLastRequestedPermission());
     }
 
-    private SettingsActivity openSettings() {
-        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+    private ProtectionActivity openSettings() {
+        ProtectionActivity activity = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
         return activity;
     }

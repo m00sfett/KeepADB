@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +39,7 @@ import java.util.Set;
  * <p><strong>Privacy (#904).</strong> While the app privacy switch is on and the screen has no
  * "Show", nothing of the list is built at all: the page shows a placeholder and no view and no
  * content description holds a Wi-Fi name or an address. "Show" lifts that for this screen until it
- * is left; it does not change the switch. The glossary and the comfort switch carry no network
+ * is left; it does not change the switch. The glossary and the protection level row carry no network
  * data and stay. The assistant's current-network card (see {@link #renderCurrentForAssistant})
  * masks its name and address the same way and offers the same "Show".
  */
@@ -126,7 +125,7 @@ final class NetworkListRenderer {
             addSaved(snapshot);
             markHighlight(snapshot);
         }
-        root.addView(sectionHeading(R.string.networks_section_settings, 24));
+        root.addView(sectionHeading(R.string.protection_title, 24));
         addProtection();
         addForceNote();
         addGlossary();
@@ -199,38 +198,25 @@ final class NetworkListRenderer {
         }
     }
 
-    /** The one switch strict / convenience, and the protection level it belongs to. */
+    /**
+     * #959: the protection level this list works under, as one row. The level is chosen on the
+     * Protection page (the "Also trust by Wi-Fi name" switch that used to sit here is gone), so a
+     * tap leads there, to the level choice.
+     */
     private void addProtection() {
-        LinearLayout card = panel(R.drawable.bg_panel);
-        setTopMargin(card, 8);
-
-        Switch comfort = new Switch(activity);
-        comfort.setText(R.string.networks_comfort_title);
-        comfort.setTextColor(activity.getColor(R.color.text_yellow));
-        comfort.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        comfort.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        comfort.setMinHeight(dp(48));
-        comfort.setChecked(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
-        comfort.setOnCheckedChangeListener((button, checked) -> {
-            KeepADBTrustedNetwork.setTrustByNameEnabled(activity, checked);
-            KeepADBDiagnostics.event(activity, "user_action", "network_list",
-                    checked ? "enable" : "disable", "trust_by_name");
-            onChanged.run();
-        });
-        card.addView(comfort);
-        card.addView(text(activity.getString(R.string.networks_comfort_hint), 13, R.color.night_muted));
-        if (KeepADBTrustedNetwork.getProtectionLevel(activity)
-                == KeepADBTrustedNetwork.ProtectionLevel.LEGACY_ALL_WIFI) {
-            TextView note = text(activity.getString(R.string.networks_comfort_no_effect), 13,
-                    R.color.text_yellow);
-            note.setPadding(0, dp(4), 0, 0);
-            card.addView(note);
-        }
-        TextView level = text(activity.getString(R.string.networks_level,
-                KeepADBForceNotice.levelLabel(activity)), 13, R.color.night_text);
-        level.setPadding(0, dp(8), 0, 0);
-        card.addView(level);
-        root.addView(card);
+        TextView row = text(activity.getString(R.string.networks_level,
+                KeepADBForceNotice.levelLabel(activity)), 15, R.color.night_text);
+        row.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
+        row.setBackgroundResource(R.drawable.bg_card_clickable);
+        row.setMinHeight(dp(48));
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(16), dp(8), dp(12), dp(8));
+        row.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_chevron_right, 0);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setOnClickListener(v -> activity.startActivity(ProtectionActivity.levelIntent(activity)));
+        setTopMargin(row, 8);
+        root.addView(row);
     }
 
     private void addForceNote() {

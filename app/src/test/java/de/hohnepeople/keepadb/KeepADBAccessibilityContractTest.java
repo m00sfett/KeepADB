@@ -97,6 +97,7 @@ public class KeepADBAccessibilityContractTest {
         MainActivity activity = startActivity(MainActivity.class);
         View main = activity.getWindow().getDecorView();
         View settings = runtimeView(R.layout.activity_settings);
+        View protection = runtimeView(R.layout.activity_protection);
         View widget = runtimeView(R.layout.widget_keepadb);
         View systemWarningAction = main.findViewById(R.id.warning_system)
                 .findViewById(R.id.home_warning_action);
@@ -107,6 +108,7 @@ public class KeepADBAccessibilityContractTest {
         expandAllSettingsCards(settings);
         measureAndLayout(main, 360, 2400);
         measureAndLayout(settings, 360, 2400);
+        measureAndLayout(protection, 360, 2400);
         measureAndLayout(widget, 360, 160);
 
         int[] mainControls = {
@@ -123,10 +125,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.privacy_switch_widgets,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
-                R.id.network_status_action,
-                R.id.settings_trust_by_name_toggle,
-                R.id.network_networks_row,
-                R.id.settings_background_location_button,
+                R.id.settings_protection_row,
                 R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
@@ -136,6 +135,23 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_website_link
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
+        // #959: the Protection page: the status action, the force row, the Wi-Fi networks entry,
+        // the background button, the two switches and the help lines with "More".
+        int[] protectionControls = {
+                R.id.btn_back, R.id.btn_toggle_privacy_mode,
+                R.id.network_status_action, R.id.network_status_decide,
+                R.id.settings_untrusted_shutdown_toggle, R.id.protection_untrusted_shutdown_hint,
+                R.id.settings_security_check_toggle, R.id.settings_security_check_hint,
+                R.id.settings_force_activate,
+                R.id.network_networks_row,
+                R.id.settings_background_location_status,
+                R.id.settings_background_location_button
+        };
+        for (int id : protectionControls) {
+            View control = protection.findViewById(id);
+            if (control.getVisibility() == View.GONE) continue;
+            assertMinSize(control);
+        }
         assertMinSize(widget.findViewById(R.id.widget_tile));
     }
 
@@ -146,8 +162,6 @@ public class KeepADBAccessibilityContractTest {
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
                 R.id.settings_webhook_header,
-                // #519/#618: expanding the sole Network header makes both direct sections visible.
-                R.id.settings_network_beta_header,
                 // #521: the outer "Sonstiges" card must be expanded to make its four directly
                 // nested sections' controls measurable/reachable; they are not independently collapsible sub-cards with headers of their own.
                 R.id.settings_privacy_header,
@@ -213,8 +227,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
                 R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
-                R.id.network_status_action, R.id.settings_trust_by_name_toggle,
-                R.id.network_networks_row, R.id.settings_background_location_button,
+                R.id.settings_protection_row,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
@@ -227,6 +240,23 @@ public class KeepADBAccessibilityContractTest {
             assertTrue("Settings control has no runtime listener: " + id,
                     control.hasOnClickListeners());
         }
+        // #959: the Protection page's controls carry runtime listeners as well.
+        ActivityController<ProtectionActivity> protectionController =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity protection = protectionController.get();
+        for (int id : new int[] {R.id.btn_back, R.id.btn_toggle_privacy_mode,
+                R.id.settings_untrusted_shutdown_toggle, R.id.protection_untrusted_shutdown_hint,
+                R.id.settings_security_check_toggle, R.id.settings_security_check_hint,
+                R.id.settings_force_activate, R.id.network_networks_row,
+                R.id.settings_background_location_status,
+                R.id.settings_background_location_button, R.id.network_status_decide,
+                R.id.network_status_action}) {
+            View control = protection.findViewById(id);
+            assertNotNull("Missing Protection control " + id, control);
+            assertTrue("Protection control has no runtime listener: " + id,
+                    control.hasOnClickListeners());
+        }
+        protectionController.pause().stop().destroy();
         assertEquals(settings.getString(R.string.back),
                 settings.findViewById(R.id.btn_back).getContentDescription());
         assertEquals(settings.getString(R.string.settings_website_link_accessibility),
@@ -256,6 +286,7 @@ public class KeepADBAccessibilityContractTest {
     public void importantAccessibilityTextAndLiveRegionsResolveOnRuntimeViews() {
         View main = runtimeView(R.layout.activity_main);
         View settings = runtimeView(R.layout.activity_settings);
+        View protection = runtimeView(R.layout.activity_protection);
 
         // #764: every warning card has a heading and announces changes politely.
         for (int id : new int[] {R.id.warning_system, R.id.warning_less_secure,
@@ -268,16 +299,18 @@ public class KeepADBAccessibilityContractTest {
                 context.getString(R.string.settings_section_notification));
         assertHasText(settings.findViewById(R.id.settings_misc_panel),
                 context.getString(R.string.settings_hide_notification_toggle));
-        // #654: every Network section starts with a non-interactive accessibility heading.
-        for (int id : new int[] {R.id.network_status_heading,
-                R.id.network_background_heading, R.id.network_manage_heading}) {
-            TextView heading = settings.findViewById(id);
+        // #654/#959: every section of the Protection page starts with a non-interactive
+        // accessibility heading (the Wi-Fi networks entry is a row of its own, not a heading).
+        for (int id : new int[] {R.id.protection_title, R.id.network_status_heading,
+                R.id.protection_level_heading, R.id.protection_automatic_heading,
+                R.id.network_background_heading}) {
+            TextView heading = protection.findViewById(id);
             assertTrue(heading.isAccessibilityHeading());
             assertFalse(heading.isClickable());
             assertFalse(heading.isFocusable());
         }
-        assertPoliteLiveRegion(settings.findViewById(R.id.network_status_label));
-        assertPoliteLiveRegion(settings.findViewById(R.id.settings_background_location_status));
+        assertPoliteLiveRegion(protection.findViewById(R.id.network_status_label));
+        assertPoliteLiveRegion(protection.findViewById(R.id.settings_background_location_status));
 
         // #957: state and reason are one polite live region, so a change is announced as one
         // message; the two lines inside it are not live regions of their own.
@@ -317,21 +350,23 @@ public class KeepADBAccessibilityContractTest {
     }
 
     @Test
-    public void settingsNetworkCardIsTheFirstCardAfterTheConditionalPermissionWarning() {
-        // #735: the network card is the first card on the settings page, before webhook and all
-        // others; only the hidden-by-default permission warning may precede it. #470 had placed
-        // it after the webhook card.
+    public void settingsProtectionRowIsTheFirstCardAfterTheConditionalPermissionWarning() {
+        // #735/#959: the Protection row is the first card on the settings page, before webhook and
+        // all others; only the hidden-by-default permission warning may precede it.
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
         View permission = content.findViewById(R.id.settings_permission_panel);
-        View network = content.findViewById(R.id.settings_network_beta_panel);
+        View protection = content.findViewById(R.id.settings_protection_row);
         assertNotNull(permission);
-        assertNotNull(network);
-        assertTrue("Only the permission warning may precede the network card",
-                content.indexOfChild(network) <= content.indexOfChild(permission) + 1);
-        assertTrue(content.indexOfChild(network) < content.indexOfChild(
+        assertNotNull(protection);
+        assertTrue("Only the permission warning may precede the Protection row",
+                content.indexOfChild(protection) <= content.indexOfChild(permission) + 1);
+        assertTrue(content.indexOfChild(protection) < content.indexOfChild(
                 content.findViewById(R.id.settings_webhook_panel)));
+        // #959: the row opens a page; nothing of the former card expands inline any more.
+        assertNull(content.findViewById(R.id.settings_network_status_panel));
+        assertNull(content.findViewById(R.id.network_networks_row));
     }
 
     @Test
@@ -339,16 +374,12 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #735 (replaces #470's order): the "Network" card now comes first, as the most important
-        // settings area. The remaining cards keep their relative order: the webhook card,
-        // then the "Sonstiges" card.
-        // Below that sits the "Network" card -- itself collapsible since #519, with its sections
-        // shown directly inside its body (#618/#654) -- then the "Sonstiges" card, itself collapsible since #521,
-        // with the four notice/display-preference sections shown directly inside its body.
+        // #735/#959: the Protection row comes first, as the most important settings area. The
+        // remaining cards keep their relative order: the webhook card, then the "Sonstiges" card.
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the header (a language button since #942) -- so it is no longer part of this table.
         int[] panels = {
-                R.id.settings_network_beta_panel,
+                R.id.settings_protection_row,
                 R.id.settings_webhook_panel,
                 R.id.settings_misc_panel,
                 R.id.settings_diagnostics_panel,
@@ -363,36 +394,10 @@ public class KeepADBAccessibilityContractTest {
             previous = current;
         }
 
-        // #519/#618: both Network sections live directly in the outer card body, so their relative
-        // order is checked there instead of in the settings content column.
-        ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
-        assertNotNull(networkBetaBody);
-        // #654/#769: the Network sections read current connection, protection level and comfort
-        // switch, force, the Networks entry -- and the background access is last.
-        int[] networkSections = {
-                R.id.settings_network_status_panel,
-                R.id.settings_network_level_panel,
-                R.id.settings_force_panel,
-                R.id.settings_network_manage_panel,
-                R.id.settings_network_background_panel
-        };
-        int previousSection = -1;
-        for (int sectionId : networkSections) {
-            View section = networkBetaBody.findViewById(sectionId);
-            assertNotNull("Missing Network section " + sectionId, section);
-            int index = networkBetaBody.indexOfChild(section);
-            assertTrue("Network section is out of order: " + sectionId, index > previousSection);
-            previousSection = index;
-        }
-        View lastNetworkChild = networkBetaBody.getChildAt(networkBetaBody.getChildCount() - 1);
-        assertEquals("The background access is the last content of the Network card",
-                R.id.settings_network_background_panel, lastNetworkChild.getId());
-
         // #521: persistent notification, keep-display-on and battery-optimization
         // are no longer direct children of the settings content column either -- they sit
-        // directly inside the "Sonstiges" card's body (not as sub-cards with their own panel ids
-        // like Network (Beta) above), so their relative order is checked by switch id
-        // within that body instead.
+        // directly inside the "Sonstiges" card's body (not as sub-cards with their own panel ids),
+        // so their relative order is checked by switch id within that body instead.
         ViewGroup miscBody = content.findViewById(R.id.settings_misc_body);
         assertNotNull(miscBody);
         View hideNotificationToggle = miscBody.findViewById(R.id.settings_hide_notification_toggle);
@@ -404,6 +409,36 @@ public class KeepADBAccessibilityContractTest {
         // #764: the battery-optimization toggle is gone with the home card it controlled, #958 the
         // advice-banner switch: the keep-display-on switch (with its subtext) closes Sonstiges.
         assertEquals(miscBody.getChildCount() - 2, miscBody.indexOfChild(keepDisplayOnToggle));
+    }
+
+    /**
+     * #959: the Protection page reads, top to bottom: current connection, protection level,
+     * automatic behavior, force mode, the Wi-Fi networks entry and the background detection last.
+     */
+    @Test
+    public void protectionSectionsFollowTheProductOrderInTheInflatedHierarchy() {
+        View protection = runtimeView(R.layout.activity_protection);
+        ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
+                protection.findViewById(R.id.protection_scroll)).getChildAt(0);
+        int[] sections = {
+                R.id.settings_network_status_panel,
+                R.id.protection_level_panel,
+                R.id.protection_automatic_panel,
+                R.id.settings_force_panel,
+                R.id.settings_network_manage_panel,
+                R.id.settings_network_background_panel
+        };
+        int previous = -1;
+        for (int id : sections) {
+            View section = content.findViewById(id);
+            assertNotNull("Missing Protection section " + id, section);
+            int index = content.indexOfChild(section);
+            assertTrue("Protection section is out of order: " + id, index > previous);
+            previous = index;
+        }
+        assertEquals("The background detection is the last content of the page",
+                R.id.settings_network_background_panel,
+                content.getChildAt(content.getChildCount() - 1).getId());
     }
 
     @Test
@@ -500,7 +535,9 @@ public class KeepADBAccessibilityContractTest {
             return manager.getViewFor(id);
         }
         Activity activity = layout == R.layout.activity_main
-                ? startActivity(MainActivity.class) : startActivity(SettingsActivity.class);
+                ? startActivity(MainActivity.class)
+                : layout == R.layout.activity_protection
+                ? startActivity(ProtectionActivity.class) : startActivity(SettingsActivity.class);
         View root = activity.getWindow().getDecorView();
         measureAndLayout(root, 360, 2400);
         return root;

@@ -522,7 +522,7 @@ public class OnboardingActivityTest {
     // ---- Settings entries ---------------------------------------------------------------------------
 
     @Test
-    public void settingsRowsOpenTheAssistantAndTheProtectionStep() {
+    public void settingsRowsOpenTheAssistantAndTheProtectionPage() {
         ActivityController<SettingsActivity> settings =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         controllers.add(settings);
@@ -535,11 +535,12 @@ public class OnboardingActivityTest {
         assertEquals(new ComponentName(context, OnboardingActivity.class), whole.getComponent());
         assertFalse(whole.hasExtra(OnboardingActivity.EXTRA_STEP));
 
-        activity.findViewById(R.id.network_level_line).performClick();
-        Intent step = shadowOf(activity).getNextStartedActivity();
-        assertEquals(KeepADBOnboarding.Step.PROTECTION.id,
-                step.getStringExtra(OnboardingActivity.EXTRA_STEP));
-        assertTrue(activity.findViewById(R.id.network_level_line).isClickable());
+        // #959: the level is chosen on the Protection page, not in the assistant's step.
+        activity.findViewById(R.id.settings_protection_row).performClick();
+        Intent page = shadowOf(activity).getNextStartedActivity();
+        assertEquals(new ComponentName(context, ProtectionActivity.class), page.getComponent());
+        assertFalse(page.hasExtra(OnboardingActivity.EXTRA_STEP));
+        assertTrue(activity.findViewById(R.id.settings_protection_row).isClickable());
     }
 
     // ---- Rotation and accessibility -----------------------------------------------------------------

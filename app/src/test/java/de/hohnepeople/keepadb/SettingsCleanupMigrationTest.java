@@ -95,16 +95,16 @@ public class SettingsCleanupMigrationTest {
             assertTrue("The seed holds an own name", before.keySet().stream()
                     .anyMatch(key -> key.startsWith("trusted_network_") && key.endsWith("_name")));
 
-            ActivityController<SettingsActivity> settings =
-                    Robolectric.buildActivity(SettingsActivity.class).setup();
-            settings.get().findViewById(R.id.settings_network_beta_header).performClick();
+            ActivityController<ProtectionActivity> settings =
+                    Robolectric.buildActivity(ProtectionActivity.class).setup();
             settings.pause().resume();
             settings.get().refresh();
             Bundle state = new Bundle();
             settings.saveInstanceState(state);
             settings.pause().stop().destroy();
             ShadowLooper.idleMainLooper();
-            Robolectric.buildActivity(SettingsActivity.class).setup(state).pause().stop().destroy();
+            Robolectric.buildActivity(ProtectionActivity.class).setup(state).pause().stop().destroy();
+            Robolectric.buildActivity(SettingsActivity.class).setup().pause().stop().destroy();
             Robolectric.buildActivity(NetworkListActivity.class,
                     NetworkListActivity.intent(context)).setup().pause().stop().destroy();
 
@@ -129,8 +129,8 @@ public class SettingsCleanupMigrationTest {
                 KeepADBTrustedNetwork.evaluate(context, unknownNode));
         assertEquals(KeepADBTrustedNetwork.ProtectionLevel.LEGACY_NAME_LIST,
                 KeepADBTrustedNetwork.getProtectionLevel(context));
-        // Opening Settings, which no longer shows the list, changes nothing about it.
-        Robolectric.buildActivity(SettingsActivity.class).setup().pause().stop().destroy();
+        // Opening the Protection page, which no longer shows the list, changes nothing about it.
+        Robolectric.buildActivity(ProtectionActivity.class).setup().pause().stop().destroy();
         assertEquals(KeepADBTrustedNetwork.Decision.TRUSTED_NAME,
                 KeepADBTrustedNetwork.evaluate(context, unknownNode));
 
@@ -145,15 +145,14 @@ public class SettingsCleanupMigrationTest {
         prefs().edit().putBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, true).commit();
         connectTo(MESH, MESH_AP);
 
-        ActivityController<SettingsActivity> settings =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        settings.get().findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> settings =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         settings.pause().resume();
         settings.get().refresh();
         settings.pause().stop().destroy();
 
         for (String key : prefs().getAll().keySet()) {
-            assertFalse("Opening Settings records nothing: " + key, key.startsWith("bssid_history_"));
+            assertFalse("Opening the Protection page records nothing: " + key, key.startsWith("bssid_history_"));
         }
         assertTrue("The stored option itself is kept",
                 prefs().getBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, false));

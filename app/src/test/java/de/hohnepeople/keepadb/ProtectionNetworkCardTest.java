@@ -49,10 +49,9 @@ import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
- * #654/#655: the Network card in Settings -- the active mode in the closed head, the current
- * connection with cause and action before the mode choice, the separate background-access facts,
- * the two management entries, the observation option and the advanced Wi-Fi-name section at the
- * very bottom.
+ * #654/#655/#959: the network part of the Protection page (the former Network card of Settings) --
+ * the current connection with cause and action before the level, the separate background-access
+ * facts and the entry to the one Wi-Fi networks list.
  *
  * <p>Each test states both sides of what it guards. The ones that matter most: the card never
  * writes a setting by itself ({@link #openingAndRefreshingNeverChangesAStoredSetting}), allowing
@@ -63,7 +62,7 @@ import org.robolectric.shadows.ShadowWifiInfo;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
-public class SettingsNetworkCardTest {
+public class ProtectionNetworkCardTest {
 
     @Rule
     public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
@@ -87,44 +86,24 @@ public class SettingsNetworkCardTest {
         KeepADB.resetForTesting();
     }
 
-    // --- the closed head and the mode choice -------------------------------------------------
-
-    @Test
-    public void theClosedHeadNamesTheActiveModeReadBackFromTheStoredSettings() {
-        String[] seen = new String[4];
-        int i = 0;
-        for (boolean allowlist : new boolean[] {false, true}) {
-            for (boolean names : new boolean[] {false, true}) {
-                KeepADBTrustedNetwork.setMode(context, allowlist
-                        ? KeepADBTrustedNetwork.MODE_ALLOWLIST : KeepADBTrustedNetwork.MODE_ALL_WIFI);
-                KeepADBTrustedNetwork.setSsidMatchingEnabled(context, names);
-                SettingsActivity activity = openClosed();
-
-                TextView head = activity.findViewById(R.id.settings_network_beta_subtitle);
-                assertTrue("The head is readable while the card is closed", head.isShown());
-                assertEquals(View.GONE,
-                        activity.findViewById(R.id.settings_network_beta_body).getVisibility());
-                int option = allowlist
-                        ? (names ? R.string.network_mode_option_aps_names : R.string.network_mode_option_aps)
-                        : R.string.network_mode_option_all_wifi;
-                assertEquals(context.getString(R.string.network_head_mode, context.getString(option)),
-                        head.getText().toString());
-                seen[i++] = head.getText().toString();
-            }
-        }
-        // all networks with or without a saved name setting reads the same; the others differ.
-        assertEquals("Saved names do not change the mode shown while all networks are allowed",
-                seen[0], seen[1]);
-        assertNotEquals(seen[0], seen[2]);
-        assertNotEquals("Active Wi-Fi names are named in the mode", seen[2], seen[3]);
-    }
+    // --- the order of the page -------------------------------------------------------------------
 
     @Test
     public void theCurrentConnectionComesBeforeTheLevelAndTheSwitches() {
-        SettingsActivity activity = open();
-        ViewGroup body = activity.findViewById(R.id.settings_network_beta_body);
-        assertTrue(body.indexOfChild(activity.findViewById(R.id.settings_network_status_panel))
-                < body.indexOfChild(activity.findViewById(R.id.settings_network_level_panel)));
+        ProtectionActivity activity = open();
+        View status = activity.findViewById(R.id.settings_network_status_panel);
+        ViewGroup column = (ViewGroup) status.getParent();
+        int[] order = {R.id.settings_network_status_panel, R.id.protection_level_panel,
+                R.id.protection_automatic_panel, R.id.settings_force_panel,
+                R.id.settings_network_manage_panel, R.id.settings_network_background_panel};
+        int previous = -1;
+        for (int id : order) {
+            View section = activity.findViewById(id);
+            assertEquals("one column holds every section", column, section.getParent());
+            int index = column.indexOfChild(section);
+            assertTrue("section " + id + " follows the one before it", index > previous);
+            previous = index;
+        }
     }
 
     // --- the current connection -------------------------------------------------------------
@@ -135,7 +114,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_status_allowed_ap), text(activity, R.id.network_status_label));
         assertEquals(context.getColor(R.color.status_ok_green),
@@ -155,7 +134,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         Button decide = activity.findViewById(R.id.network_status_decide);
         assertEquals(View.VISIBLE, decide.getVisibility());
         assertEquals(context.getString(R.string.network_action_decide), decide.getText().toString());
@@ -169,7 +148,7 @@ public class SettingsNetworkCardTest {
         assertTrue("Opening the list decides nothing", KeepADBTrustedNetwork.getEntries(context).isEmpty());
 
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
-        SettingsActivity trusted = open();
+        ProtectionActivity trusted = open();
         assertEquals(View.GONE, trusted.findViewById(R.id.network_status_decide).getVisibility());
     }
 
@@ -180,7 +159,7 @@ public class SettingsNetworkCardTest {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         Button action = activity.findViewById(R.id.network_status_action);
         assertEquals(View.VISIBLE, action.getVisibility());
         // #904 (Q6): no blind trust from the masked card.
@@ -205,7 +184,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_status_not_allowed),
                 text(activity, R.id.network_status_label));
@@ -242,7 +221,7 @@ public class SettingsNetworkCardTest {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         KeepADBNetworkBlocklist.blockSsid(context, "HomeMesh");
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_badge_blocked),
                 text(activity, R.id.network_status_label));
@@ -253,7 +232,7 @@ public class SettingsNetworkCardTest {
         assertEquals(View.GONE, activity.findViewById(R.id.network_status_action).getVisibility());
 
         KeepADBNetworkBlocklist.unblockSsid(context, "HomeMesh");
-        SettingsActivity unblocked = open();
+        ProtectionActivity unblocked = open();
         assertEquals(context.getString(R.string.network_status_allowed_ap),
                 text(unblocked, R.id.network_status_label));
     }
@@ -266,7 +245,7 @@ public class SettingsNetworkCardTest {
     public void allowingFromTheCardNeverSwitchesWirelessDebuggingOn() {
         KeepADBFakeSettingsGateway gateway = preparedForAnAutomaticEnable();
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         activity.findViewById(R.id.network_status_action).performClick();
         ShadowLooper.idleMainLooper();
@@ -282,7 +261,7 @@ public class SettingsNetworkCardTest {
     public void theActionGrantsTheAccessPointTheCardShowedNotTheOneTheDeviceRoamedTo() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:01");
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:02");
         activity.findViewById(R.id.network_status_action).performClick();
@@ -301,7 +280,7 @@ public class SettingsNetworkCardTest {
         connectTo("MeshHome", "aa:bb:cc:dd:ee:05");
 
         KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        SettingsActivity byName = open();
+        ProtectionActivity byName = open();
         assertEquals(context.getString(R.string.network_status_allowed_name),
                 text(byName, R.id.network_status_label));
         assertEquals(context.getString(R.string.network_cause_allowed_by_name),
@@ -311,7 +290,7 @@ public class SettingsNetworkCardTest {
                 text(byName, R.id.network_status_action));
 
         KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
-        SettingsActivity off = open();
+        ProtectionActivity off = open();
         assertEquals("A listed name counts only while the switch is on",
                 context.getString(R.string.network_status_not_allowed),
                 text(off, R.id.network_status_label));
@@ -322,7 +301,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_cause_all_wifi),
                 text(activity, R.id.network_status_cause));
@@ -345,7 +324,7 @@ public class SettingsNetworkCardTest {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         for (boolean names : new boolean[] {false, true}) {
             KeepADBTrustedNetwork.setSsidMatchingEnabled(context, names);
-            SettingsActivity activity = open();
+            ProtectionActivity activity = open();
 
             String cause = text(activity, R.id.network_status_cause);
 
@@ -366,7 +345,7 @@ public class SettingsNetworkCardTest {
     @Test
     public void noWifiOffersTheWifiSettings() {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_status_no_wifi), text(activity, R.id.network_status_label));
         assertEquals(context.getString(R.string.network_cause_no_wifi), text(activity, R.id.network_status_cause));
@@ -384,7 +363,7 @@ public class SettingsNetworkCardTest {
     public void unreadableWithoutLocationPermissionOffersTheGrantAndNamesTheCause() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_status_unreadable), text(activity, R.id.network_status_label));
         assertEquals(context.getString(R.string.network_cause_permission_missing),
@@ -420,7 +399,7 @@ public class SettingsNetworkCardTest {
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
         shadowOf(context.getSystemService(LocationManager.class)).setLocationEnabled(false);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_cause_location_off),
                 text(activity, R.id.network_status_cause));
@@ -437,7 +416,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.settings_trusted_network_status_identity_unavailable),
                 text(activity, R.id.network_status_cause));
@@ -455,7 +434,7 @@ public class SettingsNetworkCardTest {
     public void unreadableWhileAllNetworksAreAllowedSaysNothingIsPaused() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.network_cause_unreadable_all_wifi),
                 text(activity, R.id.network_status_cause));
@@ -473,9 +452,9 @@ public class SettingsNetworkCardTest {
 
         // Readable right now, but no background grant: restricted, and no claim of a failure.
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        SettingsActivity readable = open();
+        ProtectionActivity readable = open();
         assertEquals(context.getString(R.string.background_location_status_missing),
-                text(readable, R.id.settings_background_location_status));
+                fullStatus(readable));
         assertEquals(context.getString(R.string.network_detection_readable),
                 text(readable, R.id.network_detection_now));
         assertEquals(context.getString(R.string.network_background_setup_button),
@@ -484,9 +463,9 @@ public class SettingsNetworkCardTest {
         // Unreadable right now, but the grant is there: allowed, and no claim of a working start.
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         connectTo(WifiManager.UNKNOWN_SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
-        SettingsActivity unreadable = open();
+        ProtectionActivity unreadable = open();
         assertEquals(context.getString(R.string.background_location_status_granted),
-                text(unreadable, R.id.settings_background_location_status));
+                fullStatus(unreadable));
         assertEquals(context.getString(R.string.network_detection_unreadable),
                 text(unreadable, R.id.network_detection_now));
         assertEquals(context.getString(R.string.background_location_settings_button),
@@ -494,21 +473,21 @@ public class SettingsNetworkCardTest {
 
         // No Wi-Fi at all: nothing to read, and the grant verdict stays what it was.
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        SettingsActivity none = open();
+        ProtectionActivity none = open();
         assertEquals(context.getString(R.string.network_detection_no_wifi),
                 text(none, R.id.network_detection_now));
         assertEquals(context.getString(R.string.background_location_status_granted),
-                text(none, R.id.settings_background_location_status));
+                fullStatus(none));
     }
 
     @Test
     public void backgroundAccessIsNotRequiredWhileAllNetworksAreAllowed() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.background_location_status_missing_inactive),
-                text(activity, R.id.settings_background_location_status));
+                fullStatus(activity));
         assertEquals("The setup stays reachable", View.VISIBLE,
                 activity.findViewById(R.id.settings_background_location_button).getVisibility());
         assertEquals(context.getColor(R.color.night_muted),
@@ -523,7 +502,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:02", "B");
         KeepADBNetworkBlocklist.blockBssid(context, "aa:bb:cc:dd:ee:03");
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals(context.getString(R.string.networks_count, 2, 1),
                 text(activity, R.id.network_networks_count));
@@ -537,9 +516,9 @@ public class SettingsNetworkCardTest {
 
     @Test
     public void theCountsFollowChangesMadeInTheListOnReturn() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         assertEquals(context.getString(R.string.networks_count, 0, 0),
                 text(activity, R.id.network_networks_count));
 
@@ -556,10 +535,9 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
 
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         ShadowLooper.idleMainLooper();
         assertEquals(context.getString(R.string.network_status_not_allowed),
                 text(activity, R.id.network_status_label));
@@ -600,9 +578,9 @@ public class SettingsNetworkCardTest {
     @Test
     public void openingAndRefreshingNeverChangesAStoredSetting() {
         assertFalse("Fresh install: matching is off", KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-        SettingsActivity fresh = open();
+        ProtectionActivity fresh = open();
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-        assertFalse(((Switch) fresh.findViewById(R.id.settings_trust_by_name_toggle)).isChecked());
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
 
         for (boolean allowlist : new boolean[] {false, true}) {
             for (boolean names : new boolean[] {false, true}) {
@@ -615,10 +593,9 @@ public class SettingsNetworkCardTest {
                 connectTo("Mesh", "aa:bb:cc:dd:ee:02");
                 Map<String, ?> before = trustSettings();
 
-                ActivityController<SettingsActivity> controller =
-                        Robolectric.buildActivity(SettingsActivity.class).setup();
-                SettingsActivity activity = controller.get();
-                activity.findViewById(R.id.settings_network_beta_header).performClick();
+                ActivityController<ProtectionActivity> controller =
+                        Robolectric.buildActivity(ProtectionActivity.class).setup();
+                ProtectionActivity activity = controller.get();
                 controller.pause().resume();
 
                 assertEquals("allowlist=" + allowlist + " names=" + names, before, trustSettings());
@@ -640,14 +617,14 @@ public class SettingsNetworkCardTest {
                 "ee:01", "EE:01"};
 
         KeepADBPreferences.setAppPrivacyEnabled(context, false);
-        SettingsActivity shown = open();
+        ProtectionActivity shown = open();
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
         assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        SettingsActivity hidden = open();
+        ProtectionActivity hidden = open();
         String concealed = everything(hidden);
         for (String secret : secrets) {
             assertFalse("Privacy mode must hide '" + secret + "': " + concealed,
@@ -668,7 +645,7 @@ public class SettingsNetworkCardTest {
                 text(open(), R.id.network_connection_line));
 
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        SettingsActivity hidden = open();
+        ProtectionActivity hidden = open();
         assertEquals(context.getString(R.string.network_privacy_name_hidden)
                 + " \u00b7 DE:*:*:*:*:AD", text(hidden, R.id.network_connection_line));
         String concealed = everything(hidden);
@@ -688,7 +665,7 @@ public class SettingsNetworkCardTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         String hidden = context.getString(R.string.network_privacy_name_hidden);
 
         Button action = activity.findViewById(R.id.network_status_action);
@@ -700,17 +677,12 @@ public class SettingsNetworkCardTest {
 
     // --- helpers ------------------------------------------------------------------------------
 
-    private SettingsActivity open() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+    private ProtectionActivity open() {
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         ShadowLooper.idleMainLooper();
         return activity;
-    }
-
-    private SettingsActivity openClosed() {
-        return Robolectric.buildActivity(SettingsActivity.class).setup().get();
     }
 
     /** The setup in which the former trust-and-connect path switched Wireless Debugging on. */
@@ -762,7 +734,18 @@ public class SettingsNetworkCardTest {
         return result;
     }
 
-    private String text(SettingsActivity activity, int id) {
+    /** #959: the status is one line with "More"; the tap shows the full wording (and "Less"). */
+    private String fullStatus(ProtectionActivity activity) {
+        TextView status = activity.findViewById(R.id.settings_background_location_status);
+        if (!status.getText().toString().endsWith(context.getString(R.string.hint_less))) {
+            status.performClick();
+        }
+        String shown = status.getText().toString();
+        return shown.substring(0, shown.length()
+                - ("  " + context.getString(R.string.hint_less)).length());
+    }
+
+    private String text(ProtectionActivity activity, int id) {
         return ((TextView) activity.findViewById(id)).getText().toString();
     }
 
@@ -777,7 +760,7 @@ public class SettingsNetworkCardTest {
     }
 
     /** Text of every view that is actually on screen (a collapsed body contributes nothing). */
-    private static String shownText(SettingsActivity activity) {
+    private static String shownText(ProtectionActivity activity) {
         StringBuilder out = new StringBuilder();
         for (TextView view : viewsOf(activity.getWindow().getDecorView(), TextView.class)) {
             if (view.isShown()) out.append(view.getText()).append('\n');
@@ -785,10 +768,10 @@ public class SettingsNetworkCardTest {
         return out.toString();
     }
 
-    /** Every string and description in the Network card, shown or not. */
-    private static String everything(SettingsActivity activity) {
+    /** Every string and description on the Protection page, shown or not. */
+    private static String everything(ProtectionActivity activity) {
         StringBuilder out = new StringBuilder();
-        collect(activity.findViewById(R.id.settings_network_beta_panel), out);
+        collect(activity.findViewById(R.id.protection_scroll), out);
         return out.toString();
     }
 

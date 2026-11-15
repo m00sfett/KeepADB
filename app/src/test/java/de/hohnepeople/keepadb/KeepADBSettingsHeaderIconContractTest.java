@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * #736: the network, webhook and diagnostics settings cards each carry a decorative
+ * #736/#959: the protection row, the webhook and diagnostics settings cards each carry a decorative
  * header icon. Static contract over {@code activity_settings.xml}: the icon exists, points at an
  * existing drawable, is hidden from accessibility and has no spoken label, while the adjacent
  * title keeps its string reference.
@@ -30,7 +30,7 @@ public class KeepADBSettingsHeaderIconContractTest {
 
     private static final String[][] HEADERS = {
             // header id, expected title string, expected icon drawable
-            {"settings_network_beta_header", "settings_section_network", "ic_settings_network"},
+            {"settings_protection_row", "protection_title", "ic_settings_network"},
             {"settings_webhook_header", "settings_webhook_title", "ic_settings_sync"},
             {"settings_diagnostics_header", "settings_diagnostics_title", "ic_settings_diagnostics"},
     };

@@ -274,8 +274,15 @@
     <string name="state_pending">Przełączanie…</string>
     <string name="tile_state_keep_alive_waiting">Wyłączone – Keep-Alive czeka</string>
     <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
-    <string name="settings_section_network">Sieć</string>
-    <string name="network_head_mode">Automatyczne ponowne włączanie: %1$s</string>
+    <string name="protection_title">Ochrona</string>
+    <string name="protection_automatic_title">Zachowanie automatyczne</string>
+    <string name="untrusted_shutdown_hint_short">Wyłącza debugowanie bezprzewodowe w niezaufanej sieci Wi-Fi.</string>
+    <string name="security_check_hint_short">Wstrzymuje automatyczne włączanie, gdy zaufany router ma słabsze zabezpieczenia.</string>
+    <string name="hint_more">Więcej ▾</string>
+    <string name="hint_less">Mniej ▴</string>
+    <string name="protection_background_short_granted">Przyznano</string>
+    <string name="protection_background_short_missing">Ograniczone</string>
+    <string name="protection_background_short_inactive">Niepotrzebne w tej konfiguracji</string>
     <string name="network_mode_option_all_wifi">We wszystkich sieciach Wi-Fi</string>
     <string name="network_mode_option_aps">Tylko zaufane punkty dostępowe</string>
     <string name="network_mode_option_aps_names">Zaufane punkty dostępowe i nazwy Wi-Fi</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Objaśnienie pojęć</string>
     <string name="networks_glossary_ssid">Nazwa Wi-Fi (SSID): nazwa, którą rozgłasza sieć Wi-Fi. Każdy może uruchomić sieć o takiej samej nazwie.</string>
     <string name="networks_glossary_bssid">Punkt dostępowy (BSSID): pojedynczy nadajnik, na przykład router, wzmacniacz lub węzeł mesh. Jego adres sprzętowy, np. AA:BB:CC:11:22:33, jest dokładniejszy niż nazwa, ale również nie jest dowodem.</string>
-    <string name="networks_comfort_title">Ufaj także według nazwy Wi-Fi</string>
-    <string name="networks_comfort_hint">Wygodniejsze przy sieciach mesh i wzmacniaczach. Nazwę łatwo podrobić.</string>
-    <string name="networks_comfort_no_effect">Bez efektu, dopóki obowiązuje dotychczasowe ustawienie „We wszystkich sieciach Wi-Fi”.</string>
     <string name="untrusted_shutdown_title">Wyłączaj w niezaufanych sieciach Wi-Fi</string>
     <string name="untrusted_shutdown_hint">Gdy Keep-Alive jest włączony, KeepADB wyłącza debugowanie bezprzewodowe w sieci Wi-Fi, która nie jest zaufana, jest zablokowana lub nie da się jej rozpoznać, zamiast tylko powiadamiać. Sesja włączona przez Ciebie w KeepADB pozostaje aktywna przy tym routerze Wi-Fi. Tryb wymuszony to wstrzymuje.</string>
     <string name="untrusted_shutdown_channel_name">Wyłączanie w niezaufanych sieciach Wi-Fi</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Teraz: sieć jest czytelna. To nie dowodzi, że uruchomienie Keep-Alive w tle również ją odczyta.</string>
     <string name="network_detection_unreadable">Teraz: sieci nie można odczytać.</string>
     <string name="network_detection_no_wifi">Teraz: brak połączenia Wi-Fi, więc nie ma czego odczytać.</string>
-    <string name="network_manage_title">Punkty dostępowe</string>
     <string name="card_state_expanded">Rozwinięte</string>
     <string name="card_state_collapsed">Zwinięte</string>
     <string name="network_ap_allowed_toast">Punkt dostępowy „%1$s” jest teraz zaufany</string>
@@ -647,7 +650,6 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="overview_last_delivery_short_none">Jeszcze nic</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Ostatnio pytano</string>
-    <string name="networks_section_settings">Ustawienia</string>
     <string name="networks_recent_hint">KeepADB pytał o te sieci Wi-Fi i nie dostał odpowiedzi, na przykład dlatego, że powiadomienie zostało odrzucone.</string>
     <string name="networks_recent_asked">Ostatnio widziano %1$s</string>
     <string name="networks_recent_decide">Zdecyduj…</string>

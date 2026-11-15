@@ -274,8 +274,15 @@
     <string name="state_pending">جارٍ التبديل…</string>
     <string name="tile_state_keep_alive_waiting">متوقف — ينتظر Keep-Alive</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
-    <string name="settings_section_network">الشبكة</string>
-    <string name="network_head_mode">إعادة التفعيل التلقائي: %1$s</string>
+    <string name="protection_title">الحماية</string>
+    <string name="protection_automatic_title">السلوك التلقائي</string>
+    <string name="untrusted_shutdown_hint_short">يوقف تصحيح الأخطاء اللاسلكي في شبكة Wi-Fi غير موثوقة.</string>
+    <string name="security_check_hint_short">يوقف التشغيل التلقائي مؤقتًا إذا أصبح أمان نقطة اتصال موثوقة أضعف.</string>
+    <string name="hint_more">المزيد ▾</string>
+    <string name="hint_less">أقل ▴</string>
+    <string name="protection_background_short_granted">مسموح</string>
+    <string name="protection_background_short_missing">مقيّد</string>
+    <string name="protection_background_short_inactive">غير مطلوب في هذا الإعداد</string>
     <string name="network_mode_option_all_wifi">في جميع شبكات Wi-Fi</string>
     <string name="network_mode_option_aps">نقاط الوصول الموثوقة فقط</string>
     <string name="network_mode_option_aps_names">نقاط الوصول وأسماء Wi-Fi الموثوقة</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">شرح المصطلحات</string>
     <string name="networks_glossary_ssid">اسم شبكة Wi-Fi (SSID): الاسم الذي تبثّه شبكة Wi-Fi. يمكن لأي شخص إنشاء شبكة بالاسم نفسه.</string>
     <string name="networks_glossary_bssid">نقطة الوصول (BSSID): مرسِل واحد، مثل جهاز توجيه أو مكرِّر أو عقدة Mesh. عنوانها العتادي، مثل AA:BB:CC:11:22:33، أدق من الاسم، لكنه ليس دليلًا قاطعًا أيضًا.</string>
-    <string name="networks_comfort_title">الوثوق أيضًا حسب اسم شبكة Wi-Fi</string>
-    <string name="networks_comfort_hint">أكثر راحة مع شبكات Mesh والمكرِّرات. يسهل تقليد الاسم.</string>
-    <string name="networks_comfort_no_effect">لا تأثير له ما دام الإعداد السابق «في جميع شبكات Wi-Fi» ساريًا.</string>
     <string name="untrusted_shutdown_title">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
     <string name="untrusted_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB تصحيح الأخطاء اللاسلكي في شبكة Wi-Fi غير موثوقة أو محظورة أو لا يمكن التعرف عليها، بدلًا من الاكتفاء بإشعارك. الجلسة التي شغّلتها بنفسك في KeepADB تبقى مفعّلة عند نقطة الاتصال تلك. الوضع الإجباري يعلّق ذلك.</string>
     <string name="untrusted_shutdown_channel_name">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">الآن: الشبكة قابلة للقراءة. هذا لا يثبت أن بدء Keep-Alive في الخلفية يستطيع قراءتها أيضًا.</string>
     <string name="network_detection_unreadable">الآن: تتعذر قراءة الشبكة.</string>
     <string name="network_detection_no_wifi">الآن: لا يوجد اتصال Wi-Fi، فلا شيء لقراءته.</string>
-    <string name="network_manage_title">نقاط الوصول</string>
     <string name="card_state_expanded">موسّع</string>
     <string name="card_state_collapsed">مطوي</string>
     <string name="network_ap_allowed_toast">أصبحت نقطة الوصول «%1$s» موثوقة</string>
@@ -649,7 +652,6 @@
     <string name="overview_last_delivery_short_none">لا شيء بعد</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">سُئل عنها مؤخرًا</string>
-    <string name="networks_section_settings">الإعدادات</string>
     <string name="networks_recent_hint">سأل KeepADB عن شبكات Wi-Fi هذه ولم يتلقَّ إجابة، مثلًا لأن الإشعار أُزيل بالسحب.</string>
     <string name="networks_recent_asked">آخر ظهور %1$s</string>
     <string name="networks_recent_decide">قرِّر…</string>

@@ -451,7 +451,7 @@ public class KeepADBUntrustedShutdownTest {
         KeepADBReceiver.allowBssidOnly(context, HOME, "Home"); // records the baseline
         setSecurityType(0); // now open
         gateway.writes.clear();
-        SettingsActivity activity = org.robolectric.Robolectric.buildActivity(SettingsActivity.class)
+        ProtectionActivity activity = org.robolectric.Robolectric.buildActivity(ProtectionActivity.class)
                 .setup().get();
         android.widget.Switch toggle = activity.findViewById(R.id.settings_security_check_toggle);
         assertFalse(toggle.isChecked());

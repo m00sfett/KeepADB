@@ -11,7 +11,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * The one Networks list behind the Network card in {@link SettingsActivity} (#654, #762, #769):
+ * The one Wi-Fi networks list behind the Protection page ({@link ProtectionActivity}; #654, #762, #769, #959):
  * the current network on top and the saved ones grouped by Wi-Fi name, each with one status,
  * drawn by {@link NetworkListRenderer} from {@link KeepADBNetworkList}. The three older views
  * (allowed access points, recently prevented re-enabling, observed access points) were removed

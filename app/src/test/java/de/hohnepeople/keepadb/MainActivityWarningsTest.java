@@ -144,6 +144,14 @@ public class MainActivityWarningsTest {
         assertTrue(intent.getBooleanExtra(extra, false));
     }
 
+    /** #959: the force row and the protection level are on the Protection page. */
+    private static void assertLeadsToProtection(MainActivity activity, int cardId, String extra) {
+        action(activity, cardId).performClick();
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertEquals(ProtectionActivity.class.getName(), intent.getComponent().getClassName());
+        assertTrue(intent.getBooleanExtra(extra, false));
+    }
+
     // ---- The setup cards are gone ---------------------------------------------------------------
 
     @Test
@@ -250,7 +258,7 @@ public class MainActivityWarningsTest {
         assertEquals(context.getString(R.string.network_mode_option_all_wifi) + "\n"
                         + context.getString(R.string.settings_webhook_cleartext_warning),
                 text(activity, R.id.warning_less_secure).getText().toString());
-        assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_NETWORK);
+        assertLeadsToProtection(activity, R.id.warning_less_secure, ProtectionActivity.EXTRA_FOCUS_LEVEL);
     }
 
     @Test

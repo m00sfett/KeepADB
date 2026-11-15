@@ -69,8 +69,8 @@ public class SettingsBackgroundLocationDialogTest {
         KeepADB.resetForTesting();
     }
 
-    private ActivityController<SettingsActivity> openSettings() {
-        return Robolectric.buildActivity(SettingsActivity.class).setup();
+    private ActivityController<ProtectionActivity> openSettings() {
+        return Robolectric.buildActivity(ProtectionActivity.class).setup();
     }
 
     private static AlertDialog latestDialog() {
@@ -98,7 +98,7 @@ public class SettingsBackgroundLocationDialogTest {
         assertTrue("No dialog must appear", ShadowDialog.getShownDialogs().isEmpty());
     }
 
-    private static void assertNoRuntimeRequest(SettingsActivity activity) {
+    private static void assertNoRuntimeRequest(ProtectionActivity activity) {
         assertNull("ACCESS_BACKGROUND_LOCATION is never requested through a runtime dialog",
                 shadowOf(activity).getLastRequestedPermission());
     }
@@ -112,7 +112,7 @@ public class SettingsBackgroundLocationDialogTest {
     @Test
     public void settingsButtonWithoutGrantShowsStepTwoBeforeAnyJump() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        SettingsActivity activity = openSettings().get();
+        ProtectionActivity activity = openSettings().get();
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
 
@@ -129,16 +129,17 @@ public class SettingsBackgroundLocationDialogTest {
     }
 
     @Test
-    public void settingsButtonLaterKeepsTheModeAndTrustAllLeadsToTheProtectionStep() {
+    public void settingsButtonLaterKeepsTheModeAndTheChooseLevelButtonLeadsToTheLevelOnThePage() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        SettingsActivity activity = openSettings().get();
+        ProtectionActivity activity = openSettings().get();
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
         click(latestDialog(), AlertDialog.BUTTON_NEGATIVE);
         assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
         assertNull(shadowOf(activity).getNextStartedActivity());
         assertEquals("The missing grant stays visible after \"later\"",
-                context.getString(R.string.background_location_status_missing),
+                context.getString(R.string.protection_background_short_missing) + "  "
+                        + context.getString(R.string.hint_more),
                 ((TextView) activity.findViewById(R.id.settings_background_location_status))
                         .getText().toString());
 
@@ -149,21 +150,18 @@ public class SettingsBackgroundLocationDialogTest {
         assertEquals("Choose protection level", label);
         assertFalse(label.contains("Trust all"));
         click(latestDialog(), AlertDialog.BUTTON_NEUTRAL);
-        // #782: the button leads to the protection step instead of switching the mode itself.
+        // #782/#959: the button leads to the level choice, which is on this page now, instead of
+        // switching the mode itself or opening the assistant.
         assertEquals("The button itself changes nothing", KeepADBTrustedNetwork.MODE_ALLOWLIST,
                 KeepADBTrustedNetwork.getMode(context));
-        Intent assistant = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(assistant);
-        assertEquals(OnboardingActivity.class.getName(), assistant.getComponent().getClassName());
-        assertEquals(KeepADBOnboarding.Step.PROTECTION.id,
-                assistant.getStringExtra(OnboardingActivity.EXTRA_STEP));
+        assertNull("No assistant opens", shadowOf(activity).getNextStartedActivity());
     }
 
     @Test
     public void settingsButtonWithGrantJumpsDirectlyWithoutDialog() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-        SettingsActivity activity = openSettings().get();
+        ProtectionActivity activity = openSettings().get();
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
 
@@ -176,7 +174,7 @@ public class SettingsBackgroundLocationDialogTest {
     @Test
     public void settingsButtonInAllWifiModeOffersNoPointlessTrustAllAction() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity activity = openSettings().get();
+        ProtectionActivity activity = openSettings().get();
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
 
@@ -194,8 +192,8 @@ public class SettingsBackgroundLocationDialogTest {
     @Test
     public void returningWithGrantShowsNoDialogAgain() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        ActivityController<SettingsActivity> controller = openSettings();
-        SettingsActivity activity = controller.get();
+        ActivityController<ProtectionActivity> controller = openSettings();
+        ProtectionActivity activity = controller.get();
         activity.findViewById(R.id.settings_background_location_button).performClick();
         click(latestDialog(), AlertDialog.BUTTON_POSITIVE);
         assertNotNull(shadowOf(activity).getNextStartedActivity());
@@ -208,16 +206,16 @@ public class SettingsBackgroundLocationDialogTest {
 
         assertNoDialogShown();
         TextView status = activity.findViewById(R.id.settings_background_location_status);
-        assertEquals(context.getString(R.string.background_location_status_granted),
-                status.getText().toString());
+        assertEquals(context.getString(R.string.protection_background_short_granted) + "  "
+                + context.getString(R.string.hint_more), status.getText().toString());
         assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
     }
 
     @Test
     public void returningWithoutGrantDoesNotNagOnItsOwn() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        ActivityController<SettingsActivity> controller = openSettings();
-        SettingsActivity activity = controller.get();
+        ActivityController<ProtectionActivity> controller = openSettings();
+        ProtectionActivity activity = controller.get();
         activity.findViewById(R.id.settings_background_location_button).performClick();
         click(latestDialog(), AlertDialog.BUTTON_NEGATIVE);
         ShadowDialog.reset();
@@ -230,7 +228,7 @@ public class SettingsBackgroundLocationDialogTest {
     @Test
     public void repeatedClicksNeverStackTwoStepTwoDialogs() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        SettingsActivity activity = openSettings().get();
+        ProtectionActivity activity = openSettings().get();
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
         AlertDialog first = latestDialog();

@@ -274,8 +274,15 @@
     <string name="state_pending">Mengalihkan…</string>
     <string name="tile_state_keep_alive_waiting">Nonaktif – Keep-Alive menunggu</string>
     <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
-    <string name="settings_section_network">Jaringan</string>
-    <string name="network_head_mode">Pengaktifan ulang otomatis: %1$s</string>
+    <string name="protection_title">Perlindungan</string>
+    <string name="protection_automatic_title">Perilaku otomatis</string>
+    <string name="untrusted_shutdown_hint_short">Mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya.</string>
+    <string name="security_check_hint_short">Menjeda penyalaan otomatis jika titik Wi-Fi yang dipercaya menunjukkan keamanan lebih lemah.</string>
+    <string name="hint_more">Selengkapnya ▾</string>
+    <string name="hint_less">Lebih sedikit ▴</string>
+    <string name="protection_background_short_granted">Diizinkan</string>
+    <string name="protection_background_short_missing">Dibatasi</string>
+    <string name="protection_background_short_inactive">Tidak diperlukan dalam konfigurasi ini</string>
     <string name="network_mode_option_all_wifi">Di semua jaringan Wi-Fi</string>
     <string name="network_mode_option_aps">Hanya titik akses yang dipercaya</string>
     <string name="network_mode_option_aps_names">Titik akses dan nama Wi-Fi yang dipercaya</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Istilah dijelaskan</string>
     <string name="networks_glossary_ssid">Nama Wi-Fi (SSID): nama yang disiarkan jaringan Wi-Fi. Siapa pun dapat membuat jaringan dengan nama yang sama.</string>
     <string name="networks_glossary_bssid">Titik akses (BSSID): satu pemancar, misalnya router, repeater, atau node mesh. Alamat perangkat kerasnya, misalnya AA:BB:CC:11:22:33, lebih spesifik daripada nama, tetapi juga bukan bukti.</string>
-    <string name="networks_comfort_title">Percayai juga berdasarkan nama Wi-Fi</string>
-    <string name="networks_comfort_hint">Lebih praktis untuk mesh dan repeater. Nama mudah ditiru.</string>
-    <string name="networks_comfort_no_effect">Tidak berpengaruh selama pengaturan sebelumnya “Di semua jaringan Wi-Fi” berlaku.</string>
     <string name="untrusted_shutdown_title">Matikan di Wi-Fi yang tidak dipercaya</string>
     <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
     <string name="untrusted_shutdown_channel_name">Pematian di Wi-Fi tidak dipercaya</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Saat ini: jaringan terbaca. Itu tidak membuktikan bahwa Keep-Alive yang dimulai di latar belakang juga dapat membacanya.</string>
     <string name="network_detection_unreadable">Saat ini: jaringan tidak dapat dibaca.</string>
     <string name="network_detection_no_wifi">Saat ini: tidak ada Wi-Fi yang terhubung, jadi tidak ada yang dapat dibaca.</string>
-    <string name="network_manage_title">Titik akses</string>
     <string name="card_state_expanded">Terbuka</string>
     <string name="card_state_collapsed">Tertutup</string>
     <string name="network_ap_allowed_toast">Titik akses “%1$s” dipercaya</string>
@@ -644,7 +647,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="overview_last_delivery_short_none">Belum ada</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Baru ditanyakan</string>
-    <string name="networks_section_settings">Setelan</string>
     <string name="networks_recent_hint">KeepADB menanyakan jaringan Wi-Fi ini dan tidak mendapat jawaban, misalnya karena notifikasi digeser.</string>
     <string name="networks_recent_asked">Terakhir terlihat %1$s</string>
     <string name="networks_recent_decide">Putuskan…</string>

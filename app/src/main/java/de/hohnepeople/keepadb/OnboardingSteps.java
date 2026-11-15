@@ -7,7 +7,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -109,8 +108,8 @@ final class OnboardingSteps {
      * Where Keep-Alive may switch on. Two presets can be chosen; a stored previous setting ("in all
      * Wi-Fi networks", the old name list) is shown first, preselected and marked, and stays chosen
      * unless the user picks a preset: this step is the way back from those settings (#769, #761).
-     * "Customize" shows the one single value behind the presets, the comfort switch, and the force
-     * row of the Settings.
+     * "Customize" shows the force row of the Protection page (#959: the comfort switch that sat
+     * beside it is gone, the "Balanced" card is the one control of by-name trust).
      *
      * <p>The third card, "Maximum convenience (force)" (#768), is no stored level: a tap on it does
      * not select it but opens the confirmation dialog of the force mode (#763), which alone starts
@@ -120,8 +119,6 @@ final class OnboardingSteps {
     static final class Protection extends OnboardingStep {
         private final List<KeepADBTrustedNetwork.ProtectionLevel> levels = new ArrayList<>();
         private OnboardingChoiceCard.Group group;
-        private Switch comfortSwitch;
-        private boolean updatingSwitch;
         private String restored;
         private Bundle restoredForce;
         private int forceIndex = -1;
@@ -129,7 +126,6 @@ final class OnboardingSteps {
         private int settledIndex;
         private OnboardingChoiceCard forceCard;
         private KeepADBForceSection forceSection;
-        private View comfortNote;
         private TextView keepAliveNote;
         private Activity host;
 
@@ -203,7 +199,6 @@ final class OnboardingSteps {
             boolean forcePending = FORCE_TOKEN.equals(pendingName) && KeepADBForceMode.isActive(host);
             settledIndex = forceStart || forcePending ? forceIndex : levels.indexOf(start);
             group.selectQuietly(settledIndex);
-            syncSwitch();
             group.setListener(this::onCardSelected);
         }
 
@@ -215,7 +210,6 @@ final class OnboardingSteps {
             } else {
                 settledIndex = index;
             }
-            syncSwitch();
         }
 
         /** The dialog confirmed, or the force mode was ended from the row: follow the real state. */
@@ -232,7 +226,6 @@ final class OnboardingSteps {
                 keepAliveNote.setVisibility(View.GONE);
             }
             forceSection.refresh();
-            syncSwitch();
         }
 
         private String forceBody() {
@@ -273,35 +266,12 @@ final class OnboardingSteps {
             content.addView(customize);
             final TextView toggle = customize.findViewById(R.id.onboarding_customize_toggle);
             final View panel = customize.findViewById(R.id.onboarding_customize_panel);
-            comfortSwitch = customize.findViewById(R.id.onboarding_comfort_switch);
-            comfortNote = customize.findViewById(R.id.onboarding_force_comfort_note);
             toggle.setOnClickListener(v -> {
                 boolean open = panel.getVisibility() != View.VISIBLE;
                 panel.setVisibility(open ? View.VISIBLE : View.GONE);
                 toggle.setText(open ? R.string.onboarding_customize_hide
                         : R.string.onboarding_customize_show);
             });
-            comfortSwitch.setOnCheckedChangeListener((button, checked) -> {
-                if (updatingSwitch) return;
-                group.select(levels.indexOf(checked
-                        ? KeepADBTrustedNetwork.ProtectionLevel.BALANCED
-                        : KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY));
-            });
-        }
-
-        /**
-         * The comfort switch is the same fact as the "Balanced" card, never a third state. While the
-         * force card is chosen it has no effect (the mode overrides trust) and says so.
-         */
-        private void syncSwitch() {
-            boolean force = group.selectedIndex() == forceIndex;
-            KeepADBTrustedNetwork.ProtectionLevel level = force
-                    ? KeepADBTrustedNetwork.getProtectionLevel(host) : selectedLevel();
-            updatingSwitch = true;
-            comfortSwitch.setChecked(level == KeepADBTrustedNetwork.ProtectionLevel.BALANCED);
-            updatingSwitch = false;
-            comfortSwitch.setEnabled(!force);
-            comfortNote.setVisibility(force ? View.VISIBLE : View.GONE);
         }
 
         /** The chosen level card, or null while the force card is chosen. */

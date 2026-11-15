@@ -85,7 +85,7 @@ public class SettingsActivityTest {
         KeepADBPreferences.setAppLanguage(RuntimeEnvironment.getApplication(), "en");
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
         int[] headers = {R.id.settings_webhook_header,
-                R.id.settings_network_beta_header, R.id.settings_misc_header,
+                R.id.settings_misc_header,
                 R.id.settings_diagnostics_header};
         for (int id : headers) {
             View header = activity.findViewById(id);
@@ -493,7 +493,6 @@ public class SettingsActivityTest {
     // they are permanently visible and never collapse -- so they were removed from this list.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
-            {R.id.settings_network_beta_header, R.id.settings_network_beta_body},
             {R.id.settings_privacy_header, R.id.settings_privacy_body},
             {R.id.settings_misc_header, R.id.settings_misc_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
@@ -730,118 +729,67 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #760/#769: the comfort switch is the one security control left in the Network card, so its
-     * wiring is pinned, not just the persisted semantics in {@link KeepADBTrustedNetworkTest}: a
-     * new installation starts on the allowlist with the switch off, a tap persists exactly the
-     * "trust by name" rule, and it touches neither the stored mode nor the legacy name setting.
-     * The note that the switch has no effect appears only while the legacy "all networks" policy
-     * is stored, and the card never writes the policy by itself when it is drawn.
+     * #959: "Protection" is one row that opens its own page, not a card that expands inline. None
+     * of the former card's content is on the Settings page any more, and the removed controls of
+     * #769 stay gone.
      */
     @Test
-    public void theComfortSwitchStartsOffPersistsOnlyItsOwnRuleAndNamesWhenItHasNoEffect() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        Switch comfort = activity.findViewById(R.id.settings_trust_by_name_toggle);
-        View noEffect = activity.findViewById(R.id.network_comfort_no_effect);
-
-        assertTrue("The restriction is the default of a new installation (#760)",
-                KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertFalse("The comfort switch is an opt-in", comfort.isChecked());
-        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
-        assertEquals(View.GONE, noEffect.getVisibility());
-
-        comfort.performClick();
-        assertTrue("The tap must persist the rule, not just render it",
-                KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
-        assertTrue(comfort.isChecked());
-        assertTrue("The switch never changes the policy", KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertFalse("The switch never turns the legacy name list on",
-                KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
-
-        comfort.performClick();
-        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
-        controller.pause().stop().destroy();
-
-        // The other side: under the stored legacy policy the switch is explained as without effect.
-        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
-                KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity legacy = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        assertEquals(View.VISIBLE, legacy.findViewById(R.id.network_comfort_no_effect).getVisibility());
-        assertFalse("Drawing the card must not rewrite the stored policy",
-                KeepADBTrustedNetwork.isAllowlistMode(legacy));
-    }
-
-    /**
-#618/#654/#769: the Network card is one collapsible card. Opening it must reveal every
-     * section without another expand target. The mode choice, the observation option and the
-     * legacy Wi-Fi-name section are gone for good. Beta badges stay removed.
-     */
-    @Test
-    public void networkCardShowsItsSectionsAfterOneExpandStep() {
+    public void protectionIsOneRowThatOpensItsPageAndNothingOfTheFormerCardExpandsInline() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View outerPanel = activity.findViewById(R.id.settings_network_beta_panel);
-        assertNotNull(outerPanel);
-        assertEquals(View.VISIBLE, outerPanel.getVisibility());
-
-        View outerBody = activity.findViewById(R.id.settings_network_beta_body);
-        TextView outerArrow = activity.findViewById(R.id.settings_network_beta_arrow);
-        int[] headings = {
-                R.id.network_status_heading,
-                R.id.network_background_heading,
-                R.id.network_manage_heading,
-        };
-        int[] directControls = {
-                R.id.settings_trust_by_name_toggle,
-                R.id.settings_background_location_button,
-                R.id.network_networks_row,
-        };
-
-        assertEquals(View.GONE, outerBody.getVisibility());
-        assertEquals("+", outerArrow.getText().toString());
-        for (int id : headings) {
-            TextView heading = activity.findViewById(id);
-            assertTrue("Section heading must be an accessibility heading: " + id,
-                    heading.isAccessibilityHeading());
-            assertFalse(heading.isClickable());
-            assertFalse(heading.isFocusable());
+        View row = activity.findViewById(R.id.settings_protection_row);
+        assertNotNull(row);
+        assertTrue(row.isShown());
+        assertTrue(row.isClickable());
+        for (int gone : new int[] {R.id.network_status_label, R.id.network_networks_row,
+                R.id.settings_background_location_button, R.id.settings_force_panel,
+                R.id.settings_untrusted_shutdown_toggle, R.id.settings_security_check_toggle}) {
+            assertNull("The former card's content is on the Protection page: " + gone,
+                    activity.findViewById(gone));
         }
-        for (int id : directControls) {
-            assertFalse("Network control must stay hidden while the card is closed: " + id,
-                    activity.findViewById(id).isShown());
-        }
-        for (String badge : new String[] {"settings_trusted_network_beta_badge",
-                "settings_wifi_aps_beta_badge"}) {
-            assertEquals("Beta badge id must be removed: " + badge, 0,
-                    activity.getResources().getIdentifier(badge, "id", activity.getPackageName()));
-        }
-
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-
-        assertEquals(View.VISIBLE, outerBody.getVisibility());
-        assertEquals("−", outerArrow.getText().toString());
-        for (int id : directControls) {
-            View control = activity.findViewById(id);
-            assertTrue("Network control must be shown after one outer expand step: " + id,
-                    control.isShown());
-            assertTrue("Network control must keep its click listener: " + id,
-                    control.hasOnClickListeners());
-        }
-        for (String removed : new String[] {"network_mode_group", "network_mode_all_wifi",
-                "network_mode_allowlist", "network_allowed_row", "network_prevented_row",
-                "network_observed_row", "settings_wifi_aps_feature_toggle", "network_ssid_header",
-                "settings_trusted_ssid_toggle", "wifi_ssids_list"}) {
+        for (String removed : new String[] {"settings_network_beta_panel",
+                "settings_network_beta_header", "settings_network_beta_body",
+                "settings_network_beta_arrow", "settings_trust_by_name_toggle",
+                "network_level_line", "network_comfort_no_effect", "network_mode_group",
+                "network_allowed_row", "network_prevented_row", "network_observed_row",
+                "settings_wifi_aps_feature_toggle", "network_ssid_header",
+                "settings_trusted_ssid_toggle", "wifi_ssids_list",
+                "settings_trusted_network_beta_badge", "settings_wifi_aps_beta_badge"}) {
             assertEquals("The removed control must be gone: " + removed, 0,
                     activity.getResources().getIdentifier(removed, "id", activity.getPackageName()));
         }
 
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        assertEquals(View.GONE, outerBody.getVisibility());
-        assertEquals("+", outerArrow.getText().toString());
+        row.performClick();
+        Intent opened = shadowOf(activity).getNextStartedActivity();
+        assertEquals(ProtectionActivity.class.getName(), opened.getComponent().getClassName());
+        assertFalse("The row opens the page at its top", opened.hasExtra(
+                ProtectionActivity.EXTRA_FOCUS_LEVEL) || opened.hasExtra(
+                ProtectionActivity.EXTRA_FOCUS_FORCE));
         controller.pause().stop().destroy();
+    }
+
+    /** #959: the row's summary names the protection level and the counts, and hides the counts. */
+    @Test
+    public void theProtectionRowSummaryNamesTheLevelAndTheCountsAndFollowsThePrivacyMode() {
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "Home");
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
+        SettingsActivity shown = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        TextView summary = shown.findViewById(R.id.settings_protection_summary);
+        assertEquals(context.getString(R.string.networks_level,
+                        context.getString(R.string.force_level_maximum))
+                        + " \u00b7 " + context.getString(R.string.networks_count, 1, 0),
+                summary.getText().toString());
+
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        SettingsActivity hidden = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        assertEquals(context.getString(R.string.networks_level,
+                        context.getString(R.string.force_level_maximum))
+                        + " \u00b7 " + context.getString(R.string.networks_count_hidden),
+                ((TextView) hidden.findViewById(R.id.settings_protection_summary)).getText()
+                        .toString());
     }
 
     /**
@@ -900,12 +848,10 @@ public class SettingsActivityTest {
         assertFalse("The name alternative must default to off",
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
 
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-
-        assertFalse(((Switch) activity.findViewById(R.id.settings_trust_by_name_toggle)).isChecked());
-        assertEquals(activity.getString(R.string.networks_level,
-                        KeepADBForceNotice.levelLabel(activity)),
-                ((TextView) activity.findViewById(R.id.network_level_line)).getText().toString());
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        assertTrue(((TextView) activity.findViewById(R.id.settings_protection_summary)).getText()
+                .toString().startsWith(activity.getString(R.string.networks_level,
+                        KeepADBForceNotice.levelLabel(activity))));
     }
 
     @Test
@@ -966,22 +912,6 @@ public class SettingsActivityTest {
                         android.content.Context.ACTIVITY_SERVICE)).isApplicationUserDataCleared());
 
         dialog.dismiss();
-        restored.pause().stop().destroy();
-    }
-
-    @Test
-    public void backgroundLocationDialogSurvivesRotation() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        // #697: the dialog now belongs to KeepADBNetworkCard; open it through its real entry
-        // point (the card's background-access button, no grant yet) instead of reflection.
-        controller.get().findViewById(R.id.settings_background_location_button).performClick();
-        assertDialogShowingWithTitle(R.string.background_location_panel_title, controller.get());
-
-        ActivityController<SettingsActivity> restored = rotate(controller);
-        assertDialogShowingWithTitle(R.string.background_location_panel_title, restored.get());
-
-        ShadowAlertDialog.getLatestAlertDialog().dismiss();
         restored.pause().stop().destroy();
     }
 

@@ -190,15 +190,15 @@ public class MainActivityForceCardTest {
     }
 
     @Test
-    public void theSettingsButtonOpensTheForceRowOfTheSettings() {
+    public void theSettingsButtonOpensTheForceRowOfTheProtectionPage() {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
 
         activity.findViewById(R.id.btn_force_settings).performClick();
 
         Intent started = shadowOf(activity).getNextStartedActivity();
-        assertEquals(SettingsActivity.class.getName(), started.getComponent().getClassName());
-        assertTrue(started.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_FORCE, false));
+        assertEquals(ProtectionActivity.class.getName(), started.getComponent().getClassName());
+        assertTrue(started.getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_FORCE, false));
         assertTrue("Tapping Settings does not end anything", KeepADBForceMode.isActive(context));
     }
 

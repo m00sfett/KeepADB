@@ -77,8 +77,8 @@ public class MainActivityKeepAliveLineTapTest {
 
         Intent opened = shadowOf(activity).getNextStartedActivity();
         assertNotNull("the tap must start something", opened);
-        assertEquals(SettingsActivity.class.getName(), opened.getComponent().getClassName());
-        assertTrue(opened.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, false));
+        assertEquals(ProtectionActivity.class.getName(), opened.getComponent().getClassName());
+        assertTrue(opened.getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_LEVEL, false));
         assertNull("the tap does not toggle Keep-Alive", shadowOf((Application) context).getNextStartedService());
     }
 
@@ -101,7 +101,7 @@ public class MainActivityKeepAliveLineTapTest {
         line.performClick();
         Intent opened = shadowOf(activity).getNextStartedActivity();
         assertNotNull(opened);
-        assertTrue(opened.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, false));
+        assertTrue(opened.getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_LEVEL, false));
     }
 
     /** The line is a real tap target: 48 dp high, a chevron says it leads on, keyboard reachable. */
@@ -146,16 +146,17 @@ public class MainActivityKeepAliveLineTapTest {
     }
 
     @Test
-    public void theSettingsOpenWithTheNetworkCardExpandedOnlyWhenAsked() {
-        SettingsActivity plain = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        assertEquals("control: collapsed by default", View.GONE,
-                plain.findViewById(R.id.settings_network_beta_body).getVisibility());
+    public void theProtectionPageOpensAtTheLevelOnlyWhenAsked() {
+        ProtectionActivity plain =
+                Robolectric.buildActivity(ProtectionActivity.class).setup().get();
+        assertEquals("control: the level section is on the page either way", View.VISIBLE,
+                plain.findViewById(R.id.protection_level_panel).getVisibility());
+        assertFalse(plain.getIntent().hasExtra(ProtectionActivity.EXTRA_FOCUS_LEVEL));
 
-        Intent focus = new Intent(context, SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
-        SettingsActivity focused = Robolectric.buildActivity(SettingsActivity.class, focus).setup().get();
-        assertEquals(View.VISIBLE, focused.findViewById(R.id.settings_network_beta_body).getVisibility());
-        assertEquals(View.VISIBLE, focused.findViewById(R.id.settings_network_level_panel).getVisibility());
-        assertFalse("the request is used up", focused.getIntent().hasExtra(SettingsActivity.EXTRA_FOCUS_NETWORK));
+        ProtectionActivity focused = Robolectric.buildActivity(ProtectionActivity.class,
+                ProtectionActivity.levelIntent(context)).setup().get();
+        assertEquals(View.VISIBLE, focused.findViewById(R.id.protection_level_panel).getVisibility());
+        assertFalse("the request is used up",
+                focused.getIntent().hasExtra(ProtectionActivity.EXTRA_FOCUS_LEVEL));
     }
 }

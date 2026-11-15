@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #959: the Protection page, opened from the one "Protection" row of Settings. It holds what the
+     collapsible "Network" card of Settings held (#519/#654), in this order: the current
+     connection, the protection level (chosen here), the automatic behavior, the force mode, the
+     entry to the Wi-Fi networks list and the detection in the background. Help texts are one line
+     each; "More" shows the full text. Long lists live in NetworkListActivity. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ground"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/header_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/banner_red"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_btn_header"
+            android:contentDescription="@string/back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/protection_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/protection_title"
+            android:textColor="@color/title_yellow"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- #725: privacy-mode eye, same button and state as on the main view. -->
+        <include
+            layout="@layout/view_privacy_toggle"
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/protection_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 1. Current connection: connection, decision, cause and action come before the
+                 level (#654). Colour only ever reinforces the status text. -->
+            <LinearLayout
+                android:id="@+id/settings_network_status_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/network_status_heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/network_current_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/network_status_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textColor="@color/night_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/network_connection_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/network_status_cause"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/network_status_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_primary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+
+                <!-- #949: block or decide the current network in the Wi-Fi networks list. -->
+                <Button
+                    android:id="@+id/network_status_decide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/network_action_decide"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+
+                <!-- #654: shown only while the privacy mode hides names and addresses. -->
+                <TextView
+                    android:id="@+id/network_privacy_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/network_privacy_hint"
+                    android:textColor="@color/night_muted"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/border_red" />
+
+            <!-- 2. Protection level: the one control of by-name trust. Chosen here; the cards are
+                 built by KeepADBProtectionLevelSection. -->
+            <LinearLayout
+                android:id="@+id/protection_level_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/protection_level_heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/onboarding_protection_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/protection_level_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/protection_level_force_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/onboarding_protection_force_comfort_note"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/border_red" />
+
+            <!-- 3. Automatic behavior: two opt-in switches, one help line each. -->
+            <LinearLayout
+                android:id="@+id/protection_automatic_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/protection_automatic_heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/protection_automatic_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <!-- #864: opt-in, off by default; effective while Keep-Alive runs. -->
+                <Switch
+                    android:id="@+id/settings_untrusted_shutdown_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/untrusted_shutdown_title"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/protection_untrusted_shutdown_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="sans-serif"
+                    android:minHeight="48dp"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <!-- #860: opt-in, off by default; hidden before Android 12. -->
+                <Switch
+                    android:id="@+id/settings_security_check_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/security_check_title"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/settings_security_check_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="sans-serif"
+                    android:minHeight="48dp"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/border_red" />
+
+            <!-- 4. Force mode (#763): a time-limited override of blocks and trust. The status is
+                 read from the pure state; the buttons open the dialog with its warnings. -->
+            <include layout="@layout/view_force_panel" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/border_red" />
+
+            <!-- 5. The Wi-Fi networks list (#654/#762/#769): trusted and blocked networks. -->
+            <LinearLayout
+                android:id="@+id/settings_network_manage_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/network_networks_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/network_networks_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/networks_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/network_networks_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:importantForAccessibility="no"
+                        android:text="›"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/border_red" />
+
+            <!-- 6. Detection in the background (#616/#644/#654): the grant and the current reading
+                 are two separate facts; the full wording sits behind "More". -->
+            <LinearLayout
+                android:id="@+id/settings_network_background_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/network_background_heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/network_background_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_background_location_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="sans-serif"
+                    android:minHeight="48dp"
+                    android:textColor="@color/night_text"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/network_detection_now"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/settings_background_location_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/background_location_settings_button"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
