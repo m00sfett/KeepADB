@@ -238,8 +238,12 @@ public class MainActivity extends Activity {
         // the view's own checked state, so this switch, the tile and the widget request the
         // same thing for the same state. refresh() below re-renders the switch from the real
         // adb_wifi_enabled value either way.
-        boolean want = KeepADB.desiredOnForClick(KeepADB.getState(this));
-        KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", "toggle");
+        applyMainSwitchRequest(KeepADB.desiredOnForClick(KeepADB.getState(this)), "toggle");
+    }
+
+    /** The write and the follow-up refreshes the main switch and the "Retry" action share. */
+    private void applyMainSwitchRequest(boolean want, String source) {
+        KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", source);
         KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "app");
         if (!result.isSuccess()) {
             toggle.setChecked(!want);
@@ -683,7 +687,7 @@ public class MainActivity extends Activity {
 
     /**
      * The targets of the action button: the decision or the Networks list as the status line led
-     * before (#764, #790), "Fix" where the "Keep-Alive paused" warning leads, "Retry" the path of
+     * before (#764, #790), "Fix" where the "Keep-Alive paused" warning leads, "Retry" the enable path of
      * the main switch and "Instructions" where the permission warning leads.
      */
     private void runStatusAction(KeepADBHomeStatus.Action action) {
@@ -696,7 +700,9 @@ public class MainActivity extends Activity {
                 startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this));
                 break;
             case RETRY:
-                requestMainSwitchChange();
+                // Retry only ever enables: the state may have flipped to on since it was drawn, and
+                // the switch's click semantics would then switch it off.
+                applyMainSwitchRequest(true, "retry");
                 break;
             case INSTRUCTIONS:
                 startActivity(KeepADBHomeWarnings.systemIntent(this));

@@ -779,6 +779,41 @@ public class MainActivityWarningsTest {
         assertEquals(Boolean.TRUE, gateway.writes.get(gateway.writes.size() - 1));
     }
 
+    /** "Retry" only ever enables: a state that flipped to on since it was drawn is not switched off. */
+    @Test
+    public void retryNeverSwitchesAnAlreadyEnabledStateOff() {
+        KeepADBStuckOffSettingsGateway gateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check").isSuccess());
+        android.os.SystemClock.sleep(1600);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+        MainActivity activity = open();
+        assertEquals(context.getString(R.string.home_action_retry), action(activity).getText().toString());
+
+        // The state flips to on before the tap.
+        java.util.List<Boolean> writes = new java.util.ArrayList<>();
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context c) {
+                return true;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                writes.add(on);
+                return true;
+            }
+        });
+        action(activity).performClick();
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+
+        assertFalse("retry must never write off", writes.contains(Boolean.FALSE));
+    }
+
     @Test
     public void anUnreadableNetworkOffersFixWhereThePausedWarningLeads() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
