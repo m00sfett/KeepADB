@@ -73,6 +73,10 @@ public class KeepADBUsbRemovalMigrationTest {
                 .putString("usb_profile_2_ip", "10.0.0.7")
                 .putString("usb_profile_2_host", "laptop.fritz.box")
                 .putString("usb_profile_2_tailnet", "")
+                // Orphans: a profile that is not in the id list any more and a field no version
+                // of the cleanup knows by name. Only a prefix match removes these.
+                .putString("usb_profile_99_host", "orphan.example")
+                .putString("usb_profile_1_note", "left by an unknown build")
                 .putString("usb_wlan_handover_mode", "automatic")
                 .commit();
     }
