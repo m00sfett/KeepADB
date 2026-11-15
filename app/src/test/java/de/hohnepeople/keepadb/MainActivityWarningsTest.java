@@ -417,15 +417,15 @@ public class MainActivityWarningsTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         MainActivity activity = open();
 
-        int buttons = 0;
+        // #963: the row is icon, title, the one review action and the independent close target.
         android.view.ViewGroup card = (android.view.ViewGroup) activity.findViewById(R.id.warning_system);
-        for (int i = 0; i < ((android.view.ViewGroup) card.getChildAt(1)).getChildCount(); i++) {
-            if (((android.view.ViewGroup) card.getChildAt(1)).getChildAt(i) instanceof android.widget.Button) {
-                buttons++;
-            }
+        android.view.ViewGroup row = card.findViewById(R.id.warning_row);
+        int buttons = 0;
+        for (int i = 0; i < row.getChildCount(); i++) {
+            if (row.getChildAt(i) instanceof android.widget.Button) buttons++;
         }
-        assertEquals("one review action in the card content", 1, buttons);
-        assertEquals("icon, content and independent close target", 3, card.getChildCount());
+        assertEquals("one review action in the card row", 1, buttons);
+        assertEquals("icon, title, action and independent close target", 4, row.getChildCount());
         assertTrue(card.findViewById(R.id.home_warning_dismiss).isClickable());
         assertEquals(48, card.findViewById(R.id.home_warning_dismiss).getLayoutParams().width);
     }

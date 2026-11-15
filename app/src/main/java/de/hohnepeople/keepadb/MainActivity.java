@@ -55,6 +55,14 @@ public class MainActivity extends Activity {
     // #763: permanent warning card while the force mode is on.
     private View forceWarningPanel;
     private TextView forceWarningText;
+    /**
+     * #963: the warnings whose explanation is open. A warning that is not shown is not in the set,
+     * so one that goes away and comes back starts collapsed; the set survives the periodic refresh
+     * (nothing there touches it) and a rotation ({@link #STATE_EXPANDED_WARNINGS}).
+     */
+    private final java.util.EnumSet<KeepADBWarningState.Card> expandedWarnings =
+            java.util.EnumSet.noneOf(KeepADBWarningState.Card.class);
+    private static final String STATE_EXPANDED_WARNINGS = "warnings_expanded";
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
     // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
@@ -138,6 +146,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.warning_mute).setOnClickListener(v -> chooseWarningMutes());
         if (savedInstanceState != null) {
             restoreWarningFeedback(savedInstanceState);
+            restoreExpandedWarnings(savedInstanceState);
             returningFromWarnings = savedInstanceState.getBoolean("warnings_return_to_triangle");
             if (dismissedCard != null) armWarningFeedbackTimeout();
         }
@@ -235,6 +244,9 @@ public class MainActivity extends Activity {
         }
 
         outState.putBoolean("warnings_return_to_triangle", returningFromWarnings);
+        java.util.ArrayList<String> expanded = new java.util.ArrayList<>();
+        for (KeepADBWarningState.Card card : expandedWarnings) expanded.add(card.name());
+        outState.putStringArrayList(STATE_EXPANDED_WARNINGS, expanded);
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_LANGUAGE_PICKER,
                 activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
@@ -365,6 +377,19 @@ public class MainActivity extends Activity {
         String text = force.isUnlimited() ? getString(R.string.force_card_text_unlimited)
                 : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force));
         if (!android.text.TextUtils.equals(forceWarningText.getText(), text)) forceWarningText.setText(text);
+        // #963: the remaining time is state, not explanation: it stays in the collapsed row.
+        String status = force.isUnlimited() ? getString(R.string.force_status_unlimited)
+                : getString(R.string.force_status_until, KeepADBForceMode.formatEnd(this, force));
+        String title = getString(R.string.force_card_title);
+        android.text.SpannableStringBuilder line = new android.text.SpannableStringBuilder(title)
+                .append('\n').append(status);
+        int from = title.length() + 1;
+        line.setSpan(new android.text.style.RelativeSizeSpan(0.8f), from, line.length(),
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        line.setSpan(new android.text.style.ForegroundColorSpan(getColor(R.color.night_muted)),
+                from, line.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((KeepADBWarningRow) forceWarningPanel.findViewById(R.id.warning_row))
+                .setTitle(line, title + ", " + status);
     }
 
     /**
@@ -604,21 +629,21 @@ public class MainActivity extends Activity {
      */
     private void renderWarnings() {
         warningSnapshot = KeepADBWarningState.observe(this);
-        bindWarning(warningSystem, warningSnapshot.visible.contains(KeepADBWarningState.Card.SYSTEM),
+        bindWarning(warningSystem, KeepADBWarningState.Card.SYSTEM,
                 R.string.home_warning_system_title, getString(R.string.home_warning_system_text),
                 R.string.home_warning_action_guide,
                 () -> startActivity(KeepADBHomeWarnings.systemIntent(this)));
-        bindWarning(warningLessSecure, warningSnapshot.visible.contains(KeepADBWarningState.Card.LESS_SECURE),
+        bindWarning(warningLessSecure, KeepADBWarningState.Card.LESS_SECURE,
                 R.string.home_warning_less_secure_title,
                 warningReasonText(KeepADBWarningState.Card.LESS_SECURE),
                 R.string.home_warning_action_review,
                 () -> startActivity(KeepADBWarningState.reviewIntent(this,
                         warningSnapshot.reasons(KeepADBWarningState.Card.LESS_SECURE).iterator().next())));
-        bindWarning(warningPaused, warningSnapshot.visible.contains(KeepADBWarningState.Card.PAUSED),
+        bindWarning(warningPaused, KeepADBWarningState.Card.PAUSED,
                 R.string.home_warning_paused_title, getString(R.string.home_warning_paused_text),
                 R.string.home_warning_action_fix,
                 () -> startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this)));
-        bindWarning(warningLimited, warningSnapshot.visible.contains(KeepADBWarningState.Card.LIMITED),
+        bindWarning(warningLimited, KeepADBWarningState.Card.LIMITED,
                 R.string.home_warning_limited_title,
                 warningReasonText(KeepADBWarningState.Card.LIMITED),
                 R.string.home_warning_action_fix,
@@ -626,6 +651,7 @@ public class MainActivity extends Activity {
                         warningSnapshot.reasons(KeepADBWarningState.Card.LIMITED).iterator().next())));
         forceWarningPanel.setVisibility(warningSnapshot.visible.contains(KeepADBWarningState.Card.FORCE)
                 ? View.VISIBLE : View.GONE);
+        bindWarningExpansion(forceWarningPanel, KeepADBWarningState.Card.FORCE);
         bindWarningDismiss(warningSystem, KeepADBWarningState.Card.SYSTEM, R.string.home_warning_system_title);
         bindWarningDismiss(warningLessSecure, KeepADBWarningState.Card.LESS_SECURE, R.string.home_warning_less_secure_title);
         bindWarningDismiss(warningPaused, KeepADBWarningState.Card.PAUSED, R.string.home_warning_paused_title);
@@ -813,16 +839,58 @@ public class MainActivity extends Activity {
         } catch (IllegalArgumentException invalid) { dismissedCard = null; }
     }
 
-    private void bindWarning(View card, boolean visible, int titleRes, String text, int actionRes,
-            Runnable onAction) {
+    private void bindWarning(View card, KeepADBWarningState.Card kind, int titleRes, String text,
+            int actionRes, Runnable onAction) {
+        boolean visible = warningSnapshot.visible.contains(kind);
         card.setVisibility(visible ? View.VISIBLE : View.GONE);
-        if (!visible) return;
-        ((TextView) card.findViewById(R.id.home_warning_title)).setText(titleRes);
+        if (!visible) {
+            // #963: a warning that goes away and returns starts collapsed.
+            expandedWarnings.remove(kind);
+            return;
+        }
+        String title = getString(titleRes);
+        ((KeepADBWarningRow) card.findViewById(R.id.warning_row)).setTitle(title, title);
         TextView body = card.findViewById(R.id.home_warning_text);
         if (!android.text.TextUtils.equals(body.getText(), text)) body.setText(text);
         Button action = card.findViewById(R.id.home_warning_action);
         action.setText(actionRes);
         action.setOnClickListener(v -> onAction.run());
+        bindWarningExpansion(card, kind);
+    }
+
+    /**
+     * #963: a tap on the row (not on its buttons) opens or closes the explanation below it. The
+     * state lives in {@link #expandedWarnings}, so a refresh that binds the card again keeps it.
+     */
+    private void bindWarningExpansion(View card, KeepADBWarningState.Card kind) {
+        if (card.getVisibility() != View.VISIBLE) {
+            expandedWarnings.remove(kind);
+            return;
+        }
+        KeepADBWarningRow row = card.findViewById(R.id.warning_row);
+        row.setOnClickListener(v -> {
+            if (!expandedWarnings.remove(kind)) expandedWarnings.add(kind);
+            showWarningExpansion(card, kind);
+        });
+        showWarningExpansion(card, kind);
+    }
+
+    private void showWarningExpansion(View card, KeepADBWarningState.Card kind) {
+        boolean expanded = expandedWarnings.contains(kind);
+        ((KeepADBWarningRow) card.findViewById(R.id.warning_row)).setExpanded(expanded);
+        card.findViewById(R.id.warning_details).setVisibility(expanded ? View.VISIBLE : View.GONE);
+    }
+
+    private void restoreExpandedWarnings(Bundle saved) {
+        java.util.ArrayList<String> names = saved.getStringArrayList(STATE_EXPANDED_WARNINGS);
+        if (names == null) return;
+        for (String name : names) {
+            try {
+                expandedWarnings.add(KeepADBWarningState.Card.valueOf(name));
+            } catch (IllegalArgumentException ignored) {
+                // A name from another version: that warning simply starts collapsed.
+            }
+        }
     }
 
     private void refreshWebhookStatus() {

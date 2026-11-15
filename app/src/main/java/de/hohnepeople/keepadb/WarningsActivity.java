@@ -142,6 +142,8 @@ public final class WarningsActivity extends Activity {
                 TextView text = card.findViewById(R.id.home_warning_title);
                 text.setText(reason.label);
                 text.setFocusable(true);
+                // #963: no explanation to open here, so the row is no tap target and has no chevron.
+                ((KeepADBWarningRow) card.findViewById(R.id.warning_row)).setExpandable(false);
                 card.findViewById(R.id.home_warning_text).setVisibility(View.GONE);
                 card.findViewById(R.id.home_warning_dismiss).setVisibility(View.GONE);
                 Button review = card.findViewById(R.id.home_warning_action);
