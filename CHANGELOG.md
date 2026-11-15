@@ -187,8 +187,9 @@ name and raise only the code.
   the home screen, the notification and the transport rows; `endpoint_format` is gone); while no
   address is known it keeps the secondary color and size. The widgets no longer say
   "(Connected)"/"(Disconnected)" either: their system line now reads "Wifi-ADB is on" or "Wifi-ADB
-  is on · No Wi-Fi connection" (`status_on`, `status_enabled_disconnected`, `status_tap_to_decide`
-  and `status_tap_to_open_list` are removed in all 19 locales). Fifteen new strings in 19 locales;
+  is on · No Wi-Fi connection", and "Wifi-ADB is off" instead of "Wireless Debugging is OFF" for the
+  plain off state (`status_on`, `status_enabled_disconnected`, `status_tap_to_decide`,
+  `status_tap_to_open_list` and `status_off` are removed in all 19 locales). Fifteen new strings in 19 locales;
   they say "Wifi-ADB" for KeepADB's switch and put Android's own name in quotation marks where
   they point at its setting ("Wireless debugging" in the "dialog not confirmed" reason). The
   glossary test allows "Wifi-ADB" only in the two new state strings. Not verified in this change:
