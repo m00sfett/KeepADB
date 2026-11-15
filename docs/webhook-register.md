@@ -51,7 +51,9 @@ retry rules. The separate builder for an event with `active=false` is not curren
 production path. This repository therefore documents outgoing methods and contents, not the meaning
 an external receiver assigns to a POST or DELETE.
 
-When a report fails, a short bounded retry series follows (#866). If it is given up on while the
+When a report fails, a short bounded retry series follows (#866): four retries that wait 5, 15, 30 and
+60 seconds after the attempt before them, fixed since #960 (earlier versions offered a timing and a count
+setting). If it is given up on while the
 endpoint stays the same, a later network change (#867), saving the URL again (#869), or, while the
 failure lasts, one single re-attempt at most every 15 minutes on the Keep-Alive service heartbeat
 (#881) reports again. The episode is persisted, so these re-attempts also resume after the app
