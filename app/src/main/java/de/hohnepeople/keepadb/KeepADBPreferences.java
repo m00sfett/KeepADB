@@ -20,8 +20,6 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
     /** #923: the URL of a registering POST whose outcome is not settled yet (see the accessor). */
     private static final String KEY_WEBHOOK_DISPATCHED_URL = "register_webhook_dispatched_url";
-    private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
-    private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
     /** #864: opt-in policy that turns Wireless Debugging off on an untrusted Wi-Fi; default off. */
     private static final String KEY_UNTRUSTED_SHUTDOWN = "untrusted_shutdown_enabled";
     /** #864: the Wi-Fi identity a manual enable was made on ("" when unreadable), or absent. */
@@ -59,6 +57,13 @@ final class KeepADBPreferences {
             "usb_wlan_handover_mode",
     };
     private static final String OBSOLETE_USB_PROFILE_PREFIX = "usb_profile_";
+    // #960: the retry timing profile ("fast", "standard", "gentle") and the retry count. The series
+    // is fixed now, so nothing reads them; kept only to be deleted (removeObsoleteWebhookRetryKeys),
+    // so a value an older version stored cannot be mistaken for a setting that still applies.
+    private static final String[] OBSOLETE_WEBHOOK_RETRY_KEYS = {
+            "register_webhook_retry_profile",
+            "register_webhook_retry_count",
+    };
     // #904: three independent, opt-in privacy switches (all off on a new installation). Each one
     // masks its own area only and is purely a rendering preference, never the toggle facade's own
     // WRITE_SECURE_SETTINGS state and never the real ADB transport.
@@ -440,53 +445,17 @@ final class KeepADBPreferences {
         editor.apply();
     }
 
-    // ---- #866: bounded retry series for a failed endpoint-report POST. ----
+    // ---- #866: bounded retry series for a failed endpoint-report POST (fixed since #960). ----
 
-    static final String WEBHOOK_RETRY_PROFILE_FAST = "fast";
-    static final String WEBHOOK_RETRY_PROFILE_STANDARD = "standard";
-    static final String WEBHOOK_RETRY_PROFILE_GENTLE = "gentle";
-    /** Hard upper bound of retries per series; the user may only choose fewer. */
+    /** Retries per series, after the first attempt. */
     static final int WEBHOOK_MAX_RETRIES = 4;
+    /** Delay before retry 1..4 of a series: 5, 15, 30 and 60 seconds. */
+    private static final long[] WEBHOOK_RETRY_DELAYS_MS = {5_000L, 15_000L, 30_000L, 60_000L};
 
-    static String getWebhookRetryProfile(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String value = prefs.getString(KEY_WEBHOOK_RETRY_PROFILE, WEBHOOK_RETRY_PROFILE_STANDARD);
-        if (WEBHOOK_RETRY_PROFILE_FAST.equals(value) || WEBHOOK_RETRY_PROFILE_GENTLE.equals(value)) {
-            return value;
-        }
-        return WEBHOOK_RETRY_PROFILE_STANDARD;
-    }
-
-    static void setWebhookRetryProfile(Context context, String profile) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(KEY_WEBHOOK_RETRY_PROFILE, profile).apply();
-    }
-
-    /** Selected retries per series, clamped to 0..{@link #WEBHOOK_MAX_RETRIES}; defaults to the maximum. */
-    static int getWebhookRetryCount(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int value = prefs.getInt(KEY_WEBHOOK_RETRY_COUNT, WEBHOOK_MAX_RETRIES);
-        return Math.max(0, Math.min(WEBHOOK_MAX_RETRIES, value));
-    }
-
-    static void setWebhookRetryCount(Context context, int count) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putInt(KEY_WEBHOOK_RETRY_COUNT,
-                Math.max(0, Math.min(WEBHOOK_MAX_RETRIES, count))).apply();
-    }
-
-    /** Delay before retry {@code retryNumber} (1-based) of the given profile, in milliseconds. */
-    static long webhookRetryDelayMs(String profile, int retryNumber) {
-        long[] delays;
-        if (WEBHOOK_RETRY_PROFILE_FAST.equals(profile)) {
-            delays = new long[] {2_000L, 5_000L, 10_000L, 20_000L};
-        } else if (WEBHOOK_RETRY_PROFILE_GENTLE.equals(profile)) {
-            delays = new long[] {15_000L, 30_000L, 60_000L, 120_000L};
-        } else {
-            delays = new long[] {5_000L, 15_000L, 30_000L, 60_000L};
-        }
-        int index = Math.max(1, Math.min(delays.length, retryNumber)) - 1;
-        return delays[index];
+    /** Delay before retry {@code retryNumber} (1-based) of the fixed series, in milliseconds. */
+    static long webhookRetryDelayMs(int retryNumber) {
+        int index = Math.max(1, Math.min(WEBHOOK_RETRY_DELAYS_MS.length, retryNumber)) - 1;
+        return WEBHOOK_RETRY_DELAYS_MS[index];
     }
 
     // ---- #868: warnings for a continuous period without a successful report. ----
@@ -879,14 +848,26 @@ final class KeepADBPreferences {
      * has to see the keys that were stored before this deletion.
      */
     static void removeObsoleteUsbKeys(Context context) {
+        removeStoredKeys(context, key -> key.startsWith(OBSOLETE_USB_PROFILE_PREFIX)
+                || java.util.Arrays.asList(OBSOLETE_USB_KEYS).contains(key));
+    }
+
+    /**
+     * #960: deletes the two stored retry settings of the removed selectors. Same rules as {@link
+     * #removeObsoleteUsbKeys}: idempotent, silent when nothing is stored, run at the first start.
+     */
+    static void removeObsoleteWebhookRetryKeys(Context context) {
+        removeStoredKeys(context,
+                key -> java.util.Arrays.asList(OBSOLETE_WEBHOOK_RETRY_KEYS).contains(key));
+    }
+
+    private static void removeStoredKeys(Context context,
+            java.util.function.Predicate<String> obsolete) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         java.util.List<String> found = new java.util.ArrayList<>();
         for (String key : prefs.getAll().keySet()) {
-            if (key.startsWith(OBSOLETE_USB_PROFILE_PREFIX)
-                    || java.util.Arrays.asList(OBSOLETE_USB_KEYS).contains(key)) {
-                found.add(key);
-            }
+            if (obsolete.test(key)) found.add(key);
         }
         if (found.isEmpty()) return;
         KeepADBOnboarding.isExistingInstall(context);

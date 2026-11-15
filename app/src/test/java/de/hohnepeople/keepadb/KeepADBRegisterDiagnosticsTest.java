@@ -43,7 +43,7 @@ public class KeepADBRegisterDiagnosticsTest {
         KeepADBBuildFlags.setOverrideForTesting(true);
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         transport = new KeepADBFakeHttpTransport();
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":" + PORT);

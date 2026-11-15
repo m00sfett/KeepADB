@@ -280,7 +280,7 @@ public class KeepADBReportNowTest {
     @Test
     public void withSyncOnAWaitingRetryIsSentAtOnceInsteadOfAddingAnotherRequest() {
         syncOn();
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         transport.setPostSuccess(false);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         settle();
@@ -317,7 +317,7 @@ public class KeepADBReportNowTest {
     @Test
     public void withSyncOnAFailedReportContinuesInTheNormalRetryFlow() {
         syncOn();
-        KeepADBPreferences.setWebhookRetryCount(context, 2);
+        KeepADBRegisterClient.setRetryBudgetForTesting(2);
         transport.setPostSuccess(false);
 
         KeepADBRegisterClient.reportNow(context, null);

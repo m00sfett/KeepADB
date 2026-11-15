@@ -160,10 +160,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isKeepDisplayOnEnabled(c)),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
-            new Setting("register_webhook_retry_profile", Kind.CONVENIENCE, "standard", "gentle",
-                    c -> KeepADBPreferences.getWebhookRetryProfile(c)),
-            new Setting("register_webhook_retry_count", Kind.CONVENIENCE, 4, 1,
-                    c -> KeepADBPreferences.getWebhookRetryCount(c)),
             // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
             new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
                     c -> KeepADBPreferences.isAdviceBannerVisible(c)),

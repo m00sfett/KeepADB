@@ -159,6 +159,12 @@ final class KeepADBRegisterClient {
     private static boolean seriesExhausted = false;
     /** #881: the current series is an episode re-attempt: one request, never a retry. */
     private static boolean singleShotSeries = false;
+    /**
+     * #960: the retries of a series are fixed ({@link KeepADBPreferences#WEBHOOK_MAX_RETRIES}).
+     * Tests that want a series without retries (or a shorter one) set a lower budget here;
+     * negative means the fixed series. Reset by {@link #resetForTesting()}.
+     */
+    private static volatile int retryBudgetForTesting = -1;
     /** #881: elapsed realtime when the series was given up on, or of the last episode re-attempt. */
     private static long lastGiveUpOrReattemptAt = 0L;
     /** #881: the sparse re-attempt while a failure episode lasts and nothing else reports. */
@@ -534,6 +540,16 @@ final class KeepADBRegisterClient {
         });
     }
 
+    private static int retryBudget() {
+        int override = retryBudgetForTesting;
+        return override >= 0 ? Math.min(override, KeepADBPreferences.WEBHOOK_MAX_RETRIES)
+                : KeepADBPreferences.WEBHOOK_MAX_RETRIES;
+    }
+
+    static void setRetryBudgetForTesting(int retries) {
+        retryBudgetForTesting = retries;
+    }
+
     /** #866: caller must hold the class monitor. Drops the scheduled retry and the series state. */
     private static void cancelPostRetryLocked() {
         if (pendingPostRetry != null) {
@@ -557,14 +573,13 @@ final class KeepADBRegisterClient {
      */
     private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
             long opGen) {
-        if (singleShotSeries || postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
+        if (singleShotSeries || postRetryNumber >= retryBudget()) {
             seriesExhausted = true;
             lastGiveUpOrReattemptAt = SystemClock.elapsedRealtime();
             return;
         }
         postRetryNumber++;
-        long delayMs = KeepADBPreferences.webhookRetryDelayMs(
-                KeepADBPreferences.getWebhookRetryProfile(context), postRetryNumber);
+        long delayMs = KeepADBPreferences.webhookRetryDelayMs(postRetryNumber);
         Runnable retry = new Runnable() {
             @Override
             public void run() {
@@ -1026,7 +1041,7 @@ final class KeepADBRegisterClient {
             retry = postRetryNumber;
         }
         // Codex review: the budget in effect when the request is sent, not after its answer.
-        int maxRetries = KeepADBPreferences.getWebhookRetryCount(context);
+        int maxRetries = retryBudget();
         lastTransportOutcome = "unknown";
         // #923: persisted before the request, settled after it (below), so a registration made by
         // a POST whose transaction went stale, or whose process died, is still withdrawn later.
@@ -1253,6 +1268,7 @@ final class KeepADBRegisterClient {
     }
 
     static synchronized void resetForTesting() {
+        retryBudgetForTesting = -1;
         entriesLeftToTransaction.clear();
         lastGiveUpOrReattemptAt = 0L;
         endpointProbe = KeepADBRegisterClient::probeEndpoint;

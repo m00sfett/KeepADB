@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import androidx.test.core.app.ApplicationProvider;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
-/** #866: bounded, configurable retry series for a failed endpoint-report POST. */
+/** #866/#960: bounded, fixed retry series for a failed endpoint-report POST. */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBRegisterRetryTest {
@@ -80,7 +81,7 @@ public class KeepADBRegisterRetryTest {
     }
 
     @Test
-    public void standardProfileRetriesFourTimesWithItsDelaysThenStops() {
+    public void theFixedSeriesRetriesFourTimesWithItsDelaysThenStops() {
         reportOnce();
         assertEquals(1, posts());
 
@@ -98,39 +99,53 @@ public class KeepADBRegisterRetryTest {
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
     }
 
+    /**
+     * #960: an installation that stored "fast" and one retry with an older version gets the fixed
+     * series after the update, and the two keys are deleted at the first start. Red without the
+     * cleanup: the keys stay in the preferences.
+     */
     @Test
-    public void fastAndGentleProfilesUseTheirOwnFirstDelay() {
-        KeepADBPreferences.setWebhookRetryProfile(context, KeepADBPreferences.WEBHOOK_RETRY_PROFILE_FAST);
-        reportOnce();
-        advance(2_000L);
-        assertEquals(2, posts());
+    public void storedProfileAndCountOfAnOlderVersionAreDeletedAndTheSeriesIsTheFixedOne() {
+        SharedPreferences prefs = context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putString("register_webhook_retry_profile", "fast")
+                .putInt("register_webhook_retry_count", 1)
+                .commit();
 
-        KeepADBRegisterClient.unregisterAndDisableAsync(context);
-        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        transport.clearRequests();
-        KeepADBPreferences.setWebhookRetryProfile(context, KeepADBPreferences.WEBHOOK_RETRY_PROFILE_GENTLE);
+        ((KeepADBApplication) context).onCreate();
+
+        assertFalse(prefs.contains("register_webhook_retry_profile"));
+        assertFalse(prefs.contains("register_webhook_retry_count"));
+        assertTrue("the other settings stay", KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
+
         reportOnce();
-        advance(14_999L);
         assertEquals(1, posts());
+        advance(4_999L);
+        assertEquals("not at the old fast delay of 2 s, nor early", 1, posts());
         advance(1L);
-        assertEquals(2, posts());
+        assertEquals("first retry after 5 s", 2, posts());
+        advance(15_000L);
+        advance(30_000L);
+        advance(60_000L);
+        assertEquals("four retries, not one", 5, posts());
+        advance(10L * 60L * 1000L);
+        assertEquals(5, posts());
+        assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
     }
 
     @Test
-    public void selectedRetryCountLimitsTheSeries() {
-        KeepADBPreferences.setWebhookRetryCount(context, 1);
-        reportOnce();
-        advance(10L * 60L * 1000L);
-        assertEquals("first attempt plus one retry", 2, posts());
-
-        KeepADBPreferences.setWebhookRetryCount(context, 99);
-        assertEquals("hard maximum of four", 4, KeepADBPreferences.getWebhookRetryCount(context));
+    public void theDelaysOfTheSeriesAre5_15_30_60Seconds() {
+        assertEquals(4, KeepADBPreferences.WEBHOOK_MAX_RETRIES);
+        assertEquals(5_000L, KeepADBPreferences.webhookRetryDelayMs(1));
+        assertEquals(15_000L, KeepADBPreferences.webhookRetryDelayMs(2));
+        assertEquals(30_000L, KeepADBPreferences.webhookRetryDelayMs(3));
+        assertEquals(60_000L, KeepADBPreferences.webhookRetryDelayMs(4));
     }
 
     @Test
     public void zeroRetriesSendsOnlyTheFirstAttempt() {
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         reportOnce();
         assertFalse(KeepADBRegisterClient.hasPendingPostRetryForTesting());
         advance(10L * 60L * 1000L);
@@ -173,7 +188,7 @@ public class KeepADBRegisterRetryTest {
 
     @Test
     public void exhaustedSeriesIsNotRestartedByARefreshButByANewEndpoint() {
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         reportOnce();
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
