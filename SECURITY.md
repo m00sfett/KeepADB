@@ -128,9 +128,10 @@ which network may enable Wireless debugging.
 **Copying the endpoint (#951):** a tap on the endpoint row of the home screen (and on a verified
 transport row) and the notification's "Copy" action put `adb connect <host>:<port>` on the
 clipboard. A tap is an explicit action, so the real address is copied even while the app switch
-masks the row; the clip is then flagged sensitive (`ClipDescription.EXTRA_IS_SENSITIVE`, the same
-key string on Android 11 and 12), so the system's clipboard preview does not print it. Without the
-switch the clip is a plain one. Android 13 and later confirm a copy themselves; the clipboard is
+masks the row; the clip is then flagged sensitive (`ClipDescription.EXTRA_IS_SENSITIVE`; the flag
+is always set, but only Android 13 and later read it, so the system's clipboard preview does not
+print the address there, while Android 11 and 12 ignore the flag). Without the switch the clip is
+a plain one. Android 13 and later confirm a copy themselves; the clipboard is
 readable by the app in the foreground and by the keyboard, as for any copied text. The "Copy" action
 exists only while an address is known and the notification switch is off, goes through the
 non-exported receiver, which reads the endpoint when it is tapped (the intent carries no address),
