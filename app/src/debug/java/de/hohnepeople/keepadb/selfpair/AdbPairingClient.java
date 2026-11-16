@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 import javax.crypto.AEADBadTagException;
 
@@ -33,6 +34,8 @@ final class AdbPairingClient {
     private static final byte TYPE_SPAKE2_MSG = 0;
     private static final byte TYPE_PEER_INFO = 1;
     private static final byte PEER_INFO_RSA_PUB_KEY = 0;
+    private static final byte PEER_INFO_DEVICE_GUID = 1;
+    private static final int OPERATION_TIMEOUT_MS = 20_000;
     private static final int PEER_INFO_SIZE = 8192;
     private static final int MAX_PAYLOAD = 2 * PEER_INFO_SIZE;
     private static final int TIMEOUT_MS = 10_000;
@@ -51,7 +54,8 @@ final class AdbPairingClient {
                     TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
             socket.setTcpNoDelay(true);
-            try (TlsChannel channel = tls.handshake(socket, identity)) {
+            try (Deadline deadline = Deadline.closeAfter(socket, OPERATION_TIMEOUT_MS);
+                    TlsChannel channel = tls.handshake(socket, identity)) {
                 exchange(channel, code, identity.adbPublicKey(name));
             }
         } finally {
@@ -59,15 +63,21 @@ final class AdbPairingClient {
         }
     }
 
-    private static void exchange(TlsChannel channel, String code, byte[] adbPublicKey)
+    static void exchange(TlsChannel channel, String code, byte[] adbPublicKey)
             throws IOException, GeneralSecurityException {
         InputStream in = channel.input();
         OutputStream out = channel.output();
-        byte[] password = Bytes.concat(Bytes.ascii(code),
-                channel.exportKeyingMaterial(EXPORT_LABEL, EXPORT_SIZE));
-
+        byte[] exported = channel.exportKeyingMaterial(EXPORT_LABEL, EXPORT_SIZE);
+        byte[] password = Bytes.concat(Bytes.ascii(code), exported);
         Spake2 spake = new Spake2(CLIENT_NAME, SERVER_NAME);
-        writePacket(out, TYPE_SPAKE2_MSG, spake.generateMessage(password));
+        byte[] ourMessage;
+        try {
+            ourMessage = spake.generateMessage(password);
+        } finally {
+            Arrays.fill(password, (byte) 0);
+            Arrays.fill(exported, (byte) 0);
+        }
+        writePacket(out, TYPE_SPAKE2_MSG, ourMessage);
         byte[] theirMessage = readPacket(in, TYPE_SPAKE2_MSG);
         PairingCipher cipher;
         try {
@@ -93,6 +103,12 @@ final class AdbPairingClient {
         }
         if (theirInfo.length != PEER_INFO_SIZE) {
             throw new IOException("unexpected peer info size " + theirInfo.length);
+        }
+        // Both directions use the same key and start their counters at zero, so a peer that
+        // knows nothing could send our own packet back and it would decrypt. adbd answers
+        // with its device GUID; our own packet carries a public key.
+        if (theirInfo[0] != PEER_INFO_DEVICE_GUID || Arrays.equals(theirInfo, peerInfo)) {
+            throw new IOException("peer did not answer as a pairing server");
         }
     }
 

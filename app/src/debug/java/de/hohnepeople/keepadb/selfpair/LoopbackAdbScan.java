@@ -26,6 +26,8 @@ final class LoopbackAdbScan {
     private static final int THREADS = 16;
     private static final int CONNECT_TIMEOUT_MS = 200;
     private static final int PROBE_TIMEOUT_MS = 500;
+    private static final int SCAN_TIMEOUT_MS = 15_000;
+    private static final int MAX_PROBES = 32;
     private static final int A_CNXN = 0x4e584e43;
     private static final int A_STLS = 0x534c5453;
 
@@ -40,7 +42,8 @@ final class LoopbackAdbScan {
             final int from = start;
             final int to = Math.min(LAST_PORT, start + slice - 1);
             pool.execute(() -> {
-                for (int port = from; port <= to; port++) {
+                for (int port = from; port <= to && !Thread.currentThread().isInterrupted();
+                        port++) {
                     if (isListening(port)) {
                         open.add(port);
                     }
@@ -48,13 +51,27 @@ final class LoopbackAdbScan {
             });
         }
         pool.shutdown();
-        pool.awaitTermination(30, TimeUnit.SECONDS);
+        boolean finished;
+        try {
+            finished = pool.awaitTermination(SCAN_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } finally {
+            pool.shutdownNow();
+        }
         List<Integer> adb = new ArrayList<>();
+        if (!finished) {
+            return adb;
+        }
+        List<Integer> candidates;
         synchronized (open) {
-            for (int port : open) {
-                if (offersAdbOverTls(port)) {
-                    adb.add(port);
-                }
+            candidates = new ArrayList<>(open);
+        }
+        // A device has a handful of loopback listeners; more means something is wrong.
+        if (candidates.size() > MAX_PROBES) {
+            candidates = candidates.subList(0, MAX_PROBES);
+        }
+        for (int port : candidates) {
+            if (offersAdbOverTls(port)) {
+                adb.add(port);
             }
         }
         return adb;

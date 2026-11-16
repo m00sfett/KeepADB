@@ -19,9 +19,8 @@ import android.widget.TextView;
  * TEST HARNESS (#962), debug build only: a bare screen to start the self-pairing run
  * and watch its log. Hard-coded English text on purpose; nothing here is meant to ship.
  *
- * <p>For runs driven over adb the launch intent may carry {@code pair_port},
- * {@code connect_port}, {@code code} and {@code leave_on} extras; the first three bypass
- * discovery and the notification.
+ * <p>Exported so a test run can open it over adb. It takes no parameters from the intent, so
+ * another app can do no more than show this screen.
  */
 public final class SelfPairActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -60,7 +59,7 @@ public final class SelfPairActivity extends Activity {
 
         Button start = new Button(this);
         start.setText("Start");
-        start.setOnClickListener(v -> start(new Intent()));
+        start.setOnClickListener(v -> start());
         root.addView(start);
 
         leaveOn = new CheckBox(this);
@@ -79,13 +78,9 @@ public final class SelfPairActivity extends Activity {
         scroll.addView(log);
         root.addView(scroll);
         setContentView(root);
-
-        if (getIntent().hasExtra(SelfPairService.EXTRA_PAIR_PORT)) {
-            start(getIntent());
-        }
     }
 
-    private void start(Intent extras) {
+    private void start() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -93,9 +88,6 @@ public final class SelfPairActivity extends Activity {
         }
         Intent intent = SelfPairService.startIntent(this);
         intent.putExtra(SelfPairService.EXTRA_LEAVE_ON, leaveOn.isChecked());
-        if (extras.getExtras() != null) {
-            intent.putExtras(extras.getExtras());
-        }
         startForegroundService(intent);
     }
 

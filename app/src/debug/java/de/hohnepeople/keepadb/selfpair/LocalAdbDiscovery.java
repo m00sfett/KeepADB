@@ -10,9 +10,11 @@ import java.net.SocketException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Finds this device's own ADB mDNS services of one type (#962) and keeps their ports. Services
@@ -30,7 +32,13 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     private final NsdManager nsd;
     private final String type;
     private final Runnable onChange;
+    /** Bounds for what a flood of announcements can make this object hold. */
+    private static final int MAX_PENDING = 32;
+    private static final int MAX_SERVICES = 16;
+
     private final ArrayDeque<NsdServiceInfo> pending = new ArrayDeque<>();
+    /** Names currently announced; a resolution that finishes after the loss is dropped. */
+    private final Set<String> announced = new HashSet<>();
     /** Service name to port, in the order the services were resolved. */
     private final Map<String, Integer> ports = new LinkedHashMap<>();
     private boolean resolving;
@@ -72,6 +80,11 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
 
     @Override
     public synchronized void onServiceFound(NsdServiceInfo info) {
+        String name = info.getServiceName();
+        if (stopped || name == null || pending.size() >= MAX_PENDING
+                || announced.size() >= MAX_SERVICES || !announced.add(name)) {
+            return;
+        }
         pending.add(info);
         resolveNext();
     }
@@ -80,6 +93,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     public void onServiceLost(NsdServiceInfo info) {
         boolean changed;
         synchronized (this) {
+            announced.remove(info.getServiceName());
             changed = ports.remove(info.getServiceName()) != null;
         }
         if (changed) {
@@ -104,22 +118,27 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
             public void onServiceResolved(NsdServiceInfo info) {
                 boolean local = isLocalAddress(info.getHost());
                 boolean changed = false;
-                if (local) {
+                int resolved = info.getPort();
+                if (local && resolved > 0 && resolved <= 65535) {
                     synchronized (LocalAdbDiscovery.this) {
-                        Integer port = info.getPort();
-                        changed = !port.equals(ports.remove(info.getServiceName()));
-                        ports.put(info.getServiceName(), port);
+                        if (!stopped && announced.contains(info.getServiceName())) {
+                            Integer port = resolved;
+                            changed = !port.equals(ports.remove(info.getServiceName()));
+                            ports.put(info.getServiceName(), port);
+                        }
                     }
                 }
                 done(changed);
             }
 
             private void done(boolean changed) {
+                boolean notify;
                 synchronized (LocalAdbDiscovery.this) {
                     resolving = false;
                     resolveNext();
+                    notify = changed && !stopped;
                 }
-                if (changed) {
+                if (notify) {
                     onChange.run();
                 }
             }

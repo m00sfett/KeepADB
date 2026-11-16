@@ -30,7 +30,9 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.crypto.KeyAgreement;
 
@@ -83,6 +85,7 @@ final class Tls13Channel implements TlsChannel {
 
     private static final int MAX_HANDSHAKE_MESSAGE = 64 * 1024;
     private static final int MAX_CHANGE_CIPHER_SPECS = 4;
+    private static final int MAX_IDLE_RECORDS = 16;
     private static final int MIN_RSA_BITS = 2048;
     private static final byte[] HELLO_RETRY_REQUEST_RANDOM = Ed25519.hex(
             "cf21ad74e59a6111be1d8c021e65b891c2a211167abb8c5e079e09e2c8a8339c");
@@ -101,6 +104,7 @@ final class Tls13Channel implements TlsChannel {
     private byte[] applicationData = new byte[0];
     private int applicationOffset;
     private boolean endOfStream;
+    private int idleRecords;
     private boolean closed;
 
     private Tls13Channel(Socket socket, AdbIdentity identity)
@@ -265,9 +269,15 @@ final class Tls13Channel implements TlsChannel {
         Reader reader = new Reader(body);
         Reader extensions = new Reader(reader.bytes(reader.u16()));
         reader.expectEnd();
+        boolean groups = false;
         while (!extensions.atEnd()) {
-            extensions.u16();
+            int type = extensions.u16();
             extensions.bytes(extensions.u16());
+            // The only extension of the ClientHello a server may answer here.
+            if (type != EXT_SUPPORTED_GROUPS || groups) {
+                throw new IOException("unexpected EncryptedExtensions extension " + type);
+            }
+            groups = true;
         }
     }
 
@@ -275,14 +285,23 @@ final class Tls13Channel implements TlsChannel {
     private static byte[] parseCertificateRequest(byte[] body) throws IOException {
         Reader reader = new Reader(body);
         byte[] context = reader.bytes(reader.u8());
+        if (context.length != 0) {
+            throw new IOException("CertificateRequest in the handshake carries a context");
+        }
         Reader extensions = new Reader(reader.bytes(reader.u16()));
         reader.expectEnd();
         boolean pssAccepted = false;
+        List<Integer> seen = new ArrayList<>();
         while (!extensions.atEnd()) {
             int type = extensions.u16();
             Reader data = new Reader(extensions.bytes(extensions.u16()));
+            if (seen.contains(type)) {
+                throw new IOException("duplicate CertificateRequest extension " + type);
+            }
+            seen.add(type);
             if (type == EXT_SIGNATURE_ALGORITHMS) {
                 Reader schemes = new Reader(data.bytes(data.u16()));
+                data.expectEnd();
                 while (!schemes.atEnd()) {
                     pssAccepted |= schemes.u16() == SIG_RSA_PSS_RSAE_SHA256;
                 }
@@ -302,8 +321,20 @@ final class Tls13Channel implements TlsChannel {
         }
         Reader list = new Reader(reader.bytes(reader.u24()));
         reader.expectEnd();
-        byte[] first = list.bytes(list.u24());
-        list.bytes(list.u16());
+        byte[] first = null;
+        while (!list.atEnd()) {
+            byte[] certificate = list.bytes(list.u24());
+            list.bytes(list.u16());
+            if (certificate.length == 0) {
+                throw new IOException("empty certificate entry");
+            }
+            if (first == null) {
+                first = certificate;
+            }
+        }
+        if (first == null) {
+            throw new IOException("server sent no certificate");
+        }
         return (X509Certificate) CertificateFactory.getInstance("X.509")
                 .generateCertificate(new ByteArrayInputStream(first));
     }
@@ -537,9 +568,22 @@ final class Tls13Channel implements TlsChannel {
                 }
                 byte[] record = readRecord();
                 int type = record[record.length - 1] & 0xff;
-                if (type == TYPE_APPLICATION_DATA) {
+                if (type == TYPE_APPLICATION_DATA && record.length > 1) {
+                    if (handshakeBuffer.size() != 0) {
+                        throw new IOException("application data inside a handshake message");
+                    }
                     applicationData = Arrays.copyOf(record, record.length - 1);
                     applicationOffset = 0;
+                    idleRecords = 0;
+                    continue;
+                }
+                // Everything else carries no data for the caller; a peer must not be able to
+                // keep the connection busy with it forever.
+                if (++idleRecords > MAX_IDLE_RECORDS) {
+                    throw new IOException("too many TLS records without application data");
+                }
+                if (type == TYPE_APPLICATION_DATA) {
+                    continue;
                 } else if (type == TYPE_HANDSHAKE && record.length > 1) {
                     handshakeBuffer.write(record, 0, record.length - 1);
                     for (byte[] m = takeBufferedHandshakeMessage(); m != null;

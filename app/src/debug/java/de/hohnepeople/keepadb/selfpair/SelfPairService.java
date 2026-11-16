@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,8 +37,6 @@ public final class SelfPairService extends Service {
     static final String ACTION_CODE = "de.hohnepeople.keepadb.selfpair.CODE";
     static final String ACTION_STOP = "de.hohnepeople.keepadb.selfpair.STOP";
     static final String EXTRA_CODE = "code";
-    static final String EXTRA_PAIR_PORT = "pair_port";
-    static final String EXTRA_CONNECT_PORT = "connect_port";
     static final String EXTRA_LEAVE_ON = "leave_on";
 
     private static final String TAG = "KeepADBSelfPair";
@@ -56,8 +53,6 @@ public final class SelfPairService extends Service {
     private final Object ports = new Object();
     private LocalAdbDiscovery pairingDiscovery;
     private LocalAdbDiscovery connectDiscovery;
-    private int forcedPairPort;
-    private int forcedConnectPort;
     private boolean leaveOn;
     private boolean busy;
 
@@ -93,6 +88,12 @@ public final class SelfPairService extends Service {
     }
 
     private void start(Intent intent) {
+        synchronized (ports) {
+            if (busy) {
+                // An attempt is running; its settings must not change underneath it.
+                return;
+            }
+        }
         synchronized (SelfPairService.class) {
             LOG.clear();
         }
@@ -105,8 +106,6 @@ public final class SelfPairService extends Service {
                 + Build.MODEL + ")");
         stopDiscovery();
         leaveOn = intent.getBooleanExtra(EXTRA_LEAVE_ON, false);
-        forcedPairPort = intent.getIntExtra(EXTRA_PAIR_PORT, 0);
-        forcedConnectPort = intent.getIntExtra(EXTRA_CONNECT_PORT, 0);
         NsdManager nsd = getSystemService(NsdManager.class);
         pairingDiscovery = new LocalAdbDiscovery(nsd, LocalAdbDiscovery.PAIRING, () -> {
             List<Integer> found = pairingDiscovery == null
@@ -125,10 +124,6 @@ public final class SelfPairService extends Service {
         });
         pairingDiscovery.start();
         connectDiscovery.start();
-        String code = intent.getStringExtra(EXTRA_CODE);
-        if (code != null) {
-            onCode(code);
-        }
     }
 
     private void onCode(String code) {
@@ -154,9 +149,10 @@ public final class SelfPairService extends Service {
             fail("code must be six digits", true);
             return;
         }
-        List<Integer> pairPorts = forcedPairPort != 0
-                ? Collections.singletonList(forcedPairPort)
-                : pairingDiscovery.candidatePorts();
+        LocalAdbDiscovery discovery = pairingDiscovery;
+        List<Integer> pairPorts = discovery == null
+                ? new ArrayList<>() : discovery.candidatePorts();
+        final boolean leaveOnAfterwards = leaveOn;
         if (pairPorts.isEmpty()) {
             fail("no pairing service found; is the pairing dialog open?", true);
             return;
@@ -170,24 +166,40 @@ public final class SelfPairService extends Service {
             log("paired after " + elapsed(start) + " ms");
             notifyStatus("Paired. Granting the permission…", false);
 
-            String output = grant(identity);
+            String output;
+            try {
+                output = sanitize(grant(identity));
+            } catch (IOException | GeneralSecurityException e) {
+                // adbd may have run the command and dropped the connection afterwards; the
+                // permission itself decides, below.
+                Log.w(TAG, "grant connection failed", e);
+                output = e.getClass().getSimpleName() + ": " + e.getMessage();
+            }
             log("grant command finished after " + elapsed(start) + " ms, output: \""
                     + output + "\"");
             boolean granted = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                     == PackageManager.PERMISSION_GRANTED;
             log("RESULT granted=" + granted);
-            if (granted && !leaveOn) {
+            String state = "";
+            if (granted && !leaveOnAfterwards) {
                 // The user switched Wireless debugging on only for the pairing.
-                Settings.Global.putInt(getContentResolver(), "adb_wifi_enabled", 0);
-                log("Wireless debugging switched off again");
+                boolean written =
+                        Settings.Global.putInt(getContentResolver(), "adb_wifi_enabled", 0);
+                boolean off = Settings.Global.getInt(getContentResolver(),
+                        "adb_wifi_enabled", 0) == 0;
+                log("Wireless debugging off again: written=" + written + ", off=" + off);
+                state = off ? "" : " Wireless debugging could not be switched off.";
             }
             notifyStatus(granted
-                    ? "Done: permission granted. The entry \"KeepADB\" with fingerprint "
-                            + identity.fingerprint() + " under paired devices can be removed."
-                    : "Grant failed: " + output, false);
-            stopDiscovery();
-            stopForeground(STOP_FOREGROUND_DETACH);
-            stopSelf();
+                    ? "Done: permission granted." + state + " The entry \"KeepADB\" with "
+                            + "fingerprint " + identity.fingerprint()
+                            + " under paired devices can be removed."
+                    : "Paired, but the grant failed: " + output, !granted);
+            if (granted) {
+                stopDiscovery();
+                stopForeground(STOP_FOREGROUND_DETACH);
+                stopSelf();
+            }
         } catch (AdbPairingClient.WrongCodeException e) {
             fail("wrong pairing code", true);
         } catch (Exception e) {
@@ -240,9 +252,6 @@ public final class SelfPairService extends Service {
     }
 
     private List<Integer> awaitConnectPorts() throws InterruptedException {
-        if (forcedConnectPort != 0) {
-            return Collections.singletonList(forcedConnectPort);
-        }
         long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(CONNECT_PORT_WAIT_MS);
         synchronized (ports) {
             while (connectDiscovery.candidatePorts().isEmpty()) {
@@ -261,6 +270,12 @@ public final class SelfPairService extends Service {
                     + elapsed(start) + " ms");
         }
         return found;
+    }
+
+    /** Peer-controlled text: keep it short and printable before it reaches a log or the UI. */
+    private static String sanitize(String text) {
+        String printable = text.replaceAll("[^\\x20-\\x7e]", " ").trim();
+        return printable.length() > 200 ? printable.substring(0, 200) + "…" : printable;
     }
 
     private void fail(String reason, boolean retry) {
@@ -312,7 +327,8 @@ public final class SelfPairService extends Service {
     @Override
     public void onDestroy() {
         stopDiscovery();
-        worker.shutdown();
+        // Interrupts waits; a running connection ends at its own deadline at the latest.
+        worker.shutdownNow();
         super.onDestroy();
     }
 

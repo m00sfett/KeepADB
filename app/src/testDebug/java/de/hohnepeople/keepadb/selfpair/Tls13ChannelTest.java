@@ -204,10 +204,11 @@ public class Tls13ChannelTest {
         store.load(null, null);
         store.setKeyEntry("server", server.privateKey, new char[0],
                 new Certificate[] {server.certificate});
-        KeyManagerFactory keys =
-                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        // Name the JDK's provider: Robolectric tests in the same JVM install Conscrypt as the
+        // default, and its server side does not run on this JDK.
+        KeyManagerFactory keys = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
         keys.init(store, new char[0]);
-        SSLContext context = SSLContext.getInstance("TLSv1.3");
+        SSLContext context = SSLContext.getInstance("TLSv1.3", "SunJSSE");
         context.init(keys.getKeyManagers(), new TrustManager[] {trust}, null);
         SSLServerSocket listener = (SSLServerSocket) context.getServerSocketFactory()
                 .createServerSocket(0, 1, InetAddress.getLoopbackAddress());

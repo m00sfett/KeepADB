@@ -32,6 +32,9 @@ final class AdbGrantClient {
     private static final int MAX_OUTPUT = 64 * 1024;
     private static final int LOCAL_ID = 1;
     private static final int TIMEOUT_MS = 10_000;
+    private static final int OPERATION_TIMEOUT_MS = 20_000;
+    /** More output packets than {@code pm grant} could ever need, error text included. */
+    private static final int MAX_OUTPUT_PACKETS = 64;
 
     private final TlsChannel.Factory tls;
 
@@ -60,14 +63,17 @@ final class AdbGrantClient {
                     TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
             socket.setTcpNoDelay(true);
-            write(socket.getOutputStream(), A_CNXN, A_VERSION, MAX_DATA, nulTerminated("host::"));
-            Message reply = read(socket.getInputStream());
-            if (reply.command != A_STLS) {
-                throw new IOException("adbd did not offer TLS");
-            }
-            write(socket.getOutputStream(), A_STLS, A_STLS_VERSION, 0, new byte[0]);
-            try (TlsChannel channel = tls.handshake(socket, identity)) {
-                return runCommand(channel.input(), channel.output(), command);
+            try (Deadline deadline = Deadline.closeAfter(socket, OPERATION_TIMEOUT_MS)) {
+                write(socket.getOutputStream(), A_CNXN, A_VERSION, MAX_DATA,
+                        nulTerminated("host::"));
+                Message reply = read(socket.getInputStream());
+                if (reply.command != A_STLS) {
+                    throw new IOException("adbd did not offer TLS");
+                }
+                write(socket.getOutputStream(), A_STLS, A_STLS_VERSION, 0, new byte[0]);
+                try (TlsChannel channel = tls.handshake(socket, identity)) {
+                    return runCommand(channel.input(), channel.output(), command);
+                }
             }
         } finally {
             socket.close();
@@ -81,12 +87,14 @@ final class AdbGrantClient {
         }
         write(out, A_OPEN, LOCAL_ID, 0, nulTerminated("shell:" + command));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
+        int packets = 0;
         Message message = read(in);
         if (message.command == A_OKAY) {
             while (true) {
                 message = read(in);
                 if (message.command == A_WRTE) {
-                    if (output.size() + message.data.length > MAX_OUTPUT) {
+                    if (++packets > MAX_OUTPUT_PACKETS
+                            || output.size() + message.data.length > MAX_OUTPUT) {
                         throw new IOException("command output too long");
                     }
                     output.write(message.data, 0, message.data.length);

@@ -98,6 +98,46 @@ public class AdbGrantClientTest {
         }
     }
 
+    /** Review finding: a peer must not be able to keep the client busy with empty output. */
+    @Test(expected = IOException.class)
+    public void givesUpOnEndlessEmptyOutput() throws Exception {
+        try (ServerSocket server = new ServerSocket(0)) {
+            CompletableFuture.runAsync(() -> {
+                try (Socket peer = server.accept()) {
+                    InputStream in = peer.getInputStream();
+                    OutputStream out = peer.getOutputStream();
+                    read(in);
+                    write(out, A_STLS, 0x01000000, 0, new byte[0]);
+                    read(in);
+                    write(out, A_CNXN, 0x01000001, 1 << 20, new byte[0]);
+                    Frame open = read(in);
+                    write(out, A_OKAY, 7, open.arg0, new byte[0]);
+                    while (true) {
+                        write(out, A_WRTE, 7, open.arg0, new byte[0]);
+                        read(in);
+                    }
+                } catch (IOException e) {
+                    // expected: the client hangs up
+                }
+            });
+            new AdbGrantClient(PASS_THROUGH).grant(server.getLocalPort(), null, "a.b");
+        }
+    }
+
+    @Test
+    public void deadlineClosesTheSocket() throws Exception {
+        try (ServerSocket server = new ServerSocket(0);
+                Socket socket = new Socket(server.getInetAddress(), server.getLocalPort());
+                Deadline deadline = Deadline.closeAfter(socket, 200)) {
+            try {
+                socket.getInputStream().read();
+                org.junit.Assert.fail("read should have been cut off");
+            } catch (IOException expected) {
+                org.junit.Assert.assertTrue(deadline.expired());
+            }
+        }
+    }
+
     private static String fakeAdbd(Socket peer, String commandOutput) throws IOException {
         InputStream in = peer.getInputStream();
         OutputStream out = peer.getOutputStream();
