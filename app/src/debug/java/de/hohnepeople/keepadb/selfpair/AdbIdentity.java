@@ -55,7 +55,7 @@ final class AdbIdentity {
         BigInteger modulus = publicKey.getModulus();
         BigInteger r32 = BigInteger.ONE.shiftLeft(32);
         BigInteger n0inv = r32.subtract(modulus.mod(r32).modInverse(r32));
-        BigInteger rr = BigInteger.ONE.shiftLeft(MODULUS_BYTES * 8).modPow(BigInteger.TWO, modulus);
+        BigInteger rr = BigInteger.ONE.shiftLeft(MODULUS_BYTES * 8).modPow(BigInteger.valueOf(2), modulus);
         ByteBuffer buffer = ByteBuffer.allocate(8 + 2 * MODULUS_BYTES + 4)
                 .order(ByteOrder.LITTLE_ENDIAN);
         buffer.putInt(MODULUS_BYTES / 4);

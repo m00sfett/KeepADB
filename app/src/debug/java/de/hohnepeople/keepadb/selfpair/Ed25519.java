@@ -16,7 +16,7 @@ final class Ed25519 {
     static final BigInteger L = BigInteger.ONE.shiftLeft(252)
             .add(new BigInteger("27742317777372353535851937790883648493"));
 
-    private static final BigInteger TWO = BigInteger.TWO;
+    private static final BigInteger TWO = BigInteger.valueOf(2);
     private static final BigInteger D = BigInteger.valueOf(-121665)
             .multiply(BigInteger.valueOf(121666).modInverse(P)).mod(P);
     private static final BigInteger D2 = D.shiftLeft(1).mod(P);
