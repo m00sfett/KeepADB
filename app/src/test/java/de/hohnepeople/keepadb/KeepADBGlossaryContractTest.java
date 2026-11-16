@@ -244,9 +244,70 @@ public class KeepADBGlossaryContractTest {
         }
     }
 
+    /**
+     * #965: the docs, the README and the store texts use the same terms. Android's setting appears
+     * in quotation marks only, "Wifi-ADB" and "Keep-Alive" are spelled one way, the endpoint is
+     * "Port &lt;port&gt; @ &lt;ip&gt;" (the payload of the webhook and the adb command stay technical).
+     * The archive, the design notes and the release notes under docs/ are history and not checked.
+     */
+    @Test
+    public void docsAndStoreTextsFollowTheTerms() throws IOException {
+        Path root = projectRoot();
+        List<Path> files = new java.util.ArrayList<>();
+        files.add(root.resolve("README.md"));
+        files.add(root.resolve("SECURITY.md"));
+        files.add(root.resolve("CONTRIBUTING.md"));
+        try (java.util.stream.Stream<Path> list = Files.list(root.resolve("docs"))) {
+            list.filter(f -> f.toString().endsWith(".md")).sorted().forEach(files::add);
+        }
+        try (java.util.stream.Stream<Path> list = Files.list(root.resolve("fastlane/metadata/android"))) {
+            for (Path dir : (Iterable<Path>) list.sorted()::iterator) {
+                for (String name : new String[] {"full_description.txt", "short_description.txt", "title.txt"}) {
+                    if (Files.isRegularFile(dir.resolve(name))) files.add(dir.resolve(name));
+                }
+            }
+        }
+        Pattern keepAlive = Pattern.compile("(?i)keep[ -]?alive");
+        Pattern android = Pattern.compile("(?i)wireless[ -]debugging");
+        Pattern hostPort = Pattern.compile("(?i)\\b(ip|host):port");
+        for (Path file : files) {
+            String text = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+            String name = root.relativize(file).toString();
+            for (String variant : VARIANT_SPELLINGS) {
+                assertFalse(name + " uses '" + variant + "'", text.contains(variant));
+            }
+            Matcher k = keepAlive.matcher(text);
+            while (k.find()) {
+                assertEquals(name + " spells Keep-Alive differently near: " + context(text, k.start()),
+                        "Keep-Alive", k.group());
+            }
+            Matcher a = android.matcher(text);
+            while (a.find()) {
+                int before = a.start() - 1;
+                assertTrue(name + " names Android's setting without quotation marks near: "
+                                + context(text, a.start()),
+                        before >= 0 && (text.charAt(before) == '"' || text.charAt(before) == '“'));
+            }
+            Matcher h = hostPort.matcher(text);
+            while (h.find()) {
+                assertTrue(name + " shows an endpoint as host:port near: " + context(text, h.start()),
+                        name.endsWith("webhook-register.md") || name.endsWith("CONTRIBUTING.md"));
+            }
+        }
+    }
+
     /** Space, no-break space or narrow no-break space between a quotation mark and its text. */
     private static boolean isGap(char c) {
         return Character.isWhitespace(c) || c == '\u00a0' || c == '\u202f';
+    }
+
+    private static String context(String text, int at) {
+        return text.substring(Math.max(0, at - 40), Math.min(text.length(), at + 60)).replace('\n', ' ');
+    }
+
+    private static Path projectRoot() {
+        Path cwd = Paths.get("").toAbsolutePath();
+        return Files.isDirectory(cwd.resolve("app/src")) ? cwd : cwd.getParent();
     }
 
     @Test

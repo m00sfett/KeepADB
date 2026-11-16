@@ -41,15 +41,14 @@ Nach dem Aktivieren des Test-Hotspots auf `rolfphone` war das Gerät im zweiten 
 zeitweise über ADB/SSH nicht mehr erreichbar (weder Wifi-ADB noch USB), obwohl es laut
 Tailscale-Ping online war. Plausibelste Ursache: Die auf `rolfphone` selbst installierte
 KeepADB-Instanz hat den eigenen Netzwerkwechsel (Wechsel in den Hotspot-Modus zählt aus
-Android-Sicht als Konnektivitätsänderung) als Trigger genommen und ihr eigenes Wireless
-Debugging deaktiviert — vermutlich als Teil derselben Trusted-Network-/Recovery-Logik, die
+Android-Sicht als Konnektivitätsänderung) als Trigger genommen und ihr eigenes Wifi-ADB deaktiviert — vermutlich als Teil derselben Trusted-Network-/Recovery-Logik, die
 auch auf dem S20 getestet wird. Nicht abschließend im Code verifiziert, da es sich um einen
 Seiteneffekt am Testinstrument handelt, nicht um einen Befund am Testobjekt.
 
 **Konsequenz für künftige Läufe:** Vor dem Aktivieren des Test-Hotspots einen alternativen
 Erreichbarkeitspfad zu `rolfphone` sicherstellen (USB bereithalten oder den Hotspot-Wechsel
 mit ausreichend Puffer einplanen, bevor `rolfphone` selbst gebraucht wird), und nach dem Test
-aktiv prüfen, ob `rolfphone` sein eigenes Wireless Debugging wieder aktiviert hat — das
+aktiv prüfen, ob `rolfphone` sein eigenes Wifi-ADB wieder aktiviert hat — das
 geschieht nicht automatisch und braucht ggf. manuelle Nachbereitung direkt am Gerät.
 
 ### 2. Cleanup-Reihenfolge: Hotspot-Name und Sperrzustand bleiben leicht hängen

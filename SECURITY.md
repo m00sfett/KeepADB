@@ -2,7 +2,7 @@
 
 ## Threat model
 
-KeepADB is intended to keep Android Wireless debugging available. This lets `adbd` listen on a
+KeepADB is intended to keep Wifi-ADB (Android's “Wireless debugging”) available. This lets `adbd` listen on a
 dynamic port on the local network. That is the app's purpose and its central security trade-off:
 KeepADB primarily limits **when automatic recovery happens**. It neither bypasses Android's TLS
 pairing nor approves pairing requests for you.
@@ -19,15 +19,15 @@ including “In all Wi-Fi networks”; **Settings → Protection** still shows t
 protection levels (“Maximum security” or “Balanced”).
 
 The data model also supports blocks for individual BSSIDs and Wi-Fi names. In every mode, a block
-takes precedence over trust, does not prompt the user, and never enables Wireless debugging
+takes precedence over trust, does not prompt the user, and never enables Wifi-ADB
 automatically. Only an explicit unblock action removes it; adding trust does not. Blocking occurs
 through the unknown-network notice and the “Trust this network?” dialog; the Wi-Fi networks list provides
 the interface for unblocking. Precedence, migration, and recovery behavior are documented in the
 [trusted-networks guide](docs/trusted-networks.md).
 
 Optional **Force mode** (Settings → Protection) deliberately overrides this protection. For a chosen
-duration (1 hour, 24 hours, 7 days, 30 days, or indefinitely), Keep-Alive re-enables Wireless
-debugging on every Wi-Fi network and overrides blocks and trust rules. It requires confirmation
+duration (1 hour, 24 hours, 7 days, 30 days, or indefinitely), Keep-Alive re-enables Wifi-ADB
+on every Wi-Fi network and overrides blocks and trust rules. It requires confirmation
 with staged warnings, remains visible on the home screen and in the notification, and can be ended
 there with one tap. When it expires, the exact saved setting applies again. The duration survives
 reboots, app updates, and clock or time-zone changes (a changed clock can shorten it or extend it
@@ -59,12 +59,12 @@ A copied BSSID alone does not defeat WPA2/WPA3 authentication, and it does not m
 rogue access point by itself. Whether the phone connects depends on the saved Wi-Fi configuration,
 the credentials (for example, someone who knows the shared WPA2/WPA3-Personal password can run an
 access point that the phone cannot tell apart from the legitimate one) and platform behavior.
-Wireless debugging is a separate layer: Android authenticates paired hosts and encrypts the ADB
+Android's “Wireless debugging” is a separate layer: it authenticates paired hosts and encrypts the ADB
 connection with TLS, so imitating an access point identifier does not by itself grant an ADB shell.
 
-Network trust gates **automatic** enabling and recovery only. When Wireless debugging is already
+Network trust gates **automatic** enabling and recovery only. When Wifi-ADB is already
 on and the phone moves to a network that is not trusted, KeepADB shows a notice; by default it does
-not switch Wireless debugging off. The opt-in setting "Turn off on untrusted Wi-Fi" (#864) does, while
+not switch Wifi-ADB off. The opt-in setting "Turn off on untrusted Wi-Fi" (#864) does, while
 Keep-Alive runs: it is a best-effort reaction to network callbacks and the one-minute heartbeat, not
 an instantaneous guarantee, and a failed write is reported rather than hidden.
 The opt-in setting "Check Wi-Fi security of trusted access points" (#860, Android 12 and later)
@@ -74,7 +74,7 @@ or when the tier cannot be read. It does not prove that an access point is genui
 the same BSSID and security tier passes.
 
 Network trust controls automatic recovery. The tile and other manual controls do not approve a new
-network identity. A locked device must be unlocked before enabling Wireless debugging through the
+network identity. A locked device must be unlocked before enabling Wifi-ADB through the
 Quick Settings tile; turning it off through the tile remains possible from the
 lock screen. Approving a network through a notification also requires an unlocked device. While the
 notification privacy switch is on, the notice has no action buttons; tapping it opens KeepADB's
@@ -92,7 +92,7 @@ ADB. The app cannot grant it itself. Automatic recovery requires a Wi-Fi connect
 and the user's most recently saved explicit intent. Android may also require its own confirmation;
 if the state is not confirmed, KeepADB waits instead of repeatedly trying to enable it.
 
-A locked device must be unlocked before enabling Wireless debugging through the Quick Settings
+A locked device must be unlocked before enabling Wifi-ADB through the Quick Settings
 tile. Turning it off through the tile remains possible from the lock
 screen. Approving an unknown network through a notice also requires unlocking and shows the access
 point name in KeepADB when the notification privacy switch is on.
@@ -106,7 +106,7 @@ area only. The notification and widget switches omit them and the port entirely.
 masks names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names alike, shown as
 `***`, in endpoint rows, report history and the webhook address); **by decision,
 inside the app an IPv4 address keeps its first number and the port stays visible**
-(`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
+(“Port 41234 @ 192.*.*.*”), so that “did it report to this port?” stays answerable. Only the app switch
 has a “Show”. It lifts the mask for one part of one screen (the Wi-Fi networks list, the assistant's
 network page, the trust dialog, the webhook field) until that part is
 left, the screen stops or the switch is turned on again. A tap on the eye in the title bars (home
@@ -124,7 +124,7 @@ they can then appear on the lock screen if Android shows sensitive notification 
 choice sits on the first page of the setup assistant and in the Settings. An installation that
 updated from an earlier version keeps its behavior: details stay hidden unless it had turned them
 on. The privacy switches are display settings; they do not change what an enabled webhook sends or
-which network may enable Wireless debugging.
+which network may enable Wifi-ADB.
 
 **Copying the endpoint (#951):** a tap on the endpoint row of the home screen (and on a verified
 transport row) and the notification's "Copy" action put `adb connect <host>:<port>` on the
