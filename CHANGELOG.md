@@ -31,7 +31,8 @@ Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (
 status split into a state, a reason and an action (#957), copying the endpoint (#951) and the help
 for connecting a computer (#952). Block 4 (versionCode 268): the Protection page (#959): the
 Network card of Settings becomes one row that opens its own page, and the "Also trust by Wi-Fi
-name" switch is gone.
+name" switch is gone. Block 5 (versionCode 269): one name per thing across the app, the docs and
+the store texts (#965), and the privacy eye on the tablet and wide-window layouts (#971).
 The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
@@ -42,7 +43,7 @@ name and raise only the code.
   on `MainActivity`). The toggle starts the new `KeepADBToggleShortcutActivity`: no UI, not exported,
   no confirmation, toggle source `shortcut` (manual, so it writes at once like the tile). It follows
   the shared click semantics (`KeepADB#desiredOnForClick`), so unlike the tile it also switches
-  off while Wireless Debugging is on but disconnected. It enforces what the tile enforces: an enable
+  off while Wifi-ADB is on but disconnected. It enforces what the tile enforces: an enable
   on a device behind a secure lock waits for `KeyguardManager#requestDismissKeyguard` and a
   cancelled unlock toggles nothing, a disable is immediate (#586), the continuation after an unlock
   derives the state again and never disables, and a missing `WRITE_SECURE_SETTINGS` or a rejected
@@ -52,7 +53,7 @@ name and raise only the code.
   (`app/src/debug/res/xml/shortcuts.xml`, package id with the `.debug` suffix);
   `KeepADBShortcutsContractTest` checks both against `app/build.gradle`. Labels in all 19 locales.
 
-- **Copy the Wi-Fi ADB endpoint as an `adb connect` command (#951).** A tap on the endpoint row of
+- **Copy the Wifi-ADB endpoint as an `adb connect` command (#951).** A tap on the endpoint row of
   the home screen ("Port 5555 @ 192.168.0.5") puts exactly `adb connect <host>:<port>` on the
   clipboard (IPv6 hosts in brackets; the command is technical and not translated). The row is a
   48dp borderless tap target with a small copy icon at its end, not the card background, and only
@@ -267,8 +268,53 @@ name and raise only the code.
 - **Tile helpers shared (#954):** the unlock gate, the "never disable after an unlock" re-check and
   the failure toast of the Quick Settings tile moved to `KeepADBToggleGate`; the tile behaves as
   before.
+- **One name per thing (#965).** Maintainer decision of 2026-11-15 after a design critique of
+  1.12.8: the same feature had been "Wireless Debugging", "Wifi-ADB" and "ADB over Wi-Fi", the
+  automation "Keep persistently active" and "Keep-Alive", the endpoint `<ip>:<port>` and "Port
+  <port> @ <ip>". Now, in all 19 locales (values files, notification, tile, widgets, TalkBack
+  texts), `README.md`, `SECURITY.md`, `docs/` and the store texts:
+  - **Wifi-ADB** (this exact spelling in every language) is KeepADB's switch and the state it
+    controls: home switch, widget label ("Debugging" is gone), notification channel and service,
+    warnings, Protection page, Force mode, setup assistant, webhook text.
+  - **Keep-Alive** (exactly) is the automatic re-enabling. "Keep persistently active" and its
+    translations are gone as a label; Spanish, German and the two Chinese locales, which had their
+    own words for the settings section and the widget label, say "Keep-Alive" too.
+  - **Port <port> @ <ip>** is the endpoint (`endpoint_port_at_ip`) in the app, the notification, the
+    wide widget status line and the wide overview row. The Quick Settings tile, the hero
+    tiles of the control widget and the compact overview row show **Port 34697** only
+    (`endpoint_port_only`); the old `tile_state_connected_format` (`%1$s:%2$d`) is deleted.
+  - **Android's own setting keeps Android's name**, in quotation marks, localized as Android shows
+    it: the setting's name appears only in `connect_help_step_phone`, `setup_state_offline_body`,
+    `toggle_subtext`, `status_off_keep_alive_blocked_recovery_backoff` and `home_reason_backoff`,
+    where the text sends the user to the developer options or names Android's dialog.
+  - **The list is "Wi-Fi networks"**: `home_action_networks` (the button that opens it) and
+    `onboarding_network_open_list` no longer say "Networks"/"Networks list"; the docs say "Wi-Fi
+    networks list".
+  - **Left technical on purpose:** shell commands and code identifiers (`adb connect`, `adb
+    pair`, `WRITE_SECURE_SETTINGS`), code comments and log lines, the webhook URL hint
+    (`http://host:port/register/device`), and the two places that show exactly what was sent to the
+    webhook (the "Last reported endpoint" line and the report history list `host:port` as in the
+    payload).
+  - **Gate:** `KeepADBGlossaryContractTest` pins the spelling in every locale (the switch and
+    widget labels, "Keep-Alive" and no variant spelling, the endpoint format and its port-only
+    form, no `ip:port`), lists the five strings that may name Android's setting per locale (and
+    requires quotation marks around the name there), and applies the same variant, quoting and
+    endpoint rules to `README.md`, `SECURITY.md`, `CONTRIBUTING.md`, `docs/*.md` and the store
+    texts. `bin/check-i18n` lists the five product-term labels as identical in every language
+    (allowlist). Not verified in this change: the labels and the longer "Port 38203" on the compact
+    widgets and the tile at large font scales and in the long languages, on the emulator or the
+    phone (the screenshot check of the issue is open).
 
 ### Fixed
+- **The privacy eye is on the tablet and wide-window layouts (#971):** only `layout/activity_main.xml`
+  included `view_privacy_toggle`; the five variants for wide windows and tablets (`layout-w600dp`,
+  `-w840dp`, `-sw600dp`, `-sw840dp`, `-sw600dp-w840dp`) had none, so there the screen could not be
+  hidden and the privacy switches were out of reach from the home screen (`KeepADBPrivacyToggle#bind`
+  returned early without a button, so nothing crashed). Every variant includes the same eye now,
+  between the warnings button and the gear. `PrivacyToggleTitleBarsTest` checks that every
+  `activity_main.xml` variant includes it in that place and that `MainActivity` shows a wired eye
+  in the title bar under phone, tablet and wide qualifiers. Not verified: the 7-inch and 10-inch
+  tablet emulators in portrait and landscape.
 - **Long press on the Quick Settings tile (#953):** `MainActivity` answers
   `android.service.quicksettings.action.QS_TILE_PREFERENCES`, so the long press opens the home
   screen instead of Android's app-info page. The setup-assistant handover of a first start is
@@ -390,6 +436,11 @@ name and raise only the code.
   also records the deleted keys), `docs/trusted-networks.md`, `docs/webhook-register.md` and the
   store description (`full_description.txt`). The dated records under `docs/archive`,
   `docs/release` and `docs/design` keep their original wording.
+- The terms of #965 (Wifi-ADB, Keep-Alive, "Port <port> @ <ip>", Android's "Wireless debugging" in
+  quotation marks) are applied in `README.md`, `SECURITY.md`, `docs/` and the store texts.
+- `README.md`, `SECURITY.md`, `docs/defaults.md` and the store description said "three" privacy
+  switches; there are four (app, notifications, lock screen, widgets and the tile counted as one)
+  and the texts now say so.
 
 ## [1.12.8] - Unreleased
 
