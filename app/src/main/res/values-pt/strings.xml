@@ -684,6 +684,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="selfpair_status_no_dialog">Nenhuma janela de pareamento encontrada. Abra-a novamente e deixe-a aberta.</string>
     <string name="selfpair_status_failed">Não funcionou. Tente novamente ou conceda a permissão por um computador.</string>
     <string name="selfpair_done_off">O Wifi-ADB foi desativado novamente.</string>
+    <string name="selfpair_done_still_on">O Wifi-ADB ainda está ativado. Desative-o no KeepADB se não precisar mais dele.</string>
     <string name="selfpair_done_removable">A entrada “KeepADB” em dispositivos pareados não é mais necessária; você pode removê-la. Impressão digital: %1$s</string>
     <string name="selfpair_channel_name">Configuração neste telefone</string>
     <string name="selfpair_notification_title">Permissão do sistema</string>

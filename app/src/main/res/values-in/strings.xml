@@ -682,6 +682,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="selfpair_status_no_dialog">Jendela penyambungan tidak ditemukan. Buka lagi dan biarkan tetap terbuka.</string>
     <string name="selfpair_status_failed">Tidak berhasil. Coba lagi atau berikan izin dari komputer.</string>
     <string name="selfpair_done_off">Wifi-ADB dimatikan kembali.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB masih aktif. Matikan di KeepADB jika Anda tidak memerlukannya lagi.</string>
     <string name="selfpair_done_removable">Entri “KeepADB” di perangkat yang tersambung tidak diperlukan lagi; Anda dapat menghapusnya. Sidik jarinya: %1$s</string>
     <string name="selfpair_channel_name">Penyiapan di ponsel ini</string>
     <string name="selfpair_notification_title">Izin sistem</string>

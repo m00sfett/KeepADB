@@ -62,6 +62,45 @@ public class AdbPairingClientTest {
         run("123456", "123456", Mode.ANSWER_WITH_PUBLIC_KEY);
     }
 
+    @Test
+    public void exchangeCleansUpSpakeWhenExceptionThrown() {
+        TlsChannel channel = new TlsChannel() {
+            @Override
+            public InputStream input() {
+                return new InputStream() {
+                    @Override
+                    public int read() throws IOException {
+                        throw new IOException("simulated read failure");
+                    }
+                };
+            }
+
+            @Override
+            public OutputStream output() {
+                return new OutputStream() {
+                    @Override
+                    public void write(int b) throws IOException {
+                        throw new IOException("simulated write failure");
+                    }
+                };
+            }
+
+            @Override
+            public byte[] exportKeyingMaterial(String label, int length) {
+                return new byte[length];
+            }
+
+            @Override
+            public void close() {}
+        };
+        try {
+            AdbPairingClient.exchange(channel, "123456", KEY);
+            fail("expected IOException");
+        } catch (Exception expected) {
+            assertTrue(expected instanceof IOException);
+        }
+    }
+
     /** Runs the client against a server thread; returns the key text the server received. */
     private static String run(String clientCode, String serverCode, Mode mode) throws Exception {
         PipedInputStream clientIn = new PipedInputStream(1 << 16);

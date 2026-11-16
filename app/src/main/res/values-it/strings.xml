@@ -684,6 +684,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="selfpair_status_no_dialog">Nessuna finestra di accoppiamento trovata. Aprila di nuovo e lasciala aperta.</string>
     <string name="selfpair_status_failed">Non ha funzionato. Riprova oppure concedi l\'autorizzazione da un computer.</string>
     <string name="selfpair_done_off">Il Wifi-ADB è stato disattivato di nuovo.</string>
+    <string name="selfpair_done_still_on">Il Wifi-ADB è ancora attivo. Disattivalo in KeepADB se non ti serve più.</string>
     <string name="selfpair_done_removable">La voce “KeepADB” tra i dispositivi accoppiati non serve più; puoi rimuoverla. La sua impronta: %1$s</string>
     <string name="selfpair_channel_name">Configurazione su questo telefono</string>
     <string name="selfpair_notification_title">Autorizzazione di sistema</string>

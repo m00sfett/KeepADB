@@ -683,6 +683,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="selfpair_status_no_dialog">Kein Kopplungsfenster gefunden. Öffne es erneut und lass es geöffnet.</string>
     <string name="selfpair_status_failed">Das hat nicht geklappt. Versuche es erneut oder erteile die Berechtigung per Computer.</string>
     <string name="selfpair_done_off">Wifi-ADB wurde wieder ausgeschaltet.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB ist noch eingeschaltet. Schalte es in KeepADB aus, wenn du es nicht mehr brauchst.</string>
     <string name="selfpair_done_removable">Der Eintrag „KeepADB“ unter den gekoppelten Geräten wird nicht mehr gebraucht; du kannst ihn entfernen. Sein Fingerabdruck: %1$s</string>
     <string name="selfpair_channel_name">Einrichtung auf diesem Telefon</string>
     <string name="selfpair_notification_title">Systemberechtigung</string>

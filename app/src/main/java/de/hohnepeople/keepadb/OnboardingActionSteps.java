@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -59,8 +60,20 @@ final class OnboardingActionSteps {
         private boolean selfPairPending;
         private boolean selfPairNeedsNotifications;
         private boolean selfPairNeedsWifi;
+        private static final String STATE_SELF_PAIR_PENDING =
+                "onboarding_perm_self_pair_pending";
+        private static final String STATE_COMPUTER_OPEN =
+                "onboarding_perm_computer_open";
+        private static final String STATE_SELF_PAIR_NEEDS_NOTIFICATIONS =
+                "onboarding_perm_self_pair_needs_notifications";
+        private static final String STATE_SELF_PAIR_NEEDS_WIFI =
+                "onboarding_perm_self_pair_needs_wifi";
+
         private final Runnable selfPairObserver = () -> {
-            if (built) render();
+            if (built && host instanceof OnboardingActivity
+                    && ((OnboardingActivity) host).isShowing(this)) {
+                render();
+            }
         };
         /** The status word each row showed last time, to announce the ones that changed. */
         private final Map<String, String> lastStatus = new HashMap<>();
@@ -91,6 +104,23 @@ final class OnboardingActionSteps {
         @Override
         void onDestroy() {
             KeepADBSelfPairService.stopObserving(selfPairObserver);
+            built = false;
+        }
+
+        @Override
+        void saveState(Bundle out) {
+            out.putBoolean(STATE_SELF_PAIR_PENDING, selfPairPending);
+            out.putBoolean(STATE_COMPUTER_OPEN, computerOpen);
+            out.putBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, selfPairNeedsNotifications);
+            out.putBoolean(STATE_SELF_PAIR_NEEDS_WIFI, selfPairNeedsWifi);
+        }
+
+        @Override
+        void restoreState(Bundle in) {
+            selfPairPending = in.getBoolean(STATE_SELF_PAIR_PENDING, false);
+            computerOpen = in.getBoolean(STATE_COMPUTER_OPEN, false);
+            selfPairNeedsNotifications = in.getBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, false);
+            selfPairNeedsWifi = in.getBoolean(STATE_SELF_PAIR_NEEDS_WIFI, false);
         }
 
         @Override
@@ -109,7 +139,15 @@ final class OnboardingActionSteps {
         @Override
         void onResume(Context context) {
             // Back from the notification settings with the permission: go on where it stopped.
-            if (selfPairPending && notificationsUsable()) startSelfPair();
+            if (selfPairPending) {
+                if (KeepADBSelfPairService.notificationsUsable(host)) {
+                    startSelfPair();
+                } else {
+                    selfPairPending = false;
+                    selfPairNeedsNotifications = true;
+                    computerOpen = true;
+                }
+            }
             if (built) render();
             // Like MainActivity.onResume: the service follows the preference, and a Keep-Alive
             // service started from the background is promoted again (#628).
@@ -119,7 +157,7 @@ final class OnboardingActionSteps {
         @Override
         void onPermissionResult(int requestCode) {
             if (selfPairPending && requestCode == OnboardingPermissions.REQUEST_NOTIFICATIONS) {
-                if (notificationsUsable()) {
+                if (KeepADBSelfPairService.notificationsUsable(host)) {
                     startSelfPair();
                 } else {
                     selfPairPending = false;
@@ -235,10 +273,17 @@ final class OnboardingActionSteps {
          */
         private void addSystemHelp(LinearLayout row) {
             KeepADBSelfPairService.Status selfPair = KeepADBSelfPairService.status();
+            if (selfPair.phase == KeepADBSelfPairService.Phase.FAILED) {
+                computerOpen = true;
+            }
             if (selfPair.isActive()) {
                 addSelfPairProgress(row, selfPair);
             } else {
                 row.addView(body(host.getString(R.string.selfpair_intro)));
+                if (selfPair.fingerprint != null) {
+                    row.addView(muted(host.getString(R.string.selfpair_done_removable,
+                            selfPair.fingerprint)));
+                }
                 if (selfPairNeedsWifi) {
                     row.addView(muted(host.getString(R.string.selfpair_need_wifi)));
                 }
@@ -268,6 +313,10 @@ final class OnboardingActionSteps {
             state.setTextColor(host.getColor(R.color.text_yellow));
             state.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
             row.addView(state);
+            if (status.fingerprint != null) {
+                row.addView(muted(host.getString(R.string.selfpair_done_removable,
+                        status.fingerprint)));
+            }
             row.addView(button(host.getString(android.R.string.cancel), false,
                     v -> KeepADBSelfPairService.cancel(host)));
         }
@@ -278,9 +327,12 @@ final class OnboardingActionSteps {
          */
         private void addSelfPairResult(LinearLayout row) {
             KeepADBSelfPairService.Status status = KeepADBSelfPairService.status();
-            if (status.phase != KeepADBSelfPairService.Phase.DONE) return;
-            if (status.switchedOff) {
-                row.addView(muted(host.getString(R.string.selfpair_done_off)));
+            if (status.phase == KeepADBSelfPairService.Phase.DONE) {
+                if (status.cleanup == KeepADBSelfPairService.Cleanup.SWITCHED_OFF) {
+                    row.addView(muted(host.getString(R.string.selfpair_done_off)));
+                } else if (status.cleanup == KeepADBSelfPairService.Cleanup.STILL_ON) {
+                    row.addView(muted(host.getString(R.string.selfpair_done_still_on)));
+                }
             }
             if (status.fingerprint != null) {
                 row.addView(muted(host.getString(R.string.selfpair_done_removable,
@@ -295,7 +347,7 @@ final class OnboardingActionSteps {
                 render();
                 return;
             }
-            if (!notificationsUsable()) {
+            if (!KeepADBSelfPairService.notificationsUsable(host)) {
                 if (selfPairPending) {
                     // Asked already and still missing: this way is closed.
                     selfPairPending = false;
@@ -317,11 +369,6 @@ final class OnboardingActionSteps {
             selfPairPending = false;
             selfPairNeedsNotifications = false;
             KeepADBSelfPairService.start(host);
-        }
-
-        private boolean notificationsUsable() {
-            return host.getSystemService(android.app.NotificationManager.class)
-                    .areNotificationsEnabled();
         }
 
         /** Wireless debugging exists only on Wi-Fi; a VPN on top of it still counts. */

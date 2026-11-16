@@ -685,6 +685,7 @@
     <string name="selfpair_status_no_dialog">Вікно підключення не знайдено. Відкрийте його знову й залиште відкритим.</string>
     <string name="selfpair_status_failed">Не вдалося. Спробуйте ще раз або надайте дозвіл із комп’ютера.</string>
     <string name="selfpair_done_off">Wifi-ADB знову вимкнено.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB усе ще ввімкнено. Вимкніть його в KeepADB, якщо він більше не потрібен.</string>
     <string name="selfpair_done_removable">Запис «KeepADB» у списку підключених пристроїв більше не потрібен; його можна видалити. Його відбиток: %1$s</string>
     <string name="selfpair_channel_name">Налаштування на цьому телефоні</string>
     <string name="selfpair_notification_title">Системний дозвіл</string>

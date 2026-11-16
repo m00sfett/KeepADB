@@ -684,6 +684,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="selfpair_status_no_dialog">No se encontró ninguna ventana de vinculación. Ábrela de nuevo y déjala abierta.</string>
     <string name="selfpair_status_failed">No ha funcionado. Inténtalo de nuevo o concede el permiso desde un ordenador.</string>
     <string name="selfpair_done_off">Wifi-ADB se ha vuelto a desactivar.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB sigue activado. Desactívalo en KeepADB si ya no lo necesitas.</string>
     <string name="selfpair_done_removable">La entrada “KeepADB” en los dispositivos vinculados ya no es necesaria; puedes eliminarla. Su huella digital: %1$s</string>
     <string name="selfpair_channel_name">Configuración en este teléfono</string>
     <string name="selfpair_notification_title">Permiso del sistema</string>

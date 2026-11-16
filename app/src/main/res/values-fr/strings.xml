@@ -684,6 +684,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="selfpair_status_no_dialog">Aucune fenêtre d\'association trouvée. Rouvrez-la et laissez-la ouverte.</string>
     <string name="selfpair_status_failed">Cela n\'a pas fonctionné. Réessayez ou accordez l\'autorisation depuis un ordinateur.</string>
     <string name="selfpair_done_off">Wifi-ADB a été désactivé à nouveau.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB est toujours activé. Désactivez-le dans KeepADB si vous n\'en avez plus besoin.</string>
     <string name="selfpair_done_removable">L\'entrée « KeepADB » dans les appareils associés n\'est plus nécessaire ; vous pouvez la supprimer. Son empreinte : %1$s</string>
     <string name="selfpair_channel_name">Configuration sur ce téléphone</string>
     <string name="selfpair_notification_title">Autorisation système</string>

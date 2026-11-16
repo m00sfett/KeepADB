@@ -683,6 +683,7 @@
     <string name="selfpair_status_no_dialog">कोई पेयरिंग विंडो नहीं मिली। उसे फिर से खोलें और खुली रहने दें।</string>
     <string name="selfpair_status_failed">यह काम नहीं किया। फिर कोशिश करें या कंप्यूटर से अनुमति दें।</string>
     <string name="selfpair_done_off">Wifi-ADB फिर से बंद कर दिया गया।</string>
+    <string name="selfpair_done_still_on">Wifi-ADB अभी भी चालू है। अगर आपको अब इसकी ज़रूरत नहीं है, तो इसे KeepADB में बंद करें।</string>
     <string name="selfpair_done_removable">पेयर किए गए डिवाइस में “KeepADB” की प्रविष्टि अब ज़रूरी नहीं है; आप उसे हटा सकते हैं। उसका फ़िंगरप्रिंट: %1$s</string>
     <string name="selfpair_channel_name">इस फ़ोन पर सेटअप</string>
     <string name="selfpair_notification_title">सिस्टम अनुमति</string>

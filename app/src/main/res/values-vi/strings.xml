@@ -682,6 +682,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="selfpair_status_no_dialog">Không tìm thấy cửa sổ ghép nối. Hãy mở lại và để cửa sổ đó mở.</string>
     <string name="selfpair_status_failed">Không thành công. Hãy thử lại hoặc cấp quyền từ máy tính.</string>
     <string name="selfpair_done_off">Wifi-ADB đã được tắt lại.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB vẫn đang bật. Hãy tắt trong KeepADB nếu bạn không còn cần nữa.</string>
     <string name="selfpair_done_removable">Mục “KeepADB” trong danh sách thiết bị đã ghép nối không còn cần thiết; bạn có thể xóa nó. Vân tay của nó: %1$s</string>
     <string name="selfpair_channel_name">Thiết lập trên điện thoại này</string>
     <string name="selfpair_notification_title">Quyền hệ thống</string>

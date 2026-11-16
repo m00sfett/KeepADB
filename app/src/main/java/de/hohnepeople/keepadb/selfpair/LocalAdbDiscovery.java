@@ -56,7 +56,13 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     }
 
     void start() {
-        nsd.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this);
+        try {
+            if (nsd != null) {
+                nsd.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this);
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "cannot start discovery for " + type + ": " + e);
+        }
     }
 
     synchronized void stop() {
@@ -65,9 +71,11 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         }
         stopped = true;
         try {
-            nsd.stopServiceDiscovery(this);
-        } catch (IllegalArgumentException e) {
-            Log.w(TAG, "discovery was not running: " + type);
+            if (nsd != null) {
+                nsd.stopServiceDiscovery(this);
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "discovery was not running or failed to stop: " + type);
         }
     }
 

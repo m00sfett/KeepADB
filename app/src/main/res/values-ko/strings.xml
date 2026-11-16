@@ -682,6 +682,7 @@
     <string name="selfpair_status_no_dialog">페어링 창을 찾을 수 없습니다. 다시 열고 열어 두세요.</string>
     <string name="selfpair_status_failed">작동하지 않았습니다. 다시 시도하거나 컴퓨터에서 권한을 부여하세요.</string>
     <string name="selfpair_done_off">Wifi-ADB가 다시 꺼졌습니다.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB가 아직 켜져 있습니다. 더 이상 필요하지 않으면 KeepADB에서 끄세요.</string>
     <string name="selfpair_done_removable">페어링된 기기의 “KeepADB” 항목은 더 이상 필요하지 않으므로 삭제해도 됩니다. 지문: %1$s</string>
     <string name="selfpair_channel_name">이 휴대전화에서 설정</string>
     <string name="selfpair_notification_title">시스템 권한</string>

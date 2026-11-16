@@ -683,6 +683,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="selfpair_status_no_dialog">Geen koppelingsvenster gevonden. Open het opnieuw en laat het open.</string>
     <string name="selfpair_status_failed">Dat is niet gelukt. Probeer het opnieuw of geef de toestemming via een computer.</string>
     <string name="selfpair_done_off">Wifi-ADB is weer uitgezet.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB staat nog aan. Schakel het uit in KeepADB als je het niet meer nodig hebt.</string>
     <string name="selfpair_done_removable">Het item “KeepADB” bij gekoppelde apparaten is niet meer nodig; je kunt het verwijderen. De vingerafdruk: %1$s</string>
     <string name="selfpair_channel_name">Instellen op deze telefoon</string>
     <string name="selfpair_notification_title">Systeemtoestemming</string>

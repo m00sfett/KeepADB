@@ -682,6 +682,7 @@
     <string name="selfpair_status_no_dialog">ペア設定ウィンドウが見つかりません。もう一度開いて、開いたままにしてください。</string>
     <string name="selfpair_status_failed">うまくいきませんでした。もう一度試すか、パソコンから権限を付与してください。</string>
     <string name="selfpair_done_off">Wifi-ADB を再びオフにしました。</string>
+    <string name="selfpair_done_still_on">Wifi-ADB はまだオンです。不要になった場合は、KeepADB でオフにしてください。</string>
     <string name="selfpair_done_removable">ペア設定済みのデバイスにある「KeepADB」のエントリは不要になりました。削除できます。フィンガープリント: %1$s</string>
     <string name="selfpair_channel_name">この端末でのセットアップ</string>
     <string name="selfpair_notification_title">システム権限</string>

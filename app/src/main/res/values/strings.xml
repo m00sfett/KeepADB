@@ -699,6 +699,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="selfpair_status_no_dialog">No pairing window found. Open it again and leave it open.</string>
     <string name="selfpair_status_failed">That did not work. Try again, or grant the permission from a computer.</string>
     <string name="selfpair_done_off">Wifi-ADB was switched off again.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB is still on. Switch it off in KeepADB if you no longer need it.</string>
     <string name="selfpair_done_removable">The entry “KeepADB” under paired devices is no longer needed; you can remove it. Its fingerprint: %1$s</string>
     <string name="selfpair_channel_name">Setup on this phone</string>
     <string name="selfpair_notification_title">System permission</string>

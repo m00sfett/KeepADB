@@ -687,6 +687,7 @@
     <string name="selfpair_status_no_dialog">لم يتم العثور على نافذة إقران. افتحها مرة أخرى واتركها مفتوحة.</string>
     <string name="selfpair_status_failed">لم تنجح العملية. حاول مرة أخرى أو امنح الإذن من حاسوب.</string>
     <string name="selfpair_done_off">تم إيقاف Wifi-ADB مرة أخرى.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB لا يزال مفعّلًا. أوقفه في KeepADB إذا لم تعد بحاجة إليه.</string>
     <string name="selfpair_done_removable">لم تعد هناك حاجة إلى إدخال «KeepADB» ضمن الأجهزة المقترنة؛ يمكنك إزالته. بصمته: %1$s</string>
     <string name="selfpair_channel_name">الإعداد على هذا الهاتف</string>
     <string name="selfpair_notification_title">إذن النظام</string>

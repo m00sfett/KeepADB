@@ -682,6 +682,7 @@
     <string name="selfpair_status_no_dialog">找不到配對視窗。請重新開啟並保持開啟。</string>
     <string name="selfpair_status_failed">未成功。請重試，或改用電腦授予權限。</string>
     <string name="selfpair_done_off">Wifi-ADB 已再次關閉。</string>
+    <string name="selfpair_done_still_on">Wifi-ADB 仍處於開啟狀態。如果不再需要，請在 KeepADB 中將其關閉。</string>
     <string name="selfpair_done_removable">已配對裝置中的「KeepADB」項目已不再需要，可以將其移除。其指紋：%1$s</string>
     <string name="selfpair_channel_name">在這支手機上設定</string>
     <string name="selfpair_notification_title">系統權限</string>

@@ -683,6 +683,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="selfpair_status_no_dialog">Eşleme penceresi bulunamadı. Yeniden açın ve açık bırakın.</string>
     <string name="selfpair_status_failed">Olmadı. Yeniden deneyin veya izni bilgisayardan verin.</string>
     <string name="selfpair_done_off">Wifi-ADB yeniden kapatıldı.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB hâlâ açık. Artık ihtiyacınız yoksa KeepADB\'de kapatın.</string>
     <string name="selfpair_done_removable">Eşlenen cihazlardaki “KeepADB” girdisi artık gerekli değil; kaldırabilirsiniz. Parmak izi: %1$s</string>
     <string name="selfpair_channel_name">Bu telefonda kurulum</string>
     <string name="selfpair_notification_title">Sistem izni</string>

@@ -685,6 +685,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="selfpair_status_no_dialog">Nie znaleziono okna parowania. Otwórz je ponownie i zostaw otwarte.</string>
     <string name="selfpair_status_failed">Nie udało się. Spróbuj ponownie albo nadaj uprawnienie z komputera.</string>
     <string name="selfpair_done_off">Wifi-ADB zostało ponownie wyłączone.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB jest nadal włączone. Wyłącz je w KeepADB, jeśli już go nie potrzebujesz.</string>
     <string name="selfpair_done_removable">Wpis „KeepADB” na liście sparowanych urządzeń nie jest już potrzebny; możesz go usunąć. Jego odcisk palca: %1$s</string>
     <string name="selfpair_channel_name">Konfiguracja na tym telefonie</string>
     <string name="selfpair_notification_title">Uprawnienie systemowe</string>

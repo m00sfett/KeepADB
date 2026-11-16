@@ -685,6 +685,7 @@
     <string name="selfpair_status_no_dialog">Окно подключения не найдено. Откройте его снова и не закрывайте.</string>
     <string name="selfpair_status_failed">Не получилось. Повторите попытку или выдайте разрешение с компьютера.</string>
     <string name="selfpair_done_off">Wifi-ADB снова выключен.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB всё ещё включён. Отключите его в KeepADB, если он больше не нужен.</string>
     <string name="selfpair_done_removable">Запись «KeepADB» в списке подключённых устройств больше не нужна; её можно удалить. Её отпечаток: %1$s</string>
     <string name="selfpair_channel_name">Настройка на этом телефоне</string>
     <string name="selfpair_notification_title">Системное разрешение</string>

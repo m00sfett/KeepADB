@@ -90,6 +90,9 @@ public class OnboardingActivityPermissionsTest {
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
         KeepADBForceMode.resetForTesting();
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.IDLE, null,
+                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
     }
 
     // ---- sync() on resume (#628, N2) ---------------------------------------------------------------
@@ -224,6 +227,94 @@ public class OnboardingActivityPermissionsTest {
         findTextStarting(assistant, more).performClick();
         assertFalse(allText(assistant).contains(context.getString(R.string.setup_command_multi,
                 context.getPackageName())));
+    }
+
+    @Test
+    public void publishingStatusWhileAnotherStepIsShowingLeavesItsContentUntouched() {
+        OnboardingActivity assistant = open(new Intent(context, OnboardingActivity.class));
+        // Advance past Intro to Step 1, 2, 3 (Permissions)
+        click(assistant, R.id.onboarding_next);
+        click(assistant, R.id.onboarding_next);
+        click(assistant, R.id.onboarding_next);
+        assertTrue(allText(assistant).contains(
+                context.getString(R.string.onboarding_permissions_title)));
+
+        click(assistant, R.id.onboarding_next); // Step 4: Wi-Fi Trust
+        String step4Content = allText(assistant);
+        assertFalse(step4Content.contains(context.getString(R.string.onboarding_permissions_title)));
+
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.DIALOG_FOUND, null,
+                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+        assertEquals("Step 4 content must not be cleared or overwritten by self-pair status",
+                step4Content, allText(assistant));
+    }
+
+    @Test
+    public void returningToResumeWithSelfPairPendingAndNotificationsStillDisabledResetsPendingAndOpensComputer() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        // Returning to onResume with notifications still disabled resets selfPairPending,
+        // shows the warning, and opens computer help.
+        lastController.resume();
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_need_notifications)));
+        assertTrue(shown.contains(context.getString(R.string.setup_command, context.getPackageName())));
+    }
+
+    @Test
+    public void failedPhaseOpensComputerWay() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.FAILED, null,
+                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+        assertTrue("FAILED phase opens computer fallback",
+                allText(assistant).contains(context.getString(R.string.setup_command,
+                        context.getPackageName())));
+    }
+
+    @Test
+    public void saveStateAndRestoreStatePreservesSelfPairPendingAndComputerOpen() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        openComputerWay(assistant);
+        android.os.Bundle out = new android.os.Bundle();
+        lastController.saveInstanceState(out);
+        assertTrue(out.getBoolean("onboarding_perm_computer_open"));
+
+        ActivityController<OnboardingActivity> restoredController =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent()).setup(out);
+        controllers.add(restoredController);
+        assertTrue(allText(restoredController.get()).contains(
+                context.getString(R.string.setup_command, context.getPackageName())));
+    }
+
+    @Test
+    public void selfPairDoneWithStillOnShowsStillOnMessageAndRemovable() {
+        shadowOf((Application) context).grantPermissions(Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.DONE, "AA:BB:CC",
+                KeepADBSelfPairService.Cleanup.STILL_ON));
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_still_on)));
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_removable, "AA:BB:CC")));
+    }
+
+    @Test
+    public void selfPairFailedWithPairedFingerprintShowsRemovable() {
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.FAILED, "11:22:33",
+                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_removable, "11:22:33")));
     }
 
     // ---- Notifications: denied, denied for good, granted, API 30 against 33 and later ---------------

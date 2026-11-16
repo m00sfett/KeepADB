@@ -70,27 +70,30 @@ final class AdbPairingClient {
         byte[] exported = channel.exportKeyingMaterial(EXPORT_LABEL, EXPORT_SIZE);
         byte[] password = Bytes.concat(Bytes.ascii(code), exported);
         Spake2 spake = new Spake2(CLIENT_NAME, SERVER_NAME);
-        byte[] ourMessage;
-        try {
-            ourMessage = spake.generateMessage(password);
-        } finally {
-            Arrays.fill(password, (byte) 0);
-            Arrays.fill(exported, (byte) 0);
-        }
         PairingCipher cipher;
         try {
-            writePacket(out, TYPE_SPAKE2_MSG, ourMessage);
-            byte[] theirMessage = readPacket(in, TYPE_SPAKE2_MSG);
-            byte[] key = spake.processMessage(theirMessage);
+            byte[] ourMessage;
             try {
-                cipher = new PairingCipher(key);
+                ourMessage = spake.generateMessage(password);
             } finally {
-                Arrays.fill(key, (byte) 0);
+                Arrays.fill(password, (byte) 0);
+                Arrays.fill(exported, (byte) 0);
             }
-        } catch (IllegalArgumentException e) {
-            throw new IOException("peer sent an invalid SPAKE2 message", e);
+            try {
+                writePacket(out, TYPE_SPAKE2_MSG, ourMessage);
+                byte[] theirMessage = readPacket(in, TYPE_SPAKE2_MSG);
+                byte[] key = spake.processMessage(theirMessage);
+                try {
+                    cipher = new PairingCipher(key);
+                } finally {
+                    Arrays.fill(key, (byte) 0);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IOException("peer sent an invalid SPAKE2 message", e);
+            }
         } finally {
-            // Also covers a connection that fails before the peer's message arrives.
+            // Also covers a connection that fails before the peer's message arrives,
+            // or an exception during generateMessage.
             spake.destroy();
         }
 

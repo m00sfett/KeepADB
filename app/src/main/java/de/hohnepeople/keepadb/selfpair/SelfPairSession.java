@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,9 @@ public final class SelfPairSession {
         /** Paired, but the command's connection failed; it may still have run. */
         GRANT_UNCONFIRMED,
         /** The command ran and printed an error. */
-        GRANT_REFUSED
+        GRANT_REFUSED,
+        /** Cancelled before the grant ran. */
+        CANCELLED
     }
 
     /** The outcome of {@link #run}. */
@@ -65,6 +68,8 @@ public final class SelfPairSession {
     private final LocalAdbDiscovery pairing;
     private final LocalAdbDiscovery connect;
     private final Object connectChanged = new Object();
+    private volatile boolean cancelled;
+    private volatile String pairedFingerprint;
 
     public SelfPairSession(NsdManager nsd, String packageName, Listener listener) {
         this.packageName = packageName;
@@ -87,6 +92,19 @@ public final class SelfPairSession {
     public void stop() {
         pairing.stop();
         connect.stop();
+    }
+
+    /** Cancels an ongoing attempt. */
+    public void cancel() {
+        cancelled = true;
+        synchronized (connectChanged) {
+            connectChanged.notifyAll();
+        }
+    }
+
+    /** Fingerprint of the key if pairing succeeded, even if grant failed or was cancelled. */
+    public String pairedFingerprint() {
+        return pairedFingerprint;
     }
 
     public boolean pairingDialogVisible() {
@@ -123,6 +141,10 @@ public final class SelfPairSession {
         if (pairFailure != null) {
             return new Result(pairFailure, null);
         }
+        pairedFingerprint = fingerprint;
+        if (cancelled) {
+            return new Result(Failure.CANCELLED, fingerprint);
+        }
         return new Result(grant(identity), fingerprint);
     }
 
@@ -146,13 +168,22 @@ public final class SelfPairSession {
     }
 
     private Failure grant(AdbIdentity identity) throws InterruptedException {
+        if (cancelled) {
+            return Failure.CANCELLED;
+        }
         List<Integer> candidates = awaitConnectPorts();
+        if (cancelled) {
+            return Failure.CANCELLED;
+        }
         if (candidates.isEmpty()) {
             return Failure.NO_ADB_SERVICE;
         }
         Failure failure = Failure.NO_ADB_SERVICE;
         for (int port : candidates) {
             for (int attempt = 1; attempt <= GRANT_ATTEMPTS; attempt++) {
+                if (cancelled) {
+                    return Failure.CANCELLED;
+                }
                 try {
                     String output = new AdbGrantClient(Tls13Channel.FACTORY)
                             .grant(port, identity, packageName);
@@ -179,13 +210,16 @@ public final class SelfPairSession {
     private List<Integer> awaitConnectPorts() throws InterruptedException {
         long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(CONNECT_PORT_WAIT_MS);
         synchronized (connectChanged) {
-            while (connect.candidatePorts().isEmpty()) {
+            while (connect.candidatePorts().isEmpty() && !cancelled) {
                 long left = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
                 if (left <= 0) {
                     break;
                 }
                 connectChanged.wait(left);
             }
+        }
+        if (cancelled) {
+            return Collections.emptyList();
         }
         List<Integer> found = connect.candidatePorts();
         // Android 11 never reports a connect service that was announced before the discovery
