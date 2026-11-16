@@ -27,7 +27,7 @@ import java.util.Locale;
  */
 final class AdbIdentity {
     private static final int MODULUS_BYTES = 256;
-    private static final byte[] SHA256_WITH_RSA = Ed25519.hex("300d06092a864886f70d01010b0500");
+    private static final byte[] SHA256_WITH_RSA = Bytes.hex("300d06092a864886f70d01010b0500");
 
     final PrivateKey privateKey;
     final RSAPublicKey publicKey;
@@ -84,15 +84,15 @@ final class AdbIdentity {
                 .order(ByteOrder.LITTLE_ENDIAN);
         buffer.putInt(MODULUS_BYTES / 4);
         buffer.putInt(n0inv.intValue());
-        buffer.put(Ed25519.toLittleEndian(modulus, MODULUS_BYTES));
-        buffer.put(Ed25519.toLittleEndian(rr, MODULUS_BYTES));
+        buffer.put(Bytes.toLittleEndian(modulus, MODULUS_BYTES));
+        buffer.put(Bytes.toLittleEndian(rr, MODULUS_BYTES));
         buffer.putInt(publicKey.getPublicExponent().intValue());
         return buffer.array();
     }
 
     private static byte[] selfSignedCertificate(KeyPair pair) throws GeneralSecurityException {
         byte[] name = der(0x30, der(0x31, der(0x30,
-                Ed25519.hex("0603550403"), der(0x0c, Bytes.ascii("KeepADB")))));
+                Bytes.hex("0603550403"), der(0x0c, Bytes.ascii("KeepADB")))));
         byte[] validity = der(0x30,
                 der(0x17, Bytes.ascii("700101000000Z")),
                 der(0x17, Bytes.ascii("491231235959Z")));

@@ -71,9 +71,9 @@ public class Spake2VectorTest {
 
     /** BoringSSL's private key is reduce(random) * 8, so private / 8 reproduces it as input. */
     private static byte[] randomFor(byte[] privateKey) {
-        BigInteger value = Ed25519.fromLittleEndian(privateKey);
+        BigInteger value = Ed25519Reference.fromLittleEndian(privateKey);
         assertEquals(0, value.intValue() & 7);
-        return Ed25519.toLittleEndian(value.shiftRight(3), 64);
+        return Ed25519Reference.toLittleEndian(value.shiftRight(3), 64);
     }
 
     private static List<Map<String, byte[]>> load() throws Exception {
@@ -88,7 +88,7 @@ public class Spake2VectorTest {
                     vectors.add(current);
                 } else if (current != null && line.contains("=")) {
                     int split = line.indexOf('=');
-                    current.put(line.substring(0, split), Ed25519.hex(line.substring(split + 1)));
+                    current.put(line.substring(0, split), Bytes.hex(line.substring(split + 1)));
                 }
             }
         }

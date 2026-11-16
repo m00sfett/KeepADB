@@ -87,7 +87,7 @@ final class Tls13Channel implements TlsChannel {
     private static final int MAX_CHANGE_CIPHER_SPECS = 4;
     private static final int MAX_IDLE_RECORDS = 16;
     private static final int MIN_RSA_BITS = 2048;
-    private static final byte[] HELLO_RETRY_REQUEST_RANDOM = Ed25519.hex(
+    private static final byte[] HELLO_RETRY_REQUEST_RANDOM = Bytes.hex(
             "cf21ad74e59a6111be1d8c021e65b891c2a211167abb8c5e079e09e2c8a8339c");
 
     private final Socket socket;

@@ -162,7 +162,7 @@ public class Tls13ChannelTest {
             if (material == null) {
                 fail("no keying material in openssl output:\n" + output);
             }
-            assertArrayEquals(Ed25519.hex(material.toLowerCase()), exported);
+            assertArrayEquals(Bytes.hex(material.toLowerCase()), exported);
         } finally {
             openssl.destroyForcibly();
             key.delete();

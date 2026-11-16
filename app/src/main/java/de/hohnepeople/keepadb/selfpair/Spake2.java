@@ -1,29 +1,32 @@
 package de.hohnepeople.keepadb.selfpair;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * SPAKE2 over edwards25519 exactly as BoringSSL implements it in {@code spake25519.cc}, client
  * ("alice") role only (#962). ADB pairing uses this variant, including its historical quirks:
  * the private scalar is multiplied by the cofactor without reduction, and the password scalar is
  * made a multiple of eight by adding multiples of the group order instead of shifting.
+ *
+ * <p>All arithmetic on the password and on the private scalar goes through the constant-time
+ * operations of {@link Ed25519}; secret buffers are overwritten once they are no longer needed.
  */
 final class Spake2 {
     static final int MESSAGE_SIZE = 32;
     static final int KEY_SIZE = 64;
 
-    private static final Ed25519.Point M = Ed25519.decode(Ed25519.hex(
+    private static final long[][] M = Ed25519.decode(Bytes.hex(
             "5ada7e4bf6ddd9adb6626d32131c6b5c51a1e347a3478f53cfcf441b88eed12e"));
-    private static final Ed25519.Point N = Ed25519.decode(Ed25519.hex(
+    private static final long[][] N = Ed25519.decode(Bytes.hex(
             "10e3df0ae37d8e7a99b5fe74b44672103dbddcbd06af680d71329a11693bc778"));
 
     private final byte[] myName;
     private final byte[] theirName;
-    private BigInteger privateKey;
-    private BigInteger passwordScalar;
+    private byte[] privateKey;
+    private byte[] passwordScalar;
     private byte[] passwordHash;
     private byte[] myMessage;
     private boolean finished;
@@ -37,7 +40,11 @@ final class Spake2 {
     byte[] generateMessage(byte[] password) {
         byte[] random = new byte[64];
         new SecureRandom().nextBytes(random);
-        return generateMessage(password, random);
+        try {
+            return generateMessage(password, random);
+        } finally {
+            Arrays.fill(random, (byte) 0);
+        }
     }
 
     /** Test seam: {@code random} stands in for BoringSSL's 64 bytes from {@code RAND_bytes}. */
@@ -49,24 +56,23 @@ final class Spake2 {
             throw new IllegalArgumentException("need 64 random bytes");
         }
         // Reduce, then multiply by the cofactor so it is cleared on the peer's point later.
-        privateKey = Ed25519.fromLittleEndian(random).mod(Ed25519.L).shiftLeft(3);
+        privateKey = Ed25519.reduce(random);
+        Ed25519.shiftLeft3(privateKey);
 
         passwordHash = sha512().digest(password);
-        BigInteger scalar = Ed25519.fromLittleEndian(passwordHash).mod(Ed25519.L);
+        passwordScalar = Ed25519.reduce(passwordHash);
         // BoringSSL's "password scalar hack": clear the low three bits by adding l, 2l, 4l.
-        BigInteger order = Ed25519.L;
+        // Each step looks at the bit the previous step may have changed.
         for (int bit = 0; bit < 3; bit++) {
-            if (scalar.testBit(bit)) {
-                scalar = scalar.add(order);
-            }
-            order = order.shiftLeft(1);
+            Ed25519.addOrderIf(passwordScalar, bit, (passwordScalar[0] >>> bit) & 1);
         }
-        passwordScalar = scalar;
 
-        Ed25519.Point masked = Ed25519.add(
-                Ed25519.multiply(privateKey, Ed25519.BASE),
-                Ed25519.multiply(passwordScalar, M));
+        long[][] ephemeral = Ed25519.multiply(privateKey, Ed25519.base());
+        long[][] mask = Ed25519.multiply(passwordScalar, M);
+        long[][] masked = Ed25519.add(ephemeral, mask);
         myMessage = Ed25519.encode(masked);
+        Ed25519.wipe(ephemeral);
+        Ed25519.wipe(mask);
         return myMessage.clone();
     }
 
@@ -82,21 +88,30 @@ final class Spake2 {
             throw new IllegalArgumentException("peer message must be 32 bytes");
         }
         finished = true;
-        Ed25519.Point theirs = Ed25519.decode(theirMessage);
-        Ed25519.Point unmasked = Ed25519.add(theirs,
-                Ed25519.negate(Ed25519.multiply(passwordScalar, N)));
-        byte[] shared = Ed25519.encode(Ed25519.multiply(privateKey, unmasked));
+        try {
+            long[][] theirs = Ed25519.decode(theirMessage);
+            long[][] theirMask = Ed25519.multiply(passwordScalar, N);
+            long[][] unmasked = Ed25519.add(theirs, Ed25519.negate(theirMask));
+            long[][] product = Ed25519.multiply(privateKey, unmasked);
+            byte[] shared = Ed25519.encode(product);
+            Ed25519.wipe(theirMask);
+            Ed25519.wipe(unmasked);
+            Ed25519.wipe(product);
 
-        MessageDigest sha = sha512();
-        updateWithLength(sha, myName);
-        updateWithLength(sha, theirName);
-        updateWithLength(sha, myMessage);
-        updateWithLength(sha, theirMessage);
-        updateWithLength(sha, shared);
-        updateWithLength(sha, passwordHash);
-        privateKey = null;
-        passwordScalar = null;
-        return sha.digest();
+            MessageDigest sha = sha512();
+            updateWithLength(sha, myName);
+            updateWithLength(sha, theirName);
+            updateWithLength(sha, myMessage);
+            updateWithLength(sha, theirMessage);
+            updateWithLength(sha, shared);
+            updateWithLength(sha, passwordHash);
+            Arrays.fill(shared, (byte) 0);
+            return sha.digest();
+        } finally {
+            Arrays.fill(privateKey, (byte) 0);
+            Arrays.fill(passwordScalar, (byte) 0);
+            Arrays.fill(passwordHash, (byte) 0);
+        }
     }
 
     private static void updateWithLength(MessageDigest sha, byte[] data) {

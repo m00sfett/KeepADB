@@ -114,27 +114,27 @@ public class AdbPairingClientTest {
             throws Exception {
         byte[] password = Bytes.concat(Bytes.ascii(code), EXPORTED);
         byte[] passwordHash = MessageDigest.getInstance("SHA-512").digest(password);
-        BigInteger scalar = Ed25519.fromLittleEndian(passwordHash).mod(Ed25519.L);
-        BigInteger order = Ed25519.L;
+        BigInteger scalar = Ed25519Reference.fromLittleEndian(passwordHash).mod(Ed25519Reference.L);
+        BigInteger order = Ed25519Reference.L;
         for (int bit = 0; bit < 3; bit++) {
             if (scalar.testBit(bit)) {
                 scalar = scalar.add(order);
             }
             order = order.shiftLeft(1);
         }
-        Ed25519.Point m = Ed25519.decode(Ed25519.hex(
+        Ed25519Reference.Point m = Ed25519Reference.decode(Bytes.hex(
                 "5ada7e4bf6ddd9adb6626d32131c6b5c51a1e347a3478f53cfcf441b88eed12e"));
-        Ed25519.Point n = Ed25519.decode(Ed25519.hex(
+        Ed25519Reference.Point n = Ed25519Reference.decode(Bytes.hex(
                 "10e3df0ae37d8e7a99b5fe74b44672103dbddcbd06af680d71329a11693bc778"));
         BigInteger privateKey = BigInteger.valueOf(0x5eed).shiftLeft(3);
-        byte[] ours = Ed25519.encode(Ed25519.add(Ed25519.multiply(privateKey, Ed25519.BASE),
-                Ed25519.multiply(scalar, n)));
+        byte[] ours = Ed25519Reference.encode(Ed25519Reference.add(Ed25519Reference.multiply(privateKey, Ed25519Reference.BASE),
+                Ed25519Reference.multiply(scalar, n)));
 
         byte[] theirs = readPacket(in, 0);
         writePacket(out, 0, ours);
-        Ed25519.Point unmasked = Ed25519.add(Ed25519.decode(theirs),
-                Ed25519.negate(Ed25519.multiply(scalar, m)));
-        byte[] shared = Ed25519.encode(Ed25519.multiply(privateKey, unmasked));
+        Ed25519Reference.Point unmasked = Ed25519Reference.add(Ed25519Reference.decode(theirs),
+                Ed25519Reference.negate(Ed25519Reference.multiply(scalar, m)));
+        byte[] shared = Ed25519Reference.encode(Ed25519Reference.multiply(privateKey, unmasked));
         MessageDigest sha = MessageDigest.getInstance("SHA-512");
         for (byte[] part : new byte[][] {CLIENT, SERVER, theirs, ours, shared, passwordHash}) {
             sha.update(ByteBuffer.allocate(8).order(java.nio.ByteOrder.LITTLE_ENDIAN)

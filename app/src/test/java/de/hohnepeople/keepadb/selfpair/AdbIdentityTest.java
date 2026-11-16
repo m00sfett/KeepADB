@@ -38,11 +38,11 @@ public class AdbIdentityTest {
         assertEquals(65537, buffer.getInt());
 
         BigInteger n = identity.publicKey.getModulus();
-        assertEquals(n, Ed25519.fromLittleEndian(modulus));
+        assertEquals(n, Ed25519Reference.fromLittleEndian(modulus));
         BigInteger r32 = BigInteger.ONE.shiftLeft(32);
         // n0inv = -1 / n[0] mod 2^32
         assertEquals(r32.subtract(BigInteger.ONE),
                 BigInteger.valueOf(n0inv).multiply(n).mod(r32));
-        assertEquals(BigInteger.ONE.shiftLeft(4096).mod(n), Ed25519.fromLittleEndian(rr));
+        assertEquals(BigInteger.ONE.shiftLeft(4096).mod(n), Ed25519Reference.fromLittleEndian(rr));
     }
 }

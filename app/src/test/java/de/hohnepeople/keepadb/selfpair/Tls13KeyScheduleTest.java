@@ -103,6 +103,6 @@ public class Tls13KeyScheduleTest {
     }
 
     private static byte[] hex(String hex) {
-        return Ed25519.hex(hex);
+        return Bytes.hex(hex);
     }
 }
