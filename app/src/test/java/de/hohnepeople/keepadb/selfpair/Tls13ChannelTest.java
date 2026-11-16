@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,9 +22,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.KeyStore;
+import java.security.Provider;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -43,10 +48,38 @@ public class Tls13ChannelTest {
     private static AdbIdentity client;
     private static AdbIdentity server;
 
+    private static final List<Provider> REMOVED = new ArrayList<>();
+
+    /**
+     * Robolectric tests in the same JVM install Conscrypt (and BouncyCastle) ahead of the JDK's
+     * providers. With Conscrypt first, the JDK's own TLS server no longer initialises
+     * (sun.security.ssl.SignatureScheme fails in its static initialiser), so the reference peer
+     * of these tests would be dead. Take the foreign providers out for this class only.
+     */
     @BeforeClass
     public static void createIdentities() throws Exception {
+        for (Provider provider : Security.getProviders()) {
+            String name = provider.getName();
+            if (name.equals("Conscrypt") || name.equals("BC")) {
+                Security.removeProvider(name);
+                REMOVED.add(provider);
+            }
+        }
         client = AdbIdentity.create();
         server = AdbIdentity.create();
+    }
+
+    @AfterClass
+    public static void restoreProviders() {
+        for (int i = 0; i < REMOVED.size(); i++) {
+            Provider provider = REMOVED.get(i);
+            if (provider.getName().equals("Conscrypt")) {
+                Security.insertProviderAt(provider, 1);
+            } else {
+                Security.addProvider(provider);
+            }
+        }
+        REMOVED.clear();
     }
 
     @Test
@@ -204,8 +237,6 @@ public class Tls13ChannelTest {
         store.load(null, null);
         store.setKeyEntry("server", server.privateKey, new char[0],
                 new Certificate[] {server.certificate});
-        // Name the JDK's provider: Robolectric tests in the same JVM install Conscrypt as the
-        // default, and its server side does not run on this JDK.
         KeyManagerFactory keys = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
         keys.init(store, new char[0]);
         SSLContext context = SSLContext.getInstance("TLSv1.3", "SunJSSE");

@@ -272,10 +272,15 @@ final class Tls13Channel implements TlsChannel {
         boolean groups = false;
         while (!extensions.atEnd()) {
             int type = extensions.u16();
-            extensions.bytes(extensions.u16());
+            Reader data = new Reader(extensions.bytes(extensions.u16()));
             // The only extension of the ClientHello a server may answer here.
             if (type != EXT_SUPPORTED_GROUPS || groups) {
                 throw new IOException("unexpected EncryptedExtensions extension " + type);
+            }
+            byte[] list = data.bytes(data.u16());
+            data.expectEnd();
+            if (list.length == 0 || list.length % 2 != 0) {
+                throw new IOException("malformed supported_groups");
             }
             groups = true;
         }
@@ -568,17 +573,18 @@ final class Tls13Channel implements TlsChannel {
                 }
                 byte[] record = readRecord();
                 int type = record[record.length - 1] & 0xff;
+                if (type == TYPE_APPLICATION_DATA && handshakeBuffer.size() != 0) {
+                    throw new IOException("application data inside a handshake message");
+                }
                 if (type == TYPE_APPLICATION_DATA && record.length > 1) {
-                    if (handshakeBuffer.size() != 0) {
-                        throw new IOException("application data inside a handshake message");
-                    }
                     applicationData = Arrays.copyOf(record, record.length - 1);
                     applicationOffset = 0;
                     idleRecords = 0;
                     continue;
                 }
                 // Everything else carries no data for the caller; a peer must not be able to
-                // keep the connection busy with it forever.
+                // keep the connection busy with it forever. This is stricter than TLS itself
+                // and fits adbd, which sends a couple of session tickets and nothing else.
                 if (++idleRecords > MAX_IDLE_RECORDS) {
                     throw new IOException("too many TLS records without application data");
                 }

@@ -169,9 +169,9 @@ public final class SelfPairService extends Service {
             String output;
             try {
                 output = sanitize(grant(identity));
-            } catch (IOException | GeneralSecurityException e) {
-                // adbd may have run the command and dropped the connection afterwards; the
-                // permission itself decides, below.
+            } catch (IOException | GeneralSecurityException | InterruptedException e) {
+                // adbd may have run the command and dropped the connection afterwards, or the
+                // service is being stopped; the permission itself decides, below.
                 Log.w(TAG, "grant connection failed", e);
                 output = e.getClass().getSimpleName() + ": " + e.getMessage();
             }
@@ -185,8 +185,9 @@ public final class SelfPairService extends Service {
                 // The user switched Wireless debugging on only for the pairing.
                 boolean written =
                         Settings.Global.putInt(getContentResolver(), "adb_wifi_enabled", 0);
-                boolean off = Settings.Global.getInt(getContentResolver(),
-                        "adb_wifi_enabled", 0) == 0;
+                // An unreadable setting counts as "not confirmed off".
+                boolean off = written && Settings.Global.getInt(getContentResolver(),
+                        "adb_wifi_enabled", -1) == 0;
                 log("Wireless debugging off again: written=" + written + ", off=" + off);
                 state = off ? "" : " Wireless debugging could not be switched off.";
             }

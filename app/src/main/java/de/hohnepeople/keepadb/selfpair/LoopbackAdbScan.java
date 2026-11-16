@@ -27,7 +27,6 @@ final class LoopbackAdbScan {
     private static final int CONNECT_TIMEOUT_MS = 200;
     private static final int PROBE_TIMEOUT_MS = 500;
     private static final int SCAN_TIMEOUT_MS = 15_000;
-    private static final int MAX_PROBES = 32;
     private static final int A_CNXN = 0x4e584e43;
     private static final int A_STLS = 0x534c5453;
 
@@ -35,6 +34,7 @@ final class LoopbackAdbScan {
     }
 
     static List<Integer> find() throws InterruptedException {
+        long started = System.nanoTime();
         List<Integer> open = Collections.synchronizedList(new ArrayList<>());
         ExecutorService pool = Executors.newFixedThreadPool(THREADS);
         int slice = (LAST_PORT - FIRST_PORT + THREADS) / THREADS;
@@ -65,11 +65,12 @@ final class LoopbackAdbScan {
         synchronized (open) {
             candidates = new ArrayList<>(open);
         }
-        // A device has a handful of loopback listeners; more means something is wrong.
-        if (candidates.size() > MAX_PROBES) {
-            candidates = candidates.subList(0, MAX_PROBES);
-        }
+        // One budget for the whole scan: probing stops when it is used up or on interruption.
         for (int port : candidates) {
+            if (System.nanoTime() - started > TimeUnit.MILLISECONDS.toNanos(SCAN_TIMEOUT_MS)
+                    || Thread.currentThread().isInterrupted()) {
+                break;
+            }
             if (offersAdbOverTls(port)) {
                 adb.add(port);
             }
@@ -89,7 +90,8 @@ final class LoopbackAdbScan {
 
     /** Sends ADB's connect message and checks that the reply is the TLS upgrade request. */
     static boolean offersAdbOverTls(int port) {
-        try (Socket socket = new Socket()) {
+        try (Socket socket = new Socket();
+                Deadline deadline = Deadline.closeAfter(socket, 2 * PROBE_TIMEOUT_MS)) {
             socket.connect(new InetSocketAddress(InetAddress.getLoopbackAddress(), port),
                     CONNECT_TIMEOUT_MS);
             socket.setSoTimeout(PROBE_TIMEOUT_MS);
