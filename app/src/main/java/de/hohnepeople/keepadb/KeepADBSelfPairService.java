@@ -340,9 +340,14 @@ public final class KeepADBSelfPairService extends Service {
                     KeepADBWidget.refreshAll(app);
                     KeepADBEndpointCoordinator.refresh(app);
                     KeepADBService.sync(app);
-                    NotificationManager nm = app.getSystemService(NotificationManager.class);
-                    if (nm != null) {
-                        nm.notify(NOTIFICATION_ID, buildCompletionNotification(app, delayedDone));
+                    Notification last = buildCompletionNotification(app, delayedDone);
+                    if (destroyed) {
+                        NotificationManager nm = app.getSystemService(NotificationManager.class);
+                        if (nm != null) {
+                            nm.notify(NOTIFICATION_ID, last);
+                        }
+                    } else {
+                        finish(last);
                     }
                 }
             }, 3_000L);
