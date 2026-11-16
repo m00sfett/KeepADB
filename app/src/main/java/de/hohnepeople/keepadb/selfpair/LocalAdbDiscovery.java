@@ -22,6 +22,9 @@ import java.util.Map;
  *
  * <p>mDNS can still hold records of services that are gone, so the result is a list of
  * candidates, newest first, not a single truth.
+ *
+ * <p>The change callback runs outside the lock, so one that was already under way when
+ * {@link #stop} returns can still arrive; it carries no data and must tolerate that.
  */
 final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     static final String PAIRING = "_adb-tls-pairing._tcp";
@@ -36,6 +39,8 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     private static final int MAX_SERVICES = 16;
 
     private final ArrayDeque<NsdServiceInfo> pending = new ArrayDeque<>();
+    /** The announcement each queued entry belongs to, in the same order as {@link #pending}. */
+    private final ArrayDeque<Integer> pendingTokens = new ArrayDeque<>();
     /** Names currently announced; a resolution that finishes after the loss is dropped. */
     private final Map<String, Integer> announced = new HashMap<>();
     private int generation;
@@ -87,6 +92,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         }
         announced.put(name, ++generation);
         pending.add(info);
+        pendingTokens.add(generation);
         resolveNext();
     }
 
@@ -110,8 +116,14 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         resolving = true;
         NsdServiceInfo next = pending.poll();
         final String name = next.getServiceName();
-        // The announcement this resolution belongs to; a later one of the same name differs.
-        final Integer token = announced.get(name);
+        // The announcement this entry was queued for; a later one of the same name differs.
+        final Integer token = pendingTokens.poll();
+        if (!token.equals(announced.get(name))) {
+            // Lost (and possibly announced again) while it waited: not ours to resolve.
+            resolving = false;
+            resolveNext();
+            return;
+        }
         nsd.resolveService(next, new NsdManager.ResolveListener() {
             @Override
             public void onResolveFailed(NsdServiceInfo info, int errorCode) {

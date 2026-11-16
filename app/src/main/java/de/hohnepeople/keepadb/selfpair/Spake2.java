@@ -13,6 +13,7 @@ import java.util.Arrays;
  *
  * <p>All arithmetic on the password and on the private scalar goes through the constant-time
  * operations of {@link Ed25519}; secret buffers are overwritten once they are no longer needed.
+ * One context serves one exchange and is not safe for use from several threads.
  */
 final class Spake2 {
     static final int MESSAGE_SIZE = 32;
@@ -73,6 +74,7 @@ final class Spake2 {
         myMessage = Ed25519.encode(masked);
         Ed25519.wipe(ephemeral);
         Ed25519.wipe(mask);
+        Ed25519.wipe(masked);
         return myMessage.clone();
     }
 
@@ -84,17 +86,19 @@ final class Spake2 {
         if (myMessage == null || finished) {
             throw new IllegalStateException("wrong state");
         }
-        if (theirMessage.length != MESSAGE_SIZE) {
-            throw new IllegalArgumentException("peer message must be 32 bytes");
-        }
         finished = true;
         try {
+            if (theirMessage.length != MESSAGE_SIZE) {
+                throw new IllegalArgumentException("peer message must be 32 bytes");
+            }
             long[][] theirs = Ed25519.decode(theirMessage);
             long[][] theirMask = Ed25519.multiply(passwordScalar, N);
-            long[][] unmasked = Ed25519.add(theirs, Ed25519.negate(theirMask));
+            long[][] negatedMask = Ed25519.negate(theirMask);
+            long[][] unmasked = Ed25519.add(theirs, negatedMask);
             long[][] product = Ed25519.multiply(privateKey, unmasked);
             byte[] shared = Ed25519.encode(product);
             Ed25519.wipe(theirMask);
+            Ed25519.wipe(negatedMask);
             Ed25519.wipe(unmasked);
             Ed25519.wipe(product);
 
@@ -108,9 +112,22 @@ final class Spake2 {
             Arrays.fill(shared, (byte) 0);
             return sha.digest();
         } finally {
-            Arrays.fill(privateKey, (byte) 0);
-            Arrays.fill(passwordScalar, (byte) 0);
-            Arrays.fill(passwordHash, (byte) 0);
+            destroy();
+        }
+    }
+
+    /**
+     * Overwrites the secrets this context still holds. Called on every way out of
+     * {@link #processMessage}; a caller that gives up before that point calls it itself. The
+     * arithmetic's own temporaries are beyond reach: a managed runtime offers no way to erase
+     * every copy, so this is best effort.
+     */
+    void destroy() {
+        finished = true;
+        for (byte[] secret : new byte[][] {privateKey, passwordScalar, passwordHash}) {
+            if (secret != null) {
+                Arrays.fill(secret, (byte) 0);
+            }
         }
     }
 

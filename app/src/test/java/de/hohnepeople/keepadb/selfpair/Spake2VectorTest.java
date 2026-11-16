@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb.selfpair;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -41,6 +42,63 @@ public class Spake2VectorTest {
         }
     }
 
+    /**
+     * Peer messages an attacker would pick: the identity, points of order 2, 4 and 8, every
+     * non-canonical encoding of y, and strings that are no point at all. BoringSSL decided each
+     * case; the same key or the same refusal is expected here.
+     */
+    @Test
+    public void exceptionalPeerMessagesBehaveLikeBoringSsl() throws Exception {
+        List<Map<String, byte[]>> vectors = load("/selfpair/spake2-exceptional-vectors.txt");
+        assertEquals(50, vectors.size());
+        int accepted = 0;
+        int rejected = 0;
+        for (Map<String, byte[]> vector : vectors) {
+            Spake2 spake = new Spake2(CLIENT, SERVER);
+            assertArrayEquals(vector.get("alice_msg"), spake.generateMessage(
+                    vector.get("password"), randomFor(vector.get("alice_private"))));
+            byte[] expected = vector.get("key");
+            try {
+                byte[] key = spake.processMessage(vector.get("peer_msg"));
+                assertArrayEquals(expected, key);
+                accepted++;
+            } catch (IllegalArgumentException e) {
+                assertEquals("BoringSSL accepted this message", 0, expected.length);
+                rejected++;
+            }
+        }
+        assertEquals(35, accepted);
+        assertEquals(15, rejected);
+    }
+
+    @Test
+    public void aContextIsSpentAfterAnyAttemptToProcess() throws Exception {
+        Map<String, byte[]> vector = load().get(0);
+        Spake2 spake = new Spake2(CLIENT, SERVER);
+        spake.generateMessage(vector.get("password"), randomFor(vector.get("alice_private")));
+        try {
+            spake.processMessage(new byte[31]);
+            fail("wrong length must be refused");
+        } catch (IllegalArgumentException expected) {
+            // refused, and the secrets are gone with it
+        }
+        try {
+            spake.processMessage(vector.get("bob_msg"));
+            fail("a spent context must not process another message");
+        } catch (IllegalStateException expected) {
+            // as intended
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void aDestroyedContextRefusesToContinue() throws Exception {
+        Map<String, byte[]> vector = load().get(0);
+        Spake2 spake = new Spake2(CLIENT, SERVER);
+        spake.generateMessage(vector.get("password"), randomFor(vector.get("alice_private")));
+        spake.destroy();
+        spake.processMessage(vector.get("bob_msg"));
+    }
+
     @Test
     public void wrongPasswordYieldsDifferentKey() throws Exception {
         Map<String, byte[]> vector = load().get(0);
@@ -77,10 +135,14 @@ public class Spake2VectorTest {
     }
 
     private static List<Map<String, byte[]>> load() throws Exception {
+        return load("/selfpair/spake2-vectors.txt");
+    }
+
+    private static List<Map<String, byte[]>> load(String resource) throws Exception {
         List<Map<String, byte[]>> vectors = new ArrayList<>();
         Map<String, byte[]> current = null;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                Spake2VectorTest.class.getResourceAsStream("/selfpair/spake2-vectors.txt"),
+                Spake2VectorTest.class.getResourceAsStream(resource),
                 StandardCharsets.US_ASCII))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (line.startsWith("# vector")) {
@@ -88,7 +150,9 @@ public class Spake2VectorTest {
                     vectors.add(current);
                 } else if (current != null && line.contains("=")) {
                     int split = line.indexOf('=');
-                    current.put(line.substring(0, split), Bytes.hex(line.substring(split + 1)));
+                    String value = line.substring(split + 1);
+                    current.put(line.substring(0, split),
+                            value.equals("reject") ? new byte[0] : Bytes.hex(value));
                 }
             }
         }

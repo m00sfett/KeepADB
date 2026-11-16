@@ -77,13 +77,21 @@ final class AdbPairingClient {
             Arrays.fill(password, (byte) 0);
             Arrays.fill(exported, (byte) 0);
         }
-        writePacket(out, TYPE_SPAKE2_MSG, ourMessage);
-        byte[] theirMessage = readPacket(in, TYPE_SPAKE2_MSG);
         PairingCipher cipher;
         try {
-            cipher = new PairingCipher(spake.processMessage(theirMessage));
+            writePacket(out, TYPE_SPAKE2_MSG, ourMessage);
+            byte[] theirMessage = readPacket(in, TYPE_SPAKE2_MSG);
+            byte[] key = spake.processMessage(theirMessage);
+            try {
+                cipher = new PairingCipher(key);
+            } finally {
+                Arrays.fill(key, (byte) 0);
+            }
         } catch (IllegalArgumentException e) {
             throw new IOException("peer sent an invalid SPAKE2 message", e);
+        } finally {
+            // Also covers a connection that fails before the peer's message arrives.
+            spake.destroy();
         }
 
         byte[] peerInfo = new byte[PEER_INFO_SIZE];
