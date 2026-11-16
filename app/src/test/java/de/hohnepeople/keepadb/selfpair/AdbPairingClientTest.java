@@ -80,7 +80,7 @@ public class AdbPairingClientTest {
                     // ignored
                 }
             }
-        });
+        }, TestThreads.EXECUTOR);
         TlsChannel channel = new TlsChannel() {
             @Override
             public InputStream input() {

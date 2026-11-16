@@ -73,7 +73,7 @@ public class AdbGrantClientTest {
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
-            });
+            }, TestThreads.EXECUTOR);
             String output = new AdbGrantClient(PASS_THROUGH)
                     .grant(server.getLocalPort(), null, "de.hohnepeople.keepadb.debug");
             assertEquals("Exception occurred while executing 'grant'", output);
@@ -93,7 +93,7 @@ public class AdbGrantClientTest {
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
-            });
+            }, TestThreads.EXECUTOR);
             new AdbGrantClient(PASS_THROUGH).grant(server.getLocalPort(), null, "a.b");
         }
     }
@@ -119,7 +119,7 @@ public class AdbGrantClientTest {
                 } catch (IOException e) {
                     // expected: the client hangs up
                 }
-            });
+            }, TestThreads.EXECUTOR);
             new AdbGrantClient(PASS_THROUGH).grant(server.getLocalPort(), null, "a.b");
         }
     }

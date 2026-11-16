@@ -65,7 +65,7 @@ public class Tls13ChannelTest {
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
-            });
+            }, TestThreads.EXECUTOR);
             Socket socket = new Socket(InetAddress.getLoopbackAddress(), listener.getLocalPort());
             socket.setSoTimeout(10_000);
             try (TlsChannel channel = Tls13Channel.FACTORY.handshake(socket, client)) {
@@ -147,7 +147,7 @@ public class Tls13ChannelTest {
                 } catch (IOException e) {
                     // expected: the handshake fails on the server side
                 }
-            });
+            }, TestThreads.EXECUTOR);
             Socket socket = new Socket(InetAddress.getLoopbackAddress(), listener.getLocalPort());
             socket.setSoTimeout(10_000);
             try (TlsChannel channel = Tls13Channel.FACTORY.handshake(socket, client)) {
@@ -166,7 +166,7 @@ public class Tls13ChannelTest {
                 } catch (IOException e) {
                     // expected
                 }
-            });
+            }, TestThreads.EXECUTOR);
             Socket socket = new Socket(InetAddress.getLoopbackAddress(), listener.getLocalPort());
             socket.setSoTimeout(10_000);
             Tls13Channel.FACTORY.handshake(socket, client).close();
@@ -188,7 +188,7 @@ public class Tls13ChannelTest {
                 } catch (IOException e) {
                     // expected
                 }
-            });
+            }, TestThreads.EXECUTOR);
             Socket socket = new Socket(InetAddress.getLoopbackAddress(), listener.getLocalPort());
             socket.setSoTimeout(10_000);
             Tls13Channel.FACTORY.handshake(socket, client).close();
