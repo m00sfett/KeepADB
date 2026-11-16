@@ -12,7 +12,7 @@ import android.widget.TextView;
  * full text is the unchanged text the setting always had, only the first look is short.
  *
  * <p>The whole view is the touch target, so TalkBack reads it as one button: the spoken text is
- * the line that is showing and the state is announced as expanded or collapsed. The expansion
+ * the line that is showing plus the "More"/"Less" word (without its arrow glyph) and the state is announced as expanded or collapsed. The expansion
  * lives only in this instance (like the Settings cards, #471): a fresh screen starts collapsed.
  */
 final class KeepADBHelpHint {
@@ -59,6 +59,9 @@ final class KeepADBHelpHint {
         text.setSpan(new ForegroundColorSpan(context.getColor(R.color.text_yellow)), start,
                 text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         view.setText(text);
+        // The arrows of "More ▾" / "Less ▴" are only a visual cue; TalkBack gets the words.
+        String word = label.toString().replace("\u25BE", "").replace("\u25B4", "").trim();
+        view.setContentDescription(body + " " + word);
         view.setStateDescription(context.getString(expanded
                 ? R.string.card_state_expanded : R.string.card_state_collapsed));
     }
