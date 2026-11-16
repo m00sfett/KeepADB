@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Ganti &lt;device-serial&gt; dengan nomor seri persis yang ditampilkan "adb devices" untuk perangkat ini.</string>
     <string name="setup_state_offline_title">Perangkat menampilkan status "offline"?</string>
-    <string name="setup_state_offline_body">Koneksi terputus. Sambungkan kembali kabel USB atau aktifkan ulang debugging nirkabel di ponsel, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
+    <string name="setup_state_offline_body">Koneksi terputus. Sambungkan kembali kabel USB atau aktifkan ulang “Debugging nirkabel” di opsi developer, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_state_unauthorized_title">Perangkat menampilkan status "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Konfirmasi permintaan otorisasi debugging di layar ponsel ini, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_refresh">Periksa izin</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · terakhir diperiksa %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transport utama</string>
-    <string name="toggle_label">Debugging Nirkabel</string>
-    <string name="toggle_subtext">Mengaktifkan atau menonaktifkan Debugging Nirkabel untuk ADB melalui Wi-Fi.</string>
-    <string name="keep_alive_toggle">Pertahankan selalu aktif</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Mengaktifkan atau menonaktifkan “Debugging nirkabel” Android agar komputer dapat menjangkau ponsel ini lewat Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>
     <string name="tile_permission_error">%1$s: Izin kurang (perlu pm grant)</string>
     <string name="permission_error_toast">Izin kurang. Jalankan sekali dari PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Endpoint Debugging Nirkabel</string>
-    <string name="notification_channel_desc">Alamat IP dan port saat ini untuk Debugging Nirkabel</string>
+    <string name="notification_channel_name">Endpoint Wifi-ADB</string>
+    <string name="notification_channel_desc">Alamat IP dan port saat ini untuk Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB aktif</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB nonaktif</string>
     <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Ketuk untuk melihat detail koneksi di aplikasi.</string>
     <string name="notification_title_searching">%1$s: Mencari endpoint…</string>
     <string name="notification_text_searching">Menyelesaikan endpoint di jaringan lokal</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive menunggu Debugging Nirkabel diaktifkan kembali</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive menunggu Wifi-ADB diaktifkan kembali</string>
     <string name="notification_text_keepalive_on">Keep-Alive: aktif</string>
     <string name="notification_text_keepalive_off">Keep-Alive: nonaktif</string>
     <string name="notification_text_webhook_synced">Webhook: tersinkron %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: belum ada sinkronisasi berhasil</string>
     <string name="notification_action_keepalive_on">Aktifkan Keep-Alive</string>
     <string name="notification_action_keepalive_off">Nonaktifkan Keep-Alive</string>
-    <string name="notification_service_title">Pertahankan Debugging Nirkabel Tetap Aktif</string>
-    <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Debugging Nirkabel</string>
+    <string name="notification_service_title">Pertahankan Wifi-ADB Tetap Aktif</string>
+    <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Izin kurang</string>
     <string name="notification_permission_panel_title">Notifikasi</string>
-    <string name="notification_permission_panel_body">Dengan notifikasi diaktifkan, Anda dapat melihat apakah layanan latar belakang KeepADB dan Keep-Alive sedang berjalan. Jika koneksi terputus, KeepADB akan segera memberi tahu Anda. Wireless Debugging tetap berfungsi baik tanpa izin ini.</string>
+    <string name="notification_permission_panel_body">Dengan notifikasi diaktifkan, Anda dapat melihat apakah layanan latar belakang KeepADB dan Keep-Alive sedang berjalan. Jika koneksi terputus, KeepADB akan segera memberi tahu Anda. Wifi-ADB tetap berfungsi baik tanpa izin ini.</string>
     <string name="notification_permission_request_button">Izinkan notifikasi</string>
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Sinkronisasi Webhook &amp; Endpoint</string>
     <string name="settings_webhook_toggle">Aktifkan Sinkronisasi Webhook</string>
-    <string name="settings_webhook_subtext">Mengirim endpoint aktif (IP:port) melalui HTTP POST saat diaktifkan, dan mencoba mengirim DELETE saat dimatikan (dicoba lagi nanti jika gagal).</string>
+    <string name="settings_webhook_subtext">Mengirim endpoint aktif melalui HTTP POST saat diaktifkan, dan mencoba mengirim DELETE saat dimatikan (dicoba lagi nanti jika gagal).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL Webhook</string>
     <string name="settings_webhook_btn_save">Simpan URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Percayai jaringan ini?</string>
     <string name="network_decision_name_label">Nama Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Titik akses (BSSID)</string>
-    <string name="network_decision_text">Jika Anda mempercayai titik akses ini, Keep-Alive boleh menyalakan kembali Debugging Nirkabel di sini secara otomatis. Menyalakan secara manual selalu bisa.</string>
+    <string name="network_decision_text">Jika Anda mempercayai titik akses ini, Keep-Alive boleh menyalakan kembali Wifi-ADB di sini secara otomatis. Menyalakan secara manual selalu bisa.</string>
     <string name="network_decision_comfort_note">Mode praktis aktif: titik akses lain bernama “%1$s” juga akan diterima.</string>
     <string name="network_decision_trust">Percayai</string>
     <string name="network_decision_block_ap">Blokir hanya titik akses ini</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">belum ada</string>
     <string name="webhook_status_deregistered">tidak terdaftar lagi</string>
     <string name="webhook_status_failed">gagal</string>
-    <string name="settings_permission_warning">Izin sistem WRITE_SECURE_SETTINGS tidak ada. KeepADB tidak dapat beralih Debugging Nirkabel sampai izin diberikan.</string>
+    <string name="settings_permission_warning">Izin sistem WRITE_SECURE_SETTINGS tidak ada. KeepADB tidak dapat beralih Wifi-ADB sampai izin diberikan.</string>
     <string name="settings_language_menu_label">Bahasa</string>
     <string name="settings_language_accessibility">Bahasa Aplikasi: %1$s</string>
     <string name="settings_language_system_default">Default sistem</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Lainnya</string>
     <string name="settings_section_notification">Notifikasi</string>
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
-    <string name="settings_hide_notification_subtext">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
+    <string name="settings_hide_notification_subtext">Menampilkan status Wifi-ADB dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Menampilkan status Wifi-ADB dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Periksa deteksi di latar belakang</string>
     <string name="background_location_dialog_later">Nanti</string>
     <string name="background_location_status_granted">Deteksi di latar belakang: diizinkan. Titik akses yang dipercaya tetap dikenali meskipun Keep-Alive dimulai di latar belakang. KeepADB tidak pernah membaca atau menyimpan posisi perangkat Anda.</string>
-    <string name="background_location_status_missing">Deteksi di latar belakang: dibatasi. Jika Keep-Alive dimulai di latar belakang, Android dapat menyembunyikan titik akses mana yang terhubung; KeepADB lalu menganggap jaringan tidak terbaca dan tidak mengaktifkan Debugging Nirkabel secara otomatis sampai Anda membuka aplikasi.</string>
+    <string name="background_location_status_missing">Deteksi di latar belakang: dibatasi. Jika Keep-Alive dimulai di latar belakang, Android dapat menyembunyikan titik akses mana yang terhubung; KeepADB lalu menganggap jaringan tidak terbaca dan tidak mengaktifkan Wifi-ADB secara otomatis sampai Anda membuka aplikasi.</string>
     <string name="background_location_status_missing_inactive">Deteksi di latar belakang: tidak diperlukan dalam konfigurasi ini. Fitur ini digunakan untuk memeriksa titik akses atau nama Wi-Fi saat Keep-Alive berjalan di latar belakang.</string>
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan dipercaya</string>
     <string name="location_permission_panel_body">Mode jaringan dipercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan dipercaya dan tidak akan aktif kembali secara otomatis.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Tambahkan informasi berguna lainnya.</string>
     <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
     <string name="advice_banner_title">Keamanan &amp; jaringan</string>
-    <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan Wi-Fi dipercaya atau VPN, dan matikan di hotspot publik. Jangan pernah membagikan endpoint Anda secara publik atau menyetujui permintaan penyandingan yang tidak terduga.</string>
+    <string name="advice_banner_text">Wifi-ADB membuka port ADB di jaringan Anda. Gunakan Wi-Fi dipercaya atau VPN, dan matikan di hotspot publik. Jangan pernah membagikan endpoint Anda secara publik atau menyetujui permintaan penyandingan yang tidak terduga.</string>
     <string name="settings_license_line">Dilisensikan di bawah GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Buka keepadb.roteson.de di browser</string>
     <string name="settings_no_browser_found">Tidak ada aplikasi untuk membuka tautan ini.</string>
-    <string name="status_off_keep_alive_waiting">Debugging Nirkabel NONAKTIF – Keep-Alive menunggu jaringan</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak dipercaya</string>
-    <string name="status_off_keep_alive_blocked_by_user">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini diblokir</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Debugging Nirkabel Android, lalu ketuk sakelar untuk mencoba lagi</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB NONAKTIF – Keep-Alive menunggu jaringan</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak dipercaya</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini diblokir</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan “Debugging nirkabel”, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
     <string name="home_state_on">Wifi-ADB aktif</string>
     <string name="home_state_off">Wifi-ADB nonaktif</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Tidak ada koneksi Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tetap nonaktif di sini: Wi-Fi tidak dipercaya</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tetap nonaktif di sini: Wi-Fi diblokir</string>
-    <string name="home_action_networks">Jaringan</string>
+    <string name="home_action_networks">Jaringan Wi-Fi</string>
     <string name="home_action_retry">Coba lagi</string>
     <string name="home_reason_details_action">Tampilkan detail</string>
     <string name="state_pending">Mengalihkan…</string>
     <string name="tile_state_keep_alive_waiting">Nonaktif – Keep-Alive menunggu</string>
-    <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
+    <string name="toggle_failed_toast">Wifi-ADB tidak dapat dialihkan. Silakan coba lagi.</string>
     <string name="protection_title">Perlindungan</string>
     <string name="protection_automatic_title">Perilaku otomatis</string>
-    <string name="untrusted_shutdown_hint_short">Mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya.</string>
+    <string name="untrusted_shutdown_hint_short">Mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya.</string>
     <string name="security_check_hint_short">Menjeda penyalaan otomatis jika titik Wi-Fi yang dipercaya menunjukkan keamanan lebih lemah.</string>
     <string name="hint_more">Selengkapnya ▾</string>
     <string name="hint_less">Lebih sedikit ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Tidak dikenal</string>
     <string name="network_badge_blocked">Diblokir</string>
     <string name="networks_title">Jaringan Wi-Fi</string>
-    <string name="networks_intro">Keep-Alive boleh menyalakan kembali Debugging Nirkabel di jaringan yang dipercaya, tidak pernah di jaringan yang diblokir. Menyalakan secara manual selalu bisa.</string>
+    <string name="networks_intro">Keep-Alive boleh menyalakan kembali Wifi-ADB di jaringan yang dipercaya, tidak pernah di jaringan yang diblokir. Menyalakan secara manual selalu bisa.</string>
     <string name="networks_glossary_toggle">Istilah dijelaskan</string>
     <string name="networks_glossary_ssid">Nama Wi-Fi (SSID): nama yang disiarkan jaringan Wi-Fi. Siapa pun dapat membuat jaringan dengan nama yang sama.</string>
     <string name="networks_glossary_bssid">Titik akses (BSSID): satu pemancar, misalnya router, repeater, atau node mesh. Alamat perangkat kerasnya, misalnya AA:BB:CC:11:22:33, lebih spesifik daripada nama, tetapi juga bukan bukti.</string>
     <string name="untrusted_shutdown_title">Matikan di Wi-Fi yang tidak dipercaya</string>
-    <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
+    <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
     <string name="untrusted_shutdown_channel_name">Pematian di Wi-Fi tidak dipercaya</string>
-    <string name="untrusted_shutdown_channel_desc">Memberi tahu saat KeepADB mematikan Debugging Nirkabel di Wi-Fi yang tidak dipercaya.</string>
-    <string name="untrusted_shutdown_off_title">Debugging Nirkabel dimatikan</string>
+    <string name="untrusted_shutdown_channel_desc">Memberi tahu saat KeepADB mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB dimatikan</string>
     <string name="untrusted_shutdown_off_text">Wi-Fi saat ini tidak dipercaya atau tidak dapat dikenali. Keep-Alive menyalakannya lagi di Wi-Fi yang dipercaya.</string>
-    <string name="untrusted_shutdown_failed_title">Tidak dapat mematikan Debugging Nirkabel</string>
-    <string name="untrusted_shutdown_failed_text">Wi-Fi saat ini tidak dipercaya, tetapi gagal mematikan Debugging Nirkabel. Matikan secara manual.</string>
+    <string name="untrusted_shutdown_failed_title">Tidak dapat mematikan Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">Wi-Fi saat ini tidak dipercaya, tetapi gagal mematikan Wifi-ADB. Matikan secara manual.</string>
     <string name="security_check_title">Periksa keamanan Wi-Fi titik Wi-Fi yang dipercaya</string>
-    <string name="security_check_hint">Android 12 dan yang lebih baru: saat kamu memercayai sebuah titik Wi-Fi, KeepADB mencatat tingkat keamanannya (terbuka, pribadi, atau perusahaan). Jika nanti tersambung dengan tingkat yang lebih rendah atau tidak terbaca, Keep-Alive tidak menyalakan Debugging Nirkabel di sana dengan sendirinya sampai kamu memercayainya lagi. Ini tidak membuktikan bahwa titik Wi-Fi itu asli. Titik Wi-Fi yang dipercaya sebelum opsi ini tetap diperiksa hanya berdasarkan alamat sampai kamu memercayainya lagi.</string>
+    <string name="security_check_hint">Android 12 dan yang lebih baru: saat kamu memercayai sebuah titik Wi-Fi, KeepADB mencatat tingkat keamanannya (terbuka, pribadi, atau perusahaan). Jika nanti tersambung dengan tingkat yang lebih rendah atau tidak terbaca, Keep-Alive tidak menyalakan Wifi-ADB di sana dengan sendirinya sampai kamu memercayainya lagi. Ini tidak membuktikan bahwa titik Wi-Fi itu asli. Titik Wi-Fi yang dipercaya sebelum opsi ini tetap diperiksa hanya berdasarkan alamat sampai kamu memercayainya lagi.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) dipercaya, tetapi keamanan Wi-Fi-nya kini lebih rendah daripada saat kamu memercayainya, atau tidak terbaca. Percayai lagi hanya jika kamu memang mengharapkan perubahan ini.</string>
     <string name="network_prompt_security_confirm_in_app_text">Keamanan Wi-Fi dari titik Wi-Fi yang dipercaya telah berubah — ketuk untuk memeriksanya di aplikasi.</string>
     <string name="network_prompt_security_title">Keamanan Wi-Fi titik Wi-Fi yang dipercaya berubah</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Nama dipercaya</string>
     <string name="networks_badge_name_blocked">Nama diblokir</string>
     <string name="networks_badge_unknown">Tidak dikenal</string>
-    <string name="networks_current_trusted">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini.</string>
+    <string name="networks_current_trusted">Keep-Alive boleh mengaktifkan ulang Wifi-ADB di sini.</string>
     <string name="networks_current_trusted_name">Dipercaya karena nama Wi-Fi-nya. Anda juga bisa mempercayai atau memblokir titik akses ini secara terpisah.</string>
     <string name="networks_current_legacy">Berlaku hanya karena pengaturan sebelumnya “Di semua jaringan Wi-Fi”. Anda tetap bisa mempercayai atau memblokir titik akses ini.</string>
     <string name="networks_tap_to_change">Ketuk untuk mengubah.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Pengaktifan ulang otomatis dijeda: Lokasi dimatikan, sehingga Android menyembunyikan titik akses yang terhubung dengan Anda.</string>
     <string name="network_cause_unreadable_all_wifi">Jaringan tidak dapat dibaca saat ini. Pengaktifan ulang otomatis dapat berlanjut, tetapi data jaringan yang dapat dibaca diperlukan untuk memeriksa titik akses atau nama Wi-Fi yang tersimpan.</string>
     <string name="network_cause_not_allowed">Pengaktifan ulang otomatis dijeda: titik akses ini tidak dipercaya.</string>
-    <string name="network_cause_blocked">Jaringan ini diblokir: Keep-Alive tidak pernah menyalakan Debugging Nirkabel di sini dan tidak bertanya. Menyalakan secara manual selalu bisa.</string>
-    <string name="network_cause_allowed">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini. Setiap titik akses yang terbaca dengan nama Wi-Fi ini diterima.</string>
+    <string name="network_cause_blocked">Jaringan ini diblokir: Keep-Alive tidak pernah menyalakan Wifi-ADB di sini dan tidak bertanya. Menyalakan secara manual selalu bisa.</string>
+    <string name="network_cause_allowed">Keep-Alive boleh mengaktifkan ulang Wifi-ADB di sini.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive boleh mengaktifkan ulang Wifi-ADB di sini. Setiap titik akses yang terbaca dengan nama Wi-Fi ini diterima.</string>
     <string name="network_cause_all_wifi">“Di semua jaringan Wi-Fi” aktif, jadi Keep-Alive boleh mengaktifkan ulang di sini. Daftar kepercayaan tidak diperhitungkan dalam mode ini.</string>
     <string name="network_action_allow_ap">Percayai titik akses ini</string>
     <string name="network_action_location_settings">Buka setelan lokasi</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Mode paksa</string>
-    <string name="force_section_hint">Mengaktifkan kembali Debugging Nirkabel di jaringan mana pun selama waktu yang Anda pilih. Pemblokiran dan jaringan dipercaya tidak berlaku selama itu.</string>
+    <string name="force_section_hint">Mengaktifkan kembali Wifi-ADB di jaringan mana pun selama waktu yang Anda pilih. Pemblokiran dan jaringan dipercaya tidak berlaku selama itu.</string>
     <string name="force_status_off">Nonaktif</string>
     <string name="force_status_until">Aktif hingga %1$s</string>
     <string name="force_status_unlimited">Aktif, tanpa waktu berakhir</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Akhiri mode paksa</string>
     <string name="force_action_change">Ubah durasi…</string>
     <string name="force_dialog_title">Aktifkan mode paksa?</string>
-    <string name="force_dialog_intro">Keep-Alive kemudian akan mengaktifkan kembali Debugging Nirkabel di jaringan mana pun: termasuk jaringan asing, terblokir, dan tidak terbaca.</string>
+    <string name="force_dialog_intro">Keep-Alive kemudian akan mengaktifkan kembali Wifi-ADB di jaringan mana pun: termasuk jaringan asing, terblokir, dan tidak terbaca.</string>
     <string name="force_dialog_duration_label">Berapa lama?</string>
     <string name="force_duration_1h">1 jam</string>
     <string name="force_duration_24h">24 jam</string>
     <string name="force_duration_7d">7 hari</string>
     <string name="force_duration_30d">30 hari</string>
     <string name="force_duration_unlimited">Tanpa waktu berakhir</string>
-    <string name="force_warning_all">Debugging Nirkabel membuka sebuah port di jaringan. Komputer yang sebelumnya Anda pasangkan mendapat akses ADB penuh lewat port itu: memasang aplikasi, membaca data, merekam layar. Di jaringan asing Anda tidak tahu siapa yang mencoba.
+    <string name="force_warning_all">Wifi-ADB membuka sebuah port di jaringan. Komputer yang sebelumnya Anda pasangkan mendapat akses ADB penuh lewat port itu: memasang aplikasi, membaca data, merekam layar. Di jaringan asing Anda tidak tahu siapa yang mencoba.
 
 Pemblokiran dan jaringan dipercaya Anda tidak berlaku selama waktu ini.
 
 Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
-    <string name="force_warning_days">Selama beberapa hari Anda akan masuk ke jaringan yang sekarang tidak terpikirkan: hotel, kereta, kafe, tempat kerja. Debugging akan aktif di sana tanpa bertanya kepada Anda.</string>
+    <string name="force_warning_days">Selama beberapa hari Anda akan masuk ke jaringan yang sekarang tidak terpikirkan: hotel, kereta, kafe, tempat kerja. Wifi-ADB akan aktif di sana tanpa bertanya kepada Anda.</string>
     <string name="force_warning_unlimited">Tanpa waktu berakhir, mode paksa tetap aktif sampai Anda sendiri mengakhirinya, termasuk setelah mulai ulang dan pembaruan aplikasi.</string>
-    <string name="force_unlimited_ack">Saya memahami bahwa Debugging Nirkabel kemudian akan aktif di jaringan mana pun.</string>
+    <string name="force_unlimited_ack">Saya memahami bahwa Wifi-ADB kemudian akan aktif di jaringan mana pun.</string>
     <string name="force_keepalive_hint">Mode paksa hanya berfungsi dengan Keep-Alive. Keep-Alive ikut diaktifkan.</string>
     <string name="force_not_started_toast">Mode paksa tidak diaktifkan: batas waktu tidak dapat dijaga dengan andal di perangkat ini saat ini. Tidak ada yang diubah.</string>
     <string name="force_confirm_1h">Aktifkan selama 1 jam</string>
@@ -419,8 +419,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="force_confirm_30d">Aktifkan selama 30 hari</string>
     <string name="force_confirm_unlimited">Aktifkan tanpa waktu berakhir</string>
     <string name="force_card_title">Mode paksa aktif</string>
-    <string name="force_card_text_until">Debugging Nirkabel diaktifkan kembali di jaringan mana pun. Aktif hingga %1$s.</string>
-    <string name="force_card_text_unlimited">Debugging Nirkabel diaktifkan kembali di jaringan mana pun. Tanpa waktu berakhir.</string>
+    <string name="force_card_text_until">Wifi-ADB diaktifkan kembali di jaringan mana pun. Aktif hingga %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB diaktifkan kembali di jaringan mana pun. Tanpa waktu berakhir.</string>
     <string name="force_ended_toast">Mode paksa berakhir. Tingkat perlindungan kembali: %1$s.</string>
     <string name="force_notification_until">Mode paksa aktif hingga %1$s</string>
     <string name="force_notification_unlimited">Mode paksa aktif, tanpa waktu berakhir</string>
@@ -429,7 +429,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="force_expired_title">Mode paksa berakhir</string>
     <string name="force_expired_text">Waktu yang dipilih telah habis. Tingkat perlindungan kembali: %1$s. Keep-Alive kini hanya mengaktifkan di tempat yang diizinkan tingkat perlindungan.</string>
     <string name="force_expired_text_safety">Mode paksa berakhir lebih awal demi keamanan: sisa waktu tidak dapat diperiksa dengan andal. Tingkat perlindungan kembali: %1$s. Keep-Alive kini hanya mengaktifkan di tempat yang diizinkan tingkat perlindungan.</string>
-    <string name="force_expired_still_on">Debugging Nirkabel saat ini masih aktif.</string>
+    <string name="force_expired_still_on">Wifi-ADB saat ini masih aktif.</string>
     <string name="force_expired_action_off">Nonaktifkan sekarang</string>
     <string name="force_level_maximum">Keamanan maksimum</string>
     <string name="force_level_balanced">Seimbang</string>
@@ -465,11 +465,11 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_privacy_summary_off">Privasi: tidak ada yang disembunyikan</string>
     <string name="onboarding_privacy_summary_on">Privasi: %1$d dari %2$d aktif</string>
     <string name="onboarding_privacy_change">Ubah</string>
-    <string name="onboarding_keep_alive_question">Haruskah Debugging Nirkabel menyala lagi sendiri setelah restart atau koneksi terputus?</string>
-    <string name="onboarding_keep_alive_off_body">Anda menyalakan Debugging Nirkabel sendiri, lewat aplikasi, ubin, atau widget. Setelah restart tetap mati.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB menyalakan kembali Debugging Nirkabel setelah restart atau koneksi terputus, tetapi hanya di tempat yang diizinkan tingkat perlindungan Anda (langkah berikutnya).</string>
+    <string name="onboarding_keep_alive_question">Haruskah Wifi-ADB menyala lagi sendiri setelah restart atau koneksi terputus?</string>
+    <string name="onboarding_keep_alive_off_body">Anda menyalakan Wifi-ADB sendiri, lewat aplikasi, ubin, atau widget. Setelah restart tetap mati.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB menyalakan kembali Wifi-ADB setelah restart atau koneksi terputus, tetapi hanya di tempat yang diizinkan tingkat perlindungan Anda (langkah berikutnya).</string>
     <string name="onboarding_protection_title">Tingkat perlindungan</string>
-    <string name="onboarding_protection_question">Di mana Keep-Alive boleh menyalakan Debugging Nirkabel sendiri?</string>
+    <string name="onboarding_protection_question">Di mana Keep-Alive boleh menyalakan Wifi-ADB sendiri?</string>
     <string name="onboarding_protection_max_body">Hanya di titik akses yang Anda percayai. KeepADB bertanya untuk yang tidak dikenal.</string>
     <string name="onboarding_protection_balanced_body">Juga di titik akses mana pun dengan nama Wi-Fi yang dipercaya. Lebih nyaman dengan mesh dan repeater, tetapi nama mudah ditiru.</string>
     <string name="onboarding_protection_legacy_all_body">Setiap jaringan Wi-Fi dianggap dipercaya selama tidak Anda blokir. Pilih tingkat di bawah untuk meninggalkan pengaturan ini.</string>
@@ -493,7 +493,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_permissions_summary_done">Semua siap</string>
     <string name="onboarding_permissions_summary_missing">Kurang: %1$d</string>
     <string name="onboarding_perm_system_title">Izin sistem</string>
-    <string name="onboarding_perm_system_body">Tanpa izin ini, KeepADB tidak dapat menyalakan Debugging Nirkabel. Berikan sekali dari komputer:</string>
+    <string name="onboarding_perm_system_body">Tanpa izin ini, KeepADB tidak dapat menyalakan Wifi-ADB. Berikan sekali dari komputer:</string>
     <string name="onboarding_perm_system_more">Beberapa perangkat atau masalah?</string>
     <string name="onboarding_copy_command">Salin perintah</string>
     <string name="onboarding_copy_done">Perintah disalin</string>
@@ -508,8 +508,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_network_title">Wi-Fi dipercaya</string>
     <string name="onboarding_network_question">Apakah KeepADB perlu mempercayai Wi-Fi yang sedang tersambung saat ini?</string>
     <string name="onboarding_network_privacy_note">Privasi aktif: nama dan alamat tetap tersembunyi sampai Anda mengetuk “Tampilkan”.</string>
-    <string name="onboarding_network_open_list">Ubah di daftar Jaringan</string>
-    <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Debugging Nirkabel saat ini ke server milikmu sendiri, misalnya di jaringan rumah atau VPN-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
+    <string name="onboarding_network_open_list">Ubah di “Jaringan Wi-Fi”</string>
+    <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Wifi-ADB saat ini ke server milikmu sendiri, misalnya di jaringan rumah atau VPN-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
     <string name="onboarding_protection_force_title">Paling nyaman (mode paksa)</string>
     <string name="onboarding_protection_force_body">Di setiap jaringan, termasuk yang tidak dikenal, selama waktu yang kamu pilih. Kamu diminta mengonfirmasi dulu.</string>
     <string name="onboarding_protection_force_keep_alive">Mode paksa hanya bekerja dengan Keep-Alive. Keep-Alive ikut dinyalakan.</string>
@@ -517,7 +517,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_protection_force_comfort_note">Berlaku setelah mode paksa berakhir.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Izin sistem belum ada</string>
-    <string name="home_warning_system_text">KeepADB baru dapat menyalakan Debugging Nirkabel setelah Anda memberikan izin ini sekali dari komputer.</string>
+    <string name="home_warning_system_text">KeepADB baru dapat menyalakan Wifi-ADB setelah Anda memberikan izin ini sekali dari komputer.</string>
     <string name="home_warning_action_guide">Petunjuk</string>
     <string name="home_warning_less_secure_title">Kurang aman dari yang disarankan</string>
     <string name="home_warning_action_review">Tinjau</string>
@@ -587,8 +587,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Kontrol KeepADB</string>
-    <string name="widget_picker_description">Kontrol Debugging Nirkabel, Keep-Alive, dan Webhook. Menampilkan lebih banyak saat diperbesar.</string>
-    <string name="widget_action_adb">Debug nirkabel</string>
+    <string name="widget_picker_description">Kontrol Wifi-ADB, Keep-Alive, dan Webhook. Menampilkan lebih banyak saat diperbesar.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Sinkron otomatis</string>
     <string name="widget_action_sync_description">Sinkronisasi Webhook otomatis</string>

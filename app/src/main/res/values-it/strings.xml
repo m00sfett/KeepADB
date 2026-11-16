@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Sostituisci &lt;device-serial&gt; con il numero di serie esatto mostrato da "adb devices" per questo dispositivo.</string>
     <string name="setup_state_offline_title">Il dispositivo risulta "offline"?</string>
-    <string name="setup_state_offline_body">La connessione è caduta. Ricollega il cavo USB oppure riattiva il debug wireless sul telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
+    <string name="setup_state_offline_body">La connessione è caduta. Ricollega il cavo USB oppure riattiva «Debug wireless» nelle opzioni sviluppatore, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_state_unauthorized_title">Il dispositivo risulta "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Conferma la richiesta di autorizzazione al debug sullo schermo di questo telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_refresh">Verifica autorizzazione</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB tramite VPN</string>
     <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, trasporto principale</string>
-    <string name="toggle_label">Debug wireless</string>
-    <string name="toggle_subtext">Attiva o disattiva il debug wireless per ADB via Wi-Fi.</string>
-    <string name="keep_alive_toggle">Mantieni sempre attivo</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Attiva o disattiva il «Debug wireless» di Android, così un computer può raggiungere questo telefono via Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
     <string name="tile_permission_error">%1$s: Autorizzazione mancante (richiesto pm grant)</string>
     <string name="permission_error_toast">Autorizzazione mancante. Esegui una volta dal PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Endpoint di debug wireless</string>
-    <string name="notification_channel_desc">Indirizzo IP e porta correnti del debug wireless</string>
+    <string name="notification_channel_name">Endpoint di Wifi-ADB</string>
+    <string name="notification_channel_desc">Indirizzo IP e porta correnti di Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB attivo</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB disattivo</string>
     <string name="endpoint_port_at_ip">Porta %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tocca per vedere i dettagli di connessione nell’app.</string>
     <string name="notification_title_searching">%1$s: Ricerca dell’endpoint…</string>
     <string name="notification_text_searching">Risoluzione dell’endpoint sulla rete locale</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attende che il debug wireless venga riattivato</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attende che Wifi-ADB venga riattivato</string>
     <string name="notification_text_keepalive_on">Keep-Alive: attivo</string>
     <string name="notification_text_keepalive_off">Keep-Alive: disattivo</string>
     <string name="notification_text_webhook_synced">Webhook: sincronizzato %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: nessuna sincronizzazione riuscita finora</string>
     <string name="notification_action_keepalive_on">Attiva Keep-Alive</string>
     <string name="notification_action_keepalive_off">Disattiva Keep-Alive</string>
-    <string name="notification_service_title">Mantieni attivo debug wireless</string>
-    <string name="notification_service_text">Monitoraggio connessione Wi-Fi e stato del debug wireless</string>
+    <string name="notification_service_title">Mantieni Wifi-ADB attivo</string>
+    <string name="notification_service_text">Monitoraggio connessione Wi-Fi e stato di Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Autorizzazione mancante</string>
     <string name="notification_permission_panel_title">Notifiche</string>
-    <string name="notification_permission_panel_body">Con le notifiche attive puoi vedere se il servizio in background di KeepADB e Keep-Alive sono in esecuzione. Se la connessione cade, KeepADB te lo segnala subito. Il debug wireless funziona bene anche senza questa autorizzazione.</string>
+    <string name="notification_permission_panel_body">Con le notifiche attive puoi vedere se il servizio in background di KeepADB e Keep-Alive sono in esecuzione. Se la connessione cade, KeepADB te lo segnala subito. Wifi-ADB funziona bene anche senza questa autorizzazione.</string>
     <string name="notification_permission_request_button">Consenti notifiche</string>
     <string name="notification_permission_settings_button">Apri impostazioni notifiche</string>
     <string name="notification_permission_missing_text">Concedi WRITE_SECURE_SETTINGS da PC tramite adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Sincronizzazione Webhook ed endpoint</string>
     <string name="settings_webhook_toggle">Abilita sincronizzazione Webhook</string>
-    <string name="settings_webhook_subtext">Invia l\'endpoint attivo (IP:porta) tramite HTTP POST quando abilitato e tenta di inviare DELETE alla disattivazione (ritentato in seguito in caso di errore).</string>
+    <string name="settings_webhook_subtext">Invia l\'endpoint attivo tramite HTTP POST quando abilitato e tenta di inviare DELETE alla disattivazione (ritentato in seguito in caso di errore).</string>
     <string name="settings_webhook_url_hint">http://host:porta/register/device</string>
     <string name="settings_webhook_url_label">URL del Webhook</string>
     <string name="settings_webhook_btn_save">Salva URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Considerare affidabile questa rete?</string>
     <string name="network_decision_name_label">Nome Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Punto di accesso (BSSID)</string>
-    <string name="network_decision_text">Se consideri affidabile questo punto di accesso, Keep-Alive può riattivare qui automaticamente il debug wireless. L’attivazione manuale funziona sempre.</string>
+    <string name="network_decision_text">Se consideri affidabile questo punto di accesso, Keep-Alive può riattivare qui automaticamente Wifi-ADB. L’attivazione manuale funziona sempre.</string>
     <string name="network_decision_comfort_note">La modalità comoda è attiva: verranno accettati anche altri punti di accesso chiamati «%1$s».</string>
     <string name="network_decision_trust">Considera affidabile</string>
     <string name="network_decision_block_ap">Blocca solo questo punto di accesso</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">nessuno ancora</string>
     <string name="webhook_status_deregistered">non più registrato</string>
     <string name="webhook_status_failed">non riuscito</string>
-    <string name="settings_permission_warning">Autorizzazione di sistema WRITE_SECURE_SETTINGS mancante. KeepADB non può attivare il debug wireless finché l’autorizzazione non viene concessa.</string>
+    <string name="settings_permission_warning">Autorizzazione di sistema WRITE_SECURE_SETTINGS mancante. KeepADB non può attivare Wifi-ADB finché l’autorizzazione non viene concessa.</string>
     <string name="settings_language_menu_label">Lingua</string>
     <string name="settings_language_accessibility">Lingua dell’app: %1$s</string>
     <string name="settings_language_system_default">Predefinita di sistema</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Altro</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
-    <string name="settings_hide_notification_subtext">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
+    <string name="settings_hide_notification_subtext">Mostra lo stato di Wifi-ADB e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato di Wifi-ADB e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
     <string name="settings_section_display">Schermo</string>
     <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
     <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Controlla rilevamento in background</string>
     <string name="background_location_dialog_later">Più tardi</string>
     <string name="background_location_status_granted">Rilevamento in background: consentito. I punti di accesso affidabili vengono riconosciuti anche quando Keep-Alive si avvia in background. KeepADB non legge né salva mai la posizione del dispositivo.</string>
-    <string name="background_location_status_missing">Rilevamento in background: limitato. Se Keep-Alive si avvia in background, Android può nascondere a quale punto di accesso sei connesso; KeepADB considera allora la rete non leggibile e non attiva il debug wireless automaticamente finché non apri l’app.</string>
+    <string name="background_location_status_missing">Rilevamento in background: limitato. Se Keep-Alive si avvia in background, Android può nascondere a quale punto di accesso sei connesso; KeepADB considera allora la rete non leggibile e non attiva Wifi-ADB automaticamente finché non apri l’app.</string>
     <string name="background_location_status_missing_inactive">Rilevamento in background: non necessario in questa configurazione. Serve a verificare i punti di accesso o i nomi Wi-Fi quando Keep-Alive è in esecuzione in background.</string>
     <string name="location_permission_panel_title">Autorizzazione posizione necessaria per le reti affidabili</string>
     <string name="location_permission_panel_body">La modalità reti affidabili richiede l’accesso alla posizione per identificare la tua rete Wi-Fi. Senza di esso, Keep-Alive non può confermare una rete affidabile e non si riattiverà automaticamente.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Aggiungi qualsiasi altra informazione utile.</string>
     <string name="issue_report_diagnostics_section">Dati diagnostici KeepADB opzionali e oscurati (controllali prima dell’invio)</string>
     <string name="advice_banner_title">Sicurezza e rete</string>
-    <string name="advice_banner_text">Il debug wireless apre una porta ADB sulla tua rete. Usa una rete Wi-Fi affidabile o una VPN e disattivalo sugli hotspot pubblici. Non condividere mai il tuo endpoint pubblicamente né accettare richieste di associazione impreviste.</string>
+    <string name="advice_banner_text">Wifi-ADB apre una porta ADB sulla tua rete. Usa una rete Wi-Fi affidabile o una VPN e disattivalo sugli hotspot pubblici. Non condividere mai il tuo endpoint pubblicamente né accettare richieste di associazione impreviste.</string>
     <string name="settings_license_line">Concesso in licenza con GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Apri keepadb.roteson.de nel browser</string>
     <string name="settings_no_browser_found">Nessuna app trovata per aprire questo link.</string>
-    <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
-    <string name="status_off_keep_alive_blocked_by_user">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Debug wireless DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete del debug wireless di Android, poi tocca l\'interruttore per riprovare</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB DISATTIVO – Keep-Alive attende la rete</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete «Debug wireless», poi tocca l’interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
     <string name="home_state_on">Wifi-ADB attivo</string>
     <string name="home_state_off">Wifi-ADB disattivo</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Nessuna connessione Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive resta disattivato qui: Wi-Fi non affidabile</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive resta disattivato qui: Wi-Fi bloccato</string>
-    <string name="home_action_networks">Reti</string>
+    <string name="home_action_networks">Reti Wi-Fi</string>
     <string name="home_action_retry">Riprova</string>
     <string name="home_reason_details_action">Mostra dettagli</string>
     <string name="state_pending">Cambio in corso…</string>
     <string name="tile_state_keep_alive_waiting">Disattivato – Keep-Alive in attesa</string>
-    <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
+    <string name="toggle_failed_toast">Impossibile cambiare Wifi-ADB. Riprova.</string>
     <string name="protection_title">Protezione</string>
     <string name="protection_automatic_title">Comportamento automatico</string>
-    <string name="untrusted_shutdown_hint_short">Disattiva il debug wireless su un Wi-Fi non affidabile.</string>
+    <string name="untrusted_shutdown_hint_short">Disattiva Wifi-ADB su un Wi-Fi non affidabile.</string>
     <string name="security_check_hint_short">Sospende l’attivazione automatica se un punto Wi-Fi affidabile mostra una sicurezza più debole.</string>
     <string name="hint_more">Altro ▾</string>
     <string name="hint_less">Meno ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Sconosciuto</string>
     <string name="network_badge_blocked">Bloccato</string>
     <string name="networks_title">Reti Wi-Fi</string>
-    <string name="networks_intro">Keep-Alive può riattivare il debug wireless nelle reti affidabili, mai in quelle bloccate. L’attivazione manuale funziona sempre.</string>
+    <string name="networks_intro">Keep-Alive può riattivare Wifi-ADB nelle reti affidabili, mai in quelle bloccate. L’attivazione manuale funziona sempre.</string>
     <string name="networks_glossary_toggle">Termini spiegati</string>
     <string name="networks_glossary_ssid">Nome Wi-Fi (SSID): il nome che una rete Wi-Fi trasmette. Chiunque può creare una rete con lo stesso nome.</string>
     <string name="networks_glossary_bssid">Punto di accesso (BSSID): un singolo trasmettitore, ad esempio router, ripetitore o nodo mesh. Il suo indirizzo hardware, per esempio AA:BB:CC:11:22:33, è più preciso del nome, ma non è una prova.</string>
     <string name="untrusted_shutdown_title">Disattiva su Wi-Fi non affidabili</string>
-    <string name="untrusted_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva il debug wireless su una rete Wi-Fi non affidabile, bloccata o non identificabile, invece di limitarsi ad avvisarti. Una sessione che hai attivato tu in KeepADB resta attiva su quel punto Wi-Fi. La modalità forzata sospende questo comportamento.</string>
+    <string name="untrusted_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva Wifi-ADB su una rete Wi-Fi non affidabile, bloccata o non identificabile, invece di limitarsi ad avvisarti. Una sessione che hai attivato tu in KeepADB resta attiva su quel punto Wi-Fi. La modalità forzata sospende questo comportamento.</string>
     <string name="untrusted_shutdown_channel_name">Disattivazione su Wi-Fi non affidabili</string>
-    <string name="untrusted_shutdown_channel_desc">Ti avvisa quando KeepADB ha disattivato il debug wireless su una rete Wi-Fi non affidabile.</string>
-    <string name="untrusted_shutdown_off_title">Debug wireless disattivato</string>
+    <string name="untrusted_shutdown_channel_desc">Ti avvisa quando KeepADB ha disattivato Wifi-ADB su una rete Wi-Fi non affidabile.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB disattivato</string>
     <string name="untrusted_shutdown_off_text">La rete Wi-Fi attuale non è affidabile o non è identificabile. Keep-Alive lo riattiva su una rete Wi-Fi affidabile.</string>
-    <string name="untrusted_shutdown_failed_title">Impossibile disattivare il debug wireless</string>
-    <string name="untrusted_shutdown_failed_text">La rete Wi-Fi attuale non è affidabile, ma la disattivazione del debug wireless non è riuscita. Disattivalo manualmente.</string>
+    <string name="untrusted_shutdown_failed_title">Impossibile disattivare Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">La rete Wi-Fi attuale non è affidabile, ma la disattivazione di Wifi-ADB non è riuscita. Disattivalo manualmente.</string>
     <string name="security_check_title">Controlla la sicurezza Wi-Fi dei punti Wi-Fi affidabili</string>
-    <string name="security_check_hint">Android 12 e successivi: quando consideri affidabile un punto Wi-Fi, KeepADB ne registra il livello di sicurezza (aperto, personale o enterprise). Se in seguito si connette con un livello inferiore o illeggibile, Keep-Alive non attiva da solo il debug wireless lì finché non lo consideri di nuovo affidabile. Questo non dimostra che il punto Wi-Fi sia autentico. I punti Wi-Fi resi affidabili prima di questa opzione restano controllati solo tramite indirizzo finché non li confermi di nuovo.</string>
+    <string name="security_check_hint">Android 12 e successivi: quando consideri affidabile un punto Wi-Fi, KeepADB ne registra il livello di sicurezza (aperto, personale o enterprise). Se in seguito si connette con un livello inferiore o illeggibile, Keep-Alive non attiva da solo Wifi-ADB lì finché non lo consideri di nuovo affidabile. Questo non dimostra che il punto Wi-Fi sia autentico. I punti Wi-Fi resi affidabili prima di questa opzione restano controllati solo tramite indirizzo finché non li confermi di nuovo.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) è affidabile, ma la sua sicurezza Wi-Fi ora è inferiore rispetto a quando lo hai reso affidabile, oppure illeggibile. Confermalo di nuovo solo se ti aspetti questa modifica.</string>
     <string name="network_prompt_security_confirm_in_app_text">La sicurezza Wi-Fi di un punto Wi-Fi affidabile è cambiata — tocca per controllarla nell’app.</string>
     <string name="network_prompt_security_title">La sicurezza Wi-Fi di un punto Wi-Fi affidabile è cambiata</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Nome affidabile</string>
     <string name="networks_badge_name_blocked">Nome bloccato</string>
     <string name="networks_badge_unknown">Sconosciuto</string>
-    <string name="networks_current_trusted">Keep-Alive può riattivare qui il debug wireless.</string>
+    <string name="networks_current_trusted">Keep-Alive può riattivare qui Wifi-ADB.</string>
     <string name="networks_current_trusted_name">Affidabile per il suo nome Wi-Fi. Puoi considerare affidabile o bloccare questo punto di accesso anche singolarmente.</string>
     <string name="networks_current_legacy">Vale solo per l’impostazione precedente «In tutte le reti Wi-Fi». Puoi comunque considerare affidabile o bloccare questo punto di accesso.</string>
     <string name="networks_tap_to_change">Tocca per modificare.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Riattivazione automatica in pausa: la posizione è disattivata, quindi Android nasconde a quale punto di accesso sei connesso.</string>
     <string name="network_cause_unreadable_all_wifi">Al momento non è possibile leggere la rete. La riattivazione automatica può continuare, ma servono dati di rete leggibili per verificare i punti di accesso o i nomi Wi-Fi salvati.</string>
     <string name="network_cause_not_allowed">Riattivazione automatica in pausa: questo punto di accesso non è affidabile.</string>
-    <string name="network_cause_blocked">Questa rete è bloccata: Keep-Alive non attiva mai qui il debug wireless e non chiede nulla. L’attivazione manuale funziona sempre.</string>
-    <string name="network_cause_allowed">Keep-Alive può riattivare qui il debug wireless.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive può riattivare qui il debug wireless. Viene accettato ogni punto di accesso leggibile con questo nome Wi-Fi.</string>
+    <string name="network_cause_blocked">Questa rete è bloccata: Keep-Alive non attiva mai qui Wifi-ADB e non chiede nulla. L’attivazione manuale funziona sempre.</string>
+    <string name="network_cause_allowed">Keep-Alive può riattivare qui Wifi-ADB.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive può riattivare qui Wifi-ADB. Viene accettato ogni punto di accesso leggibile con questo nome Wi-Fi.</string>
     <string name="network_cause_all_wifi">«In tutte le reti Wi-Fi» è attivo, quindi Keep-Alive può riattivare qui. Le liste di fiducia non contano in questa modalità.</string>
     <string name="network_action_allow_ap">Considera affidabile questo punto di accesso</string>
     <string name="network_action_location_settings">Apri impostazioni posizione</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Modalità forzata</string>
-    <string name="force_section_hint">Riattiva il debug wireless in qualsiasi rete per il tempo scelto. Blocchi e reti affidabili non valgono in questo periodo.</string>
+    <string name="force_section_hint">Riattiva Wifi-ADB in qualsiasi rete per il tempo scelto. Blocchi e reti affidabili non valgono in questo periodo.</string>
     <string name="force_status_off">Disattivata</string>
     <string name="force_status_until">Attiva fino a %1$s</string>
     <string name="force_status_unlimited">Attiva, senza scadenza</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Termina modalità forzata</string>
     <string name="force_action_change">Cambia durata…</string>
     <string name="force_dialog_title">Attivare la modalità forzata?</string>
-    <string name="force_dialog_intro">Keep-Alive riattiverà quindi il debug wireless in qualsiasi rete: anche in quelle sconosciute, bloccate e non leggibili.</string>
+    <string name="force_dialog_intro">Keep-Alive riattiverà quindi Wifi-ADB in qualsiasi rete: anche in quelle sconosciute, bloccate e non leggibili.</string>
     <string name="force_dialog_duration_label">Per quanto tempo?</string>
     <string name="force_duration_1h">1 ora</string>
     <string name="force_duration_24h">24 ore</string>
     <string name="force_duration_7d">7 giorni</string>
     <string name="force_duration_30d">30 giorni</string>
     <string name="force_duration_unlimited">Senza scadenza</string>
-    <string name="force_warning_all">Il debug wireless apre una porta sulla rete. I computer che hai associato in precedenza ottengono tramite essa accesso ADB completo: installare app, leggere dati, registrare lo schermo. Nelle reti sconosciute non sai chi ci prova.
+    <string name="force_warning_all">Wifi-ADB apre una porta sulla rete. I computer che hai associato in precedenza ottengono tramite essa accesso ADB completo: installare app, leggere dati, registrare lo schermo. Nelle reti sconosciute non sai chi ci prova.
 
 I tuoi blocchi e le reti affidabili non valgono in questo periodo.
 
 Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.</string>
-    <string name="force_warning_days">Nel corso di più giorni entrerai in reti a cui ora non pensi: hotel, treno, bar, lavoro. Il debug vi si attiva senza chiederti nulla.</string>
+    <string name="force_warning_days">Nel corso di più giorni entrerai in reti a cui ora non pensi: hotel, treno, bar, lavoro. Wifi-ADB vi si attiva senza chiederti nulla.</string>
     <string name="force_warning_unlimited">Senza scadenza la modalità forzata resta attiva finché non la termini tu, anche dopo riavvii e aggiornamenti dell\'app.</string>
-    <string name="force_unlimited_ack">Capisco che il debug wireless si attiverà quindi in qualsiasi rete.</string>
+    <string name="force_unlimited_ack">Capisco che Wifi-ADB si attiverà quindi in qualsiasi rete.</string>
     <string name="force_keepalive_hint">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>
     <string name="force_not_started_toast">La modalità forzata non è stata attivata: al momento questo dispositivo non può rispettare in modo affidabile un limite di tempo. Non è stato modificato nulla.</string>
     <string name="force_confirm_1h">Attiva per 1 ora</string>
@@ -419,8 +419,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="force_confirm_30d">Attiva per 30 giorni</string>
     <string name="force_confirm_unlimited">Attiva senza scadenza</string>
     <string name="force_card_title">Modalità forzata attiva</string>
-    <string name="force_card_text_until">Il debug wireless viene riattivato in qualsiasi rete. Attiva fino a %1$s.</string>
-    <string name="force_card_text_unlimited">Il debug wireless viene riattivato in qualsiasi rete. Senza scadenza.</string>
+    <string name="force_card_text_until">Wifi-ADB viene riattivato in qualsiasi rete. Attiva fino a %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB viene riattivato in qualsiasi rete. Senza scadenza.</string>
     <string name="force_ended_toast">Modalità forzata terminata. Livello di protezione di nuovo: %1$s.</string>
     <string name="force_notification_until">Modalità forzata attiva fino a %1$s</string>
     <string name="force_notification_unlimited">Modalità forzata attiva, senza scadenza</string>
@@ -429,7 +429,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="force_expired_title">Modalità forzata terminata</string>
     <string name="force_expired_text">Il tempo scelto è scaduto. Livello di protezione di nuovo: %1$s. Keep-Alive ora si attiva solo dove il livello di protezione lo consente.</string>
     <string name="force_expired_text_safety">La modalità forzata è terminata in anticipo per sicurezza: non è stato possibile verificare in modo affidabile il tempo rimasto. Livello di protezione di nuovo: %1$s. Keep-Alive ora si attiva solo dove il livello di protezione lo consente.</string>
-    <string name="force_expired_still_on">Il debug wireless è ancora attivo in questo momento.</string>
+    <string name="force_expired_still_on">Wifi-ADB è ancora attivo in questo momento.</string>
     <string name="force_expired_action_off">Disattiva ora</string>
     <string name="force_level_maximum">Massima sicurezza</string>
     <string name="force_level_balanced">Bilanciato</string>
@@ -465,11 +465,11 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_privacy_summary_off">Privacy: niente nascosto</string>
     <string name="onboarding_privacy_summary_on">Privacy: %1$d su %2$d attivi</string>
     <string name="onboarding_privacy_change">Modifica</string>
-    <string name="onboarding_keep_alive_question">Il debug wireless deve riattivarsi da solo dopo un riavvio o una connessione persa?</string>
-    <string name="onboarding_keep_alive_off_body">Attivi tu il debug wireless, nell’app, nel riquadro o nel widget. Dopo un riavvio resta disattivo.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB riattiva il debug wireless dopo un riavvio o una connessione persa, ma solo dove il tuo livello di protezione lo consente (passaggio successivo).</string>
+    <string name="onboarding_keep_alive_question">Wifi-ADB deve riattivarsi da solo dopo un riavvio o una connessione persa?</string>
+    <string name="onboarding_keep_alive_off_body">Attivi tu Wifi-ADB, nell’app, nel riquadro o nel widget. Dopo un riavvio resta disattivo.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB riattiva Wifi-ADB dopo un riavvio o una connessione persa, ma solo dove il tuo livello di protezione lo consente (passaggio successivo).</string>
     <string name="onboarding_protection_title">Livello di protezione</string>
-    <string name="onboarding_protection_question">Dove può Keep-Alive attivare da solo il debug wireless?</string>
+    <string name="onboarding_protection_question">Dove può Keep-Alive attivare da solo Wifi-ADB?</string>
     <string name="onboarding_protection_max_body">Solo su punti di accesso affidabili. KeepADB chiede per quelli sconosciuti.</string>
     <string name="onboarding_protection_balanced_body">Anche su ogni punto di accesso con il nome di un Wi-Fi affidabile. Più comodo con mesh e ripetitori, ma un nome è facile da imitare.</string>
     <string name="onboarding_protection_legacy_all_body">Ogni rete Wi-Fi è considerata affidabile finché non la blocchi. Scegli sotto un livello per lasciare questa impostazione.</string>
@@ -493,7 +493,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_permissions_summary_done">Tutto a posto</string>
     <string name="onboarding_permissions_summary_missing">Mancanti: %1$d</string>
     <string name="onboarding_perm_system_title">Autorizzazione di sistema</string>
-    <string name="onboarding_perm_system_body">Senza di essa KeepADB non può attivare il debug wireless. Concedila una sola volta da un computer:</string>
+    <string name="onboarding_perm_system_body">Senza di essa KeepADB non può attivare Wifi-ADB. Concedila una sola volta da un computer:</string>
     <string name="onboarding_perm_system_more">Più dispositivi o problemi?</string>
     <string name="onboarding_copy_command">Copia comando</string>
     <string name="onboarding_copy_done">Comando copiato</string>
@@ -508,8 +508,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_network_title">Wi-Fi affidabile</string>
     <string name="onboarding_network_question">KeepADB deve considerare affidabile il Wi-Fi a cui sei collegato in questo momento?</string>
     <string name="onboarding_network_privacy_note">La privacy è attiva: nome e indirizzo restano nascosti finché non tocchi «Mostra».</string>
-    <string name="onboarding_network_open_list">Modifica nell’elenco Reti</string>
-    <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale del debug wireless a un tuo server, per esempio nella tua rete domestica o VPN. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
+    <string name="onboarding_network_open_list">Modifica in «Reti Wi-Fi»</string>
+    <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale di Wifi-ADB a un tuo server, per esempio nella tua rete domestica o VPN. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
     <string name="onboarding_protection_force_title">Massimo comfort (modalità forzata)</string>
     <string name="onboarding_protection_force_body">In ogni rete, anche sconosciuta, per un tempo che scegli tu. Prima ti viene chiesta una conferma.</string>
     <string name="onboarding_protection_force_keep_alive">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>
@@ -517,7 +517,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_protection_force_comfort_note">Vale dopo la fine della modalità forzata.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Autorizzazione di sistema mancante</string>
-    <string name="home_warning_system_text">KeepADB può attivare il debug wireless solo dopo che hai concesso questa autorizzazione una volta da un computer.</string>
+    <string name="home_warning_system_text">KeepADB può attivare Wifi-ADB solo dopo che hai concesso questa autorizzazione una volta da un computer.</string>
     <string name="home_warning_action_guide">Istruzioni</string>
     <string name="home_warning_less_secure_title">Meno sicuro di quanto consigliato</string>
     <string name="home_warning_action_review">Controlla</string>
@@ -589,8 +589,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Comandi KeepADB</string>
-    <string name="widget_picker_description">Comandi per debug wireless, Keep-Alive e Webhook. Mostra di più quando lo ingrandisci.</string>
-    <string name="widget_action_adb">Debug</string>
+    <string name="widget_picker_description">Comandi per Wifi-ADB, Keep-Alive e Webhook. Mostra di più quando lo ingrandisci.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Sincr. auto</string>
     <string name="widget_action_sync_description">Sincronizzazione Webhook automatica</string>

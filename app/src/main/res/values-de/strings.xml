@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Ersetze &lt;device-serial&gt; durch die exakte Seriennummer, die "adb devices" für dieses Gerät angezeigt hat.</string>
     <string name="setup_state_offline_title">Gerät zeigt "offline"?</string>
-    <string name="setup_state_offline_body">Die Verbindung ist abgebrochen. Verbinde das USB-Kabel neu oder aktiviere das Drahtlose Debugging auf dem Handy erneut, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
+    <string name="setup_state_offline_body">Die Verbindung ist abgebrochen. Verbinde das USB-Kabel neu oder aktiviere „Drahtloses Debugging“ in den Entwickleroptionen erneut, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
     <string name="setup_state_unauthorized_title">Gerät zeigt "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bestätige die Debugging-Freigabeabfrage auf dem Bildschirm dieses Handys, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
     <string name="setup_refresh">Berechtigung prüfen</string>
@@ -24,9 +24,9 @@
     <string name="transport_vpn_label">ADB über VPN</string>
     <string name="transport_row_format">%1$s: %2$s · zuletzt geprüft %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, primärer Transport</string>
-    <string name="toggle_label">Drahtloses Debugging</string>
-    <string name="toggle_subtext">Schaltet Drahtloses Debugging für ADB über WLAN ein oder aus.</string>
-    <string name="keep_alive_toggle">Dauerhaft aktiv halten</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Schaltet Androids „Drahtloses Debugging“ ein oder aus, damit ein Computer dieses Handy über WLAN erreicht.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatischer Reconnect bei Verbindungsabbruch, Access-Point-Wechsel oder Neustart</string>
     <string name="tile_state_off">Aus</string>
     <string name="tile_state_disconnected">Nicht verbunden</string>
@@ -36,15 +36,15 @@
     <string name="tile_state_permission_missing">Berechtigung fehlt</string>
     <string name="tile_permission_error">%1$s: Berechtigung fehlt (pm grant nötig)</string>
     <string name="permission_error_toast">Keine Berechtigung. Am PC einmalig ausführen:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Endpunkt für Drahtloses Debugging</string>
-    <string name="notification_channel_desc">Aktueller Port und IP-Adresse von „Drahtloses Debugging“</string>
+    <string name="notification_channel_name">Wifi-ADB-Endpunkt</string>
+    <string name="notification_channel_desc">Aktueller Port und IP-Adresse von Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB an</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB aus</string>
     <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tippen, um Verbindungsdetails in der App zu sehen.</string>
     <string name="notification_title_searching">%1$s: Endpunkt wird gesucht …</string>
     <string name="notification_text_searching">Endpunkt wird im lokalen Netzwerk aufgelöst</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wartet, bis Drahtloses Debugging wieder aktiviert wird</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wartet, bis Wifi-ADB wieder aktiviert wird</string>
     <string name="notification_text_keepalive_on">Keep-Alive: an</string>
     <string name="notification_text_keepalive_off">Keep-Alive: aus</string>
     <string name="notification_text_webhook_synced">Webhook: synchronisiert %1$s</string>
@@ -53,11 +53,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: noch keine erfolgreiche Synchronisierung</string>
     <string name="notification_action_keepalive_on">Keep-Alive einschalten</string>
     <string name="notification_action_keepalive_off">Keep-Alive ausschalten</string>
-    <string name="notification_service_title">Drahtloses Debugging aktiv halten</string>
-    <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
+    <string name="notification_service_title">Wifi-ADB aktiv halten</string>
+    <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Berechtigung fehlt</string>
     <string name="notification_permission_panel_title">Benachrichtigungen</string>
-    <string name="notification_permission_panel_body">Mit Benachrichtigungen kannst du sehen, ob der KeepADB-Hintergrunddienst und Keep-Alive laufen. Bei einem Verbindungsabbruch informiert dich KeepADB sofort. Drahtloses Debugging funktioniert auch ohne diese Berechtigung.</string>
+    <string name="notification_permission_panel_body">Mit Benachrichtigungen kannst du sehen, ob der KeepADB-Hintergrunddienst und Keep-Alive laufen. Bei einem Verbindungsabbruch informiert dich KeepADB sofort. Wifi-ADB funktioniert auch ohne diese Berechtigung.</string>
     <string name="notification_permission_request_button">Benachrichtigungen erlauben</string>
     <string name="notification_permission_settings_button">Benachrichtigungseinstellungen öffnen</string>
     <string name="battery_optimization_body">Android kann Keep-Alive im Hintergrund einschränken oder beenden, wenn KeepADB nicht von der Akkuoptimierung ausgenommen ist.</string>
@@ -67,7 +67,7 @@
     <string name="background_location_settings_button">Erkennung im Hintergrund prüfen</string>
     <string name="background_location_dialog_later">Später</string>
     <string name="background_location_status_granted">Erkennung im Hintergrund: erlaubt. Vertraute Access Points werden auch erkannt, wenn Keep-Alive im Hintergrund startet. KeepADB liest oder speichert niemals die Position deines Geräts.</string>
-    <string name="background_location_status_missing">Erkennung im Hintergrund: eingeschränkt. Startet Keep-Alive im Hintergrund, kann Android verbergen, mit welchem Access Point du verbunden bist; KeepADB behandelt das Netzwerk dann als nicht lesbar und schaltet Drahtloses Debugging erst automatisch ein, wenn du die App öffnest.</string>
+    <string name="background_location_status_missing">Erkennung im Hintergrund: eingeschränkt. Startet Keep-Alive im Hintergrund, kann Android verbergen, mit welchem Access Point du verbunden bist; KeepADB behandelt das Netzwerk dann als nicht lesbar und schaltet Wifi-ADB erst automatisch ein, wenn du die App öffnest.</string>
     <string name="background_location_status_missing_inactive">Erkennung im Hintergrund: in dieser Konfiguration nicht erforderlich. Sie wird benötigt, um Access Points oder WLAN-Namen abzugleichen, wenn Keep-Alive im Hintergrund läuft.</string>
     <string name="location_permission_panel_title">Standortberechtigung für vertraute Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertraute Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrautes WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
@@ -99,10 +99,10 @@
     <string name="privacy_widgets_body">Das Startbildschirm-Widget und die Schnelleinstellungs-Kachel zeigen nur den Zustand, ohne Port oder Adresse.</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_section_general">Allgemein</string>
-    <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
+    <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
     <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
-    <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht).</string>
+    <string name="settings_webhook_subtext">Sendet den aktiven Wifi-ADB-Endpunkt per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>
     <string name="settings_webhook_btn_save">URL speichern</string>
@@ -126,7 +126,7 @@
     <string name="network_decision_title">Diesem Netzwerk vertrauen?</string>
     <string name="network_decision_name_label">WLAN-Name (SSID)</string>
     <string name="network_decision_ap_label">Access Point (BSSID)</string>
-    <string name="network_decision_text">Vertraust du diesem Access Point, darf Keep-Alive Drahtloses Debugging hier automatisch wieder einschalten. Manuell einschalten geht immer.</string>
+    <string name="network_decision_text">Vertraust du diesem Access Point, darf Keep-Alive Wifi-ADB hier automatisch wieder einschalten. Manuell einschalten geht immer.</string>
     <string name="network_decision_comfort_note">Komfort ist an: Andere Access Points mit dem Namen „%1$s“ werden dann ebenfalls akzeptiert.</string>
     <string name="network_decision_trust">Vertrauen</string>
     <string name="network_decision_block_ap">Nur diesen Access Point blockieren</string>
@@ -153,7 +153,7 @@
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>
     <string name="webhook_status_failed">fehlgeschlagen</string>
-    <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
+    <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Wifi-ADB erst nach Berechtigungsvergabe steuern.</string>
     <string name="settings_language_menu_label">Sprache</string>
     <string name="settings_language_accessibility">App-Sprache: %1$s</string>
     <string name="settings_language_system_default">Systemstandard</string>
@@ -169,8 +169,8 @@
     <string name="settings_section_misc">Sonstiges</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
-    <string name="settings_hide_notification_subtext">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
+    <string name="settings_hide_notification_subtext">Zeigt den aktuellen Wifi-ADB-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Wifi-ADB-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
     <string name="settings_section_display">Bildschirm</string>
     <string name="settings_keep_display_on_toggle">Display eingeschaltet halten, solange KeepADB im Vordergrund ist</string>
     <string name="settings_keep_display_on_subtext">Hält den Bildschirm nur an, solange diese App geöffnet ist. Beim Verlassen der App schaltet sich der Bildschirm wieder wie gewohnt aus.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Füge weitere hilfreiche Informationen hinzu.</string>
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
     <string name="advice_banner_title">Sicherheit &amp; Netzwerk</string>
-    <string name="advice_banner_text">Drahtloses Debugging öffnet einen ADB-Port im Netzwerk. Nutze ein vertrautes WLAN oder ein VPN und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige keine unerwarteten Kopplungsanfragen.</string>
+    <string name="advice_banner_text">Wifi-ADB öffnet einen ADB-Port im Netzwerk. Nutze ein vertrautes WLAN oder ein VPN und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige keine unerwarteten Kopplungsanfragen.</string>
     <string name="settings_license_line">Lizenziert unter der GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de im Browser öffnen</string>
     <string name="settings_no_browser_found">Keine App zum Öffnen dieses Links gefunden.</string>
-    <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
-    <string name="status_off_keep_alive_blocked_by_user">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Androids Systemdialog für Drahtloses Debugging bestätigen, dann zum erneuten Versuch antippen</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB ist AUS – Keep-Alive wartet auf das Netzwerk</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ist AUS – Keep-Alive pausiert: Androids Systemdialog „Drahtloses Debugging“ bestätigen, dann zum erneuten Versuch antippen</string>
     <string name="status_pending">Wird umgeschaltet …</string>
     <string name="home_state_on">Wifi-ADB ist an</string>
     <string name="home_state_off">Wifi-ADB ist aus</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Keine WLAN-Verbindung</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive bleibt hier aus: WLAN nicht vertraut</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive bleibt hier aus: WLAN blockiert</string>
-    <string name="home_action_networks">Netzwerke</string>
+    <string name="home_action_networks">WLAN-Netze</string>
     <string name="home_action_retry">Erneut versuchen</string>
     <string name="home_reason_details_action">Details anzeigen</string>
     <string name="state_pending">Wird umgeschaltet …</string>
     <string name="tile_state_keep_alive_waiting">Aus – Keep-Alive wartet</string>
-    <string name="toggle_failed_toast">Drahtloses Debugging konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
+    <string name="toggle_failed_toast">Wifi-ADB konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
     <string name="protection_title">Schutz</string>
     <string name="protection_automatic_title">Automatisches Verhalten</string>
-    <string name="untrusted_shutdown_hint_short">Schaltet Drahtloses Debugging in einem nicht vertrauten WLAN aus.</string>
+    <string name="untrusted_shutdown_hint_short">Schaltet Wifi-ADB in einem nicht vertrauten WLAN aus.</string>
     <string name="security_check_hint_short">Pausiert das automatische Einschalten, wenn ein vertrauter Access Point schwächere Sicherheit zeigt.</string>
     <string name="hint_more">Mehr ▾</string>
     <string name="hint_less">Weniger ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Unbekannt</string>
     <string name="network_badge_blocked">Blockiert</string>
     <string name="networks_title">WLAN-Netze</string>
-    <string name="networks_intro">Keep-Alive darf Drahtloses Debugging in vertrauten Netzwerken wieder einschalten, in blockierten nie. Manuell einschalten geht immer.</string>
+    <string name="networks_intro">Keep-Alive darf Wifi-ADB in vertrauten Netzwerken wieder einschalten, in blockierten nie. Manuell einschalten geht immer.</string>
     <string name="networks_glossary_toggle">Begriffe erklärt</string>
     <string name="networks_glossary_ssid">WLAN-Name (SSID): der Name, den ein WLAN aussendet. Jeder kann ein WLAN mit demselben Namen aufmachen.</string>
     <string name="networks_glossary_bssid">Access Point (BSSID): ein einzelner Sender, etwa Router, Repeater oder Mesh-Knoten. Seine Hardware-Kennung, z. B. AA:BB:CC:11:22:33, ist eindeutiger als der Name, aber ebenfalls kein Beweis.</string>
     <string name="untrusted_shutdown_title">In nicht vertrauten WLANs ausschalten</string>
-    <string name="untrusted_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Drahtloses Debugging in einem WLAN aus, das nicht vertraut, gesperrt oder nicht erkennbar ist, statt dich nur zu benachrichtigen. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus.</string>
+    <string name="untrusted_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Wifi-ADB in einem WLAN aus, das nicht vertraut, gesperrt oder nicht erkennbar ist, statt dich nur zu benachrichtigen. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus.</string>
     <string name="untrusted_shutdown_channel_name">Abschaltung in nicht vertrauten WLANs</string>
-    <string name="untrusted_shutdown_channel_desc">Meldet, wenn KeepADB Drahtloses Debugging in einem nicht vertrauten WLAN ausgeschaltet hat.</string>
-    <string name="untrusted_shutdown_off_title">Drahtloses Debugging ausgeschaltet</string>
+    <string name="untrusted_shutdown_channel_desc">Meldet, wenn KeepADB Wifi-ADB in einem nicht vertrauten WLAN ausgeschaltet hat.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB ausgeschaltet</string>
     <string name="untrusted_shutdown_off_text">Das aktuelle WLAN ist nicht vertraut oder nicht erkennbar. Keep-Alive schaltet es in einem vertrauten WLAN wieder ein.</string>
-    <string name="untrusted_shutdown_failed_title">Drahtloses Debugging konnte nicht ausgeschaltet werden</string>
-    <string name="untrusted_shutdown_failed_text">Das aktuelle WLAN ist nicht vertraut, aber das Ausschalten von Drahtlosem Debugging ist fehlgeschlagen. Schalte es selbst aus.</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB konnte nicht ausgeschaltet werden</string>
+    <string name="untrusted_shutdown_failed_text">Das aktuelle WLAN ist nicht vertraut, aber das Ausschalten von Wifi-ADB ist fehlgeschlagen. Schalte es selbst aus.</string>
     <string name="security_check_title">WLAN-Sicherheit vertrauter Access Points prüfen</string>
-    <string name="security_check_hint">Ab Android 12: Wenn du einem Access Point vertraust, merkt sich KeepADB seine Sicherheitsstufe (offen, privat oder Enterprise). Verbindet er sich später mit einer niedrigeren oder nicht lesbaren Stufe, schaltet Keep-Alive Drahtloses Debugging dort nicht selbst ein, bis du ihm erneut vertraust. Das beweist nicht, dass der Access Point echt ist. Access Points, denen du vor dieser Option vertraut hast, werden weiter nur über die Adresse geprüft, bis du ihnen erneut vertraust.</string>
+    <string name="security_check_hint">Ab Android 12: Wenn du einem Access Point vertraust, merkt sich KeepADB seine Sicherheitsstufe (offen, privat oder Enterprise). Verbindet er sich später mit einer niedrigeren oder nicht lesbaren Stufe, schaltet Keep-Alive Wifi-ADB dort nicht selbst ein, bis du ihm erneut vertraust. Das beweist nicht, dass der Access Point echt ist. Access Points, denen du vor dieser Option vertraut hast, werden weiter nur über die Adresse geprüft, bis du ihnen erneut vertraust.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) ist vertraut, aber seine WLAN-Sicherheit ist jetzt niedriger als beim Vertrauen oder nicht lesbar. Vertraue ihm nur erneut, wenn du diese Änderung erwartest.</string>
     <string name="network_prompt_security_confirm_in_app_text">Die WLAN-Sicherheit eines vertrauten Access Points hat sich geändert — tippen, um sie in der App zu prüfen.</string>
     <string name="network_prompt_security_title">WLAN-Sicherheit eines vertrauten Access Points geändert</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Name vertraut</string>
     <string name="networks_badge_name_blocked">Name blockiert</string>
     <string name="networks_badge_unknown">Unbekannt</string>
-    <string name="networks_current_trusted">Keep-Alive darf Drahtloses Debugging hier wieder einschalten.</string>
+    <string name="networks_current_trusted">Keep-Alive darf Wifi-ADB hier wieder einschalten.</string>
     <string name="networks_current_trusted_name">Vertraut wegen des WLAN-Namens. Du kannst diesen Access Point auch einzeln vertrauen oder blockieren.</string>
     <string name="networks_current_legacy">Gilt nur wegen der bisherigen Einstellung „In allen WLANs“. Du kannst diesen Access Point trotzdem vertrauen oder blockieren.</string>
     <string name="networks_tap_to_change">Zum Ändern tippen.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Automatisches Wiedereinschalten pausiert: Der Standort ist ausgeschaltet, daher verbirgt Android, mit welchem Access Point du verbunden bist.</string>
     <string name="network_cause_unreadable_all_wifi">Das Netzwerk ist gerade nicht lesbar. Die automatische Reaktivierung kann fortgesetzt werden; zum Prüfen gespeicherter Access Points oder WLAN-Namen werden lesbare Netzwerkdaten benötigt.</string>
     <string name="network_cause_not_allowed">Automatisches Wiedereinschalten pausiert: Dieser Access Point ist nicht vertraut.</string>
-    <string name="network_cause_blocked">Dieses Netzwerk ist blockiert: Keep-Alive schaltet Drahtloses Debugging hier nie ein und fragt auch nicht nach. Manuell einschalten geht immer.</string>
-    <string name="network_cause_allowed">Keep-Alive darf Drahtloses Debugging hier wieder einschalten.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive darf Drahtloses Debugging hier wieder einschalten. Jeder lesbare Access Point mit diesem WLAN-Namen wird akzeptiert.</string>
+    <string name="network_cause_blocked">Dieses Netzwerk ist blockiert: Keep-Alive schaltet Wifi-ADB hier nie ein und fragt auch nicht nach. Manuell einschalten geht immer.</string>
+    <string name="network_cause_allowed">Keep-Alive darf Wifi-ADB hier wieder einschalten.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive darf Wifi-ADB hier wieder einschalten. Jeder lesbare Access Point mit diesem WLAN-Namen wird akzeptiert.</string>
     <string name="network_cause_all_wifi">„In allen WLANs“ ist aktiv, daher darf Keep-Alive hier wieder einschalten. Vertrauenslisten zählen in diesem Modus nicht.</string>
     <string name="network_action_allow_ap">Diesem Access Point vertrauen</string>
     <string name="network_action_location_settings">Standorteinstellungen öffnen</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Force-Modus</string>
-    <string name="force_section_hint">Schaltet Drahtloses Debugging für eine gewählte Zeit in jedem Netzwerk wieder ein. Sperren und vertraute Netzwerke gelten in dieser Zeit nicht.</string>
+    <string name="force_section_hint">Schaltet Wifi-ADB für eine gewählte Zeit in jedem Netzwerk wieder ein. Sperren und vertraute Netzwerke gelten in dieser Zeit nicht.</string>
     <string name="force_status_off">Aus</string>
     <string name="force_status_until">Aktiv bis %1$s</string>
     <string name="force_status_unlimited">Aktiv, ohne Ablaufzeit</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Force-Modus beenden</string>
     <string name="force_action_change">Dauer ändern …</string>
     <string name="force_dialog_title">Force-Modus aktivieren?</string>
-    <string name="force_dialog_intro">Keep-Alive schaltet Drahtloses Debugging dann in jedem Netzwerk wieder ein: auch in fremden, blockierten und nicht lesbaren.</string>
+    <string name="force_dialog_intro">Keep-Alive schaltet Wifi-ADB dann in jedem Netzwerk wieder ein: auch in fremden, blockierten und nicht lesbaren.</string>
     <string name="force_dialog_duration_label">Wie lange?</string>
     <string name="force_duration_1h">1 Stunde</string>
     <string name="force_duration_24h">24 Stunden</string>
     <string name="force_duration_7d">7 Tage</string>
     <string name="force_duration_30d">30 Tage</string>
     <string name="force_duration_unlimited">Ohne Ablaufzeit</string>
-    <string name="force_warning_all">Drahtloses Debugging öffnet einen Port im Netzwerk. Computer, die du früher gekoppelt hast, haben darüber vollen ADB-Zugriff: Apps installieren, Daten lesen, den Bildschirm aufzeichnen. In fremden Netzwerken weißt du nicht, wer es versucht.
+    <string name="force_warning_all">Wifi-ADB öffnet einen Port im Netzwerk. Computer, die du früher gekoppelt hast, haben darüber vollen ADB-Zugriff: Apps installieren, Daten lesen, den Bildschirm aufzeichnen. In fremden Netzwerken weißt du nicht, wer es versucht.
 
 Deine Sperren und vertrauten Netzwerke gelten in dieser Zeit nicht.
 
 Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</string>
-    <string name="force_warning_days">Über mehrere Tage kommst du in Netzwerke, an die du jetzt nicht denkst: Hotel, Zug, Café, Arbeit. Debugging geht dort an, ohne dass du gefragt wirst.</string>
+    <string name="force_warning_days">Über mehrere Tage kommst du in Netzwerke, an die du jetzt nicht denkst: Hotel, Zug, Café, Arbeit. Wifi-ADB geht dort an, ohne dass du gefragt wirst.</string>
     <string name="force_warning_unlimited">Ohne Ablaufzeit bleibt der Force-Modus an, bis du ihn selbst beendest, auch nach Neustarts und App-Updates.</string>
-    <string name="force_unlimited_ack">Ich weiß, dass Drahtloses Debugging dann in jedem Netzwerk angeht.</string>
+    <string name="force_unlimited_ack">Ich weiß, dass Wifi-ADB dann in jedem Netzwerk angeht.</string>
     <string name="force_keepalive_hint">Der Force-Modus wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>
     <string name="force_not_started_toast">Force-Modus wurde nicht eingeschaltet: Eine Zeitgrenze lässt sich auf diesem Gerät gerade nicht verlässlich einhalten. Es wurde nichts geändert.</string>
     <string name="force_confirm_1h">Für 1 Stunde aktivieren</string>
@@ -419,8 +419,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="force_confirm_30d">Für 30 Tage aktivieren</string>
     <string name="force_confirm_unlimited">Ohne Ablaufzeit aktivieren</string>
     <string name="force_card_title">Force-Modus aktiv</string>
-    <string name="force_card_text_until">Drahtloses Debugging wird in jedem Netzwerk wieder eingeschaltet. Aktiv bis %1$s.</string>
-    <string name="force_card_text_unlimited">Drahtloses Debugging wird in jedem Netzwerk wieder eingeschaltet. Ohne Ablaufzeit.</string>
+    <string name="force_card_text_until">Wifi-ADB wird in jedem Netzwerk wieder eingeschaltet. Aktiv bis %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB wird in jedem Netzwerk wieder eingeschaltet. Ohne Ablaufzeit.</string>
     <string name="force_ended_toast">Force-Modus beendet. Schutzstufe wieder: %1$s.</string>
     <string name="force_notification_until">Force-Modus aktiv bis %1$s</string>
     <string name="force_notification_unlimited">Force-Modus aktiv, ohne Ablaufzeit</string>
@@ -429,7 +429,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="force_expired_title">Force-Modus beendet</string>
     <string name="force_expired_text">Die gewählte Zeit ist abgelaufen. Schutzstufe wieder: %1$s. Keep-Alive schaltet nur noch dort ein, wo die Schutzstufe es erlaubt.</string>
     <string name="force_expired_text_safety">Der Force-Modus wurde aus Sicherheitsgründen vorzeitig beendet: Die Restzeit ließ sich nicht verlässlich prüfen. Schutzstufe wieder: %1$s. Keep-Alive schaltet nur noch dort ein, wo die Schutzstufe es erlaubt.</string>
-    <string name="force_expired_still_on">Drahtloses Debugging ist gerade noch an.</string>
+    <string name="force_expired_still_on">Wifi-ADB ist gerade noch an.</string>
     <string name="force_expired_action_off">Jetzt ausschalten</string>
     <string name="force_level_maximum">Maximal sicher</string>
     <string name="force_level_balanced">Ausgewogen</string>
@@ -465,11 +465,11 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_privacy_summary_off">Privatsphäre: nichts ausgeblendet</string>
     <string name="onboarding_privacy_summary_on">Privatsphäre: %1$d von %2$d an</string>
     <string name="onboarding_privacy_change">Ändern</string>
-    <string name="onboarding_keep_alive_question">Soll Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch von selbst wieder angehen?</string>
-    <string name="onboarding_keep_alive_off_body">Du schaltest Drahtloses Debugging selbst ein, in der App, per Kachel oder Widget. Nach einem Neustart bleibt es aus.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB schaltet Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch wieder ein, aber nur dort, wo deine Schutzstufe es erlaubt (nächster Schritt).</string>
+    <string name="onboarding_keep_alive_question">Soll Wifi-ADB nach einem Neustart oder Verbindungsabbruch von selbst wieder angehen?</string>
+    <string name="onboarding_keep_alive_off_body">Du schaltest Wifi-ADB selbst ein, in der App, per Kachel oder Widget. Nach einem Neustart bleibt es aus.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB schaltet Wifi-ADB nach einem Neustart oder Verbindungsabbruch wieder ein, aber nur dort, wo deine Schutzstufe es erlaubt (nächster Schritt).</string>
     <string name="onboarding_protection_title">Schutzstufe</string>
-    <string name="onboarding_protection_question">Wo darf Keep-Alive Drahtloses Debugging von selbst einschalten?</string>
+    <string name="onboarding_protection_question">Wo darf Keep-Alive Wifi-ADB von selbst einschalten?</string>
     <string name="onboarding_protection_max_body">Nur an Access Points, denen du vertraust. Unbekannte fragt KeepADB nach.</string>
     <string name="onboarding_protection_balanced_body">Zusätzlich an jedem Access Point mit dem Namen eines vertrauten WLANs. Bequemer bei Mesh und Repeatern, aber ein Name lässt sich leicht nachahmen.</string>
     <string name="onboarding_protection_legacy_all_body">Jedes WLAN gilt als vertraut, solange du es nicht blockiert hast. Wähle unten eine Stufe, um diese Einstellung zu verlassen.</string>
@@ -493,7 +493,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_permissions_summary_done">Alles erledigt</string>
     <string name="onboarding_permissions_summary_missing">Fehlend: %1$d</string>
     <string name="onboarding_perm_system_title">Systemberechtigung</string>
-    <string name="onboarding_perm_system_body">Ohne sie kann KeepADB Drahtloses Debugging nicht schalten. Einmalig am Computer vergeben:</string>
+    <string name="onboarding_perm_system_body">Ohne sie kann KeepADB Wifi-ADB nicht schalten. Einmalig am Computer vergeben:</string>
     <string name="onboarding_perm_system_more">Mehrere Geräte oder Probleme?</string>
     <string name="onboarding_copy_command">Befehl kopieren</string>
     <string name="onboarding_copy_done">Befehl kopiert</string>
@@ -508,8 +508,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_network_title">Vertrautes WLAN</string>
     <string name="onboarding_network_question">Soll KeepADB dem WLAN vertrauen, mit dem du gerade verbunden bist?</string>
     <string name="onboarding_network_privacy_note">Privatsphäre ist an: Name und Adresse bleiben verborgen, bis du „Anzeigen“ antippst.</string>
-    <string name="onboarding_network_open_list">In der Netzwerkliste ändern</string>
-    <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Drahtlosem Debugging an einen eigenen Server, zum Beispiel in deinem Heimnetz oder VPN. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
+    <string name="onboarding_network_open_list">In „WLAN-Netze“ ändern</string>
+    <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Wifi-ADB an einen eigenen Server, zum Beispiel in deinem Heimnetz oder VPN. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
     <string name="onboarding_protection_force_title">Maximal komfortabel (Force)</string>
     <string name="onboarding_protection_force_body">In jedem Netzwerk, auch in fremden, für eine Zeit, die du wählst. Vorher musst du bestätigen.</string>
     <string name="onboarding_protection_force_keep_alive">Force wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>
@@ -517,7 +517,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_protection_force_comfort_note">Gilt nach Ende des Force-Modus.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Systemberechtigung fehlt</string>
-    <string name="home_warning_system_text">KeepADB kann Drahtloses Debugging erst schalten, wenn du sie einmalig am Computer vergibst.</string>
+    <string name="home_warning_system_text">KeepADB kann Wifi-ADB erst schalten, wenn du sie einmalig am Computer vergibst.</string>
     <string name="home_warning_action_guide">Anleitung</string>
     <string name="home_warning_less_secure_title">Weniger sicher als empfohlen</string>
     <string name="home_warning_action_review">Prüfen</string>
@@ -588,9 +588,9 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB-Steuerung</string>
-    <string name="widget_picker_description">Steuerung für Drahtloses Debugging, Keep-Alive und Webhook. Zeigt mehr, je größer es wird.</string>
-    <string name="widget_action_adb">Debugging</string>
-    <string name="widget_action_keep_alive">Dauerhaft</string>
+    <string name="widget_picker_description">Steuerung für Wifi-ADB, Keep-Alive und Webhook. Zeigt mehr, je größer es wird.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
+    <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Auto-Sync</string>
     <string name="widget_action_sync_description">Automatische Webhook-Synchronisierung</string>
     <string name="widget_state_on">An</string>

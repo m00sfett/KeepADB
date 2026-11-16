@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Substitua &lt;device-serial&gt; pelo número de série exato que "adb devices" mostrou para este dispositivo.</string>
     <string name="setup_state_offline_title">O dispositivo aparece como "offline"?</string>
-    <string name="setup_state_offline_body">A conexão caiu. Reconecte o cabo USB ou reative a depuração sem fio no telefone e execute "adb devices" novamente até o estado mudar para "device".</string>
+    <string name="setup_state_offline_body">A conexão caiu. Reconecte o cabo USB ou reative “Depuração sem fio” nas opções do desenvolvedor e execute "adb devices" novamente até o estado mudar para "device".</string>
     <string name="setup_state_unauthorized_title">O dispositivo aparece como "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Confirme o aviso de autorização de depuração na tela deste telefone e execute "adb devices" novamente até o estado mudar para "device".</string>
     <string name="setup_refresh">Verificar permissão</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · última verificação %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transporte principal</string>
-    <string name="toggle_label">Depuração sem fio</string>
-    <string name="toggle_subtext">Ativa ou desativa a depuração sem fio para ADB via Wi-Fi.</string>
-    <string name="keep_alive_toggle">Manter sempre ativo</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Ativa ou desativa a “Depuração sem fio” do Android para que um computador possa acessar este telefone via Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Reconexão automática em caso de queda, troca de rede ou reinicialização</string>
     <string name="tile_permission_error">%1$s: Permissão ausente (pm grant necessário)</string>
     <string name="permission_error_toast">Permissão ausente. Execute uma vez no PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Endpoint de depuração sem fio</string>
-    <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
+    <string name="notification_channel_name">Endpoint do Wifi-ADB</string>
+    <string name="notification_channel_desc">Endereço IP e porta atuais do Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB ativado</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB desativado</string>
     <string name="endpoint_port_at_ip">Porta %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Toque para ver os detalhes da ligação na app.</string>
     <string name="notification_title_searching">%1$s: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive aguarda a reativação da depuração sem fio</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive aguarda a reativação do Wifi-ADB</string>
     <string name="notification_text_keepalive_on">Keep-Alive: ativado</string>
     <string name="notification_text_keepalive_off">Keep-Alive: desativado</string>
     <string name="notification_text_webhook_synced">Webhook: sincronizado %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: ainda sem sincronização bem-sucedida</string>
     <string name="notification_action_keepalive_on">Ativar Keep-Alive</string>
     <string name="notification_action_keepalive_off">Desativar Keep-Alive</string>
-    <string name="notification_service_title">Manter depuração sem fio ativa</string>
-    <string name="notification_service_text">Monitorando conexão Wi-Fi e status da depuração sem fio</string>
+    <string name="notification_service_title">Manter o Wifi-ADB ativado</string>
+    <string name="notification_service_text">Monitorando conexão Wi-Fi e status do Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Permissão ausente</string>
     <string name="notification_permission_panel_title">Notificações</string>
-    <string name="notification_permission_panel_body">Com as notificações ativadas, pode ver se o serviço em segundo plano do KeepADB e o Keep-Alive estão a funcionar. Se a ligação cair, o KeepADB avisa-o de imediato. A depuração sem fios também funciona bem sem esta permissão.</string>
+    <string name="notification_permission_panel_body">Com as notificações ativadas, pode ver se o serviço em segundo plano do KeepADB e o Keep-Alive estão a funcionar. Se a ligação cair, o KeepADB avisa-o de imediato. O Wifi-ADB também funciona bem sem esta permissão.</string>
     <string name="notification_permission_request_button">Permitir notificações</string>
     <string name="notification_permission_settings_button">Abrir definições de notificações</string>
     <string name="notification_permission_missing_text">Conceda WRITE_SECURE_SETTINGS no PC via adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Sincronização de Webhook e endpoint</string>
     <string name="settings_webhook_toggle">Ativar sincronização Webhook</string>
-    <string name="settings_webhook_subtext">Envia o endpoint ativo (IP:porta) via HTTP POST quando ativado e tenta enviar DELETE ao desativar (repetido mais tarde em caso de falha).</string>
+    <string name="settings_webhook_subtext">Envia o endpoint ativo via HTTP POST quando ativado e tenta enviar DELETE ao desativar (repetido mais tarde em caso de falha).</string>
     <string name="settings_webhook_url_hint">http://host:porta/register/device</string>
     <string name="settings_webhook_url_label">URL do Webhook</string>
     <string name="settings_webhook_btn_save">Salvar URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Confiar nesta rede?</string>
     <string name="network_decision_name_label">Nome do Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Ponto de acesso (BSSID)</string>
-    <string name="network_decision_text">Se confiar neste ponto de acesso, o Keep-Alive pode voltar a ativar aqui a depuração sem fio automaticamente. Ativar manualmente funciona sempre.</string>
+    <string name="network_decision_text">Se confiar neste ponto de acesso, o Keep-Alive pode voltar a ativar aqui o Wifi-ADB automaticamente. Ativar manualmente funciona sempre.</string>
     <string name="network_decision_comfort_note">O modo cómodo está ativo: também serão aceites outros pontos de acesso com o nome “%1$s”.</string>
     <string name="network_decision_trust">Confiar</string>
     <string name="network_decision_block_ap">Bloquear só este ponto de acesso</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">ainda nenhum</string>
     <string name="webhook_status_deregistered">desregistrado</string>
     <string name="webhook_status_failed">falhou</string>
-    <string name="settings_permission_warning">Permissão do sistema WRITE_SECURE_SETTINGS ausente. O KeepADB não pode alternar a depuração sem fio até que a permissão seja concedida.</string>
+    <string name="settings_permission_warning">Permissão do sistema WRITE_SECURE_SETTINGS ausente. O KeepADB não pode alternar o Wifi-ADB até que a permissão seja concedida.</string>
     <string name="settings_language_menu_label">Idioma</string>
     <string name="settings_language_accessibility">Idioma do aplicativo: %1$s</string>
     <string name="settings_language_system_default">Padrão do sistema</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Outros</string>
     <string name="settings_section_notification">Notificação</string>
     <string name="settings_hide_notification_toggle">Notificação persistente</string>
-    <string name="settings_hide_notification_subtext">Mostra o estado da depuração e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Se os detalhes da ligação aparecem é definido por «Ocultar nas notificações» em Privacidade; podem mostrar endereços e nomes de redes.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Mostra o estado da depuração e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Se os detalhes da ligação aparecem é definido por «Ocultar nas notificações» em Privacidade; podem mostrar endereços e nomes de redes.\n\nCom Keep-Alive ativo, o Android exige esta notificação para o serviço em primeiro plano. O interruptor fica bloqueado. Ao desativar Keep-Alive, volta a aplicar-se a escolha guardada.</string>
+    <string name="settings_hide_notification_subtext">Mostra o estado do Wifi-ADB e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Se os detalhes da ligação aparecem é definido por «Ocultar nas notificações» em Privacidade; podem mostrar endereços e nomes de redes.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Mostra o estado do Wifi-ADB e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Se os detalhes da ligação aparecem é definido por «Ocultar nas notificações» em Privacidade; podem mostrar endereços e nomes de redes.\n\nCom Keep-Alive ativo, o Android exige esta notificação para o serviço em primeiro plano. O interruptor fica bloqueado. Ao desativar Keep-Alive, volta a aplicar-se a escolha guardada.</string>
     <string name="settings_section_display">Tela</string>
     <string name="settings_keep_display_on_toggle">Manter a tela ligada enquanto o KeepADB estiver em primeiro plano</string>
     <string name="settings_keep_display_on_subtext">Mantém a tela ligada apenas enquanto este app está aberto. A tela se apaga normalmente assim que você sai do app.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Verificar reconhecimento em segundo plano</string>
     <string name="background_location_dialog_later">Mais tarde</string>
     <string name="background_location_status_granted">Reconhecimento em segundo plano: ativo. Os pontos de acesso fiáveis são reconhecidos mesmo quando o Keep-Alive inicia em segundo plano. O KeepADB nunca lê nem armazena a posição do seu dispositivo.</string>
-    <string name="background_location_status_missing">Reconhecimento em segundo plano: restrito. Se o Keep-Alive iniciar em segundo plano, o Android pode ocultar a que ponto de acesso você está conectado; o KeepADB então trata a rede como ilegível e não ativa a depuração sem fio automaticamente até você abrir o app.</string>
+    <string name="background_location_status_missing">Reconhecimento em segundo plano: restrito. Se o Keep-Alive iniciar em segundo plano, o Android pode ocultar a que ponto de acesso você está conectado; o KeepADB então trata a rede como ilegível e não ativa o Wifi-ADB automaticamente até você abrir o app.</string>
     <string name="background_location_status_missing_inactive">Reconhecimento em segundo plano: não é necessário nesta configuração. Ele é usado para verificar pontos de acesso ou nomes de Wi-Fi quando o Keep-Alive é executado em segundo plano.</string>
     <string name="location_permission_panel_title">Permissão de localização necessária para redes fiáveis</string>
     <string name="location_permission_panel_body">O modo de redes fiáveis precisa de acesso à localização para identificar sua rede Wi-Fi. Sem isso, o Keep-Alive não pode confirmar uma rede fiável e não será reativado automaticamente.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Adicione qualquer outra informação útil.</string>
     <string name="issue_report_diagnostics_section">Dados de diagnóstico KeepADB opcionais e redigidos (verifique antes do envio)</string>
     <string name="advice_banner_title">Segurança e rede</string>
-    <string name="advice_banner_text">A depuração sem fio abre uma porta ADB na sua rede. Use uma rede Wi-Fi fiável ou uma VPN e desative-a em pontos de acesso públicos. Nunca compartilhe seu endpoint publicamente nem aceite solicitações de emparelhamento inesperadas.</string>
+    <string name="advice_banner_text">O Wifi-ADB abre uma porta ADB na sua rede. Use uma rede Wi-Fi fiável ou uma VPN e desative-o em pontos de acesso públicos. Nunca compartilhe seu endpoint publicamente nem aceite solicitações de emparelhamento inesperadas.</string>
     <string name="settings_license_line">Licenciado sob a GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Abrir keepadb.roteson.de no navegador</string>
     <string name="settings_no_browser_found">Nenhum app encontrado para abrir este link.</string>
-    <string name="status_off_keep_alive_waiting">Depuração sem fio DESATIVADA – Keep-Alive aguarda a rede</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi não é fiável</string>
-    <string name="status_off_keep_alive_blocked_by_user">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi está bloqueada</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: rede ilegível, verifique a permissão de localização (“Permitir o tempo todo”) ou reabra o aplicativo</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB DESATIVADO – Keep-Alive aguarda a rede</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DESATIVADO – Keep-Alive em pausa: esta rede Wi-Fi não é fiável</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DESATIVADO – Keep-Alive em pausa: esta rede Wi-Fi está bloqueada</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DESATIVADO – Keep-Alive em pausa: rede ilegível, verifique a permissão de localização (“Permitir o tempo todo”) ou reabra o aplicativo</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DESATIVADO – Keep-Alive em pausa: confirme a caixa de diálogo de rede “Depuração sem fio” e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
     <string name="home_state_on">Wifi-ADB ativado</string>
     <string name="home_state_off">Wifi-ADB desativado</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Sem conexão Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive continua desativado aqui: Wi-Fi não fiável</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive continua desativado aqui: Wi-Fi bloqueado</string>
-    <string name="home_action_networks">Redes</string>
+    <string name="home_action_networks">Redes Wi-Fi</string>
     <string name="home_action_retry">Tentar novamente</string>
     <string name="home_reason_details_action">Mostrar detalhes</string>
     <string name="state_pending">Alternando…</string>
     <string name="tile_state_keep_alive_waiting">Desativado – Keep-Alive aguardando</string>
-    <string name="toggle_failed_toast">Não foi possível alternar a depuração sem fio. Tente novamente.</string>
+    <string name="toggle_failed_toast">Não foi possível alternar o Wifi-ADB. Tente novamente.</string>
     <string name="protection_title">Proteção</string>
     <string name="protection_automatic_title">Comportamento automático</string>
-    <string name="untrusted_shutdown_hint_short">Desativa a depuração sem fio em um Wi-Fi que não é de confiança.</string>
+    <string name="untrusted_shutdown_hint_short">Desativa o Wifi-ADB em um Wi-Fi que não é de confiança.</string>
     <string name="security_check_hint_short">Pausa a ativação automática se um ponto de acesso de confiança mostrar segurança mais fraca.</string>
     <string name="hint_more">Mais ▾</string>
     <string name="hint_less">Menos ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Desconhecido</string>
     <string name="network_badge_blocked">Bloqueado</string>
     <string name="networks_title">Redes Wi-Fi</string>
-    <string name="networks_intro">O Keep-Alive pode voltar a ativar a depuração sem fio nas redes fiáveis, nunca nas bloqueadas. Ativar manualmente funciona sempre.</string>
+    <string name="networks_intro">O Keep-Alive pode voltar a ativar o Wifi-ADB nas redes fiáveis, nunca nas bloqueadas. Ativar manualmente funciona sempre.</string>
     <string name="networks_glossary_toggle">Termos explicados</string>
     <string name="networks_glossary_ssid">Nome do Wi-Fi (SSID): o nome que uma rede Wi-Fi transmite. Qualquer pessoa pode criar uma rede com o mesmo nome.</string>
     <string name="networks_glossary_bssid">Ponto de acesso (BSSID): um único emissor, como um router, repetidor ou nó mesh. O seu endereço de hardware, por exemplo AA:BB:CC:11:22:33, é mais específico do que o nome, mas também não é uma prova.</string>
     <string name="untrusted_shutdown_title">Desativar em Wi-Fi que não é de confiança</string>
-    <string name="untrusted_shutdown_hint">Enquanto o Keep-Alive estiver ativo, o KeepADB desativa a depuração sem fio em uma rede Wi-Fi que não é de confiança, bloqueada ou que não pode ser identificada, em vez de apenas avisar. Uma sessão que você mesmo ativou no KeepADB continua ativa nesse ponto de acesso. O modo forçado suspende isso.</string>
+    <string name="untrusted_shutdown_hint">Enquanto o Keep-Alive estiver ativo, o KeepADB desativa o Wifi-ADB em uma rede Wi-Fi que não é de confiança, bloqueada ou que não pode ser identificada, em vez de apenas avisar. Uma sessão que você mesmo ativou no KeepADB continua ativa nesse ponto de acesso. O modo forçado suspende isso.</string>
     <string name="untrusted_shutdown_channel_name">Desativação em Wi-Fi que não é de confiança</string>
-    <string name="untrusted_shutdown_channel_desc">Avisa quando o KeepADB desativou a depuração sem fio em uma rede Wi-Fi que não é de confiança.</string>
-    <string name="untrusted_shutdown_off_title">Depuração sem fio desativada</string>
+    <string name="untrusted_shutdown_channel_desc">Avisa quando o KeepADB desativou o Wifi-ADB em uma rede Wi-Fi que não é de confiança.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB desativado</string>
     <string name="untrusted_shutdown_off_text">A rede Wi-Fi atual não é de confiança ou não pode ser identificada. O Keep-Alive a reativa em uma rede Wi-Fi de confiança.</string>
-    <string name="untrusted_shutdown_failed_title">Não foi possível desativar a depuração sem fio</string>
-    <string name="untrusted_shutdown_failed_text">A rede Wi-Fi atual não é de confiança, mas a desativação da depuração sem fio falhou. Desative-a manualmente.</string>
+    <string name="untrusted_shutdown_failed_title">Não foi possível desativar o Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">A rede Wi-Fi atual não é de confiança, mas a desativação do Wifi-ADB falhou. Desative-o manualmente.</string>
     <string name="security_check_title">Verificar a segurança Wi-Fi dos pontos de acesso de confiança</string>
-    <string name="security_check_hint">Android 12 ou posterior: quando você confia em um ponto de acesso, o KeepADB guarda o nível de segurança dele (aberto, pessoal ou empresarial). Se depois ele se conectar com um nível inferior ou ilegível, o Keep-Alive não ativa a depuração sem fio ali por conta própria até você confiar nele novamente. Isso não prova que o ponto de acesso é autêntico. Pontos de acesso de confiança anteriores a esta opção continuam verificados só pelo endereço até você confiar neles novamente.</string>
+    <string name="security_check_hint">Android 12 ou posterior: quando você confia em um ponto de acesso, o KeepADB guarda o nível de segurança dele (aberto, pessoal ou empresarial). Se depois ele se conectar com um nível inferior ou ilegível, o Keep-Alive não ativa o Wifi-ADB ali por conta própria até você confiar nele novamente. Isso não prova que o ponto de acesso é autêntico. Pontos de acesso de confiança anteriores a esta opção continuam verificados só pelo endereço até você confiar neles novamente.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) é de confiança, mas a segurança Wi-Fi dele agora é inferior à do momento em que você confiou nele, ou ilegível. Confie nele novamente só se você espera essa mudança.</string>
     <string name="network_prompt_security_confirm_in_app_text">A segurança Wi-Fi de um ponto de acesso de confiança mudou — toque para verificar no app.</string>
     <string name="network_prompt_security_title">A segurança Wi-Fi de um ponto de acesso de confiança mudou</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Nome fiável</string>
     <string name="networks_badge_name_blocked">Nome bloqueado</string>
     <string name="networks_badge_unknown">Desconhecido</string>
-    <string name="networks_current_trusted">O Keep-Alive pode reativar aqui a depuração sem fio.</string>
+    <string name="networks_current_trusted">O Keep-Alive pode reativar aqui o Wifi-ADB.</string>
     <string name="networks_current_trusted_name">Fiável pelo nome do Wi-Fi. Pode também confiar neste ponto de acesso ou bloqueá-lo individualmente.</string>
     <string name="networks_current_legacy">Aplica-se apenas por causa da definição anterior “Em todas as redes Wi-Fi”. Pode, ainda assim, confiar neste ponto de acesso ou bloqueá-lo.</string>
     <string name="networks_tap_to_change">Toque para alterar.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Reativação automática pausada: a localização está desativada, então o Android oculta a qual ponto de acesso você está conectado.</string>
     <string name="network_cause_unreadable_all_wifi">No momento, não é possível ler a rede. A reativação automática pode continuar, mas são necessários dados de rede legíveis para verificar os pontos de acesso ou nomes de Wi-Fi salvos.</string>
     <string name="network_cause_not_allowed">Reativação automática pausada: este ponto de acesso não é fiável.</string>
-    <string name="network_cause_blocked">Esta rede está bloqueada: o Keep-Alive nunca ativa aqui a depuração sem fio e também não pergunta. Ativar manualmente funciona sempre.</string>
-    <string name="network_cause_allowed">O Keep-Alive pode reativar aqui a depuração sem fio.</string>
-    <string name="network_cause_allowed_by_name">O Keep-Alive pode reativar aqui a depuração sem fio. Qualquer ponto de acesso legível com este nome de Wi-Fi é aceito.</string>
+    <string name="network_cause_blocked">Esta rede está bloqueada: o Keep-Alive nunca ativa aqui o Wifi-ADB e também não pergunta. Ativar manualmente funciona sempre.</string>
+    <string name="network_cause_allowed">O Keep-Alive pode reativar aqui o Wifi-ADB.</string>
+    <string name="network_cause_allowed_by_name">O Keep-Alive pode reativar aqui o Wifi-ADB. Qualquer ponto de acesso legível com este nome de Wi-Fi é aceito.</string>
     <string name="network_cause_all_wifi">“Em todas as redes Wi-Fi” está ativo, então o Keep-Alive pode reativar aqui. As listas de confiança não contam neste modo.</string>
     <string name="network_action_allow_ap">Confiar neste ponto de acesso</string>
     <string name="network_action_location_settings">Abrir configurações de localização</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Modo forçado</string>
-    <string name="force_section_hint">Volta a ativar a depuração sem fio em qualquer rede durante o tempo que escolher. Os bloqueios e as redes de confiança não se aplicam entretanto.</string>
+    <string name="force_section_hint">Volta a ativar o Wifi-ADB em qualquer rede durante o tempo que escolher. Os bloqueios e as redes de confiança não se aplicam entretanto.</string>
     <string name="force_status_off">Desativado</string>
     <string name="force_status_until">Ativo até %1$s</string>
     <string name="force_status_unlimited">Ativo, sem hora de fim</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Terminar modo forçado</string>
     <string name="force_action_change">Alterar duração…</string>
     <string name="force_dialog_title">Ativar o modo forçado?</string>
-    <string name="force_dialog_intro">O Keep-Alive voltará então a ativar a depuração sem fio em qualquer rede: incluindo redes desconhecidas, bloqueadas e ilegíveis.</string>
+    <string name="force_dialog_intro">O Keep-Alive voltará então a ativar o Wifi-ADB em qualquer rede: incluindo redes desconhecidas, bloqueadas e ilegíveis.</string>
     <string name="force_dialog_duration_label">Durante quanto tempo?</string>
     <string name="force_duration_1h">1 hora</string>
     <string name="force_duration_24h">24 horas</string>
     <string name="force_duration_7d">7 dias</string>
     <string name="force_duration_30d">30 dias</string>
     <string name="force_duration_unlimited">Sem hora de fim</string>
-    <string name="force_warning_all">A depuração sem fio abre uma porta na rede. Os computadores que emparelhou anteriormente obtêm por aí acesso ADB total: instalar apps, ler dados, gravar o ecrã. Em redes desconhecidas não sabe quem está a tentar.
+    <string name="force_warning_all">O Wifi-ADB abre uma porta na rede. Os computadores que emparelhou anteriormente obtêm por aí acesso ADB total: instalar apps, ler dados, gravar o ecrã. Em redes desconhecidas não sabe quem está a tentar.
 
 Os seus bloqueios e redes de confiança não se aplicam durante este tempo.
 
 Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</string>
-    <string name="force_warning_days">Ao longo de vários dias vai ligar-se a redes em que agora não pensa: hotel, comboio, café, trabalho. A depuração ativa-se aí sem lhe perguntar.</string>
+    <string name="force_warning_days">Ao longo de vários dias vai ligar-se a redes em que agora não pensa: hotel, comboio, café, trabalho. O Wifi-ADB ativa-se aí sem lhe perguntar.</string>
     <string name="force_warning_unlimited">Sem hora de fim, o modo forçado fica ativo até o terminar, também após reinícios e atualizações da app.</string>
-    <string name="force_unlimited_ack">Compreendo que a depuração sem fio será ativada então em qualquer rede.</string>
+    <string name="force_unlimited_ack">Compreendo que o Wifi-ADB será ativado então em qualquer rede.</string>
     <string name="force_keepalive_hint">O modo forçado só funciona com o Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
     <string name="force_not_started_toast">O modo forçado não foi ativado: neste momento este dispositivo não consegue cumprir um limite de tempo de forma fiável. Nada foi alterado.</string>
     <string name="force_confirm_1h">Ativar durante 1 hora</string>
@@ -419,8 +419,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="force_confirm_30d">Ativar durante 30 dias</string>
     <string name="force_confirm_unlimited">Ativar sem hora de fim</string>
     <string name="force_card_title">Modo forçado ativo</string>
-    <string name="force_card_text_until">A depuração sem fio é reativada em qualquer rede. Ativo até %1$s.</string>
-    <string name="force_card_text_unlimited">A depuração sem fio é reativada em qualquer rede. Sem hora de fim.</string>
+    <string name="force_card_text_until">O Wifi-ADB é reativado em qualquer rede. Ativo até %1$s.</string>
+    <string name="force_card_text_unlimited">O Wifi-ADB é reativado em qualquer rede. Sem hora de fim.</string>
     <string name="force_ended_toast">Modo forçado terminado. Nível de proteção de novo: %1$s.</string>
     <string name="force_notification_until">Modo forçado ativo até %1$s</string>
     <string name="force_notification_unlimited">Modo forçado ativo, sem hora de fim</string>
@@ -429,7 +429,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="force_expired_title">Modo forçado terminado</string>
     <string name="force_expired_text">O tempo escolhido terminou. Nível de proteção de novo: %1$s. O Keep-Alive só volta a ativar onde o nível de proteção o permite.</string>
     <string name="force_expired_text_safety">O modo forçado terminou mais cedo por segurança: não foi possível verificar com fiabilidade o tempo restante. Nível de proteção de novo: %1$s. O Keep-Alive só volta a ativar onde o nível de proteção o permite.</string>
-    <string name="force_expired_still_on">A depuração sem fio ainda está ativada neste momento.</string>
+    <string name="force_expired_still_on">O Wifi-ADB ainda está ativado neste momento.</string>
     <string name="force_expired_action_off">Desativar agora</string>
     <string name="force_level_maximum">Segurança máxima</string>
     <string name="force_level_balanced">Equilibrado</string>
@@ -465,11 +465,11 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_privacy_summary_off">Privacidade: nada oculto</string>
     <string name="onboarding_privacy_summary_on">Privacidade: %1$d de %2$d ativados</string>
     <string name="onboarding_privacy_change">Alterar</string>
-    <string name="onboarding_keep_alive_question">A depuração sem fio deve voltar a ativar-se sozinha após um reinício ou uma ligação perdida?</string>
-    <string name="onboarding_keep_alive_off_body">Ativa a depuração sem fio manualmente, na app, no mosaico ou no widget. Após um reinício, fica desativada.</string>
-    <string name="onboarding_keep_alive_on_body">O KeepADB volta a ativar a depuração sem fio após um reinício ou uma ligação perdida, mas só onde o seu nível de proteção o permitir (passo seguinte).</string>
+    <string name="onboarding_keep_alive_question">O Wifi-ADB deve voltar a ativar-se sozinho após um reinício ou uma ligação perdida?</string>
+    <string name="onboarding_keep_alive_off_body">Ativa o Wifi-ADB manualmente, na app, no mosaico ou no widget. Após um reinício, fica desativado.</string>
+    <string name="onboarding_keep_alive_on_body">O KeepADB volta a ativar o Wifi-ADB após um reinício ou uma ligação perdida, mas só onde o seu nível de proteção o permitir (passo seguinte).</string>
     <string name="onboarding_protection_title">Nível de proteção</string>
-    <string name="onboarding_protection_question">Onde pode o Keep-Alive ativar sozinho a depuração sem fio?</string>
+    <string name="onboarding_protection_question">Onde pode o Keep-Alive ativar sozinho o Wifi-ADB?</string>
     <string name="onboarding_protection_max_body">Só em pontos de acesso fiáveis. O KeepADB pergunta pelos desconhecidos.</string>
     <string name="onboarding_protection_balanced_body">Também em qualquer ponto de acesso com o nome de um Wi-Fi fiável. Mais cómodo com mesh e repetidores, mas um nome é fácil de imitar.</string>
     <string name="onboarding_protection_legacy_all_body">Todas as redes Wi-Fi contam como fiáveis, a menos que as bloqueie. Escolha abaixo um nível para sair desta definição.</string>
@@ -493,7 +493,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_permissions_summary_done">Tudo pronto</string>
     <string name="onboarding_permissions_summary_missing">Em falta: %1$d</string>
     <string name="onboarding_perm_system_title">Permissão do sistema</string>
-    <string name="onboarding_perm_system_body">Sem ela, o KeepADB não consegue alternar a depuração sem fio. Conceda-a uma vez a partir de um computador:</string>
+    <string name="onboarding_perm_system_body">Sem ela, o KeepADB não consegue alternar o Wifi-ADB. Conceda-a uma vez a partir de um computador:</string>
     <string name="onboarding_perm_system_more">Vários dispositivos ou problemas?</string>
     <string name="onboarding_copy_command">Copiar comando</string>
     <string name="onboarding_copy_done">Comando copiado</string>
@@ -508,8 +508,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_network_title">Wi-Fi fiável</string>
     <string name="onboarding_network_question">O KeepADB deve confiar no Wi-Fi a que está ligado neste momento?</string>
     <string name="onboarding_network_privacy_note">A privacidade está ativada: o nome e o endereço ficam ocultos até tocares em «Mostrar».</string>
-    <string name="onboarding_network_open_list">Alterar na lista Redes</string>
-    <string name="onboarding_webhook_question">Opcional. Informa o endereço atual da depuração sem fio a um servidor seu, por exemplo na sua rede doméstica ou VPN. A maioria não precisa disso. Nada é salvo até você tocar em “Salvar URL”.</string>
+    <string name="onboarding_network_open_list">Alterar em “Redes Wi-Fi”</string>
+    <string name="onboarding_webhook_question">Opcional. Informa o endereço atual do Wifi-ADB a um servidor seu, por exemplo na sua rede doméstica ou VPN. A maioria não precisa disso. Nada é salvo até você tocar em “Salvar URL”.</string>
     <string name="onboarding_protection_force_title">Máxima comodidade (modo forçado)</string>
     <string name="onboarding_protection_force_body">Em qualquer rede, inclusive desconhecidas, pelo tempo que você escolher. Antes você precisa confirmar.</string>
     <string name="onboarding_protection_force_keep_alive">O modo forçado só funciona com Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
@@ -517,7 +517,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_protection_force_comfort_note">Aplica-se depois de o modo forçado terminar.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Falta a permissão do sistema</string>
-    <string name="home_warning_system_text">O KeepADB só consegue alternar a depuração sem fio depois de você conceder esta permissão uma vez a partir de um computador.</string>
+    <string name="home_warning_system_text">O KeepADB só consegue alternar o Wifi-ADB depois de você conceder esta permissão uma vez a partir de um computador.</string>
     <string name="home_warning_action_guide">Instruções</string>
     <string name="home_warning_less_secure_title">Menos seguro do que o recomendado</string>
     <string name="home_warning_action_review">Revisar</string>
@@ -589,8 +589,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Controles do KeepADB</string>
-    <string name="widget_picker_description">Controles de depuração sem fio, Keep-Alive e Webhook. Mostra mais quanto maior for.</string>
-    <string name="widget_action_adb">Depuração</string>
+    <string name="widget_picker_description">Controles do Wifi-ADB, Keep-Alive e Webhook. Mostra mais quanto maior for.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Sincr. auto</string>
     <string name="widget_action_sync_description">Sincronização automática do Webhook</string>

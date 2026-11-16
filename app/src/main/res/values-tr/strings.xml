@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt; ifadesini bu cihaz için "adb devices" tarafından gösterilen tam seri numarasıyla değiştirin.</string>
     <string name="setup_state_offline_title">Cihaz "offline" mi görünüyor?</string>
-    <string name="setup_state_offline_body">Bağlantı koptu. USB kablosunu yeniden takın veya telefonda kablosuz hata ayıklamayı yeniden etkinleştirin, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
+    <string name="setup_state_offline_body">Bağlantı koptu. USB kablosunu yeniden takın veya Geliştirici seçeneklerinde “Kablosuz hata ayıklama”yı yeniden etkinleştirin, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
     <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">VPN üzerinden ADB</string>
     <string name="transport_row_format">%1$s: %2$s · son kontrol %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, birincil aktarım</string>
-    <string name="toggle_label">Kablosuz Hata Ayıklama</string>
-    <string name="toggle_subtext">Wi-Fi üzerinden ADB için Kablosuz Hata Ayıklamayı açar veya kapatır.</string>
-    <string name="keep_alive_toggle">Sürekli aktif tut</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Android’in “Kablosuz hata ayıklama” özelliğini açar veya kapatır; böylece bir bilgisayar bu telefona Wi-Fi üzerinden ulaşabilir.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Bağlantı kesintisi, ağ değişikliği veya yeniden başlatmada otomatik yeniden bağlanma</string>
     <string name="tile_permission_error">%1$s: İzin eksik (pm grant gerekli)</string>
     <string name="permission_error_toast">İzin eksik. PC’den bir kez çalıştırın:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Kablosuz Hata Ayıklama Uç Noktası</string>
-    <string name="notification_channel_desc">Kablosuz Hata Ayıklamanın geçerli IP adresi ve bağlantı noktası</string>
+    <string name="notification_channel_name">Wifi-ADB Uç Noktası</string>
+    <string name="notification_channel_desc">Wifi-ADB\'nin geçerli IP adresi ve bağlantı noktası</string>
     <string name="notification_title_active">%1$s: Wifi-ADB açık</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB kapalı</string>
     <string name="endpoint_port_at_ip">Bağlantı noktası %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Bağlantı ayrıntılarını uygulamada görmek için dokunun.</string>
     <string name="notification_title_searching">%1$s: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive, Kablosuz Hata Ayıklamanın yeniden açılmasını bekliyor</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive, Wifi-ADB\'nin yeniden açılmasını bekliyor</string>
     <string name="notification_text_keepalive_on">Keep-Alive: açık</string>
     <string name="notification_text_keepalive_off">Keep-Alive: kapalı</string>
     <string name="notification_text_webhook_synced">Webhook: eşitlendi %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: henüz başarılı eşitleme yok</string>
     <string name="notification_action_keepalive_on">Keep-Alive’ı aç</string>
     <string name="notification_action_keepalive_off">Keep-Alive’ı kapat</string>
-    <string name="notification_service_title">Kablosuz Hata Ayıklamayı Aktif Tut</string>
-    <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
+    <string name="notification_service_title">Wifi-ADB\'yi Aktif Tut</string>
+    <string name="notification_service_text">Wi-Fi bağlantısı ve Wifi-ADB durumu izleniyor</string>
     <string name="notification_permission_missing_title">%1$s: İzin eksik</string>
     <string name="notification_permission_panel_title">Bildirimler</string>
-    <string name="notification_permission_panel_body">Bildirimler açık olduğunda KeepADB arka plan hizmetinin ve Keep-Alive\'ın çalışıp çalışmadığını görebilirsiniz. Bağlantı koparsa KeepADB sizi hemen bilgilendirir. Kablosuz Hata Ayıklama bu izin olmadan da sorunsuz çalışır.</string>
+    <string name="notification_permission_panel_body">Bildirimler açık olduğunda KeepADB arka plan hizmetinin ve Keep-Alive\'ın çalışıp çalışmadığını görebilirsiniz. Bağlantı koparsa KeepADB sizi hemen bilgilendirir. Wifi-ADB bu izin olmadan da sorunsuz çalışır.</string>
     <string name="notification_permission_request_button">Bildirimlere izin ver</string>
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
     <string name="notification_permission_missing_text">adb shell pm grant aracılığıyla PC’den WRITE_SECURE_SETTINGS izni verin</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Uç Nokta Senkronizasyonu</string>
     <string name="settings_webhook_toggle">Webhook Senkronizasyonunu Etkinleştir</string>
-    <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı (IP:port) HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>
+    <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL’si</string>
     <string name="settings_webhook_btn_save">URL’yi Kaydet</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Bu ağa güvenilsin mi?</string>
     <string name="network_decision_name_label">Wi-Fi adı (SSID)</string>
     <string name="network_decision_ap_label">Erişim noktası (BSSID)</string>
-    <string name="network_decision_text">Bu erişim noktasına güvenirseniz Keep-Alive burada Kablosuz Hata Ayıklama\'yı otomatik olarak yeniden açabilir. Elle açmak her zaman çalışır.</string>
+    <string name="network_decision_text">Bu erişim noktasına güvenirseniz Keep-Alive burada Wifi-ADB\'yi otomatik olarak yeniden açabilir. Elle açmak her zaman çalışır.</string>
     <string name="network_decision_comfort_note">Rahat mod açık: “%1$s” adlı diğer erişim noktaları da kabul edilir.</string>
     <string name="network_decision_trust">Güven</string>
     <string name="network_decision_block_ap">Yalnızca bu erişim noktasını engelle</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">henüz yok</string>
     <string name="webhook_status_deregistered">kaydı silindi</string>
     <string name="webhook_status_failed">başarısız</string>
-    <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Kablosuz Hata Ayıklamayı değiştiremez.</string>
+    <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Wifi-ADB\'yi değiştiremez.</string>
     <string name="settings_language_menu_label">Dil</string>
     <string name="settings_language_accessibility">Uygulama Dili: %1$s</string>
     <string name="settings_language_system_default">Sistem varsayılanı</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Diğer</string>
     <string name="settings_section_notification">Bildirim</string>
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
-    <string name="settings_hide_notification_subtext">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
+    <string name="settings_hide_notification_subtext">Bildirim alanında Wifi-ADB durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında Wifi-ADB durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
     <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Arka planda algılamayı kontrol et</string>
     <string name="background_location_dialog_later">Daha sonra</string>
     <string name="background_location_status_granted">Arka planda algılama: izin verildi. Keep-Alive arka planda başlasa bile güvenilir erişim noktaları tanınır. KeepADB cihazının konumunu asla okumaz veya kaydetmez.</string>
-    <string name="background_location_status_missing">Arka planda algılama: kısıtlı. Keep-Alive arka planda başlarsa Android hangi erişim noktasına bağlı olduğunu gizleyebilir; KeepADB bu durumda ağı okunamayan sayar ve sen uygulamayı açana kadar Kablosuz Hata Ayıklamayı otomatik olarak açmaz.</string>
+    <string name="background_location_status_missing">Arka planda algılama: kısıtlı. Keep-Alive arka planda başlarsa Android hangi erişim noktasına bağlı olduğunu gizleyebilir; KeepADB bu durumda ağı okunamayan sayar ve sen uygulamayı açana kadar Wifi-ADB\'yi otomatik olarak açmaz.</string>
     <string name="background_location_status_missing_inactive">Arka planda algılama: bu ayarda gerekli değil. Keep-Alive arka planda çalışırken erişim noktalarını veya Wi-Fi adlarını denetlemek için kullanılır.</string>
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
     <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
@@ -170,7 +170,7 @@
     <string name="location_permission_panel_title_discovery">Wi-Fi ve erişim noktaları için konum erişimi gerekli</string>
     <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
     <string name="location_permission_settings_button">Ayarları aç</string>
-    <string name="notification_action_disable">Wifi-ADByi kapat</string>
+    <string name="notification_action_disable">Wifi-ADB\'yi kapat</string>
     <string name="notification_action_copy">Kopyala</string>
     <string name="endpoint_copy_action">adb connect komutunu kopyala</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Yararlı başka bilgileri ekleyin.</string>
     <string name="issue_report_diagnostics_section">İsteğe bağlı redakte edilmiş KeepADB tanılama verileri (göndermeden önce inceleyin)</string>
     <string name="advice_banner_title">Güvenlik ve ağ</string>
-    <string name="advice_banner_text">Kablosuz hata ayıklama, ağınızda bir ADB bağlantı noktası açar. Güvenilir Wi-Fi veya bir VPN kullanın ve halka açık ağlarda kapatın. Uç noktanızı herkese açık paylaşmayın ve beklenmedik eşleştirme isteklerini kabul etmeyin.</string>
+    <string name="advice_banner_text">Wifi-ADB, ağınızda bir ADB bağlantı noktası açar. Güvenilir Wi-Fi veya bir VPN kullanın ve halka açık ağlarda kapatın. Uç noktanızı herkese açık paylaşmayın ve beklenmedik eşleştirme isteklerini kabul etmeyin.</string>
     <string name="settings_license_line">GNU Affero General Public License v3 (AGPLv3) ile lisanslanmıştır</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de\'yi tarayıcıda aç</string>
     <string name="settings_no_browser_found">Bu bağlantıyı açacak uygulama bulunamadı.</string>
-    <string name="status_off_keep_alive_waiting">Kablosuz Hata Ayıklama KAPALI – Keep-Alive ağı bekliyor</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
-    <string name="status_off_keep_alive_blocked_by_user">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı engellendi</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB KAPALI – Keep-Alive ağı bekliyor</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı engellendi</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: “Kablosuz hata ayıklama” ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
     <string name="home_state_on">Wifi-ADB açık</string>
     <string name="home_state_off">Wifi-ADB kapalı</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Wi-Fi bağlantısı yok</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive burada kapalı kalır: Wi-Fi güvenilir değil</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive burada kapalı kalır: Wi-Fi engellendi</string>
-    <string name="home_action_networks">Ağlar</string>
+    <string name="home_action_networks">Wi-Fi ağları</string>
     <string name="home_action_retry">Yeniden dene</string>
     <string name="home_reason_details_action">Ayrıntıları göster</string>
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>
-    <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
+    <string name="toggle_failed_toast">Wifi-ADB değiştirilemedi. Lütfen tekrar deneyin.</string>
     <string name="protection_title">Koruma</string>
     <string name="protection_automatic_title">Otomatik davranış</string>
-    <string name="untrusted_shutdown_hint_short">Güvenilmeyen bir Wi-Fi\'de Kablosuz Hata Ayıklama\'yı kapatır.</string>
+    <string name="untrusted_shutdown_hint_short">Güvenilmeyen bir Wi-Fi\'de Wifi-ADB\'yi kapatır.</string>
     <string name="security_check_hint_short">Güvenilen bir Wi-Fi noktasının güvenliği zayıflarsa otomatik açmayı duraklatır.</string>
     <string name="hint_more">Daha fazla ▾</string>
     <string name="hint_less">Daha az ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Bilinmiyor</string>
     <string name="network_badge_blocked">Engellendi</string>
     <string name="networks_title">Wi-Fi ağları</string>
-    <string name="networks_intro">Keep-Alive, Kablosuz Hata Ayıklamayı güvenilir ağlarda yeniden açabilir, engellenen ağlarda asla. Elle açmak her zaman çalışır.</string>
+    <string name="networks_intro">Keep-Alive, Wifi-ADB\'yi güvenilir ağlarda yeniden açabilir, engellenen ağlarda asla. Elle açmak her zaman çalışır.</string>
     <string name="networks_glossary_toggle">Terimler açıklandı</string>
     <string name="networks_glossary_ssid">Wi-Fi adı (SSID): bir Wi-Fi ağının yayınladığı ad. Herkes aynı adla bir ağ kurabilir.</string>
     <string name="networks_glossary_bssid">Erişim noktası (BSSID): bir yönlendirici, tekrarlayıcı veya mesh düğümü gibi tek bir verici. Donanım adresi, örneğin AA:BB:CC:11:22:33, addan daha belirleyicidir ama o da bir kanıt değildir.</string>
     <string name="untrusted_shutdown_title">Güvenilmeyen Wi-Fi\'de kapat</string>
-    <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Kablosuz Hata Ayıklama\'yı kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Wifi-ADB\'yi kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
     <string name="untrusted_shutdown_channel_name">Güvenilmeyen Wi-Fi\'de kapatma</string>
-    <string name="untrusted_shutdown_channel_desc">KeepADB güvenilmeyen bir Wi-Fi\'de Kablosuz Hata Ayıklama\'yı kapattığında bildirir.</string>
-    <string name="untrusted_shutdown_off_title">Kablosuz Hata Ayıklama kapatıldı</string>
+    <string name="untrusted_shutdown_channel_desc">KeepADB güvenilmeyen bir Wi-Fi\'de Wifi-ADB\'yi kapattığında bildirir.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB kapatıldı</string>
     <string name="untrusted_shutdown_off_text">Geçerli Wi-Fi güvenilir değil veya tanımlanamıyor. Keep-Alive güvenilir bir Wi-Fi\'de tekrar açar.</string>
-    <string name="untrusted_shutdown_failed_title">Kablosuz Hata Ayıklama kapatılamadı</string>
-    <string name="untrusted_shutdown_failed_text">Geçerli Wi-Fi güvenilir değil ancak Kablosuz Hata Ayıklama kapatılamadı. Elle kapat.</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB kapatılamadı</string>
+    <string name="untrusted_shutdown_failed_text">Geçerli Wi-Fi güvenilir değil ancak Wifi-ADB kapatılamadı. Elle kapat.</string>
     <string name="security_check_title">Güvenilen Wi-Fi noktalarının Wi-Fi güvenliğini denetle</string>
-    <string name="security_check_hint">Android 12 ve üzeri: Bir Wi-Fi noktasına güvendiğinde KeepADB onun güvenlik düzeyini (açık, kişisel veya kurumsal) kaydeder. Daha sonra daha düşük veya okunamayan bir düzeyle bağlanırsa, ona yeniden güvenene kadar Keep-Alive orada Kablosuz Hata Ayıklama\'yı kendiliğinden açmaz. Bu, Wi-Fi noktasının gerçek olduğunu kanıtlamaz. Bu seçenekten önce güvenilen Wi-Fi noktaları, onlara yeniden güvenene kadar yalnızca adresle denetlenir.</string>
+    <string name="security_check_hint">Android 12 ve üzeri: Bir Wi-Fi noktasına güvendiğinde KeepADB onun güvenlik düzeyini (açık, kişisel veya kurumsal) kaydeder. Daha sonra daha düşük veya okunamayan bir düzeyle bağlanırsa, ona yeniden güvenene kadar Keep-Alive orada Wifi-ADB\'yi kendiliğinden açmaz. Bu, Wi-Fi noktasının gerçek olduğunu kanıtlamaz. Bu seçenekten önce güvenilen Wi-Fi noktaları, onlara yeniden güvenene kadar yalnızca adresle denetlenir.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) güvenilen bir nokta, ancak Wi-Fi güvenliği güvendiğin zamandakinden düşük veya okunamıyor. Ona yalnızca bu değişikliği bekliyorsan yeniden güven.</string>
     <string name="network_prompt_security_confirm_in_app_text">Güvenilen bir Wi-Fi noktasının Wi-Fi güvenliği değişti — uygulamada kontrol etmek için dokun.</string>
     <string name="network_prompt_security_title">Güvenilen bir Wi-Fi noktasının güvenliği değişti</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Ad güvenilir</string>
     <string name="networks_badge_name_blocked">Ad engellendi</string>
     <string name="networks_badge_unknown">Bilinmiyor</string>
-    <string name="networks_current_trusted">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir.</string>
+    <string name="networks_current_trusted">Keep-Alive burada Wifi-ADB\'yi yeniden açabilir.</string>
     <string name="networks_current_trusted_name">Wi-Fi adı nedeniyle güvenilir. Bu erişim noktasına ayrıca güvenebilir veya onu engelleyebilirsin.</string>
     <string name="networks_current_legacy">Yalnızca önceki “Tüm Wi-Fi ağlarında” ayarı nedeniyle geçerlidir. Bu erişim noktasına yine de güvenebilir veya onu engelleyebilirsin.</string>
     <string name="networks_tap_to_change">Değiştirmek için dokun.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Otomatik yeniden etkinleştirme duraklatıldı: Konum kapalı olduğu için Android hangi erişim noktasına bağlı olduğunu gizler.</string>
     <string name="network_cause_unreadable_all_wifi">Ağ şu anda okunamıyor. Otomatik yeniden etkinleştirme devam edebilir, ancak kayıtlı erişim noktalarını veya Wi-Fi adlarını denetlemek için okunabilir ağ bilgileri gerekir.</string>
     <string name="network_cause_not_allowed">Otomatik yeniden etkinleştirme duraklatıldı: bu erişim noktası güvenilir değil.</string>
-    <string name="network_cause_blocked">Bu ağ engellendi: Keep-Alive burada Kablosuz Hata Ayıklamayı asla açmaz ve sormaz. Elle açmak her zaman çalışır.</string>
-    <string name="network_cause_allowed">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir. Bu Wi-Fi adına sahip okunabilen her erişim noktası kabul edilir.</string>
+    <string name="network_cause_blocked">Bu ağ engellendi: Keep-Alive burada Wifi-ADB\'yi asla açmaz ve sormaz. Elle açmak her zaman çalışır.</string>
+    <string name="network_cause_allowed">Keep-Alive burada Wifi-ADB\'yi yeniden açabilir.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive burada Wifi-ADB\'yi yeniden açabilir. Bu Wi-Fi adına sahip okunabilen her erişim noktası kabul edilir.</string>
     <string name="network_cause_all_wifi">“Tüm Wi-Fi ağlarında” etkin, bu yüzden Keep-Alive burada yeniden açabilir. Bu modda güvenilirlik listeleri dikkate alınmaz.</string>
     <string name="network_action_allow_ap">Bu erişim noktasına güven</string>
     <string name="network_action_location_settings">Konum ayarlarını aç</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Zorunlu mod</string>
-    <string name="force_section_hint">Kablosuz hata ayıklamayı seçtiğiniz süre boyunca her ağda yeniden açar. Engellemeler ve güvenilir ağlar bu sürede geçerli değildir.</string>
+    <string name="force_section_hint">Wifi-ADB\'yi seçtiğiniz süre boyunca her ağda yeniden açar. Engellemeler ve güvenilir ağlar bu sürede geçerli değildir.</string>
     <string name="force_status_off">Kapalı</string>
     <string name="force_status_until">Şu zamana kadar açık: %1$s</string>
     <string name="force_status_unlimited">Açık, bitiş zamanı yok</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Zorunlu modu bitir</string>
     <string name="force_action_change">Süreyi değiştir…</string>
     <string name="force_dialog_title">Zorunlu mod açılsın mı?</string>
-    <string name="force_dialog_intro">Keep-Alive bu durumda kablosuz hata ayıklamayı her ağda yeniden açar: bilinmeyen, engellenmiş ve okunamayan ağlar dahil.</string>
+    <string name="force_dialog_intro">Keep-Alive bu durumda Wifi-ADB\'yi her ağda yeniden açar: bilinmeyen, engellenmiş ve okunamayan ağlar dahil.</string>
     <string name="force_dialog_duration_label">Ne kadar süreyle?</string>
     <string name="force_duration_1h">1 saat</string>
     <string name="force_duration_24h">24 saat</string>
     <string name="force_duration_7d">7 gün</string>
     <string name="force_duration_30d">30 gün</string>
     <string name="force_duration_unlimited">Bitiş zamanı yok</string>
-    <string name="force_warning_all">Kablosuz hata ayıklama ağda bir bağlantı noktası açar. Daha önce eşleştirdiğiniz bilgisayarlar bunun üzerinden tam ADB erişimi alır: uygulama yükleme, veri okuma, ekran kaydı. Bilinmeyen ağlarda kimin denediğini bilemezsiniz.
+    <string name="force_warning_all">Wifi-ADB ağda bir bağlantı noktası açar. Daha önce eşleştirdiğiniz bilgisayarlar bunun üzerinden tam ADB erişimi alır: uygulama yükleme, veri okuma, ekran kaydı. Bilinmeyen ağlarda kimin denediğini bilemezsiniz.
 
 Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
 
 İstediğiniz zaman ana ekrandan veya bildirimden bitirebilirsiniz.</string>
-    <string name="force_warning_days">Birkaç gün içinde şu an aklınıza gelmeyen ağlara bağlanacaksınız: otel, tren, kafe, iş yeri. Hata ayıklama oralarda size sorulmadan açılır.</string>
+    <string name="force_warning_days">Birkaç gün içinde şu an aklınıza gelmeyen ağlara bağlanacaksınız: otel, tren, kafe, iş yeri. Wifi-ADB oralarda size sorulmadan açılır.</string>
     <string name="force_warning_unlimited">Bitiş zamanı olmadan zorunlu mod, siz bitirene kadar açık kalır; yeniden başlatmalardan ve uygulama güncellemelerinden sonra da.</string>
-    <string name="force_unlimited_ack">Kablosuz hata ayıklamanın o zaman her ağda açılacağını anlıyorum.</string>
+    <string name="force_unlimited_ack">Wifi-ADB\'nin o zaman her ağda açılacağını anlıyorum.</string>
     <string name="force_keepalive_hint">Zorunlu mod yalnızca Keep-Alive ile çalışır. Keep-Alive birlikte açılır.</string>
     <string name="force_not_started_toast">Zorunlu mod açılmadı: bu cihazda zaman sınırı şu anda güvenilir biçimde uygulanamıyor. Hiçbir şey değiştirilmedi.</string>
     <string name="force_confirm_1h">1 saatliğine aç</string>
@@ -419,8 +419,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="force_confirm_30d">30 günlüğüne aç</string>
     <string name="force_confirm_unlimited">Bitiş zamanı olmadan aç</string>
     <string name="force_card_title">Zorunlu mod açık</string>
-    <string name="force_card_text_until">Kablosuz hata ayıklama her ağda yeniden açılır. Şu zamana kadar açık: %1$s.</string>
-    <string name="force_card_text_unlimited">Kablosuz hata ayıklama her ağda yeniden açılır. Bitiş zamanı yok.</string>
+    <string name="force_card_text_until">Wifi-ADB her ağda yeniden açılır. Şu zamana kadar açık: %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB her ağda yeniden açılır. Bitiş zamanı yok.</string>
     <string name="force_ended_toast">Zorunlu mod bitti. Koruma düzeyi yeniden: %1$s.</string>
     <string name="force_notification_until">Zorunlu mod şu zamana kadar açık: %1$s</string>
     <string name="force_notification_unlimited">Zorunlu mod açık, bitiş zamanı yok</string>
@@ -429,7 +429,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="force_expired_title">Zorunlu mod bitti</string>
     <string name="force_expired_text">Seçilen süre doldu. Koruma düzeyi yeniden: %1$s. Keep-Alive artık yalnızca koruma düzeyinin izin verdiği yerlerde açar.</string>
     <string name="force_expired_text_safety">Zorunlu mod güvenlik nedeniyle erken sona erdi: kalan süre güvenilir biçimde denetlenemedi. Koruma düzeyi yeniden: %1$s. Keep-Alive artık yalnızca koruma düzeyinin izin verdiği yerlerde açar.</string>
-    <string name="force_expired_still_on">Kablosuz hata ayıklama şu anda hâlâ açık.</string>
+    <string name="force_expired_still_on">Wifi-ADB şu anda hâlâ açık.</string>
     <string name="force_expired_action_off">Şimdi kapat</string>
     <string name="force_level_maximum">Azami güvenlik</string>
     <string name="force_level_balanced">Dengeli</string>
@@ -465,11 +465,11 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_privacy_summary_off">Gizlilik: hiçbir şey gizli değil</string>
     <string name="onboarding_privacy_summary_on">Gizlilik: %1$d / %2$d açık</string>
     <string name="onboarding_privacy_change">Değiştir</string>
-    <string name="onboarding_keep_alive_question">Kablosuz Hata Ayıklama yeniden başlatma veya bağlantı kopmasından sonra kendiliğinden tekrar açılsın mı?</string>
-    <string name="onboarding_keep_alive_off_body">Kablosuz Hata Ayıklamayı uygulamadan, karodan veya widget’tan kendiniz açarsınız. Yeniden başlatmadan sonra kapalı kalır.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB, yeniden başlatma veya bağlantı kopmasından sonra Kablosuz Hata Ayıklamayı tekrar açar; ancak yalnızca koruma düzeyinizin izin verdiği yerlerde (sonraki adım).</string>
+    <string name="onboarding_keep_alive_question">Wifi-ADB yeniden başlatma veya bağlantı kopmasından sonra kendiliğinden tekrar açılsın mı?</string>
+    <string name="onboarding_keep_alive_off_body">Wifi-ADB\'yi uygulamadan, karodan veya widget’tan kendiniz açarsınız. Yeniden başlatmadan sonra kapalı kalır.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB, yeniden başlatma veya bağlantı kopmasından sonra Wifi-ADB\'yi tekrar açar; ancak yalnızca koruma düzeyinizin izin verdiği yerlerde (sonraki adım).</string>
     <string name="onboarding_protection_title">Koruma düzeyi</string>
-    <string name="onboarding_protection_question">Keep-Alive, Kablosuz Hata Ayıklamayı nerelerde kendiliğinden açabilir?</string>
+    <string name="onboarding_protection_question">Keep-Alive, Wifi-ADB\'yi nerelerde kendiliğinden açabilir?</string>
     <string name="onboarding_protection_max_body">Yalnızca güvendiğiniz erişim noktalarında. Bilinmeyenleri KeepADB size sorar.</string>
     <string name="onboarding_protection_balanced_body">Güvenilir bir Wi-Fi’nin adını taşıyan her erişim noktasında da. Mesh ve tekrarlayıcılarda daha rahat, ancak bir adı taklit etmek kolaydır.</string>
     <string name="onboarding_protection_legacy_all_body">Siz engellemedikçe her Wi-Fi ağı güvenilir sayılır. Bu ayardan çıkmak için aşağıdan bir düzey seçin.</string>
@@ -493,7 +493,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_permissions_summary_done">Hepsi tamam</string>
     <string name="onboarding_permissions_summary_missing">Eksik: %1$d</string>
     <string name="onboarding_perm_system_title">Sistem izni</string>
-    <string name="onboarding_perm_system_body">Bu izin olmadan KeepADB Kablosuz Hata Ayıklama’yı açıp kapatamaz. Bir bilgisayardan yalnızca bir kez verin:</string>
+    <string name="onboarding_perm_system_body">Bu izin olmadan KeepADB Wifi-ADB\'yi açıp kapatamaz. Bir bilgisayardan yalnızca bir kez verin:</string>
     <string name="onboarding_perm_system_more">Birden çok cihaz veya sorunlar?</string>
     <string name="onboarding_copy_command">Komutu kopyala</string>
     <string name="onboarding_copy_done">Komut kopyalandı</string>
@@ -508,8 +508,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_network_title">Güvenilir Wi-Fi</string>
     <string name="onboarding_network_question">KeepADB şu anda bağlı olduğunuz Wi-Fi ağına güvensin mi?</string>
     <string name="onboarding_network_privacy_note">Gizlilik açık: ad ve adres, “Göster”e dokunana kadar gizli kalır.</string>
-    <string name="onboarding_network_open_list">Ağlar listesinde değiştir</string>
-    <string name="onboarding_webhook_question">İsteğe bağlı. Kablosuz hata ayıklamanın geçerli adresini, örneğin ev ağındaki ya da VPN’indeki kendi sunucuna bildirir. Çoğu kişinin buna ihtiyacı yoktur. “URL’yi Kaydet” düğmesine dokunana kadar hiçbir şey kaydedilmez.</string>
+    <string name="onboarding_network_open_list">“Wi-Fi ağları” içinde değiştir</string>
+    <string name="onboarding_webhook_question">İsteğe bağlı. Wifi-ADB\'nin geçerli adresini, örneğin ev ağındaki ya da VPN’indeki kendi sunucuna bildirir. Çoğu kişinin buna ihtiyacı yoktur. “URL’yi Kaydet” düğmesine dokunana kadar hiçbir şey kaydedilmez.</string>
     <string name="onboarding_protection_force_title">En rahat (zorunlu mod)</string>
     <string name="onboarding_protection_force_body">Bilinmeyenler dahil her ağda, seçtiğin süre boyunca. Önce onaylaman gerekir.</string>
     <string name="onboarding_protection_force_keep_alive">Zorunlu mod yalnızca Keep-Alive ile çalışır. Keep-Alive onunla birlikte açılır.</string>
@@ -517,7 +517,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_protection_force_comfort_note">Zorunlu mod bittikten sonra geçerli olur.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Sistem izni eksik</string>
-    <string name="home_warning_system_text">KeepADB, bu izni bir kez bilgisayardan vermeden Kablosuz Hata Ayıklama’yı açıp kapatamaz.</string>
+    <string name="home_warning_system_text">KeepADB, bu izni bir kez bilgisayardan vermeden Wifi-ADB\'yi açıp kapatamaz.</string>
     <string name="home_warning_action_guide">Yönergeler</string>
     <string name="home_warning_less_secure_title">Önerilenden daha az güvenli</string>
     <string name="home_warning_action_review">İncele</string>
@@ -588,8 +588,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB denetimleri</string>
-    <string name="widget_picker_description">Kablosuz hata ayıklama, Keep-Alive ve Webhook denetimleri. Büyüttükçe daha fazlasını gösterir.</string>
-    <string name="widget_action_adb">Hata ayıkl.</string>
+    <string name="widget_picker_description">Wifi-ADB, Keep-Alive ve Webhook denetimleri. Büyüttükçe daha fazlasını gösterir.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Oto. eşitleme</string>
     <string name="widget_action_sync_description">Otomatik Webhook eşitleme</string>

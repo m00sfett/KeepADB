@@ -21,57 +21,100 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 
 /**
- * #770: pins the glossary of the UX concept (section 6) per locale. Retired terms must not come
- * back in any string, and the cross-locale rules (one word for "unknown", Wireless Debugging
- * instead of "Wifi-ADB" outside the short notification forms) hold in every language. Reads the
- * source files, so no resource compilation is involved.
+ * #770, #965: pins the glossary of the UX concept (section 6) per locale. Retired terms must not
+ * come back in any string, and the cross-locale rules hold in every language: one word for
+ * "unknown"; "Wifi-ADB" and "Keep-Alive" are the one spelling of KeepADB's switch and of the
+ * automatic re-enabling; Android's own setting keeps Android's localized name and appears only in
+ * quotation marks (a reviewed, pinned list); the endpoint is "Port &lt;port&gt; @ &lt;ip&gt;" and the
+ * narrow surfaces show "Port &lt;port&gt;". The docs, README and store texts follow the same rules.
+ * Reads the source files, so no resource compilation is involved.
  */
 public class KeepADBGlossaryContractTest {
     private static final Pattern STRING =
             Pattern.compile("<string name=\"([^\"]+)\"[^>]*>(.*?)</string>", Pattern.DOTALL);
 
-    /** Short forms of "Wifi-ADB" that the glossary allows (notification titles and actions). */
-    private static final Set<String> WIFI_ADB_ALLOWED = new HashSet<>(Arrays.asList(
-            "notification_title_active", "notification_title_disabled",
-            "notification_action_disable",
-            // #954: launcher shortcut labels; the maintainer chose "Toggle Wifi-ADB" (2026-11-15).
-            "shortcut_toggle_short", "shortcut_toggle_long",
-            // #957: the state line of the home screen and the widgets names KeepADB's own switch;
-            // Android's setting keeps Android's name in the reason lines. #952: so does the help
-            // for connecting a computer, where its third step names KeepADB's switch.
-            "home_state_on", "home_state_off", "connect_help_step_connect"));
+    /**
+     * Android's own setting "Wireless debugging" as the system names it in each language (the
+     * locale suffix is the value-directory suffix, "" is English). KeepADB's switch is "Wifi-ADB"
+     * (#965); this name may appear only in quotation marks and only in {@link #ANDROID_NAME_KEYS}.
+     * Declined forms of one language are separated by a bar.
+     */
+    private static final Map<String, String> ANDROID_NAME = new LinkedHashMap<>();
+
+    static {
+        ANDROID_NAME.put("", "Wireless debugging");
+        ANDROID_NAME.put("-ar", "تصحيح الأخطاء اللاسلكي");
+        ANDROID_NAME.put("-de", "Drahtloses Debugging");
+        ANDROID_NAME.put("-es", "Depuración inalámbrica");
+        ANDROID_NAME.put("-fr", "Débogage sans fil");
+        ANDROID_NAME.put("-hi", "वायरलेस डीबगिंग");
+        ANDROID_NAME.put("-in", "Debugging nirkabel");
+        ANDROID_NAME.put("-it", "Debug wireless");
+        ANDROID_NAME.put("-ja", "ワイヤレスデバッグ");
+        ANDROID_NAME.put("-ko", "무선 디버깅");
+        ANDROID_NAME.put("-nl", "Draadloze foutopsporing");
+        ANDROID_NAME.put("-pl", "Debugowanie bezprzewodowe");
+        ANDROID_NAME.put("-pt", "Depuração sem fio");
+        ANDROID_NAME.put("-ru", "Беспроводная отладка|Беспроводную отладку");
+        ANDROID_NAME.put("-tr", "Kablosuz hata ayıklama");
+        ANDROID_NAME.put("-uk", "Бездротове налагодження");
+        ANDROID_NAME.put("-vi", "Gỡ lỗi không dây");
+        ANDROID_NAME.put("-zh-rCN", "无线调试");
+        ANDROID_NAME.put("-zh-rTW", "無線偵錯");
+    }
+
+    /**
+     * The reviewed list of the strings that name Android's own setting (#965): where the text sends
+     * the user to the developer options, or refers to Android's dialog. Everywhere else the app
+     * says "Wifi-ADB". A new entry needs a deliberate decision here.
+     */
+    private static final Set<String> ANDROID_NAME_KEYS = new HashSet<>(Arrays.asList(
+            "connect_help_step_phone", "setup_state_offline_body", "toggle_subtext",
+            "status_off_keep_alive_blocked_recovery_backoff", "home_reason_backoff"));
+
+    /** Quotation marks that may open the quoted Android name, in the languages of the app. */
+    private static final String OPENING_QUOTES = "“«„‘「\"";
+
+    /**
+     * Old and variant spellings that must not return, in any locale (English wording in code,
+     * docs and store texts as well): the product terms are "Wifi-ADB" and "Keep-Alive" (#965).
+     */
+    private static final List<String> VARIANT_SPELLINGS = Arrays.asList(
+            "Wi-Fi ADB", "WiFi ADB", "Wifi ADB", "WiFi-ADB", "Wi-Fi-ADB", "Wireless ADB",
+            "wireless ADB", "Keep alive", "keep alive", "Keep-alive", "keep-alive", "KeepAlive",
+            "Keepalive", "Keep persistently active", "Networks list", "network list");
 
     /** Retired terms per locale directory suffix ("" is the English reference). */
     private static final Map<String, List<String>> RETIRED = new LinkedHashMap<>();
 
     static {
         RETIRED.put("", Arrays.asList("Background access", "network identity", "Allowed access point",
-                "allowed list", "allowed access points"));
+                "allowed list", "allowed access points", "Keep persistently active"));
         RETIRED.put("-de", Arrays.asList("Zugangspunkt", "Netzwerkname", "Freigabeliste", "reigegeben",
-                "Endpoint", "Hintergrundzugriff", "AP-Wechsel", "vertrauenswürdig"));
+                "Endpoint", "Hintergrundzugriff", "AP-Wechsel", "vertrauenswürdig", "Dauerhaft aktiv halten", "Netzwerkliste"));
         RETIRED.put("-es", Arrays.asList("Acceso en segundo plano", "de permitidos",
-                "puntos de acceso permitidos", "Punto de acceso permitido", "endpoint"));
+                "puntos de acceso permitidos", "Punto de acceso permitido", "endpoint", "Mantener siempre activo", "Mantener activo", "lista Redes"));
         RETIRED.put("-fr", Arrays.asList("Accès en arrière-plan", "d’autorisés",
-                "points d’accès autorisés", "Point d’accès autorisé", "de confiance"));
+                "points d’accès autorisés", "Point d’accès autorisé", "de confiance", "Maintenir actif en permanence"));
         RETIRED.put("-it", Arrays.asList("attendibil", "Accesso in background", "dei consentiti",
-                "access point"));
-        RETIRED.put("-pt", Arrays.asList("confiáve", "Acesso em segundo plano", "de permitidos"));
+                "access point", "Mantieni sempre attivo", "elenco Reti"));
+        RETIRED.put("-pt", Arrays.asList("confiáve", "Acesso em segundo plano", "de permitidos", "Manter sempre ativo", "lista Redes"));
         RETIRED.put("-nl", Arrays.asList("toegangspunt", "Achtergrondtoegang", "toegestane",
-                "draadloos debuggen", "Draadloos debuggen"));
-        RETIRED.put("-pl", Arrays.asList("punktów dostępu", "punkt dostępu", "Dozwolon", "listy dozwolonych", "dozwolonych punktów", "Dostęp w tle"));
-        RETIRED.put("-ru", Arrays.asList("Разрешённ", "разрешённ", "Фоновый доступ", "эндпоинт"));
-        RETIRED.put("-tr", Arrays.asList("Arka plan erişimi", "izin verilen erişim"));
+                "draadloos debuggen", "Draadloos debuggen", "Permanent actief houden", "lijst Netwerken"));
+        RETIRED.put("-pl", Arrays.asList("punktów dostępu", "punkt dostępu", "Dozwolon", "listy dozwolonych", "dozwolonych punktów", "Dostęp w tle", "Utrzymuj stale aktywne", "liście Sieci"));
+        RETIRED.put("-ru", Arrays.asList("Разрешённ", "разрешённ", "Фоновый доступ", "эндпоинт", "Поддерживать постоянно активным", "списке сетей"));
+        RETIRED.put("-tr", Arrays.asList("Arka plan erişimi", "izin verilen erişim", "Sürekli aktif tut", "Ağlar listesi"));
         RETIRED.put("-uk", Arrays.asList("Дозволені точки", "Дозволена точка", "списку дозволених",
-                "Фоновий доступ"));
+                "Фоновий доступ", "Підтримувати постійно активним", "списку мереж"));
         RETIRED.put("-vi", Arrays.asList("đáng tin cậy", "Truy cập nền", "Endpoint",
-                "danh sách được phép"));
-        RETIRED.put("-in", Arrays.asList("tepercaya", "Akses latar belakang", "daftar yang diizinkan"));
-        RETIRED.put("-ja", Arrays.asList("許可リスト", "バックグラウンドアクセス", "信頼できるネットワーク"));
-        RETIRED.put("-ko", Arrays.asList("허용 목록", "백그라운드 액세스"));
-        RETIRED.put("-zh-rCN", Arrays.asList("受信任", "允许列表", "后台访问"));
-        RETIRED.put("-zh-rTW", Arrays.asList("受信任", "允許清單", "背景存取"));
-        RETIRED.put("-ar", Arrays.asList("المسموح", "الوصول في الخلفية"));
-        RETIRED.put("-hi", Arrays.asList("विश्वसनीय", "अनुमति सूची", "बैकग्राउंड एक्सेस", "एक्सेस पॉइंट"));
+                "danh sách được phép", "Luôn duy trì hoạt động", "danh sách Mạng"));
+        RETIRED.put("-in", Arrays.asList("tepercaya", "Akses latar belakang", "daftar yang diizinkan", "Pertahankan selalu aktif", "daftar Jaringan"));
+        RETIRED.put("-ja", Arrays.asList("許可リスト", "バックグラウンドアクセス", "信頼できるネットワーク", "常にアクティブに保つ", "ネットワーク一覧"));
+        RETIRED.put("-ko", Arrays.asList("허용 목록", "백그라운드 액세스", "지속적으로 활성 상태 유지", "네트워크 목록"));
+        RETIRED.put("-zh-rCN", Arrays.asList("受信任", "允许列表", "后台访问", "保持持久启用", "保持常驻", "网络列表"));
+        RETIRED.put("-zh-rTW", Arrays.asList("受信任", "允許清單", "背景存取", "保持永久啟用", "保持常駐", "網路清單"));
+        RETIRED.put("-ar", Arrays.asList("المسموح", "الوصول في الخلفية", "إبقاء مفعلًا باستمرار", "قائمة الشبكات"));
+        RETIRED.put("-hi", Arrays.asList("विश्वसनीय", "अनुमति सूची", "बैकग्राउंड एक्सेस", "एक्सेस पॉइंट", "लगातार सक्रिय रखें", "नेटवर्क सूची"));
     }
 
     /** The webhook plain-text warning talks about a trusted LAN, not about Keep-Alive trust. */
@@ -91,17 +134,6 @@ public class KeepADBGlossaryContractTest {
         }
     }
 
-    @Test
-    public void wifiAdbOnlyAppearsInTheAllowedShortForms() throws IOException {
-        for (String locale : RETIRED.keySet()) {
-            for (Map.Entry<String, String> entry : strings(locale).entrySet()) {
-                if (WIFI_ADB_ALLOWED.contains(entry.getKey())) continue;
-                assertFalse("values" + locale + "/" + entry.getKey() + " uses 'Wifi-ADB'",
-                        entry.getValue().contains("Wifi-ADB"));
-            }
-        }
-    }
-
     /** #957: "ON (Connected)" read as "a computer is connected"; the state never says that. */
     @Test
     public void noStateOfTheSwitchIsCalledConnectedOrDisconnected() throws IOException {
@@ -112,6 +144,109 @@ public class KeepADBGlossaryContractTest {
             String value = english.get(key);
             assertFalse(key + ": " + value, value.contains("onnected"));
         }
+    }
+
+    /** #965: one name for KeepADB's switch, one for the automation, one for the list of networks. */
+    @Test
+    public void theProductTermsAreSpelledTheSameInEveryLocale() throws IOException {
+        for (String locale : RETIRED.keySet()) {
+            Map<String, String> values = strings(locale);
+            String where = "values" + locale + "/";
+            for (String key : new String[] {"toggle_label", "widget_action_adb"}) {
+                assertEquals(where + key, "Wifi-ADB", values.get(key));
+            }
+            for (String key : new String[] {"keep_alive_toggle", "settings_section_keep_alive",
+                    "widget_action_keep_alive"}) {
+                assertEquals(where + key, "Keep-Alive", values.get(key));
+            }
+            for (String key : new String[] {"home_state_on", "home_state_off",
+                    "notification_title_active", "notification_title_disabled",
+                    "notification_action_disable", "shortcut_toggle_short",
+                    "shortcut_toggle_long", "status_off_keep_alive_waiting"}) {
+                assertTrue(where + key + " names the switch: " + values.get(key),
+                        values.get(key).contains("Wifi-ADB"));
+            }
+            assertEquals(where + "home_action_networks leads to the list and names it as it is",
+                    values.get("networks_title"), values.get("home_action_networks"));
+        }
+        assertFalse(strings("").containsKey("tile_state_connected_format"));
+    }
+
+    /**
+     * #965: Android's own "Wireless debugging" keeps its localized Android name, in quotation
+     * marks, and only where the text sends the user to the developer options or names Android's
+     * dialog. This is the reviewed list of every remaining occurrence: the pinned set below is
+     * exactly the five strings of {@link #ANDROID_NAME_KEYS}, in every locale.
+     */
+    @Test
+    public void androidsOwnSettingIsNamedOnlyInQuotesAndOnlyInTheReviewedStrings() throws IOException {
+        for (Map.Entry<String, String> locale : ANDROID_NAME.entrySet()) {
+            Set<String> found = new HashSet<>();
+            for (String form : locale.getValue().split("\\|")) {
+                String needle = form.toLowerCase(java.util.Locale.ROOT);
+                for (Map.Entry<String, String> entry : strings(locale.getKey()).entrySet()) {
+                    String text = entry.getValue();
+                    String lower = text.toLowerCase(java.util.Locale.ROOT);
+                    for (int at = lower.indexOf(needle); at >= 0; at = lower.indexOf(needle, at + 1)) {
+                        String where = "values" + locale.getKey() + "/" + entry.getKey() + ": " + text;
+                        assertTrue(where + " names Android's setting but is not on the reviewed list",
+                                ANDROID_NAME_KEYS.contains(entry.getKey()));
+                        int before = at - 1;
+                        while (before >= 0 && isGap(text.charAt(before))) before--;
+                        assertTrue(where + " does not put Android's name in quotation marks",
+                                before >= 0 && OPENING_QUOTES.indexOf(text.charAt(before)) >= 0);
+                        found.add(entry.getKey());
+                    }
+                }
+            }
+            assertEquals("values" + locale.getKey() + ": the reviewed strings name Android's setting",
+                    ANDROID_NAME_KEYS, found);
+        }
+    }
+
+    /** #965: no variant spelling of the terms, in any locale. */
+    @Test
+    public void noVariantSpellingOfTheProductTermsInAnyLocale() throws IOException {
+        Pattern keepAlive = Pattern.compile("(?i)keep[ -]?alive");
+        for (String locale : RETIRED.keySet()) {
+            for (Map.Entry<String, String> entry : strings(locale).entrySet()) {
+                String where = "values" + locale + "/" + entry.getKey() + ": " + entry.getValue();
+                for (String variant : VARIANT_SPELLINGS) {
+                    assertFalse(where + " uses '" + variant + "'", entry.getValue().contains(variant));
+                }
+                Matcher m = keepAlive.matcher(entry.getValue());
+                while (m.find()) {
+                    assertEquals(where + " spells Keep-Alive differently", "Keep-Alive", m.group());
+                }
+            }
+        }
+    }
+
+    /** #965: one endpoint format; the narrow surfaces (tile, small widget) show the port only. */
+    @Test
+    public void theEndpointIsPortAtIpAndTheNarrowSurfacesShowThePortOnly() throws IOException {
+        String joiner = " @ %2$s";
+        for (String locale : RETIRED.keySet()) {
+            Map<String, String> values = strings(locale);
+            String full = values.get("endpoint_port_at_ip");
+            assertTrue("values" + locale + ": " + full, full.contains("%1$d") && full.endsWith(joiner));
+            assertEquals("values" + locale + ": the port-only form is the full form without the address",
+                    full.substring(0, full.length() - joiner.length()), values.get("endpoint_port_only"));
+            for (Map.Entry<String, String> entry : values.entrySet()) {
+                String where = "values" + locale + "/" + entry.getKey() + ": " + entry.getValue();
+                assertFalse(where + " shows the endpoint as ip:port", entry.getValue().contains("%1$s:%2$d"));
+                assertFalse(where + " shows the endpoint as ip:port", entry.getValue().contains("IP:"));
+                if (!"settings_webhook_url_hint".equals(entry.getKey())) {
+                    assertFalse(where + " shows the endpoint as host:port",
+                            entry.getValue().contains("host:port"));
+                }
+            }
+        }
+    }
+
+    /** Space, no-break space or narrow no-break space between a quotation mark and its text. */
+    private static boolean isGap(char c) {
+        return Character.isWhitespace(c) || c == '\u00a0' || c == '\u202f';
     }
 
     @Test

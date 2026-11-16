@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Zastąp &lt;device-serial&gt; dokładnym numerem seryjnym, który "adb devices" pokazał dla tego urządzenia.</string>
     <string name="setup_state_offline_title">Urządzenie pokazuje "offline"?</string>
-    <string name="setup_state_offline_body">Połączenie zostało przerwane. Podłącz ponownie kabel USB lub włącz ponownie debugowanie bezprzewodowe na telefonie, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
+    <string name="setup_state_offline_body">Połączenie zostało przerwane. Podłącz ponownie kabel USB lub włącz ponownie „Debugowanie bezprzewodowe” w opcjach programisty, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_state_unauthorized_title">Urządzenie pokazuje "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Potwierdź monit o autoryzację debugowania na ekranie tego telefonu, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_refresh">Sprawdź uprawnienia</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB przez VPN</string>
     <string name="transport_row_format">%1$s: %2$s · ostatnio sprawdzono %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transport podstawowy</string>
-    <string name="toggle_label">Debugowanie bezprzewodowe</string>
-    <string name="toggle_subtext">Włącza lub wyłącza debugowanie bezprzewodowe dla ADB przez Wi-Fi.</string>
-    <string name="keep_alive_toggle">Utrzymuj stale aktywne</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Włącza lub wyłącza „Debugowanie bezprzewodowe” w Androidzie, aby komputer mógł połączyć się z tym telefonem przez Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
     <string name="tile_permission_error">%1$s: Brak uprawnień (wymagane pm grant)</string>
     <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Punkt końcowy debugowania bezprzewodowego</string>
-    <string name="notification_channel_desc">Bieżący adres IP i port debugowania bezprzewodowego</string>
+    <string name="notification_channel_name">Punkt końcowy Wifi-ADB</string>
+    <string name="notification_channel_desc">Bieżący adres IP i port Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB włączone</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB wyłączone</string>
     <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Dotknij, aby zobaczyć szczegóły połączenia w aplikacji.</string>
     <string name="notification_title_searching">%1$s: Wyszukiwanie punktu końcowego…</string>
     <string name="notification_text_searching">Rozpoznawanie punktu końcowego w sieci lokalnej</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive czeka na ponowne włączenie debugowania bezprzewodowego</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive czeka na ponowne włączenie Wifi-ADB</string>
     <string name="notification_text_keepalive_on">Keep-Alive: włączony</string>
     <string name="notification_text_keepalive_off">Keep-Alive: wyłączony</string>
     <string name="notification_text_webhook_synced">Webhook: zsynchronizowano %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: brak udanej synchronizacji</string>
     <string name="notification_action_keepalive_on">Włącz Keep-Alive</string>
     <string name="notification_action_keepalive_off">Wyłącz Keep-Alive</string>
-    <string name="notification_service_title">Utrzymuj debugowanie bezprzewodowe aktywne</string>
-    <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
+    <string name="notification_service_title">Utrzymuj Wifi-ADB aktywne</string>
+    <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Brak uprawnień</string>
     <string name="notification_permission_panel_title">Powiadomienia</string>
-    <string name="notification_permission_panel_body">Po włączeniu powiadomień widzisz, czy usługa w tle KeepADB i Keep-Alive działają. Jeśli połączenie zostanie utracone, KeepADB od razu Cię poinformuje. Debugowanie bezprzewodowe działa również bez tego uprawnienia.</string>
+    <string name="notification_permission_panel_body">Po włączeniu powiadomień widzisz, czy usługa w tle KeepADB i Keep-Alive działają. Jeśli połączenie zostanie utracone, KeepADB od razu Cię poinformuje. Wifi-ADB działa również bez tego uprawnienia.</string>
     <string name="notification_permission_request_button">Zezwól na powiadomienia</string>
     <string name="notification_permission_settings_button">Otwórz ustawienia powiadomień</string>
     <string name="notification_permission_missing_text">Nadaj WRITE_SECURE_SETTINGS z komputera przez adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Synchronizacja Webhook i punktu końcowego</string>
     <string name="settings_webhook_toggle">Włącz synchronizację Webhook</string>
-    <string name="settings_webhook_subtext">Wysyła aktywny punkt końcowy (IP:port) przez HTTP POST po włączeniu oraz próbuje wysłać DELETE przy wyłączeniu (ponawiane później w razie niepowodzenia).</string>
+    <string name="settings_webhook_subtext">Wysyła aktywny punkt końcowy przez HTTP POST po włączeniu oraz próbuje wysłać DELETE przy wyłączeniu (ponawiane później w razie niepowodzenia).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Adres URL Webhooka</string>
     <string name="settings_webhook_btn_save">Zapisz URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Zaufać tej sieci?</string>
     <string name="network_decision_name_label">Nazwa Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Punkt dostępowy (BSSID)</string>
-    <string name="network_decision_text">Jeśli ufasz temu punktowi dostępowemu, Keep-Alive może tutaj automatycznie ponownie włączyć debugowanie bezprzewodowe. Ręczne włączenie zawsze działa.</string>
+    <string name="network_decision_text">Jeśli ufasz temu punktowi dostępowemu, Keep-Alive może tutaj automatycznie ponownie włączyć Wifi-ADB. Ręczne włączenie zawsze działa.</string>
     <string name="network_decision_comfort_note">Tryb wygody jest włączony: inne punkty dostępowe o nazwie „%1$s” również zostaną zaakceptowane.</string>
     <string name="network_decision_trust">Zaufaj</string>
     <string name="network_decision_block_ap">Zablokuj tylko ten punkt dostępowy</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">jeszcze brak</string>
     <string name="webhook_status_deregistered">wyrejestrowany</string>
     <string name="webhook_status_failed">niepowodzenie</string>
-    <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
+    <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować Wifi-ADB przed nadaniem uprawnień.</string>
     <string name="settings_language_menu_label">Język</string>
     <string name="settings_language_accessibility">Język aplikacji: %1$s</string>
     <string name="settings_language_system_default">Domyślny systemowy</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Inne</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
-    <string name="settings_hide_notification_subtext">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
+    <string name="settings_hide_notification_subtext">Pokazuje stan Wifi-ADB i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan Wifi-ADB i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
     <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Sprawdź wykrywanie w tle</string>
     <string name="background_location_dialog_later">Później</string>
     <string name="background_location_status_granted">Wykrywanie w tle: dozwolone. Zaufane punkty dostępowe są rozpoznawane także wtedy, gdy Keep-Alive uruchamia się w tle. KeepADB nigdy nie odczytuje ani nie zapisuje położenia urządzenia.</string>
-    <string name="background_location_status_missing">Wykrywanie w tle: ograniczone. Gdy Keep-Alive uruchamia się w tle, Android może ukryć, z którym punktem dostępowym jesteś połączony; KeepADB traktuje wtedy sieć jako nieczytelną i nie włącza automatycznie debugowania bezprzewodowego, dopóki nie otworzysz aplikacji.</string>
+    <string name="background_location_status_missing">Wykrywanie w tle: ograniczone. Gdy Keep-Alive uruchamia się w tle, Android może ukryć, z którym punktem dostępowym jesteś połączony; KeepADB traktuje wtedy sieć jako nieczytelną i nie włącza automatycznie Wifi-ADB, dopóki nie otworzysz aplikacji.</string>
     <string name="background_location_status_missing_inactive">Wykrywanie w tle: nie jest wymagane w tej konfiguracji. Służy do sprawdzania punktów dostępowych lub nazw Wi-Fi, gdy Keep-Alive działa w tle.</string>
     <string name="location_permission_panel_title">Wymagane uprawnienie lokalizacji dla zaufanych sieci</string>
     <string name="location_permission_panel_body">Tryb zaufanych sieci wymaga dostępu do lokalizacji, aby rozpoznać Twoją sieć Wi-Fi. Bez tego Keep-Alive nie może potwierdzić zaufanej sieci i nie włączy się automatycznie ponownie.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Dodaj inne przydatne informacje.</string>
     <string name="issue_report_diagnostics_section">Opcjonalne zredagowane dane diagnostyczne KeepADB (sprawdź przed wysłaniem)</string>
     <string name="advice_banner_title">Bezpieczeństwo i sieć</string>
-    <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
+    <string name="advice_banner_text">Wifi-ADB otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
     <string name="settings_license_line">Na licencji GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Otwórz keepadb.roteson.de w przeglądarce</string>
     <string name="settings_no_browser_found">Nie znaleziono aplikacji do otwarcia tego linku.</string>
-    <string name="status_off_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
-    <string name="status_off_keep_alive_blocked_by_user">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi jest zablokowana</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: sieć jest nieczytelna, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci debugowania bezprzewodowego Androida, a następnie dotknij przełącznika, aby spróbować ponownie</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi jest zablokowana</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: sieć jest nieczytelna, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci „Debugowanie bezprzewodowe”, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
     <string name="home_state_on">Wifi-ADB jest włączone</string>
     <string name="home_state_off">Wifi-ADB jest wyłączone</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Brak połączenia Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tu nie włączy: sieć Wi-Fi niezaufana</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tu nie włączy: sieć Wi-Fi zablokowana</string>
-    <string name="home_action_networks">Sieci</string>
+    <string name="home_action_networks">Sieci Wi-Fi</string>
     <string name="home_action_retry">Ponów</string>
     <string name="home_reason_details_action">Pokaż szczegóły</string>
     <string name="state_pending">Przełączanie…</string>
     <string name="tile_state_keep_alive_waiting">Wyłączone – Keep-Alive czeka</string>
-    <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
+    <string name="toggle_failed_toast">Nie udało się przełączyć Wifi-ADB. Spróbuj ponownie.</string>
     <string name="protection_title">Ochrona</string>
     <string name="protection_automatic_title">Zachowanie automatyczne</string>
-    <string name="untrusted_shutdown_hint_short">Wyłącza debugowanie bezprzewodowe w niezaufanej sieci Wi-Fi.</string>
+    <string name="untrusted_shutdown_hint_short">Wyłącza Wifi-ADB w niezaufanej sieci Wi-Fi.</string>
     <string name="security_check_hint_short">Wstrzymuje automatyczne włączanie, gdy zaufany router ma słabsze zabezpieczenia.</string>
     <string name="hint_more">Więcej ▾</string>
     <string name="hint_less">Mniej ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Nieznany</string>
     <string name="network_badge_blocked">Zablokowany</string>
     <string name="networks_title">Sieci Wi-Fi</string>
-    <string name="networks_intro">Keep-Alive może ponownie włączać debugowanie bezprzewodowe w zaufanych sieciach, nigdy w zablokowanych. Ręczne włączenie zawsze działa.</string>
+    <string name="networks_intro">Keep-Alive może ponownie włączać Wifi-ADB w zaufanych sieciach, nigdy w zablokowanych. Ręczne włączenie zawsze działa.</string>
     <string name="networks_glossary_toggle">Objaśnienie pojęć</string>
     <string name="networks_glossary_ssid">Nazwa Wi-Fi (SSID): nazwa, którą rozgłasza sieć Wi-Fi. Każdy może uruchomić sieć o takiej samej nazwie.</string>
     <string name="networks_glossary_bssid">Punkt dostępowy (BSSID): pojedynczy nadajnik, na przykład router, wzmacniacz lub węzeł mesh. Jego adres sprzętowy, np. AA:BB:CC:11:22:33, jest dokładniejszy niż nazwa, ale również nie jest dowodem.</string>
     <string name="untrusted_shutdown_title">Wyłączaj w niezaufanych sieciach Wi-Fi</string>
-    <string name="untrusted_shutdown_hint">Gdy Keep-Alive jest włączony, KeepADB wyłącza debugowanie bezprzewodowe w sieci Wi-Fi, która nie jest zaufana, jest zablokowana lub nie da się jej rozpoznać, zamiast tylko powiadamiać. Sesja włączona przez Ciebie w KeepADB pozostaje aktywna przy tym routerze Wi-Fi. Tryb wymuszony to wstrzymuje.</string>
+    <string name="untrusted_shutdown_hint">Gdy Keep-Alive jest włączony, KeepADB wyłącza Wifi-ADB w sieci Wi-Fi, która nie jest zaufana, jest zablokowana lub nie da się jej rozpoznać, zamiast tylko powiadamiać. Sesja włączona przez Ciebie w KeepADB pozostaje aktywna przy tym routerze Wi-Fi. Tryb wymuszony to wstrzymuje.</string>
     <string name="untrusted_shutdown_channel_name">Wyłączanie w niezaufanych sieciach Wi-Fi</string>
-    <string name="untrusted_shutdown_channel_desc">Informuje, gdy KeepADB wyłączył debugowanie bezprzewodowe w niezaufanej sieci Wi-Fi.</string>
-    <string name="untrusted_shutdown_off_title">Debugowanie bezprzewodowe wyłączone</string>
+    <string name="untrusted_shutdown_channel_desc">Informuje, gdy KeepADB wyłączył Wifi-ADB w niezaufanej sieci Wi-Fi.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB wyłączone</string>
     <string name="untrusted_shutdown_off_text">Bieżąca sieć Wi-Fi nie jest zaufana lub nie da się jej rozpoznać. Keep-Alive włączy je ponownie w zaufanej sieci Wi-Fi.</string>
-    <string name="untrusted_shutdown_failed_title">Nie udało się wyłączyć debugowania bezprzewodowego</string>
-    <string name="untrusted_shutdown_failed_text">Bieżąca sieć Wi-Fi nie jest zaufana, ale wyłączenie debugowania bezprzewodowego się nie powiodło. Wyłącz je ręcznie.</string>
+    <string name="untrusted_shutdown_failed_title">Nie udało się wyłączyć Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">Bieżąca sieć Wi-Fi nie jest zaufana, ale wyłączenie Wifi-ADB się nie powiodło. Wyłącz je ręcznie.</string>
     <string name="security_check_title">Sprawdzaj zabezpieczenia Wi-Fi zaufanych routerów</string>
-    <string name="security_check_hint">Android 12 i nowsze: gdy uznasz router Wi-Fi za zaufany, KeepADB zapisuje jego poziom zabezpieczeń (otwarta, osobista lub firmowa). Jeśli później połączy się z niższym lub nieczytelnym poziomem, Keep-Alive nie włączy tam samodzielnie debugowania bezprzewodowego, dopóki ponownie go nie zaufasz. Nie dowodzi to, że router jest prawdziwy. Routery zaufane przed włączeniem tej opcji są sprawdzane tylko po adresie, dopóki ponownie ich nie zaufasz.</string>
+    <string name="security_check_hint">Android 12 i nowsze: gdy uznasz router Wi-Fi za zaufany, KeepADB zapisuje jego poziom zabezpieczeń (otwarta, osobista lub firmowa). Jeśli później połączy się z niższym lub nieczytelnym poziomem, Keep-Alive nie włączy tam samodzielnie Wifi-ADB, dopóki ponownie go nie zaufasz. Nie dowodzi to, że router jest prawdziwy. Routery zaufane przed włączeniem tej opcji są sprawdzane tylko po adresie, dopóki ponownie ich nie zaufasz.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) jest zaufany, ale jego zabezpieczenia Wi-Fi są teraz niższe niż w chwili zaufania lub nieczytelne. Zaufaj mu ponownie tylko wtedy, gdy spodziewasz się tej zmiany.</string>
     <string name="network_prompt_security_confirm_in_app_text">Zmieniły się zabezpieczenia Wi-Fi zaufanego routera — dotknij, aby sprawdzić w aplikacji.</string>
     <string name="network_prompt_security_title">Zmieniły się zabezpieczenia Wi-Fi zaufanego routera</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Nazwa zaufana</string>
     <string name="networks_badge_name_blocked">Nazwa zablokowana</string>
     <string name="networks_badge_unknown">Nieznany</string>
-    <string name="networks_current_trusted">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe.</string>
+    <string name="networks_current_trusted">Keep-Alive może tutaj ponownie włączyć Wifi-ADB.</string>
     <string name="networks_current_trusted_name">Zaufana dzięki nazwie Wi-Fi. Możesz też osobno zaufać temu punktowi dostępowemu lub go zablokować.</string>
     <string name="networks_current_legacy">Obowiązuje tylko z powodu dotychczasowego ustawienia „We wszystkich sieciach Wi-Fi”. Nadal możesz zaufać temu punktowi dostępowemu lub go zablokować.</string>
     <string name="networks_tap_to_change">Dotknij, aby zmienić.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Automatyczne ponowne włączanie wstrzymane: lokalizacja jest wyłączona, więc Android ukrywa, z jakim punktem dostępowym jesteś połączony.</string>
     <string name="network_cause_unreadable_all_wifi">Nie można teraz odczytać sieci. Automatyczne ponowne włączanie może działać dalej, ale do sprawdzenia zapisanych punktów dostępowych lub nazw Wi-Fi potrzebne są czytelne dane sieci.</string>
     <string name="network_cause_not_allowed">Automatyczne ponowne włączanie wstrzymane: ten punkt dostępowy nie jest zaufany.</string>
-    <string name="network_cause_blocked">Ta sieć jest zablokowana: Keep-Alive nigdy nie włącza tu debugowania bezprzewodowego i o nic nie pyta. Ręczne włączenie zawsze działa.</string>
-    <string name="network_cause_allowed">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe. Akceptowany jest każdy czytelny punkt dostępowy o tej nazwie Wi-Fi.</string>
+    <string name="network_cause_blocked">Ta sieć jest zablokowana: Keep-Alive nigdy nie włącza tu Wifi-ADB i o nic nie pyta. Ręczne włączenie zawsze działa.</string>
+    <string name="network_cause_allowed">Keep-Alive może tutaj ponownie włączyć Wifi-ADB.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive może tutaj ponownie włączyć Wifi-ADB. Akceptowany jest każdy czytelny punkt dostępowy o tej nazwie Wi-Fi.</string>
     <string name="network_cause_all_wifi">Aktywny jest tryb „We wszystkich sieciach Wi-Fi”, więc Keep-Alive może tutaj ponownie włączać. W tym trybie listy zaufanych się nie liczą.</string>
     <string name="network_action_allow_ap">Zaufaj temu punktowi dostępowemu</string>
     <string name="network_action_location_settings">Otwórz ustawienia lokalizacji</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Tryb wymuszony</string>
-    <string name="force_section_hint">Ponownie włącza debugowanie bezprzewodowe w każdej sieci na wybrany czas. Blokady i zaufane sieci nie obowiązują w tym czasie.</string>
+    <string name="force_section_hint">Ponownie włącza Wifi-ADB w każdej sieci na wybrany czas. Blokady i zaufane sieci nie obowiązują w tym czasie.</string>
     <string name="force_status_off">Wyłączony</string>
     <string name="force_status_until">Aktywny do %1$s</string>
     <string name="force_status_unlimited">Aktywny, bez czasu zakończenia</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Zakończ tryb wymuszony</string>
     <string name="force_action_change">Zmień czas trwania…</string>
     <string name="force_dialog_title">Włączyć tryb wymuszony?</string>
-    <string name="force_dialog_intro">Keep-Alive będzie wtedy ponownie włączać debugowanie bezprzewodowe w każdej sieci: także w nieznanych, zablokowanych i nieczytelnych.</string>
+    <string name="force_dialog_intro">Keep-Alive będzie wtedy ponownie włączać Wifi-ADB w każdej sieci: także w nieznanych, zablokowanych i nieczytelnych.</string>
     <string name="force_dialog_duration_label">Na jak długo?</string>
     <string name="force_duration_1h">1 godzina</string>
     <string name="force_duration_24h">24 godziny</string>
     <string name="force_duration_7d">7 dni</string>
     <string name="force_duration_30d">30 dni</string>
     <string name="force_duration_unlimited">Bez czasu zakończenia</string>
-    <string name="force_warning_all">Debugowanie bezprzewodowe otwiera port w sieci. Komputery sparowane wcześniej uzyskują przez niego pełny dostęp ADB: instalowanie aplikacji, odczyt danych, nagrywanie ekranu. W nieznanych sieciach nie wiesz, kto próbuje się połączyć.
+    <string name="force_warning_all">Wifi-ADB otwiera port w sieci. Komputery sparowane wcześniej uzyskują przez niego pełny dostęp ADB: instalowanie aplikacji, odczyt danych, nagrywanie ekranu. W nieznanych sieciach nie wiesz, kto próbuje się połączyć.
 
 Twoje blokady i zaufane sieci nie obowiązują w tym czasie.
 
 Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomienia.</string>
-    <string name="force_warning_days">W ciągu kilku dni połączysz się z sieciami, o których teraz nie myślisz: hotel, pociąg, kawiarnia, praca. Debugowanie włączy się tam bez pytania.</string>
+    <string name="force_warning_days">W ciągu kilku dni połączysz się z sieciami, o których teraz nie myślisz: hotel, pociąg, kawiarnia, praca. Wifi-ADB włączy się tam bez pytania.</string>
     <string name="force_warning_unlimited">Bez czasu zakończenia tryb wymuszony pozostaje włączony, dopóki sam go nie zakończysz, także po restartach i aktualizacjach aplikacji.</string>
-    <string name="force_unlimited_ack">Rozumiem, że debugowanie bezprzewodowe włączy się wtedy w każdej sieci.</string>
+    <string name="force_unlimited_ack">Rozumiem, że Wifi-ADB włączy się wtedy w każdej sieci.</string>
     <string name="force_keepalive_hint">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączone razem z nim.</string>
     <string name="force_not_started_toast">Tryb wymuszony nie został włączony: to urządzenie nie może teraz niezawodnie dotrzymać limitu czasu. Nic nie zostało zmienione.</string>
     <string name="force_confirm_1h">Włącz na 1 godzinę</string>
@@ -419,8 +419,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="force_confirm_30d">Włącz na 30 dni</string>
     <string name="force_confirm_unlimited">Włącz bez czasu zakończenia</string>
     <string name="force_card_title">Tryb wymuszony włączony</string>
-    <string name="force_card_text_until">Debugowanie bezprzewodowe jest ponownie włączane w każdej sieci. Aktywny do %1$s.</string>
-    <string name="force_card_text_unlimited">Debugowanie bezprzewodowe jest ponownie włączane w każdej sieci. Bez czasu zakończenia.</string>
+    <string name="force_card_text_until">Wifi-ADB jest ponownie włączane w każdej sieci. Aktywne do %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB jest ponownie włączane w każdej sieci. Bez czasu zakończenia.</string>
     <string name="force_ended_toast">Tryb wymuszony zakończony. Poziom ochrony znów: %1$s.</string>
     <string name="force_notification_until">Tryb wymuszony włączony do %1$s</string>
     <string name="force_notification_unlimited">Tryb wymuszony włączony, bez czasu zakończenia</string>
@@ -429,7 +429,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="force_expired_title">Tryb wymuszony zakończony</string>
     <string name="force_expired_text">Wybrany czas minął. Poziom ochrony znów: %1$s. Keep-Alive włącza się teraz tylko tam, gdzie pozwala na to poziom ochrony.</string>
     <string name="force_expired_text_safety">Tryb wymuszony zakończył się wcześniej ze względów bezpieczeństwa: nie udało się wiarygodnie sprawdzić pozostałego czasu. Poziom ochrony znów: %1$s. Keep-Alive włącza się teraz tylko tam, gdzie pozwala na to poziom ochrony.</string>
-    <string name="force_expired_still_on">Debugowanie bezprzewodowe jest teraz nadal włączone.</string>
+    <string name="force_expired_still_on">Wifi-ADB jest teraz nadal włączone.</string>
     <string name="force_expired_action_off">Wyłącz teraz</string>
     <string name="force_level_maximum">Maksymalne bezpieczeństwo</string>
     <string name="force_level_balanced">Zrównoważony</string>
@@ -465,11 +465,11 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_privacy_summary_off">Prywatność: nic nie jest ukryte</string>
     <string name="onboarding_privacy_summary_on">Prywatność: włączono %1$d z %2$d</string>
     <string name="onboarding_privacy_change">Zmień</string>
-    <string name="onboarding_keep_alive_question">Czy debugowanie bezprzewodowe ma włączać się samo po ponownym uruchomieniu lub utracie połączenia?</string>
-    <string name="onboarding_keep_alive_off_body">Debugowanie bezprzewodowe włączasz sam w aplikacji, na kafelku lub w widżecie. Po ponownym uruchomieniu pozostaje wyłączone.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB włącza debugowanie bezprzewodowe ponownie po ponownym uruchomieniu lub utracie połączenia, ale tylko tam, gdzie pozwala na to Twój poziom ochrony (następny krok).</string>
+    <string name="onboarding_keep_alive_question">Czy Wifi-ADB ma włączać się samo po ponownym uruchomieniu lub utracie połączenia?</string>
+    <string name="onboarding_keep_alive_off_body">Wifi-ADB włączasz sam w aplikacji, na kafelku lub w widżecie. Po ponownym uruchomieniu pozostaje wyłączone.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB włącza Wifi-ADB ponownie po ponownym uruchomieniu lub utracie połączenia, ale tylko tam, gdzie pozwala na to Twój poziom ochrony (następny krok).</string>
     <string name="onboarding_protection_title">Poziom ochrony</string>
-    <string name="onboarding_protection_question">Gdzie Keep-Alive może samo włączać debugowanie bezprzewodowe?</string>
+    <string name="onboarding_protection_question">Gdzie Keep-Alive może samo włączać Wifi-ADB?</string>
     <string name="onboarding_protection_max_body">Tylko w punktach dostępowych, którym ufasz. O nieznane KeepADB pyta.</string>
     <string name="onboarding_protection_balanced_body">Także w każdym punkcie dostępowym o nazwie zaufanej sieci Wi-Fi. Wygodniej przy sieciach mesh i wzmacniaczach, ale nazwę łatwo podrobić.</string>
     <string name="onboarding_protection_legacy_all_body">Każda sieć Wi-Fi jest zaufana, dopóki jej nie zablokujesz. Wybierz poniżej poziom, aby opuścić to ustawienie.</string>
@@ -493,7 +493,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_permissions_summary_done">Wszystko gotowe</string>
     <string name="onboarding_permissions_summary_missing">Brakuje: %1$d</string>
     <string name="onboarding_perm_system_title">Uprawnienie systemowe</string>
-    <string name="onboarding_perm_system_body">Bez niego KeepADB nie może przełączać debugowania bezprzewodowego. Przyznaj je raz z komputera:</string>
+    <string name="onboarding_perm_system_body">Bez niego KeepADB nie może przełączać Wifi-ADB. Przyznaj je raz z komputera:</string>
     <string name="onboarding_perm_system_more">Kilka urządzeń lub problemy?</string>
     <string name="onboarding_copy_command">Skopiuj polecenie</string>
     <string name="onboarding_copy_done">Skopiowano polecenie</string>
@@ -508,8 +508,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_network_title">Zaufana sieć Wi-Fi</string>
     <string name="onboarding_network_question">Czy KeepADB ma ufać sieci Wi-Fi, z którą jesteś teraz połączony?</string>
     <string name="onboarding_network_privacy_note">Prywatność jest włączona: nazwa i adres pozostają ukryte, dopóki nie dotkniesz „Pokaż”.</string>
-    <string name="onboarding_network_open_list">Zmień na liście Sieci</string>
-    <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres debugowania bezprzewodowego do własnego serwera, na przykład w Twojej sieci domowej lub VPN. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
+    <string name="onboarding_network_open_list">Zmień w „Sieci Wi-Fi”</string>
+    <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres Wifi-ADB do własnego serwera, na przykład w Twojej sieci domowej lub VPN. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
     <string name="onboarding_protection_force_title">Maksymalna wygoda (tryb wymuszony)</string>
     <string name="onboarding_protection_force_body">W każdej sieci, także nieznanej, przez wybrany przez Ciebie czas. Najpierw musisz potwierdzić.</string>
     <string name="onboarding_protection_force_keep_alive">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączony razem z nim.</string>
@@ -517,7 +517,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_protection_force_comfort_note">Obowiązuje po zakończeniu trybu wymuszonego.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Brak uprawnienia systemowego</string>
-    <string name="home_warning_system_text">KeepADB może przełączać debugowanie bezprzewodowe dopiero po jednorazowym przyznaniu tego uprawnienia z komputera.</string>
+    <string name="home_warning_system_text">KeepADB może przełączać Wifi-ADB dopiero po jednorazowym przyznaniu tego uprawnienia z komputera.</string>
     <string name="home_warning_action_guide">Instrukcja</string>
     <string name="home_warning_less_secure_title">Mniej bezpieczne niż zalecane</string>
     <string name="home_warning_action_review">Sprawdź</string>
@@ -590,8 +590,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Sterowanie KeepADB</string>
-    <string name="widget_picker_description">Sterowanie debugowaniem bezprzewodowym, Keep-Alive i Webhook. Im większy widżet, tym więcej pokazuje.</string>
-    <string name="widget_action_adb">Debugowanie</string>
+    <string name="widget_picker_description">Sterowanie Wifi-ADB, Keep-Alive i Webhook. Im większy widżet, tym więcej pokazuje.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Autosynchr.</string>
     <string name="widget_action_sync_description">Automatyczna synchronizacja Webhook</string>

@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;을 이 기기에 대해 "adb devices"가 표시한 정확한 시리얼 번호로 바꾸세요.</string>
     <string name="setup_state_offline_title">기기가 "offline"으로 표시되나요?</string>
-    <string name="setup_state_offline_body">연결이 끊겼습니다. USB 케이블을 다시 연결하거나 휴대폰에서 무선 디버깅을 다시 켠 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
+    <string name="setup_state_offline_body">연결이 끊겼습니다. USB 케이블을 다시 연결하거나 개발자 옵션에서 ‘무선 디버깅’을 다시 켠 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
     <string name="setup_state_unauthorized_title">기기가 "unauthorized"로 표시되나요?</string>
     <string name="setup_state_unauthorized_body">이 휴대폰 화면에 표시되는 디버깅 허용 알림을 확인한 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
     <string name="setup_refresh">권한 확인</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">VPN 경유 ADB</string>
     <string name="transport_row_format">%1$s: %2$s · 마지막 확인 %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, 기본 전송</string>
-    <string name="toggle_label">무선 디버깅</string>
-    <string name="toggle_subtext">Wi-Fi를 통한 ADB를 위해 무선 디버깅을 켜거나 끕니다.</string>
-    <string name="keep_alive_toggle">지속적으로 활성 상태 유지</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Android의 ‘무선 디버깅’을 켜거나 꺼서 컴퓨터가 Wi-Fi로 이 휴대폰에 접속할 수 있게 합니다.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">연결 끊김, 네트워크 변경 또는 재부팅 시 자동 재연결</string>
     <string name="tile_permission_error">%1$s: 권한 누락 (pm grant 필요)</string>
     <string name="permission_error_toast">권한이 없습니다. PC에서 한 번 실행하세요:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">무선 디버깅 엔드포인트</string>
-    <string name="notification_channel_desc">무선 디버깅의 현재 IP 주소 및 포트</string>
+    <string name="notification_channel_name">Wifi-ADB 엔드포인트</string>
+    <string name="notification_channel_desc">Wifi-ADB의 현재 IP 주소 및 포트</string>
     <string name="notification_title_active">%1$s: Wifi-ADB 켜짐</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB 꺼짐</string>
     <string name="endpoint_port_at_ip">포트 %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">탭하여 앱에서 연결 세부정보를 확인하세요.</string>
     <string name="notification_title_searching">%1$s: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive가 무선 디버깅이 다시 켜지기를 기다리는 중</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive가 Wifi-ADB가 다시 켜지기를 기다리는 중</string>
     <string name="notification_text_keepalive_on">Keep-Alive: 켜짐</string>
     <string name="notification_text_keepalive_off">Keep-Alive: 꺼짐</string>
     <string name="notification_text_webhook_synced">Webhook: 동기화됨 %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: 아직 성공한 동기화 없음</string>
     <string name="notification_action_keepalive_on">Keep-Alive 켜기</string>
     <string name="notification_action_keepalive_off">Keep-Alive 끄기</string>
-    <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
-    <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
+    <string name="notification_service_title">Wifi-ADB 활성 상태 유지</string>
+    <string name="notification_service_text">Wi-Fi 연결 및 Wifi-ADB 상태 모니터링 중</string>
     <string name="notification_permission_missing_title">%1$s: 권한 누락</string>
     <string name="notification_permission_panel_title">알림</string>
-    <string name="notification_permission_panel_body">알림을 켜면 KeepADB 백그라운드 서비스와 Keep-Alive가 작동 중인지 확인할 수 있습니다. 연결이 끊기면 KeepADB가 즉시 알려줍니다. 이 권한이 없어도 무선 디버깅은 정상적으로 작동합니다.</string>
+    <string name="notification_permission_panel_body">알림을 켜면 KeepADB 백그라운드 서비스와 Keep-Alive가 작동 중인지 확인할 수 있습니다. 연결이 끊기면 KeepADB가 즉시 알려줍니다. 이 권한이 없어도 Wifi-ADB는 정상적으로 작동합니다.</string>
     <string name="notification_permission_request_button">알림 허용</string>
     <string name="notification_permission_settings_button">알림 설정 열기</string>
     <string name="notification_permission_missing_text">PC에서 adb shell pm grant로 WRITE_SECURE_SETTINGS 권한을 부여하세요</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">웹훅 및 엔드포인트 동기화</string>
     <string name="settings_webhook_toggle">웹훅 동기화 활성화</string>
-    <string name="settings_webhook_subtext">활성화 시 활성 엔드포인트(IP:포트)를 HTTP POST로 전송하고, 비활성화 시 DELETE 전송을 시도합니다(실패하면 나중에 재시도).</string>
+    <string name="settings_webhook_subtext">활성화 시 활성 엔드포인트를 HTTP POST로 전송하고, 비활성화 시 DELETE 전송을 시도합니다(실패하면 나중에 재시도).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">웹훅 URL</string>
     <string name="settings_webhook_btn_save">URL 저장</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">이 네트워크를 신뢰할까요?</string>
     <string name="network_decision_name_label">Wi-Fi 이름(SSID)</string>
     <string name="network_decision_ap_label">액세스 포인트(BSSID)</string>
-    <string name="network_decision_text">이 액세스 포인트를 신뢰하면 Keep-Alive가 여기서 무선 디버깅을 자동으로 다시 켤 수 있습니다. 수동으로 켜는 것은 항상 가능합니다.</string>
+    <string name="network_decision_text">이 액세스 포인트를 신뢰하면 Keep-Alive가 여기서 Wifi-ADB를 자동으로 다시 켤 수 있습니다. 수동으로 켜는 것은 항상 가능합니다.</string>
     <string name="network_decision_comfort_note">편의 모드가 켜져 있습니다: 이름이 “%1$s”인 다른 액세스 포인트도 함께 허용됩니다.</string>
     <string name="network_decision_trust">신뢰</string>
     <string name="network_decision_block_ap">이 액세스 포인트만 차단</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">아직 없음</string>
     <string name="webhook_status_deregistered">등록 해제됨</string>
     <string name="webhook_status_failed">실패</string>
-    <string name="settings_permission_warning">시스템 권한 WRITE_SECURE_SETTINGS가 없습니다. 권한이 부여될 때까지 KeepADB는 무선 디버깅을 전환할 수 없습니다.</string>
+    <string name="settings_permission_warning">시스템 권한 WRITE_SECURE_SETTINGS가 없습니다. 권한이 부여될 때까지 KeepADB는 Wifi-ADB를 전환할 수 없습니다.</string>
     <string name="settings_language_menu_label">언어</string>
     <string name="settings_language_accessibility">앱 언어: %1$s</string>
     <string name="settings_language_system_default">시스템 기본값</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">기타</string>
     <string name="settings_section_notification">알림</string>
     <string name="settings_hide_notification_toggle">고정 알림</string>
-    <string name="settings_hide_notification_subtext">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.</string>
-    <string name="settings_hide_notification_subtext_keepalive">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
+    <string name="settings_hide_notification_subtext">알림창에 Wifi-ADB 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.</string>
+    <string name="settings_hide_notification_subtext_keepalive">알림창에 Wifi-ADB 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
     <string name="settings_section_display">디스플레이</string>
     <string name="settings_keep_display_on_toggle">KeepADB가 포그라운드에 있는 동안 화면 켜짐 유지</string>
     <string name="settings_keep_display_on_subtext">이 앱이 열려 있는 동안에만 화면을 켜진 상태로 유지합니다. 앱을 벗어나면 화면은 평소처럼 꺼집니다.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">백그라운드 감지 확인</string>
     <string name="background_location_dialog_later">나중에</string>
     <string name="background_location_status_granted">백그라운드 감지: 허용됨. Keep-Alive가 백그라운드에서 시작되어도 신뢰하는 액세스 포인트를 인식합니다. KeepADB는 기기 위치를 읽거나 저장하지 않습니다.</string>
-    <string name="background_location_status_missing">백그라운드 감지: 제한됨. Keep-Alive가 백그라운드에서 시작되면 Android가 연결된 액세스 포인트를 숨길 수 있습니다. 이 경우 KeepADB는 네트워크를 읽을 수 없는 것으로 처리하며, 앱을 열 때까지 무선 디버깅을 자동으로 켜지 않습니다.</string>
+    <string name="background_location_status_missing">백그라운드 감지: 제한됨. Keep-Alive가 백그라운드에서 시작되면 Android가 연결된 액세스 포인트를 숨길 수 있습니다. 이 경우 KeepADB는 네트워크를 읽을 수 없는 것으로 처리하며, 앱을 열 때까지 Wifi-ADB를 자동으로 켜지 않습니다.</string>
     <string name="background_location_status_missing_inactive">백그라운드 감지: 이 설정에서는 필요하지 않습니다. Keep-Alive가 백그라운드에서 실행될 때 액세스 포인트나 Wi-Fi 이름을 확인하는 데 필요합니다.</string>
     <string name="location_permission_panel_title">신뢰할 수 있는 네트워크에는 위치 권한이 필요합니다</string>
     <string name="location_permission_panel_body">신뢰할 수 있는 네트워크 모드는 Wi-Fi 네트워크를 식별하려면 위치 액세스가 필요합니다. 이 권한이 없으면 Keep-Alive는 신뢰할 수 있는 네트워크를 확인할 수 없어 자동으로 다시 켜지지 않습니다.</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">그 밖의 유용한 정보를 추가하세요.</string>
     <string name="issue_report_diagnostics_section">선택적 KeepADB 진단 데이터(민감한 정보 삭제됨, 전송 전에 검토)</string>
     <string name="advice_banner_title">보안 및 네트워크</string>
-    <string name="advice_banner_text">무선 디버깅은 네트워크에 ADB 포트를 엽니다. 신뢰할 수 있는 Wi-Fi나 VPN을 사용하고 공용 핫스팟에서는 꺼두세요. 엔드포인트를 공개적으로 공유하지 말고 예상치 못한 페어링 요청은 수락하지 마세요.</string>
+    <string name="advice_banner_text">Wifi-ADB는 네트워크에 ADB 포트를 엽니다. 신뢰할 수 있는 Wi-Fi나 VPN을 사용하고 공용 핫스팟에서는 꺼두세요. 엔드포인트를 공개적으로 공유하지 말고 예상치 못한 페어링 요청은 수락하지 마세요.</string>
     <string name="settings_license_line">GNU Affero General Public License v3(AGPLv3)에 따라 라이선스가 부여됨</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">브라우저에서 keepadb.roteson.de 열기</string>
     <string name="settings_no_browser_found">이 링크를 열 수 있는 앱을 찾을 수 없습니다.</string>
-    <string name="status_off_keep_alive_waiting">무선 디버깅 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
-    <string name="status_off_keep_alive_blocked_untrusted">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
-    <string name="status_off_keep_alive_blocked_by_user">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 차단되었습니다</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없습니다. 위치 권한(‘항상 허용’)을 확인하거나 앱을 다시 여세요</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: Android의 무선 디버깅 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 차단되었습니다</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없습니다. 위치 권한(‘항상 허용’)을 확인하거나 앱을 다시 여세요</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: ‘무선 디버깅’ 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
     <string name="status_pending">전환 중…</string>
     <string name="home_state_on">Wifi-ADB 켜짐</string>
     <string name="home_state_off">Wifi-ADB 꺼짐</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Wi-Fi 연결 없음</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi를 신뢰할 수 없음</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi 차단됨</string>
-    <string name="home_action_networks">네트워크</string>
+    <string name="home_action_networks">Wi-Fi 네트워크</string>
     <string name="home_action_retry">다시 시도</string>
     <string name="home_reason_details_action">자세히 보기</string>
     <string name="state_pending">전환 중…</string>
     <string name="tile_state_keep_alive_waiting">꺼짐 – Keep-Alive 대기 중</string>
-    <string name="toggle_failed_toast">무선 디버깅을 전환하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="toggle_failed_toast">Wifi-ADB를 전환하지 못했습니다. 다시 시도해 주세요.</string>
     <string name="protection_title">보호</string>
     <string name="protection_automatic_title">자동 동작</string>
-    <string name="untrusted_shutdown_hint_short">신뢰하지 않는 Wi-Fi에서 무선 디버깅을 끕니다.</string>
+    <string name="untrusted_shutdown_hint_short">신뢰하지 않는 Wi-Fi에서 Wifi-ADB를 끕니다.</string>
     <string name="security_check_hint_short">신뢰하는 Wi-Fi 공유기의 보안이 약해지면 자동 켜기를 멈춥니다.</string>
     <string name="hint_more">더보기 ▾</string>
     <string name="hint_less">접기 ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">알 수 없음</string>
     <string name="network_badge_blocked">차단됨</string>
     <string name="networks_title">Wi-Fi 네트워크</string>
-    <string name="networks_intro">Keep-Alive는 신뢰하는 네트워크에서는 무선 디버깅을 다시 켤 수 있고, 차단된 네트워크에서는 켜지 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
+    <string name="networks_intro">Keep-Alive는 신뢰하는 네트워크에서는 Wifi-ADB를 다시 켤 수 있고, 차단된 네트워크에서는 켜지 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
     <string name="networks_glossary_toggle">용어 설명</string>
     <string name="networks_glossary_ssid">Wi-Fi 이름(SSID): Wi-Fi 네트워크가 내보내는 이름입니다. 누구나 같은 이름의 네트워크를 만들 수 있습니다.</string>
     <string name="networks_glossary_bssid">액세스 포인트(BSSID): 라우터, 리피터, 메시 노드처럼 하나의 송신기입니다. 하드웨어 주소(예: AA:BB:CC:11:22:33)는 이름보다 구체적이지만 이것 역시 증명은 아닙니다.</string>
     <string name="untrusted_shutdown_title">신뢰하지 않는 Wi-Fi에서 끄기</string>
-    <string name="untrusted_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 신뢰하지 않거나 차단되었거나 식별할 수 없는 Wi-Fi에서 알림만 보내는 대신 무선 디버깅을 끕니다. KeepADB에서 직접 켠 세션은 해당 Wi-Fi 공유기에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다.</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 신뢰하지 않거나 차단되었거나 식별할 수 없는 Wi-Fi에서 알림만 보내는 대신 Wifi-ADB를 끕니다. KeepADB에서 직접 켠 세션은 해당 Wi-Fi 공유기에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다.</string>
     <string name="untrusted_shutdown_channel_name">신뢰하지 않는 Wi-Fi에서 끄기</string>
-    <string name="untrusted_shutdown_channel_desc">KeepADB가 신뢰하지 않는 Wi-Fi에서 무선 디버깅을 껐을 때 알립니다.</string>
-    <string name="untrusted_shutdown_off_title">무선 디버깅이 꺼졌습니다</string>
+    <string name="untrusted_shutdown_channel_desc">KeepADB가 신뢰하지 않는 Wi-Fi에서 Wifi-ADB를 껐을 때 알립니다.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB가 꺼졌습니다</string>
     <string name="untrusted_shutdown_off_text">현재 Wi-Fi는 신뢰하지 않거나 식별할 수 없습니다. 신뢰하는 Wi-Fi에서는 Keep-Alive가 다시 켭니다.</string>
-    <string name="untrusted_shutdown_failed_title">무선 디버깅을 끌 수 없습니다</string>
-    <string name="untrusted_shutdown_failed_text">현재 Wi-Fi는 신뢰하지 않지만 무선 디버깅을 끄지 못했습니다. 직접 끄세요.</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB를 끌 수 없습니다</string>
+    <string name="untrusted_shutdown_failed_text">현재 Wi-Fi는 신뢰하지 않지만 Wifi-ADB를 끄지 못했습니다. 직접 끄세요.</string>
     <string name="security_check_title">신뢰하는 Wi-Fi 공유기의 Wi-Fi 보안 확인</string>
-    <string name="security_check_hint">Android 12 이상: Wi-Fi 공유기를 신뢰하면 KeepADB가 보안 수준(개방, 개인, 엔터프라이즈)을 기록합니다. 나중에 더 낮거나 읽을 수 없는 수준으로 연결되면, 다시 신뢰할 때까지 Keep-Alive가 그곳에서 무선 디버깅을 스스로 켜지 않습니다. 이것이 공유기가 진짜임을 증명하지는 않습니다. 이 옵션 전에 신뢰한 공유기는 다시 신뢰할 때까지 주소로만 확인됩니다.</string>
+    <string name="security_check_hint">Android 12 이상: Wi-Fi 공유기를 신뢰하면 KeepADB가 보안 수준(개방, 개인, 엔터프라이즈)을 기록합니다. 나중에 더 낮거나 읽을 수 없는 수준으로 연결되면, 다시 신뢰할 때까지 Keep-Alive가 그곳에서 Wifi-ADB를 스스로 켜지 않습니다. 이것이 공유기가 진짜임을 증명하지는 않습니다. 이 옵션 전에 신뢰한 공유기는 다시 신뢰할 때까지 주소로만 확인됩니다.</string>
     <string name="network_prompt_security_text">%1$s (%2$s)는 신뢰하는 공유기이지만 Wi-Fi 보안이 신뢰할 때보다 낮거나 읽을 수 없습니다. 이 변경을 예상한 경우에만 다시 신뢰하세요.</string>
     <string name="network_prompt_security_confirm_in_app_text">신뢰하는 Wi-Fi 공유기의 Wi-Fi 보안이 바뀌었습니다 — 앱에서 확인하려면 탭하세요.</string>
     <string name="network_prompt_security_title">신뢰하는 Wi-Fi 공유기의 보안이 바뀌었습니다</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">이름 신뢰함</string>
     <string name="networks_badge_name_blocked">이름 차단됨</string>
     <string name="networks_badge_unknown">알 수 없음</string>
-    <string name="networks_current_trusted">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다.</string>
+    <string name="networks_current_trusted">Keep-Alive가 여기서 Wifi-ADB를 다시 켤 수 있습니다.</string>
     <string name="networks_current_trusted_name">Wi-Fi 이름 때문에 신뢰됩니다. 이 액세스 포인트를 개별적으로 신뢰하거나 차단할 수도 있습니다.</string>
     <string name="networks_current_legacy">이전 설정 “모든 Wi-Fi 네트워크에서” 때문에만 적용됩니다. 이 액세스 포인트를 신뢰하거나 차단할 수도 있습니다.</string>
     <string name="networks_tap_to_change">탭하여 변경합니다.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">자동 재활성화가 일시 중지됨: 위치가 꺼져 있어 Android가 어떤 액세스 포인트에 연결되어 있는지 숨깁니다.</string>
     <string name="network_cause_unreadable_all_wifi">현재 네트워크를 읽을 수 없습니다. 자동 재활성화는 계속할 수 있지만, 저장된 액세스 포인트나 Wi-Fi 이름을 확인하려면 읽을 수 있는 네트워크 정보가 필요합니다.</string>
     <string name="network_cause_not_allowed">자동 재활성화가 일시 중지됨: 이 액세스 포인트는 신뢰하지 않습니다.</string>
-    <string name="network_cause_blocked">이 네트워크는 차단되어 있습니다. Keep-Alive는 여기서 무선 디버깅을 자동으로 켜지 않으며 묻지도 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
-    <string name="network_cause_allowed">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다. 이 Wi-Fi 이름을 가진 읽을 수 있는 모든 액세스 포인트가 허용됩니다.</string>
+    <string name="network_cause_blocked">이 네트워크는 차단되어 있습니다. Keep-Alive는 여기서 Wifi-ADB를 자동으로 켜지 않으며 묻지도 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
+    <string name="network_cause_allowed">Keep-Alive가 여기서 Wifi-ADB를 다시 켤 수 있습니다.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive가 여기서 Wifi-ADB를 다시 켤 수 있습니다. 이 Wi-Fi 이름을 가진 읽을 수 있는 모든 액세스 포인트가 허용됩니다.</string>
     <string name="network_cause_all_wifi">“모든 Wi-Fi 네트워크에서”가 켜져 있어 Keep-Alive가 여기서 다시 켤 수 있습니다. 이 모드에서는 신뢰 목록이 적용되지 않습니다.</string>
     <string name="network_action_allow_ap">이 액세스 포인트 신뢰</string>
     <string name="network_action_location_settings">위치 설정 열기</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">강제 모드</string>
-    <string name="force_section_hint">선택한 시간 동안 모든 네트워크에서 무선 디버깅을 다시 켭니다. 이 시간에는 차단과 신뢰할 수 있는 네트워크가 적용되지 않습니다.</string>
+    <string name="force_section_hint">선택한 시간 동안 모든 네트워크에서 Wifi-ADB를 다시 켭니다. 이 시간에는 차단과 신뢰할 수 있는 네트워크가 적용되지 않습니다.</string>
     <string name="force_status_off">꺼짐</string>
     <string name="force_status_until">%1$s까지 켜짐</string>
     <string name="force_status_unlimited">켜짐, 종료 시간 없음</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">강제 모드 종료</string>
     <string name="force_action_change">기간 변경…</string>
     <string name="force_dialog_title">강제 모드를 켤까요?</string>
-    <string name="force_dialog_intro">그러면 Keep-Alive가 낯선 네트워크, 차단된 네트워크, 읽을 수 없는 네트워크를 포함한 모든 네트워크에서 무선 디버깅을 다시 켭니다.</string>
+    <string name="force_dialog_intro">그러면 Keep-Alive가 낯선 네트워크, 차단된 네트워크, 읽을 수 없는 네트워크를 포함한 모든 네트워크에서 Wifi-ADB를 다시 켭니다.</string>
     <string name="force_dialog_duration_label">얼마 동안 켤까요?</string>
     <string name="force_duration_1h">1시간</string>
     <string name="force_duration_24h">24시간</string>
     <string name="force_duration_7d">7일</string>
     <string name="force_duration_30d">30일</string>
     <string name="force_duration_unlimited">종료 시간 없음</string>
-    <string name="force_warning_all">무선 디버깅은 네트워크에 포트를 엽니다. 이전에 페어링한 컴퓨터는 이를 통해 전체 ADB 액세스를 얻습니다. 앱 설치, 데이터 읽기, 화면 녹화가 가능합니다. 낯선 네트워크에서는 누가 접속을 시도하는지 알 수 없습니다.
+    <string name="force_warning_all">Wifi-ADB는 네트워크에 포트를 엽니다. 이전에 페어링한 컴퓨터는 이를 통해 전체 ADB 액세스를 얻습니다. 앱 설치, 데이터 읽기, 화면 녹화가 가능합니다. 낯선 네트워크에서는 누가 접속을 시도하는지 알 수 없습니다.
 
 이 시간 동안에는 차단과 신뢰할 수 있는 네트워크가 적용되지 않습니다.
 
 홈 화면이나 알림에서 언제든지 종료할 수 있습니다.</string>
-    <string name="force_warning_days">며칠 동안에는 지금은 생각하지 못한 네트워크(호텔, 기차, 카페, 직장)에 연결하게 됩니다. 그곳에서 디버깅이 묻지 않고 켜집니다.</string>
+    <string name="force_warning_days">며칠 동안에는 지금은 생각하지 못한 네트워크(호텔, 기차, 카페, 직장)에 연결하게 됩니다. 그곳에서 Wifi-ADB가 묻지 않고 켜집니다.</string>
     <string name="force_warning_unlimited">종료 시간이 없으면 직접 종료할 때까지, 재시작과 앱 업데이트 후에도 강제 모드가 켜져 있습니다.</string>
-    <string name="force_unlimited_ack">그러면 무선 디버깅이 모든 네트워크에서 켜진다는 것을 이해합니다.</string>
+    <string name="force_unlimited_ack">그러면 Wifi-ADB가 모든 네트워크에서 켜진다는 것을 이해합니다.</string>
     <string name="force_keepalive_hint">강제 모드는 Keep-Alive와 함께일 때만 작동합니다. Keep-Alive도 함께 켜집니다.</string>
     <string name="force_not_started_toast">강제 모드를 켜지 못했습니다. 이 기기에서는 지금 시간 제한을 안정적으로 지킬 수 없습니다. 변경된 것은 없습니다.</string>
     <string name="force_confirm_1h">1시간 동안 켜기</string>
@@ -419,8 +419,8 @@
     <string name="force_confirm_30d">30일 동안 켜기</string>
     <string name="force_confirm_unlimited">종료 시간 없이 켜기</string>
     <string name="force_card_title">강제 모드 켜짐</string>
-    <string name="force_card_text_until">무선 디버깅이 모든 네트워크에서 다시 켜집니다. %1$s까지 켜짐.</string>
-    <string name="force_card_text_unlimited">무선 디버깅이 모든 네트워크에서 다시 켜집니다. 종료 시간 없음.</string>
+    <string name="force_card_text_until">Wifi-ADB가 모든 네트워크에서 다시 켜집니다. %1$s까지 켜짐.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB가 모든 네트워크에서 다시 켜집니다. 종료 시간 없음.</string>
     <string name="force_ended_toast">강제 모드가 종료되었습니다. 보호 수준이 다시 %1$s(으)로 돌아갔습니다.</string>
     <string name="force_notification_until">강제 모드 %1$s까지 켜짐</string>
     <string name="force_notification_unlimited">강제 모드 켜짐, 종료 시간 없음</string>
@@ -429,7 +429,7 @@
     <string name="force_expired_title">강제 모드 종료됨</string>
     <string name="force_expired_text">선택한 시간이 끝났습니다. 보호 수준이 다시 %1$s(으)로 돌아갔습니다. 이제 Keep-Alive는 보호 수준이 허용하는 곳에서만 켭니다.</string>
     <string name="force_expired_text_safety">안전을 위해 강제 모드가 일찍 종료되었습니다. 남은 시간을 안정적으로 확인할 수 없었습니다. 보호 수준이 다시 %1$s(으)로 돌아갔습니다. 이제 Keep-Alive는 보호 수준이 허용하는 곳에서만 켭니다.</string>
-    <string name="force_expired_still_on">무선 디버깅이 지금도 켜져 있습니다.</string>
+    <string name="force_expired_still_on">Wifi-ADB가 지금도 켜져 있습니다.</string>
     <string name="force_expired_action_off">지금 끄기</string>
     <string name="force_level_maximum">최대 보안</string>
     <string name="force_level_balanced">균형</string>
@@ -465,11 +465,11 @@
     <string name="onboarding_privacy_summary_off">개인정보 보호: 숨김 없음</string>
     <string name="onboarding_privacy_summary_on">개인정보 보호: %1$d/%2$d 켜짐</string>
     <string name="onboarding_privacy_change">변경</string>
-    <string name="onboarding_keep_alive_question">재부팅하거나 연결이 끊긴 뒤 무선 디버깅이 스스로 다시 켜지게 할까요?</string>
-    <string name="onboarding_keep_alive_off_body">무선 디버깅은 앱, 타일, 위젯에서 직접 켭니다. 재부팅 후에는 꺼진 상태로 유지됩니다.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB가 재부팅이나 연결 끊김 뒤에 무선 디버깅을 다시 켭니다. 단, 보호 수준이 허용하는 곳에서만 켭니다(다음 단계).</string>
+    <string name="onboarding_keep_alive_question">재부팅하거나 연결이 끊긴 뒤 Wifi-ADB가 스스로 다시 켜지게 할까요?</string>
+    <string name="onboarding_keep_alive_off_body">Wifi-ADB는 앱, 타일, 위젯에서 직접 켭니다. 재부팅 후에는 꺼진 상태로 유지됩니다.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB가 재부팅이나 연결 끊김 뒤에 Wifi-ADB를 다시 켭니다. 단, 보호 수준이 허용하는 곳에서만 켭니다(다음 단계).</string>
     <string name="onboarding_protection_title">보호 수준</string>
-    <string name="onboarding_protection_question">Keep-Alive가 무선 디버깅을 스스로 켜도 되는 곳은 어디인가요?</string>
+    <string name="onboarding_protection_question">Keep-Alive가 Wifi-ADB를 스스로 켜도 되는 곳은 어디인가요?</string>
     <string name="onboarding_protection_max_body">신뢰하는 액세스 포인트에서만. 모르는 곳은 KeepADB가 묻습니다.</string>
     <string name="onboarding_protection_balanced_body">신뢰하는 Wi-Fi와 이름이 같은 액세스 포인트에서도. 메시나 리피터에서는 편하지만 이름은 쉽게 흉내 낼 수 있습니다.</string>
     <string name="onboarding_protection_legacy_all_body">차단하지 않는 한 모든 Wi-Fi 네트워크를 신뢰합니다. 이 설정에서 벗어나려면 아래에서 수준을 고르세요.</string>
@@ -493,7 +493,7 @@
     <string name="onboarding_permissions_summary_done">모두 완료</string>
     <string name="onboarding_permissions_summary_missing">부족: %1$d</string>
     <string name="onboarding_perm_system_title">시스템 권한</string>
-    <string name="onboarding_perm_system_body">이 권한이 없으면 KeepADB가 무선 디버깅을 전환할 수 없습니다. 컴퓨터에서 한 번만 부여하세요:</string>
+    <string name="onboarding_perm_system_body">이 권한이 없으면 KeepADB가 Wifi-ADB를 전환할 수 없습니다. 컴퓨터에서 한 번만 부여하세요:</string>
     <string name="onboarding_perm_system_more">기기가 여러 대이거나 문제가 있나요?</string>
     <string name="onboarding_copy_command">명령어 복사</string>
     <string name="onboarding_copy_done">명령어를 복사했습니다</string>
@@ -508,8 +508,8 @@
     <string name="onboarding_network_title">신뢰하는 Wi-Fi</string>
     <string name="onboarding_network_question">지금 연결된 Wi-Fi를 KeepADB가 신뢰하도록 할까요?</string>
     <string name="onboarding_network_privacy_note">개인정보 보호가 켜져 있습니다. “표시”를 탭하기 전까지 이름과 주소는 숨겨집니다.</string>
-    <string name="onboarding_network_open_list">네트워크 목록에서 변경</string>
-    <string name="onboarding_webhook_question">선택 사항입니다. 무선 디버깅의 현재 주소를 예를 들어 홈 네트워크나 VPN에 있는 자체 서버로 알립니다. 대부분은 필요하지 않습니다. “URL 저장”을 누르기 전에는 아무것도 저장되지 않습니다.</string>
+    <string name="onboarding_network_open_list">‘Wi-Fi 네트워크’에서 변경</string>
+    <string name="onboarding_webhook_question">선택 사항입니다. Wifi-ADB의 현재 주소를 예를 들어 홈 네트워크나 VPN에 있는 자체 서버로 알립니다. 대부분은 필요하지 않습니다. “URL 저장”을 누르기 전에는 아무것도 저장되지 않습니다.</string>
     <string name="onboarding_protection_force_title">최대 편의(강제 모드)</string>
     <string name="onboarding_protection_force_body">낯선 네트워크를 포함한 모든 네트워크에서, 선택한 시간 동안 켭니다. 먼저 확인이 필요합니다.</string>
     <string name="onboarding_protection_force_keep_alive">강제 모드는 Keep-Alive와 함께일 때만 동작합니다. Keep-Alive도 함께 켜집니다.</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">강제 모드가 끝난 뒤에 적용됩니다.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">시스템 권한 없음</string>
-    <string name="home_warning_system_text">컴퓨터에서 이 권한을 한 번 부여해야 KeepADB가 무선 디버깅을 전환할 수 있습니다.</string>
+    <string name="home_warning_system_text">컴퓨터에서 이 권한을 한 번 부여해야 KeepADB가 Wifi-ADB를 전환할 수 있습니다.</string>
     <string name="home_warning_action_guide">안내</string>
     <string name="home_warning_less_secure_title">권장보다 보안이 낮음</string>
     <string name="home_warning_action_review">검토</string>
@@ -587,8 +587,8 @@
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB 컨트롤</string>
-    <string name="widget_picker_description">무선 디버깅, Keep-Alive, 웹훅 컨트롤. 크게 할수록 더 많이 표시됩니다.</string>
-    <string name="widget_action_adb">디버깅</string>
+    <string name="widget_picker_description">Wifi-ADB, Keep-Alive, 웹훅 컨트롤. 크게 할수록 더 많이 표시됩니다.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">자동 동기화</string>
     <string name="widget_action_sync_description">웹훅 자동 동기화</string>

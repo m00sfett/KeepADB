@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt; को उस सटीक सीरियल नंबर से बदलें जो "adb devices" ने इस डिवाइस के लिए दिखाया था।</string>
     <string name="setup_state_offline_title">डिवाइस "offline" दिखा रहा है?</string>
-    <string name="setup_state_offline_body">कनेक्शन टूट गया है। USB केबल फिर से जोड़ें या फोन पर वायरलेस डीबगिंग फिर से चालू करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
+    <string name="setup_state_offline_body">कनेक्शन टूट गया है। USB केबल फिर से जोड़ें या डेवलपर विकल्प में “वायरलेस डीबगिंग” फिर से चालू करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_state_unauthorized_title">डिवाइस "unauthorized" दिखा रहा है?</string>
     <string name="setup_state_unauthorized_body">इस फोन की स्क्रीन पर दिखने वाले डीबगिंग अनुमति संकेत की पुष्टि करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_refresh">अनुमति जांचें</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">VPN के ज़रिए ADB</string>
     <string name="transport_row_format">%1$s: %2$s · अंतिम जाँच %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, प्राथमिक ट्रांसपोर्ट</string>
-    <string name="toggle_label">वायरलेस डीबगिंग</string>
-    <string name="toggle_subtext">Wi-Fi पर ADB के लिए वायरलेस डीबगिंग को चालू या बंद करता है।</string>
-    <string name="keep_alive_toggle">लगातार सक्रिय रखें</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Android की “वायरलेस डीबगिंग” को चालू या बंद करता है, ताकि कंप्यूटर इस फ़ोन तक Wi-Fi से पहुँच सके।</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>
     <string name="tile_permission_error">%1$s: अनुमति गायब है (pm grant आवश्यक है)</string>
     <string name="permission_error_toast">अनुमति गायब है। PC से एक बार चलाएं:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">वायरलेस डीबगिंग एंडपॉइंट</string>
-    <string name="notification_channel_desc">वायरलेस डीबगिंग का वर्तमान IP पता और पोर्ट</string>
+    <string name="notification_channel_name">Wifi-ADB एंडपॉइंट</string>
+    <string name="notification_channel_desc">Wifi-ADB का वर्तमान IP पता और पोर्ट</string>
     <string name="notification_title_active">%1$s: Wifi-ADB चालू</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB बंद</string>
     <string name="endpoint_port_at_ip">पोर्ट %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">कनेक्शन विवरण ऐप में देखने के लिए टैप करें।</string>
     <string name="notification_title_searching">%1$s: एंडपॉइंट खोजा जा रहा है…</string>
     <string name="notification_text_searching">स्थानीय नेटवर्क पर एंडपॉइंट खोजा जा रहा है</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive वायरलेस डीबगिंग के फिर से चालू होने की प्रतीक्षा कर रहा है</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive Wifi-ADB के फिर से चालू होने की प्रतीक्षा कर रहा है</string>
     <string name="notification_text_keepalive_on">Keep-Alive: चालू</string>
     <string name="notification_text_keepalive_off">Keep-Alive: बंद</string>
     <string name="notification_text_webhook_synced">Webhook: सिंक हुआ %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: अभी तक कोई सफल सिंक नहीं</string>
     <string name="notification_action_keepalive_on">Keep-Alive चालू करें</string>
     <string name="notification_action_keepalive_off">Keep-Alive बंद करें</string>
-    <string name="notification_service_title">वायरलेस डीबगिंग सक्रिय रखें</string>
-    <string name="notification_service_text">Wi-Fi कनेक्शन और वायरलेस डीबगिंग स्थिति की निगरानी की जा रही है</string>
+    <string name="notification_service_title">Wifi-ADB सक्रिय रखें</string>
+    <string name="notification_service_text">Wi-Fi कनेक्शन और Wifi-ADB स्थिति की निगरानी की जा रही है</string>
     <string name="notification_permission_missing_title">%1$s: अनुमति गायब है</string>
     <string name="notification_permission_panel_title">सूचनाएं</string>
-    <string name="notification_permission_panel_body">सूचनाएं चालू करने पर आप देख सकते हैं कि KeepADB की बैकग्राउंड सेवा और Keep-Alive चल रहे हैं या नहीं। कनेक्शन टूटने पर KeepADB आपको तुरंत बता देगा। इस अनुमति के बिना भी वायरलेस डीबगिंग ठीक से काम करता है।</string>
+    <string name="notification_permission_panel_body">सूचनाएं चालू करने पर आप देख सकते हैं कि KeepADB की बैकग्राउंड सेवा और Keep-Alive चल रहे हैं या नहीं। कनेक्शन टूटने पर KeepADB आपको तुरंत बता देगा। इस अनुमति के बिना भी Wifi-ADB ठीक से काम करता है।</string>
     <string name="notification_permission_request_button">सूचनाओं की अनुमति दें</string>
     <string name="notification_permission_settings_button">सूचना सेटिंग खोलें</string>
     <string name="notification_permission_missing_text">PC से adb shell pm grant द्वारा WRITE_SECURE_SETTINGS प्रदान करें</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">वेबहुक और एंडपॉइंट सिंक</string>
     <string name="settings_webhook_toggle">वेबहुक सिंक सक्षम करें</string>
-    <string name="settings_webhook_subtext">सक्षम होने पर सक्रिय एंडपॉइंट (IP:पोर्ट) HTTP POST के माध्यम से भेजता है, और बंद होने पर DELETE भेजने का प्रयास करता है (विफल होने पर बाद में पुनः प्रयास किया जाता है)।</string>
+    <string name="settings_webhook_subtext">सक्षम होने पर सक्रिय एंडपॉइंट HTTP POST के माध्यम से भेजता है, और बंद होने पर DELETE भेजने का प्रयास करता है (विफल होने पर बाद में पुनः प्रयास किया जाता है)।</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">वेबहुक URL</string>
     <string name="settings_webhook_btn_save">URL सहेजें</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">क्या इस नेटवर्क पर भरोसा करें?</string>
     <string name="network_decision_name_label">Wi-Fi नाम (SSID)</string>
     <string name="network_decision_ap_label">ऐक्सेस पॉइंट (BSSID)</string>
-    <string name="network_decision_text">अगर आप इस ऐक्सेस पॉइंट पर भरोसा करते हैं, तो Keep-Alive यहाँ वायरलेस डीबगिंग अपने-आप फिर चालू कर सकता है। मैन्युअल रूप से चालू करना हमेशा काम करता है।</string>
+    <string name="network_decision_text">अगर आप इस ऐक्सेस पॉइंट पर भरोसा करते हैं, तो Keep-Alive यहाँ Wifi-ADB अपने-आप फिर चालू कर सकता है। मैन्युअल रूप से चालू करना हमेशा काम करता है।</string>
     <string name="network_decision_comfort_note">कंफ़र्ट चालू है: “%1$s” नाम वाले दूसरे ऐक्सेस पॉइंट भी स्वीकार किए जाएँगे।</string>
     <string name="network_decision_trust">भरोसा करें</string>
     <string name="network_decision_block_ap">सिर्फ़ इस ऐक्सेस पॉइंट को रोकें</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
     <string name="webhook_status_deregistered">पंजीकरण रद्द</string>
     <string name="webhook_status_failed">विफल</string>
-    <string name="settings_permission_warning">सिस्टम अनुमति WRITE_SECURE_SETTINGS गायब है। अनुमति दिए जाने तक KeepADB वायरलेस डीबगिंग को टॉगल नहीं कर सकता।</string>
+    <string name="settings_permission_warning">सिस्टम अनुमति WRITE_SECURE_SETTINGS गायब है। अनुमति दिए जाने तक KeepADB Wifi-ADB को टॉगल नहीं कर सकता।</string>
     <string name="settings_language_menu_label">भाषा</string>
     <string name="settings_language_accessibility">ऐप की भाषा: %1$s</string>
     <string name="settings_language_system_default">सिस्टम डिफ़ॉल्ट</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">बैकग्राउंड में पहचान जांचें</string>
     <string name="background_location_dialog_later">बाद में</string>
     <string name="background_location_status_granted">बैकग्राउंड में पहचान: अनुमति है। Keep-Alive बैकग्राउंड में शुरू होने पर भी भरोसेमंद ऐक्सेस पॉइंट पहचाने जाते हैं। KeepADB आपके डिवाइस की लोकेशन कभी नहीं पढ़ता और न सेव करता है।</string>
-    <string name="background_location_status_missing">बैकग्राउंड में पहचान: सीमित है। Keep-Alive बैकग्राउंड में शुरू हो तो Android यह छिपा सकता है कि आप किस ऐक्सेस पॉइंट से जुड़े हैं; तब KeepADB नेटवर्क को पढ़ने-योग्य नहीं मानता और जब तक आप ऐप नहीं खोलते, वायरलेस डीबगिंग अपने आप चालू नहीं करता।</string>
+    <string name="background_location_status_missing">बैकग्राउंड में पहचान: सीमित है। Keep-Alive बैकग्राउंड में शुरू हो तो Android यह छिपा सकता है कि आप किस ऐक्सेस पॉइंट से जुड़े हैं; तब KeepADB नेटवर्क को पढ़ने-योग्य नहीं मानता और जब तक आप ऐप नहीं खोलते, Wifi-ADB अपने आप चालू नहीं करता।</string>
     <string name="background_location_status_missing_inactive">बैकग्राउंड में पहचान: इस सेटअप में ज़रूरी नहीं। Keep-Alive के बैकग्राउंड में चलने पर ऐक्सेस पॉइंट या Wi-Fi नाम जाँचने के लिए इसकी ज़रूरत होती है।</string>
     <string name="location_permission_panel_title">भरोसेमंद नेटवर्क के लिए स्थान अनुमति आवश्यक है</string>
     <string name="location_permission_panel_body">भरोसेमंद-नेटवर्क मोड को आपके Wi-Fi नेटवर्क की पहचान के लिए स्थान एक्सेस चाहिए। इसके बिना, Keep-Alive किसी भरोसेमंद नेटवर्क की पुष्टि नहीं कर सकता और स्वचालित रूप से फिर से चालू नहीं होगा।</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">कोई अन्य उपयोगी जानकारी जोड़ें।</string>
     <string name="issue_report_diagnostics_section">वैकल्पिक, साफ़ किए गए KeepADB निदान डेटा (भेजने से पहले समीक्षा करें)</string>
     <string name="advice_banner_title">सुरक्षा और नेटवर्क</string>
-    <string name="advice_banner_text">वायरलेस डीबगिंग आपके नेटवर्क पर एक ADB पोर्ट खोलती है। भरोसेमंद Wi-Fi या VPN का उपयोग करें, और सार्वजनिक हॉटस्पॉट पर इसे बंद करें। अपना एंडपॉइंट कभी सार्वजनिक रूप से साझा न करें और अनपेक्षित पेयरिंग अनुरोध स्वीकार न करें।</string>
+    <string name="advice_banner_text">Wifi-ADB आपके नेटवर्क पर एक ADB पोर्ट खोलता है। भरोसेमंद Wi-Fi या VPN का उपयोग करें, और सार्वजनिक हॉटस्पॉट पर इसे बंद करें। अपना एंडपॉइंट कभी सार्वजनिक रूप से साझा न करें और अनपेक्षित पेयरिंग अनुरोध स्वीकार न करें।</string>
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">ब्राउज़र में keepadb.roteson.de खोलें</string>
     <string name="settings_no_browser_found">इस लिंक को खोलने के लिए कोई ऐप नहीं मिला।</string>
-    <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
-    <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
-    <string name="status_off_keep_alive_blocked_by_user">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क रोका गया है</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: Android के वायरलेस डीबगिंग नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क रोका गया है</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB बंद है – Keep-Alive रोका गया: “वायरलेस डीबगिंग” नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
     <string name="home_state_on">Wifi-ADB चालू है</string>
     <string name="home_state_off">Wifi-ADB बंद है</string>
@@ -268,15 +268,15 @@
     <string name="home_reason_no_wifi">Wi-Fi कनेक्शन नहीं है</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive यहाँ बंद रहेगा: Wi-Fi भरोसेमंद नहीं है</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive यहाँ बंद रहेगा: Wi-Fi ब्लॉक है</string>
-    <string name="home_action_networks">नेटवर्क</string>
+    <string name="home_action_networks">Wi-Fi नेटवर्क</string>
     <string name="home_action_retry">फिर कोशिश करें</string>
     <string name="home_reason_details_action">विवरण दिखाएँ</string>
     <string name="state_pending">बदला जा रहा है…</string>
     <string name="tile_state_keep_alive_waiting">बंद – Keep-Alive प्रतीक्षा में</string>
-    <string name="toggle_failed_toast">वायरलेस डीबगिंग नहीं बदली जा सकी। कृपया फिर से प्रयास करें।</string>
+    <string name="toggle_failed_toast">Wifi-ADB नहीं बदला जा सका। कृपया फिर से प्रयास करें।</string>
     <string name="protection_title">सुरक्षा</string>
     <string name="protection_automatic_title">स्वचालित व्यवहार</string>
-    <string name="untrusted_shutdown_hint_short">गैर-भरोसेमंद Wi-Fi पर वायरलेस डीबगिंग बंद कर देता है।</string>
+    <string name="untrusted_shutdown_hint_short">गैर-भरोसेमंद Wi-Fi पर Wifi-ADB बंद कर देता है।</string>
     <string name="security_check_hint_short">अगर भरोसेमंद Wi-Fi राउटर की सुरक्षा कमज़ोर दिखे, तो अपने-आप चालू होना रोक देता है।</string>
     <string name="hint_more">और ▾</string>
     <string name="hint_less">कम ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">अज्ञात</string>
     <string name="network_badge_blocked">रोका गया</string>
     <string name="networks_title">Wi-Fi नेटवर्क</string>
-    <string name="networks_intro">Keep-Alive भरोसेमंद नेटवर्क में वायरलेस डीबगिंग फिर से चालू कर सकता है, रोके गए नेटवर्क में कभी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
+    <string name="networks_intro">Keep-Alive भरोसेमंद नेटवर्क में Wifi-ADB फिर से चालू कर सकता है, रोके गए नेटवर्क में कभी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
     <string name="networks_glossary_toggle">शब्दों की व्याख्या</string>
     <string name="networks_glossary_ssid">Wi-Fi नाम (SSID): वह नाम जो Wi-Fi नेटवर्क प्रसारित करता है। कोई भी उसी नाम का नेटवर्क बना सकता है।</string>
     <string name="networks_glossary_bssid">ऐक्सेस पॉइंट (BSSID): एक अकेला ट्रांसमीटर, जैसे राउटर, रिपीटर या मेश नोड। इसका हार्डवेयर पता, जैसे AA:BB:CC:11:22:33, नाम से ज़्यादा सटीक है, पर यह भी कोई प्रमाण नहीं है।</string>
     <string name="untrusted_shutdown_title">गैर-भरोसेमंद Wi-Fi पर बंद करें</string>
-    <string name="untrusted_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB ऐसे Wi-Fi पर वायरलेस डीबगिंग बंद कर देता है जो भरोसेमंद नहीं है, ब्लॉक है या पहचाना नहीं जा सकता, केवल सूचना देने के बजाय। जो सत्र आपने KeepADB में स्वयं चालू किया है, वह उसी Wi-Fi राउटर पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है।</string>
+    <string name="untrusted_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB ऐसे Wi-Fi पर Wifi-ADB बंद कर देता है जो भरोसेमंद नहीं है, ब्लॉक है या पहचाना नहीं जा सकता, केवल सूचना देने के बजाय। जो सत्र आपने KeepADB में स्वयं चालू किया है, वह उसी Wi-Fi राउटर पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है।</string>
     <string name="untrusted_shutdown_channel_name">गैर-भरोसेमंद Wi-Fi पर बंद करना</string>
-    <string name="untrusted_shutdown_channel_desc">बताता है जब KeepADB ने गैर-भरोसेमंद Wi-Fi पर वायरलेस डीबगिंग बंद की।</string>
-    <string name="untrusted_shutdown_off_title">वायरलेस डीबगिंग बंद की गई</string>
+    <string name="untrusted_shutdown_channel_desc">बताता है जब KeepADB ने गैर-भरोसेमंद Wi-Fi पर Wifi-ADB बंद किया।</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB बंद किया गया</string>
     <string name="untrusted_shutdown_off_text">मौजूदा Wi-Fi भरोसेमंद नहीं है या पहचाना नहीं जा सकता। Keep-Alive भरोसेमंद Wi-Fi पर इसे फिर से चालू करता है।</string>
-    <string name="untrusted_shutdown_failed_title">वायरलेस डीबगिंग बंद नहीं की जा सकी</string>
-    <string name="untrusted_shutdown_failed_text">मौजूदा Wi-Fi भरोसेमंद नहीं है, लेकिन वायरलेस डीबगिंग बंद करना विफल रहा। इसे स्वयं बंद करें।</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB बंद नहीं किया जा सका</string>
+    <string name="untrusted_shutdown_failed_text">मौजूदा Wi-Fi भरोसेमंद नहीं है, लेकिन Wifi-ADB बंद करना विफल रहा। इसे स्वयं बंद करें।</string>
     <string name="security_check_title">भरोसेमंद Wi-Fi राउटरों की Wi-Fi सुरक्षा जाँचें</string>
-    <string name="security_check_hint">Android 12 और बाद के संस्करण: जब आप किसी Wi-Fi राउटर पर भरोसा करते हैं, तो KeepADB उसका सुरक्षा स्तर (खुला, निजी या एंटरप्राइज़) सहेजता है। अगर बाद में वह कम या न पढ़े जा सकने वाले स्तर से जुड़ता है, तो जब तक आप फिर से भरोसा न करें, Keep-Alive वहाँ अपने-आप वायरलेस डीबगिंग चालू नहीं करता। इससे यह साबित नहीं होता कि राउटर असली है। इस विकल्प से पहले भरोसा किए गए राउटर फिर से भरोसा करने तक केवल पते से जाँचे जाते हैं।</string>
+    <string name="security_check_hint">Android 12 और बाद के संस्करण: जब आप किसी Wi-Fi राउटर पर भरोसा करते हैं, तो KeepADB उसका सुरक्षा स्तर (खुला, निजी या एंटरप्राइज़) सहेजता है। अगर बाद में वह कम या न पढ़े जा सकने वाले स्तर से जुड़ता है, तो जब तक आप फिर से भरोसा न करें, Keep-Alive वहाँ अपने-आप Wifi-ADB चालू नहीं करता। इससे यह साबित नहीं होता कि राउटर असली है। इस विकल्प से पहले भरोसा किए गए राउटर फिर से भरोसा करने तक केवल पते से जाँचे जाते हैं।</string>
     <string name="network_prompt_security_text">%1$s (%2$s) भरोसेमंद है, लेकिन उसकी Wi-Fi सुरक्षा अब भरोसा करते समय से कम है या पढ़ी नहीं जा सकती। फिर से भरोसा तभी करें जब आपको यह बदलाव अपेक्षित हो।</string>
     <string name="network_prompt_security_confirm_in_app_text">एक भरोसेमंद Wi-Fi राउटर की Wi-Fi सुरक्षा बदल गई है — ऐप में जाँचने के लिए टैप करें।</string>
     <string name="network_prompt_security_title">एक भरोसेमंद Wi-Fi राउटर की Wi-Fi सुरक्षा बदल गई</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">नाम भरोसेमंद</string>
     <string name="networks_badge_name_blocked">नाम रोका गया</string>
     <string name="networks_badge_unknown">अज्ञात</string>
-    <string name="networks_current_trusted">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है।</string>
+    <string name="networks_current_trusted">Keep-Alive यहाँ Wifi-ADB फिर से चालू कर सकता है।</string>
     <string name="networks_current_trusted_name">Wi-Fi नाम की वजह से भरोसेमंद। आप इस ऐक्सेस पॉइंट पर अलग से भरोसा कर सकते हैं या उसे रोक सकते हैं।</string>
     <string name="networks_current_legacy">यह सिर्फ़ पहले वाली सेटिंग “सभी Wi-Fi नेटवर्क में” की वजह से लागू है। आप फिर भी इस ऐक्सेस पॉइंट पर भरोसा कर सकते हैं या उसे रोक सकते हैं।</string>
     <string name="networks_tap_to_change">बदलने के लिए टैप करें।</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">स्वचालित पुनः-सक्षमन रोका गया: स्थान बंद है, इसलिए Android छिपा देता है कि आप किस ऐक्सेस पॉइंट से जुड़े हैं।</string>
     <string name="network_cause_unreadable_all_wifi">अभी नेटवर्क पढ़ा नहीं जा सकता। ऑटोमैटिक री-एनेबल जारी रह सकता है, लेकिन सहेजे गए ऐक्सेस पॉइंट या Wi-Fi नाम जाँचने के लिए पढ़ने योग्य नेटवर्क जानकारी चाहिए।</string>
     <string name="network_cause_not_allowed">स्वचालित पुनः-सक्षमन रोका गया: यह ऐक्सेस पॉइंट भरोसेमंद नहीं है।</string>
-    <string name="network_cause_blocked">यह नेटवर्क रोका गया है: Keep-Alive यहाँ वायरलेस डीबगिंग कभी चालू नहीं करता और पूछता भी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
-    <string name="network_cause_allowed">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है।</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है। इस Wi-Fi नाम वाला हर पढ़ा जा सकने वाला ऐक्सेस पॉइंट स्वीकार किया जाता है।</string>
+    <string name="network_cause_blocked">यह नेटवर्क रोका गया है: Keep-Alive यहाँ Wifi-ADB कभी चालू नहीं करता और पूछता भी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
+    <string name="network_cause_allowed">Keep-Alive यहाँ Wifi-ADB फिर से चालू कर सकता है।</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive यहाँ Wifi-ADB फिर से चालू कर सकता है। इस Wi-Fi नाम वाला हर पढ़ा जा सकने वाला ऐक्सेस पॉइंट स्वीकार किया जाता है।</string>
     <string name="network_cause_all_wifi">“सभी Wi-Fi नेटवर्क में” सक्रिय है, इसलिए Keep-Alive यहाँ फिर से चालू कर सकता है। इस मोड में भरोसे की सूचियाँ नहीं गिनी जातीं।</string>
     <string name="network_action_allow_ap">इस ऐक्सेस पॉइंट पर भरोसा करें</string>
     <string name="network_action_location_settings">स्थान सेटिंग खोलें</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">फ़ोर्स मोड</string>
-    <string name="force_section_hint">चुनी हुई अवधि के लिए वायरलेस डीबगिंग को हर नेटवर्क में फिर से चालू करता है। इस दौरान ब्लॉक और भरोसेमंद नेटवर्क लागू नहीं होते।</string>
+    <string name="force_section_hint">चुनी हुई अवधि के लिए Wifi-ADB को हर नेटवर्क में फिर से चालू करता है। इस दौरान ब्लॉक और भरोसेमंद नेटवर्क लागू नहीं होते।</string>
     <string name="force_status_off">बंद</string>
     <string name="force_status_until">%1$s तक चालू</string>
     <string name="force_status_unlimited">चालू, कोई समाप्ति समय नहीं</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">फ़ोर्स मोड समाप्त करें</string>
     <string name="force_action_change">अवधि बदलें…</string>
     <string name="force_dialog_title">फ़ोर्स मोड चालू करें?</string>
-    <string name="force_dialog_intro">तब Keep-Alive वायरलेस डीबगिंग को हर नेटवर्क में फिर से चालू करेगा: अनजान, ब्लॉक किए गए और न पढ़े जा सकने वाले नेटवर्क में भी।</string>
+    <string name="force_dialog_intro">तब Keep-Alive Wifi-ADB को हर नेटवर्क में फिर से चालू करेगा: अनजान, ब्लॉक किए गए और न पढ़े जा सकने वाले नेटवर्क में भी।</string>
     <string name="force_dialog_duration_label">कितनी देर के लिए?</string>
     <string name="force_duration_1h">1 घंटा</string>
     <string name="force_duration_24h">24 घंटे</string>
     <string name="force_duration_7d">7 दिन</string>
     <string name="force_duration_30d">30 दिन</string>
     <string name="force_duration_unlimited">कोई समाप्ति समय नहीं</string>
-    <string name="force_warning_all">वायरलेस डीबगिंग नेटवर्क पर एक पोर्ट खोलती है। जिन कंप्यूटरों को आपने पहले पेयर किया था, उन्हें इसके ज़रिए पूरा ADB एक्सेस मिलता है: ऐप इंस्टॉल करना, डेटा पढ़ना, स्क्रीन रिकॉर्ड करना। अनजान नेटवर्क में आपको पता नहीं होता कि कौन कोशिश कर रहा है।
+    <string name="force_warning_all">Wifi-ADB नेटवर्क पर एक पोर्ट खोलता है। जिन कंप्यूटरों को आपने पहले पेयर किया था, उन्हें इसके ज़रिए पूरा ADB एक्सेस मिलता है: ऐप इंस्टॉल करना, डेटा पढ़ना, स्क्रीन रिकॉर्ड करना। अनजान नेटवर्क में आपको पता नहीं होता कि कौन कोशिश कर रहा है।
 
 इस दौरान आपके ब्लॉक और भरोसेमंद नेटवर्क लागू नहीं होते।
 
 आप इसे कभी भी होम स्क्रीन या सूचना से समाप्त कर सकते हैं।</string>
-    <string name="force_warning_days">कई दिनों में आप ऐसे नेटवर्क में जाएँगे जिनके बारे में अभी नहीं सोच रहे: होटल, ट्रेन, कैफ़े, ऑफ़िस। वहाँ डीबगिंग आपसे पूछे बिना चालू हो जाएगी।</string>
+    <string name="force_warning_days">कई दिनों में आप ऐसे नेटवर्क में जाएँगे जिनके बारे में अभी नहीं सोच रहे: होटल, ट्रेन, कैफ़े, ऑफ़िस। वहाँ Wifi-ADB आपसे पूछे बिना चालू हो जाएगा।</string>
     <string name="force_warning_unlimited">समाप्ति समय के बिना फ़ोर्स मोड तब तक चालू रहता है जब तक आप उसे खुद समाप्त न करें, रीस्टार्ट और ऐप अपडेट के बाद भी।</string>
-    <string name="force_unlimited_ack">मुझे पता है कि तब वायरलेस डीबगिंग हर नेटवर्क में चालू हो जाएगी।</string>
+    <string name="force_unlimited_ack">मुझे पता है कि तब Wifi-ADB हर नेटवर्क में चालू हो जाएगा।</string>
     <string name="force_keepalive_hint">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
     <string name="force_not_started_toast">फ़ोर्स मोड चालू नहीं हुआ: इस डिवाइस पर अभी समय सीमा को भरोसेमंद ढंग से नहीं निभाया जा सकता। कुछ भी नहीं बदला गया।</string>
     <string name="force_confirm_1h">1 घंटे के लिए चालू करें</string>
@@ -419,8 +419,8 @@
     <string name="force_confirm_30d">30 दिन के लिए चालू करें</string>
     <string name="force_confirm_unlimited">बिना समाप्ति समय के चालू करें</string>
     <string name="force_card_title">फ़ोर्स मोड चालू है</string>
-    <string name="force_card_text_until">वायरलेस डीबगिंग हर नेटवर्क में फिर से चालू की जाती है। %1$s तक चालू।</string>
-    <string name="force_card_text_unlimited">वायरलेस डीबगिंग हर नेटवर्क में फिर से चालू की जाती है। कोई समाप्ति समय नहीं।</string>
+    <string name="force_card_text_until">Wifi-ADB हर नेटवर्क में फिर से चालू किया जाता है। %1$s तक चालू।</string>
+    <string name="force_card_text_unlimited">Wifi-ADB हर नेटवर्क में फिर से चालू किया जाता है। कोई समाप्ति समय नहीं।</string>
     <string name="force_ended_toast">फ़ोर्स मोड समाप्त हुआ। सुरक्षा स्तर फिर से: %1$s।</string>
     <string name="force_notification_until">फ़ोर्स मोड %1$s तक चालू</string>
     <string name="force_notification_unlimited">फ़ोर्स मोड चालू, कोई समाप्ति समय नहीं</string>
@@ -429,7 +429,7 @@
     <string name="force_expired_title">फ़ोर्स मोड समाप्त हुआ</string>
     <string name="force_expired_text">चुना हुआ समय पूरा हो गया। सुरक्षा स्तर फिर से: %1$s। Keep-Alive अब केवल वहीं चालू करता है जहाँ सुरक्षा स्तर अनुमति देता है।</string>
     <string name="force_expired_text_safety">सुरक्षा के लिए फ़ोर्स मोड समय से पहले बंद हो गया: बचे हुए समय की भरोसेमंद जाँच नहीं हो सकी। सुरक्षा स्तर फिर से: %1$s। Keep-Alive अब केवल वहीं चालू करता है जहाँ सुरक्षा स्तर अनुमति देता है।</string>
-    <string name="force_expired_still_on">वायरलेस डीबगिंग अभी भी चालू है।</string>
+    <string name="force_expired_still_on">Wifi-ADB अभी भी चालू है।</string>
     <string name="force_expired_action_off">अभी बंद करें</string>
     <string name="force_level_maximum">अधिकतम सुरक्षा</string>
     <string name="force_level_balanced">संतुलित</string>
@@ -465,11 +465,11 @@
     <string name="onboarding_privacy_summary_off">गोपनीयता: कुछ भी छिपा नहीं</string>
     <string name="onboarding_privacy_summary_on">गोपनीयता: %1$d/%2$d चालू</string>
     <string name="onboarding_privacy_change">बदलें</string>
-    <string name="onboarding_keep_alive_question">क्या रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग अपने आप फिर चालू होनी चाहिए?</string>
-    <string name="onboarding_keep_alive_off_body">आप वायरलेस डीबगिंग खुद चालू करते हैं — ऐप, टाइल या विजेट से। रीस्टार्ट के बाद यह बंद रहती है।</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग फिर चालू करता है, लेकिन केवल वहीं जहाँ आपका सुरक्षा स्तर इसकी अनुमति दे (अगला चरण)।</string>
+    <string name="onboarding_keep_alive_question">क्या रीस्टार्ट या कनेक्शन टूटने के बाद Wifi-ADB अपने आप फिर चालू होना चाहिए?</string>
+    <string name="onboarding_keep_alive_off_body">आप Wifi-ADB खुद चालू करते हैं — ऐप, टाइल या विजेट से। रीस्टार्ट के बाद यह बंद रहता है।</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB रीस्टार्ट या कनेक्शन टूटने के बाद Wifi-ADB फिर चालू करता है, लेकिन केवल वहीं जहाँ आपका सुरक्षा स्तर इसकी अनुमति दे (अगला चरण)।</string>
     <string name="onboarding_protection_title">सुरक्षा स्तर</string>
-    <string name="onboarding_protection_question">Keep-Alive कहाँ वायरलेस डीबगिंग अपने आप चालू कर सकता है?</string>
+    <string name="onboarding_protection_question">Keep-Alive कहाँ Wifi-ADB अपने आप चालू कर सकता है?</string>
     <string name="onboarding_protection_max_body">केवल उन ऐक्सेस पॉइंट पर जिन पर आप भरोसा करते हैं। अज्ञात के बारे में KeepADB पूछता है।</string>
     <string name="onboarding_protection_balanced_body">उस हर ऐक्सेस पॉइंट पर भी जिसका नाम किसी भरोसेमंद Wi-Fi के नाम जैसा हो। मेश और रिपीटर के साथ आसान, पर नाम की नकल आसान है।</string>
     <string name="onboarding_protection_legacy_all_body">हर Wi-Fi नेटवर्क तब तक भरोसेमंद माना जाता है जब तक आप उसे ब्लॉक न करें। इस सेटिंग से हटने के लिए नीचे कोई स्तर चुनें।</string>
@@ -493,7 +493,7 @@
     <string name="onboarding_permissions_summary_done">सब तैयार</string>
     <string name="onboarding_permissions_summary_missing">बाकी: %1$d</string>
     <string name="onboarding_perm_system_title">सिस्टम अनुमति</string>
-    <string name="onboarding_perm_system_body">इसके बिना KeepADB वायरलेस डीबगिंग चालू नहीं कर सकता। इसे एक बार कंप्यूटर से दें:</string>
+    <string name="onboarding_perm_system_body">इसके बिना KeepADB Wifi-ADB चालू नहीं कर सकता। इसे एक बार कंप्यूटर से दें:</string>
     <string name="onboarding_perm_system_more">कई डिवाइस या समस्याएँ?</string>
     <string name="onboarding_copy_command">कमांड कॉपी करें</string>
     <string name="onboarding_copy_done">कमांड कॉपी हो गया</string>
@@ -508,8 +508,8 @@
     <string name="onboarding_network_title">भरोसेमंद Wi-Fi</string>
     <string name="onboarding_network_question">क्या KeepADB को उस Wi-Fi पर भरोसा करना चाहिए जिससे आप अभी जुड़े हैं?</string>
     <string name="onboarding_network_privacy_note">गोपनीयता चालू है: नाम और पता तब तक छिपे रहते हैं जब तक आप “दिखाएँ” को नहीं छूते।</string>
-    <string name="onboarding_network_open_list">नेटवर्क सूची में बदलें</string>
-    <string name="onboarding_webhook_question">वैकल्पिक। वायरलेस डीबगिंग का मौजूदा पता आपके अपने सर्वर को भेजता है, जैसे आपके होम नेटवर्क या VPN में। ज़्यादातर लोगों को इसकी ज़रूरत नहीं होती। “URL सहेजें” दबाने तक कुछ सहेजा नहीं जाता।</string>
+    <string name="onboarding_network_open_list">“Wi-Fi नेटवर्क” में बदलें</string>
+    <string name="onboarding_webhook_question">वैकल्पिक। Wifi-ADB का मौजूदा पता आपके अपने सर्वर को भेजता है, जैसे आपके होम नेटवर्क या VPN में। ज़्यादातर लोगों को इसकी ज़रूरत नहीं होती। “URL सहेजें” दबाने तक कुछ सहेजा नहीं जाता।</string>
     <string name="onboarding_protection_force_title">अधिकतम सुविधा (फ़ोर्स मोड)</string>
     <string name="onboarding_protection_force_body">हर नेटवर्क में, अनजान नेटवर्क में भी, आपके चुने समय तक। पहले आपको पुष्टि करनी होगी।</string>
     <string name="onboarding_protection_force_keep_alive">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">फ़ोर्स मोड खत्म होने के बाद लागू होता है।</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">सिस्टम अनुमति नहीं मिली</string>
-    <string name="home_warning_system_text">KeepADB वायरलेस डीबगिंग तभी चालू कर सकता है जब आप यह अनुमति एक बार कंप्यूटर से दें।</string>
+    <string name="home_warning_system_text">KeepADB Wifi-ADB तभी चालू कर सकता है जब आप यह अनुमति एक बार कंप्यूटर से दें।</string>
     <string name="home_warning_action_guide">निर्देश</string>
     <string name="home_warning_less_secure_title">सुझाव से कम सुरक्षित</string>
     <string name="home_warning_action_review">जाँचें</string>
@@ -588,8 +588,8 @@
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB नियंत्रण</string>
-    <string name="widget_picker_description">वायरलेस डीबगिंग, Keep-Alive और Webhook के नियंत्रण। बड़ा करने पर अधिक दिखाता है।</string>
-    <string name="widget_action_adb">डीबगिंग</string>
+    <string name="widget_picker_description">Wifi-ADB, Keep-Alive और Webhook के नियंत्रण। बड़ा करने पर अधिक दिखाता है।</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">ऑटो-सिंक</string>
     <string name="widget_action_sync_description">स्वचालित वेबहुक सिंक</string>

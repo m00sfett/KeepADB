@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #913: the overview widget up to about 3 cells wide: one information card (Wireless Debugging,
+<!-- #913: the overview widget up to about 3 cells wide: one information card (Wifi-ADB,
      Wi-Fi, Keep-Alive, webhook delivery; one tap target that only opens the app) and the
      auto-sync pill under it, the widget's only control. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
