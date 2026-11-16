@@ -86,7 +86,7 @@ public class MainActivityForceCardTest {
         View panel = limited.findViewById(R.id.force_warning_panel);
         assertEquals(View.VISIBLE, panel.getVisibility());
         String text = ((TextView) limited.findViewById(R.id.force_warning_text)).getText().toString();
-        assertTrue(text, text.startsWith("Wireless debugging is turned back on in every network. Active until "));
+        assertTrue(text, text.startsWith("Wifi-ADB is turned back on in every network. Active until "));
         assertFalse(text, text.contains("No end time"));
 
         resetState();
@@ -96,7 +96,7 @@ public class MainActivityForceCardTest {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.UNLIMITED, true));
         MainActivity unlimited = Robolectric.buildActivity(MainActivity.class).setup().get();
         assertEquals(View.VISIBLE, unlimited.findViewById(R.id.force_warning_panel).getVisibility());
-        assertEquals("Wireless debugging is turned back on in every network. No end time.",
+        assertEquals("Wifi-ADB is turned back on in every network. No end time.",
                 ((TextView) unlimited.findViewById(R.id.force_warning_text)).getText().toString());
     }
 

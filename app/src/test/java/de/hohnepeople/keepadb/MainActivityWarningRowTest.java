@@ -299,7 +299,7 @@ public class MainActivityWarningRowTest {
         assertTrue(row.isExpanded());
         assertEquals(View.VISIBLE, panel.findViewById(R.id.warning_details).getVisibility());
         assertTrue(((TextView) panel.findViewById(R.id.force_warning_text)).getText().toString()
-                .startsWith("Wireless debugging is turned back on in every network."));
+                .startsWith("Wifi-ADB is turned back on in every network."));
         assertEquals("Settings", ((TextView) panel.findViewById(R.id.btn_force_settings)).getText().toString());
     }
 

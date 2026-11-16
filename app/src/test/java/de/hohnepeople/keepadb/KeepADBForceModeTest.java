@@ -1149,7 +1149,7 @@ public class KeepADBForceModeTest {
         assertEquals(KeepADBForceMode.REQUEST_CODE_EXPIRED_TURN_OFF,
                 shadowOf(exposed.actions[0].actionIntent).getRequestCode());
         assertTrue(exposed.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
-                .contains("Wireless debugging is still on right now."));
+                .contains("Wifi-ADB is still on right now."));
         assertTrue("F6: only reported, not switched off by the expiry", gateway.writes.isEmpty());
         assertTrue(KeepADB.isEnabled(context));
 
@@ -1188,7 +1188,7 @@ public class KeepADBForceModeTest {
                 + String.valueOf(extras.getCharSequence(Notification.EXTRA_BIG_TEXT));
         assertFalse(visible, visible.toLowerCase().contains("force"));
         assertFalse(visible, visible.contains("Maximum security"));
-        assertFalse(visible, visible.contains("Wireless debugging"));
+        assertFalse(visible, visible.contains("Wifi-ADB"));
         assertEquals("Security notices", extras.getCharSequence(Notification.EXTRA_TITLE).toString());
         assertTrue("A glance at a locked screen must not trigger anything",
                 publicVersion.actions == null || publicVersion.actions.length == 0);
