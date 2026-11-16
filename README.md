@@ -74,7 +74,7 @@ For convenience, you can enable **Force mode** under **Settings → Protection**
 7 days, 30 days, or indefinitely. Keep-Alive will then turn Wifi-ADB back on in every
 Wi-Fi network, including blocked networks and networks whose identity cannot be read. A warning
 appears on the home screen and in the notification, and one tap ends Force mode. The
-[trusted-networks guide](docs/trusted-networks.md) explains BSSID, optional SSID matching,
+[trusted-networks guide](docs/trusted-networks.md) explains BSSID, the legacy Wi-Fi name list,
 location permissions, Force mode, background starts, and measurement limits.
 
 ## Webhook
