@@ -33,7 +33,6 @@ final class KeepADBPreferences {
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
-    private static final String KEY_USB_WLAN_HANDOVER_MODE = "usb_wlan_handover_mode";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
@@ -47,6 +46,19 @@ final class KeepADBPreferences {
             "network_onboarding_panel_visible",
             "background_location_panel_visible",
     };
+    // #956: keys of the removed USB-ADB area (notification, host profiles, handover mode). Never
+    // read or written any more; kept only to be deleted (removeObsoleteUsbKeys). The host
+    // profiles hold host names and IP addresses, so they must not outlive the update. A profile
+    // stores its fields as usb_profile_<id>_<field>, which the prefix covers.
+    private static final String[] OBSOLETE_USB_KEYS = {
+            "usb_notification_enabled",
+            "usb_profile_notification_enabled",
+            "usb_profile_next_id",
+            "usb_profile_selected_id",
+            "usb_profile_ids",
+            "usb_wlan_handover_mode",
+    };
+    private static final String OBSOLETE_USB_PROFILE_PREFIX = "usb_profile_";
     // #904: three independent, opt-in privacy switches (all off on a new installation). Each one
     // masks its own area only and is purely a rendering preference, never the toggle facade's own
     // WRITE_SECURE_SETTINGS state and never the real ADB transport.
@@ -78,11 +90,6 @@ final class KeepADBPreferences {
     static final String KEY_UPGRADE_NOTICE_SHOWN = "upgrade_notice_1_10_shown";
     static final String KEY_ONBOARDING_EXISTING_INSTALL = "onboarding_existing_install";
 
-    // #168: optional USB-ADB -> Wifi-ADB handover offered from the USB notification.
-    static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
-    static final String USB_WLAN_HANDOVER_MODE_MANUAL = "manual";
-    static final String USB_WLAN_HANDOVER_MODE_AUTOMATIC = "automatic";
-
     private KeepADBPreferences() {}
 
     static final String WEBHOOK_STATUS_NEVER = "never";
@@ -92,7 +99,7 @@ final class KeepADBPreferences {
 
     /**
      * Persisted record of the last explicit on/off user intent. Survives process death and LMK
-     * so recovery and automatic handover don't fail open after process resurrection. Defaults to true.
+     * so recovery doesn't fail open after process resurrection. Defaults to true.
      */
     static boolean getLastDesiredOn(Context context) {
         if (context == null) return true;
@@ -106,32 +113,9 @@ final class KeepADBPreferences {
         prefs.edit().putBoolean(KEY_LAST_DESIRED_ON, on).apply();
     }
 
-    /** Default OFF; any unrecognized stored value is treated as OFF rather than failing open. */
-    static String getUsbWlanHandoverMode(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String value = prefs.getString(KEY_USB_WLAN_HANDOVER_MODE, USB_WLAN_HANDOVER_MODE_OFF);
-        if (USB_WLAN_HANDOVER_MODE_MANUAL.equals(value) || USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(value)) {
-            return value;
-        }
-        return USB_WLAN_HANDOVER_MODE_OFF;
-    }
-
-    // Deliberately does NOT call KeepADB.consumeUserDisabled() (unlike setKeepAliveEnabled()):
-    // choosing MANUAL/AUTOMATIC here only configures future behavior, it is not itself an
-    // explicit "turn Wifi-ADB on now" action. Clearing the user-off flag here would let merely
-    // enabling this setting silently undo an earlier explicit user disable before any new USB
-    // connect edge even happens, which is exactly what issue #168's safety requirement forbids.
-    static void setUsbWlanHandoverMode(Context context, String mode) {
-        String sanitized = USB_WLAN_HANDOVER_MODE_MANUAL.equals(mode)
-                || USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(mode)
-                ? mode : USB_WLAN_HANDOVER_MODE_OFF;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(KEY_USB_WLAN_HANDOVER_MODE, sanitized).apply();
-    }
-
     /**
      * #904: whether KeepADB notifications must stay free of connection details (port, IP address,
-     * USB host profile, Wi-Fi name, BSSID). Default OFF, so a new installation shows the details;
+     * Wi-Fi name, BSSID). Default OFF, so a new installation shows the details;
      * when they are shown they can also appear on the lock screen if the device shows sensitive
      * notification content there. An existing installation keeps what it had: see {@link
      * #migratePrivacySplit}.
@@ -883,6 +867,32 @@ final class KeepADBPreferences {
             editor.remove(key);
         }
         if (editor != null) editor.apply();
+    }
+
+    /**
+     * #956: deletes what the removed USB-ADB area stored: the notification and handover settings
+     * and every host profile (name, IP address, host names). Idempotent and silent when nothing is
+     * stored, so a new installation gets no write from it. The assistant's existing/new decision
+     * is frozen first, as {@link #removeObsoleteHomeCardKeys} does: it counts any stored key as
+     * "existing", and removing the only keys of an installation must not turn that into "new".
+     * Runs from {@link KeepADBApplication#onCreate} right after {@link #migratePrivacySplit}, which
+     * has to see the keys that were stored before this deletion.
+     */
+    static void removeObsoleteUsbKeys(Context context) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        java.util.List<String> found = new java.util.ArrayList<>();
+        for (String key : prefs.getAll().keySet()) {
+            if (key.startsWith(OBSOLETE_USB_PROFILE_PREFIX)
+                    || java.util.Arrays.asList(OBSOLETE_USB_KEYS).contains(key)) {
+                found.add(key);
+            }
+        }
+        if (found.isEmpty()) return;
+        KeepADBOnboarding.isExistingInstall(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        for (String key : found) editor.remove(key);
+        editor.apply();
     }
 
     /**

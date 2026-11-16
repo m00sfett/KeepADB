@@ -5,9 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.content.Intent;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +27,7 @@ import org.robolectric.shadows.ShadowLooper;
  * {@code postTransports}.
  *
  * <p>The live {@code phone-register-server} currently accepts only {@code wlan-adb} (see
- * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}). Reporting a verified USB or VPN
+ * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}). Reporting a verified VPN
  * transport to it would earn a guaranteed HTTP 400 on every endpoint change, so these tests pin
  * that such events are built but held back -- and that widening the constant is all it takes to
  * start sending them.
@@ -70,25 +68,20 @@ public class KeepADBRegisterMultiTransportWiringTest {
     public void tearDown() throws Exception {
         clearPreferences();
         KeepADBRegisterClient.resetForTesting();
-        KeepADBEndpointCoordinator.resetForTesting();
-        setNotificationStatic("currentHost", null);
-        setNotificationStatic("currentPort", 0);
-        setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
-        KeepADBVpnTransport.setReachabilityProbeForTesting(null);
-        setUsbAdbConnected(false);
+        KeepADBVpnTestSupport.resetVerifiedVpn();
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         KeepADB.resetForTesting();
     }
 
     /**
-     * The whole point of the wiring: a USB transport that is genuinely verified alongside WLAN is
+     * The whole point of the wiring: a VPN transport that is genuinely verified alongside WLAN is
      * fed into {@code postTransports}, and held back there because the deployed server has no
-     * {@code usb-adb} slot yet. The WLAN report must go out unaffected.
+     * {@code vpn-adb} slot yet. The WLAN report must go out unaffected.
      */
     @Test
-    public void verifiedUsbTransport_isHeldBackWhileTheWlanReportStillGoesOut() throws Exception {
+    public void verifiedVpnTransport_isHeldBackWhileTheWlanReportStillGoesOut() throws Exception {
         enableWebhook();
-        setUsbAdbConnected(true);
+        setVpnVerified();
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
         awaitSuccessfulReport();
@@ -99,24 +92,24 @@ public class KeepADBRegisterMultiTransportWiringTest {
         assertTrue(wlan, wlan.contains("\"method\":\"wlan-adb\""));
         assertTrue(wlan, wlan.contains("\"endpoint\":\"192.168.1.50:41234\""));
         assertTrue(wlan, wlan.contains("\"contract_version\":2"));
-        assertFalse("A usb-adb event would be an automatic HTTP 400 against the live register",
-                wlan.contains("usb-adb"));
+        assertFalse("A vpn-adb event would be an automatic HTTP 400 against the live register",
+                wlan.contains("vpn-adb"));
     }
 
     /**
      * The load-bearing counter-test: the assertion above ("only the WLAN event is sent") would
      * pass just as well if {@code postTransports} were never reached from production code at all.
      * With the server-supported set widened to the future state, the exact same
-     * {@code updateEndpointAsync} trigger must now also emit the USB event -- which it can only
+     * {@code updateEndpointAsync} trigger must now also emit the VPN event -- which it can only
      * do if {@code performUpdateTransaction} really calls into the multi-transport path. Deleting
      * that call makes this test fail.
      */
     @Test
-    public void withAWidenedServer_theSameTriggerAlsoReportsTheUsbTransport() throws Exception {
+    public void withAWidenedServer_theSameTriggerAlsoReportsTheVpnTransport() throws Exception {
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(new java.util.HashSet<>(
-                java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         enableWebhook();
-        setUsbAdbConnected(true);
+        setVpnVerified();
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
         awaitSuccessfulReport();
@@ -124,11 +117,11 @@ public class KeepADBRegisterMultiTransportWiringTest {
 
         assertEquals(2, sentPayloads.size());
         assertTrue(sentPayloads.get(0).contains("\"method\":\"wlan-adb\""));
-        String usb = sentPayloads.get(1);
-        assertTrue(usb, usb.contains("\"method\":\"usb-adb\""));
-        assertTrue("An active USB transport carries no fabricated network endpoint: " + usb,
-                !usb.contains("\"endpoint\""));
-        assertTrue(usb, usb.contains("\"active\":true"));
+        String vpn = sentPayloads.get(1);
+        assertTrue(vpn, vpn.contains("\"method\":\"vpn-adb\""));
+        assertTrue("The VPN event carries the VPN endpoint, not the WLAN one: " + vpn,
+                vpn.contains("\"endpoint\":\"100.101.2.3:41234\""));
+        assertTrue(vpn, vpn.contains("\"active\":true"));
     }
 
     /**
@@ -137,12 +130,12 @@ public class KeepADBRegisterMultiTransportWiringTest {
      */
     @Test
     public void wideningTheServerSupportedSet_makesTheHeldBackEventFlow() throws Exception {
-        List<KeepADBRegisterPayload.VerifiedTransport> usbOnly = Collections.singletonList(
+        List<KeepADBRegisterPayload.VerifiedTransport> vpnOnly = Collections.singletonList(
                 new KeepADBRegisterPayload.VerifiedTransport(
-                        KeepADBRegisterPayload.Type.USB, null, 0, 1_700_000_000_000L));
+                        KeepADBRegisterPayload.Type.VPN, "100.101.2.3", 41234, 1_700_000_000_000L));
 
-        assertTrue(KeepADBRegisterClient.postTransports(URL, usbOnly));
-        assertTrue("usb-adb is not in SERVER_SUPPORTED_METHODS, so nothing may be sent",
+        assertTrue(KeepADBRegisterClient.postTransports(URL, vpnOnly));
+        assertTrue("vpn-adb is not in SERVER_SUPPORTED_METHODS, so nothing may be sent",
                 sentPayloads.isEmpty());
 
         List<KeepADBRegisterPayload.VerifiedTransport> wlanOnly = Collections.singletonList(
@@ -158,13 +151,13 @@ public class KeepADBRegisterMultiTransportWiringTest {
     /**
      * The multi-transport report must not become a back door around the webhook opt-in: with the
      * feature switched off, the whole path -- including the new transport reporting -- stays
-     * silent even though a USB transport is verified.
+     * silent even though a VPN transport is verified.
      */
     @Test
     public void withTheWebhookOptInOff_nothingIsSentAtAll() throws Exception {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        setUsbAdbConnected(true);
+        setVpnVerified();
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
         for (int i = 0; i < 20; i++) {
@@ -206,17 +199,7 @@ public class KeepADBRegisterMultiTransportWiringTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
     }
 
-    private void setUsbAdbConnected(boolean connected) {
-        Intent intent = new Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
-        intent.putExtra("connected", connected);
-        intent.putExtra("configured", connected);
-        intent.putExtra("adb", connected);
-        context.sendStickyBroadcast(intent);
-    }
-
-    private static void setNotificationStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(null, value);
+    private void setVpnVerified() throws Exception {
+        KeepADBVpnTestSupport.deliverVerifiedVpn(context, "192.168.1.50", 41234, "100.101.2.3");
     }
 }

@@ -77,17 +77,17 @@ public class SettingsEntryPointsTest {
                 R.id.settings_privacy_body);
     }
 
-    /** #941: the Privacy card sits between USB-ADB and Other and holds the four switches. */
-    @Test public void privacyCardSitsBetweenUsbAdbAndOtherAndHoldsTheSwitches() {
+    /** #941: the Privacy card sits between Webhook and Other and holds the four switches. */
+    @Test public void privacyCardSitsBetweenWebhookAndOtherAndHoldsTheSwitches() {
         SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        View usb = activity.findViewById(R.id.settings_usb_adb_header);
+        View webhook = activity.findViewById(R.id.settings_webhook_panel);
         View privacy = activity.findViewById(R.id.settings_privacy_panel);
         View misc = activity.findViewById(R.id.settings_misc_panel);
         android.view.ViewGroup column = (android.view.ViewGroup) privacy.getParent();
         assertEquals(column, misc.getParent());
         int privacyIndex = column.indexOfChild(privacy);
         assertEquals(privacyIndex + 1, column.indexOfChild(misc));
-        assertEquals(column.indexOfChild((View) usb.getParent()) + 1, privacyIndex);
+        assertEquals(column.indexOfChild(webhook) + 1, privacyIndex);
         View body = activity.findViewById(R.id.settings_privacy_body);
         for (int id : new int[]{R.id.privacy_switch_app, R.id.privacy_switch_notifications,
                 R.id.privacy_switch_lockscreen, R.id.privacy_switch_widgets}) {
@@ -124,7 +124,7 @@ public class SettingsEntryPointsTest {
     @Test public void defaultEntryLeavesEveryTargetCollapsed() {
         ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
         for (int body : new int[]{R.id.settings_webhook_body, R.id.settings_misc_body,
-                R.id.settings_usb_adb_body, R.id.settings_network_beta_body}) {
+                R.id.settings_network_beta_body}) {
             assertEquals(View.GONE, controller.get().findViewById(body).getVisibility());
         }
         controller.pause().stop().destroy();

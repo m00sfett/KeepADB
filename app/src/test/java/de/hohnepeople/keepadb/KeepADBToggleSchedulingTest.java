@@ -32,9 +32,8 @@ import org.junit.Test;
  * pause) is covered separately in {@link KeepADBRecoveryPulseInterruptionTest} with real threads
  * and latches instead.
  *
- * <p>Scenario "process recreation with a persisted manual-off intent" is already covered by
- * {@link KeepADBUsbHandoverTest#lastDesiredOnPreferencesPersistenceAcrossSimulatedRestart()}
- * against the production gateway/scheduler, so it isn't duplicated here.
+ * <p>Scenario "process recreation with a persisted manual-off intent" is covered by
+ * {@link #lastDesiredOnPreferencesPersistenceAcrossSimulatedRestart()}.
  */
 public class KeepADBToggleSchedulingTest {
     /** An automatic source: still debounced by TOGGLE_COOLDOWN_MS after #310. */
@@ -139,6 +138,27 @@ public class KeepADBToggleSchedulingTest {
         assertFalse("nothing may stay pending after the abort", KeepADB.isTogglePending());
         assertEquals("the abort must clear the pending indicator on the surfaces",
                 afterFirstWrite + 2, surfaces.refreshCount);
+    }
+
+    /** The last explicit intent is persisted, so a process death does not fail open (#168). */
+    @Test
+    public void lastDesiredOnPreferencesPersistenceAcrossSimulatedRestart() {
+        // 1. User disables Wifi-ADB
+        KeepADB.setEnabled(ctx, false, "app");
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 2. Simulate process death / LMK where in-memory static state resets. The persisted
+        // preference of the same context survives, the seams are installed again.
+        KeepADB.resetForTesting();
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 3. User or manual action enables Wifi-ADB
+        KeepADB.setEnabled(ctx, true, "app");
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
     }
 
     @Test
@@ -510,7 +530,7 @@ public class KeepADBToggleSchedulingTest {
         assertTrue(KeepADB.setEnabled(ctx, false, "tile").isSuccess());
         assertTrue(KeepADB.setEnabled(ctx, true, "widget").isSuccess());
         assertTrue(KeepADB.setEnabled(ctx, false, "notification").isSuccess());
-        assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_USB_HANDOVER_MANUAL).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_SHORTCUT).isSuccess());
 
         scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS + 1);
         assertEquals("the short gap must not restore the long user debounce: " + gateway.writes,
@@ -942,8 +962,8 @@ public class KeepADBToggleSchedulingTest {
     }
 
     /**
-     * #817: why the manual surfaces (widget, tile, main switch, notification actions, USB tap,
-     * trust answer) need no test for {@code MANUAL_INTENT_PENDING}: a manual source is never
+     * #817: why the manual surfaces (widget, tile, main switch, notification actions, launcher
+     * shortcut, trust answer) need no test for {@code MANUAL_INTENT_PENDING}: a manual source is never
      * dropped behind a pending manual intent, it supersedes it. They pass no guard either, so
      * {@code GUARD_ABORTED} cannot occur for them.
      */
@@ -951,7 +971,7 @@ public class KeepADBToggleSchedulingTest {
     public void aManualSourceIsNeverReportedAsManualIntentPending() {
         for (String source : new String[] {KeepADB.SOURCE_APP, KeepADB.SOURCE_TILE,
                 KeepADB.SOURCE_WIDGET, KeepADB.SOURCE_NOTIFICATION,
-                KeepADB.SOURCE_USB_HANDOVER_MANUAL, KeepADB.SOURCE_NETWORK_TRUST_PROMPT}) {
+                KeepADB.SOURCE_SHORTCUT, KeepADB.SOURCE_NETWORK_TRUST_PROMPT}) {
             assertTrue(source, KeepADB.isManualSource(source));
             assertEquals(KeepADB.ToggleResult.APPLIED, KeepADB.setEnabled(ctx, false, "app"));
             assertEquals(KeepADB.ToggleResult.SCHEDULED, KeepADB.setEnabled(ctx, true, "app"));

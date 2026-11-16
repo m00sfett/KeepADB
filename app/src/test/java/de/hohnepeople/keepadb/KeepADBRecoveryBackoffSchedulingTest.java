@@ -197,7 +197,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
                 return true;
             }
         });
-        String manual = KeepADB.SOURCE_USB_HANDOVER_MANUAL;
+        String manual = KeepADB.SOURCE_SHORTCUT;
         assertTrue(KeepADB.setEnabled(ctx, false, manual).isSuccess());
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
         revoked[0] = true;

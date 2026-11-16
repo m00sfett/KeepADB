@@ -73,7 +73,6 @@ public class KeepADBService extends Service {
                 "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
                         + " adbWifi=" + adbEnabledOrNull
                         + " lastIntentOff=" + KeepADB.wasLastExplicitIntentOff(context));
-        KeepADBUsbReceiver.refresh(context);
         if (shouldRun) {
             start(context);
         } else {
@@ -156,7 +155,7 @@ public class KeepADBService extends Service {
      * first delivery the tracked maps are empty for reasons that have nothing to do with Wi-Fi
      * being off -- and "registered" was already true. The first call in a process therefore
      * deterministically answered "no Wi-Fi" even on a connected network, which since #348 gates
-     * automatic re-enable and USB handover, and also drives the tile/notification state. #390
+     * automatic re-enable, and also drives the tile/notification state. #390
      * introduced exactly the right predicate for this ({@link
      * KeepADBNetwork#isWifiTrackingAuthoritative()}, registered <em>and</em> observed) but applied
      * it only to the endpoint-address path; this call site now uses it too.
@@ -181,7 +180,6 @@ public class KeepADBService extends Service {
         // #864: what happened while no service observed it is unknown; an older manual exemption
         // from the untrusted-Wi-Fi shutdown ends here.
         KeepADBUntrustedShutdown.onObservationResumed(this);
-        KeepADBUsbReceiver.refresh(this);
         long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
         if (lastHeartbeat > 0) {
             long gapMs = System.currentTimeMillis() - lastHeartbeat;

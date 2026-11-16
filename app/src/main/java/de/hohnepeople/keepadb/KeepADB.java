@@ -80,16 +80,12 @@ final class KeepADB {
     // #310: source strings whose caller is a direct, explicit user action. Everything else is
     // treated as automatic, so an unrecognized/new source keeps today's conservative behavior
     // (debounced, never written straight away) instead of silently gaining an instant write.
-    // The USB handover has one entry per entry point on purpose: its automatic broadcast path
-    // and its notification-action tap used to share one source string, which made the two
-    // indistinguishable here even though only one of them is a user action.
     static final String SOURCE_APP = "app";
     static final String SOURCE_TILE = "tile";
     static final String SOURCE_WIDGET = "widget";
     static final String SOURCE_NOTIFICATION = "notification";
     /** #954: the "Toggle Wifi-ADB" launcher shortcut; a direct tap, like the tile and the widget. */
     static final String SOURCE_SHORTCUT = "shortcut";
-    static final String SOURCE_USB_HANDOVER_MANUAL = "usb_handover_manual";
     /**
      * #446: the user tapped "allow" on the untrusted-network prompt; #470: the user tapped the
      * main screen's per-access-point trust button, which triggers the exact same immediate
@@ -101,7 +97,7 @@ final class KeepADB {
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_SHORTCUT, SOURCE_USB_HANDOVER_MANUAL, SOURCE_NETWORK_TRUST_PROMPT)));
+                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {
@@ -247,7 +243,7 @@ final class KeepADB {
      *
      * <p>#582: this is now the <em>only</em> sanctioned way to read {@code adb_wifi_enabled}
      * anywhere in the app -- every call site that used to read {@link #isEnabled} directly
-     * (display surfaces, the foreground service, USB handover, the recovery pulse, and the
+     * (display surfaces, the foreground service, the recovery pulse, and the
      * post-write readbacks in {@link #applyNow} and {@link #confirmAutomaticAttempt} that #580
      * deliberately left unguarded) now goes through here instead, each with its own
      * context-appropriate null fallback documented at the call site. A failure is recorded via

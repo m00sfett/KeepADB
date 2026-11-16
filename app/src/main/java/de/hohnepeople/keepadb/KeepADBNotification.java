@@ -31,6 +31,9 @@ import java.util.List;
 final class KeepADBNotification {
     static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
+    /** #956: the channel and notification id of the removed USB-ADB notification. */
+    private static final String OBSOLETE_USB_CHANNEL_ID = "keepadb_usb";
+    private static final int OBSOLETE_USB_NOTIFICATION_ID = 2;
     /** #759: the content tap of the "permission missing" card; its own code, see #603. */
     private static final int REQUEST_CODE_PERMISSION_STEP = 30;
     /** #734: marks the endpoint card, the only notification {@link #refreshIfActive} may redraw. */
@@ -155,6 +158,29 @@ final class KeepADBNotification {
         manager.cancel(NOTIFICATION_ID);
     }
 
+    /**
+     * #956: cancels a USB-ADB notification that is still showing from before the update and deletes
+     * its channel, which would otherwise stay in the system's notification settings of the app.
+     * Idempotent: once the channel is gone nothing is left to do, and nothing else is touched.
+     */
+    static void removeObsoleteUsbNotification(Context context) {
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (manager == null || manager.getNotificationChannel(OBSOLETE_USB_CHANNEL_ID) == null) {
+            return;
+        }
+        try {
+            for (StatusBarNotification active : manager.getActiveNotifications()) {
+                if (active.getId() == OBSOLETE_USB_NOTIFICATION_ID
+                        && OBSOLETE_USB_CHANNEL_ID.equals(active.getNotification().getChannelId())) {
+                    manager.cancel(OBSOLETE_USB_NOTIFICATION_ID);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // The channel deletion below removes its notifications as well.
+        }
+        manager.deleteNotificationChannel(OBSOLETE_USB_CHANNEL_ID);
+    }
+
     private static void ensureChannel(Context context, NotificationManager manager) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                 context.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_LOW);
@@ -219,7 +245,7 @@ final class KeepADBNotification {
     private static Notification buildNotification(Context context, String host, int port) {
         String title = context.getString(R.string.notification_title_active, context.getString(R.string.app_name));
         // #597/#904: the port/IP endpoint string follows the notification privacy switch, the same
-        // one the USB and trust-prompt notifications use. While it is on, only the status is
+        // one the trust-prompt notification uses. While it is on, only the status is
         // shown; while it is off (the default) the text reads "Port <port> @ <ip>".
         CharSequence content = KeepADBPreferences.isNotificationPrivacyEnabled(context)
                 ? context.getString(R.string.notification_text_active_hidden)
@@ -253,8 +279,8 @@ final class KeepADBNotification {
                 .setOngoing(true)
                 .setShowWhen(false)
                 // #597: publicVersion never carries the endpoint, regardless of the privacy
-                // setting -- same rule #589/#592 already apply to the USB and trust-prompt
-                // notifications. Android only shows it while sensitive lock-screen content is
+                // setting -- same rule #589/#592 already apply to the trust-prompt
+                // notification. Android only shows it while sensitive lock-screen content is
                 // redacted; with it allowed, the private content above (gated by the check just
                 // above) is shown instead.
                 .setPublicVersion(publicVersion(context, title))

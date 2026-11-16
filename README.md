@@ -48,8 +48,8 @@ has its own main action, order and detail setting. The second widget, **KeepADB 
 the connection, Wi-Fi, Keep-Alive and webhook delivery at a glance and offers only the auto-sync
 switch (see [docs/widgets.md](docs/widgets.md)).
 
-Settings also include local USB host profiles, optional USB-to-Wi-Fi ADB handover, notification
-privacy, diagnostics export, and optional webhook synchronization. Three optional privacy switches
+Settings also include notification privacy, diagnostics export, and optional webhook
+synchronization. Three optional privacy switches
 (first page of the setup assistant, also in Settings → Privacy and on a long press of the eye) hide
 Wi-Fi names and addresses in the app, in notifications (optionally also off the lock screen), and
 in widgets and the Quick Settings tile; they do not change the endpoint sent
@@ -57,7 +57,7 @@ by an enabled webhook. Notifications and widgets omit addresses entirely, port i
 the app the masks are partial: an IPv4 address keeps its first number and the port stays visible
 (for example `192.*.*.*:41234`), an IPv6 address keeps its first group (`fe80:***`), and a BSSID
 keeps its first and last pair (`AA:*:*:*:*:01`); Wi-Fi names are replaced by a placeholder, and
-every host name (DNS and Tailnet names, in endpoint rows, report history, USB profiles and the
+every host name (DNS and Tailnet names, in endpoint rows, report history and the
 webhook address) is masked as `***`.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
@@ -75,8 +75,8 @@ location permissions, Force mode, background starts, and measurement limits.
 ## Webhook
 
 Webhook synchronization is off by default. After you configure it, KeepADB sends verified Wi-Fi
-ADB endpoint data to the URL you entered. USB host profiles remain local; the sender currently
-allows only Wi-Fi ADB events to be transmitted. `http://` is supported, but it is unencrypted. Use
+ADB endpoint data to the URL you entered. The sender currently allows only Wi-Fi ADB events to be
+transmitted. `http://` is supported, but it is unencrypted. Use
 HTTP only for an endpoint you operate on a trusted LAN or VPN, and heed the warning in the app.
 
 The [webhook contract](docs/webhook-register.md) describes the exact message, deletion requests,

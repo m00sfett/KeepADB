@@ -4,11 +4,16 @@ import android.app.Application;
 import android.content.res.Configuration;
 
 /**
- * The application object. It exists for three reasons and holds nothing else:
+ * The application object. It exists for these reasons and holds nothing else:
  * <ul>
  *   <li>It derives the three privacy switches once ({@link
  *       KeepADBPreferences#migratePrivacySplit}) before any component of this process writes a
  *       preference, which is the only moment "nothing stored yet" identifies a new installation.</li>
+ *   <li>It deletes what the removed USB-ADB area left behind (#956: stored settings and host
+ *       profiles, the notification channel and a notification still showing), directly after
+ *       that. Every component of the app (screens, boot receiver, service, tile, widgets) runs in
+ *       this process, so whichever one is the first after an update, this runs before it. The
+ *       work is idempotent and writes nothing once the old data is gone.</li>
  *   <li>It ends the per-screen "Show" of the app privacy switch when the screen stops ({@link
  *       KeepADBPrivacy#LIFECYCLE}).</li>
  *   <li>It re-arms the widgets' watch of the Wireless Debugging setting at every process start
@@ -30,6 +35,8 @@ public class KeepADBApplication extends Application {
         super.onCreate();
         remember(getResources().getConfiguration());
         KeepADBPreferences.migratePrivacySplit(this);
+        KeepADBPreferences.removeObsoleteUsbKeys(this);
+        KeepADBNotification.removeObsoleteUsbNotification(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);
         KeepADBWidgetRefreshJob.scheduleIfWidgetPlaced(this);
     }

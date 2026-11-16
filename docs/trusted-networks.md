@@ -7,7 +7,7 @@ on/off control.
 ## Model: trust, blocks, and precedence
 
 One model (#760) decides whether every automatic recovery is allowed: the service (observer and
-60-second check), recovery pulse, USB handover, and Keep-Alive switch all consult the same place.
+60-second check), recovery pulse, and Keep-Alive switch all consult the same place.
 The UI previously said “allowed” and “allowlist”; the policy means “trusted.” The wording was
 updated with the Networks list (#762).
 
@@ -98,7 +98,7 @@ identified, instead of only notifying:
   debugging going off ends that exemption for good; returning to the first access point does not
   revive it. An unreadable identity cannot prove the same access point: switching on there grants
   no exemption, and while the identity is unreadable an existing exemption does not apply. Only
-  switching on in KeepADB (app, tile, widget, notification, USB handover action) counts; switching
+  switching on in KeepADB (app, tile, widget, notification) counts; switching
   on in Android's own settings grants no exemption. Switching on in KeepADB that Android does not
   carry out (the setting reads back off) grants none either (#880). A restart of the Keep-Alive service ends an
   exemption recorded before it, because what happened while nothing observed it is unknown.
@@ -367,7 +367,7 @@ do not read or change anything stored by the model (trusted access points, block
 switch, or the previous setting). “Protection level back to: …” therefore means only
 that the overlay is removed. The overlay acts at the one decision point used by every automatic
 path (`KeepADBTrustedNetwork.evaluateCurrent`): the service (observer and minute interval),
-recovery pulse, USB handover, and protection checks immediately before writing. It does not replace
+recovery pulse, and protection checks immediately before writing. It does not replace
 Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wireless Debugging remains in effect.
 Adding trust to a blocked network remains impossible even in Force mode; Force mode changes neither
 blocks nor trust.

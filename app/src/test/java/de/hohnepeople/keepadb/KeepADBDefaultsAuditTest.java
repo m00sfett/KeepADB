@@ -56,8 +56,8 @@ import de.hohnepeople.keepadb.KeepADBTrustedNetwork.ProtectionLevel;
  *   <li><b>A new installation starts on the safe value.</b> Every setting reads its audited
  *       default when nothing is stored, the audit table is complete (a new preference key that is
  *       not classified here fails the build), reading the defaults writes nothing (apart from the
- *       one-time network-mode flag of #760), and the acting paths (network trust, boot start, USB
- *       handover) really behave on those defaults.</li>
+ *       one-time network-mode flag of #760), and the acting paths (network trust, boot start)
+ *       really behave on those defaults.</li>
  *   <li><b>An existing installation keeps what it stored.</b> A stored value that is looser than
  *       the default stays looser, a stored value that is stricter than a (convenience) default stays
  *       stricter, and a value stored explicitly equal to the default stays stored. Nothing is
@@ -132,8 +132,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBTrustedNetwork.isTrustByNameEnabled(c)),
             new Setting("trusted_network_ssid_matching", Kind.SECURITY, false, true,
                     c -> KeepADBTrustedNetwork.isSsidMatchingEnabled(c)),
-            new Setting("usb_wlan_handover_mode", Kind.SECURITY, "off", "automatic",
-                    c -> KeepADBPreferences.getUsbWlanHandoverMode(c)),
             // #860: opt-in hardening, off by user decision so no trust entry is tightened silently
             new Setting("trusted_network_security_check", Kind.SECURITY, false, true,
                     c -> KeepADBTrustedNetwork.isSecurityCheckEnabled(c)),
@@ -160,10 +158,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isNotificationHidden(c)),
             new Setting("keep_display_on_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isKeepDisplayOnEnabled(c)),
-            new Setting("usb_notification_enabled", Kind.CONVENIENCE, false, true,
-                    c -> KeepADBUsbProfile.isNotificationEnabled(c)),
-            new Setting("usb_profile_notification_enabled", Kind.CONVENIENCE, true, false,
-                    c -> KeepADBUsbProfile.isProfileNotificationEnabled(c)),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
             new Setting("register_webhook_retry_profile", Kind.CONVENIENCE, "standard", "gentle",
@@ -190,7 +184,6 @@ public class KeepADBDefaultsAuditTest {
             "register_webhook_failure_since", "register_webhook_alerts_shown",
             "trusted_network_next_id", "trusted_network_ids", "trusted_network_mode_initialized",
             "trusted_ssid_next_id", "trusted_ssid_ids", "blocked_bssids", "blocked_ssids",
-            "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
@@ -209,7 +202,6 @@ public class KeepADBDefaultsAuditTest {
     public void setUp() {
         freshInstallation();
         KeepADB.resetForTesting();
-        KeepADBUsbHandover.resetForTesting();
     }
 
     /** Nothing stored but the marker the application writes at the first start. */
@@ -222,7 +214,6 @@ public class KeepADBDefaultsAuditTest {
     public void tearDown() {
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
-        KeepADBUsbHandover.resetForTesting();
     }
 
     // --- New installation: the audited defaults ----------------------------------------------------
@@ -245,8 +236,6 @@ public class KeepADBDefaultsAuditTest {
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(app));
         assertFalse(KeepADBTrustedNetwork.hasActiveLegacyNameGrants(app));
         assertEquals(ProtectionLevel.MAXIMUM_SECURITY, KeepADBTrustedNetwork.getProtectionLevel(app));
-        assertEquals(KeepADBPreferences.USB_WLAN_HANDOVER_MODE_OFF,
-                KeepADBPreferences.getUsbWlanHandoverMode(app));
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(app));
         assertNull(KeepADBPreferences.getRegisterWebhookUrl(app));
         // #904 (deliberate, user decision of 2026-11-07): connection details in notifications are
@@ -256,7 +245,6 @@ public class KeepADBDefaultsAuditTest {
         assertTrue(KeepADBTrustedNetwork.getEntries(app).isEmpty());
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(app).isEmpty());
         assertTrue(KeepADBNetworkBlocklist.isEmpty(app));
-        assertTrue(KeepADBUsbProfile.getProfiles(app).isEmpty());
     }
 
     @Test
@@ -330,17 +318,6 @@ public class KeepADBDefaultsAuditTest {
         new BootReceiver().onReceive(app, new Intent(Intent.ACTION_BOOT_COMPLETED));
 
         assertNotNull(shadowOf(app).getNextStartedService());
-    }
-
-    @Test
-    public void aNewInstallationPlansNoUsbHandoverOnAConnectEdge() {
-        String mode = KeepADBPreferences.getUsbWlanHandoverMode(app);
-
-        assertFalse(KeepADBUsbHandover.onRawUsbBroadcastInternal(true, mode, false, false));
-
-        // Control: the automatic mode, stored, does plan one on the same fresh edge.
-        KeepADBUsbHandover.resetForTesting();
-        assertTrue(KeepADBUsbHandover.onRawUsbBroadcastInternal(true, "automatic", false, false));
     }
 
     // --- Existing installation: stored values stay, in both directions --------------------------------
@@ -428,22 +405,12 @@ public class KeepADBDefaultsAuditTest {
     }
 
     @Test
-    public void anExistingKeepAliveOptInAndUsbModeSurviveTheBootPath() {
-        prefs().edit()
-                .putBoolean("keep_alive_enabled", true)
-                .putString("usb_wlan_handover_mode", "manual")
-                .commit();
+    public void anExistingKeepAliveOptInSurvivesTheBootPath() {
+        prefs().edit().putBoolean("keep_alive_enabled", true).commit();
 
         new BootReceiver().onReceive(app, new Intent(Intent.ACTION_MY_PACKAGE_REPLACED));
 
         assertTrue(prefs().getBoolean("keep_alive_enabled", false));
-        assertEquals("manual", prefs().getString("usb_wlan_handover_mode", null));
-    }
-
-    @Test
-    public void aDamagedStoredHandoverModeReadsAsOffNotAsTheLooserMode() {
-        prefs().edit().putString("usb_wlan_handover_mode", "garbage").commit();
-        assertEquals("off", KeepADBPreferences.getUsbWlanHandoverMode(app));
     }
 
     // --- The audit stays complete ---------------------------------------------------------------------

@@ -40,11 +40,11 @@ final class KeepADBToggleState {
     // Independent, non-consumed counterpart to userDisabled: the on/off state of the last
     // explicit setEnabled() call. userDisabled is a one-shot token with exactly one intended
     // consumer (KeepADBService's content observer, deciding "stop recovering" vs. "recover").
-    // #168 added a second, independent reader of that same field (KeepADBUsbHandover's "did the
-    // user just turn this off?" guard) -- two independent consumers of a one-shot token is a
-    // bug: whichever reads first "uses it up" for the other. Confirmed on real hardware: a
-    // manual off -> content-observer's consumeUserDisabled() (unrelated Keep-Alive decision,
-    // resets userDisabled as a side effect) -> a later genuine USB reconnect wrongly saw
+    // #168 showed that a second, independent reader of that same field (a "did the user just
+    // turn this off?" guard) is a bug: two independent consumers of a one-shot token means
+    // whichever reads first "uses it up" for the other. Confirmed on real hardware: a manual
+    // off -> content-observer's consumeUserDisabled() (unrelated Keep-Alive decision, resets
+    // userDisabled as a side effect) -> a later automatic re-enable wrongly saw
     // isUserDisabled()==false and re-enabled Wifi-ADB despite the explicit manual off.
     // lastDesiredOn fixes this by never being consumed -- only ever overwritten by the next
     // requestToggle() call (or forced via forceLastDesiredOn) -- so a read here can't starve
@@ -95,7 +95,7 @@ final class KeepADBToggleState {
      * superseding any not-yet-applied pending toggle or in-flight recovery pulse.
      *
      * <p>#310: {@code debounced} separates the two kinds of caller. An automatic caller
-     * (Keep-Alive recheck, content observer, USB handover broadcast) keeps the #114 cooldown --
+     * (Keep-Alive recheck, content observer) keeps the #114 cooldown --
      * it is a machine reacting to a machine, so waiting out adbd's teardown costs nothing. A
      * manual caller (app, tile, widget, notification) is an explicit user override and must take
      * effect at once; delaying it made the user's tap land up to {@link #TOGGLE_COOLDOWN_MS}

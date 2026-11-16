@@ -65,7 +65,6 @@ public class KeepADBResourceContractTest {
             R.string.back,
             R.string.advice_banner_text,
             R.string.settings_language_accessibility,
-            R.string.settings_usb_handover_accessibility,
             R.string.background_location_status_missing_inactive,
             R.string.network_cause_unreadable_all_wifi
     };
@@ -675,12 +674,6 @@ public class KeepADBResourceContractTest {
         result.put("webhook_status_hint", new Object[] {
                 stringWitness, stringWitness, stringWitness});
         result.put("settings_language_accessibility", new Object[] {stringWitness});
-        result.put("usb_profile_hidden_numbered", new Object[] {integerWitness});
-        result.put("usb_profile_selected", new Object[] {stringWitness});
-        result.put("usb_profile_edit_action_accessibility", new Object[] {stringWitness});
-        result.put("usb_profile_delete_message", new Object[] {stringWitness});
-        result.put("usb_profile_delete_action_accessibility", new Object[] {stringWitness});
-        result.put("settings_usb_handover_accessibility", new Object[] {stringWitness});
         result.put("settings_version_value", new Object[] {stringWitness});
         result.put("settings_version_code_value", new Object[] {longWitness});
         result.put("feedback_report_body", new Object[] {

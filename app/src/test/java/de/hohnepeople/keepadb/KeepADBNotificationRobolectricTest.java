@@ -280,8 +280,8 @@ public class KeepADBNotificationRobolectricTest {
 
     /**
      * #597: publicVersion must never carry the endpoint, even while the private card does (the
-     * opt-in is on) -- same rule #589/#592 already apply to the USB and trust-prompt
-     * notifications. This is the counter-proof for the two tests above: a fix that only touched
+     * opt-in is on) -- same rule #589/#592 already apply to the trust-prompt
+     * notification. This is the counter-proof for the two tests above: a fix that only touched
      * the private contentText, or that set publicVersion from the same content, would fail here.
      */
     @Test

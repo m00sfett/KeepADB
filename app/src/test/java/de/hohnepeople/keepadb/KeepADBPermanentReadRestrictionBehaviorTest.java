@@ -195,37 +195,6 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         }
     }
 
-    // -- KeepADBUsbHandover (AUTOMATIC mode) ---------------------------------------------------
-
-    /**
-     * The automatic USB handover treats an unknown value as "already enabled", so a real connect
-     * edge in AUTOMATIC mode on a trusted network must not schedule (let alone perform) a write.
-     */
-    @Test
-    public void automaticUsbHandoverDoesNotEnableOnPermanentReadFailure() {
-        KeepADBThrowingSettingsGateway gateway = new KeepADBThrowingSettingsGateway();
-        KeepADB.setGatewayForTesting(gateway);
-        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
-        scheduler.setClockMs(100_000);
-        KeepADB.setSchedulerForTesting(scheduler);
-        KeepADBUsbHandover.resetForTesting();
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
-        KeepADBPreferences.setLastDesiredOn(context, true);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
-        try {
-            // Must not throw.
-            KeepADBUsbHandover.onRawUsbBroadcast(context, true);
-            scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
-
-            assertTrue("the automatic USB handover must not enable on an unconfirmed read",
-                    gateway.writes.isEmpty());
-        } finally {
-            KeepADBUsbHandover.resetForTesting();
-        }
-    }
-
     // -- KeepADB.performRecoveryPulse() ---------------------------------------------------------
 
     /**

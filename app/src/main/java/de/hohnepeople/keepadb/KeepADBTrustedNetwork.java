@@ -635,8 +635,8 @@ final class KeepADBTrustedNetwork {
 
     /**
      * Whether an automatic re-enable may go ahead on the current network: the single question every
-     * automatic call site asks (service observer and heartbeat, recovery pulse, USB handover,
-     * Keep-Alive switch). The caller must independently confirm that Wi-Fi is connected. Manual
+     * automatic call site asks (service observer and heartbeat, recovery pulse, Keep-Alive
+     * switch). The caller must independently confirm that Wi-Fi is connected. Manual
      * controls do not use this gate. See the class javadoc for the precedence.
      */
     static boolean isCurrentNetworkTrusted(Context context) {

@@ -17,7 +17,7 @@ import java.util.Set;
  *
  * <p>This class performs no I/O. KeepADBRegisterPayloadTest checks the generated data without a
  * device or live receiver. The current sender gate permits only WLAN-ADB events; locally built
- * VPN and USB candidates are held back before transmission. See docs/webhook-register.md.
+ * VPN candidates are held back before transmission. See docs/webhook-register.md.
  */
 final class KeepADBRegisterPayload {
 
@@ -30,13 +30,12 @@ final class KeepADBRegisterPayload {
     private KeepADBRegisterPayload() {}
 
     /**
-     * Locally generated transport labels. The app can build WLAN, VPN and USB candidates,
+     * Locally generated transport labels. The app can build WLAN and VPN candidates,
      * while the separate sender allowlist currently permits WLAN-ADB only.
      */
     enum Type {
         WLAN_LAN("wlan-adb"),
-        VPN("vpn-adb"),
-        USB("usb-adb");
+        VPN("vpn-adb");
 
         final String method;
 
@@ -71,9 +70,7 @@ final class KeepADBRegisterPayload {
     /** One transport from the app's verified-transport snapshot. */
     static final class VerifiedTransport {
         final Type type;
-        /** {@code null} for {@link Type#USB}, which has no network endpoint of its own. */
         final String host;
-        /** 0 when {@link #host} is {@code null}. */
         final int port;
         /** Epoch millis of the last successful ADB-reachability confirmation. */
         final long verifiedAtMs;
@@ -131,8 +128,6 @@ final class KeepADBRegisterPayload {
                 return Type.WLAN_LAN;
             case VPN:
                 return Type.VPN;
-            case USB:
-                return Type.USB;
             default:
                 // A transport kind this wire contract has no slot for is dropped rather than
                 // reported under a guessed method.
@@ -142,7 +137,7 @@ final class KeepADBRegisterPayload {
 
     /**
      * Builds one event per verified transport, in the order given. Entries with an unusable
-     * description (unknown type, or a network transport without a usable host/port) are skipped
+     * description (unknown type, or a transport without a usable host/port) are skipped
      * rather than published as reachable.
      */
     static List<Event> buildEvents(List<VerifiedTransport> verified) {
@@ -151,8 +146,8 @@ final class KeepADBRegisterPayload {
         for (VerifiedTransport entry : verified) {
             if (entry == null || entry.type == null) continue;
             String endpoint = endpointFor(entry);
-            if (entry.type != Type.USB && endpoint == null) {
-                // A network transport without a confirmed host:port is not a reachable route.
+            if (endpoint == null) {
+                // A transport without a confirmed host:port is not a reachable route.
                 continue;
             }
             events.add(activeEvent(entry.type, endpoint, entry.verifiedAtMs));
@@ -212,7 +207,6 @@ final class KeepADBRegisterPayload {
     }
 
     private static String endpointFor(VerifiedTransport entry) {
-        if (entry.type == Type.USB) return null;
         if (entry.host == null || entry.host.trim().isEmpty() || entry.port <= 0) return null;
         return KeepADBEndpoint.formatEndpoint(entry.host, entry.port);
     }

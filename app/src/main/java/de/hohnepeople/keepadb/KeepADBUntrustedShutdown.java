@@ -26,8 +26,8 @@ import java.util.Locale;
  *   <li>A readable untrusted or blocked network switches off at once. An unreadable identity is
  *       checked again after {@link KeepADBNetworkTrustPrompt#IDENTITY_RECHECK_DELAYS_MS} (as in
  *       #872), so the few seconds of an access-point roam trigger nothing.</li>
- *   <li>A session the user switched on manually in KeepADB (app, tile, widget, notification,
- *       USB handover action) stays on while the phone is on the access point
+ *   <li>A session the user switched on manually in KeepADB (app, tile, widget, notification)
+ *       stays on while the phone is on the access point
  *       (readable BSSID) it was switched on at. Any other readable access point -- trusted ones
  *       included --, a lost Wi-Fi or Wireless Debugging going off ends that exemption for good.
  *       An unreadable identity never proves the same access point: a manual enable on it grants

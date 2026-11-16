@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * #736: the network, webhook, USB-ADB and diagnostics settings cards each carry a decorative
+ * #736: the network, webhook and diagnostics settings cards each carry a decorative
  * header icon. Static contract over {@code activity_settings.xml}: the icon exists, points at an
  * existing drawable, is hidden from accessibility and has no spoken label, while the adjacent
  * title keeps its string reference.
@@ -32,7 +32,6 @@ public class KeepADBSettingsHeaderIconContractTest {
             // header id, expected title string, expected icon drawable
             {"settings_network_beta_header", "settings_section_network", "ic_settings_network"},
             {"settings_webhook_header", "settings_webhook_title", "ic_settings_sync"},
-            {"settings_usb_adb_header", "settings_section_usb_adb", "ic_usb"},
             {"settings_diagnostics_header", "settings_diagnostics_title", "ic_settings_diagnostics"},
     };
 
@@ -71,16 +70,10 @@ public class KeepADBSettingsHeaderIconContractTest {
     }
 
     @Test
-    public void usbTitleFollowsLayoutDirectionLikeOtherTitles() throws Exception {
-        // #742: "USB-ADB" is a Latin proper name; without explicit alignment it is left-aligned
-        // in RTL. Titles with a localized string must keep their (absent) alignment untouched.
+    public void localizedTitlesKeepTheirLayoutDirectionAlignment() throws Exception {
+        // #742: titles with a localized string must keep their (absent) alignment untouched.
         Document layout = layout();
-        Element usbTitle = titleOf(headerOf(layout, "settings_usb_adb_header"), "@string/settings_section_usb_adb");
-        assertEquals("viewStart", usbTitle.getAttributeNS(ANDROID_NS, "textAlignment"));
         for (String[] header : HEADERS) {
-            if ("settings_usb_adb_header".equals(header[0])) {
-                continue;
-            }
             Element other = titleOf(headerOf(layout, header[0]), "@string/" + header[1]);
             assertFalse(header[0] + " title alignment must stay unchanged",
                     other.hasAttributeNS(ANDROID_NS, "textAlignment"));

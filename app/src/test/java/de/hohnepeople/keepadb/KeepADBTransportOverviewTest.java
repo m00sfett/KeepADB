@@ -2,12 +2,9 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.LinkAddress;
 import android.net.LinkProperties;
@@ -26,8 +23,8 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /**
- * End-to-end aggregation coverage for #538's four required transport scenarios (only WLAN; WLAN
- * + VPN both verified; VPN active but ADB not reachable there; USB only) plus the
+ * End-to-end aggregation coverage for #538's required transport scenarios (only WLAN; WLAN
+ * + VPN both verified; VPN active but ADB not reachable there) plus the
  * privacy-masking states of the values {@link KeepADBTransportOverview} hands to the UI.
  *
  * <p>The VPN address itself is never really dialed here: a real socket connect to an
@@ -53,7 +50,6 @@ public class KeepADBTransportOverviewTest {
         setNotificationStatic("currentPort", 0);
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
         KeepADBVpnTransport.setReachabilityProbeForTesting(null);
-        setUsbAdbConnected(false);
     }
 
     /** Acceptance criterion: "Wi-Fi only: show the verified Wi-Fi endpoint." */
@@ -168,38 +164,6 @@ public class KeepADBTransportOverviewTest {
         assertTrue(snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Acceptance criterion: "USB only: show USB-ADB as its own active transport, without
-     * inventing a network endpoint." */
-    @Test
-    public void usbOnly_isSurfacedAsPrimaryWithoutFabricatedNetworkEndpoint() {
-        setUsbAdbConnected(true);
-
-        KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
-
-        assertEquals(1, snapshot.transports.size());
-        KeepADBTransportEndpoint usb = snapshot.transports.get(0);
-        assertEquals(KeepADBTransportEndpoint.Type.USB, usb.type);
-        assertNull("USB has no network endpoint to fabricate", usb.host);
-        assertEquals(0, usb.port);
-        assertFalse(usb.hasNetworkEndpoint());
-        assertTrue("The only verified transport must be primary", usb.primary);
-    }
-
-    /** A USB cable merely being plugged in (connected extra without configured+adb) must not be
-     * mistaken for a verified USB-ADB transport. */
-    @Test
-    public void usbCableWithoutAdbConfigured_isNotSurfacedAsAVerifiedTransport() {
-        Intent intent = new Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
-        intent.putExtra("connected", true);
-        intent.putExtra("configured", false);
-        intent.putExtra("adb", false);
-        context.sendStickyBroadcast(intent);
-
-        KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
-
-        assertTrue(snapshot.transports.isEmpty());
-    }
-
     @Test
     public void nothingVerifiedAtAll_yieldsAnEmptySnapshot() {
         KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
@@ -277,14 +241,6 @@ public class KeepADBTransportOverviewTest {
         Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
-    }
-
-    private void setUsbAdbConnected(boolean connected) {
-        Intent intent = new Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
-        intent.putExtra("connected", connected);
-        intent.putExtra("configured", connected);
-        intent.putExtra("adb", connected);
-        context.sendStickyBroadcast(intent);
     }
 
     /** See {@code KeepADBNetworkRobustnessBehaviorTest}/{@code KeepADBIpv6SynchronousFallbackTest}:

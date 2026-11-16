@@ -18,8 +18,9 @@ KeepADB sends only to the URL saved by the user.
 After successfully verifying a Wi-Fi ADB endpoint, the app code creates a JSON POST with the
 header **Content-Type: application/json; charset=utf-8**. Currently, only the **wlan-adb** method
 is allowed to be transmitted. The code also creates drafts for VPN (`vpn-adb`, any VPN product;
-named `tailscale-adb` before #877) and USB events but blocks them before the HTTP call. This local allowlist documents the sender's behavior; it does not say
-which methods an external server currently accepts.
+named `tailscale-adb` before #877) events but blocks them before the HTTP call. This local allowlist documents the sender's behavior; it does not say
+which methods an external server currently accepts. Removing the USB-ADB feature area (#956) took
+the `usb-adb` draft out of the app; it never left the device, so the bytes the app sends did not change.
 
 The Wi-Fi event contains:
 
@@ -38,7 +39,7 @@ Example with placeholder values; the endpoint is shown only to illustrate the ho
 {"contract_version":2,"method":"wlan-adb","active":true,"endpoint":"192.0.2.10:5555","source":"keepadb-app","observed_at":"2026-10-01T12:34:56Z","event_id":"keepadb-v2-wlan-adb-<truncated-digest>"}
 ~~~
 
-The sender does not include an SSID, BSSID, USB profile, pairing code, or access token in this
+The sender does not include an SSID, BSSID, pairing code, or access token in this
 message body. The verified endpoint may still contain a private LAN or VPN address.
 
 Registration uses HTTP POST to the saved URL. The production code also attempts HTTP DELETE when

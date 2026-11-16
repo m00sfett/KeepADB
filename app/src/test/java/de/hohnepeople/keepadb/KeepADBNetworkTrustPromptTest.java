@@ -945,8 +945,8 @@ public class KeepADBNetworkTrustPromptTest {
     /**
      * #598/#766: the details-off tap opens the decision dialog for exactly the access point the
      * prompt was raised for. The intent has its own component, action and request code so it can
-     * never be matched -- and have its extras overwritten by FLAG_UPDATE_CURRENT -- by the plain
-     * SettingsActivity PendingIntent the USB notification posts with request code 0.
+     * never be matched -- and have its extras overwritten by FLAG_UPDATE_CURRENT -- by a plain
+     * SettingsActivity PendingIntent posted with request code 0.
      */
     @Test
     public void withNotificationPrivacyOnTheContentIntentOpensTheDecisionForThePromptedBssid() {

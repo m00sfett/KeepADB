@@ -50,9 +50,6 @@ public class KeepADBForceContractTest {
             assertFalse(file + " must not know the force mode (#245: manual controls are never gated)",
                     source.contains("KeepADBForce"));
         }
-        String usbHandover = read(MAIN + "KeepADBUsbHandover.java");
-        String manualAction = methodBody(usbHandover, "static boolean handleManualAction(Context context) {");
-        assertFalse(manualAction.contains("KeepADBForce"));
     }
 
     @Test

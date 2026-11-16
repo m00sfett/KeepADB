@@ -65,7 +65,7 @@ public class KeepADBToggleResultCallersTest {
 
     private void clearPreferences() {
         for (String name : new String[] {"keepadb_prefs", "keepadb_diagnostics",
-                "keepadb_trusted_networks", "keepadb_usb_profiles"}) {
+                "keepadb_trusted_networks"}) {
             context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit();
         }
     }
@@ -461,25 +461,4 @@ public class KeepADBToggleResultCallersTest {
         assertEquals(java.util.Arrays.asList(false), gateway.writes);
     }
 
-    @Test
-    public void aSupersededUsbHandoverTapShowsTheNeutralTextNotCheckPermission() {
-        KeepADBUsbNotification.resetForTesting();
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
-        KeepADB.setGatewayForTesting(gateway);
-        context.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
-                .putExtra("connected", true).putExtra("configured", true).putExtra("adb", true));
-
-        tapSuperseded(false, () -> KeepADBUsbReceiver.handleHandoverEnableAction(context));
-
-        assertEquals(KeepADB.ToggleResult.SUPERSEDED, KeepADBUsbHandover.lastManualActionResult());
-        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
-        NotificationManager manager = context.getSystemService(NotificationManager.class);
-        Notification posted = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
-        assertEquals(context.getString(R.string.usb_notification_handover_error_generic),
-                String.valueOf(posted.extras.getCharSequence(Notification.EXTRA_TEXT)));
-        KeepADBUsbNotification.resetForTesting();
-    }
 }

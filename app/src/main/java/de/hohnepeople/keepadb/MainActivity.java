@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
     // #761: set when onCreate handed over to the setup assistant; nothing of the screen exists then.
     private boolean handedOverToAssistant;
 
-    // #538: container for additional verified transports (VPN, USB) beyond the WLAN/LAN
+    // #538: container for additional verified transports (VPN) beyond the WLAN/LAN
     // endpoint already shown by `endpoint` above; populated dynamically by renderTransportOverview().
     private ViewGroup transportOverviewPanel;
     private long transportOverviewGeneration;
@@ -333,7 +333,6 @@ public class MainActivity extends Activity {
         KeepADBForceMode.setStateListener(this::refresh);
         refresh();
         KeepADBEndpointCoordinator.refresh(this);
-        KeepADBUsbReceiver.refresh(this);
     }
 
     @Override
@@ -985,12 +984,9 @@ public class MainActivity extends Activity {
      * transport" content description on the transport currently holding {@link
      * KeepADBTransportEndpoint#primary}. */
     private TextView buildTransportRow(KeepADBTransportEndpoint transport) {
-        String label = getString(transport.type == KeepADBTransportEndpoint.Type.VPN
-                ? R.string.transport_vpn_label : R.string.transport_usb_label);
-        String value = transport.hasNetworkEndpoint()
-                ? KeepADBPreferences.maskEndpointForDisplay(this,
-                        KeepADBEndpoint.formatEndpoint(transport.host, transport.port))
-                : getString(R.string.transport_usb_active_value);
+        String label = getString(R.string.transport_vpn_label);
+        String value = KeepADBPreferences.maskEndpointForDisplay(this,
+                KeepADBEndpoint.formatEndpoint(transport.host, transport.port));
         java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
                 java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
                 getResources().getConfiguration().getLocales().get(0));
@@ -1031,7 +1027,6 @@ public class MainActivity extends Activity {
         KeepADBWidget.refreshAll(this);
         KeepADBEndpointCoordinator.refresh(this);
         KeepADBTileService.requestRefresh(this);
-        KeepADBUsbReceiver.refresh(this);
     }
 
     /**

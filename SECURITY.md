@@ -74,7 +74,7 @@ the same BSSID and security tier passes.
 
 Network trust controls automatic recovery. The tile and other manual controls do not approve a new
 network identity. A locked device must be unlocked before enabling Wireless debugging through the
-Quick Settings tile or USB notification; turning it off through the tile remains possible from the
+Quick Settings tile; turning it off through the tile remains possible from the
 lock screen. Approving a network through a notification also requires an unlocked device. While the
 notification privacy switch is on, the notice has no action buttons; tapping it opens KeepADB's
 “Trust this network?” dialog, where the user can see the network name to make an informed
@@ -92,7 +92,7 @@ and the user's most recently saved explicit intent. Android may also require its
 if the state is not confirmed, KeepADB waits instead of repeatedly trying to enable it.
 
 A locked device must be unlocked before enabling Wireless debugging through the Quick Settings
-tile or a USB handover notification. Turning it off through the tile remains possible from the lock
+tile. Turning it off through the tile remains possible from the lock
 screen. Approving an unknown network through a notice also requires unlocking and shows the access
 point name in KeepADB when the notification privacy switch is on.
 
@@ -103,11 +103,11 @@ one for the screens and dialogs of the app, one for notifications (with a lock-s
 #920), one for widgets and the Quick Settings tile. All of them live in Settings → Privacy (#941). A switch masks Wi-Fi names, access point addresses and IP addresses in its own
 area only. The notification and widget switches omit them and the port entirely. The app switch
 masks names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names alike, shown as
-`***`, in endpoint rows, report history, USB profiles and the webhook address); **by decision,
+`***`, in endpoint rows, report history and the webhook address); **by decision,
 inside the app an IPv4 address keeps its first number and the port stays visible**
 (`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
 has a “Show”. It lifts the mask for one part of one screen (the Networks list, the assistant's
-network page, the trust dialog, the webhook field, the USB profile dialog) until that part is
+network page, the trust dialog, the webhook field) until that part is
 left, the screen stops or the switch is turned on again. A tap on the eye in the title bars (home
 screen included, #941) toggles “Show on this screen” / “Hide on this screen”, which applies to
 every part of that screen until it is left and never changes a stored switch; a long press opens a
@@ -126,11 +126,11 @@ on. The privacy switches are display settings; they do not change what an enable
 which network may enable Wireless debugging.
 
 **Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
-every KeepADB notification is posted with `VISIBILITY_SECRET`, so none of them (main, USB, network
+every KeepADB notification is posted with `VISIBILITY_SECRET`, so none of them (main, network
 trust notice with its Allow/Block buttons, webhook warning, Force Mode and network shutdown notices)
 appears on the lock screen, whether or not Android shows sensitive content there. The option is
 read and each notification posted under one lock, so a post cannot slip past a change. A change
-re-renders the main and USB notifications at once and removes a posted trust notice with network
+re-renders the main notification at once and removes a posted trust notice with network
 details (it returns after the repeat interval, then secret; with details only if the notification
 switch is off); notifications without network details follow at their next posting. Unlocked, the shade shows them
 as the notification switch decides. Per-channel lock-screen settings chosen in Android can only
@@ -145,7 +145,7 @@ available for self-hosted LAN or VPN endpoints, but is unencrypted and identifie
 KeepADB sends no analytics or crash reports.
 
 Android cloud backup and device transfer are disabled. This includes the webhook URL, saved
-network trusts, USB profiles, and diagnostics data. These data are lost when the app is uninstalled
+network trusts, and diagnostics data. These data are lost when the app is uninstalled
 or the device is changed. Diagnostics are not uploaded automatically; see
 [Diagnostics export](docs/diagnostics.md) for sharing and redaction details.
 

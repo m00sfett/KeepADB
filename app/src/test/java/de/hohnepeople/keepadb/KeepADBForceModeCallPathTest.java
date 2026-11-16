@@ -45,7 +45,7 @@ import org.robolectric.shadows.ShadowNotificationManager;
  * #763: the force mode has to win on the paths that actually act, not only in the model, and it has
  * to lose again at its deadline and when the user ends it. Every test runs one production entry
  * point that can switch Wireless Debugging on automatically -- the service heartbeat, its content
- * observer, its Wi-Fi callback, the recovery pulse, the USB handover guard, the write-time guard --
+ * observer, its Wi-Fi callback, the recovery pulse, the write-time guard --
  * against a real {@code WifiManager} shadow and observes the writes the settings gateway received.
  *
  * <p>The invariant has two sides and both are pinned. Force on: a network that is blocked, unknown
@@ -269,23 +269,17 @@ public class KeepADBForceModeCallPathTest {
     public void theWriteTimeGuardsFollowTheModeIncludingItsExpiry() {
         KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
         KeepADBNetworkBlocklist.blockBssid(context, BSSID);
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         connectTo(context, SSID, BSSID);
         assertFalse(KeepADBService.isAutoEnableStillPermitted(context));
         assertFalse(KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
-        assertFalse(KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
 
         startForce(KeepADBForceMode.Span.HOUR_1);
         assertTrue(KeepADBService.isAutoEnableStillPermitted(context));
         assertTrue(KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
-        assertTrue("The USB handover is an automatic re-enable and follows the same overlay",
-                KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
 
         clock.advance(HOUR);
         assertFalse("The guard is exact at the deadline, no transition needed",
                 KeepADBService.isAutoEnableStillPermitted(context));
-        assertFalse(KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
     }
 
     // --- Recovery pulse --------------------------------------------------------------------------------------------------

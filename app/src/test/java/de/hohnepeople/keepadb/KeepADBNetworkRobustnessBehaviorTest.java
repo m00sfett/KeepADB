@@ -105,7 +105,7 @@ public class KeepADBNetworkRobustnessBehaviorTest {
      * maps are empty for reasons that have nothing to do with Wi-Fi being off, so gating the
      * synchronous fallback on "registered" alone made the first call in a process deterministically
      * answer "no Wi-Fi" on a perfectly connected network -- which since #348 blocks automatic
-     * re-enable and USB handover, and drives the tile/notification state. #390 defined the correct
+     * re-enable, and drives the tile/notification state. #390 defined the correct
      * predicate (registered <em>and</em> observed) but applied it only to the endpoint-address path.
      */
     @Test

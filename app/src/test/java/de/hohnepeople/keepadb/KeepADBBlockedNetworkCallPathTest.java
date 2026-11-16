@@ -45,7 +45,7 @@ import org.robolectric.shadows.ShadowWifiInfo;
  * #760: a block has to hold on the paths that actually act, not just in the model. Every test here
  * runs one of the production entry points that can switch Wireless Debugging on automatically or
  * ask the user about a network -- the service heartbeat, its content observer, its Wi-Fi callback,
- * the recovery pulse, the USB handover guard, the prompt, the in-app confirmation and the trust
+ * the recovery pulse, the prompt, the in-app confirmation and the trust
  * actions -- against a real {@code WifiManager} shadow, and observes the outcome: the writes the
  * settings gateway received and the notification that was (not) posted.
  *
@@ -95,7 +95,6 @@ public class KeepADBBlockedNetworkCallPathTest {
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         KeepADB.resetForTesting();
-        KeepADBUsbHandover.resetForTesting();
         KeepADBRegisterClient.resetForTesting();
         context.getSystemService(NotificationManager.class).cancelAll();
     }
@@ -241,60 +240,20 @@ public class KeepADBBlockedNetworkCallPathTest {
     // --- Explicit guards re-evaluated at write time ----------------------------------------------------
 
     @Test
-    public void usbHandoverIngressBlocksAnUntrustedNetworkBeforeSchedulingAnEnable() {
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
-        KeepADBNetworkBlocklist.blockBssid(context, BSSID);
-        connectTo(SSID, BSSID);
-
-        KeepADBUsbHandover.onRawUsbBroadcast(context, true);
-
-        assertTrue("a blocked Wi-Fi network must stop automatic USB handover before write",
-                gateway.writes.isEmpty());
-        assertTrue("the ingress gate must report the untrusted-network decision: " + diagnostics(),
-                diagnostics().contains(
-                        "event=usb_handover source=usb outcome=blocked detail=untrusted_network"));
-    }
-
-    @Test
-    public void usbHandoverIngressStillEnablesOnTheSameTrustedNetwork() {
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
-        connectTo(SSID, BSSID);
-        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
-        scheduler.setClockMs(100_000);
-        KeepADB.setSchedulerForTesting(scheduler);
-
-        KeepADBUsbHandover.onRawUsbBroadcast(context, true);
-
-        assertTrue("the trusted control network must allow automatic USB handover: " + gateway.writes,
-                gateway.writes.contains(true));
-    }
-
-    @Test
     public void theDebouncedWriteGuardsDenyABlockedNetworkAndAllowTheSameNetworkOnceLifted() {
         KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
-        KeepADBPreferences.setUsbWlanHandoverMode(context,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         connectTo(SSID, BSSID);
         assertTrue(KeepADBService.isAutoEnableStillPermitted(context));
         assertTrue(KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
-        assertTrue(KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
 
         KeepADBNetworkBlocklist.blockBssid(context, BSSID);
 
         assertFalse(KeepADBService.isAutoEnableStillPermitted(context));
         assertFalse("The explicit-confirmation variant must honour a block as well",
                 KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
-        assertFalse(KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
 
         KeepADBNetworkBlocklist.unblockBssid(context, BSSID);
         assertTrue(KeepADBService.isAutoEnableStillPermitted(context));
-        assertTrue(KeepADBUsbHandover.isAutoHandoverStillPermitted(context));
     }
 
     // --- Recovery pulse -----------------------------------------------------------------------------------

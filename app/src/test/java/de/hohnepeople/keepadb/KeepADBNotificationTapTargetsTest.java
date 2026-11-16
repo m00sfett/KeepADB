@@ -10,7 +10,6 @@ import static org.robolectric.Shadows.shadowOf;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
@@ -31,7 +30,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowNotificationManager;
-import org.robolectric.shadows.ShadowPendingIntent;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
@@ -63,7 +61,6 @@ public class KeepADBNotificationTapTargetsTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
-        KeepADBUsbNotification.resetForTesting();
     }
 
     @After
@@ -141,65 +138,6 @@ public class KeepADBNotificationTapTargetsTest {
         assertDecisionTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
     }
 
-    // --- Row 11: USB with profile notification opens the profile dialog ----------------------
-
-    @Test
-    public void row11UsbWithProfileNotificationOpensTheProfileDialogAndDoesNotFocusTheUsbCard() {
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, true);
-
-        // Without a profile the tap offers to create one ...
-        KeepADBUsbNotification.refresh(context, true);
-        Intent create = savedIntent(posted(KeepADBUsbNotification.NOTIFICATION_ID));
-        assertEquals(SettingsActivity.class.getName(), create.getComponent().getClassName());
-        assertEquals(KeepADBUsbNotification.ACTION_CREATE,
-                create.getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
-        assertFalse(create.hasExtra(SettingsActivity.EXTRA_FOCUS_USB));
-
-        // ... with one it opens the switcher.
-        KeepADBUsbProfile.add(context, "ThinkPad", "192.168.1.50", "thinkpad.local", "");
-        KeepADBUsbNotification.refresh(context, true);
-        Intent select = savedIntent(posted(KeepADBUsbNotification.NOTIFICATION_ID));
-        assertEquals(SettingsActivity.class.getName(), select.getComponent().getClassName());
-        assertEquals(KeepADBUsbNotification.ACTION_SWITCH,
-                select.getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
-        assertFalse(select.hasExtra(SettingsActivity.EXTRA_FOCUS_USB));
-    }
-
-    // --- Row 12: USB without profile notification focuses the USB card -----------------------
-
-    @Test
-    public void row12UsbWithoutProfileNotificationOpensSettingsFocusedOnUsb() {
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
-        KeepADBUsbNotification.refresh(context, true);
-
-        Intent target = savedIntent(posted(KeepADBUsbNotification.NOTIFICATION_ID));
-        assertEquals(SettingsActivity.class.getName(), target.getComponent().getClassName());
-        assertTrue(target.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_USB, false));
-        assertFalse(target.hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
-    }
-
-    // --- N6 / #603: SettingsActivity PendingIntents never share an identity ------------------
-
-    @Test
-    public void settingsActivityContentIntentsOfDifferentNotificationsAreDistinct() {
-        KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
-        connectTo("Cafe-WLAN", BSSID);
-        KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
-        KeepADBUsbNotification.refresh(context, true);
-
-        PendingIntent trust = posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID).contentIntent;
-        PendingIntent usb = posted(KeepADBUsbNotification.NOTIFICATION_ID).contentIntent;
-        ShadowPendingIntent trustShadow = shadowOf(trust);
-        ShadowPendingIntent usbShadow = shadowOf(usb);
-        assertTrue("Both must differ by request code or by intent identity (action/component)",
-                trustShadow.getRequestCode() != usbShadow.getRequestCode()
-                        || !trustShadow.getSavedIntent().filterEquals(usbShadow.getSavedIntent()));
-    }
-
     // --- Lock screen: no new activity may show over the keyguard -----------------------------
 
     @Test
@@ -254,11 +192,6 @@ public class KeepADBNotificationTapTargetsTest {
         KeepADBNotificationTextScan.assertMentionsNone(neutral, "Cafe-WLAN", BSSID);
         assertTrue(neutral.actions == null || neutral.actions.length == 0);
         KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
-
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
-        KeepADBUsbNotification.refresh(context, true);
-        assertPublicVersionIsNeutral(posted(KeepADBUsbNotification.NOTIFICATION_ID));
     }
 
     private void assertPublicVersionIsNeutral(Notification notification) {

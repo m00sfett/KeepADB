@@ -1,7 +1,7 @@
 package de.hohnepeople.keepadb;
 
 /**
- * A single verified ADB transport surfaced to the UI (#538): WLAN/LAN, VPN or USB.
+ * A single verified ADB transport surfaced to the UI (#538): WLAN/LAN or VPN.
  * Immutable value object, always built fresh by {@link KeepADBTransportOverview#current} --
  * never cached beyond that one snapshot, matching the project convention that every surface
  * reads live state instead of keeping its own persistent app state.
@@ -13,13 +13,11 @@ package de.hohnepeople.keepadb;
  */
 final class KeepADBTransportEndpoint {
 
-    enum Type { WLAN_LAN, VPN, USB }
+    enum Type { WLAN_LAN, VPN }
 
     final Type type;
-    /** Host (an IPv4/IPv6 literal). {@code null} for {@link Type#USB}, which has no network
-     * endpoint of its own. */
+    /** Host (an IPv4/IPv6 literal). */
     final String host;
-    /** 0 when {@link #host} is {@code null}. */
     final int port;
     /** Epoch-millis ({@link System#currentTimeMillis()}) of the last successful ADB-reachability
      * confirmation for this transport, suitable for direct display via
@@ -27,7 +25,7 @@ final class KeepADBTransportEndpoint {
     final long verifiedAtMs;
     /** Whether this is the transport a client would use by default among every transport in the
      * same {@link KeepADBTransportOverview.Snapshot}, in priority order WLAN/LAN, then
-     * VPN, then USB. Exactly one entry in a non-empty snapshot carries {@code true}. */
+     * VPN. Exactly one entry in a non-empty snapshot carries {@code true}. */
     final boolean primary;
 
     KeepADBTransportEndpoint(Type type, String host, int port, long verifiedAtMs, boolean primary) {
@@ -43,9 +41,5 @@ final class KeepADBTransportEndpoint {
     KeepADBTransportEndpoint withPrimary(boolean newPrimary) {
         if (newPrimary == primary) return this;
         return new KeepADBTransportEndpoint(type, host, port, verifiedAtMs, newPrimary);
-    }
-
-    boolean hasNetworkEndpoint() {
-        return host != null && port > 0;
     }
 }

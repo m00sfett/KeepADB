@@ -32,7 +32,6 @@ final class KeepADBLanguagePicker {
                     KeepADBLocaleHelper.setAppLanguage(activity, chosenTag);
                     KeepADBWidget.refreshAll(activity);
                     KeepADBEndpointCoordinator.refresh(activity);
-                    KeepADBUsbReceiver.refresh(activity);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();

@@ -126,15 +126,6 @@ public class KeepADBLockScreenTest {
                 prompt.actions != null && prompt.actions.length == 2);
     }
 
-    @Test
-    public void theUsbNotificationIsSecretWithTheOption() {
-        KeepADBPreferences.setLockScreenPrivacyEnabled(app, true);
-        KeepADBUsbProfile.setNotificationEnabled(app, true);
-        KeepADBUsbNotification.refresh(app, true);
-        Notification usb = posted(KeepADBUsbNotification.NOTIFICATION_ID);
-        assertNotNull(usb);
-        assertEquals(Notification.VISIBILITY_SECRET, usb.visibility);
-    }
 
     @Test
     public void aPostThatReadTheOldValueReachesTheSystemBeforeTheOptionChanges() throws Exception {

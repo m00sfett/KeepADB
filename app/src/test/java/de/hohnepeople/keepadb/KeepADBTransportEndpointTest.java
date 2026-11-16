@@ -12,20 +12,6 @@ import org.junit.Test;
 public class KeepADBTransportEndpointTest {
 
     @Test
-    public void hasNetworkEndpointRequiresBothAHostAndAPositivePort() {
-        assertTrue(new KeepADBTransportEndpoint(
-                KeepADBTransportEndpoint.Type.WLAN_LAN, "192.168.1.1", 5555, 0, false)
-                .hasNetworkEndpoint());
-        assertFalse(new KeepADBTransportEndpoint(
-                KeepADBTransportEndpoint.Type.USB, null, 0, 0, false)
-                .hasNetworkEndpoint());
-        assertFalse("A host without a usable port is not a network endpoint either",
-                new KeepADBTransportEndpoint(
-                        KeepADBTransportEndpoint.Type.WLAN_LAN, "192.168.1.1", 0, 0, false)
-                        .hasNetworkEndpoint());
-    }
-
-    @Test
     public void withPrimaryReturnsACopyWithOnlyThePrimaryFlagChanged() {
         KeepADBTransportEndpoint original = new KeepADBTransportEndpoint(
                 KeepADBTransportEndpoint.Type.VPN, "100.64.1.2", 5555, 123L, false);
@@ -43,7 +29,7 @@ public class KeepADBTransportEndpointTest {
     @Test
     public void withPrimaryIsANoOpWhenTheFlagAlreadyMatches() {
         KeepADBTransportEndpoint original = new KeepADBTransportEndpoint(
-                KeepADBTransportEndpoint.Type.USB, null, 0, 0, true);
+                KeepADBTransportEndpoint.Type.VPN, "100.64.1.2", 5555, 0, true);
 
         assertSame("No new instance is needed when nothing would change",
                 original, original.withPrimary(true));

@@ -70,9 +70,7 @@ final class KeepADBPrivacySwitches {
         KeepADBPreferences.setNotificationPrivacyEnabled(activity, want);
         KeepADBPrivacy.concealAll(activity);
         KeepADBPrivacyToggle.update(activity);
-        // Re-render a currently visible USB card and the persistent main notification right
-        // away (#592, #597).
-        KeepADBUsbReceiver.refresh(activity);
+        // Re-render the persistent main notification right away (#592, #597).
         KeepADBEndpointCoordinator.refresh(activity);
         // A "new Wi-Fi" notice already posted with the name, the BSSID and buttons is removed now,
         // not at its next posting.
@@ -88,12 +86,11 @@ final class KeepADBPrivacySwitches {
                 "privacy_lockscreen_switch");
         KeepADBLockScreen.setEnabled(activity, want);
         // The owners re-render the notifications that can carry details (#904's pattern): the
-        // main card and the USB card. A posted trust notice with the network name and its buttons
+        // main card. A posted trust notice with the network name and its buttons
         // is removed, as #904 does; it comes back after the repeat interval, then secret (with
         // details only while the notification switch is off). Notifications without
         // network details (webhook warning, Force Mode and shutdown notices) follow at their next
         // posting.
-        KeepADBUsbReceiver.refresh(activity);
         KeepADBEndpointCoordinator.refresh(activity);
         if (want) KeepADBNetworkTrustPrompt.applyNotificationPrivacy(activity);
     }

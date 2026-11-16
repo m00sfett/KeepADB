@@ -925,8 +925,8 @@ public class KeepADBRegisterClientTest {
 
     /**
      * #671: a generation change during the primary WLAN POST must abort the transaction before
-     * any secondary transport (here USB) is sent. The USB transport is made verifiable through the
-     * sticky USB broadcast and accepted by the server through the existing
+     * any secondary transport (here VPN) is sent. The VPN transport is made verifiable through a
+     * VPN network with a reachable ADB port and accepted by the server through the existing
      * {@code setServerSupportedMethodsForTesting} seam (production is shielded by
      * SERVER_SUPPORTED_METHODS, which only lists wlan-adb).
      */
@@ -937,9 +937,9 @@ public class KeepADBRegisterClientTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
-                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         try {
-            setUsbAdbConnectedForTesting(context, true);
+            setSecondaryTransportVerifiedForTesting(context, true);
             KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
             KeepADBRegisterClient.setHttpTransport(transport);
             transport.setRequestCallback(req -> {
@@ -958,12 +958,12 @@ public class KeepADBRegisterClientTest {
             assertNull("a superseded transaction must not move the registered state",
                     KeepADBRegisterClient.getLastRegisteredUrlForTesting());
         } finally {
-            setUsbAdbConnectedForTesting(context, false);
+            setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         }
     }
 
-    /** Control for the #671 test: without a generation change the USB report really is sent, so
+    /** Control for the #671 test: without a generation change the VPN report really is sent, so
      * the test above cannot pass merely because the secondary path is unreachable. */
     @Test
     public void testSecondaryTransportIsSentWhenOperationStaysCurrent() throws Exception {
@@ -972,9 +972,9 @@ public class KeepADBRegisterClientTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
-                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         try {
-            setUsbAdbConnectedForTesting(context, true);
+            setSecondaryTransportVerifiedForTesting(context, true);
             KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
             KeepADBRegisterClient.setHttpTransport(transport);
 
@@ -982,10 +982,10 @@ public class KeepADBRegisterClientTest {
             KeepADBRegisterClient.awaitIdleForTesting(3000);
 
             assertEquals(2, transport.getRequestCount());
-            assertTrue(transport.getLastRequest().payload.contains("usb-adb"));
+            assertTrue(transport.getLastRequest().payload.contains("vpn-adb"));
             assertEquals(url, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
         } finally {
-            setUsbAdbConnectedForTesting(context, false);
+            setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         }
     }
@@ -1007,17 +1007,17 @@ public class KeepADBRegisterClientTest {
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBPreferences.addPendingWebhookCleanupUrl(context, stale);
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
-                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         List<String> requests = Collections.synchronizedList(new ArrayList<>());
         List<String> madeWhileHoldingTheMonitor = Collections.synchronizedList(new ArrayList<>());
         try {
-            setUsbAdbConnectedForTesting(context, true);
+            setSecondaryTransportVerifiedForTesting(context, true);
             KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
             // The stale cleanup stays unreachable, so it is queued again for every transaction.
             transport.setFailingUrl(stale);
             transport.setRequestCallback(req -> {
-                boolean usb = req.payload != null && req.payload.contains("usb-adb");
-                requests.add(req.method + " " + req.url + (usb ? " usb" : ""));
+                boolean vpn = req.payload != null && req.payload.contains("vpn-adb");
+                requests.add(req.method + " " + req.url + (vpn ? " vpn" : ""));
                 if (Thread.holdsLock(KeepADBRegisterClient.class)) {
                     madeWhileHoldingTheMonitor.add(req.toString());
                 }
@@ -1042,8 +1042,8 @@ public class KeepADBRegisterClientTest {
             assertEquals("the stale cleanup was attempted by the first update and by both delete transactions", 3L,
                     requests.stream().filter(r -> r.equals("DELETE " + stale)).count());
             for (String expected : new String[] {"DELETE " + stale, "POST " + url1,
-                    "POST " + url1 + " usb", "DELETE " + url1, "POST " + url2,
-                    "POST " + url2 + " usb", "DELETE " + url2}) {
+                    "POST " + url1 + " vpn", "DELETE " + url1, "POST " + url2,
+                    "POST " + url2 + " vpn", "DELETE " + url2}) {
                 assertTrue("the scenario must exercise '" + expected + "': " + requests,
                         requests.contains(expected));
             }
@@ -1052,7 +1052,7 @@ public class KeepADBRegisterClientTest {
             assertEquals("no request may be made inside the class monitor",
                     new ArrayList<String>(), new ArrayList<>(madeWhileHoldingTheMonitor));
         } finally {
-            setUsbAdbConnectedForTesting(context, false);
+            setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         }
     }
@@ -1246,13 +1246,13 @@ public class KeepADBRegisterClientTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
-                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         try {
-            setUsbAdbConnectedForTesting(context, true);
+            setSecondaryTransportVerifiedForTesting(context, true);
             KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
             transport.setRequestCallback(req -> {
                 if ("POST".equals(req.method) && req.payload != null
-                        && req.payload.contains("usb-adb")) {
+                        && req.payload.contains("vpn-adb")) {
                     KeepADBRegisterClient.bumpOpGenerationForTesting();
                 }
             });
@@ -1268,7 +1268,7 @@ public class KeepADBRegisterClientTest {
             assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
             assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
         } finally {
-            setUsbAdbConnectedForTesting(context, false);
+            setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         }
     }
@@ -1295,14 +1295,14 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.setWlanStateForTesting(URL2, "192.168.1.9:40999");
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
-                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         try {
-            setUsbAdbConnectedForTesting(context, true);
+            setSecondaryTransportVerifiedForTesting(context, true);
             KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
             transport.setDeleteSuccess(false);
             transport.setRequestCallback(req -> {
                 if ("POST".equals(req.method) && req.payload != null
-                        && req.payload.contains("usb-adb")) {
+                        && req.payload.contains("vpn-adb")) {
                     KeepADBRegisterClient.bumpOpGenerationForTesting();
                 }
             });
@@ -1311,7 +1311,7 @@ public class KeepADBRegisterClientTest {
             KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
             KeepADBRegisterClient.awaitIdleForTesting(3000);
 
-            assertEquals("the old URL's DELETE, the WLAN POST and the USB POST were sent while the "
+            assertEquals("the old URL's DELETE, the WLAN POST and the VPN POST were sent while the "
                     + "operation was current", 3, transport.getRequestCount());
             assertNull("a superseded update must not commit its registration",
                     KeepADBPreferences.getWebhookLastReportedUrl(context));
@@ -1324,7 +1324,7 @@ public class KeepADBRegisterClientTest {
                                 .getString(recordKeyPrefix + entry, null));
             }
         } finally {
-            setUsbAdbConnectedForTesting(context, false);
+            setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
         }
     }
@@ -1411,12 +1411,15 @@ public class KeepADBRegisterClientTest {
                 KeepADBPreferences.getWebhookLastReportStatus(context));
     }
 
-    private static void setUsbAdbConnectedForTesting(Context context, boolean connected) {
-        android.content.Intent intent = new android.content.Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
-        intent.putExtra("connected", connected);
-        intent.putExtra("configured", connected);
-        intent.putExtra("adb", connected);
-        context.sendStickyBroadcast(intent);
+    /** A VPN next to the WLAN endpoint that answers on the ADB port: the one secondary transport
+     * the overview can report; the allowlist seam decides whether it is sent. */
+    private static void setSecondaryTransportVerifiedForTesting(Context context, boolean verified)
+            throws Exception {
+        if (verified) {
+            KeepADBVpnTestSupport.deliverVerifiedVpn(context, "192.168.1.10", 41000, "100.101.2.3");
+        } else {
+            KeepADBVpnTestSupport.resetVerifiedVpn();
+        }
     }
 
     /**

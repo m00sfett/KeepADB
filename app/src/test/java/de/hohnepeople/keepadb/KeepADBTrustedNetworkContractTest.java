@@ -26,16 +26,10 @@ public class KeepADBTrustedNetworkContractTest {
     public void automaticReEnableCallSitesAreGuarded() throws IOException {
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String usbHandover = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbHandover.java");
 
         assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)"));
         assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)"));
         assertTrue(endpoint.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)"));
-        assertTrue(usbHandover.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)"));
-        // The manual "Enable Wifi-ADB" notification action must stay ungated: it's a direct
-        // user request, not an automatic re-enable, so it must never mention the allowlist.
-        String manualActionBody = methodBody(usbHandover, "static boolean handleManualAction(Context context) {");
-        assertFalse(manualActionBody.contains("KeepADBTrustedNetwork"));
     }
 
     /**

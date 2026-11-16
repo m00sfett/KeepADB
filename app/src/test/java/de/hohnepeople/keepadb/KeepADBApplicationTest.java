@@ -79,7 +79,7 @@ public class KeepADBApplicationTest {
 
         assertFalse(KeepADBPrivacy.isMasked(second.get(), WEBHOOK));
         assertTrue("another scope of the same screen stays masked",
-                KeepADBPrivacy.isMasked(second.get(), KeepADBPrivacy.SCOPE_USB));
+                KeepADBPrivacy.isMasked(second.get(), KeepADBPrivacy.SCOPE_ASSISTANT));
         assertTrue("an eye-only surface (plain activity) reads the switch alone",
                 KeepADBPrivacy.isAppMasked(second.get()));
         assertTrue("another screen stays masked", KeepADBPrivacy.isMasked(first.get(), WEBHOOK));

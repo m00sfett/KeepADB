@@ -30,7 +30,6 @@ public class BootReceiver extends BroadcastReceiver {
         // #763: independent of Keep-Alive and before it, so an expiry that happened while the
         // device was off is reported even when nothing else starts.
         KeepADBForceMode.restore(context);
-        KeepADBUsbReceiver.refresh(context);
         boolean keepAlive = KeepADBPreferences.isKeepAliveEnabled(context);
         String event = packageReplaced ? "package_replaced" : "boot_completed";
         String recoveryEvent = packageReplaced ? "package_recovery" : "boot_recovery";

@@ -25,8 +25,10 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.13.0] - Unreleased
 
-Block 1 of 1.13.0: five small fixes and additions to the entry points. The version carries a minor
-bump (approved by the maintainer); later blocks of 1.13.0 keep the name and raise only the code.
+Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264):
+the USB-ADB feature area is removed. The version carries a minor bump (approved by the
+maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
+name and raise only the code.
 
 ### Added
 - **Launcher shortcuts (#954):** a long press on the launcher icon offers "Toggle Wifi-ADB",
@@ -64,8 +66,8 @@ bump (approved by the maintainer); later blocks of 1.13.0 keep the name and rais
   the filter.
 - **Notification help texts (#955):** "Persistent notification" (both variants) no longer says
   connection details are "controlled separately below"; it names the privacy switch "Hide in
-  notifications" under Privacy, with the exact label of each locale. The USB profile text is left
-  for #956. The `NOTIFICATION_DETAILS` warning already lands on that switch
+  notifications" under Privacy, with the exact label of each locale. The USB profile text went
+  with #956. The `NOTIFICATION_DETAILS` warning already lands on that switch
   (`SettingsActivity.EXTRA_FOCUS_DETAILS`, covered by `MainActivityWarningInteractionTest`).
   `KeepADBNotificationHelpTextContractTest` pins the wording per locale.
 - **Keyboard on the webhook entry (#966):** `EXTRA_FOCUS_WEBHOOK` focuses the webhook card header
@@ -73,8 +75,59 @@ bump (approved by the maintainer); later blocks of 1.13.0 keep the name and rais
   taps the field. The validation path in `KeepADBWebhookForm` that returns focus to the field after
   an invalid URL is unchanged.
 
+### Removed
+- **The USB-ADB feature area (#956).** Maintainer decision of 2026-11-14: the card, a second
+  notification and 48 strings in 19 languages did not serve the purpose of the app, keeping
+  Wireless Debugging available, and host profiles were hand-maintained labels because KeepADB
+  cannot tell which computer a cable goes to. Gone:
+  - the USB-ADB notification (`KeepADBUsbNotification`, channel `keepadb_usb`) with its profile row
+    and actions;
+  - the host profiles (`KeepADBUsbProfile`, `KeepADBUsbProfileEditor`): create, edit, switch,
+    delete;
+  - the USB to Wireless Debugging handover (`KeepADBUsbHandover`, modes off, manual and automatic,
+    action `USB_HANDOVER_ENABLE`) and the toggle source `usb_handover_manual`;
+  - the USB state receiver (`KeepADBUsbReceiver`, `android.hardware.usb.action.USB_STATE` in the
+    manifest) and its `refresh()` calls in `MainActivity`, `KeepADBService`, `BootReceiver`, the
+    language picker and the privacy switches;
+  - the Settings card "USB-ADB" (the gear menu entry went with #964), the USB row of the home
+    transport overview (`KeepADBTransportOverview`, `KeepADBTransportEndpoint.Type.USB`; the VPN row
+    renders as before), `KeepADBRegisterPayload.Type.USB` and the privacy scope of the profile
+    dialog;
+  - 48 `usb_*`, `settings_usb_*`, `settings_section_usb_*` and `transport_usb_*` strings in all 19
+    locales; `privacy_notifications_body` no longer lists a "USB profile" among the details a
+    hidden notification leaves out (reworded in every locale), and the `check-i18n` allowlist lost
+    the entries that only existed for these strings;
+  - the seven `KeepADBUsb*Test` classes and the USB assertions of other tests (the
+    persisted-intent restart test moved to `KeepADBToggleSchedulingTest`).
+- **Webhook unchanged on the wire:** the USB event was only ever built and held back before the
+  HTTP call (`SERVER_SUPPORTED_METHODS` allows `wlan-adb` only), so nothing a receiver sees
+  changes. `KeepADBRegisterWireFormatContractTest` pins the literal bytes of the active and
+  inactive WLAN and VPN events, the schema constants, the allowlist and the request that leaves the
+  app with a verified VPN; it was added before the removal and passes unchanged after it.
+
+### Upgrade notes
+- **Stored data is deleted on the first start after the update.** `KeepADBApplication.onCreate`
+  (every component of the app runs in that process, so whichever one starts first after the
+  update triggers it, right after the privacy split migration of #904 that has to see the old
+  keys) removes `usb_notification_enabled`, `usb_profile_notification_enabled`,
+  `usb_wlan_handover_mode` and every `usb_profile_*` key (`KeepADBPreferences#removeObsoleteUsbKeys`;
+  the profiles held host names and IP addresses), cancels a USB notification that is still
+  showing and deletes the channel `keepadb_usb`
+  (`KeepADBNotification#removeObsoleteUsbNotification`). It is idempotent, writes nothing on a new
+  installation and freezes the setup assistant's existing/new decision before it removes keys
+  (like #764). `KeepADBUsbRemovalMigrationTest` covers it and is red without the cleanup.
+  "Reset App Completely" clears the whole app data and needed no change; `allowBackup` is off and
+  `data_extraction_rules.xml` named no USB key.
+- **An installation with the handover mode "automatic" loses that behavior.** Keep-Alive is the
+  replacement for switching Wireless Debugging on again unattended; the user-facing note says so
+  (`264.txt`).
+
 ### Documentation
 - `docs/trusted-networks.md` names the entry point "Wi-Fi networks".
+- The USB-ADB feature area is removed from `README.md`, `SECURITY.md`, `docs/defaults.md` (which
+  also records the deleted keys), `docs/trusted-networks.md`, `docs/webhook-register.md` and the
+  store description (`full_description.txt`). The dated records under `docs/archive`,
+  `docs/release` and `docs/design` keep their original wording.
 
 ## [1.12.8] - Unreleased
 

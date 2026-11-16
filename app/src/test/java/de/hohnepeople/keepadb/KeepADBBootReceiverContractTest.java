@@ -103,36 +103,16 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(notification.substring(placeholderIndex).contains("KeepADBPreferences.isNotificationHidden(context)"));
     }
 
+
+
+    /** #956: the USB-ADB feature area is gone; no component listens for the platform's USB state. */
     @Test
-    public void usbReceiverIsSeparateAndFiltersConfiguredAdbState() throws IOException {
+    public void noReceiverListensForTheUsbStateBroadcast() throws IOException {
         String manifest = read("app/src/main/AndroidManifest.xml");
-        String receiver = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbReceiver.java");
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
 
-        assertTrue(manifest.contains("android:name=\".KeepADBUsbReceiver\""));
-        assertTrue(manifest.contains("android.hardware.usb.action.USB_STATE"));
-        assertTrue(receiver.contains("EXTRA_CONNECTED"));
-        assertTrue(receiver.contains("EXTRA_CONFIGURED"));
-        assertTrue(receiver.contains("EXTRA_ADB"));
-        assertTrue(receiver.contains("\"adb\""));
-        assertTrue(receiver.contains("KeepADBUsbNotification.refresh(context, connected)"));
-        assertTrue(notification.contains("KeepADBUsbProfile.isNotificationEnabled(appContext)"));
-        assertTrue(notification.contains("ACTION_SWITCH"));
-        assertTrue(notification.contains("ACTION_CREATE"));
-    }
-
-    @Test
-    public void usbNotificationOptInDefaultsOffAndProfilesAreLocal() throws IOException {
-        String profile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbProfile.java");
-        assertTrue(profile.contains("getBoolean(KEY_ENABLED, false)"));
-        assertTrue(profile.contains("SharedPreferences"));
-        assertTrue(profile.contains("add(Context context"));
-        assertTrue(profile.contains("select(Context context, int id)"));
-        assertTrue(profile.contains("update(Context context, int id"));
-        assertTrue(profile.contains("delete(Context context, int id)"));
-        assertTrue(profile.contains("if (existing == null) return null"));
-        assertTrue(profile.contains("putString(PREFIX + profile.id + \"_name\""));
-        assertFalse(profile.contains("KeepADBRegisterClient"));
+        assertFalse(manifest.contains("android.hardware.usb.action"));
+        assertFalse(manifest.contains("KeepADBUsb"));
+        assertFalse(manifest.contains("USB_HANDOVER"));
     }
 
     private static String read(String relativePath) throws IOException {

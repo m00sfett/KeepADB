@@ -183,15 +183,6 @@
         </receiver>
 
         <receiver
-            android:name=".KeepADBUsbReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_STATE" />
-                <action android:name="de.hohnepeople.keepadb.USB_HANDOVER_ENABLE" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
             android:name=".KeepADBReceiver"
             android:exported="false">
             <intent-filter>

@@ -21,12 +21,12 @@ import java.util.WeakHashMap;
  * <p>The app switch masks Wi-Fi names, BSSIDs, IP addresses, ports and the webhook host on every
  * screen and dialog. Two kinds of surfaces read it differently:
  * <ul>
- *   <li><b>Eye-only surfaces</b> (home screen, Settings network card, report history, the USB
- *       line in the Settings, shared diagnostics) read the persistent switch alone: they are
+ *   <li><b>Eye-only surfaces</b> (home screen, Settings network card, report history, shared
+ *       diagnostics) read the persistent switch alone: they are
  *       passed a plain {@link Context} and {@link #isAppMasked} is true whenever the switch is
  *       on. The eye in the title bars is their only way to unmask.</li>
  *   <li><b>Reveal surfaces</b> (the Networks list, the assistant's network page, the trust
- *       decision, the webhook field, the USB profile dialog) offer a deliberate "Show". They are
+ *       decision, the webhook field) offer a deliberate "Show". They are
  *       passed a context made by {@link #scoped}, and a reveal lifts the mask for <em>that scope
  *       only</em>: it never reaches another surface of the same screen, ends when the scope ends
  *       (page change, dialog dismissed), when the screen stops or is recreated, or when the user
@@ -52,8 +52,6 @@ final class KeepADBPrivacy {
     static final String SCOPE_ASSISTANT = "assistant";
     /** The webhook URL field (Settings and assistant). */
     static final String SCOPE_WEBHOOK = "webhook";
-    /** The USB host profile dialog. */
-    static final String SCOPE_USB = "usb_profiles";
 
     private static final Map<Activity, Set<String>> REVEALED =
             Collections.synchronizedMap(new WeakHashMap<>());

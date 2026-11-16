@@ -105,8 +105,8 @@ final class KeepADBNetworkTrustPrompt {
     private static final int REQUEST_CODE_TRUST = 10;
     // #603: distinct request code for the remaining extras-free getActivity PendingIntent in this
     // class -- PendingIntent#filterEquals ignores extras, so it must not share an identity with
-    // KeepADBUsbNotification's SettingsActivity PendingIntent, or FLAG_UPDATE_CURRENT would let
-    // one silently overwrite the other.
+    // another extras-free SettingsActivity PendingIntent, or FLAG_UPDATE_CURRENT would let one
+    // silently overwrite the other.
     private static final int REQUEST_CODE_IDENTITY_UNAVAILABLE = 14;
     // #766 (N6): the decision dialog and the block action get request codes of their own. 11
     // (declined), 12 (in-app confirmation, #598/#759) and 13 are retired and must not be reused:

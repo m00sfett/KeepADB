@@ -349,7 +349,7 @@
                         android:textColor="@color/night_muted"
                         android:textSize="15sp" />
 
-                    <!-- #538: additional verified transports (VPN, USB) beyond the
+                    <!-- #538: additional verified transports (VPN) beyond the
                          WLAN/LAN endpoint above; populated dynamically, one row per transport,
                          by MainActivity#renderTransportOverview(). Hidden while none apply, so
                          the common WLAN-only case looks exactly as before. -->

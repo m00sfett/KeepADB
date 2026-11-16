@@ -77,7 +77,6 @@ public class KeepADBForceNotificationTest {
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         KeepADB.resetForTesting();
-        KeepADBUsbNotification.resetForTesting();
         KeepADBRegisterClient.resetForTesting();
         context.getSystemService(NotificationManager.class).cancelAll();
         ShadowAlarmManager.reset();
@@ -276,22 +275,9 @@ public class KeepADBForceNotificationTest {
         for (Notification.Action action : prompt.actions) {
             others.add(new NamedIntent("prompt action " + action.title, action.actionIntent));
         }
-        KeepADBUsbProfile.setNotificationEnabled(context, true);
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
-        KeepADBUsbNotification.refresh(context, true);
-        others.add(new NamedIntent("usb content (card focus)",
-                posted(context, KeepADBUsbNotification.NOTIFICATION_ID).contentIntent));
-        KeepADBUsbProfile.setProfileNotificationEnabled(context, true);
-        KeepADBUsbProfile.add(context, "ThinkPad", "192.168.1.50", "thinkpad.local", "");
-        KeepADBUsbNotification.refresh(context, true);
-        Notification usb = posted(context, KeepADBUsbNotification.NOTIFICATION_ID);
-        others.add(new NamedIntent("usb content (profile)", usb.contentIntent));
-        for (Notification.Action action : usb.actions) {
-            others.add(new NamedIntent("usb action " + action.title, action.actionIntent));
-        }
 
         assertTrue("The scenario must produce the pending intents it claims to compare",
-                force.size() == 4 && others.size() >= 7);
+                force.size() == 4 && others.size() >= 6);
         for (NamedIntent mine : force) {
             for (NamedIntent other : others) {
                 assertFalse(mine.name + " collides with " + other.name

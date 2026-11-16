@@ -122,10 +122,6 @@ public class KeepADBAccessibilityContractTest {
                 R.id.privacy_switch_widgets,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
-                R.id.settings_usb_adb_header,
-                R.id.settings_usb_notification_toggle,
-                R.id.settings_usb_profile_notification_toggle,
-                R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
                 R.id.network_status_action,
                 R.id.settings_trust_by_name_toggle,
                 R.id.network_networks_row,
@@ -150,13 +146,10 @@ public class KeepADBAccessibilityContractTest {
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
                 R.id.settings_webhook_header,
-                // #529: expanding the sole USB-ADB header makes both direct sections visible.
-                R.id.settings_usb_adb_header,
                 // #519/#618: expanding the sole Network header makes both direct sections visible.
                 R.id.settings_network_beta_header,
                 // #521: the outer "Sonstiges" card must be expanded to make its four directly
-                // nested sections' controls measurable/reachable; like #529's USB sections,
-                // they are not independently collapsible sub-cards with headers of their own.
+                // nested sections' controls measurable/reachable; they are not independently collapsible sub-cards with headers of their own.
                 R.id.settings_privacy_header,
                 R.id.settings_misc_header,
                 R.id.settings_diagnostics_header
@@ -217,8 +210,6 @@ public class KeepADBAccessibilityContractTest {
                 R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
                 R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
-                R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
-                R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
                 R.id.network_status_action, R.id.settings_trust_by_name_toggle,
                 R.id.network_networks_row, R.id.settings_background_location_button,
                 R.id.settings_hide_notification_toggle,
@@ -241,9 +232,6 @@ public class KeepADBAccessibilityContractTest {
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
                 settings.findViewById(R.id.btn_settings_language).getContentDescription());
-        assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
-                        settings.getString(R.string.settings_usb_handover_mode_off)),
-                settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());
 
         settingsController.pause().stop().destroy();
         mainController.pause().stop().destroy();
@@ -281,20 +269,6 @@ public class KeepADBAccessibilityContractTest {
                 context.getString(R.string.settings_section_notification));
         assertHasText(settings.findViewById(R.id.settings_misc_panel),
                 context.getString(R.string.settings_hide_notification_toggle));
-        assertHasText(settings.findViewById(R.id.settings_usb_notification_panel),
-                context.getString(R.string.settings_section_usb_notification));
-        assertHasText(settings.findViewById(R.id.settings_usb_notification_panel),
-                context.getString(R.string.settings_usb_profile_notification_toggle));
-        assertHasText(settings.findViewById(R.id.settings_usb_notification_panel),
-                context.getString(R.string.usb_profile_create_button));
-        TextView usbNotificationTitle = settings.findViewById(R.id.settings_usb_notification_title);
-        TextView usbHandoverTitle = settings.findViewById(R.id.settings_usb_handover_title);
-        assertTrue(usbNotificationTitle.isAccessibilityHeading());
-        assertTrue(usbHandoverTitle.isAccessibilityHeading());
-        assertFalse(usbNotificationTitle.isClickable());
-        assertFalse(usbHandoverTitle.isClickable());
-        assertFalse(usbNotificationTitle.isFocusable());
-        assertFalse(usbHandoverTitle.isFocusable());
         // #654: every Network section starts with a non-interactive accessibility heading.
         for (int id : new int[] {R.id.network_status_heading,
                 R.id.network_background_heading, R.id.network_manage_heading}) {
@@ -341,7 +315,7 @@ public class KeepADBAccessibilityContractTest {
     public void settingsNetworkCardIsTheFirstCardAfterTheConditionalPermissionWarning() {
         // #735: the network card is the first card on the settings page, before webhook and all
         // others; only the hidden-by-default permission warning may precede it. #470 had placed
-        // it after the webhook and USB-ADB cards.
+        // it after the webhook card.
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
@@ -362,18 +336,15 @@ public class KeepADBAccessibilityContractTest {
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
         // #735 (replaces #470's order): the "Network" card now comes first, as the most important
         // settings area. The remaining cards keep their relative order: the webhook card,
-        // then the "USB-ADB" card, with notification and USB -> Wifi-ADB handover shown as direct
-        // sections after the sole outer expand step.
+        // then the "Sonstiges" card.
         // Below that sits the "Network" card -- itself collapsible since #519, with its sections
         // shown directly inside its body (#618/#654) -- then the "Sonstiges" card, itself collapsible since #521,
-        // with the four notice/display-preference sections shown directly inside its body,
-        // matching #529's one-level USB-ADB structure.
+        // with the four notice/display-preference sections shown directly inside its body.
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the header (a language button since #942) -- so it is no longer part of this table.
         int[] panels = {
                 R.id.settings_network_beta_panel,
                 R.id.settings_webhook_panel,
-                R.id.settings_usb_adb_panel,
                 R.id.settings_misc_panel,
                 R.id.settings_diagnostics_panel,
                 R.id.settings_version_panel
@@ -386,18 +357,6 @@ public class KeepADBAccessibilityContractTest {
             assertTrue("Settings panel is out of product order: " + panelId, current > previous);
             previous = current;
         }
-
-        // #520/#529: both USB sections live directly in the outer card body, so their relative
-        // order is checked there instead of in the settings content column.
-        ViewGroup usbAdbBody = content.findViewById(R.id.settings_usb_adb_body);
-        assertNotNull(usbAdbBody);
-        View usbNotificationPanel = usbAdbBody.findViewById(R.id.settings_usb_notification_panel);
-        View usbHandoverPanel = usbAdbBody.findViewById(R.id.settings_usb_handover_panel);
-        assertNotNull(usbNotificationPanel);
-        assertNotNull(usbHandoverPanel);
-        assertTrue("USB-ADB notification must come before USB -> Wifi-ADB handover inside USB-ADB",
-                usbAdbBody.indexOfChild(usbNotificationPanel)
-                        < usbAdbBody.indexOfChild(usbHandoverPanel));
 
         // #519/#618: both Network sections live directly in the outer card body, so their relative
         // order is checked there instead of in the settings content column.
@@ -427,7 +386,7 @@ public class KeepADBAccessibilityContractTest {
         // #521: persistent notification, keep-display-on, advice-banner and battery-optimization
         // are no longer direct children of the settings content column either -- they sit
         // directly inside the "Sonstiges" card's body (not as sub-cards with their own panel ids
-        // like USB-ADB/Network (Beta) above), so their relative order is checked by switch id
+        // like Network (Beta) above), so their relative order is checked by switch id
         // within that body instead.
         ViewGroup miscBody = content.findViewById(R.id.settings_misc_body);
         assertNotNull(miscBody);
@@ -444,110 +403,6 @@ public class KeepADBAccessibilityContractTest {
         // #764: the battery-optimization toggle is gone with the home card it controlled; the
         // advice-banner switch (with its subtext) closes Sonstiges again.
         assertEquals(miscBody.getChildCount() - 2, miscBody.indexOfChild(adviceBannerToggle));
-    }
-
-    @Test
-    public void profileEditAndDeleteContractsRemainInteractiveAtRuntime() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity settings = controller.get();
-        KeepADBUsbProfile.Profile original = KeepADBUsbProfile.add(
-                settings, "RuntimeHost", "192.0.2.10", "runtime.local", "runtime.tail");
-        settings.findViewById(R.id.settings_usb_profile_action).performClick();
-        AlertDialog switchDialog = settings.getActiveSwitchProfileDialog();
-        assertNotNull(switchDialog);
-        assertTrue(switchDialog.isShowing());
-        assertNotNull(findViewByType(switchDialog.findViewById(android.R.id.custom), ScrollView.class));
-
-        List<Button> profileButtons = findViewsByType(switchDialog.getWindow().getDecorView(), Button.class);
-        Button edit = findButtonWithText(profileButtons,
-                settings.getString(R.string.usb_profile_edit_button));
-        Button delete = findButtonWithText(profileButtons,
-                settings.getString(R.string.usb_profile_delete_button));
-        assertNotNull(edit);
-        assertNotNull(delete);
-        measureAndLayout(switchDialog.getWindow().getDecorView(), 480, 800);
-        assertMinSize(edit);
-        assertMinSize(delete);
-        assertEquals(settings.getString(R.string.usb_profile_edit_action_accessibility, "RuntimeHost"),
-                edit.getContentDescription());
-        assertEquals(settings.getString(R.string.usb_profile_delete_action_accessibility, "RuntimeHost"),
-                delete.getContentDescription());
-
-        edit.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog editDialog = settings.getActiveProfileEditDialog();
-        assertNotNull(editDialog);
-        assertTrue(editDialog.isShowing());
-        List<EditText> fields = findViewsByType(editDialog.getWindow().getDecorView(), EditText.class);
-        assertEquals(4, fields.size());
-        assertEquals("RuntimeHost", fields.get(0).getText().toString());
-        measureAndLayout(editDialog.getWindow().getDecorView(), 480, 800);
-        for (EditText field : fields) assertMinSize(field);
-        assertMinSize(editDialog.getButton(AlertDialog.BUTTON_POSITIVE));
-        assertMinSize(editDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-        assertNotNull(editDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-        assertEquals(settings.getString(android.R.string.cancel),
-                editDialog.getButton(AlertDialog.BUTTON_NEGATIVE).getText().toString());
-        fields.get(0).setText("EditedHost");
-        fields.get(1).setText("192.0.2.20");
-        fields.get(2).setText("edited.local");
-        fields.get(3).setText("edited.tail");
-        assertTrue(editDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
-        ShadowLooper.idleMainLooper();
-        assertFalse(editDialog.isShowing());
-        assertEquals(1, KeepADBUsbProfile.getProfiles(settings).size());
-        KeepADBUsbProfile.Profile saved = KeepADBUsbProfile.getSelected(settings);
-        assertNotNull(saved);
-        assertEquals(original.id, saved.id);
-        assertEquals("EditedHost", saved.name);
-        assertEquals("192.0.2.20", saved.ipAddress);
-        assertEquals("edited.local", saved.hostname);
-        assertEquals("edited.tail", saved.remoteHostname);
-        assertEquals(settings.getString(R.string.usb_profile_selected,
-                        "EditedHost · 192.0.2.20 · edited.local · edited.tail"),
-                ((TextView) settings.findViewById(R.id.settings_usb_profile_summary)).getText().toString());
-        ShadowLooper.idleMainLooper();
-
-        settings.findViewById(R.id.settings_usb_profile_action).performClick();
-        switchDialog = settings.getActiveSwitchProfileDialog();
-        delete = findButtonWithText(findViewsByType(switchDialog.getWindow().getDecorView(), Button.class),
-                settings.getString(R.string.usb_profile_delete_button));
-        assertNotNull(delete);
-        delete.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog deleteDialog = (AlertDialog) ShadowDialog.getLatestDialog();
-        assertNotNull(deleteDialog);
-        assertTrue(deleteDialog.isShowing());
-        assertHasText(deleteDialog.getWindow().getDecorView(),
-                settings.getString(R.string.usb_profile_delete_title));
-        assertHasText(deleteDialog.getWindow().getDecorView(),
-                settings.getString(R.string.usb_profile_delete_message, "EditedHost"));
-        measureAndLayout(deleteDialog.getWindow().getDecorView(), 480, 800);
-        assertMinSize(deleteDialog.getButton(AlertDialog.BUTTON_POSITIVE));
-        assertMinSize(deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-        assertNotNull(deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-        deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
-        ShadowLooper.idleMainLooper();
-        assertFalse(KeepADBUsbProfile.getProfiles(settings).isEmpty());
-        settings.findViewById(R.id.settings_usb_profile_action).performClick();
-        switchDialog = settings.getActiveSwitchProfileDialog();
-        delete = findButtonWithText(findViewsByType(switchDialog.getWindow().getDecorView(), Button.class),
-                settings.getString(R.string.usb_profile_delete_button));
-        assertNotNull(delete);
-        assertTrue(delete.performClick());
-        ShadowLooper.idleMainLooper();
-        deleteDialog = (AlertDialog) ShadowDialog.getLatestDialog();
-        assertTrue(deleteDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
-        ShadowLooper.idleMainLooper();
-        assertFalse(deleteDialog.isShowing());
-        assertTrue(KeepADBUsbProfile.getProfiles(settings).isEmpty());
-        assertEquals(null, KeepADBUsbProfile.getSelected(settings));
-        assertEquals(settings.getString(R.string.usb_profile_none),
-                ((TextView) settings.findViewById(R.id.settings_usb_profile_summary)).getText().toString());
-        assertEquals(settings.getString(R.string.usb_profile_create_button),
-                ((TextView) settings.findViewById(R.id.settings_usb_profile_action)).getText().toString());
-        controller.pause().stop().destroy();
     }
 
     @Test

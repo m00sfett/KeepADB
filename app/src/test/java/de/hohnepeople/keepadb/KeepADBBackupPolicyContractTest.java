@@ -103,15 +103,12 @@ public class KeepADBBackupPolicyContractTest {
     @Test
     public void allSharedPreferencesUseADocumentedFileName() throws IOException {
         String prefs = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBPreferences.java");
-        String usbProfile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbProfile.java");
         String diagnostics = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnostics.java");
 
         assertTrue(SHARED_PREFS_NAME.matcher(prefs).find());
-        assertTrue(SHARED_PREFS_NAME.matcher(usbProfile).find());
         assertTrue(SHARED_PREFS_NAME.matcher(diagnostics).find());
 
         assertEquals("keepadb_prefs", namedPrefsFile(prefs));
-        assertEquals("keepadb_prefs", namedPrefsFile(usbProfile));
         assertEquals("keepadb_diagnostics", namedPrefsFile(diagnostics));
     }
 

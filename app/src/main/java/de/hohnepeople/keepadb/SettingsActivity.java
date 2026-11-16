@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -21,8 +20,6 @@ import android.widget.Toast;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
-    /** #759: Intent extra requesting that the USB-ADB card be expanded and scrolled into view. */
-    public static final String EXTRA_FOCUS_USB = "focus_usb";
     /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_FORCE = "focus_force";
     /**
@@ -45,7 +42,7 @@ public class SettingsActivity extends Activity {
     private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
     private final java.util.ArrayList<String> consumedFocus = new java.util.ArrayList<>();
     /**
-     * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
+     * #672: flags for the reset-app and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
      * card's dialog (background location) is owned by
@@ -53,7 +50,6 @@ public class SettingsActivity extends Activity {
      * KeepADBDiagnosticsController} (#698).
      */
     static final String STATE_RESET_APP_SHOWING = "settings_reset_app_showing";
-    static final String STATE_USB_HANDOVER_MODE_SHOWING = "settings_usb_handover_mode_showing";
     static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
 
     private ScrollView scrollView;
@@ -67,13 +63,6 @@ public class SettingsActivity extends Activity {
     private View privacySwitches;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
-    private Switch usbNotificationToggle;
-    private Switch usbProfileNotificationToggle;
-    private TextView usbProfileSummary;
-    private Button usbProfileAction;
-
-    private TextView usbHandoverSelectedText;
-    private View usbHandoverSelector;
 
     // #697: the Network card (views, rendered action snapshot, Wi-Fi callback and its dialogs).
     private KeepADBNetworkCard networkCard;
@@ -92,11 +81,8 @@ public class SettingsActivity extends Activity {
     private KeepADBDiagnosticsController diagnosticsController;
 
     private AlertDialog activeResetAppDialog;
-    /** #672: the USB handover mode and language selection dialogs, if showing. */
-    private AlertDialog activeUsbHandoverModeDialog;
+    /** #672: the language selection dialog, if showing. */
     private AlertDialog activeLanguageSelectionDialog;
-
-    private KeepADBUsbProfileEditor usbProfileEditor;
 
     static final String WEBSITE_URL = "https://keepadb.roteson.de";
 
@@ -107,7 +93,6 @@ public class SettingsActivity extends Activity {
     // The permission notice remains visible when applicable, while the version entry is static.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
-            {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
             {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
                     R.id.settings_network_beta_arrow},
             {R.id.settings_privacy_header, R.id.settings_privacy_body,
@@ -186,32 +171,6 @@ public class SettingsActivity extends Activity {
         adviceBannerToggle.setOnClickListener(v ->
                 KeepADBPreferences.setAdviceBannerVisible(this, adviceBannerToggle.isChecked()));
 
-        usbNotificationToggle = findViewById(R.id.settings_usb_notification_toggle);
-        usbProfileNotificationToggle = findViewById(R.id.settings_usb_profile_notification_toggle);
-        usbProfileSummary = findViewById(R.id.settings_usb_profile_summary);
-        usbProfileAction = findViewById(R.id.settings_usb_profile_action);
-        usbNotificationToggle.setOnClickListener(v -> {
-            KeepADBUsbProfile.setNotificationEnabled(this, usbNotificationToggle.isChecked());
-            KeepADBUsbReceiver.refresh(this);
-            refresh();
-        });
-        usbProfileNotificationToggle.setOnClickListener(v -> {
-            KeepADBUsbProfile.setProfileNotificationEnabled(this, usbProfileNotificationToggle.isChecked());
-            KeepADBUsbReceiver.refresh(this);
-            refresh();
-        });
-        usbProfileEditor = new KeepADBUsbProfileEditor(this, () -> {
-            KeepADBUsbReceiver.refresh(this);
-            refresh();
-        });
-        usbProfileAction.setOnClickListener(v -> usbProfileEditor.showDialog(
-                KeepADBUsbProfile.getProfiles(this).isEmpty()
-                        ? KeepADBUsbNotification.ACTION_CREATE : KeepADBUsbNotification.ACTION_SWITCH));
-
-        usbHandoverSelectedText = findViewById(R.id.settings_usb_handover_selected_text);
-        usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
-        usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
-
         // #761: the setup assistant, whole from the top row, the protection step from its level line.
         onboardingSummary = findViewById(R.id.settings_onboarding_summary);
         findViewById(R.id.settings_onboarding_row).setOnClickListener(v ->
@@ -231,7 +190,6 @@ public class SettingsActivity extends Activity {
         webhookRetrySettings = new KeepADBWebhookRetrySettings(this);
         findViewById(R.id.settings_webhook_history).setOnClickListener(
                 v -> startActivity(ReportHistoryActivity.intent(this)));
-        usbProfileEditor.restore(savedInstanceState);
 
         if (savedInstanceState != null) {
             java.util.ArrayList<String> restoredFocus =
@@ -246,9 +204,6 @@ public class SettingsActivity extends Activity {
             // its destructive action still runs solely from the user's own confirm tap.
             if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
                 showResetAppDialog();
-            }
-            if (savedInstanceState.getBoolean(STATE_USB_HANDOVER_MODE_SHOWING, false)) {
-                showUsbHandoverModeDialog();
             }
             if (savedInstanceState.getBoolean(STATE_LANGUAGE_SELECTION_SHOWING, false)) {
                 showLanguageSelectionDialog();
@@ -273,15 +228,6 @@ public class SettingsActivity extends Activity {
         KeepADBForceMode.finishIfExpired(this);
         KeepADBForceMode.setStateListener(this::refresh);
         refresh();
-
-        if (getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION)) {
-            usbProfileEditor.showDialog(getIntent().getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
-            getIntent().removeExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION);
-        }
-
-        if (consumeFocus(EXTRA_FOCUS_USB)) {
-            focusUsbPanel();
-        }
 
         if (consumeFocus(EXTRA_FOCUS_FORCE)) {
             focusForcePanel();
@@ -336,7 +282,6 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onStop() {
-        usbProfileEditor.onScreenStopped();
         networkCard.stop();
         super.onStop();
     }
@@ -358,11 +303,9 @@ public class SettingsActivity extends Activity {
         outState.putStringArrayList(STATE_CONSUMED_FOCUS, new java.util.ArrayList<>(consumedFocus));
         webhookForm.saveState(outState);
         diagnosticsController.saveState(outState);
-        usbProfileEditor.saveState(outState);
         networkCard.saveState(outState);
         forceSection.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
-        outState.putBoolean(STATE_USB_HANDOVER_MODE_SHOWING, isShowing(activeUsbHandoverModeDialog));
         outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
                 isShowing(activeLanguageSelectionDialog));
     }
@@ -383,17 +326,8 @@ public class SettingsActivity extends Activity {
             activeResetAppDialog = null;
         }
 
-        usbProfileEditor.destroy();
-
         networkCard.destroy();
         forceSection.destroy();
-
-        if (activeUsbHandoverModeDialog != null) {
-            if (activeUsbHandoverModeDialog.isShowing()) {
-                activeUsbHandoverModeDialog.dismiss();
-            }
-            activeUsbHandoverModeDialog = null;
-        }
 
         if (activeLanguageSelectionDialog != null) {
             if (activeLanguageSelectionDialog.isShowing()) {
@@ -501,17 +435,6 @@ public class SettingsActivity extends Activity {
         });
     }
 
-    private void focusUsbPanel() {
-        // #759: expand the USB-ADB card and scroll it into view.
-        setCardExpanded(this, findViewById(R.id.settings_usb_adb_header),
-                findViewById(R.id.settings_usb_adb_body),
-                findViewById(R.id.settings_usb_adb_arrow), true);
-        View usbPanel = findViewById(R.id.settings_usb_adb_panel);
-        if (usbPanel != null && scrollView != null) {
-            scrollView.post(() -> scrollView.smoothScrollTo(0, usbPanel.getTop()));
-        }
-    }
-
     /**
      * #471: wires one settings card's header to independently toggle its body's visibility
      * (and flip the +/− arrow to match) on click. See {@link #COLLAPSIBLE_CARDS} for why this
@@ -546,48 +469,6 @@ public class SettingsActivity extends Activity {
         picker.setOnDismissListener(d -> {
             if (activeLanguageSelectionDialog == d) {
                 activeLanguageSelectionDialog = null;
-            }
-        });
-        picker.show();
-    }
-
-    private void showUsbHandoverModeDialog() {
-        String[] modes = {
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_OFF,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL,
-                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC,
-        };
-        String[] displayItems = {
-                getString(R.string.settings_usb_handover_mode_off),
-                getString(R.string.settings_usb_handover_mode_manual),
-                getString(R.string.settings_usb_handover_mode_automatic),
-        };
-        String currentMode = KeepADBPreferences.getUsbWlanHandoverMode(this);
-        int selectedIndex = 0;
-        for (int i = 0; i < modes.length; i++) {
-            if (modes[i].equals(currentMode)) selectedIndex = i;
-        }
-
-        if (isShowing(activeUsbHandoverModeDialog)) {
-            return;
-        }
-        AlertDialog picker = new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_usb_handover_dialog_title)
-                .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
-                    dialog.dismiss();
-                    KeepADBPreferences.setUsbWlanHandoverMode(this, modes[which]);
-                    // Re-derives current USB state for the notification only; this is the
-                    // profile-edit-style refresh(Context) overload, not a real connect edge, so
-                    // switching modes here never triggers AUTOMATIC's setEnabled() itself.
-                    KeepADBUsbReceiver.refresh(this);
-                    refresh();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        activeUsbHandoverModeDialog = picker;
-        picker.setOnDismissListener(d -> {
-            if (activeUsbHandoverModeDialog == d) {
-                activeUsbHandoverModeDialog = null;
             }
         });
         picker.show();
@@ -641,18 +522,6 @@ public class SettingsActivity extends Activity {
         return diagnosticsController.getActiveIssueReportDialog();
     }
 
-    AlertDialog getActiveProfileEditDialog() {
-        return usbProfileEditor.getActiveEditDialog();
-    }
-
-    AlertDialog getActiveDeleteProfileDialog() {
-        return usbProfileEditor.getActiveDeleteDialog();
-    }
-
-    AlertDialog getActiveSwitchProfileDialog() {
-        return usbProfileEditor.getActiveSwitchDialog();
-    }
-
     void refresh() {
         KeepADBWarningState.observe(this);
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
@@ -683,28 +552,6 @@ public class SettingsActivity extends Activity {
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 
         adviceBannerToggle.setChecked(KeepADBPreferences.isAdviceBannerVisible(this));
-
-        usbNotificationToggle.setChecked(KeepADBUsbProfile.isNotificationEnabled(this));
-        usbProfileNotificationToggle.setChecked(KeepADBUsbProfile.isProfileNotificationEnabled(this));
-        KeepADBUsbProfile.Profile selectedProfile = KeepADBUsbProfile.getSelected(this);
-        usbProfileSummary.setText(selectedProfile == null
-                ? getString(R.string.usb_profile_none)
-                // #904: name and addresses follow the app privacy switch.
-                : getString(R.string.usb_profile_selected, KeepADBNetworkDisplay.hidden(this)
-                        ? getString(R.string.usb_notification_profile_hidden)
-                        : selectedProfile.summary()));
-        usbProfileAction.setText(KeepADBUsbProfile.getProfiles(this).isEmpty()
-                ? R.string.usb_profile_create_button : R.string.usb_profile_switch_button);
-
-        String handoverMode = KeepADBPreferences.getUsbWlanHandoverMode(this);
-        int handoverModeLabel = KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(handoverMode)
-                ? R.string.settings_usb_handover_mode_automatic
-                : KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(handoverMode)
-                        ? R.string.settings_usb_handover_mode_manual
-                        : R.string.settings_usb_handover_mode_off;
-        usbHandoverSelectedText.setText(handoverModeLabel);
-        usbHandoverSelector.setContentDescription(
-                getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
 
         onboardingSummary.setText(getString(R.string.onboarding_settings_summary,
                 KeepADBForceNotice.levelLabel(this),

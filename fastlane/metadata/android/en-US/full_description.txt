@@ -16,8 +16,6 @@ Features:
 
 On fresh installs, Keep-Alive re-enables Wireless Debugging automatically only at access points you have trusted; existing installations keep their previous network setting. Recognizing trusted networks requires precise Android location access. KeepADB's Keep-Alive service is set up so that identity stays readable in the background too, as long as it was started while the app was open; recovery can still pause if the permission is missing or approximate, or location is off. A service instance that has only ever been started in the background (e.g. after a restart or an app update) keeps the identity masked until the app is opened again, unless you also grant Location "Allow all the time" on KeepADB's Android permission page — an optional step offered as a closable card on the main screen while trusted networks are required. KeepADB cannot grant this for you and, as with all location access here, only uses it to identify the Wi-Fi network; it does not read or store your location.
 
-When USB debugging is connected, KeepADB can show a USB notification and associate it with an editable host profile stored on the device. It can optionally offer or perform a USB-to-Wifi-ADB handover. USB profile data is not sent through the current webhook contract.
-
 KeepADB does not require root. Android protects Wireless Debugging with the WRITE_SECURE_SETTINGS permission, so initial setup requires granting it once from a trusted computer with ADB:
 
 adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS

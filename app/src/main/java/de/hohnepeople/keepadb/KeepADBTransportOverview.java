@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * #538: aggregates the currently verified ADB transports (WLAN/LAN, VPN, USB) into a
+ * #538: aggregates the currently verified ADB transports (WLAN/LAN, VPN) into a
  * single, display-ready snapshot. Builds a fresh {@link Snapshot} on every call -- this class
  * holds no state of its own, matching the project convention that every surface reads live state
  * rather than keeping a persistent app state. A transport that stops being verified between two
@@ -19,8 +19,6 @@ import java.util.List;
  *   <li>WLAN/LAN reuses {@link KeepADBEndpointCoordinator}'s already-verified cached endpoint (its
  *       background reachability probe and mDNS discovery are unchanged by this class).</li>
  *   <li>VPN uses {@link KeepADBVpnTransport}'s own independent verification.</li>
- *   <li>USB reuses {@link KeepADBUsbReceiver}'s system connected+configured+adb broadcast
- *       extras, the same signal the USB notification already relies on.</li>
  * </ul>
  */
 final class KeepADBTransportOverview {
@@ -119,12 +117,6 @@ final class KeepADBTransportOverview {
             }
         } else if (KeepADBVpnTransport.hasActiveVpnTransport(context)) {
             vpnActiveNotAdbVerified = true;
-        }
-
-        if (KeepADBUsbReceiver.isCurrentlyUsbAdbConnected(context)) {
-            transports.add(new KeepADBTransportEndpoint(
-                    KeepADBTransportEndpoint.Type.USB, null, 0,
-                    System.currentTimeMillis(), false));
         }
 
         if (!transports.isEmpty()) {

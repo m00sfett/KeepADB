@@ -30,23 +30,17 @@ public class KeepADBRegisterPayloadTest {
                 1_700_000_001_000L);
     }
 
-    private static KeepADBRegisterPayload.VerifiedTransport usb() {
-        return new KeepADBRegisterPayload.VerifiedTransport(
-                KeepADBRegisterPayload.Type.USB, null, 0, 1_700_000_002_000L);
-    }
-
     @Test
     public void everyVerifiedTransportBecomesItsOwnEventWithItsOwnMethod() {
         List<KeepADBRegisterPayload.Event> events =
-                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn(), usb()));
+                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn()));
 
-        assertEquals(3, events.size());
+        assertEquals(2, events.size());
         assertEquals("wlan-adb", events.get(0).method);
         assertEquals("vpn-adb", events.get(1).method);
-        assertEquals("usb-adb", events.get(2).method);
 
         // Separate slots: no event carries a peer transport's endpoint, and none of them asks the
-        // server to clear anything. That is what keeps WLAN/VPN/USB from erasing each other.
+        // server to clear anything. That is what keeps WLAN/VPN from erasing each other.
         for (KeepADBRegisterPayload.Event event : events) {
             assertTrue(event.json.contains("\"active\":true"));
             assertFalse(event.json.contains("\"action\""));
@@ -54,18 +48,15 @@ public class KeepADBRegisterPayloadTest {
         assertTrue(events.get(0).json.contains("\"endpoint\":\"192.168.1.50:41234\""));
         assertTrue(events.get(1).json.contains("\"endpoint\":\"100.111.111.30:41234\""));
         assertFalse(events.get(1).json.contains("192.168.1.50"));
-        // USB has no network endpoint of its own; it must not invent one.
-        assertFalse(events.get(2).json.contains("\"endpoint\""));
     }
 
     @Test
-    public void vpnAndUsbAreHeldBackUntilTheServerAcceptsThem() {
+    public void vpnIsHeldBackUntilTheServerAcceptsIt() {
         List<KeepADBRegisterPayload.Event> events =
-                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn(), usb()));
+                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn()));
 
         assertTrue(events.get(0).serverSupported);
         assertFalse(events.get(1).serverSupported);
-        assertFalse(events.get(2).serverSupported);
         assertEquals(Collections.singleton("wlan-adb"),
                 KeepADBRegisterPayload.SERVER_SUPPORTED_METHODS);
     }
@@ -165,29 +156,25 @@ public class KeepADBRegisterPayloadTest {
                         new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.WLAN_LAN,
                                 "192.168.1.50", 41234, 1_700_000_000_000L, true),
                         new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.VPN,
-                                "100.111.111.30", 41234, 1_700_000_001_000L, false),
-                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.USB,
-                                null, 0, 1_700_000_002_000L, false)),
+                                "100.111.111.30", 41234, 1_700_000_001_000L, false)),
                 false);
 
         List<KeepADBRegisterPayload.VerifiedTransport> verified =
                 KeepADBRegisterPayload.fromSnapshot(snapshot);
 
-        assertEquals(3, verified.size());
+        assertEquals(2, verified.size());
         assertEquals(KeepADBRegisterPayload.Type.WLAN_LAN, verified.get(0).type);
         assertEquals("192.168.1.50", verified.get(0).host);
         assertEquals(41234, verified.get(0).port);
         assertEquals(1_700_000_000_000L, verified.get(0).verifiedAtMs);
         assertEquals(KeepADBRegisterPayload.Type.VPN, verified.get(1).type);
-        assertEquals(KeepADBRegisterPayload.Type.USB, verified.get(2).type);
 
-        // The adapted snapshot must produce exactly the three independent slots the contract
+        // The adapted snapshot must produce exactly the two independent slots the contract
         // promises, not a single merged event.
         List<KeepADBRegisterPayload.Event> events = KeepADBRegisterPayload.buildEvents(verified);
-        assertEquals(3, events.size());
+        assertEquals(2, events.size());
         assertEquals("wlan-adb", events.get(0).method);
         assertEquals("vpn-adb", events.get(1).method);
-        assertEquals("usb-adb", events.get(2).method);
     }
 
     @Test
