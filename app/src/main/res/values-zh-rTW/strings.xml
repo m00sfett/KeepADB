@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">未連線</string>
     <string name="tile_state_searching">搜尋中…</string>
     <string name="tile_state_connected">已連線</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">連接埠 %1$d</string>
     <string name="tile_state_permission_missing">缺少權限</string>
     <string name="settings_section_version">版本</string>
     <string name="settings_version_value">應用程式版本：%1$s</string>

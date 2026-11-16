@@ -183,15 +183,16 @@ final class KeepADBWidgetContent {
         String fullName = ctx.getString(R.string.toggle_label);
         return build(ctx, KeepADBWidgetConfig.Action.ADB, ctx.getString(R.string.widget_action_adb),
                 ctx.getString(R.string.widget_label_adb_short), fullName, state, shortState,
-                portOf(p), style, click, icon, portNumber(p));
+                portOf(ctx, p), style, click, icon, portNumber(p));
     }
 
     /**
-     * The port the main control shows: ":38203" while connected and visible, five dots while the
-     * widget privacy or the per-widget option withholds it (still connected), otherwise null.
+     * The port the main control shows: "Port 38203" (#965) while connected and visible, five dots
+     * while the widget privacy or the per-widget option withholds it (still connected), otherwise
+     * null.
      */
-    private static String portOf(KeepADBWidgetState p) {
-        if (endpointShown(p)) return ":" + p.endpointPort;
+    private static String portOf(Context ctx, KeepADBWidgetState p) {
+        if (endpointShown(p)) return ctx.getString(R.string.endpoint_port_only, p.endpointPort);
         if (p.detailsHidden && connected(p)) return "•••••";
         return null;
     }
@@ -294,8 +295,7 @@ final class KeepADBWidgetContent {
         String lead;
         boolean data = true;
         if (endpointShown(p)) {
-            lead = ctx.getString(R.string.tile_state_connected_format,
-                    hostForDisplay(p.endpointHost), p.endpointPort);
+            lead = KeepADBEndpointText.display(ctx, p.endpointHost, p.endpointPort);
         } else if (p.detailsHidden && connected(p)) {
             lead = ctx.getString(R.string.widget_status_details_hidden);
         } else {
@@ -380,9 +380,5 @@ final class KeepADBWidgetContent {
             return ctx.getString(R.string.widget_webhook_no_endpoint);
         }
         return ctx.getString(R.string.widget_webhook_not_current);
-    }
-
-    private static String hostForDisplay(String host) {
-        return host.contains(":") && !host.startsWith("[") ? "[" + host + "]" : host;
     }
 }

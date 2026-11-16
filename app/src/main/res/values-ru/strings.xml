@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Нет подключения</string>
     <string name="tile_state_searching">Поиск…</string>
     <string name="tile_state_connected">Подключено</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Порт %1$d</string>
     <string name="tile_state_permission_missing">Нет разрешения</string>
     <string name="settings_section_version">Версия</string>
     <string name="settings_version_value">Версия приложения: %1$s</string>

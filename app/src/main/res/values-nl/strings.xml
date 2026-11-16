@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Niet verbonden</string>
     <string name="tile_state_searching">Zoeken…</string>
     <string name="tile_state_connected">Verbonden</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Poort %1$d</string>
     <string name="tile_state_permission_missing">Toestemming ontbreekt</string>
     <string name="settings_section_version">Versie</string>
     <string name="settings_version_value">App-versie: %1$s</string>

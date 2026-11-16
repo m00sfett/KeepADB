@@ -122,12 +122,16 @@ final class KeepADBOverviewContent {
                     KeepADBWidgetContent.Style.BUSY, R.drawable.ic_widget_adb_busy);
         }
         if (p.systemState == KeepADB.State.ENABLED_CONNECTED) {
-            String value = p.endpointHost != null && p.endpointPort > 0
-                    ? ctx.getString(R.string.tile_state_connected_format,
-                            hostForDisplay(p.endpointHost), p.endpointPort)
-                    : p.detailsHidden
-                            ? withDetail(ctx.getString(R.string.tile_state_connected), HIDDEN)
-                            : ctx.getString(R.string.tile_state_connected);
+            if (p.endpointHost != null && p.endpointPort > 0) {
+                // #965: the wide card names "Port <port> @ <ip>", the compact one the port only.
+                return new Row(label,
+                        KeepADBEndpointText.display(ctx, p.endpointHost, p.endpointPort),
+                        ctx.getString(R.string.endpoint_port_only, p.endpointPort),
+                        KeepADBWidgetContent.Style.ON, R.drawable.ic_widget_adb);
+            }
+            String value = p.detailsHidden
+                    ? withDetail(ctx.getString(R.string.tile_state_connected), HIDDEN)
+                    : ctx.getString(R.string.tile_state_connected);
             return new Row(label, value, KeepADBWidgetContent.Style.ON, R.drawable.ic_widget_adb);
         }
         if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
@@ -277,9 +281,5 @@ final class KeepADBOverviewContent {
                                 || w.latestOutcome == KeepADBWidgetState.Outcome.FAILED));
         return solvable ? KeepADBWidgetContent.Click.SETUP_WEBHOOK
                 : KeepADBWidgetContent.Click.OPEN_APP;
-    }
-
-    private static String hostForDisplay(String host) {
-        return host.contains(":") && !host.startsWith("[") ? "[" + host + "]" : host;
     }
 }

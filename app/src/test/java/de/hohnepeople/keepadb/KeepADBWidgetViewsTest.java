@@ -189,19 +189,19 @@ public class KeepADBWidgetViewsTest {
         View compact = hero(render(SizeClass.ROW1));
         assertNull(label(compact));
         assertNull("the port replaces the state word", state(compact));
-        assertEquals(":" + PORT, port(compact));
+        assertEquals(name(R.string.endpoint_port_only, PORT), port(compact));
 
         // 2x2: label in a row with the symbol, the port large; no state word beside the port.
         View m = hero(render(SizeClass.GRID));
         assertEquals(name(R.string.widget_action_adb), label(m));
-        assertEquals(":" + PORT, port(m));
+        assertEquals(name(R.string.endpoint_port_only, PORT), port(m));
         assertNull(state(m));
 
         // 4x2: label, the full state word and the port.
         View l = hero(render(SizeClass.PANEL));
         assertEquals(name(R.string.widget_action_adb), label(l));
         assertEquals(name(R.string.tile_state_connected), state(l));
-        assertEquals(":" + PORT, port(l));
+        assertEquals(name(R.string.endpoint_port_only, PORT), port(l));
 
         // The other controls: square buttons (no text), upright tiles, pills.
         for (SizeClass sizeClass : new SizeClass[] {SizeClass.ROW2, SizeClass.STACK}) {
@@ -285,7 +285,7 @@ public class KeepADBWidgetViewsTest {
         assertEquals(name(R.string.widget_short_on), connected.shortState);
         assertEquals(KeepADBWidgetContent.Style.ON, connected.style);
         assertEquals(R.drawable.ic_widget_adb, connected.iconRes);
-        assertEquals(":" + PORT, connected.port);
+        assertEquals(name(R.string.endpoint_port_only, PORT), connected.port);
 
         setAdb(false);
         KeepADBWidgetContent.Tile off = tile(Action.ADB);
@@ -408,7 +408,7 @@ public class KeepADBWidgetViewsTest {
             if (sizeClass == SizeClass.ONE) {
                 assertNull("no port in the smallest shape", shown);
             } else {
-                assertEquals(sizeClass.name(), ":" + PORT, shown);
+                assertEquals(sizeClass.name(), name(R.string.endpoint_port_only, PORT), shown);
             }
         }
         // The state word stands in for it in the compact shapes while there is no port.
@@ -473,9 +473,9 @@ public class KeepADBWidgetViewsTest {
     @Test
     public void theStatusLineIsOneTextWithTheEndpointAndTheWebhookState() {
         View widget = render(SizeClass.PANEL);
-        assertEquals(HOST + ":" + PORT + " · " + name(R.string.widget_webhook_not_current),
+        assertEquals(name(R.string.endpoint_port_at_ip, PORT, HOST) + " · " + name(R.string.widget_webhook_not_current),
                 statusText(widget));
-        assertEquals(HOST + ":" + PORT + ". " + name(R.string.widget_webhook_not_current),
+        assertEquals(name(R.string.endpoint_port_at_ip, PORT, HOST) + ". " + name(R.string.widget_webhook_not_current),
                 statusDescription(widget));
         android.widget.TextView text = widget.findViewById(R.id.widget_status_text);
         assertTrue("two lines at most, as high as its text", text.getMaxLines() <= 2);
@@ -551,7 +551,7 @@ public class KeepADBWidgetViewsTest {
     @Test
     public void theEndpointIsShownOnlyWhenNeitherTheGlobalSwitchNorTheWidgetHidesIt() {
         View open = render(SizeClass.PANEL);
-        assertTrue(statusText(open).startsWith(HOST + ":" + PORT));
+        assertTrue(statusText(open).startsWith(name(R.string.endpoint_port_at_ip, PORT, HOST)));
 
         // The per-widget option hides more: "Details hidden", no address, no port.
         KeepADBWidgetConfig hidden = KeepADBWidgetConfig.of(Action.ADB, null, true);

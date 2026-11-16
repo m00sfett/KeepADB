@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Не підключено</string>
     <string name="tile_state_searching">Пошук…</string>
     <string name="tile_state_connected">Підключено</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Порт %1$d</string>
     <string name="tile_state_permission_missing">Немає дозволу</string>
     <string name="settings_section_version">Версія</string>
     <string name="settings_version_value">Версія додатка: %1$s</string>

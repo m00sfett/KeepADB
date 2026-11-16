@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Disconnesso</string>
     <string name="tile_state_searching">Ricerca in corso…</string>
     <string name="tile_state_connected">Connesso</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Porta %1$d</string>
     <string name="tile_state_permission_missing">Autorizzazione mancante</string>
     <string name="settings_section_version">Versione</string>
     <string name="settings_version_value">Versione dell’app: %1$s</string>

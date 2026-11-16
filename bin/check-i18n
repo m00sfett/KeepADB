@@ -64,7 +64,7 @@ ALLOWLIST = {
     # -- No natural language in the value at all --
     "setup_command": ALL_LANGUAGES,              # literal shell command (adb shell pm grant ...)
     "setup_command_multi": ALL_LANGUAGES,        # literal shell command (adb -s <serial> shell pm grant ...)
-    "tile_state_connected_format": ALL_LANGUAGES,  # pure format string "%1$s:%2$d"
+    "endpoint_port_only": ALL_LANGUAGES,         # pure format string "Port %1$d" (tile, small widget; kept in several languages)
     "widget_description_format": ALL_LANGUAGES,  # pure format string "%1$s: %2$s" (#912)
     "endpoint_port_at_ip": ALL_LANGUAGES,        # pure format string "Port %1$d @ %2$s" (kept in several languages)
     "settings_webhook_url_hint": ALL_LANGUAGES,  # technical URL example, not prose

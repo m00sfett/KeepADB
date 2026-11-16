@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Desconectado</string>
     <string name="tile_state_searching">Procurando…</string>
     <string name="tile_state_connected">Conectado</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Porta %1$d</string>
     <string name="tile_state_permission_missing">Permissão ausente</string>
     <string name="settings_section_version">Versão</string>
     <string name="settings_version_value">Versão do app: %1$s</string>

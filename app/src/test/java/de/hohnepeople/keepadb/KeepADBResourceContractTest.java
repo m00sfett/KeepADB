@@ -631,7 +631,7 @@ public class KeepADBResourceContractTest {
         result.put("report_history_retry", new Object[] {integerWitness, integerWitness});
         result.put("report_history_retry_open", new Object[] {integerWitness});
         result.put("report_history_outcome_error", new Object[] {stringWitness});
-        result.put("tile_state_connected_format", new Object[] {stringWitness, integerWitness});
+        result.put("endpoint_port_only", new Object[] {integerWitness});
         result.put("permission_error_toast", new Object[] {stringWitness});
         result.put("notification_title_active", new Object[] {stringWitness});
         result.put("notification_title_disabled", new Object[] {stringWitness});
