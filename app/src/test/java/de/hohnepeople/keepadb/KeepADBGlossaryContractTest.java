@@ -10,11 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,8 +22,8 @@ import org.junit.Test;
  * #770, #965: pins the glossary of the UX concept (section 6) per locale. Retired terms must not
  * come back in any string, and the cross-locale rules hold in every language: one word for
  * "unknown"; "Wifi-ADB" and "Keep-Alive" are the one spelling of KeepADB's switch and of the
- * automatic re-enabling; Android's own setting keeps Android's localized name and appears only in
- * quotation marks (a reviewed, pinned list); the endpoint is "Port &lt;port&gt; @ &lt;ip&gt;" and the
+ * automatic re-enabling; Android's own localized label of the setting never appears in app
+ * strings (the app says "Wifi-ADB"); the endpoint is "Port &lt;port&gt; @ &lt;ip&gt;" and the
  * narrow surfaces show "Port &lt;port&gt;". The docs, README and store texts follow the same rules.
  * Reads the source files, so no resource compilation is involved.
  */
@@ -36,7 +34,7 @@ public class KeepADBGlossaryContractTest {
     /**
      * Android's own setting "Wireless debugging" as the system names it in each language (the
      * locale suffix is the value-directory suffix, "" is English). KeepADB's switch is "Wifi-ADB"
-     * (#965); this name may appear only in quotation marks and only in {@link #ANDROID_NAME_KEYS}.
+     * (#965); this label must not appear in any app string.
      * Declined forms of one language are separated by a bar.
      */
     private static final Map<String, String> ANDROID_NAME = new LinkedHashMap<>();
@@ -63,17 +61,10 @@ public class KeepADBGlossaryContractTest {
         ANDROID_NAME.put("-zh-rTW", "無線偵錯");
     }
 
-    /**
-     * The reviewed list of the strings that name Android's own setting (#965): where the text sends
-     * the user to the developer options, or refers to Android's dialog. Everywhere else the app
-     * says "Wifi-ADB". A new entry needs a deliberate decision here.
-     */
-    private static final Set<String> ANDROID_NAME_KEYS = new HashSet<>(Arrays.asList(
+    /** The strings that used to quote Android's label; they now say "Wifi-ADB" instead. */
+    private static final List<String> FORMERLY_ANDROID_NAME_KEYS = Arrays.asList(
             "connect_help_step_phone", "setup_state_offline_body", "toggle_subtext",
-            "status_off_keep_alive_blocked_recovery_backoff", "home_reason_backoff"));
-
-    /** Quotation marks that may open the quoted Android name, in the languages of the app. */
-    private static final String OPENING_QUOTES = "“«„‘「\"";
+            "status_off_keep_alive_blocked_recovery_backoff", "home_reason_backoff");
 
     /**
      * Old and variant spellings that must not return, in any locale (English wording in code,
@@ -173,34 +164,26 @@ public class KeepADBGlossaryContractTest {
     }
 
     /**
-     * #965: Android's own "Wireless debugging" keeps its localized Android name, in quotation
-     * marks, and only where the text sends the user to the developer options or names Android's
-     * dialog. This is the reviewed list of every remaining occurrence: the pinned set below is
-     * exactly the five strings of {@link #ANDROID_NAME_KEYS}, in every locale.
+     * #965: the app never quotes Android's own label of the wireless debugging setting. Its
+     * general name is "Wifi-ADB" in every locale, and the strings that used to name Android's
+     * label (developer options hint, offline hint, switch subtext, backoff texts) say it now.
      */
     @Test
-    public void androidsOwnSettingIsNamedOnlyInQuotesAndOnlyInTheReviewedStrings() throws IOException {
+    public void appStringsNameTheSettingWifiAdbNotAndroidsLabel() throws IOException {
         for (Map.Entry<String, String> locale : ANDROID_NAME.entrySet()) {
-            Set<String> found = new HashSet<>();
+            Map<String, String> values = strings(locale.getKey());
             for (String form : locale.getValue().split("\\|")) {
                 String needle = form.toLowerCase(java.util.Locale.ROOT);
-                for (Map.Entry<String, String> entry : strings(locale.getKey()).entrySet()) {
-                    String text = entry.getValue();
-                    String lower = text.toLowerCase(java.util.Locale.ROOT);
-                    for (int at = lower.indexOf(needle); at >= 0; at = lower.indexOf(needle, at + 1)) {
-                        String where = "values" + locale.getKey() + "/" + entry.getKey() + ": " + text;
-                        assertTrue(where + " names Android's setting but is not on the reviewed list",
-                                ANDROID_NAME_KEYS.contains(entry.getKey()));
-                        int before = at - 1;
-                        while (before >= 0 && isGap(text.charAt(before))) before--;
-                        assertTrue(where + " does not put Android's name in quotation marks",
-                                before >= 0 && OPENING_QUOTES.indexOf(text.charAt(before)) >= 0);
-                        found.add(entry.getKey());
-                    }
+                for (Map.Entry<String, String> entry : values.entrySet()) {
+                    assertFalse("values" + locale.getKey() + "/" + entry.getKey()
+                                    + " quotes Android's label '" + form + "': " + entry.getValue(),
+                            entry.getValue().toLowerCase(java.util.Locale.ROOT).contains(needle));
                 }
             }
-            assertEquals("values" + locale.getKey() + ": the reviewed strings name Android's setting",
-                    ANDROID_NAME_KEYS, found);
+            for (String key : FORMERLY_ANDROID_NAME_KEYS) {
+                assertTrue("values" + locale.getKey() + "/" + key + " must say Wifi-ADB",
+                        values.get(key).contains("Wifi-ADB"));
+            }
         }
     }
 
@@ -294,11 +277,6 @@ public class KeepADBGlossaryContractTest {
                         name.endsWith("webhook-register.md") || name.endsWith("CONTRIBUTING.md"));
             }
         }
-    }
-
-    /** Space, no-break space or narrow no-break space between a quotation mark and its text. */
-    private static boolean isGap(char c) {
-        return Character.isWhitespace(c) || c == '\u00a0' || c == '\u202f';
     }
 
     private static String context(String text, int at) {

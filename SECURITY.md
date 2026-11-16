@@ -59,7 +59,7 @@ A copied BSSID alone does not defeat WPA2/WPA3 authentication, and it does not m
 rogue access point by itself. Whether the phone connects depends on the saved Wi-Fi configuration,
 the credentials (for example, someone who knows the shared WPA2/WPA3-Personal password can run an
 access point that the phone cannot tell apart from the legitimate one) and platform behavior.
-Android's “Wireless debugging” is a separate layer: it authenticates paired hosts and encrypts the ADB
+Android's own pairing is a separate layer: it authenticates paired hosts and encrypts the ADB
 connection with TLS, so imitating an access point identifier does not by itself grant an ADB shell.
 
 Network trust gates **automatic** enabling and recovery only. When Wifi-ADB is already

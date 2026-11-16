@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Замініть &lt;device-serial&gt; точним серійним номером, який команда "adb devices" показала для цього пристрою.</string>
     <string name="setup_state_offline_title">Пристрій показує статус "offline"?</string>
-    <string name="setup_state_offline_body">З\'єднання перервалося. Підключіть USB-кабель знову або знову увімкніть «Бездротове налагодження» в параметрах розробника, потім повторюйте "adb devices", поки статус не стане "device".</string>
+    <string name="setup_state_offline_body">З\'єднання перервалося. Підключіть USB-кабель знову або знову увімкніть Wifi-ADB в параметрах розробника, потім повторюйте "adb devices", поки статус не стане "device".</string>
     <string name="setup_state_unauthorized_title">Пристрій показує статус "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Підтвердіть запит на дозвіл налагодження на екрані цього телефону, потім повторюйте "adb devices", поки статус не стане "device".</string>
     <string name="setup_refresh">Перевірити дозвіл</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Кінцева точка недоступна</string>
     <string name="connect_help_link">Підключити комп’ютер…</string>
     <string name="connect_help_title">Підключити комп’ютер</string>
-    <string name="connect_help_step_phone">На телефоні відкрийте «Для розробників» › «Бездротове налагодження» › «Підключити пристрій за допомогою коду підключення».</string>
+    <string name="connect_help_step_phone">На телефоні відкрийте налаштування Wifi-ADB у розділі «Для розробників» і торкніться «Підключити пристрій за допомогою коду підключення».</string>
     <string name="connect_help_step_pair">На комп’ютері, один раз для кожного комп’ютера: виконайте команду нижче та введіть код, показаний на телефоні.</string>
     <string name="connect_help_step_connect">Коли Wifi-ADB увімкнено, виконайте цю команду з адресою, яку показує KeepADB (торкніться адреси, щоб скопіювати команду). Комп’ютер, який уже підключали, часто підключається сам.</string>
     <string name="connect_help_open_settings">Відкрити «Для розробників»</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · остання перевірка %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, основний транспорт</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Вмикає або вимикає «Бездротове налагодження» Android, щоб комп’ютер міг підключитися до цього телефону через Wi-Fi.</string>
+    <string name="toggle_subtext">Вмикає або вимикає Wifi-ADB, щоб комп’ютер міг підключитися до цього телефону через Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Автоперепідключення при обриві зв’язку, зміні мережі або перезавантаженні</string>
     <string name="tile_permission_error">%1$s: Відсутній дозвіл (потрібно pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не є довіреною</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi заблокована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: мережа не читається, перевірте дозвіл на геолокацію («Дозволити завжди») або відкрийте застосунок знову</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог «Бездротове налагодження», потім торкніться перемикача, щоб повторити спробу</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог Android для Wifi-ADB, потім торкніться перемикача, щоб повторити спробу</string>
     <string name="status_pending">Перемикання…</string>
     <string name="home_state_on">Wifi-ADB увімкнено</string>
     <string name="home_state_off">Wifi-ADB вимкнено</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive призупинено: мережа Wi-Fi не довірена</string>
     <string name="home_reason_blocked">Keep-Alive призупинено: мережа Wi-Fi заблокована</string>
     <string name="home_reason_identity">Keep-Alive призупинено: мережа не читається</string>
-    <string name="home_reason_backoff">Keep-Alive призупинено: діалог «Бездротове налагодження» не підтверджено</string>
+    <string name="home_reason_backoff">Keep-Alive призупинено: діалог Android для Wifi-ADB не підтверджено</string>
     <string name="home_reason_no_wifi">Немає підключення до Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive тут не ввімкнеться: мережа Wi-Fi не довірена</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive тут не ввімкнеться: мережа Wi-Fi заблокована</string>

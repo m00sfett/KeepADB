@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt; ifadesini bu cihaz için "adb devices" tarafından gösterilen tam seri numarasıyla değiştirin.</string>
     <string name="setup_state_offline_title">Cihaz "offline" mi görünüyor?</string>
-    <string name="setup_state_offline_body">Bağlantı koptu. USB kablosunu yeniden takın veya Geliştirici seçeneklerinde “Kablosuz hata ayıklama”yı yeniden etkinleştirin, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
+    <string name="setup_state_offline_body">Bağlantı koptu. USB kablosunu yeniden takın veya Geliştirici seçeneklerinde Wifi-ADB’yi yeniden etkinleştirin, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
     <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Uç nokta kullanılamıyor</string>
     <string name="connect_help_link">Bilgisayar bağla…</string>
     <string name="connect_help_title">Bilgisayar bağla</string>
-    <string name="connect_help_step_phone">Telefonda Geliştirici seçenekleri › “Kablosuz hata ayıklama” › “Cihazı eşleme koduyla eşle” bölümünü açın.</string>
+    <string name="connect_help_step_phone">Telefonda Geliştirici seçenekleri içinde Wifi-ADB ayarlarını açın ve “Cihazı eşleme koduyla eşle” seçeneğine dokunun.</string>
     <string name="connect_help_step_pair">Bilgisayarda, her bilgisayar için bir kez: aşağıdaki komutu çalıştırın ve telefonda görünen kodu girin.</string>
     <string name="connect_help_step_connect">Wifi-ADB açıkken bu komutu KeepADB\'nin gösterdiği adresle çalıştırın (komutu kopyalamak için adrese dokunun). Daha önce eşlenmiş bir bilgisayar çoğu zaman kendiliğinden bağlanır.</string>
     <string name="connect_help_open_settings">Geliştirici seçeneklerini aç</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · son kontrol %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, birincil aktarım</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Android’in “Kablosuz hata ayıklama” özelliğini açar veya kapatır; böylece bir bilgisayar bu telefona Wi-Fi üzerinden ulaşabilir.</string>
+    <string name="toggle_subtext">Wifi-ADB’yi açar veya kapatır; böylece bir bilgisayar bu telefona Wi-Fi üzerinden ulaşabilir.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Bağlantı kesintisi, ağ değişikliği veya yeniden başlatmada otomatik yeniden bağlanma</string>
     <string name="tile_permission_error">%1$s: İzin eksik (pm grant gerekli)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı engellendi</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: “Kablosuz hata ayıklama” ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: Android’in Wifi-ADB ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
     <string name="home_state_on">Wifi-ADB açık</string>
     <string name="home_state_off">Wifi-ADB kapalı</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive duraklatıldı: Wi-Fi güvenilir değil</string>
     <string name="home_reason_blocked">Keep-Alive duraklatıldı: Wi-Fi engellendi</string>
     <string name="home_reason_identity">Keep-Alive duraklatıldı: ağ okunamıyor</string>
-    <string name="home_reason_backoff">Keep-Alive duraklatıldı: “Kablosuz hata ayıklama” iletişim kutusu onaylanmadı</string>
+    <string name="home_reason_backoff">Keep-Alive duraklatıldı: Android’in Wifi-ADB iletişim kutusu onaylanmadı</string>
     <string name="home_reason_no_wifi">Wi-Fi bağlantısı yok</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive burada kapalı kalır: Wi-Fi güvenilir değil</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive burada kapalı kalır: Wi-Fi engellendi</string>

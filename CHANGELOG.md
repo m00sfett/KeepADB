@@ -283,10 +283,13 @@ name and raise only the code.
     wide widget status line and the wide overview row. The Quick Settings tile, the hero
     tiles of the control widget and the compact overview row show **Port 34697** only
     (`endpoint_port_only`); the old `tile_state_connected_format` (`%1$s:%2$d`) is deleted.
-  - **Android's own setting keeps Android's name**, in quotation marks, localized as Android shows
-    it: the setting's name appears only in `connect_help_step_phone`, `setup_state_offline_body`,
-    `toggle_subtext`, `status_off_keep_alive_blocked_recovery_backoff` and `home_reason_backoff`,
-    where the text sends the user to the developer options or names Android's dialog.
+  - **The app no longer quotes Android's own label** of the setting (maintainer decision of
+    2026-11-16): "Wireless debugging" and its per-locale equivalents ("Drahtloses Debugging", ...)
+    are replaced by **Wifi-ADB** in `connect_help_step_phone`, `setup_state_offline_body`,
+    `toggle_subtext`, `status_off_keep_alive_blocked_recovery_backoff` and `home_reason_backoff`.
+    The pairing step now reads "open the Wifi-ADB settings in Developer options" instead of a
+    quoted menu path; the glossary test forbids Android's label in any app string. README,
+    `SECURITY.md` and the store description name Android's label once, where the term is introduced.
   - **The list is "Wi-Fi networks"**: `home_action_networks` (the button that opens it) and
     `onboarding_network_open_list` no longer say "Networks"/"Networks list"; the docs say "Wi-Fi
     networks list".
@@ -436,8 +439,8 @@ name and raise only the code.
   also records the deleted keys), `docs/trusted-networks.md`, `docs/webhook-register.md` and the
   store description (`full_description.txt`). The dated records under `docs/archive`,
   `docs/release` and `docs/design` keep their original wording.
-- The terms of #965 (Wifi-ADB, Keep-Alive, "Port <port> @ <ip>", Android's "Wireless debugging" in
-  quotation marks) are applied in `README.md`, `SECURITY.md`, `docs/` and the store texts.
+- The terms of #965 (Wifi-ADB, Keep-Alive, "Port <port> @ <ip>", Android's "Wireless debugging" only where
+  the term is introduced) are applied in `README.md`, `SECURITY.md`, `docs/` and the store texts.
 - `README.md`, `SECURITY.md`, `docs/defaults.md` and the store description said "three" privacy
   switches; there are four (app, notifications, lock screen, widgets and the tile counted as one)
   and the texts now say so.

@@ -1,6 +1,6 @@
 KeepADB helps keep Wifi-ADB, Android’s “Wireless debugging”, available across device restarts, Wi-Fi reconnects, access-point changes, and idle periods.
 
-Toggle Wifi-ADB from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and attempts recovery when Android disables it. Android may ask for approval to enable “Wireless debugging” on Wi-Fi. Approve only expected prompts on a private network you trust. Select “Always allow on this network” if you want Android to allow “Wireless debugging” automatically when your device reconnects to that network. KeepADB cannot grant this Android approval itself; its trusted-network rule is separate and only controls where automatic recovery may run. If Android does not confirm an automatic enable, KeepADB backs off instead of retrying rapidly.
+Toggle Wifi-ADB from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and attempts recovery when Android disables it. Android may ask for approval to enable Wifi-ADB on Wi-Fi. Approve only expected prompts on a private network you trust. Select “Always allow on this network” if you want Android to allow Wifi-ADB automatically when your device reconnects to that network. KeepADB cannot grant this Android approval itself; its trusted-network rule is separate and only controls where automatic recovery may run. If Android does not confirm an automatic enable, KeepADB backs off instead of retrying rapidly.
 
 Features:
 * Quick Settings tile and main app controls
@@ -17,7 +17,7 @@ Features:
 
 On fresh installs, Keep-Alive re-enables Wifi-ADB automatically only at access points you have trusted; existing installations keep their previous network setting. Recognizing trusted networks requires precise Android location access. KeepADB's Keep-Alive service is set up so that identity stays readable in the background too, as long as it was started while the app was open; recovery can still pause if the permission is missing or approximate, or location is off. A service instance that has only ever been started in the background (e.g. after a restart or an app update) keeps the identity masked until the app is opened again, unless you also grant Location "Allow all the time" on KeepADB's Android permission page — an optional step offered as a closable card on the main screen while trusted networks are required. KeepADB cannot grant this for you and, as with all location access here, only uses it to identify the Wi-Fi network; it does not read or store your location.
 
-KeepADB does not require root. Android protects the “Wireless debugging” setting with the WRITE_SECURE_SETTINGS permission, so initial setup requires granting it once from a trusted computer with ADB:
+KeepADB does not require root. Android protects the Wifi-ADB setting with the WRITE_SECURE_SETTINGS permission, so initial setup requires granting it once from a trusted computer with ADB:
 
 adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS
 

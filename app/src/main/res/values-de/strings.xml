@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Ersetze &lt;device-serial&gt; durch die exakte Seriennummer, die "adb devices" für dieses Gerät angezeigt hat.</string>
     <string name="setup_state_offline_title">Gerät zeigt "offline"?</string>
-    <string name="setup_state_offline_body">Die Verbindung ist abgebrochen. Verbinde das USB-Kabel neu oder aktiviere „Drahtloses Debugging“ in den Entwickleroptionen erneut, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
+    <string name="setup_state_offline_body">Die Verbindung ist abgebrochen. Verbinde das USB-Kabel neu oder aktiviere Wifi-ADB in den Entwickleroptionen erneut, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
     <string name="setup_state_unauthorized_title">Gerät zeigt "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bestätige die Debugging-Freigabeabfrage auf dem Bildschirm dieses Handys, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
     <string name="setup_refresh">Berechtigung prüfen</string>
@@ -16,7 +16,7 @@
     <string name="endpoint_unavailable">Endpunkt nicht verfügbar</string>
     <string name="connect_help_link">Computer verbinden…</string>
     <string name="connect_help_title">Computer verbinden</string>
-    <string name="connect_help_step_phone">Am Telefon: Entwickleroptionen › „Drahtloses Debugging“ › „Gerät mit Kopplungscode koppeln“ öffnen.</string>
+    <string name="connect_help_step_phone">Am Telefon: In den Entwickleroptionen die Wifi-ADB-Einstellungen öffnen und „Gerät mit Kopplungscode koppeln“ antippen.</string>
     <string name="connect_help_step_pair">Am Computer, einmal pro Computer: den Befehl unten ausführen und den Code eingeben, der am Telefon angezeigt wird.</string>
     <string name="connect_help_step_connect">Bei eingeschaltetem Wifi-ADB den Befehl mit der Adresse ausführen, die KeepADB anzeigt (Adresse antippen kopiert den Befehl). Ein bereits gekoppelter Computer verbindet sich oft von selbst.</string>
     <string name="connect_help_open_settings">Entwickleroptionen öffnen</string>
@@ -25,7 +25,7 @@
     <string name="transport_row_format">%1$s: %2$s · zuletzt geprüft %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, primärer Transport</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Schaltet Androids „Drahtloses Debugging“ ein oder aus, damit ein Computer dieses Handy über WLAN erreicht.</string>
+    <string name="toggle_subtext">Schaltet Wifi-ADB ein oder aus, damit ein Computer dieses Handy über WLAN erreicht.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatischer Reconnect bei Verbindungsabbruch, Access-Point-Wechsel oder Neustart</string>
     <string name="tile_state_off">Aus</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ist AUS – Keep-Alive pausiert: Androids Systemdialog „Drahtloses Debugging“ bestätigen, dann zum erneuten Versuch antippen</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ist AUS – Keep-Alive pausiert: Android-Dialog für Wifi-ADB bestätigen, dann zum erneuten Versuch antippen</string>
     <string name="status_pending">Wird umgeschaltet …</string>
     <string name="home_state_on">Wifi-ADB ist an</string>
     <string name="home_state_off">Wifi-ADB ist aus</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive pausiert: WLAN nicht vertraut</string>
     <string name="home_reason_blocked">Keep-Alive pausiert: WLAN blockiert</string>
     <string name="home_reason_identity">Keep-Alive pausiert: Netzwerk nicht lesbar</string>
-    <string name="home_reason_backoff">Keep-Alive pausiert: Dialog „Drahtloses Debugging“ nicht bestätigt</string>
+    <string name="home_reason_backoff">Keep-Alive pausiert: Android-Dialog für Wifi-ADB nicht bestätigt</string>
     <string name="home_reason_no_wifi">Keine WLAN-Verbindung</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive bleibt hier aus: WLAN nicht vertraut</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive bleibt hier aus: WLAN blockiert</string>

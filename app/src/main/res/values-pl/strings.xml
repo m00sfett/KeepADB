@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Zastąp &lt;device-serial&gt; dokładnym numerem seryjnym, który "adb devices" pokazał dla tego urządzenia.</string>
     <string name="setup_state_offline_title">Urządzenie pokazuje "offline"?</string>
-    <string name="setup_state_offline_body">Połączenie zostało przerwane. Podłącz ponownie kabel USB lub włącz ponownie „Debugowanie bezprzewodowe” w opcjach programisty, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
+    <string name="setup_state_offline_body">Połączenie zostało przerwane. Podłącz ponownie kabel USB lub włącz ponownie Wifi-ADB w opcjach programisty, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_state_unauthorized_title">Urządzenie pokazuje "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Potwierdź monit o autoryzację debugowania na ekranie tego telefonu, a następnie uruchamiaj "adb devices", aż stan zmieni się na "device".</string>
     <string name="setup_refresh">Sprawdź uprawnienia</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Punkt końcowy niedostępny</string>
     <string name="connect_help_link">Połącz komputer…</string>
     <string name="connect_help_title">Połącz komputer</string>
-    <string name="connect_help_step_phone">Na telefonie otwórz Opcje programisty › „Debugowanie bezprzewodowe” › „Sparuj urządzenie za pomocą kodu parowania”.</string>
+    <string name="connect_help_step_phone">Na telefonie otwórz ustawienia Wifi-ADB w Opcjach programisty i dotknij „Sparuj urządzenie za pomocą kodu parowania”.</string>
     <string name="connect_help_step_pair">Na komputerze, raz dla każdego komputera: uruchom poniższe polecenie i wpisz kod widoczny na telefonie.</string>
     <string name="connect_help_step_connect">Przy włączonym Wifi-ADB uruchom to polecenie z adresem pokazanym przez KeepADB (dotknij adresu, aby skopiować polecenie). Komputer, który był już sparowany, często łączy się sam.</string>
     <string name="connect_help_open_settings">Otwórz opcje programisty</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · ostatnio sprawdzono %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transport podstawowy</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Włącza lub wyłącza „Debugowanie bezprzewodowe” w Androidzie, aby komputer mógł połączyć się z tym telefonem przez Wi-Fi.</string>
+    <string name="toggle_subtext">Włącza lub wyłącza Wifi-ADB, aby komputer mógł połączyć się z tym telefonem przez Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
     <string name="tile_permission_error">%1$s: Brak uprawnień (wymagane pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi jest zablokowana</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: sieć jest nieczytelna, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci „Debugowanie bezprzewodowe”, a następnie dotknij przełącznika, aby spróbować ponownie</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci Androida dla Wifi-ADB, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
     <string name="home_state_on">Wifi-ADB jest włączone</string>
     <string name="home_state_off">Wifi-ADB jest wyłączone</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive wstrzymane: sieć Wi-Fi niezaufana</string>
     <string name="home_reason_blocked">Keep-Alive wstrzymane: sieć Wi-Fi zablokowana</string>
     <string name="home_reason_identity">Keep-Alive wstrzymane: sieć nieczytelna</string>
-    <string name="home_reason_backoff">Keep-Alive wstrzymane: okno „Debugowanie bezprzewodowe” niepotwierdzone</string>
+    <string name="home_reason_backoff">Keep-Alive wstrzymane: okno Androida dla Wifi-ADB niepotwierdzone</string>
     <string name="home_reason_no_wifi">Brak połączenia Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tu nie włączy: sieć Wi-Fi niezaufana</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tu nie włączy: sieć Wi-Fi zablokowana</string>

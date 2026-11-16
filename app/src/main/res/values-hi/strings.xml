@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt; को उस सटीक सीरियल नंबर से बदलें जो "adb devices" ने इस डिवाइस के लिए दिखाया था।</string>
     <string name="setup_state_offline_title">डिवाइस "offline" दिखा रहा है?</string>
-    <string name="setup_state_offline_body">कनेक्शन टूट गया है। USB केबल फिर से जोड़ें या डेवलपर विकल्प में “वायरलेस डीबगिंग” फिर से चालू करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
+    <string name="setup_state_offline_body">कनेक्शन टूट गया है। USB केबल फिर से जोड़ें या डेवलपर विकल्प में Wifi-ADB फिर से चालू करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_state_unauthorized_title">डिवाइस "unauthorized" दिखा रहा है?</string>
     <string name="setup_state_unauthorized_body">इस फोन की स्क्रीन पर दिखने वाले डीबगिंग अनुमति संकेत की पुष्टि करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_refresh">अनुमति जांचें</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">एंडपॉइंट अनुपलब्ध है</string>
     <string name="connect_help_link">कंप्यूटर कनेक्ट करें…</string>
     <string name="connect_help_title">कंप्यूटर कनेक्ट करें</string>
-    <string name="connect_help_step_phone">फ़ोन पर डेवलपर विकल्प › “वायरलेस डीबगिंग” › “पेयरिंग कोड से डिवाइस पेयर करें” खोलें।</string>
+    <string name="connect_help_step_phone">फ़ोन पर डेवलपर विकल्प में Wifi-ADB सेटिंग खोलें और “पेयरिंग कोड से डिवाइस पेयर करें” पर टैप करें।</string>
     <string name="connect_help_step_pair">कंप्यूटर पर, हर कंप्यूटर के लिए एक बार: नीचे दिया कमांड चलाएँ और फ़ोन पर दिखा कोड दर्ज करें।</string>
     <string name="connect_help_step_connect">Wifi-ADB चालू होने पर, KeepADB द्वारा दिखाए गए पते के साथ यह कमांड चलाएँ (कमांड कॉपी करने के लिए पते पर टैप करें)। पहले से पेयर किया गया कंप्यूटर अक्सर अपने आप कनेक्ट हो जाता है।</string>
     <string name="connect_help_open_settings">डेवलपर विकल्प खोलें</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · अंतिम जाँच %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, प्राथमिक ट्रांसपोर्ट</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Android की “वायरलेस डीबगिंग” को चालू या बंद करता है, ताकि कंप्यूटर इस फ़ोन तक Wi-Fi से पहुँच सके।</string>
+    <string name="toggle_subtext">Wifi-ADB को चालू या बंद करता है, ताकि कंप्यूटर इस फ़ोन तक Wi-Fi से पहुँच सके।</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>
     <string name="tile_permission_error">%1$s: अनुमति गायब है (pm grant आवश्यक है)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क रोका गया है</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB बंद है – Keep-Alive रोका गया: “वायरलेस डीबगिंग” नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB बंद है – Keep-Alive रोका गया: Android के Wifi-ADB नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
     <string name="home_state_on">Wifi-ADB चालू है</string>
     <string name="home_state_off">Wifi-ADB बंद है</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive रोका गया: Wi-Fi भरोसेमंद नहीं है</string>
     <string name="home_reason_blocked">Keep-Alive रोका गया: Wi-Fi ब्लॉक है</string>
     <string name="home_reason_identity">Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता</string>
-    <string name="home_reason_backoff">Keep-Alive रोका गया: “वायरलेस डीबगिंग” संवाद की पुष्टि नहीं हुई</string>
+    <string name="home_reason_backoff">Keep-Alive रोका गया: Android के Wifi-ADB संवाद की पुष्टि नहीं हुई</string>
     <string name="home_reason_no_wifi">Wi-Fi कनेक्शन नहीं है</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive यहाँ बंद रहेगा: Wi-Fi भरोसेमंद नहीं है</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive यहाँ बंद रहेगा: Wi-Fi ब्लॉक है</string>

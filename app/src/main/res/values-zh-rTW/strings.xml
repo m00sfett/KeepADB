@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">將 &lt;device-serial&gt; 替換為 "adb devices" 為此裝置顯示的正確序號。</string>
     <string name="setup_state_offline_title">裝置顯示為「offline」？</string>
-    <string name="setup_state_offline_body">連線已中斷。請重新插拔 USB 線，或在「開發人員選項」中重新開啟「無線偵錯」，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
+    <string name="setup_state_offline_body">連線已中斷。請重新插拔 USB 線，或在「開發人員選項」中重新開啟 Wifi-ADB，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
     <string name="setup_state_unauthorized_title">裝置顯示為「unauthorized」？</string>
     <string name="setup_state_unauthorized_body">請在此手機螢幕上確認偵錯授權提示，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
     <string name="setup_refresh">檢查權限</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">端點無法使用</string>
     <string name="connect_help_link">連接電腦…</string>
     <string name="connect_help_title">連接電腦</string>
-    <string name="connect_help_step_phone">在手機上開啟「開發人員選項」›「無線偵錯」›「使用配對碼配對裝置」。</string>
+    <string name="connect_help_step_phone">在手機的「開發人員選項」中開啟 Wifi-ADB 設定，然後點選「使用配對碼配對裝置」。</string>
     <string name="connect_help_step_pair">在電腦上，每台電腦只需一次：執行下方指令，然後輸入手機上顯示的配對碼。</string>
     <string name="connect_help_step_connect">開啟 Wifi-ADB 後，用 KeepADB 顯示的位址執行此指令（點選位址即可複製指令）。已配對的電腦通常會自動連線。</string>
     <string name="connect_help_open_settings">開啟開發人員選項</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s：%2$s · 上次檢查 %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s，主要傳輸</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">開啟或關閉 Android 的「無線偵錯」，以便電腦透過 Wi-Fi 存取這支手機。</string>
+    <string name="toggle_subtext">開啟或關閉 Wifi-ADB，以便電腦透過 Wi-Fi 存取這支手機。</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">斷線、網路變更或重開機時自動重新連線</string>
     <string name="tile_permission_error">%1$s：缺少權限（需要 pm grant）</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB 已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路未信任</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB 已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路已被封鎖</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB 已關閉 – Keep-Alive 已暫停:網路無法讀取,請檢查位置權限（「一律允許」）或重新開啟應用程式</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 已關閉 – Keep-Alive 已暫停:請確認「無線偵錯」網路對話方塊,然後點選開關重試</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 已關閉 – Keep-Alive 已暫停:請確認Android 的 Wifi-ADB 網路對話方塊,然後點選開關重試</string>
     <string name="status_pending">正在切換…</string>
     <string name="home_state_on">Wifi-ADB 已開啟</string>
     <string name="home_state_off">Wifi-ADB 已關閉</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive 已暫停：Wi-Fi 未信任</string>
     <string name="home_reason_blocked">Keep-Alive 已暫停：Wi-Fi 已被封鎖</string>
     <string name="home_reason_identity">Keep-Alive 已暫停：無法讀取網路</string>
-    <string name="home_reason_backoff">Keep-Alive 已暫停：「無線偵錯」對話方塊尚未確認</string>
+    <string name="home_reason_backoff">Keep-Alive 已暫停：Android 的 Wifi-ADB 對話方塊尚未確認</string>
     <string name="home_reason_no_wifi">沒有 Wi-Fi 連線</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive 在此保持關閉：Wi-Fi 未信任</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive 在此保持關閉：Wi-Fi 已被封鎖</string>

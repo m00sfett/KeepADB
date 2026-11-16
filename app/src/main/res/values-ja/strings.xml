@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;を、この端末に対して"adb devices"が表示した正確なシリアル番号に置き換えてください。</string>
     <string name="setup_state_offline_title">デバイスが"offline"と表示される場合は？</string>
-    <string name="setup_state_offline_body">接続が切断されています。USBケーブルを接続し直すか、開発者向けオプションで「ワイヤレスデバッグ」を再度有効にしてから、状態が"device"になるまで"adb devices"を再実行してください。</string>
+    <string name="setup_state_offline_body">接続が切断されています。USBケーブルを接続し直すか、開発者向けオプションでWifi-ADBを再度有効にしてから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_state_unauthorized_title">デバイスが"unauthorized"と表示される場合は？</string>
     <string name="setup_state_unauthorized_body">このスマートフォンの画面に表示されるデバッグ許可のダイアログを確認してから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_refresh">権限を確認</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
     <string name="connect_help_link">パソコンを接続…</string>
     <string name="connect_help_title">パソコンを接続</string>
-    <string name="connect_help_step_phone">スマートフォンで「開発者向けオプション」›「ワイヤレスデバッグ」›「ペア設定コードでデバイスをペア設定」を開きます。</string>
+    <string name="connect_help_step_phone">スマートフォンの「開発者向けオプション」でWifi-ADBの設定を開き、「ペア設定コードでデバイスをペア設定」をタップします。</string>
     <string name="connect_help_step_pair">パソコンで、パソコンごとに1回:下のコマンドを実行し、スマートフォンに表示されたコードを入力します。</string>
     <string name="connect_help_step_connect">Wifi-ADB がオンのとき、KeepADB が表示するアドレスでこのコマンドを実行します（アドレスをタップするとコマンドをコピーできます）。ペア設定済みのパソコンは、自動的に接続されることがよくあります。</string>
     <string name="connect_help_open_settings">開発者向けオプションを開く</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · 最終確認 %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s、主要トランスポート</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Androidの「ワイヤレスデバッグ」のオン/オフを切り替え、パソコンからこのスマートフォンにWi-Fi経由で接続できるようにします。</string>
+    <string name="toggle_subtext">Wifi-ADBのオン/オフを切り替え、パソコンからこのスマートフォンにWi-Fi経由で接続できるようにします。</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">切断、ネットワーク変更、または再起動時に自動再接続</string>
     <string name="tile_permission_error">%1$s: 権限がありません (pm grant が必要)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB は OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB は OFF です – Keep-Alive は一時停止中:「ワイヤレスデバッグ」のネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB は OFF です – Keep-Alive は一時停止中:AndroidのWifi-ADBネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
     <string name="home_state_on">Wifi-ADB はオンです</string>
     <string name="home_state_off">Wifi-ADB はオフです</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive は一時停止中:Wi-Fi は信頼されていません</string>
     <string name="home_reason_blocked">Keep-Alive は一時停止中:Wi-Fi はブロックされています</string>
     <string name="home_reason_identity">Keep-Alive は一時停止中:ネットワークを読み取れません</string>
-    <string name="home_reason_backoff">Keep-Alive は一時停止中:「ワイヤレスデバッグ」のダイアログが未確認</string>
+    <string name="home_reason_backoff">Keep-Alive は一時停止中:AndroidのWifi-ADBダイアログが未確認</string>
     <string name="home_reason_no_wifi">Wi-Fi 接続なし</string>
     <string name="home_reason_stays_off_untrusted">ここでは Keep-Alive はオフのまま:Wi-Fi は信頼されていません</string>
     <string name="home_reason_stays_off_blocked">ここでは Keep-Alive はオフのまま:Wi-Fi はブロックされています</string>
