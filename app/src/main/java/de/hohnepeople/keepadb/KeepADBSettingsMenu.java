@@ -21,9 +21,10 @@ import java.util.List;
 /**
  * #823: the dropdown menu of the KeepADB title bars. One look for two menus:
  * <ul>
- *   <li>the home menu behind the gear of the main view ({@link #forHome}, #940): Language, All
- *       settings, then every settings section in the order of the Settings screen, each with the
- *       icon of its section;</li>
+ *   <li>the home menu behind the gear of the main view ({@link #forHome}, #940, #964): exactly
+ *       four entries, Settings, Wi-Fi networks, Setup assistant and Language, each with its
+ *       icon. The settings sections are not repeated here; they are one tap away on the Settings
+ *       page;</li>
  *   <li>the privacy menu behind a long press on any eye button ({@link KeepADBPrivacyToggle},
  *       #941): the four stored privacy switches as check entries and a link to the Privacy
  *       section.</li>
@@ -32,19 +33,11 @@ import java.util.List;
  */
 final class KeepADBSettingsMenu {
 
-    static final int ID_LANGUAGE = 1;
-    static final int ID_DIVIDER_1 = -1;
     static final int ID_ALL_SETTINGS = 3;
-    static final int ID_DIVIDER_2 = -2;
     static final int ID_SETUP_ASSISTANT = 4;
-    static final int ID_NETWORK = 5;
-    /** #949: the Networks list itself, one tap from Home. */
+    /** #949: the Wi-Fi networks list itself, one tap from Home. */
     static final int ID_NETWORKS = 14;
-    static final int ID_WEBHOOK = 6;
-    static final int ID_USB_ADB = 7;
-    static final int ID_PRIVACY = 12;
-    static final int ID_MISC = 8;
-    static final int ID_DIAGNOSTICS = 13;
+    static final int ID_LANGUAGE = 1;
 
     static final class MenuItem {
         final int id;
@@ -113,60 +106,31 @@ final class KeepADBSettingsMenu {
         });
     }
 
+    /** #964: the four entries of the home menu, in this order. */
     static List<MenuItem> buildMenuItems() {
         List<MenuItem> menu = new ArrayList<>();
-        menu.add(MenuItem.link(ID_LANGUAGE, R.string.menu_item_language, R.drawable.ic_language));
-        menu.add(MenuItem.divider(ID_DIVIDER_1));
         menu.add(MenuItem.link(ID_ALL_SETTINGS, R.string.menu_item_all_settings,
                 R.drawable.ic_settings_gear));
-        menu.add(MenuItem.divider(ID_DIVIDER_2));
+        menu.add(MenuItem.link(ID_NETWORKS, R.string.networks_title, R.drawable.ic_wifi));
         menu.add(MenuItem.link(ID_SETUP_ASSISTANT, R.string.settings_onboarding_title,
                 R.drawable.ic_settings_assistant));
-        menu.add(MenuItem.link(ID_NETWORK, R.string.settings_section_network,
-                R.drawable.ic_settings_network));
-        menu.add(MenuItem.link(ID_NETWORKS, R.string.networks_title, R.drawable.ic_wifi));
-        menu.add(MenuItem.link(ID_WEBHOOK, R.string.settings_section_webhook,
-                R.drawable.ic_settings_sync));
-        menu.add(MenuItem.link(ID_USB_ADB, R.string.settings_section_usb_adb, R.drawable.ic_usb));
-        menu.add(MenuItem.link(ID_PRIVACY, R.string.privacy_switches_title,
-                R.drawable.ic_settings_privacy));
-        menu.add(MenuItem.link(ID_MISC, R.string.settings_section_misc, R.drawable.ic_more_horiz));
-        menu.add(MenuItem.link(ID_DIAGNOSTICS, R.string.settings_diagnostics_title,
-                R.drawable.ic_settings_diagnostics));
+        menu.add(MenuItem.link(ID_LANGUAGE, R.string.menu_item_language, R.drawable.ic_language));
         return Collections.unmodifiableList(menu);
     }
 
     private static void openHomeTarget(MainActivity activity, int id) {
         switch (id) {
-            case ID_LANGUAGE:
-                activity.showLanguageSelectionDialog();
-                return;
             case ID_ALL_SETTINGS:
                 activity.startActivity(new Intent(activity, SettingsActivity.class));
-                return;
-            case ID_SETUP_ASSISTANT:
-                activity.openSetupAssistant();
-                return;
-            case ID_NETWORK:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_NETWORK_CARD);
                 return;
             case ID_NETWORKS:
                 activity.startActivity(NetworkListActivity.intent(activity));
                 return;
-            case ID_WEBHOOK:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_WEBHOOK);
+            case ID_SETUP_ASSISTANT:
+                activity.openSetupAssistant();
                 return;
-            case ID_USB_ADB:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_USB);
-                return;
-            case ID_PRIVACY:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_PRIVACY);
-                return;
-            case ID_MISC:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_MISC);
-                return;
-            case ID_DIAGNOSTICS:
-                openSettingsAt(activity, SettingsActivity.EXTRA_FOCUS_DIAGNOSTICS);
+            case ID_LANGUAGE:
+                activity.showLanguageSelectionDialog();
                 return;
             default:
         }

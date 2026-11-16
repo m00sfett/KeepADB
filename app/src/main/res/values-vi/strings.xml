@@ -76,7 +76,6 @@
     <string name="title_settings">Cài đặt</string>
     <string name="settings_section_general">Chung</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Đồng bộ hóa Webhook</string>
     <string name="settings_webhook_title">Đồng bộ hóa Webhook &amp; Điểm cuối</string>
     <string name="settings_webhook_toggle">Bật đồng bộ hóa Webhook</string>
     <string name="settings_webhook_subtext">Gửi điểm cuối đang hoạt động (IP:cổng) qua HTTP POST khi bật và cố gắng gửi DELETE khi tắt (thử lại sau nếu thất bại).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Khác</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
+    <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Tin cậy theo tên Wi-Fi</string>
     <string name="network_status_not_allowed">Không rõ</string>
     <string name="network_badge_blocked">Đã chặn</string>
-    <string name="networks_title">Mạng</string>
+    <string name="networks_title">Mạng Wi-Fi</string>
     <string name="networks_intro">Keep-Alive có thể bật lại Gỡ lỗi không dây trong các mạng tin cậy, không bao giờ trong mạng đã chặn. Bật thủ công luôn hoạt động.</string>
     <string name="networks_glossary_toggle">Giải thích thuật ngữ</string>
     <string name="networks_glossary_ssid">Tên Wi-Fi (SSID): tên mà mạng Wi-Fi phát ra. Ai cũng có thể tạo một mạng có cùng tên.</string>
@@ -557,7 +556,9 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Ngôn ngữ</string>
-    <string name="menu_item_all_settings">Tất cả cài đặt</string>
+    <string name="menu_item_all_settings">Cài đặt</string>
+    <string name="shortcut_toggle_short">Bật/tắt Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Bật hoặc tắt Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Cảnh báo bảo mật</string>

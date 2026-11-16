@@ -1,13 +1,11 @@
 package de.hohnepeople.keepadb;
 
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Looper;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
-import android.widget.Toast;
 
 public class KeepADBTileService extends TileService {
 
@@ -95,18 +93,9 @@ public class KeepADBTileService extends TileService {
         applyToggle(want);
     }
 
-    /**
-     * #586: same criterion as the trust action gate in
-     * {@code KeepADBReceiver#handleTrustNetworkAction} (#578): {@link KeyguardManager#isDeviceLocked()}
-     * is true only when a secure lock is configured and its credential has not been supplied yet,
-     * which is exactly the case this gate exists for. TileService#isLocked() (keyguard shown) is
-     * deliberately not used: it is also true for a swipe-only lock screen, and would additionally
-     * force an unlock prompt while a trust agent keeps the device unlocked -- neither has a
-     * credential to bypass.
-     */
+    /** #586: see {@link KeepADBToggleGate#isDeviceLockedForEnable}; shared with the shortcut. */
     boolean isDeviceLockedForEnable() {
-        KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
-        return keyguardManager != null && keyguardManager.isDeviceLocked();
+        return KeepADBToggleGate.isDeviceLockedForEnable(this);
     }
 
     /** Seam around {@link #unlockAndRun(Runnable)} so tests can hold the callback back. */
@@ -122,10 +111,7 @@ public class KeepADBTileService extends TileService {
      * while the state still asks for an enable.
      */
     private void enableAfterUnlock() {
-        KeepADB.State state = KeepADB.getState(this);
-        if (!KeepADB.desiredOnForClick(state)) {
-            KeepADBDiagnostics.event(this, "user_action", "tile", "skipped",
-                    "after_unlock state=" + state);
+        if (!KeepADBToggleGate.enableStillWanted(this, "tile")) {
             updateTile();
             return;
         }
@@ -136,7 +122,7 @@ public class KeepADBTileService extends TileService {
     private void applyToggle(boolean want) {
         KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "tile");
         if (!result.isSuccess()) {
-            showToggleErrorToast(result);
+            KeepADBToggleGate.showToggleErrorToast(this, result);
         }
         KeepADBService.sync(this);
         updateTile();
@@ -203,20 +189,6 @@ public class KeepADBTileService extends TileService {
             tile.setSubtitle(getString(R.string.state_pending));
         }
         tile.updateTile();
-    }
-
-    /**
-     * #318: distinguishes a missing permission from a Settings.Global write that was rejected
-     * despite the permission being granted, instead of blaming setup for both.
-     */
-    private void showToggleErrorToast(KeepADB.ToggleResult result) {
-        // The brand prefix is passed in (not hardcoded) so debug builds show "(DBG) KeepADB" (#690).
-        // #795: the cause comes from the toggle result instead of a second permission read.
-        // #817: every permission cause (also a SecurityException) points at the grant.
-        Toast.makeText(this, result.isPermissionFailure()
-                        ? getString(R.string.tile_permission_error, getString(R.string.app_name))
-                        : getString(R.string.toggle_failed_toast),
-                Toast.LENGTH_LONG).show();
     }
 
     /**

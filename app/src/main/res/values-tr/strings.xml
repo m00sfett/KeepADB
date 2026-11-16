@@ -76,7 +76,6 @@
     <string name="title_settings">Ayarlar</string>
     <string name="settings_section_general">Genel</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook Senkronizasyonu</string>
     <string name="settings_webhook_title">Webhook &amp; Uç Nokta Senkronizasyonu</string>
     <string name="settings_webhook_toggle">Webhook Senkronizasyonunu Etkinleştir</string>
     <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı (IP:port) HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Diğer</string>
     <string name="settings_section_notification">Bildirim</string>
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
-    <string name="settings_hide_notification_subtext">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
+    <string name="settings_hide_notification_subtext">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntılarının gösterilip gösterilmeyeceğini Gizlilik bölümündeki “Bildirimlerde gizle” belirler; adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
     <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Wi-Fi adıyla güvenilir</string>
     <string name="network_status_not_allowed">Bilinmiyor</string>
     <string name="network_badge_blocked">Engellendi</string>
-    <string name="networks_title">Ağlar</string>
+    <string name="networks_title">Wi-Fi ağları</string>
     <string name="networks_intro">Keep-Alive, Kablosuz Hata Ayıklamayı güvenilir ağlarda yeniden açabilir, engellenen ağlarda asla. Elle açmak her zaman çalışır.</string>
     <string name="networks_glossary_toggle">Terimler açıklandı</string>
     <string name="networks_glossary_ssid">Wi-Fi adı (SSID): bir Wi-Fi ağının yayınladığı ad. Herkes aynı adla bir ağ kurabilir.</string>
@@ -557,7 +556,9 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Dil</string>
-    <string name="menu_item_all_settings">Tüm ayarlar</string>
+    <string name="menu_item_all_settings">Ayarlar</string>
+    <string name="shortcut_toggle_short">Wifi-ADB aç/kapat</string>
+    <string name="shortcut_toggle_long">Wifi-ADB’yi aç veya kapat</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Güvenlik uyarıları</string>

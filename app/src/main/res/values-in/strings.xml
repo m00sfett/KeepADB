@@ -76,7 +76,6 @@
     <string name="title_settings">Pengaturan</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Sinkronisasi Webhook</string>
     <string name="settings_webhook_title">Sinkronisasi Webhook &amp; Endpoint</string>
     <string name="settings_webhook_toggle">Aktifkan Sinkronisasi Webhook</string>
     <string name="settings_webhook_subtext">Mengirim endpoint aktif (IP:port) melalui HTTP POST saat diaktifkan, dan mencoba mengirim DELETE saat dimatikan (dicoba lagi nanti jika gagal).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Lainnya</string>
     <string name="settings_section_notification">Notifikasi</string>
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
-    <string name="settings_hide_notification_subtext">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
+    <string name="settings_hide_notification_subtext">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Apakah detail koneksi tampil diatur oleh “Sembunyikan di notifikasi” di bagian Privasi; detail ini dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Dipercaya berdasarkan nama Wi-Fi</string>
     <string name="network_status_not_allowed">Tidak dikenal</string>
     <string name="network_badge_blocked">Diblokir</string>
-    <string name="networks_title">Jaringan</string>
+    <string name="networks_title">Jaringan Wi-Fi</string>
     <string name="networks_intro">Keep-Alive boleh menyalakan kembali Debugging Nirkabel di jaringan yang dipercaya, tidak pernah di jaringan yang diblokir. Menyalakan secara manual selalu bisa.</string>
     <string name="networks_glossary_toggle">Istilah dijelaskan</string>
     <string name="networks_glossary_ssid">Nama Wi-Fi (SSID): nama yang disiarkan jaringan Wi-Fi. Siapa pun dapat membuat jaringan dengan nama yang sama.</string>
@@ -557,7 +556,9 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Bahasa</string>
-    <string name="menu_item_all_settings">Semua pengaturan</string>
+    <string name="menu_item_all_settings">Pengaturan</string>
+    <string name="shortcut_toggle_short">Alihkan Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Aktifkan atau nonaktifkan Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Peringatan keamanan</string>

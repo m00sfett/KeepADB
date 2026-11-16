@@ -76,7 +76,6 @@
     <string name="title_settings">设置</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_section_keep_alive">保持常驻 (Keep-Alive)</string>
-    <string name="settings_section_webhook">Webhook 同步</string>
     <string name="settings_webhook_title">Webhook 与端点同步</string>
     <string name="settings_webhook_toggle">启用 Webhook 同步</string>
     <string name="settings_webhook_subtext">启用后通过 HTTP POST 发送活动的无线调试端点 (IP:端口)，关闭时尝试发送 DELETE（失败后稍后重试）。</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">其他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常驻通知</string>
-    <string name="settings_hide_notification_subtext">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。</string>
-    <string name="settings_hide_notification_subtext_keepalive">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。\n\nKeep-Alive 开启时，Android 要求前台服务显示此通知，因此开关被锁定。关闭 Keep-Alive 后将重新应用已保存的选择。</string>
+    <string name="settings_hide_notification_subtext">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。是否显示连接详情由“隐私”中的“在通知中隐藏”决定，可能显示地址和网络名称。</string>
+    <string name="settings_hide_notification_subtext_keepalive">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。是否显示连接详情由“隐私”中的“在通知中隐藏”决定，可能显示地址和网络名称。\n\nKeep-Alive 开启时，Android 要求前台服务显示此通知，因此开关被锁定。关闭 Keep-Alive 后将重新应用已保存的选择。</string>
     <string name="settings_section_display">显示屏</string>
     <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
     <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">按 Wi-Fi 名称信任</string>
     <string name="network_status_not_allowed">未知</string>
     <string name="network_badge_blocked">已拦截</string>
-    <string name="networks_title">网络</string>
+    <string name="networks_title">Wi-Fi 网络</string>
     <string name="networks_intro">Keep-Alive 可以在已信任的网络中重新开启无线调试，在已拦截的网络中则绝不会。手动开启始终可用。</string>
     <string name="networks_glossary_toggle">术语说明</string>
     <string name="networks_glossary_ssid">Wi-Fi 名称（SSID）：Wi-Fi 网络广播的名称。任何人都可以建立同名网络。</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">点按以打开网络列表</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">语言</string>
-    <string name="menu_item_all_settings">所有设置</string>
+    <string name="menu_item_all_settings">设置</string>
+    <string name="shortcut_toggle_short">切换 Wifi-ADB</string>
+    <string name="shortcut_toggle_long">开启或关闭 Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">安全警告</string>

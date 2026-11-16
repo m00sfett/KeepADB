@@ -76,7 +76,6 @@
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">保持常駐 (Keep-Alive)</string>
-    <string name="settings_section_webhook">Webhook 同步</string>
     <string name="settings_webhook_title">Webhook 與端點同步</string>
     <string name="settings_webhook_toggle">啟用 Webhook 同步</string>
     <string name="settings_webhook_subtext">啟用後透過 HTTP POST 傳送作用中的無線偵錯端點 (IP:連接埠)，關閉時嘗試傳送 DELETE（失敗時稍後重試）。</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">其他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
-    <string name="settings_hide_notification_subtext">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。</string>
-    <string name="settings_hide_notification_subtext_keepalive">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。\n\nKeep-Alive 開啟時，Android 要求前景服務顯示此通知，因此開關被鎖定。關閉 Keep-Alive 後將重新套用已儲存的選擇。</string>
+    <string name="settings_hide_notification_subtext">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。是否顯示連線詳細資訊由「隱私」中的「在通知中隱藏」決定，可能顯示位址和網路名稱。</string>
+    <string name="settings_hide_notification_subtext_keepalive">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。是否顯示連線詳細資訊由「隱私」中的「在通知中隱藏」決定，可能顯示位址和網路名稱。\n\nKeep-Alive 開啟時，Android 要求前景服務顯示此通知，因此開關被鎖定。關閉 Keep-Alive 後將重新套用已儲存的選擇。</string>
     <string name="settings_section_display">螢幕</string>
     <string name="settings_keep_display_on_toggle">KeepADB 在前景執行時保持螢幕開啟</string>
     <string name="settings_keep_display_on_subtext">僅在此應用程式開啟期間保持螢幕開啟。離開應用程式後螢幕會照常熄滅。</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">依 Wi-Fi 名稱信任</string>
     <string name="network_status_not_allowed">未知</string>
     <string name="network_badge_blocked">已封鎖</string>
-    <string name="networks_title">網路</string>
+    <string name="networks_title">Wi-Fi 網路</string>
     <string name="networks_intro">Keep-Alive 可以在已信任的網路中重新開啟無線偵錯，在已封鎖的網路中則絕不會。手動開啟一律可用。</string>
     <string name="networks_glossary_toggle">用語說明</string>
     <string name="networks_glossary_ssid">Wi-Fi 名稱（SSID）：Wi-Fi 網路廣播的名稱。任何人都可以建立同名網路。</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">語言</string>
-    <string name="menu_item_all_settings">所有設定</string>
+    <string name="menu_item_all_settings">設定</string>
+    <string name="shortcut_toggle_short">切換 Wifi-ADB</string>
+    <string name="shortcut_toggle_long">開啟或關閉 Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">安全警告</string>

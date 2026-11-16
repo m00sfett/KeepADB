@@ -76,7 +76,6 @@
     <string name="title_settings">Impostazioni</string>
     <string name="settings_section_general">Generale</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Sincronizzazione Webhook</string>
     <string name="settings_webhook_title">Sincronizzazione Webhook ed endpoint</string>
     <string name="settings_webhook_toggle">Abilita sincronizzazione Webhook</string>
     <string name="settings_webhook_subtext">Invia l\'endpoint attivo (IP:porta) tramite HTTP POST quando abilitato e tenta di inviare DELETE alla disattivazione (ritentato in seguito in caso di errore).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Altro</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
-    <string name="settings_hide_notification_subtext">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
+    <string name="settings_hide_notification_subtext">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. La visibilità dei dettagli di connessione dipende da «Nascondi nelle notifiche» in Privacy; possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
     <string name="settings_section_display">Schermo</string>
     <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
     <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Affidabile tramite nome Wi-Fi</string>
     <string name="network_status_not_allowed">Sconosciuto</string>
     <string name="network_badge_blocked">Bloccato</string>
-    <string name="networks_title">Reti</string>
+    <string name="networks_title">Reti Wi-Fi</string>
     <string name="networks_intro">Keep-Alive può riattivare il debug wireless nelle reti affidabili, mai in quelle bloccate. L’attivazione manuale funziona sempre.</string>
     <string name="networks_glossary_toggle">Termini spiegati</string>
     <string name="networks_glossary_ssid">Nome Wi-Fi (SSID): il nome che una rete Wi-Fi trasmette. Chiunque può creare una rete con lo stesso nome.</string>
@@ -557,7 +556,9 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Lingua</string>
-    <string name="menu_item_all_settings">Tutte le impostazioni</string>
+    <string name="menu_item_all_settings">Impostazioni</string>
+    <string name="shortcut_toggle_short">Commuta Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Attiva o disattiva Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Avvisi di sicurezza</string>

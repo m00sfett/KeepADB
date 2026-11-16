@@ -293,7 +293,9 @@ public class SettingsActivity extends Activity {
         if (consumeFocus(EXTRA_FOCUS_WEBHOOK)) {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
                     R.id.settings_webhook_arrow);
-            focusWarningTarget(findViewById(R.id.settings_webhook_url));
+            // #966: the card header, not the URL field. Focusing the EditText raises the
+            // keyboard over the section the user came to read; typing starts with a tap on it.
+            focusWarningTarget(findViewById(R.id.settings_webhook_header));
         }
         if (consumeFocus(EXTRA_FOCUS_WEBHOOK_VPN_HINT)) {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,

@@ -23,6 +23,59 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.13.0] - Unreleased
+
+Block 1 of 1.13.0: five small fixes and additions to the entry points. The version carries a minor
+bump (approved by the maintainer); later blocks of 1.13.0 keep the name and raise only the code.
+
+### Added
+- **Launcher shortcuts (#954):** a long press on the launcher icon offers "Toggle Wifi-ADB",
+  "Wi-Fi networks" and "Settings", in this order (`res/xml/shortcuts.xml`, `android.app.shortcuts`
+  on `MainActivity`). The toggle starts the new `KeepADBToggleShortcutActivity`: no UI, not exported,
+  no confirmation, toggle source `shortcut` (manual, so it writes at once like the tile). It follows
+  the shared click semantics (`KeepADB#desiredOnForClick`), so unlike the tile it also switches
+  off while Wireless Debugging is on but disconnected. It enforces what the tile enforces: an enable
+  on a device behind a secure lock waits for `KeyguardManager#requestDismissKeyguard` and a
+  cancelled unlock toggles nothing, a disable is immediate (#586), the continuation after an unlock
+  derives the state again and never disables, and a missing `WRITE_SECURE_SETTINGS` or a rejected
+  write shows the tile's toast. `NetworkListActivity` and `SettingsActivity` stay unexported (the
+  launcher starts a shortcut with the identity of the publishing app). `android:targetPackage`
+  must be the real application id, so the debug build overlays the file
+  (`app/src/debug/res/xml/shortcuts.xml`, package id with the `.debug` suffix);
+  `KeepADBShortcutsContractTest` checks both against `app/build.gradle`. Labels in all 19 locales.
+
+### Changed
+- **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
+  this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
+  Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay
+  on the Settings page and the focus extras of warnings and notifications are untouched.
+  "All settings" is now "Settings", and `networks_title` is now "Wi-Fi networks" in all 19 locales
+  (the menu entry and the list screen share one title; the Networks row on the Settings page reads
+  the same). `KeepADBSettingsMenuTest` fails on an extra or missing entry or a left-over id.
+- **Tile helpers shared (#954):** the unlock gate, the "never disable after an unlock" re-check and
+  the failure toast of the Quick Settings tile moved to `KeepADBToggleGate`; the tile behaves as
+  before.
+
+### Fixed
+- **Long press on the Quick Settings tile (#953):** `MainActivity` answers
+  `android.service.quicksettings.action.QS_TILE_PREFERENCES`, so the long press opens the home
+  screen instead of Android's app-info page. The setup-assistant handover of a first start is
+  independent of the intent action and still applies. `KeepADBTilePreferencesContractTest` guards
+  the filter.
+- **Notification help texts (#955):** "Persistent notification" (both variants) no longer says
+  connection details are "controlled separately below"; it names the privacy switch "Hide in
+  notifications" under Privacy, with the exact label of each locale. The USB profile text is left
+  for #956. The `NOTIFICATION_DETAILS` warning already lands on that switch
+  (`SettingsActivity.EXTRA_FOCUS_DETAILS`, covered by `MainActivityWarningInteractionTest`).
+  `KeepADBNotificationHelpTextContractTest` pins the wording per locale.
+- **Keyboard on the webhook entry (#966):** `EXTRA_FOCUS_WEBHOOK` focuses the webhook card header
+  (scroll, highlight, TalkBack) instead of the URL field, so the keyboard stays down until the user
+  taps the field. The validation path in `KeepADBWebhookForm` that returns focus to the field after
+  an invalid URL is unchanged.
+
+### Documentation
+- `docs/trusted-networks.md` names the entry point "Wi-Fi networks".
+
 ## [1.12.8] - Unreleased
 
 ### Added

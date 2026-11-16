@@ -76,7 +76,6 @@
     <string name="title_settings">Налаштування</string>
     <string name="settings_section_general">Загальні</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Синхронізація Webhook</string>
     <string name="settings_webhook_title">Синхронізація Webhook та кінцевої точки</string>
     <string name="settings_webhook_toggle">Увімкнути синхронізацію Webhook</string>
     <string name="settings_webhook_subtext">Надсилає активну кінцеву точку (IP:порт) через HTTP POST при увімкненні та намагається надіслати DELETE при вимкненні (повторюється пізніше в разі невдачі).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Інше</string>
     <string name="settings_section_notification">Сповіщення</string>
     <string name="settings_hide_notification_toggle">Постійне сповіщення</string>
-    <string name="settings_hide_notification_subtext">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Деталі з’єднання налаштовуються окремо нижче й можуть показувати адреси та назви мереж.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Деталі з’єднання налаштовуються окремо нижче й можуть показувати адреси та назви мереж.\n\nКоли Keep-Alive активний, Android вимагає це сповіщення для служби переднього плану. Перемикач заблоковано. Після вимкнення Keep-Alive знову діє збережений вибір.</string>
+    <string name="settings_hide_notification_subtext">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Показ деталей з’єднання визначає перемикач «Приховувати в сповіщеннях» у розділі «Конфіденційність»; вони можуть показувати адреси та назви мереж.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Показ деталей з’єднання визначає перемикач «Приховувати в сповіщеннях» у розділі «Конфіденційність»; вони можуть показувати адреси та назви мереж.\n\nКоли Keep-Alive активний, Android вимагає це сповіщення для служби переднього плану. Перемикач заблоковано. Після вимкнення Keep-Alive знову діє збережений вибір.</string>
     <string name="settings_section_display">Екран</string>
     <string name="settings_keep_display_on_toggle">Тримати екран увімкненим, поки KeepADB на передньому плані</string>
     <string name="settings_keep_display_on_subtext">Тримає екран увімкненим лише поки цей додаток відкритий. Екран вимикається як зазвичай, щойно ви виходите з додатка.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Довірено за назвою Wi-Fi</string>
     <string name="network_status_not_allowed">Невідомо</string>
     <string name="network_badge_blocked">Заблоковано</string>
-    <string name="networks_title">Мережі</string>
+    <string name="networks_title">Мережі Wi-Fi</string>
     <string name="networks_intro">Keep-Alive може знову вмикати бездротове налагодження в довірених мережах і ніколи не робить цього в заблокованих. Увімкнути вручну можна завжди.</string>
     <string name="networks_glossary_toggle">Терміни пояснено</string>
     <string name="networks_glossary_ssid">Назва Wi-Fi (SSID): назва, яку передає мережа Wi-Fi. Будь-хто може створити мережу з такою самою назвою.</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">Торкніться, щоб відкрити список мереж</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Мова</string>
-    <string name="menu_item_all_settings">Усі налаштування</string>
+    <string name="menu_item_all_settings">Налаштування</string>
+    <string name="shortcut_toggle_short">Перемкнути Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Увімкнути або вимкнути Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Попередження безпеки</string>

@@ -3,7 +3,6 @@ package de.hohnepeople.keepadb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -28,8 +27,8 @@ import org.robolectric.shadows.ShadowAlertDialog;
 import java.util.List;
 
 /**
- * #823, #940: Unit tests for the main view's settings dropdown menu (order, icons, target
- * intents, dismiss on open).
+ * #823, #940, #964: Unit tests for the main view's settings dropdown menu (the four entries, their
+ * order, icons, target intents, dismiss on open).
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -58,39 +57,51 @@ public class KeepADBSettingsMenuTest {
         KeepADB.resetForTesting();
     }
 
+    /** #964: exactly these four entries, in this order, without dividers. */
     private static final int[] ORDER = {
-            KeepADBSettingsMenu.ID_LANGUAGE, KeepADBSettingsMenu.ID_DIVIDER_1,
-            KeepADBSettingsMenu.ID_ALL_SETTINGS, KeepADBSettingsMenu.ID_DIVIDER_2,
-            KeepADBSettingsMenu.ID_SETUP_ASSISTANT, KeepADBSettingsMenu.ID_NETWORK,
-            KeepADBSettingsMenu.ID_NETWORKS,
-            KeepADBSettingsMenu.ID_WEBHOOK, KeepADBSettingsMenu.ID_USB_ADB,
-            KeepADBSettingsMenu.ID_PRIVACY, KeepADBSettingsMenu.ID_MISC,
-            KeepADBSettingsMenu.ID_DIAGNOSTICS};
+            KeepADBSettingsMenu.ID_ALL_SETTINGS, KeepADBSettingsMenu.ID_NETWORKS,
+            KeepADBSettingsMenu.ID_SETUP_ASSISTANT, KeepADBSettingsMenu.ID_LANGUAGE};
     private static final int[] TITLES = {
-            R.string.menu_item_language, 0, R.string.menu_item_all_settings, 0,
-            R.string.settings_onboarding_title, R.string.settings_section_network,
-            R.string.networks_title,
-            R.string.settings_section_webhook, R.string.settings_section_usb_adb,
-            R.string.privacy_switches_title, R.string.settings_section_misc,
-            R.string.settings_diagnostics_title};
+            R.string.menu_item_all_settings, R.string.networks_title,
+            R.string.settings_onboarding_title, R.string.menu_item_language};
     private static final int[] ICONS = {
-            R.drawable.ic_language, 0, R.drawable.ic_settings_gear, 0,
-            R.drawable.ic_settings_assistant, R.drawable.ic_settings_network, R.drawable.ic_wifi,
-            R.drawable.ic_settings_sync, R.drawable.ic_usb, R.drawable.ic_settings_privacy,
-            R.drawable.ic_more_horiz, R.drawable.ic_settings_diagnostics};
+            R.drawable.ic_settings_gear, R.drawable.ic_wifi,
+            R.drawable.ic_settings_assistant, R.drawable.ic_language};
 
     @Test
     public void menuItemsMatchExactPrescribedOrderTitlesAndIcons() {
         List<KeepADBSettingsMenu.MenuItem> items = KeepADBSettingsMenu.buildMenuItems();
+        assertEquals("the gear menu has exactly four entries (#964)", 4, items.size());
         assertEquals(ORDER.length, items.size());
         for (int i = 0; i < ORDER.length; i++) {
             KeepADBSettingsMenu.MenuItem item = items.get(i);
             assertEquals("id at " + i, ORDER[i], item.id);
-            assertEquals("divider at " + i, ORDER[i] < 0, item.isDivider);
+            assertFalse("no divider at " + i, item.isDivider);
             assertFalse("no check entry in the home menu (#940)", item.isCheckable);
             assertEquals("title at " + i, TITLES[i], item.titleResId);
             assertEquals("icon at " + i, ICONS[i], item.iconResId);
         }
+    }
+
+    @Test
+    public void menuLabelsAreSettingsAndWifiNetworks() {
+        assertEquals("Settings", activity.getString(R.string.menu_item_all_settings));
+        assertEquals("Wi-Fi networks", activity.getString(R.string.networks_title));
+        assertEquals("the menu entry and the list screen share one title",
+                activity.getString(R.string.networks_title),
+                activity.getString(KeepADBSettingsMenu.buildMenuItems().get(1).titleResId));
+    }
+
+    @Test
+    public void everyMenuIdIsOneOfTheFourEntries() throws Exception {
+        // A removed entry must not leave its id (and so a dead dispatch case) behind.
+        java.util.Set<Integer> declared = new java.util.HashSet<>();
+        for (java.lang.reflect.Field field : KeepADBSettingsMenu.class.getDeclaredFields()) {
+            if (field.getName().startsWith("ID_")) declared.add(field.getInt(null));
+        }
+        java.util.Set<Integer> expected = new java.util.HashSet<>();
+        for (int id : ORDER) expected.add(id);
+        assertEquals(expected, declared);
     }
 
     @Test
@@ -139,12 +150,6 @@ public class KeepADBSettingsMenuTest {
     }
 
     @Test
-    public void networkItemLaunchesSettingsWithNetworkCardExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_NETWORK,
-                SettingsActivity.EXTRA_FOCUS_NETWORK_CARD);
-    }
-
-    @Test
     public void networksItemOpensTheNetworksListDirectly() {
         KeepADBSettingsMenu menu = openMenu();
         menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_NETWORKS));
@@ -156,44 +161,14 @@ public class KeepADBSettingsMenuTest {
     }
 
     @Test
-    public void webhookItemLaunchesSettingsWithWebhookExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_WEBHOOK, SettingsActivity.EXTRA_FOCUS_WEBHOOK);
-    }
-
-    @Test
-    public void usbAdbItemLaunchesSettingsWithUsbExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_USB_ADB, SettingsActivity.EXTRA_FOCUS_USB);
-    }
-
-    @Test
-    public void privacyItemLaunchesSettingsWithPrivacyExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_PRIVACY, SettingsActivity.EXTRA_FOCUS_PRIVACY);
-    }
-
-    @Test
-    public void miscItemLaunchesSettingsWithMiscExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_MISC, SettingsActivity.EXTRA_FOCUS_MISC);
-    }
-
-    @Test
-    public void diagnosticsItemLaunchesSettingsWithDiagnosticsExtra() {
-        assertOpensSettingsWith(KeepADBSettingsMenu.ID_DIAGNOSTICS,
-                SettingsActivity.EXTRA_FOCUS_DIAGNOSTICS);
-    }
-
-    @Test
-    public void dividersAreDisabledAndUnclickable() {
+    public void everyRowIsEnabled() {
         KeepADBSettingsMenu menu = openMenu();
         KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
 
-        assertFalse(adapter.areAllItemsEnabled());
+        assertEquals(ORDER.length, adapter.getCount());
         for (int i = 0; i < ORDER.length; i++) {
-            assertEquals("enabled at " + i, ORDER[i] >= 0, adapter.isEnabled(i));
+            assertTrue("enabled at " + i, adapter.isEnabled(i));
         }
-
-        menu.onMenuItemClicked(item(menu, KeepADBSettingsMenu.ID_DIVIDER_1));
-        assertTrue(menu.isShowing());
-        assertNull(shadowOf(activity).getNextStartedActivity());
     }
 
     @Test
@@ -201,7 +176,6 @@ public class KeepADBSettingsMenuTest {
         KeepADBSettingsMenu menu = openMenu();
         KeepADBSettingsMenu.MenuAdapter adapter = menu.getAdapter();
         for (int i = 0; i < ORDER.length; i++) {
-            if (ORDER[i] < 0) continue;
             View row = adapter.getView(i, null, null);
             assertEquals("icon at " + i, View.VISIBLE,
                     row.findViewById(R.id.menu_item_icon).getVisibility());
@@ -224,16 +198,5 @@ public class KeepADBSettingsMenuTest {
             if (item.id == id) return item;
         }
         throw new AssertionError("no menu item " + id);
-    }
-
-    private void assertOpensSettingsWith(int id, String extra) {
-        KeepADBSettingsMenu menu = openMenu();
-        menu.onMenuItemClicked(item(menu, id));
-
-        assertFalse(menu.isShowing());
-        Intent nextIntent = shadowOf(activity).getNextStartedActivity();
-        assertNotNull(nextIntent);
-        assertEquals(SettingsActivity.class.getName(), nextIntent.getComponent().getClassName());
-        assertTrue(nextIntent.getBooleanExtra(extra, false));
     }
 }

@@ -87,6 +87,8 @@ final class KeepADB {
     static final String SOURCE_TILE = "tile";
     static final String SOURCE_WIDGET = "widget";
     static final String SOURCE_NOTIFICATION = "notification";
+    /** #954: the "Toggle Wifi-ADB" launcher shortcut; a direct tap, like the tile and the widget. */
+    static final String SOURCE_SHORTCUT = "shortcut";
     static final String SOURCE_USB_HANDOVER_MANUAL = "usb_handover_manual";
     /**
      * #446: the user tapped "allow" on the untrusted-network prompt; #470: the user tapped the
@@ -99,7 +101,7 @@ final class KeepADB {
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_USB_HANDOVER_MANUAL, SOURCE_NETWORK_TRUST_PROMPT)));
+                    SOURCE_SHORTCUT, SOURCE_USB_HANDOVER_MANUAL, SOURCE_NETWORK_TRUST_PROMPT)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {

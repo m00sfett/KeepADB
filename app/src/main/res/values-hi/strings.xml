@@ -76,7 +76,6 @@
     <string name="title_settings">सेटिंग्स</string>
     <string name="settings_section_general">सामान्य</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">वेबहुक सिंक</string>
     <string name="settings_webhook_title">वेबहुक और एंडपॉइंट सिंक</string>
     <string name="settings_webhook_toggle">वेबहुक सिंक सक्षम करें</string>
     <string name="settings_webhook_subtext">सक्षम होने पर सक्रिय एंडपॉइंट (IP:पोर्ट) HTTP POST के माध्यम से भेजता है, और बंद होने पर DELETE भेजने का प्रयास करता है (विफल होने पर बाद में पुनः प्रयास किया जाता है)।</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">अन्य</string>
     <string name="settings_section_notification">सूचना</string>
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
-    <string name="settings_hide_notification_subtext">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।</string>
-    <string name="settings_hide_notification_subtext_keepalive">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।\n\nKeep-Alive सक्रिय होने पर Android को अग्रभूमि सेवा के लिए यह सूचना चाहिए। स्विच लॉक रहता है। Keep-Alive बंद करने पर आपका सहेजा हुआ विकल्प फिर लागू होता है।</string>
+    <string name="settings_hide_notification_subtext">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण दिखेंगे या नहीं, यह गोपनीयता में “सूचनाओं में छिपाएँ” स्विच तय करता है; वे पते तथा नेटवर्क नाम दिखा सकते हैं।</string>
+    <string name="settings_hide_notification_subtext_keepalive">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण दिखेंगे या नहीं, यह गोपनीयता में “सूचनाओं में छिपाएँ” स्विच तय करता है; वे पते तथा नेटवर्क नाम दिखा सकते हैं।\n\nKeep-Alive सक्रिय होने पर Android को अग्रभूमि सेवा के लिए यह सूचना चाहिए। स्विच लॉक रहता है। Keep-Alive बंद करने पर आपका सहेजा हुआ विकल्प फिर लागू होता है।</string>
     <string name="settings_section_display">डिस्प्ले</string>
     <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
     <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Wi-Fi नाम से भरोसेमंद</string>
     <string name="network_status_not_allowed">अज्ञात</string>
     <string name="network_badge_blocked">रोका गया</string>
-    <string name="networks_title">नेटवर्क</string>
+    <string name="networks_title">Wi-Fi नेटवर्क</string>
     <string name="networks_intro">Keep-Alive भरोसेमंद नेटवर्क में वायरलेस डीबगिंग फिर से चालू कर सकता है, रोके गए नेटवर्क में कभी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
     <string name="networks_glossary_toggle">शब्दों की व्याख्या</string>
     <string name="networks_glossary_ssid">Wi-Fi नाम (SSID): वह नाम जो Wi-Fi नेटवर्क प्रसारित करता है। कोई भी उसी नाम का नेटवर्क बना सकता है।</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">भाषा</string>
-    <string name="menu_item_all_settings">सभी सेटिंग्स</string>
+    <string name="menu_item_all_settings">सेटिंग्स</string>
+    <string name="shortcut_toggle_short">Wifi-ADB टॉगल करें</string>
+    <string name="shortcut_toggle_long">Wifi-ADB चालू या बंद करें</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">सुरक्षा चेतावनियाँ</string>

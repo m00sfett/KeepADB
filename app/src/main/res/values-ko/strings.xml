@@ -76,7 +76,6 @@
     <string name="title_settings">설정</string>
     <string name="settings_section_general">일반</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">웹훅 동기화</string>
     <string name="settings_webhook_title">웹훅 및 엔드포인트 동기화</string>
     <string name="settings_webhook_toggle">웹훅 동기화 활성화</string>
     <string name="settings_webhook_subtext">활성화 시 활성 엔드포인트(IP:포트)를 HTTP POST로 전송하고, 비활성화 시 DELETE 전송을 시도합니다(실패하면 나중에 재시도).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">기타</string>
     <string name="settings_section_notification">알림</string>
     <string name="settings_hide_notification_toggle">고정 알림</string>
-    <string name="settings_hide_notification_subtext">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.</string>
-    <string name="settings_hide_notification_subtext_keepalive">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
+    <string name="settings_hide_notification_subtext">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.</string>
+    <string name="settings_hide_notification_subtext_keepalive">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보를 표시할지는 개인정보 보호의 “알림에서 숨기기”로 정하며, 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
     <string name="settings_section_display">디스플레이</string>
     <string name="settings_keep_display_on_toggle">KeepADB가 포그라운드에 있는 동안 화면 켜짐 유지</string>
     <string name="settings_keep_display_on_subtext">이 앱이 열려 있는 동안에만 화면을 켜진 상태로 유지합니다. 앱을 벗어나면 화면은 평소처럼 꺼집니다.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Wi-Fi 이름으로 신뢰함</string>
     <string name="network_status_not_allowed">알 수 없음</string>
     <string name="network_badge_blocked">차단됨</string>
-    <string name="networks_title">네트워크</string>
+    <string name="networks_title">Wi-Fi 네트워크</string>
     <string name="networks_intro">Keep-Alive는 신뢰하는 네트워크에서는 무선 디버깅을 다시 켤 수 있고, 차단된 네트워크에서는 켜지 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
     <string name="networks_glossary_toggle">용어 설명</string>
     <string name="networks_glossary_ssid">Wi-Fi 이름(SSID): Wi-Fi 네트워크가 내보내는 이름입니다. 누구나 같은 이름의 네트워크를 만들 수 있습니다.</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">탭하여 네트워크 목록 열기</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">언어</string>
-    <string name="menu_item_all_settings">모든 설정</string>
+    <string name="menu_item_all_settings">설정</string>
+    <string name="shortcut_toggle_short">Wifi-ADB 전환</string>
+    <string name="shortcut_toggle_long">Wifi-ADB 켜기 또는 끄기</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">보안 경고</string>

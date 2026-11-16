@@ -101,7 +101,6 @@
     <string name="title_settings">Einstellungen</string>
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
-    <string name="settings_section_webhook">Webhook-Synchronisierung</string>
     <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
     <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
     <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht).</string>
@@ -171,8 +170,8 @@
     <string name="settings_section_misc">Sonstiges</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
-    <string name="settings_hide_notification_subtext">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
+    <string name="settings_hide_notification_subtext">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Ob Verbindungsdetails erscheinen, bestimmt „In Benachrichtigungen ausblenden“ unter „Privatsphäre“; sie können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
     <string name="settings_section_display">Bildschirm</string>
     <string name="settings_keep_display_on_toggle">Display eingeschaltet halten, solange KeepADB im Vordergrund ist</string>
     <string name="settings_keep_display_on_subtext">Hält den Bildschirm nur an, solange diese App geöffnet ist. Beim Verlassen der App schaltet sich der Bildschirm wieder wie gewohnt aus.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Über WLAN-Namen vertraut</string>
     <string name="network_status_not_allowed">Unbekannt</string>
     <string name="network_badge_blocked">Blockiert</string>
-    <string name="networks_title">Netzwerke</string>
+    <string name="networks_title">WLAN-Netze</string>
     <string name="networks_intro">Keep-Alive darf Drahtloses Debugging in vertrauten Netzwerken wieder einschalten, in blockierten nie. Manuell einschalten geht immer.</string>
     <string name="networks_glossary_toggle">Begriffe erklärt</string>
     <string name="networks_glossary_ssid">WLAN-Name (SSID): der Name, den ein WLAN aussendet. Jeder kann ein WLAN mit demselben Namen aufmachen.</string>
@@ -557,7 +556,9 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Sprache</string>
-    <string name="menu_item_all_settings">Alle Einstellungen</string>
+    <string name="menu_item_all_settings">Einstellungen</string>
+    <string name="shortcut_toggle_short">Wifi-ADB umschalten</string>
+    <string name="shortcut_toggle_long">Wifi-ADB ein- oder ausschalten</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Sicherheitswarnungen</string>

@@ -362,8 +362,10 @@ public class MainActivityWarningInteractionTest {
             boolean details = extra.equals(SettingsActivity.EXTRA_FOCUS_DETAILS);
             assertEquals(View.VISIBLE, activity.findViewById(details ? R.id.settings_privacy_body
                     : R.id.settings_webhook_body).getVisibility());
+            // #966: the webhook review lands on the card header; the URL field is never the
+            // target, so the keyboard stays down.
             assertTrue(activity.findViewById(details ? R.id.privacy_switch_notifications
-                    : R.id.settings_webhook_url).hasFocus());
+                    : R.id.settings_webhook_header).hasFocus());
             controller.pause().stop().destroy();
         }
     }

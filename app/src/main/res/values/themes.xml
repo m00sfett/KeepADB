@@ -13,6 +13,11 @@
         <item name="android:textColorSecondary">@color/night_muted</item>
     </style>
 
+    <!-- #954: the invisible shortcut activity that toggles Wireless Debugging and finishes. -->
+    <style name="Theme.KeepADB.Trampoline" parent="android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
     <!-- #766: the decision dialog of NetworkDecisionActivity. Floating dialog window in the app's
          own colors; the panel drawable supplies the background and the padding. -->
     <style name="Theme.KeepADB.Dialog" parent="android:style/Theme.Material.Dialog">

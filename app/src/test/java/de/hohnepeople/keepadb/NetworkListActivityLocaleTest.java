@@ -51,14 +51,14 @@ public class NetworkListActivityLocaleTest {
     @Test
     public void theViewFollowsTheAppLanguageAndOtherwiseTheSystemOne() {
         String english = title();
-        assertEquals("Networks", english);
+        assertEquals("Wi-Fi networks", english);
 
         KeepADBPreferences.setAppLanguage(context, "de");
         String german = title();
-        assertEquals("Netzwerke", german);
+        assertEquals("WLAN-Netze", german);
         assertNotEquals(english, german);
 
         KeepADBPreferences.setAppLanguage(context, "ja");
-        assertEquals("ネットワーク", title());
+        assertEquals("Wi-Fiネットワーク", title());
     }
 }

@@ -76,7 +76,6 @@
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook 同期</string>
     <string name="settings_webhook_title">Webhook &amp; エンドポイント同期</string>
     <string name="settings_webhook_toggle">Webhook 同期を有効にする</string>
     <string name="settings_webhook_subtext">有効時はアクティブなエンドポイント (IP:ポート) を HTTP POST で送信し、停止時は DELETE の送信を試みます（失敗した場合は後で再試行）。</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">その他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
-    <string name="settings_hide_notification_subtext">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細は下で別に設定し、アドレスやネットワーク名が表示される場合があります。</string>
-    <string name="settings_hide_notification_subtext_keepalive">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細は下で別に設定し、アドレスやネットワーク名が表示される場合があります。\n\nKeep-Alive が有効な間は、Android がフォアグラウンドサービスの通知を必要とするため、スイッチは操作できません。Keep-Alive をオフにすると保存済みの選択が再び適用されます。</string>
+    <string name="settings_hide_notification_subtext">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。</string>
+    <string name="settings_hide_notification_subtext_keepalive">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。\n\nKeep-Alive が有効な間は、Android がフォアグラウンドサービスの通知を必要とするため、スイッチは操作できません。Keep-Alive をオフにすると保存済みの選択が再び適用されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Wi-Fi 名で信頼済み</string>
     <string name="network_status_not_allowed">不明</string>
     <string name="network_badge_blocked">ブロック中</string>
-    <string name="networks_title">ネットワーク</string>
+    <string name="networks_title">Wi-Fiネットワーク</string>
     <string name="networks_intro">Keep-Alive は、信頼済みのネットワークではワイヤレスデバッグを再度オンにできますが、ブロック中のネットワークでは行いません。手動でオンにすることは常にできます。</string>
     <string name="networks_glossary_toggle">用語の説明</string>
     <string name="networks_glossary_ssid">Wi-Fi名（SSID）：Wi-Fiネットワークが発信する名前です。同じ名前のネットワークは誰でも作れます。</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">言語</string>
-    <string name="menu_item_all_settings">すべての設定</string>
+    <string name="menu_item_all_settings">設定</string>
+    <string name="shortcut_toggle_short">Wifi-ADBを切替</string>
+    <string name="shortcut_toggle_long">Wifi-ADBをオンまたはオフにする</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">セキュリティ警告</string>

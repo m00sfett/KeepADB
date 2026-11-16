@@ -76,7 +76,6 @@
     <string name="title_settings">الإعدادات</string>
     <string name="settings_section_general">عام</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">مزامنة Webhook</string>
     <string name="settings_webhook_title">مزامنة Webhook ونقطة النهاية</string>
     <string name="settings_webhook_toggle">تفعيل مزامنة Webhook</string>
     <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة (IP:منفذ) عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">أخرى</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
-    <string name="settings_hide_notification_subtext">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.</string>
-    <string name="settings_hide_notification_subtext_keepalive">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.\n\nعند تفعيل Keep-Alive، يتطلب Android هذا الإشعار لخدمة المقدمة. يكون المفتاح مقفلاً. بعد إيقاف Keep-Alive يُطبق اختيارك المحفوظ مجدداً.</string>
+    <string name="settings_hide_notification_subtext">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. يتحكم المفتاح «الإخفاء في الإشعارات» ضمن «الخصوصية» في عرض تفاصيل الاتصال، وقد تعرض العناوين وأسماء الشبكات.</string>
+    <string name="settings_hide_notification_subtext_keepalive">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. يتحكم المفتاح «الإخفاء في الإشعارات» ضمن «الخصوصية» في عرض تفاصيل الاتصال، وقد تعرض العناوين وأسماء الشبكات.\n\nعند تفعيل Keep-Alive، يتطلب Android هذا الإشعار لخدمة المقدمة. يكون المفتاح مقفلاً. بعد إيقاف Keep-Alive يُطبق اختيارك المحفوظ مجدداً.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">موثوق بحسب اسم Wi-Fi</string>
     <string name="network_status_not_allowed">غير معروف</string>
     <string name="network_badge_blocked">محظور</string>
-    <string name="networks_title">الشبكات</string>
+    <string name="networks_title">شبكات Wi-Fi</string>
     <string name="networks_intro">يمكن لـ Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي في الشبكات الموثوقة، وليس في الشبكات المحظورة أبدًا. التشغيل اليدوي يعمل دائمًا.</string>
     <string name="networks_glossary_toggle">شرح المصطلحات</string>
     <string name="networks_glossary_ssid">اسم شبكة Wi-Fi (SSID): الاسم الذي تبثّه شبكة Wi-Fi. يمكن لأي شخص إنشاء شبكة بالاسم نفسه.</string>
@@ -557,7 +556,9 @@
     <string name="status_tap_to_open_list">المس لفتح قائمة الشبكات</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">اللغة</string>
-    <string name="menu_item_all_settings">جميع الإعدادات</string>
+    <string name="menu_item_all_settings">الإعدادات</string>
+    <string name="shortcut_toggle_short">تبديل Wifi-ADB</string>
+    <string name="shortcut_toggle_long">تشغيل Wifi-ADB أو إيقافه</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">تحذيرات الأمان</string>

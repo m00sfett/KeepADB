@@ -76,7 +76,6 @@
     <string name="title_settings">Instellingen</string>
     <string name="settings_section_general">Algemeen</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook-synchronisatie</string>
     <string name="settings_webhook_title">Webhook- &amp; eindpuntsynchronisatie</string>
     <string name="settings_webhook_toggle">Webhook-synchronisatie inschakelen</string>
     <string name="settings_webhook_subtext">Verzendt het actieve eindpunt (IP:poort) via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Overig</string>
     <string name="settings_section_notification">Melding</string>
     <string name="settings_hide_notification_toggle">Permanente melding</string>
-    <string name="settings_hide_notification_subtext">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
+    <string name="settings_hide_notification_subtext">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Vertrouwd via wifi-naam</string>
     <string name="network_status_not_allowed">Onbekend</string>
     <string name="network_badge_blocked">Geblokkeerd</string>
-    <string name="networks_title">Netwerken</string>
+    <string name="networks_title">Wifi-netwerken</string>
     <string name="networks_intro">Keep-Alive mag Draadloze foutopsporing weer inschakelen in vertrouwde netwerken, nooit in geblokkeerde. Handmatig inschakelen werkt altijd.</string>
     <string name="networks_glossary_toggle">Termen uitgelegd</string>
     <string name="networks_glossary_ssid">Wifi-naam (SSID): de naam die een wifi-netwerk uitzendt. Iedereen kan een netwerk met dezelfde naam opzetten.</string>
@@ -557,7 +556,9 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Taal</string>
-    <string name="menu_item_all_settings">Alle instellingen</string>
+    <string name="menu_item_all_settings">Instellingen</string>
+    <string name="shortcut_toggle_short">Wifi-ADB schakelen</string>
+    <string name="shortcut_toggle_long">Wifi-ADB in- of uitschakelen</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Beveiligingswaarschuwingen</string>

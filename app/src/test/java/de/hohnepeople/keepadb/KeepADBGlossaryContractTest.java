@@ -33,7 +33,9 @@ public class KeepADBGlossaryContractTest {
     /** Short forms of "Wifi-ADB" that the glossary allows (notification titles and actions). */
     private static final Set<String> WIFI_ADB_ALLOWED = new HashSet<>(Arrays.asList(
             "notification_title_active", "notification_title_disabled",
-            "usb_notification_enable_wlan_handover", "notification_action_disable"));
+            "usb_notification_enable_wlan_handover", "notification_action_disable",
+            // #954: launcher shortcut labels; the maintainer chose "Toggle Wifi-ADB" (2026-11-15).
+            "shortcut_toggle_short", "shortcut_toggle_long"));
 
     /** Retired terms per locale directory suffix ("" is the English reference). */
     private static final Map<String, List<String>> RETIRED = new LinkedHashMap<>();

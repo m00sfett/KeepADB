@@ -76,7 +76,6 @@
     <string name="title_settings">Paramètres</string>
     <string name="settings_section_general">Général</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Synchronisation Webhook</string>
     <string name="settings_webhook_title">Synchronisation Webhook et point de terminaison</string>
     <string name="settings_webhook_toggle">Activer la synchronisation Webhook</string>
     <string name="settings_webhook_subtext">Envoie le point de terminaison actif (IP:port) par HTTP POST lorsqu\'il est activé, et tente d\'envoyer DELETE lors de la désactivation (nouvelle tentative plus tard en cas d\'échec).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Autre</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Notification persistante</string>
-    <string name="settings_hide_notification_subtext">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
+    <string name="settings_hide_notification_subtext">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Approuvé par nom Wi-Fi</string>
     <string name="network_status_not_allowed">Inconnu</string>
     <string name="network_badge_blocked">Bloqué</string>
-    <string name="networks_title">Réseaux</string>
+    <string name="networks_title">Réseaux Wi-Fi</string>
     <string name="networks_intro">Keep-Alive peut réactiver le débogage sans fil dans les réseaux approuvés, jamais dans les réseaux bloqués. L’activation manuelle fonctionne toujours.</string>
     <string name="networks_glossary_toggle">Termes expliqués</string>
     <string name="networks_glossary_ssid">Nom du réseau Wi-Fi (SSID) : le nom que diffuse un réseau Wi-Fi. N’importe qui peut créer un réseau portant le même nom.</string>
@@ -557,7 +556,9 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Langue</string>
-    <string name="menu_item_all_settings">Tous les paramètres</string>
+    <string name="menu_item_all_settings">Paramètres</string>
+    <string name="shortcut_toggle_short">Basculer Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Activer ou désactiver Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Alertes de sécurité</string>

@@ -45,7 +45,28 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- #953: a long press on the Quick Settings tile opens the home screen instead of
+                 Android's app-info page. -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <!-- #954: long-press shortcuts of the launcher icon. The file differs per build type
+                 because android:targetPackage has to be the real application id (the debug
+                 build adds a suffix); see app/src/debug/res/xml/shortcuts.xml. -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
+
+        <!-- #954: the "Toggle Wifi-ADB" launcher shortcut. No UI, not exported (the launcher
+             starts a shortcut with the identity of this app), not in recents, no task of its own
+             to come back to. Translucent so the keyguard request has a visible activity. -->
+        <activity
+            android:name=".KeepADBToggleShortcutActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@style/Theme.KeepADB.Trampoline" />
 
         <activity android:name=".WarningsActivity" android:exported="false" />
 

@@ -198,14 +198,15 @@ used up.
 
 ## The “Networks” list
 
-The list (#762, part a; Settings → Network → “Networks”, or “Networks” in the home menu since #949)
+The list (#762, part a; Settings → Network → “Wi-Fi networks”, or “Wi-Fi networks” in the home menu since #949;
+renamed from “Networks” in 1.13.0, #964)
 shows trust and blocks in one place: the current network at the top, then recently asked access
 points (#949), then saved access points grouped by Wi-Fi name. A “Settings” heading at the end holds
 the convenience switch, the protection level, the Force mode note and the glossary. In #769, the
 older views (“Allowed access points,” “Recently prevented re-enabling,” and observation list), mode
 selector, observation option, and separate name list were removed from Settings. The network area
 there still shows the current network with its action, the protection level (display only; the
-assistant changes it, #761), the convenience switch, Force mode, the “Networks” entry point, and
+assistant changes it, #761), the convenience switch, Force mode, the “Wi-Fi networks” entry point, and
 background access.
 
 **One status per network.** Status comes from the same evaluation as automatic enabling

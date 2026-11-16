@@ -32,6 +32,28 @@ public class SettingsEntryPointsTest {
                 R.id.settings_webhook_body, R.id.settings_webhook_arrow, R.id.settings_misc_body);
     }
 
+    /**
+     * #966: the webhook entry (gear menu earlier, now the cleartext warning and the webhook
+     * notification actions) puts the focus, the highlight and TalkBack on the card header and
+     * leaves the URL field alone, because focusing an EditText raises the keyboard.
+     */
+    @Test public void webhookIntentFocusesTheCardHeaderAndNotTheUrlField() {
+        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
+                .putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+        View header = activity.findViewById(R.id.settings_webhook_header);
+        View url = activity.findViewById(R.id.settings_webhook_url);
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
+        assertTrue("the card header takes the focus", header.hasFocus());
+        assertFalse("the URL field must not take the focus", url.hasFocus());
+        assertFalse("no input field may hold the focus", activity.getCurrentFocus() instanceof
+                android.widget.EditText);
+        controller.pause().stop().destroy();
+    }
+
     @Test public void otherIntentExpandsOnlyItsCardAndConsumesTheExtra() {
         assertEntry(SettingsActivity.EXTRA_FOCUS_MISC, R.id.settings_misc_header,
                 R.id.settings_misc_body, R.id.settings_misc_arrow, R.id.settings_webhook_body);

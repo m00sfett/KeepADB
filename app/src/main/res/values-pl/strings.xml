@@ -76,7 +76,6 @@
     <string name="title_settings">Ustawienia</string>
     <string name="settings_section_general">Ogólne</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Synchronizacja Webhook</string>
     <string name="settings_webhook_title">Synchronizacja Webhook i punktu końcowego</string>
     <string name="settings_webhook_toggle">Włącz synchronizację Webhook</string>
     <string name="settings_webhook_subtext">Wysyła aktywny punkt końcowy (IP:port) przez HTTP POST po włączeniu oraz próbuje wysłać DELETE przy wyłączeniu (ponawiane później w razie niepowodzenia).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Inne</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
-    <string name="settings_hide_notification_subtext">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
+    <string name="settings_hide_notification_subtext">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. To, czy pokazywać szczegóły połączenia, ustawia „Ukryj w powiadomieniach” w sekcji Prywatność; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
     <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">Zaufany według nazwy Wi-Fi</string>
     <string name="network_status_not_allowed">Nieznany</string>
     <string name="network_badge_blocked">Zablokowany</string>
-    <string name="networks_title">Sieci</string>
+    <string name="networks_title">Sieci Wi-Fi</string>
     <string name="networks_intro">Keep-Alive może ponownie włączać debugowanie bezprzewodowe w zaufanych sieciach, nigdy w zablokowanych. Ręczne włączenie zawsze działa.</string>
     <string name="networks_glossary_toggle">Objaśnienie pojęć</string>
     <string name="networks_glossary_ssid">Nazwa Wi-Fi (SSID): nazwa, którą rozgłasza sieć Wi-Fi. Każdy może uruchomić sieć o takiej samej nazwie.</string>
@@ -557,7 +556,9 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Język</string>
-    <string name="menu_item_all_settings">Wszystkie ustawienia</string>
+    <string name="menu_item_all_settings">Ustawienia</string>
+    <string name="shortcut_toggle_short">Przełącz Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Włącz lub wyłącz Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Ostrzeżenia bezpieczeństwa</string>

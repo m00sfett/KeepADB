@@ -35,6 +35,7 @@ public class KeepADBToggleSourceContractTest {
         EXPECTED_SOURCES.add("tile");
         EXPECTED_SOURCES.add("widget");
         EXPECTED_SOURCES.add("notification");
+        EXPECTED_SOURCES.add("shortcut");
         EXPECTED_SOURCES.add("usb_handover_manual");
         EXPECTED_SOURCES.add("keep_alive_check");
         EXPECTED_SOURCES.add("content_observer");
@@ -48,6 +49,8 @@ public class KeepADBToggleSourceContractTest {
         assertTrue(KeepADB.isManualSource("tile"));
         assertTrue(KeepADB.isManualSource("widget"));
         assertTrue(KeepADB.isManualSource("notification"));
+        // #954: the launcher shortcut is a direct tap, like the tile and the widget.
+        assertTrue(KeepADB.isManualSource("shortcut"));
         assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_USB_HANDOVER_MANUAL));
         // #446: the prompt's allow button is a direct user tap, like every other action button.
         assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_NETWORK_TRUST_PROMPT));
@@ -123,6 +126,9 @@ public class KeepADBToggleSourceContractTest {
     }
 
     private static String constantValue(String constantName) {
+        if ("SOURCE_SHORTCUT".equals(constantName)) {
+            return KeepADB.SOURCE_SHORTCUT;
+        }
         if ("SOURCE_USB_HANDOVER_MANUAL".equals(constantName)) {
             return KeepADB.SOURCE_USB_HANDOVER_MANUAL;
         }

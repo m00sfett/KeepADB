@@ -76,7 +76,6 @@
     <string name="title_settings">Ajustes</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_keep_alive">Mantener activo</string>
-    <string name="settings_section_webhook">Sincronización Webhook</string>
     <string name="settings_webhook_title">Sincronización de Webhook y punto final</string>
     <string name="settings_webhook_toggle">Activar sincronización Webhook</string>
     <string name="settings_webhook_subtext">Envía el punto final activo (IP:puerto) mediante HTTP POST al activarse e intenta enviar DELETE al desactivarse (se reintenta más tarde si falla).</string>
@@ -138,8 +137,8 @@
     <string name="settings_section_misc">Otros</string>
     <string name="settings_section_notification">Notificación</string>
     <string name="settings_hide_notification_toggle">Notificación persistente</string>
-    <string name="settings_hide_notification_subtext">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Los detalles de conexión se configuran por separado abajo y pueden mostrar direcciones y nombres de redes.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Los detalles de conexión se configuran por separado abajo y pueden mostrar direcciones y nombres de redes.\n\nCon Keep-Alive activo, Android exige esta notificación para el servicio en primer plano. El interruptor está bloqueado. Al desactivar Keep-Alive se recupera tu elección guardada.</string>
+    <string name="settings_hide_notification_subtext">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Que se muestren los detalles de conexión lo decide «Ocultar en las notificaciones», en Privacidad; pueden mostrar direcciones y nombres de redes.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Muestra el estado de depuración y acceso rápido en las notificaciones. Desactivarlo solo oculta este aviso; Keep-Alive, los widgets y el mosaico de ajustes rápidos siguen funcionando. Que se muestren los detalles de conexión lo decide «Ocultar en las notificaciones», en Privacidad; pueden mostrar direcciones y nombres de redes.\n\nCon Keep-Alive activo, Android exige esta notificación para el servicio en primer plano. El interruptor está bloqueado. Al desactivar Keep-Alive se recupera tu elección guardada.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>
@@ -319,7 +318,7 @@
     <string name="network_status_allowed_name">De confianza por nombre de Wi-Fi</string>
     <string name="network_status_not_allowed">Desconocido</string>
     <string name="network_badge_blocked">Bloqueado</string>
-    <string name="networks_title">Redes</string>
+    <string name="networks_title">Redes Wi-Fi</string>
     <string name="networks_intro">Keep-Alive puede reactivar la depuración inalámbrica en las redes de confianza, nunca en las bloqueadas. Activarla manualmente siempre funciona.</string>
     <string name="networks_glossary_toggle">Términos explicados</string>
     <string name="networks_glossary_ssid">Nombre de la red Wi-Fi (SSID): el nombre que emite una red Wi-Fi. Cualquiera puede crear una red con el mismo nombre.</string>
@@ -557,7 +556,9 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="status_tap_to_open_list">Toca para abrir la lista de redes</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Idioma</string>
-    <string name="menu_item_all_settings">Todos los ajustes</string>
+    <string name="menu_item_all_settings">Ajustes</string>
+    <string name="shortcut_toggle_short">Alternar Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Activar o desactivar Wifi-ADB</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Advertencias de seguridad</string>

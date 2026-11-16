@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #954: static launcher shortcuts, in this order. The launcher starts them with the identity of
+     this app, so the activities stay unexported. Debug overlay of src/main/res/xml/shortcuts.xml: same shortcuts, but the application id of the debug build (applicationIdSuffix '.debug' in app/build.gradle). -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="toggle_wifi_adb"
+        android:enabled="true"
+        android:icon="@drawable/ic_keepadb"
+        android:shortcutShortLabel="@string/shortcut_toggle_short"
+        android:shortcutLongLabel="@string/shortcut_toggle_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.hohnepeople.keepadb.debug"
+            android:targetClass="de.hohnepeople.keepadb.KeepADBToggleShortcutActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="wifi_networks"
+        android:enabled="true"
+        android:icon="@drawable/ic_wifi"
+        android:shortcutShortLabel="@string/networks_title"
+        android:shortcutLongLabel="@string/networks_title">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.hohnepeople.keepadb.debug"
+            android:targetClass="de.hohnepeople.keepadb.NetworkListActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="settings"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings_gear"
+        android:shortcutShortLabel="@string/action_settings"
+        android:shortcutLongLabel="@string/action_settings">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.hohnepeople.keepadb.debug"
+            android:targetClass="de.hohnepeople.keepadb.SettingsActivity" />
+    </shortcut>
+</shortcuts>

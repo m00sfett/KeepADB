@@ -104,7 +104,6 @@
     <string name="title_settings">Settings</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
-    <string name="settings_section_webhook">Webhook Sync</string>
     <string name="settings_webhook_title">Webhook &amp; Endpoint Sync</string>
     <string name="settings_webhook_toggle">Enable Webhook Sync</string>
     <string name="settings_webhook_subtext">Sends the active Wireless Debugging endpoint (IP:port) via HTTP POST when enabled, and attempts a DELETE on shutoff (retried later if it fails).</string>
@@ -176,8 +175,8 @@
     <string name="settings_section_misc">Other</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Persistent notification</string>
-    <string name="settings_hide_notification_subtext">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Connection details are controlled separately below and may reveal addresses and network names.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Connection details are controlled separately below and may reveal addresses and network names.\n\nWhile Keep-Alive is active, Android requires this notification for its foreground service. The switch is locked. Your saved choice applies again when Keep-Alive is off.</string>
+    <string name="settings_hide_notification_subtext">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Whether connection details are shown is set by “Hide in notifications” under Privacy; they may reveal addresses and network names.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Whether connection details are shown is set by “Hide in notifications” under Privacy; they may reveal addresses and network names.\n\nWhile Keep-Alive is active, Android requires this notification for its foreground service. The switch is locked. Your saved choice applies again when Keep-Alive is off.</string>
     <string name="settings_section_display">Display</string>
     <string name="settings_keep_display_on_toggle">Keep display on while KeepADB is in the foreground</string>
     <string name="settings_keep_display_on_subtext">Keeps the screen on only while this app is open. The screen turns off normally as soon as you leave the app.</string>
@@ -326,7 +325,7 @@
     <!-- #762: a blocked network is shown as such, not as "not allowed". -->
     <string name="network_badge_blocked">Blocked</string>
     <!-- #762: the single list of networks (trusted / blocked) and its dialogs. -->
-    <string name="networks_title">Networks</string>
+    <string name="networks_title">Wi-Fi networks</string>
     <string name="networks_intro">Keep-Alive may turn Wireless Debugging back on in trusted networks, never in blocked ones. Turning it on manually always works.</string>
     <string name="networks_glossary_toggle">Terms explained</string>
     <string name="networks_glossary_ssid">Wi-Fi name (SSID): the name a Wi-Fi network broadcasts. Anyone can set up a network with the same name.</string>
@@ -564,7 +563,10 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="status_tap_to_open_list">Tap to open the network list</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Language</string>
-    <string name="menu_item_all_settings">All settings</string>
+    <string name="menu_item_all_settings">Settings</string>
+    <!-- #954: launcher shortcut labels; "Wifi-ADB" is the product term and stays as it is. -->
+    <string name="shortcut_toggle_short">Toggle Wifi-ADB</string>
+    <string name="shortcut_toggle_long">Switch Wifi-ADB on or off</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Security warnings</string>
