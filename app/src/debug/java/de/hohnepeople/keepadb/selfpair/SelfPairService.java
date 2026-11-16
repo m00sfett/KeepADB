@@ -46,7 +46,9 @@ public final class SelfPairService extends Service {
     private static final String CHANNEL = "selfpair_debug";
     private static final int NOTIFICATION_ID = 962;
     private static final String KEY_NAME = "KeepADB";
-    private static final long CONNECT_PORT_WAIT_MS = 15_000;
+    private static final long CONNECT_PORT_WAIT_MS = 3_000;
+    private static final int GRANT_ATTEMPTS = 3;
+    private static final long GRANT_RETRY_PAUSE_MS = 500;
 
     private static final List<String> LOG = new ArrayList<>();
 
@@ -218,12 +220,20 @@ public final class SelfPairService extends Service {
         }
         IOException last = null;
         for (int port : candidates) {
-            try {
-                return new AdbGrantClient(Tls13Channel.FACTORY)
-                        .grant(port, identity, getPackageName());
-            } catch (ConnectException e) {
-                log("connect port " + port + " is stale");
-                last = e;
+            for (int attempt = 1; attempt <= GRANT_ATTEMPTS; attempt++) {
+                try {
+                    return new AdbGrantClient(Tls13Channel.FACTORY)
+                            .grant(port, identity, getPackageName());
+                } catch (ConnectException e) {
+                    log("connect port " + port + " is stale");
+                    last = e;
+                    break;
+                } catch (IOException e) {
+                    // adbd drops a new connection while it still tears down the previous one.
+                    log("grant attempt " + attempt + " on port " + port + " failed: " + e);
+                    last = e;
+                    Thread.sleep(GRANT_RETRY_PAUSE_MS);
+                }
             }
         }
         throw last;
@@ -243,7 +253,14 @@ public final class SelfPairService extends Service {
                 ports.wait(left);
             }
         }
-        return connectDiscovery.candidatePorts();
+        List<Integer> found = connectDiscovery.candidatePorts();
+        if (found.isEmpty()) {
+            long start = System.nanoTime();
+            found = LoopbackAdbScan.find();
+            log("mDNS reported no connect service; loopback scan found " + found + " in "
+                    + elapsed(start) + " ms");
+        }
+        return found;
     }
 
     private void fail(String reason, boolean retry) {
