@@ -373,6 +373,25 @@ public class ProtectionNetworkCardLifecycleTest {
 
     // --- what stays where it was ---------------------------------------------------------------------
 
+    /** #959: the file name is what Activity#getLocalClassName gives, release and debug package. */
+    @Test
+    public void theLocationAskedFileMatchesGetLocalClassNameForReleaseAndDebugPackages() {
+        // Activity#getLocalClassName strips the package only when it is a real prefix.
+        assertEquals("SettingsActivity",
+                KeepADBNetworkCard.locationAskedFile(withPackage("de.hohnepeople.keepadb")));
+        assertEquals(SettingsActivity.class.getName(), KeepADBNetworkCard.locationAskedFile(
+                withPackage("de.hohnepeople.keepadb.debug")));
+    }
+
+    private android.content.Context withPackage(String packageName) {
+        return new android.content.ContextWrapper(context) {
+            @Override
+            public String getPackageName() {
+                return packageName;
+            }
+        };
+    }
+
     /**
      * The grant button remembers that it asked in the preferences file of {@link SettingsActivity},
      * as before the card moved to the Protection page (#959): the key and the file are part of what
