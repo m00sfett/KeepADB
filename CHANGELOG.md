@@ -29,7 +29,9 @@ Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (
 265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. Block 3
 (versionCode 266 and 267): the home screen: the security advice (#958), the warning rows (#963), the
 status split into a state, a reason and an action (#957), copying the endpoint (#951) and the help
-for connecting a computer (#952).
+for connecting a computer (#952). Block 4 (versionCode 268): the Protection page (#959): the
+Network card of Settings becomes one row that opens its own page, and the "Also trust by Wi-Fi
+name" switch is gone.
 The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
@@ -196,6 +198,65 @@ name and raise only the code.
   the acceptance that no state needs more than one state line and one reason line at 360dp in
   English and German and that nothing is cut off at font scale 1.3, and the tablet layouts (needs
   the emulators).
+- **Protection page instead of the Network card (#959).** Maintainer decisions of 2026-11-14 and
+  2026-11-15 after a UX review of 1.12.8 (expanded, the card alone filled two phone screens and
+  offered the one value "trust by Wi-Fi name" three times). Settings shows "Protection" as one row
+  (`settings_protection_row`: icon, title, a summary "Protection level: Balanced · 3 trusted · 1
+  blocked", chevron; the counts read "Hidden" in the privacy mode) that opens the new
+  `ProtectionActivity` (not exported, own red title bar with back button and eye). Nothing of the
+  former card expands inline, and `settings_network_beta_*` are gone. The page holds, in this order:
+  the current connection with its action (as before), the **protection level**, the **automatic
+  behavior** ("Turn off on untrusted Wi-Fi", "Check Wi-Fi security of trusted access points"), the
+  force mode, the entry to the "Wi-Fi networks" list with its count, and the detection in the
+  background. `KeepADBNetworkCard` (now without the level line, the by-name switch and the head
+  subtitle) and `KeepADBForceSection` own their views as before; they were moved, not rewritten,
+  and the layout of the force row (`view_force_panel.xml`) is shared with the assistant unchanged.
+  - **One control for by-name trust.** The level is chosen on the page itself, with the assistant's
+    two choice cards ("Maximum security", "Balanced") and, first and marked, the previous setting
+    ("All Wi-Fi networks", "Wi-Fi name list") for as long as it is stored
+    (`KeepADBProtectionLevelSection`; its selection is read from `getProtectionLevel` on every
+    refresh, a tap writes through `KeepADBOnboarding#commitProtection`, the rule the assistant
+    already used, which also syncs the service at once (`KeepADBService.sync`), so the level takes
+    effect without a further step; the stored `trust_by_name` keeps its key and meaning and a previous list is
+    switched off and not emptied). The jump into the setup assistant is gone; the assistant keeps
+    its protection step for the first setup. The switch "Also trust by Wi-Fi name"
+    (`settings_trust_by_name_toggle`) is removed from Settings and from the Wi-Fi networks list,
+    and so is its twin in the assistant's "Customize" area (the "Balanced" card is the same fact);
+    the list shows the level as one row ("Protection level: Balanced ›") that opens the level on
+    the page. While the force mode runs, a note under the cards says the level applies after it
+    ends, and choosing a level does not end the mode. An old extra that only forwards to the page
+    (`focus_force`, `focus_network`, `focus_network_card`) now finishes the Settings shell, so Back
+    returns to where the user came from. The level, the default and the trust logic
+    are unchanged (`KeepADBTrustedNetwork` decides alone).
+  - **Help texts in one line.** `untrusted_shutdown_hint`, `security_check_hint` and the background
+    detection status are shown as one line with "More ▾" (`KeepADBHelpHint`; the whole line is the
+    48dp touch target, TalkBack gets the collapsed/expanded state and the "More"/"Less" word without
+    its arrow glyph); a tap shows the full text,
+    unchanged, with "Less ▴", and the current reading ("Right now: ...") with the status. The
+    force row's text is unchanged. A refresh (a Wi-Fi change) keeps what is open.
+  - **Every way in lands on the page at its section** (one test each in
+    `ProtectionEntryPointsTest`): the home Keep-Alive line, the "all Wi-Fi networks" warning
+    ("Review"), the widget's network tap and the Wi-Fi networks list's level row go to the level
+    (`ProtectionActivity.EXTRA_FOCUS_LEVEL`, was `SettingsActivity.EXTRA_FOCUS_NETWORK`); the force
+    card's "Settings", the force-mode warning's "Review" and the notice that force mode ended go to
+    the force row (`EXTRA_FOCUS_FORCE`, was `SettingsActivity.EXTRA_FOCUS_FORCE`); the Settings row
+    to the top. The background-location dialog's "Choose protection level" scrolls to the level on
+    the page instead of opening the assistant. The former extras on `SettingsActivity`
+    (`EXTRA_FOCUS_FORCE`, `EXTRA_FOCUS_NETWORK`, `EXTRA_FOCUS_NETWORK_CARD`) stay as constants and
+    are forwarded to the page, so a notification or widget of an older version that still carries
+    them opens the right place. The gear menu's entries (Settings, Wi-Fi networks) and the status
+    action (decision or Wi-Fi networks list) do not lead into the card and are unchanged.
+  - **Names.** The page and its Settings row are "Protection" (`protection_title`, replacing
+    `settings_section_network` "Network"; German "Schutz"), the list stays "Wi-Fi networks"
+    (`networks_title`), and the list's trailing heading reads "Protection". Nine new strings
+    (`protection_title`, `protection_automatic_title`, `untrusted_shutdown_hint_short`,
+    `security_check_hint_short`, `hint_more`, `hint_less`, `protection_background_short_*`) in 19
+    locales; removed in all of them: `settings_section_network`, `network_head_mode`,
+    `networks_comfort_title`, `networks_comfort_hint`, `networks_comfort_no_effect`,
+    `networks_section_settings`, `network_manage_title`.
+  - Not verified in this change: the target of about one and a half screens on a 360dp phone with
+    all hints collapsed (a layout estimate, not a measurement; needs the emulator), the look in
+    German and at font scale 1.3, and TalkBack on the level cards and the "More" lines.
 - **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
   this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
   Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay
@@ -304,11 +365,25 @@ name and raise only the code.
   `KeepADBRegisterRetryTest` stores "fast" and one retry, starts the app, and asserts that both keys
   are gone and that a failed report is retried after 5, 15, 30 and 60 s and then given up on; the
   key assertion is red without the cleanup.
+- **The Protection page needs no data migration (#959).** No preference key changes its name,
+  meaning or default: `trust_by_name` stays the stored value behind "Balanced"
+  (`ProtectionLevelSectionTest` pins the key and that level and stored values agree for the two
+  presets and both previous settings, and that opening the page writes nothing). The only state
+  that was bound to the old screen is the memory that the grant button already asked for the
+  location permission (`location_permission_requested`): `Activity#getPreferences` names its file
+  after the activity, so `KeepADBNetworkCard` keeps reading and writing the file `SettingsActivity`
+  had (`KeepADBNetworkCard#locationAskedFile`, also for the debug variant's package suffix) instead
+  of starting an empty file on the new page. The one-time ask marker shared with the other screens
+  (#797) is untouched.
 - **An installation with the handover mode "automatic" loses that behavior.** Keep-Alive is the
   replacement for switching Wireless Debugging on again unattended; the user-facing note says so
   (`264.txt`).
 
 ### Documentation
+- The Protection page (#959) is described in `docs/trusted-networks.md` ("The Protection page"); the
+  convenience switch is now "trust by name, the level Balanced" there, in `docs/defaults.md` and
+  `SECURITY.md`, and "Settings → Network" reads "Settings → Protection" in `README.md`,
+  `SECURITY.md` and the guide. The store description names the Protection page.
 - `docs/trusted-networks.md` names the entry point "Wi-Fi networks".
 - `docs/defaults.md` and `docs/webhook-register.md` describe the fixed retry series.
 - The USB-ADB feature area is removed from `README.md`, `SECURITY.md`, `docs/defaults.md` (which

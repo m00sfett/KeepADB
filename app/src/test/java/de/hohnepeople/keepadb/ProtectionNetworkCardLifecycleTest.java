@@ -48,7 +48,8 @@ import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
- * #697 (#769: without the allowlist rationale and the Wi-Fi-name section): the lifecycle and state-ownership transitions of the Network card after it moved from
+ * #697 (#769: without the allowlist rationale and the Wi-Fi-name section; #959: on the Protection
+ * page): the lifecycle and state-ownership transitions of the network part after it moved from
  * {@link SettingsActivity} into {@link KeepADBNetworkCard}: who registers and removes the Wi-Fi
  * callback, which access point the action acts on, what a save before a destroy keeps, what a
  * rotation brings back (and what it must not), and that rendering never writes a preference.
@@ -60,7 +61,7 @@ import org.robolectric.shadows.ShadowWifiInfo;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
-public class SettingsNetworkCardLifecycleTest {
+public class ProtectionNetworkCardLifecycleTest {
 
     private static final String BSSID_A = "aa:bb:cc:dd:ee:01";
     private static final String BSSID_B = "aa:bb:cc:dd:ee:02";
@@ -107,8 +108,8 @@ public class SettingsNetworkCardLifecycleTest {
         Set<ConnectivityManager.NetworkCallback> others = new HashSet<>(callbacks(manager));
         assertTrue(others.contains(foreign));
 
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         assertEquals("Exactly one callback of the card", 1, cardCallbacks(manager).size());
         others.addAll(withoutCard(callbacks(manager)));
 
@@ -150,7 +151,7 @@ public class SettingsNetworkCardLifecycleTest {
     public void theActionActsOnTheLastRenderedAccessPointNeitherStaleNorRoamedTo() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("Cafe-WLAN", BSSID_A);
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertEquals("Cafe-WLAN · AA:BB:CC:DD:EE:01", text(activity, R.id.network_connection_line));
 
         connectTo("Cafe-WLAN", BSSID_B);
@@ -178,7 +179,7 @@ public class SettingsNetworkCardLifecycleTest {
     public void everyWifiCallbackRefreshesTheCardOnItsOwn() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("Cafe-WLAN", BSSID_A);
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertEquals("Cafe-WLAN · AA:BB:CC:DD:EE:01", text(activity, R.id.network_connection_line));
 
         String[] callbackNames = {"onAvailable", "onLost", "onCapabilitiesChanged"};
@@ -201,8 +202,8 @@ public class SettingsNetworkCardLifecycleTest {
 
     @Test
     public void destroyDismissesTheBackgroundLocationRationale() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         controller.get().findViewById(R.id.settings_background_location_button).performClick();
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
         assertNotNull(dialog);
@@ -228,9 +229,8 @@ public class SettingsNetworkCardLifecycleTest {
                 .putString("bssid_history_1_bssids", BSSID_A).commit();
         connectTo("HomeMesh", BSSID_B);
         ShadowDialog.reset();
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         controller.get().findViewById(R.id.network_status_action).performClick();
         ShadowLooper.idleMainLooper();
 
@@ -251,13 +251,13 @@ public class SettingsNetworkCardLifecycleTest {
         // #760: starts from an existing installation on the former default ("all Wi-Fi networks"),
         // so that "restoring does not touch the mode" is observable.
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         controller.get().findViewById(R.id.settings_background_location_button).performClick();
         assertNotNull(ShadowAlertDialog.getLatestAlertDialog());
 
-        ActivityController<SettingsActivity> restored = rotate(controller);
-        SettingsActivity activity = restored.get();
+        ActivityController<ProtectionActivity> restored = rotate(controller);
+        ProtectionActivity activity = restored.get();
 
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
         assertNotNull(dialog);
@@ -272,7 +272,7 @@ public class SettingsNetworkCardLifecycleTest {
         dialog.dismiss();
         ShadowLooper.idleMainLooper();
         ShadowDialog.reset();
-        ActivityController<SettingsActivity> again = rotate(restored);
+        ActivityController<ProtectionActivity> again = rotate(restored);
         assertTrue("A dismissed rationale is not restored", ShadowDialog.getShownDialogs().isEmpty());
         again.pause().stop().destroy();
     }
@@ -318,10 +318,9 @@ public class SettingsNetworkCardLifecycleTest {
                             String label = "allowlist=" + allowlist + " names=" + names + " fine="
                                     + fine + " background=" + background + " connection=" + connection;
 
-                            ActivityController<SettingsActivity> controller =
-                                    Robolectric.buildActivity(SettingsActivity.class).setup();
-                            SettingsActivity activity = controller.get();
-                            activity.findViewById(R.id.settings_network_beta_header).performClick();
+                            ActivityController<ProtectionActivity> controller =
+                                    Robolectric.buildActivity(ProtectionActivity.class).setup();
+                            ProtectionActivity activity = controller.get();
                             deliverWifiChange();
                             controller.pause().resume();
                             activity.refresh();
@@ -342,8 +341,8 @@ public class SettingsNetworkCardLifecycleTest {
     @Test
     public void restoringTheBackgroundRationaleWritesNoPreferenceEither() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
         controller.get().findViewById(R.id.settings_background_location_button).performClick();
         Map<String, ?> before = everyPreference();
         controller = rotate(controller);
@@ -353,49 +352,67 @@ public class SettingsNetworkCardLifecycleTest {
     }
 
     /**
-     * Nothing the card shows turns the comfort switch or the legacy name setting on, and the card
-     * opens collapsed again after a rotation -- the expansion lives only in the view tree.
+     * Nothing the page shows turns the by-name trust or the legacy name setting on, and a rotation
+     * brings back the same stored level: the level cards are drawn from the stored policy only.
      */
     @Test
-    public void theComfortSwitchStaysOffAndTheCardReopensCollapsedAfterARotation() {
+    public void theByNameValueStaysOffAndTheLevelIsTheSameAfterARotation() {
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
         assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity before = controller.get();
-        before.findViewById(R.id.settings_network_beta_header).performClick();
-        assertEquals(View.VISIBLE, before.findViewById(R.id.settings_network_beta_body).getVisibility());
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
 
-        ActivityController<SettingsActivity> restored = rotate(controller);
-        SettingsActivity after = restored.get();
+        ActivityController<ProtectionActivity> restored = rotate(controller);
 
-        // Own visibility, not isShown(): a collapsed card would hide its section anyway.
-        assertEquals("The card is collapsed again", View.GONE,
-                after.findViewById(R.id.settings_network_beta_body).getVisibility());
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
         assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
-        assertFalse(((android.widget.Switch) after.findViewById(R.id.settings_trust_by_name_toggle))
-                .isChecked());
+        assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
         restored.pause().stop().destroy();
     }
 
     // --- what stays where it was ---------------------------------------------------------------------
 
+    /** #959: the file name is what Activity#getLocalClassName gives, release and debug package. */
+    @Test
+    public void theLocationAskedFileMatchesGetLocalClassNameForReleaseAndDebugPackages() {
+        // Activity#getLocalClassName strips the package only when it is a real prefix.
+        assertEquals("SettingsActivity",
+                KeepADBNetworkCard.locationAskedFile(withPackage("de.hohnepeople.keepadb")));
+        assertEquals(SettingsActivity.class.getName(), KeepADBNetworkCard.locationAskedFile(
+                withPackage("de.hohnepeople.keepadb.debug")));
+    }
+
+    private android.content.Context withPackage(String packageName) {
+        return new android.content.ContextWrapper(context) {
+            @Override
+            public String getPackageName() {
+                return packageName;
+            }
+        };
+    }
+
     /**
-     * The grant button remembers that it asked in the Activity's own preferences file, as before the
-     * extraction: the key and the file are part of what existing installs have stored.
+     * The grant button remembers that it asked in the preferences file of {@link SettingsActivity},
+     * as before the card moved to the Protection page (#959): the key and the file are part of what
+     * existing installs have stored, so nothing is lost and nothing has to be copied.
      */
     @Test
-    public void theLocationRequestFlagStaysInTheActivitysOwnPreferences() {
+    public void theLocationRequestFlagStaysInTheFileSettingsActivityKept() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertFalse(activityPrefs().getBoolean("location_permission_requested", false));
 
         activity.findViewById(R.id.network_status_action).performClick();
 
         assertNotNull(shadowOf(activity).getLastRequestedPermission());
         assertTrue(activityPrefs().getBoolean("location_permission_requested", false));
-        assertEquals(activityPrefs().getAll(), activity.getPreferences(Context.MODE_PRIVATE).getAll());
+        assertEquals("The file is the one SettingsActivity#getPreferences used to hand out",
+                activityPrefs().getAll(),
+                context.getSharedPreferences(KeepADBNetworkCard.locationAskedFile(context),
+                        Context.MODE_PRIVATE).getAll());
+        assertTrue("The page has no preferences file of its own for it",
+                activity.getPreferences(Context.MODE_PRIVATE).getAll().isEmpty());
         assertFalse("It is not a key of the shared settings file",
                 prefs().contains("location_permission_requested"));
     }
@@ -409,21 +426,20 @@ public class SettingsNetworkCardLifecycleTest {
 
     // --- helpers ----------------------------------------------------------------------------------------
 
-    private SettingsActivity open() {
-        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+    private ProtectionActivity open() {
+        ProtectionActivity activity = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
         return activity;
     }
 
     /** saveInstanceState -> destroy -> a fresh instance restored from the bundle (#672). */
-    private static ActivityController<SettingsActivity> rotate(
-            ActivityController<SettingsActivity> controller) {
+    private static ActivityController<ProtectionActivity> rotate(
+            ActivityController<ProtectionActivity> controller) {
         Bundle state = new Bundle();
         controller.saveInstanceState(state);
         controller.pause().stop().destroy();
         ShadowLooper.idleMainLooper();
-        return Robolectric.buildActivity(SettingsActivity.class).setup(state);
+        return Robolectric.buildActivity(ProtectionActivity.class).setup(state);
     }
 
     private void connectTo(String ssid, String bssid) {
@@ -528,8 +544,9 @@ public class SettingsNetworkCardLifecycleTest {
     }
 
     /**
-     * The Activity's own file, as {@code Activity#getPreferences} names it: the activity's class
-     * name relative to the package (the debug variant's package suffix keeps the full name).
+     * The file {@code SettingsActivity#getPreferences} used to name (#959: the card still keeps its
+     * asking there): the class name relative to the package (the debug variant's package suffix
+     * keeps the full name).
      */
     private SharedPreferences activityPrefs() {
         String packageName = context.getPackageName();
@@ -551,7 +568,7 @@ public class SettingsNetworkCardLifecycleTest {
         return all;
     }
 
-    private static String text(SettingsActivity activity, int id) {
+    private static String text(ProtectionActivity activity, int id) {
         return ((TextView) activity.findViewById(id)).getText().toString();
     }
 }

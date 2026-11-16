@@ -302,8 +302,9 @@ final class KeepADBWarningState {
         Intent settings = new Intent(context, SettingsActivity.class);
         switch (reason) {
             case SYSTEM_PERMISSION: return KeepADBHomeWarnings.systemIntent(context);
-            case FORCE_MODE: return settings.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
-            case PROTECTION_ALL_WIFI: return settings.putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
+            // #959: the force row and the protection level are on the Protection page.
+            case FORCE_MODE: return ProtectionActivity.forceIntent(context);
+            case PROTECTION_ALL_WIFI: return ProtectionActivity.levelIntent(context);
             case NOTIFICATION_DETAILS: return settings.putExtra(SettingsActivity.EXTRA_FOCUS_DETAILS, true);
             case WEBHOOK_CLEARTEXT: return settings.putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
             case NETWORK_IDENTITY_UNAVAILABLE:

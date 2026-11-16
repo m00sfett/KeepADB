@@ -274,8 +274,15 @@
     <string name="state_pending">正在切换…</string>
     <string name="tile_state_keep_alive_waiting">关闭 – Keep-Alive 等待中</string>
     <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
-    <string name="settings_section_network">网络</string>
-    <string name="network_head_mode">自动重新启用：%1$s</string>
+    <string name="protection_title">保护</string>
+    <string name="protection_automatic_title">自动行为</string>
+    <string name="untrusted_shutdown_hint_short">在未信任的 Wi-Fi 上关闭无线调试。</string>
+    <string name="security_check_hint_short">如果已信任的 Wi-Fi 接入点安全性变弱，则暂停自动开启。</string>
+    <string name="hint_more">更多 ▾</string>
+    <string name="hint_less">收起 ▴</string>
+    <string name="protection_background_short_granted">已允许</string>
+    <string name="protection_background_short_missing">受限</string>
+    <string name="protection_background_short_inactive">此设置下不需要</string>
     <string name="network_mode_option_all_wifi">在所有 Wi-Fi 网络中</string>
     <string name="network_mode_option_aps">仅限已信任的接入点</string>
     <string name="network_mode_option_aps_names">已信任的接入点和 Wi-Fi 名称</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">术语说明</string>
     <string name="networks_glossary_ssid">Wi-Fi 名称（SSID）：Wi-Fi 网络广播的名称。任何人都可以建立同名网络。</string>
     <string name="networks_glossary_bssid">接入点（BSSID）：单个发射设备，例如路由器、中继器或 Mesh 节点。它的硬件地址（例如 AA:BB:CC:11:22:33）比名称更精确，但同样不能作为证明。</string>
-    <string name="networks_comfort_title">同时按 Wi-Fi 名称信任</string>
-    <string name="networks_comfort_hint">对 Mesh 和中继器更方便。名称很容易被冒用。</string>
-    <string name="networks_comfort_no_effect">在沿用旧设置“在所有 Wi-Fi 网络中”期间不生效。</string>
     <string name="untrusted_shutdown_title">在未信任的 Wi-Fi 上关闭</string>
     <string name="untrusted_shutdown_hint">Keep-Alive 开启时，如果 Wi-Fi 未信任、已被屏蔽或无法识别，KeepADB 会关闭无线调试，而不只是通知你。你在 KeepADB 中自己开启的会话在该 Wi-Fi 接入点上保持开启。强制模式下暂停此功能。</string>
     <string name="untrusted_shutdown_channel_name">在未信任的 Wi-Fi 上关闭</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">此刻：可以读取该网络。这并不能证明在后台启动的 Keep-Alive 也能读取。</string>
     <string name="network_detection_unreadable">此刻：无法读取该网络。</string>
     <string name="network_detection_no_wifi">此刻：未连接 Wi-Fi，没有可读取的内容。</string>
-    <string name="network_manage_title">接入点</string>
     <string name="card_state_expanded">已展开</string>
     <string name="card_state_collapsed">已折叠</string>
     <string name="network_ap_allowed_toast">已信任接入点“%1$s”</string>
@@ -644,7 +647,6 @@
     <string name="overview_last_delivery_short_none">尚无</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">最近询问</string>
-    <string name="networks_section_settings">设置</string>
     <string name="networks_recent_hint">KeepADB 询问过这些 Wi-Fi 网络，但没有得到回答，例如因为通知被划掉了。</string>
     <string name="networks_recent_asked">上次发现：%1$s</string>
     <string name="networks_recent_decide">做出决定…</string>

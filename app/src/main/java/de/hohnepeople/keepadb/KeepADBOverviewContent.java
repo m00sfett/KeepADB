@@ -10,7 +10,7 @@ import android.text.format.DateUtils;
  *
  * <p><b>Informational rows.</b> Wireless Debugging, Wi-Fi and Keep-Alive are read-only here: the
  * whole information card has one tap target, and it only ever opens the app (or, for an untrusted
- * network, the network card of the settings). No value here can toggle Wireless Debugging or
+ * network, the Protection page). No value here can toggle Wireless Debugging or
  * Keep-Alive. The one control is the automatic webhook synchronization, the same tile and action
  * path as the control widget's ({@link KeepADBWidgetContent#tile}).
  *
@@ -261,7 +261,7 @@ final class KeepADBOverviewContent {
                         java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).toString());
     }
 
-    /** Where the information card leads: the network card for a trust decision, else the app. */
+    /** Where the information card leads: the Protection page for a trust decision, else the app. */
     private static KeepADBWidgetContent.Click cardClick(KeepADBWidgetState p) {
         return p.keepAliveReason == KeepADBWidgetState.Reason.UNTRUSTED_NETWORK
                 ? KeepADBWidgetContent.Click.OPEN_NETWORK : KeepADBWidgetContent.Click.OPEN_APP;

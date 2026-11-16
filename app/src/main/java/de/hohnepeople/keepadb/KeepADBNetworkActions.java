@@ -14,7 +14,7 @@ import android.widget.Toast;
 import java.util.function.Consumer;
 
 /**
- * #654/#655: the user actions shared by the Network card in {@link SettingsActivity} and the list
+ * #654/#655: the user actions shared by the Protection page ({@link ProtectionActivity}) and the list
  * views in {@link NetworkListActivity}, kept in one place so both behave identically: allowing an
  * access point only grants the allowance (never switches Wireless Debugging on, see {@link
  * KeepADBReceiver#allowBssidOnly}), removing one only removes it, and every message that quotes a

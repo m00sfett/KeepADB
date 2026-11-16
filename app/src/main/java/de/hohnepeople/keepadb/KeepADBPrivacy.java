@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
  * <p>The app switch masks Wi-Fi names, BSSIDs, IP addresses, ports and the webhook host on every
  * screen and dialog. Two kinds of surfaces read it differently:
  * <ul>
- *   <li><b>Eye-only surfaces</b> (home screen, Settings network card, report history, shared
+ *   <li><b>Eye-only surfaces</b> (home screen, Protection page, report history, shared
  *       diagnostics) read the persistent switch alone: they are
  *       passed a plain {@link Context} and {@link #isAppMasked} is true whenever the switch is
  *       on. The eye in the title bars is their only way to unmask.</li>

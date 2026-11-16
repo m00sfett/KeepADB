@@ -87,7 +87,7 @@ final class KeepADBOverviewViews {
             views.setOnClickPendingIntent(R.id.widget_ov_delivery,
                     KeepADBWidgetActions.forClick(ctx, content.deliveryClick));
         }
-        // The card is informational: its one tap opens the app (or the network card), never a toggle.
+        // The card is informational: its one tap opens the app (or the Protection page), never a toggle.
         views.setContentDescription(R.id.widget_ov_card, cardDescription);
         views.setOnClickPendingIntent(R.id.widget_ov_card,
                 KeepADBWidgetActions.forClick(ctx, content.cardClick));

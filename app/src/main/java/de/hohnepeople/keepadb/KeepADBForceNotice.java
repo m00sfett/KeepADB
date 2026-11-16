@@ -149,10 +149,9 @@ final class KeepADBForceNotice {
         if (manager != null) manager.cancel(NOTIFICATION_ID);
     }
 
-    /** Tap target of the notice: the force row in Settings, expanded and in view. */
+    /** Tap target of the notice: the force row of the Protection page (#959), in view. */
     static Intent focusForceIntent(Context context) {
-        return new Intent(context, SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true)
+        return ProtectionActivity.forceIntent(context)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 

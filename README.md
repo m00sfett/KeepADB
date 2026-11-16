@@ -65,10 +65,10 @@ webhook address) is masked as `***`.
 
 On a new installation, the network rule initially allows automatic recovery only on trusted access
 points. Existing installations keep their previous setting, including “In all Wi-Fi networks.” Change
-the rule under **Settings → Network**. It controls automatic actions; manually turning Wireless
+the rule under **Settings → Protection**. It controls automatic actions; manually turning Wireless
 debugging on remains a separate user action.
 
-For convenience, you can enable **Force mode** under **Settings → Network** for 1 hour, 24 hours,
+For convenience, you can enable **Force mode** under **Settings → Protection** for 1 hour, 24 hours,
 7 days, 30 days, or indefinitely. Keep-Alive will then turn Wireless debugging back on in every
 Wi-Fi network, including blocked networks and networks whose identity cannot be read. A warning
 appears on the home screen and in the notification, and one tap ends Force mode. The

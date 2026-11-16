@@ -246,7 +246,8 @@ public class KeepADBOverviewWidgetTest {
         assertEquals(Click.OPEN_NETWORK, c.cardClick);
         assertEquals(KeepADBOverviewContent.withDetail(name(R.string.widget_state_paused),
                 name(R.string.overview_reason_untrusted)), c.keepAlive.value);
-        assertEquals(SettingsActivity.class.getName(), shadowOf(
+        // #959: the Protection page, at the level (before: the network card of Settings).
+        assertEquals(ProtectionActivity.class.getName(), shadowOf(
                 KeepADBWidgetActions.forClick(context, c.cardClick)).getSavedIntent()
                 .getComponent().getClassName());
     }

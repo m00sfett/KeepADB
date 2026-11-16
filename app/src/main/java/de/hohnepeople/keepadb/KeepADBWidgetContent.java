@@ -38,7 +38,7 @@ final class KeepADBWidgetContent {
         SETUP_WEBHOOK,
         /** The app's home screen: the setup, the status and the full reasons. */
         OPEN_APP,
-        /** The settings at the network card, where a network is trusted or blocked. */
+        /** The Protection page, where a network is trusted or blocked. */
         OPEN_NETWORK
     }
 

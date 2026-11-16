@@ -274,8 +274,15 @@
     <string name="state_pending">Đang chuyển…</string>
     <string name="tile_state_keep_alive_waiting">Tắt – Keep-Alive đang chờ</string>
     <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
-    <string name="settings_section_network">Mạng</string>
-    <string name="network_head_mode">Tự động bật lại: %1$s</string>
+    <string name="protection_title">Bảo vệ</string>
+    <string name="protection_automatic_title">Hành vi tự động</string>
+    <string name="untrusted_shutdown_hint_short">Tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy.</string>
+    <string name="security_check_hint_short">Tạm dừng tự động bật nếu điểm Wi-Fi được tin cậy có mức bảo mật yếu hơn.</string>
+    <string name="hint_more">Thêm ▾</string>
+    <string name="hint_less">Ít hơn ▴</string>
+    <string name="protection_background_short_granted">Đã cho phép</string>
+    <string name="protection_background_short_missing">Bị hạn chế</string>
+    <string name="protection_background_short_inactive">Không cần trong thiết lập này</string>
     <string name="network_mode_option_all_wifi">Trong mọi mạng Wi-Fi</string>
     <string name="network_mode_option_aps">Chỉ điểm truy cập tin cậy</string>
     <string name="network_mode_option_aps_names">Điểm truy cập và tên Wi-Fi tin cậy</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Giải thích thuật ngữ</string>
     <string name="networks_glossary_ssid">Tên Wi-Fi (SSID): tên mà mạng Wi-Fi phát ra. Ai cũng có thể tạo một mạng có cùng tên.</string>
     <string name="networks_glossary_bssid">Điểm truy cập (BSSID): một bộ phát riêng lẻ, như bộ định tuyến, bộ lặp hoặc nút mesh. Địa chỉ phần cứng của nó, ví dụ AA:BB:CC:11:22:33, cụ thể hơn tên, nhưng cũng không phải bằng chứng.</string>
-    <string name="networks_comfort_title">Cũng tin cậy theo tên Wi-Fi</string>
-    <string name="networks_comfort_hint">Tiện hơn với mesh và bộ lặp. Tên rất dễ bị giả mạo.</string>
-    <string name="networks_comfort_no_effect">Không có tác dụng khi cài đặt cũ “Trong mọi mạng Wi-Fi” còn áp dụng.</string>
     <string name="untrusted_shutdown_title">Tắt trên Wi-Fi không tin cậy</string>
     <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
     <string name="untrusted_shutdown_channel_name">Tắt trên Wi-Fi không tin cậy</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Ngay lúc này: đọc được mạng. Điều đó không chứng minh rằng Keep-Alive khởi động trong nền cũng đọc được.</string>
     <string name="network_detection_unreadable">Ngay lúc này: không đọc được mạng.</string>
     <string name="network_detection_no_wifi">Ngay lúc này: chưa kết nối Wi-Fi nên không có gì để đọc.</string>
-    <string name="network_manage_title">Điểm truy cập</string>
     <string name="card_state_expanded">Đã mở rộng</string>
     <string name="card_state_collapsed">Đã thu gọn</string>
     <string name="network_ap_allowed_toast">Đã tin cậy điểm truy cập “%1$s”</string>
@@ -644,7 +647,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="overview_last_delivery_short_none">Chưa có</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Đã hỏi gần đây</string>
-    <string name="networks_section_settings">Cài đặt</string>
     <string name="networks_recent_hint">KeepADB đã hỏi về các mạng Wi-Fi này nhưng không nhận được câu trả lời, ví dụ vì thông báo đã bị vuốt đi.</string>
     <string name="networks_recent_asked">Thấy lần cuối %1$s</string>
     <string name="networks_recent_decide">Quyết định…</string>

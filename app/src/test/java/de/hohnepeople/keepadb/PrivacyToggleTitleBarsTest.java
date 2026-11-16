@@ -70,6 +70,7 @@ public class PrivacyToggleTitleBarsTest {
         List<Activity> pages = new ArrayList<>();
         pages.add(Robolectric.buildActivity(MainActivity.class).setup().get());
         pages.add(Robolectric.buildActivity(SettingsActivity.class).setup().get());
+        pages.add(Robolectric.buildActivity(ProtectionActivity.class).setup().get());
         pages.add(openList());
         for (Activity page : pages) {
             String name = page.getClass().getSimpleName();
@@ -119,7 +120,8 @@ public class PrivacyToggleTitleBarsTest {
                 }
             }
         }
-        assertEquals("main view, settings, network list, report history", 4, redBars);
+        assertEquals("main view, settings, Protection page, network list, report history", 5,
+                redBars);
         assertTrue(new File(layouts.toFile(), "view_privacy_toggle.xml").isFile());
     }
 
@@ -187,17 +189,17 @@ public class PrivacyToggleTitleBarsTest {
     }
 
     @Test
-    public void settingsRedrawsItsNetworkCardAtOnce() {
+    public void theProtectionPageRedrawsItsNetworkPartAtOnce() {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
-        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ProtectionActivity settings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
-        assertTrue("Precondition: Settings shows the name: " + shown(settings),
+        assertTrue("Precondition: the Protection page shows the name: " + shown(settings),
                 shown(settings).contains("HomeMesh"));
 
         KeepADBEyeMenuTestSupport.choose(settings, KeepADBPrivacyToggle.ITEM_APP);
         ShadowLooper.idleMainLooper();
-        assertFalse("Settings hides the name right after the tap: " + shown(settings),
+        assertFalse("The Protection page hides the name right after the tap: " + shown(settings),
                 shown(settings).contains("HomeMesh"));
     }
 
@@ -264,6 +266,30 @@ public class PrivacyToggleTitleBarsTest {
                 KeepADBPrivacyToggle.ITEM_PRIVACY_SETTINGS));
         assertFalse("the link closes the menu", menu.isShowing());
         android.content.Intent next = shadowOf(main).getNextStartedActivity();
+        assertNotNull(next);
+        assertEquals(SettingsActivity.class.getName(), next.getComponent().getClassName());
+        assertTrue(next.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_PRIVACY, false));
+    }
+
+    /** #959: the eye works on the Protection page as on Settings: a tap masks this screen only. */
+    @Test
+    public void onTheProtectionPageTheTapMasksOnlyThatScreenAndTheLinkOpensSettingsAtPrivacy() {
+        ProtectionActivity page = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
+        assertFalse(KeepADBPrivacy.isScreenMasked(page));
+        page.findViewById(R.id.btn_toggle_privacy_mode).performClick();
+        assertTrue("the tap hides this screen", KeepADBPrivacy.isScreenMasked(page));
+        assertFalse("no stored switch changes", KeepADBPreferences.isAppPrivacyEnabled(context));
+        assertEquals(context.getString(R.string.network_privacy_hint),
+                ((android.widget.TextView) page.findViewById(R.id.network_privacy_hint))
+                        .getText().toString());
+        assertEquals(View.VISIBLE, page.findViewById(R.id.network_privacy_hint).getVisibility());
+        page.findViewById(R.id.btn_toggle_privacy_mode).performClick();
+        assertEquals(View.GONE, page.findViewById(R.id.network_privacy_hint).getVisibility());
+
+        KeepADBSettingsMenu menu = KeepADBEyeMenuTestSupport.open(page);
+        menu.onMenuItemClicked(KeepADBEyeMenuTestSupport.find(menu,
+                KeepADBPrivacyToggle.ITEM_PRIVACY_SETTINGS));
+        android.content.Intent next = shadowOf(page).getNextStartedActivity();
         assertNotNull(next);
         assertEquals(SettingsActivity.class.getName(), next.getComponent().getClassName());
         assertTrue(next.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_PRIVACY, false));

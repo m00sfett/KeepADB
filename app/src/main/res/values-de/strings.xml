@@ -274,8 +274,15 @@
     <string name="state_pending">Wird umgeschaltet …</string>
     <string name="tile_state_keep_alive_waiting">Aus – Keep-Alive wartet</string>
     <string name="toggle_failed_toast">Drahtloses Debugging konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
-    <string name="settings_section_network">Netzwerk</string>
-    <string name="network_head_mode">Automatisches Wiedereinschalten: %1$s</string>
+    <string name="protection_title">Schutz</string>
+    <string name="protection_automatic_title">Automatisches Verhalten</string>
+    <string name="untrusted_shutdown_hint_short">Schaltet Drahtloses Debugging in einem nicht vertrauten WLAN aus.</string>
+    <string name="security_check_hint_short">Pausiert das automatische Einschalten, wenn ein vertrauter Access Point schwächere Sicherheit zeigt.</string>
+    <string name="hint_more">Mehr ▾</string>
+    <string name="hint_less">Weniger ▴</string>
+    <string name="protection_background_short_granted">Erlaubt</string>
+    <string name="protection_background_short_missing">Eingeschränkt</string>
+    <string name="protection_background_short_inactive">In dieser Konfiguration nicht erforderlich</string>
     <string name="network_mode_option_all_wifi">In allen WLANs</string>
     <string name="network_mode_option_aps">Nur vertraute Access Points</string>
     <string name="network_mode_option_aps_names">Vertraute Access Points und WLAN-Namen</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Begriffe erklärt</string>
     <string name="networks_glossary_ssid">WLAN-Name (SSID): der Name, den ein WLAN aussendet. Jeder kann ein WLAN mit demselben Namen aufmachen.</string>
     <string name="networks_glossary_bssid">Access Point (BSSID): ein einzelner Sender, etwa Router, Repeater oder Mesh-Knoten. Seine Hardware-Kennung, z. B. AA:BB:CC:11:22:33, ist eindeutiger als der Name, aber ebenfalls kein Beweis.</string>
-    <string name="networks_comfort_title">Auch nach WLAN-Name vertrauen</string>
-    <string name="networks_comfort_hint">Bequemer bei Mesh und Repeatern. Ein Name lässt sich leicht nachahmen.</string>
-    <string name="networks_comfort_no_effect">Ohne Wirkung, solange die bisherige Einstellung „In allen WLANs“ gilt.</string>
     <string name="untrusted_shutdown_title">In nicht vertrauten WLANs ausschalten</string>
     <string name="untrusted_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Drahtloses Debugging in einem WLAN aus, das nicht vertraut, gesperrt oder nicht erkennbar ist, statt dich nur zu benachrichtigen. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus.</string>
     <string name="untrusted_shutdown_channel_name">Abschaltung in nicht vertrauten WLANs</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Gerade jetzt: Das Netzwerk ist lesbar. Das beweist nicht, dass ein Keep-Alive-Start im Hintergrund es ebenfalls lesen kann.</string>
     <string name="network_detection_unreadable">Gerade jetzt: Das Netzwerk ist nicht lesbar.</string>
     <string name="network_detection_no_wifi">Gerade jetzt: Kein WLAN verbunden, es gibt also nichts zu lesen.</string>
-    <string name="network_manage_title">Access Points</string>
     <string name="card_state_expanded">Aufgeklappt</string>
     <string name="card_state_collapsed">Eingeklappt</string>
     <string name="network_ap_allowed_toast">Access Point „%1$s“ vertraut</string>
@@ -645,7 +648,6 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="overview_last_delivery_short_none">Noch keine</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Zuletzt nachgefragt</string>
-    <string name="networks_section_settings">Einstellungen</string>
     <string name="networks_recent_hint">Zu diesen WLANs hat KeepADB nachgefragt und keine Antwort bekommen, zum Beispiel weil die Benachrichtigung weggewischt wurde.</string>
     <string name="networks_recent_asked">Zuletzt gesehen %1$s</string>
     <string name="networks_recent_decide">Entscheiden…</string>

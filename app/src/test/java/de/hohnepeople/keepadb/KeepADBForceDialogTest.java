@@ -83,7 +83,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void theRowStartsOffAndOffersOnlyTheActivationButton() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals("Off", text(activity, R.id.settings_force_status));
         assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_force_activate).getVisibility());
@@ -205,7 +205,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void confirmingActivatesTheSelectedSpanSwitchesKeepAliveOnAndUpdatesTheRow() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertFalse(KeepADBPreferences.isKeepAliveEnabled(context));
         AlertDialog dialog = openDialog(activity);
         ((RadioButton) dialog.findViewById(R.id.force_span_24h)).setChecked(true);
@@ -247,7 +247,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void thereIsNoRefusalHintWhenTheBootCounterIsReadableOrTheChoiceHasNoTimeLimit() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         AlertDialog dialog = openDialog(activity);
         dialog.findViewById(R.id.force_dialog_confirm).performClick();
         ShadowLooper.idleMainLooper();
@@ -269,7 +269,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void cancelAndBackChangeNothing() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         AlertDialog dialog = openDialog(activity);
         ((RadioButton) dialog.findViewById(R.id.force_span_30d)).setChecked(true);
 
@@ -303,7 +303,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void changingTheDurationGoesThroughTheFullDialogAndStartsTheTimeAnew() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_7, false));
         clock.advance(2 * HOUR);
         ShadowLooper.idleMainLooper();
@@ -322,7 +322,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void theEndButtonEndsTheModeAndTheRowShowsOffAgain() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.UNLIMITED, true));
         ShadowLooper.idleMainLooper();
         assertEquals("Active, no end time", text(activity, R.id.settings_force_status));
@@ -339,7 +339,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void theRowReadsOffAtTheDeadlineBeforeAnyTransitionAndTheOpenScreenRedrawsOnExpiry() {
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         ShadowLooper.idleMainLooper();
         assertTrue(text(activity, R.id.settings_force_status).startsWith("Active until "));
@@ -355,7 +355,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void settingsListensForTheModeOnlyWhileItIsResumed() {
-        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller = Robolectric.buildActivity(ProtectionActivity.class).setup();
         assertTrue(KeepADBForceMode.hasStateListenerForTesting());
 
         controller.pause();
@@ -370,7 +370,7 @@ public class KeepADBForceDialogTest {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         clock.advance(2 * HOUR);
 
-        SettingsActivity activity = open();
+        ProtectionActivity activity = open();
 
         assertEquals("Off", text(activity, R.id.settings_force_status));
         assertNotNull("Opening the screen delivered the expiry notice",
@@ -381,7 +381,7 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void theSelectionSurvivesARotationButTheRestoredDialogStillNeedsItsOwnTap() {
-        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller = Robolectric.buildActivity(ProtectionActivity.class).setup();
         AlertDialog dialog = openDialog(controller.get());
         ((RadioButton) dialog.findViewById(R.id.force_span_unlimited)).setChecked(true);
         ((CheckBox) dialog.findViewById(R.id.force_dialog_ack)).setChecked(true);
@@ -390,8 +390,8 @@ public class KeepADBForceDialogTest {
         assertTrue(saved.getBoolean(KeepADBForceDialog.STATE_SHOWING));
         controller.pause().stop().destroy();
 
-        ActivityController<SettingsActivity> restored =
-                Robolectric.buildActivity(SettingsActivity.class).setup(saved);
+        ActivityController<ProtectionActivity> restored =
+                Robolectric.buildActivity(ProtectionActivity.class).setup(saved);
 
         AlertDialog again = ShadowAlertDialog.getLatestAlertDialog();
         assertTrue("The dialog is back", again.isShowing());
@@ -404,14 +404,14 @@ public class KeepADBForceDialogTest {
 
     @Test
     public void aDismissedDialogIsNotRestored() {
-        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
+        ActivityController<ProtectionActivity> controller = Robolectric.buildActivity(ProtectionActivity.class).setup();
         openDialog(controller.get()).dismiss();
         Bundle saved = new Bundle();
         controller.saveInstanceState(saved);
         assertFalse(saved.getBoolean(KeepADBForceDialog.STATE_SHOWING));
         controller.pause().stop().destroy();
 
-        Robolectric.buildActivity(SettingsActivity.class).setup(saved);
+        Robolectric.buildActivity(ProtectionActivity.class).setup(saved);
 
         AlertDialog latest = ShadowAlertDialog.getLatestAlertDialog();
         assertTrue("No force dialog: " + latest, latest == null || latest.findViewById(R.id.force_dialog_spans) == null
@@ -419,34 +419,26 @@ public class KeepADBForceDialogTest {
     }
 
     @Test
-    public void theFocusExtraExpandsTheNetworkCardWithTheForceRowInside() {
-        Intent intent = new Intent(context, SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
+    public void theFocusExtraOpensTheProtectionPageAtTheForceRow() {
+        Intent intent = ProtectionActivity.forceIntent(context);
 
-        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class, intent).setup().get();
+        ProtectionActivity activity =
+                Robolectric.buildActivity(ProtectionActivity.class, intent).setup().get();
 
-        View body = activity.findViewById(R.id.settings_network_beta_body);
-        assertEquals("The network card is expanded", View.VISIBLE, body.getVisibility());
         View panel = activity.findViewById(R.id.settings_force_panel);
-        assertTrue("... and the force row is part of it", isDescendantOf(panel, body));
+        assertEquals("The force row is on the page", View.VISIBLE, panel.getVisibility());
+        assertTrue(isDescendantOf(panel, activity.findViewById(R.id.protection_scroll)));
         assertFalse("The extra is consumed so a later resume does not scroll again",
-                activity.getIntent().hasExtra(SettingsActivity.EXTRA_FOCUS_FORCE));
-    }
-
-    @Test
-    public void withoutTheFocusExtraTheNetworkCardStaysCollapsed() {
-        SettingsActivity activity = open();
-
-        assertEquals(View.GONE, activity.findViewById(R.id.settings_network_beta_body).getVisibility());
+                activity.getIntent().hasExtra(ProtectionActivity.EXTRA_FOCUS_FORCE));
     }
 
     // --- Helpers ----------------------------------------------------------------------------------------------------------------------
 
-    private SettingsActivity open() {
-        return Robolectric.buildActivity(SettingsActivity.class).setup().get();
+    private ProtectionActivity open() {
+        return Robolectric.buildActivity(ProtectionActivity.class).setup().get();
     }
 
-    private AlertDialog openDialog(SettingsActivity activity) {
+    private AlertDialog openDialog(ProtectionActivity activity) {
         activity.findViewById(R.id.settings_force_activate).performClick();
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
         assertNotNull(dialog);
@@ -454,7 +446,7 @@ public class KeepADBForceDialogTest {
         return dialog;
     }
 
-    private static String text(SettingsActivity activity, int id) {
+    private static String text(ProtectionActivity activity, int id) {
         return ((TextView) activity.findViewById(id)).getText().toString();
     }
 

@@ -23,13 +23,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Owns the Network card of {@link SettingsActivity} (#654/#655): its views, the access point
- * the card showed last (what its action button acts on), the Wi-Fi status callback and the
- * dialog of the card -- the background-location rationale and the mesh question after allowing an
- * access point. (The trust confirmation of the "new Wi-Fi" prompt lived here until #766 moved it
- * to {@link NetworkDecisionActivity}; the mode choice, the observation option and the legacy
- * Wi-Fi-name list were removed with #769 and what the card shows now is the level, the comfort
- * switch, force, the one Networks list and the background access, see docs/trusted-networks.md.)
+ * Owns the views of the Protection page ({@link ProtectionActivity}) that show the network
+ * (#654/#655, moved from the Network card of Settings by #959): the access point the page showed
+ * last (what its action button acts on), the Wi-Fi status callback and the dialog -- the
+ * background-location rationale. (The trust confirmation of the "new Wi-Fi" prompt lived here
+ * until #766 moved it to {@link NetworkDecisionActivity}; the mode choice, the observation option
+ * and the legacy Wi-Fi-name list were removed with #769. The protection level is chosen by
+ * {@link KeepADBProtectionLevelSection} and the "Also trust by Wi-Fi name" switch is gone
+ * (#959); what this class shows is the current connection, the two automatic-behavior switches,
+ * the entry to the one Wi-Fi networks list and the background access, see
+ * docs/trusted-networks.md.)
  *
  * <p>Extracted by #697 as a pure refactor: no behavior, preference key, Bundle key, request code
  * or layout id changed. What the card shows still comes exclusively from {@link
@@ -38,7 +41,7 @@ import android.widget.Toast;
  * KeepADBReceiver}. This class keeps no second access point list and no trust cache: the only
  * remembered access point is the one the status button was rendered for.
  *
- * <p>{@link SettingsActivity} stays the screen composer and Android lifecycle owner (including the
+ * <p>{@link ProtectionActivity} stays the screen composer and Android lifecycle owner (including the
  * one-time consumption of the notification intent) and calls explicit hooks: construction binds
  * the views in {@code onCreate}, then {@link #restore} (onCreate), {@link #start} (onStart),
  * {@link #refresh} (from its own {@code refresh()}), {@link #stop} (onStop), {@link #saveState}
@@ -60,22 +63,38 @@ final class KeepADBNetworkCard {
     /** #507/#654: permission request code of the card's "grant location" action. */
     static final int WIFI_APS_LOCATION_PERMISSION_REQUEST = 3002;
     private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
+    /**
+     * The preferences file this card has always remembered its asking in: the one {@code
+     * Activity#getPreferences} gave {@link SettingsActivity}, named after that class. The card
+     * moved to {@link ProtectionActivity} (#959), but the key and the file are part of what
+     * existing installs have stored, so they stay (no copy needed, nothing lost).
+     */
+    static String locationAskedFile(Context context) {
+        // What Activity#getLocalClassName does: the class name relative to the package (the debug
+        // variant's package suffix keeps the full name).
+        String packageName = context.getPackageName();
+        String className = SettingsActivity.class.getName();
+        return className.startsWith(packageName + ".")
+                ? className.substring(packageName.length() + 1) : className;
+    }
 
     private final Activity activity;
     private final Runnable onChange;
+    /** #959: where the protection level is chosen; the page scrolls to it. */
+    private final Runnable chooseLevel;
 
-    private final TextView networkSubtitle;
     private final TextView networkStatusLabel;
     private final TextView networkConnectionLine;
     private final TextView networkStatusCause;
     private final Button networkStatusAction;
     private final TextView networkPrivacyHint;
-    private final TextView networkLevelLine;
-    private final Switch trustByNameToggle;
 
     private final Switch untrustedShutdownToggle;
     private final Switch securityCheckToggle;
-    private final TextView comfortNoEffect;
+    /** #959: one line each with "More"; the full texts are the unchanged long hints. */
+    private final KeepADBHelpHint untrustedShutdownHint;
+    private final KeepADBHelpHint securityCheckHint;
+    private final KeepADBHelpHint backgroundHint;
     private final TextView backgroundLocationStatus;
     private final TextView networkDetectionNow;
     private final Button backgroundLocationButton;
@@ -96,31 +115,36 @@ final class KeepADBNetworkCard {
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
 
-    /** #661: refreshes the visible Network card while a Wi-Fi network changes. */
+    /** #661: refreshes the visible Protection page while a Wi-Fi network changes. */
     private ConnectivityManager.NetworkCallback wifiStatusCallback;
 
     /**
-     * Binds the card's views and click handlers; call from {@code SettingsActivity#onCreate}.
+     * Binds the card's views and click handlers; call from {@code ProtectionActivity#onCreate}.
      *
      * @param onChange invoked after every action and every Wi-Fi change that used to end in the
      *         activity's own {@code refresh()}, so the whole screen is re-rendered exactly as before.
+     * @param chooseLevel what the background-location dialog's "Choose protection level" button
+     *         does: the level is chosen on this very page, so it brings the level section into view.
      */
-    KeepADBNetworkCard(Activity activity, Runnable onChange) {
+    KeepADBNetworkCard(Activity activity, Runnable onChange, Runnable chooseLevel) {
         this.activity = activity;
         this.onChange = onChange;
+        this.chooseLevel = chooseLevel;
 
-        networkSubtitle = activity.findViewById(R.id.settings_network_beta_subtitle);
         networkStatusLabel = activity.findViewById(R.id.network_status_label);
         networkConnectionLine = activity.findViewById(R.id.network_connection_line);
         networkStatusCause = activity.findViewById(R.id.network_status_cause);
         networkStatusAction = activity.findViewById(R.id.network_status_action);
         networkPrivacyHint = activity.findViewById(R.id.network_privacy_hint);
-        networkLevelLine = activity.findViewById(R.id.network_level_line);
-        trustByNameToggle = activity.findViewById(R.id.settings_trust_by_name_toggle);
         untrustedShutdownToggle = activity.findViewById(R.id.settings_untrusted_shutdown_toggle);
         securityCheckToggle = activity.findViewById(R.id.settings_security_check_toggle);
-        comfortNoEffect = activity.findViewById(R.id.network_comfort_no_effect);
+        untrustedShutdownHint = new KeepADBHelpHint(
+                activity.findViewById(R.id.protection_untrusted_shutdown_hint), null);
+        securityCheckHint = new KeepADBHelpHint(
+                activity.findViewById(R.id.settings_security_check_hint), null);
         backgroundLocationStatus = activity.findViewById(R.id.settings_background_location_status);
+        backgroundHint = new KeepADBHelpHint(backgroundLocationStatus,
+                this::syncDetectionVisibility);
         networkDetectionNow = activity.findViewById(R.id.network_detection_now);
         backgroundLocationButton = activity.findViewById(R.id.settings_background_location_button);
         networkNetworksCount = activity.findViewById(R.id.network_networks_count);
@@ -147,16 +171,6 @@ final class KeepADBNetworkCard {
         activity.findViewById(R.id.network_networks_row).setOnClickListener(v ->
                 activity.startActivity(
                         NetworkListActivity.intent(activity)));
-
-        // #769: the one comfort switch (#760). OnClick, not a checked-change listener: refresh()
-        // re-renders it from the stored value and must never write it.
-        trustByNameToggle.setOnClickListener(v -> {
-            boolean enabled = trustByNameToggle.isChecked();
-            KeepADBTrustedNetwork.setTrustByNameEnabled(activity, enabled);
-            KeepADBDiagnostics.event(activity, "user_action", "settings_network",
-                    enabled ? "enable" : "disable", "trust_by_name");
-            onChange.run();
-        });
 
         // #864: opt-in shutdown on an untrusted Wi-Fi. Applied at once, so switching it on while
         // already on an untrusted network does not wait for the next network callback.
@@ -293,8 +307,9 @@ final class KeepADBNetworkCard {
      * app's system permission page, which "Open settings" jumps to.
      *
      * <p>"Choose protection level" (#797, formerly "Trust all Wi-Fi networks instead") is only
-     * offered while allowlist mode is on; in all-Wi-Fi mode it would be a no-op. It opens the
-     * protection step of the setup assistant (#782) and changes nothing itself. "Later" keeps
+     * offered while allowlist mode is on; in all-Wi-Fi mode it would be a no-op. It scrolls to the
+     * level choice of this page (#959, before: the protection step of the setup assistant, #782)
+     * and changes nothing itself. "Later" keeps
      * whatever mode is set (allowlist then runs with foreground location only, and the status
      * line keeps showing the missing grant).
      */
@@ -309,11 +324,11 @@ final class KeepADBNetworkCard {
                         KeepADBBackgroundLocation.openSettings(activity))
                 .setNegativeButton(R.string.background_location_dialog_later, null);
         if (KeepADBTrustedNetwork.isAllowlistMode(activity)) {
-            // #782: the way to "all Wi-Fi networks" is the protection step of the assistant, where
-            // the user sees what the level means; the button no longer switches the mode itself.
-            builder.setNeutralButton(R.string.location_permission_panel_protection_button, (d, which) ->
-                    activity.startActivity(OnboardingActivity.stepIntent(activity,
-                            KeepADBOnboarding.Step.PROTECTION)));
+            // #782/#959: the way to "all Wi-Fi networks" is the level choice, where the user sees
+            // what each level means; the button no longer switches the mode itself. The choice is
+            // on this page, so the button brings it into view instead of opening the assistant.
+            builder.setNeutralButton(R.string.location_permission_panel_protection_button,
+                    (d, which) -> chooseLevel.run());
         }
         AlertDialog dialog = builder.create();
         activeBackgroundLocationDialog = dialog;
@@ -326,11 +341,11 @@ final class KeepADBNetworkCard {
     }
 
     /**
-     * #654/#655: renders the Network card from the persisted settings and the current connection,
-     * top to bottom in the order the user reads it. All facts come from {@link
-     * KeepADBNetworkCardState}; this method only shows them. It never writes a setting: opening or
-     * refreshing Settings can therefore never switch the mode or the Wi-Fi-name matching, whatever
-     * the connection looks like.
+     * #654/#655: renders the network part of the Protection page from the persisted settings and
+     * the current connection, top to bottom in the order the user reads it. All facts come from
+     * {@link KeepADBNetworkCardState}; this method only shows them. It never writes a setting:
+     * opening or refreshing the page can therefore never switch the mode or the Wi-Fi-name
+     * matching, whatever the connection looks like.
      */
     private void render(KeepADBNetworkIdentity identity) {
         boolean fineLocation = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -341,11 +356,7 @@ final class KeepADBNetworkCard {
                 KeepADBNetworkCardState.read(activity, identity, wifiConnected, fineLocation,
                         isLocationServiceOn(), KeepADBBackgroundLocation.isGranted(activity)));
 
-        // Head: the active mode, read back from the stored settings, visible while closed.
-        networkSubtitle.setText(activity.getString(R.string.network_head_mode,
-                activity.getString(KeepADBNetworkCardText.modeOption(state.mode))));
-
-        // Current connection: decision, cause and the fitting action come before the level and the switches.
+        // Current connection: decision, cause and the fitting action come before the level.
         networkStatusLabel.setText(KeepADBNetworkCardText.connectionLabel(state.connection));
         networkStatusLabel.setTextColor(activity.getColor(
                 KeepADBNetworkCardText.connectionColor(state.connection, state.mode)));
@@ -362,22 +373,24 @@ final class KeepADBNetworkCard {
         networkPrivacyHint.setVisibility(
                 KeepADBNetworkDisplay.hidden(activity) ? View.VISIBLE : View.GONE);
 
-        // Protection level (read-only here, changed in the assistant) and the comfort switch,
-        // both rendered from the stored policy.
-        networkLevelLine.setText(activity.getString(R.string.networks_level,
-                KeepADBForceNotice.levelLabel(activity)));
-        trustByNameToggle.setChecked(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        // The two automatic-behavior switches, rendered from the stored policy. The protection
+        // level is rendered by KeepADBProtectionLevelSection.
         untrustedShutdownToggle.setChecked(KeepADBPreferences.isUntrustedShutdownEnabled(activity));
         securityCheckToggle.setChecked(KeepADBTrustedNetwork.isSecurityCheckEnabled(activity));
-        comfortNoEffect.setVisibility(KeepADBTrustedNetwork.getProtectionLevel(activity)
-                == KeepADBTrustedNetwork.ProtectionLevel.LEGACY_ALL_WIFI
-                ? View.VISIBLE : View.GONE);
+        untrustedShutdownHint.set(activity.getString(R.string.untrusted_shutdown_hint_short),
+                activity.getString(R.string.untrusted_shutdown_hint));
+        securityCheckHint.set(activity.getString(R.string.security_check_hint_short),
+                activity.getString(R.string.security_check_hint));
 
-        // Background access (#616/#645) and the current reading are two separate facts.
-        backgroundLocationStatus.setText(KeepADBNetworkCardText.background(state.background));
+        // Background access (#616/#645) and the current reading are two separate facts; the
+        // full wording of both sits behind "More" (#959).
+        backgroundHint.set(activity.getString(KeepADBNetworkCardText.backgroundShort(
+                state.background)), activity.getString(
+                KeepADBNetworkCardText.background(state.background)));
         backgroundLocationStatus.setTextColor(
                 activity.getColor(KeepADBNetworkCardText.backgroundColor(state.background)));
         networkDetectionNow.setText(KeepADBNetworkCardText.detection(state.detection));
+        syncDetectionVisibility();
         backgroundLocationButton.setText(
                 state.background == KeepADBNetworkCardState.Background.RESTRICTED
                         ? R.string.network_background_setup_button
@@ -392,6 +405,11 @@ final class KeepADBNetworkCard {
             networkNetworksCount.setText(activity.getString(R.string.networks_count,
                     networks.trusted, networks.blocked));
         }
+    }
+
+    /** The "Right now" reading belongs to the full wording: it shows with it. */
+    private void syncDetectionVisibility() {
+        networkDetectionNow.setVisibility(backgroundHint.isExpanded() ? View.VISIBLE : View.GONE);
     }
 
     private void renderStatusAction(KeepADBNetworkCardState.Snapshot state,
@@ -460,8 +478,12 @@ final class KeepADBNetworkCard {
         return manager == null || manager.isLocationEnabled();
     }
 
+    private android.content.SharedPreferences askedPrefs() {
+        return activity.getSharedPreferences(locationAskedFile(activity), Context.MODE_PRIVATE);
+    }
+
     private boolean isLocationPermissionPermanentlyDenied() {
-        boolean previouslyRequested = activity.getPreferences(Context.MODE_PRIVATE)
+        boolean previouslyRequested = askedPrefs()
                 .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
         // #797: an asking from the assistant or the networks list counts as well.
         return OnboardingPermissions.locationAction(activity, previouslyRequested)
@@ -473,8 +495,7 @@ final class KeepADBNetworkCard {
             openAppSettings();
             return;
         }
-        activity.getPreferences(Context.MODE_PRIVATE).edit()
-                .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
+        askedPrefs().edit().putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
         OnboardingPermissions.markLocationAsked(activity);
         activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},

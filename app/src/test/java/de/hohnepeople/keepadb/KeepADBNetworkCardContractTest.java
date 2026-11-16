@@ -24,7 +24,8 @@ import org.junit.Test;
 public class KeepADBNetworkCardContractTest {
 
     /**
-     * The activity keeps the screen composition and the Android lifecycle; everything the card
+     * The activity keeps the screen composition and the Android lifecycle (the Protection page
+     * since #959, before: Settings); everything the card
      * owns -- rendered action snapshot, Wi-Fi callback, its dialogs, its request code and
      * the preference flag of the grant request -- lives in the card only. (The trust confirmation
      * dialog moved out to {@link NetworkDecisionActivity} in #766, see {@link NetworkDecisionContractTest}.) A second owner would
@@ -32,7 +33,8 @@ public class KeepADBNetworkCardContractTest {
      */
     @Test
     public void theNetworkCardIsTheOnlyOwnerOfItsStateDialogsAndRequestCodes() throws IOException {
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/ProtectionActivity.java");
+        String settings = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
         String card = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNetworkCard.java");
 
         String[] ownedByTheCard = {
@@ -42,9 +44,13 @@ public class KeepADBNetworkCardContractTest {
                 "WIFI_APS_LOCATION_PERMISSION_REQUEST", "LOCATION_PERMISSION_REQUESTED",
                 "requestPermissions(", "KeepADBNetworkActions.allowAccessPoint"};
         for (String name : ownedByTheCard) {
-            assertFalse("SettingsActivity must not own '" + name + "' any more (#697)",
+            assertFalse("ProtectionActivity must not own '" + name + "' (#697)",
                     activity.contains(name));
+            assertFalse("SettingsActivity must not own '" + name + "' any more (#697, #959)",
+                    settings.contains(name));
         }
+        assertFalse("Settings holds no network card any more (#959)",
+                settings.contains("new KeepADBNetworkCard(") || settings.contains("networkCard"));
         for (String name : new String[] {"wifiStatusCallback", "networkStatusActionKind",
                 "networkActionBssid", "activeBackgroundLocationDialog",
                 "requestPermissions("}) {
@@ -52,11 +58,11 @@ public class KeepADBNetworkCardContractTest {
         }
 
         // The activity reaches the card only through its explicit lifecycle hooks.
-        for (String hook : new String[] {"new KeepADBNetworkCard(this, this::refresh)",
+        for (String hook : new String[] {"new KeepADBNetworkCard(this, this::refresh, this::focusLevel)",
                 "networkCard.restore(", "networkCard.start()", "networkCard.refresh()",
                 "networkCard.stop()", "networkCard.saveState(", "networkCard.destroy()",
                 "networkCard.onRequestPermissionsResult(requestCode)"}) {
-            assertEquals("SettingsActivity must call '" + hook + "' exactly once", 1,
+            assertEquals("ProtectionActivity must call '" + hook + "' exactly once", 1,
                     count(activity, hook));
         }
     }

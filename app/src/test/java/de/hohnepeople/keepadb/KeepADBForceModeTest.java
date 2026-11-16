@@ -1111,8 +1111,8 @@ public class KeepADBForceModeTest {
                 .contains("Protection level back to: Maximum security."));
         assertTrue("A tap leads to the force row", shadowOf(notice.contentIntent).isActivityIntent());
         Intent tap = shadowOf(notice.contentIntent).getSavedIntent();
-        assertEquals(SettingsActivity.class.getName(), tap.getComponent().getClassName());
-        assertTrue(tap.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_FORCE, false));
+        assertEquals(ProtectionActivity.class.getName(), tap.getComponent().getClassName());
+        assertTrue(tap.getBooleanExtra(ProtectionActivity.EXTRA_FOCUS_FORCE, false));
         assertTrue("An action that would start the mode again must not exist, no action at all here",
                 notice.actions == null || notice.actions.length == 0);
         assertTrue("The notice goes away with a tap", (notice.flags & Notification.FLAG_AUTO_CANCEL) != 0);

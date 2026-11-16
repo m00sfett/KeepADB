@@ -290,10 +290,8 @@ public class OnboardingWebhookForceTest {
         assertEquals("Maximum convenience (force)", checkedTitle(assistant));
         assertEquals("Less secure", cardBadge(assistant, 2));
         assertTrue(cardBody(assistant, 2), cardBody(assistant, 2).startsWith("Active until"));
-        assertFalse("the comfort switch has no effect during the mode",
-                assistant.findViewById(R.id.onboarding_comfort_switch).isEnabled());
-        assertEquals(View.VISIBLE,
-                assistant.findViewById(R.id.onboarding_force_comfort_note).getVisibility());
+        assertEquals("#959: no comfort switch beside the cards", 0,
+                switchesIn(assistant.getWindow().getDecorView()));
     }
 
     @Test
@@ -364,7 +362,6 @@ public class OnboardingWebhookForceTest {
         assertFalse(KeepADBForceMode.isActive(context));
         assertEquals("Maximum security", checkedTitle(assistant));
         assertEquals("Not recommended", cardBadge(assistant, 2));
-        assertTrue(assistant.findViewById(R.id.onboarding_comfort_switch).isEnabled());
     }
 
     @Test
@@ -493,5 +490,14 @@ public class OnboardingWebhookForceTest {
                     ? new TreeSet<>((Set<?>) value).toString() : String.valueOf(value));
         }
         return result;
+    }
+
+    private static int switchesIn(View view) {
+        int count = view instanceof android.widget.Switch ? 1 : 0;
+        if (view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup group = (android.view.ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) count += switchesIn(group.getChildAt(i));
+        }
+        return count;
     }
 }

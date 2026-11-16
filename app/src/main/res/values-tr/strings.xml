@@ -274,8 +274,15 @@
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
-    <string name="settings_section_network">Ağ</string>
-    <string name="network_head_mode">Otomatik yeniden etkinleştirme: %1$s</string>
+    <string name="protection_title">Koruma</string>
+    <string name="protection_automatic_title">Otomatik davranış</string>
+    <string name="untrusted_shutdown_hint_short">Güvenilmeyen bir Wi-Fi\'de Kablosuz Hata Ayıklama\'yı kapatır.</string>
+    <string name="security_check_hint_short">Güvenilen bir Wi-Fi noktasının güvenliği zayıflarsa otomatik açmayı duraklatır.</string>
+    <string name="hint_more">Daha fazla ▾</string>
+    <string name="hint_less">Daha az ▴</string>
+    <string name="protection_background_short_granted">İzin verildi</string>
+    <string name="protection_background_short_missing">Kısıtlı</string>
+    <string name="protection_background_short_inactive">Bu ayarda gerekli değil</string>
     <string name="network_mode_option_all_wifi">Tüm Wi-Fi ağlarında</string>
     <string name="network_mode_option_aps">Yalnızca güvenilir erişim noktaları</string>
     <string name="network_mode_option_aps_names">Güvenilir erişim noktaları ve Wi-Fi adları</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Terimler açıklandı</string>
     <string name="networks_glossary_ssid">Wi-Fi adı (SSID): bir Wi-Fi ağının yayınladığı ad. Herkes aynı adla bir ağ kurabilir.</string>
     <string name="networks_glossary_bssid">Erişim noktası (BSSID): bir yönlendirici, tekrarlayıcı veya mesh düğümü gibi tek bir verici. Donanım adresi, örneğin AA:BB:CC:11:22:33, addan daha belirleyicidir ama o da bir kanıt değildir.</string>
-    <string name="networks_comfort_title">Wi-Fi adına göre de güven</string>
-    <string name="networks_comfort_hint">Mesh ve tekrarlayıcılarda daha rahat. Bir ad kolayca taklit edilebilir.</string>
-    <string name="networks_comfort_no_effect">Önceki “Tüm Wi-Fi ağlarında” ayarı geçerli olduğu sürece etkisi yoktur.</string>
     <string name="untrusted_shutdown_title">Güvenilmeyen Wi-Fi\'de kapat</string>
     <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Kablosuz Hata Ayıklama\'yı kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
     <string name="untrusted_shutdown_channel_name">Güvenilmeyen Wi-Fi\'de kapatma</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">Şu anda: ağ okunabiliyor. Bu, Keep-Alive’ın arka planda başlamasının da onu okuyabileceğini kanıtlamaz.</string>
     <string name="network_detection_unreadable">Şu anda: ağ okunamıyor.</string>
     <string name="network_detection_no_wifi">Şu anda: Wi-Fi bağlı değil, okunacak bir şey yok.</string>
-    <string name="network_manage_title">Erişim noktaları</string>
     <string name="card_state_expanded">Genişletildi</string>
     <string name="card_state_collapsed">Daraltıldı</string>
     <string name="network_ap_allowed_toast">“%1$s” erişim noktası artık güvenilir</string>
@@ -645,7 +648,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="overview_last_delivery_short_none">Henüz yok</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Son sorulanlar</string>
-    <string name="networks_section_settings">Ayarlar</string>
     <string name="networks_recent_hint">KeepADB bu Wi-Fi ağlarını sordu ve yanıt alamadı; örneğin bildirim kaydırılarak kapatıldığı için.</string>
     <string name="networks_recent_asked">Son görülme: %1$s</string>
     <string name="networks_recent_decide">Karar ver…</string>

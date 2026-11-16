@@ -274,8 +274,15 @@
     <string name="state_pending">正在切換…</string>
     <string name="tile_state_keep_alive_waiting">關閉 – Keep-Alive 等待中</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
-    <string name="settings_section_network">網路</string>
-    <string name="network_head_mode">自動重新啟用：%1$s</string>
+    <string name="protection_title">保護</string>
+    <string name="protection_automatic_title">自動行為</string>
+    <string name="untrusted_shutdown_hint_short">在未信任的 Wi-Fi 上關閉無線偵錯。</string>
+    <string name="security_check_hint_short">如果已信任的 Wi-Fi 基地台安全性變弱，則暫停自動開啟。</string>
+    <string name="hint_more">更多 ▾</string>
+    <string name="hint_less">收起 ▴</string>
+    <string name="protection_background_short_granted">已允許</string>
+    <string name="protection_background_short_missing">受限</string>
+    <string name="protection_background_short_inactive">目前設定不需要</string>
     <string name="network_mode_option_all_wifi">在所有 Wi-Fi 網路中</string>
     <string name="network_mode_option_aps">僅限已信任的存取點</string>
     <string name="network_mode_option_aps_names">已信任的存取點與 Wi-Fi 名稱</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">用語說明</string>
     <string name="networks_glossary_ssid">Wi-Fi 名稱（SSID）：Wi-Fi 網路廣播的名稱。任何人都可以建立同名網路。</string>
     <string name="networks_glossary_bssid">存取點（BSSID）：單一發射裝置，例如路由器、中繼器或 Mesh 節點。它的硬體位址（例如 AA:BB:CC:11:22:33）比名稱更精確，但同樣不能作為證明。</string>
-    <string name="networks_comfort_title">同時依 Wi-Fi 名稱信任</string>
-    <string name="networks_comfort_hint">對 Mesh 和中繼器更方便。名稱很容易被冒用。</string>
-    <string name="networks_comfort_no_effect">在沿用舊設定「在所有 Wi-Fi 網路中」期間不生效。</string>
     <string name="untrusted_shutdown_title">在未信任的 Wi-Fi 上關閉</string>
     <string name="untrusted_shutdown_hint">Keep-Alive 開啟時，如果 Wi-Fi 未信任、已封鎖或無法識別，KeepADB 會關閉無線偵錯，而不只是通知你。你在 KeepADB 中自己開啟的工作階段在該 Wi-Fi 基地台上保持開啟。強制模式下暫停此功能。</string>
     <string name="untrusted_shutdown_channel_name">在未信任的 Wi-Fi 上關閉</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">此刻：可以讀取該網路。這並不能證明在背景啟動的 Keep-Alive 也能讀取。</string>
     <string name="network_detection_unreadable">此刻：無法讀取該網路。</string>
     <string name="network_detection_no_wifi">此刻：未連接 Wi-Fi，沒有可讀取的內容。</string>
-    <string name="network_manage_title">存取點</string>
     <string name="card_state_expanded">已展開</string>
     <string name="card_state_collapsed">已收合</string>
     <string name="network_ap_allowed_toast">已信任存取點「%1$s」</string>
@@ -644,7 +647,6 @@
     <string name="overview_last_delivery_short_none">尚無</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">最近詢問</string>
-    <string name="networks_section_settings">設定</string>
     <string name="networks_recent_hint">KeepADB 詢問過這些 Wi-Fi 網路，但沒有得到回覆，例如因為通知被滑掉了。</string>
     <string name="networks_recent_asked">上次偵測到：%1$s</string>
     <string name="networks_recent_decide">做出決定…</string>

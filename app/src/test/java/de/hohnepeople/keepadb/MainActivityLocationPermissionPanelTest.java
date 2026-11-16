@@ -32,7 +32,7 @@ import org.robolectric.shadows.ShadowLooper;
 /**
  * Onboarding coverage for issue #459, #504, #507 and #654:
  * Following #507, {@code MainActivity} no longer surfaces any location permission panel or
- * in-context prompt -- the location permission flow lives in {@link SettingsActivity}'s Network
+ * in-context prompt -- the location permission flow lives in {@link ProtectionActivity}'s Network
  * card. Since #654 the grant button belongs to the current-connection status there and does not
  * depend on the observation option.
  */
@@ -83,10 +83,9 @@ public class MainActivityLocationPermissionPanelTest {
     @Test
     public void settingsNetworkCardShowsLocationGrantButtonWhenPermissionIsMissing() {
 
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         ShadowLooper.idleMainLooper();
 
         Button inContextButton = activity.findViewById(R.id.network_status_action);
@@ -124,10 +123,9 @@ public class MainActivityLocationPermissionPanelTest {
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         ShadowLooper.idleMainLooper();
 
         Button action = activity.findViewById(R.id.network_status_action);
@@ -144,10 +142,9 @@ public class MainActivityLocationPermissionPanelTest {
      */
     @Test
     public void locationGrantButtonDoesNotDependOnTheObservationOption() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ActivityController<ProtectionActivity> controller =
+                Robolectric.buildActivity(ProtectionActivity.class).setup();
+        ProtectionActivity activity = controller.get();
         ShadowLooper.idleMainLooper();
 
         Button action = activity.findViewById(R.id.network_status_action);

@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 /**
- * #762: the entry of the Network card in the Settings that opens the single "Networks" list and
+ * #762/#959: the entry of the Protection page (the former Network card of Settings) that opens the single "Wi-Fi networks" list and
  * shows how many networks are trusted and blocked there (nothing of it in the privacy mode).
  */
 @RunWith(RobolectricTestRunner.class)
@@ -52,7 +52,7 @@ public class NetworkListSettingsEntryTest {
         KeepADBTrustedNetwork.addBssid(context, KITCHEN, "Heimnetz");
         KeepADBTrustedNetwork.addBssid(context, HALL, "Heimnetz");
         KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP);
-        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ProtectionActivity settings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
 
         TextView count = settings.findViewById(R.id.network_networks_count);
@@ -64,7 +64,7 @@ public class NetworkListSettingsEntryTest {
         assertNull("There is one list, so no view is named", started.getExtras());
 
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        SettingsActivity hiddenSettings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ProtectionActivity hiddenSettings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         ShadowLooper.idleMainLooper();
         assertEquals(context.getString(R.string.networks_count_hidden),
                 ((TextView) hiddenSettings.findViewById(R.id.network_networks_count)).getText().toString());

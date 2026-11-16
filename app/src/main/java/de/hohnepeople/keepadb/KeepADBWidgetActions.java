@@ -80,11 +80,10 @@ final class KeepADBWidgetActions {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    /** The settings at the network card: where a Wi-Fi network is trusted or blocked. */
+    /** The Protection page at the protection level (#959, before: the Network card of Settings). */
     static PendingIntent openNetwork(Context context) {
         Context app = context.getApplicationContext();
-        Intent intent = new Intent(app, SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)
+        Intent intent = ProtectionActivity.levelIntent(app)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivity(app, REQUEST_CODE_OPEN_NETWORK, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

@@ -113,7 +113,7 @@ ALLOWLIST = {
     "settings_section_general": {"es"},         # "General" is the correct Spanish word
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "privacy_switches_title": {"it", "nl"},     # "Privacy" is the established Italian and Dutch word (#904)
-    "network_manage_title": {"nl"},             # "Access points" is the Dutch loanword used throughout the nl strings (#654)
+    "protection_title": {"fr"},                 # "Protection" is the correct French word (#959)
     "network_decision_ap_label": {"nl"},        # "Access point (BSSID)": same loanword in nl (#766)
 
     # -- Band labels (#714): the unit "GHz" and the digits are written the same way in most --

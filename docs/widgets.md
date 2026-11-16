@@ -141,8 +141,8 @@ the width (`KeepADBOverviewViews`, wide from 250 x font scale dp):
 | Compact | One card with four rows (symbol and value): Wireless Debugging with the verified `host:port`, the Wi-Fi name, Keep-Alive with its reason, the webhook delivery; under the delivery a quieter line with the last delivery. Under the card the auto-sync pill. |
 | Wide | The card with labelled rows (Debugging, Wi-Fi, Keep-Alive); beside it the webhook block (delivery state, last delivery) and the auto-sync pill. |
 
-**Informational rows.** The card is one tap target. It opens the app, or the network card of the
-settings when Keep-Alive is paused on an untrusted network. It never toggles Wireless Debugging or
+**Informational rows.** The card is one tap target. It opens the app, or the Protection page
+when Keep-Alive is paused on an untrusted network. It never toggles Wireless Debugging or
 Keep-Alive (`KeepADBOverviewWidgetTest`). TalkBack reads every row from the card's description.
 
 **The one control** is the automatic webhook synchronization: the same tile, words and action path

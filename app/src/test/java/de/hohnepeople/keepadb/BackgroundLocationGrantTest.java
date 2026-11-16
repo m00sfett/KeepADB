@@ -67,9 +67,14 @@ public class BackgroundLocationGrantTest {
     public void settingsShowStatusAndSetupEntry() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
 
-        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ProtectionActivity settings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         TextView status = settings.findViewById(R.id.settings_background_location_status);
-        assertEquals(context.getString(R.string.background_location_status_missing), status.getText().toString());
+        // #959: one line with "More" first, the full status behind it.
+        assertEquals(context.getString(R.string.protection_background_short_missing) + "  "
+                + context.getString(R.string.hint_more), status.getText().toString());
+        status.performClick();
+        assertEquals(context.getString(R.string.background_location_status_missing) + "  "
+                + context.getString(R.string.hint_less), status.getText().toString());
         settings.findViewById(R.id.settings_background_location_button).performClick();
         // #644: the rationale dialog comes first; the jump is its "Open settings" action.
         org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog()
@@ -79,17 +84,20 @@ public class BackgroundLocationGrantTest {
         assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, intent.getAction());
 
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-        settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        settings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         status = settings.findViewById(R.id.settings_background_location_status);
-        assertEquals(context.getString(R.string.background_location_status_granted), status.getText().toString());
+        status.performClick();
+        assertEquals(context.getString(R.string.background_location_status_granted) + "  "
+                + context.getString(R.string.hint_less), status.getText().toString());
     }
 
     @Test
     public void settingsExplainGrantIsOnlyNeededInTrustedNetworkMode() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity settings = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        ProtectionActivity settings = Robolectric.buildActivity(ProtectionActivity.class).setup().get();
         TextView status = settings.findViewById(R.id.settings_background_location_status);
-        assertEquals(context.getString(R.string.background_location_status_missing_inactive),
-                status.getText().toString());
+        status.performClick();
+        assertEquals(context.getString(R.string.background_location_status_missing_inactive) + "  "
+                + context.getString(R.string.hint_less), status.getText().toString());
     }
 }

@@ -136,9 +136,8 @@ public class MainActivity extends Activity {
             refresh();
         });
         findViewById(R.id.btn_force_settings).setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
-            startActivity(intent);
+            // #959: the force row is on the Protection page.
+            startActivity(ProtectionActivity.forceIntent(this));
         });
         settingsMenu = KeepADBSettingsMenu.forHome(this, findViewById(R.id.btn_open_settings));
         // #941: tap masks or shows this screen, long press opens the privacy switches.
@@ -479,9 +478,9 @@ public class MainActivity extends Activity {
                     info.setClassName(android.widget.Button.class.getName());
                 }
             });
+            // #959: the line leads to the protection level, now chosen on the Protection page.
             keepAliveSubtext.setOnClickListener(v -> startActivity(
-                    new Intent(this, SettingsActivity.class)
-                            .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)));
+                    ProtectionActivity.levelIntent(this)));
         }
     }
 

@@ -274,8 +274,15 @@
     <string name="state_pending">Cambio in corso…</string>
     <string name="tile_state_keep_alive_waiting">Disattivato – Keep-Alive in attesa</string>
     <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
-    <string name="settings_section_network">Rete</string>
-    <string name="network_head_mode">Riattivazione automatica: %1$s</string>
+    <string name="protection_title">Protezione</string>
+    <string name="protection_automatic_title">Comportamento automatico</string>
+    <string name="untrusted_shutdown_hint_short">Disattiva il debug wireless su un Wi-Fi non affidabile.</string>
+    <string name="security_check_hint_short">Sospende l’attivazione automatica se un punto Wi-Fi affidabile mostra una sicurezza più debole.</string>
+    <string name="hint_more">Altro ▾</string>
+    <string name="hint_less">Meno ▴</string>
+    <string name="protection_background_short_granted">Consentito</string>
+    <string name="protection_background_short_missing">Limitato</string>
+    <string name="protection_background_short_inactive">Non necessario in questa configurazione</string>
     <string name="network_mode_option_all_wifi">In tutte le reti Wi-Fi</string>
     <string name="network_mode_option_aps">Solo punti di accesso affidabili</string>
     <string name="network_mode_option_aps_names">Punti di accesso e nomi Wi-Fi affidabili</string>
@@ -291,9 +298,6 @@
     <string name="networks_glossary_toggle">Termini spiegati</string>
     <string name="networks_glossary_ssid">Nome Wi-Fi (SSID): il nome che una rete Wi-Fi trasmette. Chiunque può creare una rete con lo stesso nome.</string>
     <string name="networks_glossary_bssid">Punto di accesso (BSSID): un singolo trasmettitore, ad esempio router, ripetitore o nodo mesh. Il suo indirizzo hardware, per esempio AA:BB:CC:11:22:33, è più preciso del nome, ma non è una prova.</string>
-    <string name="networks_comfort_title">Considera affidabile anche in base al nome Wi-Fi</string>
-    <string name="networks_comfort_hint">Più comodo con mesh e ripetitori. Un nome è facile da imitare.</string>
-    <string name="networks_comfort_no_effect">Nessun effetto finché vale l’impostazione precedente «In tutte le reti Wi-Fi».</string>
     <string name="untrusted_shutdown_title">Disattiva su Wi-Fi non affidabili</string>
     <string name="untrusted_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva il debug wireless su una rete Wi-Fi non affidabile, bloccata o non identificabile, invece di limitarsi ad avvisarti. Una sessione che hai attivato tu in KeepADB resta attiva su quel punto Wi-Fi. La modalità forzata sospende questo comportamento.</string>
     <string name="untrusted_shutdown_channel_name">Disattivazione su Wi-Fi non affidabili</string>
@@ -369,7 +373,6 @@
     <string name="network_detection_readable">In questo momento: la rete è leggibile. Questo non dimostra che anche un avvio di Keep-Alive in background possa leggerla.</string>
     <string name="network_detection_unreadable">In questo momento: la rete non è leggibile.</string>
     <string name="network_detection_no_wifi">In questo momento: nessuna rete Wi-Fi connessa, quindi non c’è nulla da leggere.</string>
-    <string name="network_manage_title">Punti di accesso</string>
     <string name="card_state_expanded">Espanso</string>
     <string name="card_state_collapsed">Compresso</string>
     <string name="network_ap_allowed_toast">Punto di accesso «%1$s» ora affidabile</string>
@@ -646,7 +649,6 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="overview_last_delivery_short_none">Nessuna</string>
     <!-- #949: recently asked networks and the ways to block or decide -->
     <string name="networks_section_recent">Chiesti di recente</string>
-    <string name="networks_section_settings">Impostazioni</string>
     <string name="networks_recent_hint">KeepADB ha chiesto di queste reti Wi-Fi senza ricevere risposta, ad esempio perché la notifica è stata scartata.</string>
     <string name="networks_recent_asked">Visto l\'ultima volta %1$s</string>
     <string name="networks_recent_decide">Decidi…</string>

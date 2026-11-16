@@ -15,17 +15,17 @@ unexpected pairing prompt, or an attacker on a Wi-Fi network explicitly trusted 
 A new installation starts in allowlist mode: automatic re-enabling occurs only when KeepADB can
 read the current Wi-Fi identity and match it to an allowed BSSID. An unknown or system-masked
 identity remains blocked. Existing installations retain their previous setting unchanged,
-including “In all Wi-Fi networks”; **Settings → Network** still lets users choose between all Wi-Fi
-networks and the allowlist.
+including “In all Wi-Fi networks”; **Settings → Protection** still shows that setting until the user chooses one of the two
+protection levels (“Maximum security” or “Balanced”).
 
 The data model also supports blocks for individual BSSIDs and Wi-Fi names. In every mode, a block
 takes precedence over trust, does not prompt the user, and never enables Wireless debugging
 automatically. Only an explicit unblock action removes it; adding trust does not. Blocking occurs
-through the unknown-network notice and the “Trust this network?” dialog; the Networks list provides
+through the unknown-network notice and the “Trust this network?” dialog; the Wi-Fi networks list provides
 the interface for unblocking. Precedence, migration, and recovery behavior are documented in the
 [trusted-networks guide](docs/trusted-networks.md).
 
-Optional **Force mode** (Settings → Network) deliberately overrides this protection. For a chosen
+Optional **Force mode** (Settings → Protection) deliberately overrides this protection. For a chosen
 duration (1 hour, 24 hours, 7 days, 30 days, or indefinitely), Keep-Alive re-enables Wireless
 debugging on every Wi-Fi network and overrides blocks and trust rules. It requires confirmation
 with staged warnings, remains visible on the home screen and in the notification, and can be ended
@@ -43,9 +43,10 @@ their remaining limits are documented in the
 [trusted-networks guide](docs/trusted-networks.md) and
 [measurement summary](docs/trusted-networks-measurement.md).
 
-The **Also trust by Wi-Fi name** switch (SSID matching) is a separate, disabled-by-default extension.
-Because unrelated access points can advertise the same user-chosen name, this rule is weaker than
-trusting an individual BSSID. KeepADB shows this warning next to the option.
+The protection level **Balanced** (trust by Wi-Fi name; there is no separate switch since 1.13.0) is a
+disabled-by-default extension of the default level “Maximum security”. Because unrelated access
+points can advertise the same user-chosen name, this rule is weaker than trusting an individual
+BSSID. KeepADB shows this warning next to the level.
 
 ### What a network identity can and cannot prove
 
@@ -106,7 +107,7 @@ masks names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names a
 `***`, in endpoint rows, report history and the webhook address); **by decision,
 inside the app an IPv4 address keeps its first number and the port stays visible**
 (`192.*.*.*:41234`), so that “did it report to this port?” stays answerable. Only the app switch
-has a “Show”. It lifts the mask for one part of one screen (the Networks list, the assistant's
+has a “Show”. It lifts the mask for one part of one screen (the Wi-Fi networks list, the assistant's
 network page, the trust dialog, the webhook field) until that part is
 left, the screen stops or the switch is turned on again. A tap on the eye in the title bars (home
 screen included, #941) toggles “Show on this screen” / “Hide on this screen”, which applies to
@@ -114,7 +115,7 @@ every part of that screen until it is left and never changes a stored switch; a 
 menu with the three stored switches and the lock-screen option and a link to Settings → Privacy. Shared
 diagnostics and toasts that name a network stay masked under any
 “Show”, because they can outlive the screen; they are masked whenever the app switch is on or the
-screen is hidden. In the trust dialog and on the Settings network card, trusting needs a “Show”
+screen is hidden. In the trust dialog and on the Protection page, trusting needs a “Show”
 while the network is masked; blocking does not.
 
 **Change in #904 (deliberate):** earlier versions hid connection details in notifications by

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * #654/#655: how the Network card and its list views show network names and addresses. One place
+ * #654/#655: how the Protection page and its list views show network names and addresses. One place
  * applies the privacy mode (#482), so the card head, the status, every list and the toasts hide
  * the same things and a hidden name can never re-appear on a surface that forgot to ask.
  *
