@@ -59,7 +59,6 @@ final class OnboardingActionSteps {
         private boolean selfPairPending;
         private boolean selfPairNeedsNotifications;
         private boolean selfPairNeedsWifi;
-        private boolean selfPairResultShown;
         private final Runnable selfPairObserver = () -> {
             if (built) render();
         };
@@ -92,8 +91,6 @@ final class OnboardingActionSteps {
         @Override
         void onDestroy() {
             KeepADBSelfPairService.stopObserving(selfPairObserver);
-            // Said once: only an instance that actually showed the closing note retires it.
-            if (selfPairResultShown) KeepADBSelfPairService.acknowledgeDone();
         }
 
         @Override
@@ -275,11 +272,13 @@ final class OnboardingActionSteps {
                     v -> KeepADBSelfPairService.cancel(host)));
         }
 
-        /** After a grant on the phone: what is left behind, said once. */
+        /**
+         * After a grant on the phone: what is left behind. Shown for as long as this process
+         * remembers the run; the closing notification says the same and stays in the shade.
+         */
         private void addSelfPairResult(LinearLayout row) {
             KeepADBSelfPairService.Status status = KeepADBSelfPairService.status();
             if (status.phase != KeepADBSelfPairService.Phase.DONE) return;
-            selfPairResultShown = true;
             if (status.switchedOff) {
                 row.addView(muted(host.getString(R.string.selfpair_done_off)));
             }

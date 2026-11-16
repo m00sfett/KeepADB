@@ -104,13 +104,6 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
-    /** The user has seen the closing note; the next visit starts fresh. */
-    static void acknowledgeDone() {
-        if (status.phase == Phase.DONE) {
-            publish(new Status(Phase.IDLE, null, false));
-        }
-    }
-
     private static void publish(Status next) {
         status = next;
         for (Runnable observer : OBSERVERS) {
