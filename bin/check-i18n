@@ -32,7 +32,7 @@ zh-rCN, zh-rTW). A prototype run against the current content produced 215
 findings across 8 locales and 158 reference keys, almost entirely noise from
 shell commands, permission constants (WRITE_SECURE_SETTINGS), format
 placeholders (host:port, IP addresses, HTTP methods), and product/protocol
-terms (USB-ADB, Wi-Fi ADB, Tailnet). An allowlist large enough to provide a
+terms (USB-ADB, Wifi-ADB, Tailnet). An allowlist large enough to provide a
 useful signal-to-noise ratio would need an exception for nearly every
 technical string, making it more costly than the benefit. Decision: not
 implemented; see AGENTS.md.
@@ -64,7 +64,7 @@ ALLOWLIST = {
     # -- No natural language in the value at all --
     "setup_command": ALL_LANGUAGES,              # literal shell command (adb shell pm grant ...)
     "setup_command_multi": ALL_LANGUAGES,        # literal shell command (adb -s <serial> shell pm grant ...)
-    "tile_state_connected_format": ALL_LANGUAGES,  # pure format string "%1$s:%2$d"
+    "endpoint_port_only": ALL_LANGUAGES,         # pure format string "Port %1$d" (tile, small widget; kept in several languages)
     "widget_description_format": ALL_LANGUAGES,  # pure format string "%1$s: %2$s" (#912)
     "endpoint_port_at_ip": ALL_LANGUAGES,        # pure format string "Port %1$d @ %2$s" (kept in several languages)
     "settings_webhook_url_hint": ALL_LANGUAGES,  # technical URL example, not prose
@@ -80,19 +80,15 @@ ALLOWLIST = {
         "ar", "de", "es", "fr", "in", "it", "ja", "nl",
         "pl", "pt", "ru", "tr", "uk", "vi", "zh-rCN", "zh-rTW",
     },
-    # "Keep-Alive": TCP/HTTP term used verbatim. Chinese glosses it as
-    # "保持常驻 (Keep-Alive)" and is therefore not listed.
-    "settings_section_keep_alive": {
-        "ar", "fr", "hi", "in", "it", "ja", "ko",
-        "nl", "pl", "pt", "ru", "tr", "uk", "vi",
-    },
-    # Widget tile labels (#912): the same Keep-Alive term as the settings section above, and the
-    # German loanword that already names the feature ("Drahtloses Debugging").
-    "widget_action_keep_alive": {
-        "ar", "fr", "hi", "in", "it", "ja", "ko",
-        "nl", "pl", "pt", "ru", "tr", "uk", "vi",
-    },
-    "widget_action_adb": {"de"},
+    # Product terms (#965): "Wifi-ADB" names KeepADB's own switch and "Keep-Alive" the automatic
+    # re-enabling, spelled exactly the same in every language (maintainer decision 2026-11-15).
+    # Android's own "Wireless debugging" setting keeps its localized Android name and is not one
+    # of these labels.
+    "toggle_label": ALL_LANGUAGES,               # "Wifi-ADB" (home switch)
+    "widget_action_adb": ALL_LANGUAGES,          # "Wifi-ADB" (widget label)
+    "keep_alive_toggle": ALL_LANGUAGES,          # "Keep-Alive" (home switch)
+    "settings_section_keep_alive": ALL_LANGUAGES,  # "Keep-Alive" (settings section)
+    "widget_action_keep_alive": ALL_LANGUAGES,   # "Keep-Alive" (widget label)
     # Overview widget (#913): "Wi-Fi" is the system's own term in most languages (German and
     # Simplified Chinese say "WLAN", Dutch "Wifi", Hindi transliterates); "Webhook" as above.
     "overview_label_wifi": {

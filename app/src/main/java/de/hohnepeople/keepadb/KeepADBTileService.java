@@ -171,12 +171,9 @@ public class KeepADBTileService extends TileService {
                 // port and the tile shows the state only. The switch covers widgets and the tile;
                 // the app switch does not apply here.
                 if (host != null && port > 0) {
-                    String displayHost = host;
-                    if (displayHost.contains(":") && !displayHost.startsWith("[")) {
-                        displayHost = "[" + displayHost + "]";
-                    }
-                    tile.setSubtitle(getString(R.string.tile_state_connected_format,
-                            displayHost, port));
+                    // #965: the narrow subtitle names the port only ("Port 34697"); the address
+                    // is the part that does not change and does not fit.
+                    tile.setSubtitle(getString(R.string.endpoint_port_only, port));
                 } else {
                     tile.setSubtitle(getString(R.string.tile_state_connected));
                 }

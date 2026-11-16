@@ -1,1 +1,1 @@
-Keep Wireless Debugging active and toggle it from a tile or widget
+Keep Wifi-ADB active and toggle it from a tile or widget

@@ -15,7 +15,7 @@ KeepADB sends only to the URL saved by the user.
 
 ## Current sender path
 
-After successfully verifying a Wi-Fi ADB endpoint, the app code creates a JSON POST with the
+After successfully verifying a Wifi-ADB endpoint, the app code creates a JSON POST with the
 header **Content-Type: application/json; charset=utf-8**. Currently, only the **wlan-adb** method
 is allowed to be transmitted. The code also creates drafts for VPN (`vpn-adb`, any VPN product;
 named `tailscale-adb` before #877) events but blocks them before the HTTP call. This local allowlist documents the sender's behavior; it does not say
@@ -27,7 +27,7 @@ The Wi-Fi event contains:
 - **contract_version**: numeric value 2
 - **method**: wlan-adb
 - **active**: true
-- **endpoint**: verified Wi-Fi ADB host and port
+- **endpoint**: verified Wifi-ADB host and port
 - **source**: keepadb-app
 - **observed_at**: ISO-8601 UTC timestamp added by the Wi-Fi sender when sending
 - **event_id**: deterministic, truncated SHA-256-based identifier derived from method, endpoint,
@@ -43,7 +43,7 @@ The sender does not include an SSID, BSSID, pairing code, or access token in thi
 message body. The verified endpoint may still contain a private LAN or VPN address.
 
 Registration uses HTTP POST to the saved URL. The production code also attempts HTTP DELETE when
-synchronization is disabled, a previously reported Wi-Fi ADB endpoint is no longer available, or a
+synchronization is disabled, a previously reported Wifi-ADB endpoint is no longer available, or a
 previously used target URL has changed. It uses the last locally reported URL when known; if
 synchronization is disabled without such a report, the currently saved URL may be the target.
 Failed cleanup requests are queued locally and retried during later sender activity under internal
@@ -69,7 +69,7 @@ permanently, or made it available to clients.
 "Report now" is the button of the webhook failure notification (#893). The control widget has no
 such control any more (#912): the receiver action `ACTION_WEBHOOK_REPORT_NOW` stays for the
 notification only. It is a manual push into the normal flow of an enabled synchronization, and
-nothing else. A tap reports the current, verified Wi-Fi ADB
+nothing else. A tap reports the current, verified Wifi-ADB
 endpoint to the saved URL at once, with the same message as any other report, whether or not the
 connected network is trusted. It behaves exactly like the automatic report would: a request that is
 already running is joined, a retry that is only waiting for its timer is sent at once, and a
@@ -84,7 +84,7 @@ settings form are the way to do that.
 Without a valid saved URL, or without a verified Wi-Fi endpoint (Wi-Fi is up and the app holds a
 discovered endpoint), nothing is sent either. The cause is returned to the caller and written to the
 diagnostics as `register_report skipped reason=needs_setup`, `reason=sync_off` or
-`reason=no_endpoint`, never with the URL or the endpoint. It never switches Wireless Debugging on
+`reason=no_endpoint`, never with the URL or the endpoint. It never switches Wifi-ADB on
 and never reuses an address while Wi-Fi is down.
 
 The widgets' synchronization switch asks for a target state (on or off), never a flip, so a

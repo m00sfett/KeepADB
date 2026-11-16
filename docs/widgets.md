@@ -9,18 +9,18 @@ never polls.
 
 | Control | Tap | State words |
 |---|---|---|
-| Debugging (Wireless Debugging) | switches it, with the permission, trust and debounce behavior of the app and the tile | Off, “Off, waiting”, Switching…, Searching…, Disconnected, Connected, Permission missing |
+| Wifi-ADB | switches it, with the permission, trust and debounce behavior of the app and the tile | Off, “Off, waiting”, Switching…, Searching…, Disconnected, Connected, Permission missing |
 | Keep-Alive | switches the Keep-Alive setting; Wi-Fi, trust and backoff rules stay with the service | Off, On, Waiting, Paused |
 | Auto-sync | switches automatic webhook synchronization to the opposite state; without a saved URL it opens the webhook form | Off, On, Set up |
 
 There is no "Report now" control: that action exists only as the button of the webhook failure
 notification (see [Webhook contract](webhook-register.md)). A stored widget configuration that
 still names it keeps working: the entry is read, the retired control is ignored and a main action
-that was "Report now" becomes Debugging.
+that was "Report now" becomes Wifi-ADB.
 
 ## Design: hero and rail
 
-The **main action** (default Debugging, see "Settings per widget") is the *hero*: a large tile that
+The **main action** (default Wifi-ADB, see "Settings per widget") is the *hero*: a large tile that
 is a yellow gradient while it is on. The other two controls sit beside or under it as flat pills,
 upright tiles or square symbol buttons, depending on the room. There are no borders and no switch
 look; the state is never told by color alone:
@@ -29,7 +29,7 @@ look; the state is never told by color alone:
 |---|---|---|---|
 | on / connected | yellow (the hero: gradient), dark text and symbol | filled (`adb`, arrows, cloud with arrow) | On, Connected |
 | off | dark, yellow symbol | outlined or struck through | Off |
-| searching or switching (Debugging only) | lighter dark, yellow symbol | outlined bug with three dots | Searching…, Switching… |
+| searching or switching (Wifi-ADB only) | lighter dark, yellow symbol | outlined bug with three dots | Searching…, Switching… |
 | needs you (permission, set up, paused) | dark red, pink text and symbol | cloud with an exclamation mark, struck-through arrows or outlined bug | Set up, Paused, Permission missing |
 
 All text and symbol colors have at least 4.5:1 contrast on their fill (`KeepADBWidgetColorsTest`).
@@ -92,13 +92,13 @@ numbers. What that gives at the measured sizes:
 A room that is neither (for example 152 x 140 dp at font 1.0, as on some other launchers) is the
 stack, not the grid.
 
-The **port** is shown in the hero from the compact shape (130 dp) up, never in the smallest one
+The **port** (#965: written “Port 38203”, without the address, like on the Quick Settings tile) is shown in the hero from the compact shape (130 dp) up, never in the smallest one
 (`ONE`); without a port the short or full state word stands there. While the widget privacy switch
 or the per-widget option withholds the details, five dots (`•••••`) stand where the port would be
 and the status line says "Details hidden".
 
 The **status line** (only the 4x2) is one text as high as its text, at least 48 dp for the gear: the
-endpoint (`host:port`, stronger) or "Details hidden" or the reason for the state in the home
+endpoint (`Port 5555 @ 192.168.0.5`, stronger) or "Details hidden" or the reason for the state in the home
 screen's own wording (permission missing, Keep-Alive waiting or paused and why), then the webhook
 state ("not set up", "sync off", sending, failed, current endpoint reported, not reported yet, no
 endpoint), at most two lines. Tapping it opens the relevant place in the app: the home screen for a
@@ -121,8 +121,8 @@ defaults (`configuration_optional`) and configured afterwards, from the gear or 
 
 The settings live in their own private file (`keepadb_widget_config`), keyed by the widget id,
 and are removed with the widget. They never change the app's settings or another widget. A widget
-placed before this version has no entry and shows the defaults: Debugging, Keep-Alive, Auto-sync,
-Debugging as the main action, details visible.
+placed before this version has no entry and shows the defaults: Wifi-ADB, Keep-Alive, Auto-sync,
+Wifi-ADB as the main action, details visible.
 
 ## Privacy
 
@@ -138,11 +138,11 @@ the width (`KeepADBOverviewViews`, wide from 250 x font scale dp):
 
 | Shape | Content |
 |---|---|
-| Compact | One card with four rows (symbol and value): Wireless Debugging with the verified `host:port`, the Wi-Fi name, Keep-Alive with its reason, the webhook delivery; under the delivery a quieter line with the last delivery. Under the card the auto-sync pill. |
-| Wide | The card with labelled rows (Debugging, Wi-Fi, Keep-Alive); beside it the webhook block (delivery state, last delivery) and the auto-sync pill. |
+| Compact | One card with four rows (symbol and value): Wifi-ADB with the verified endpoint (the compact card shows `Port 5555`, the wide one `Port 5555 @ 192.168.0.5`), the Wi-Fi name, Keep-Alive with its reason, the webhook delivery; under the delivery a quieter line with the last delivery. Under the card the auto-sync pill. |
+| Wide | The card with labelled rows (Wifi-ADB, Wi-Fi, Keep-Alive); beside it the webhook block (delivery state, last delivery) and the auto-sync pill. |
 
 **Informational rows.** The card is one tap target. It opens the app, or the Protection page
-when Keep-Alive is paused on an untrusted network. It never toggles Wireless Debugging or
+when Keep-Alive is paused on an untrusted network. It never toggles Wifi-ADB or
 Keep-Alive (`KeepADBOverviewWidgetTest`). TalkBack reads every row from the card's description.
 
 **The one control** is the automatic webhook synchronization: the same tile, words and action path
@@ -198,4 +198,4 @@ notification, or a reboot) no job exists and the widget shows its last drawn sta
 `KeepADBWidget.onUpdate` then asks the endpoint coordinator for one refresh: after a restart the
 boot receiver starts the service only when Keep-Alive is on, so with Keep-Alive off the placed
 widget is what makes the notification and the endpoint discovery pick up an already enabled
-Wireless Debugging. Drawing, resizing and state refreshes do not.
+Wifi-ADB. Drawing, resizing and state refreshes do not.

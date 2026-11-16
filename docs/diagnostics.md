@@ -20,7 +20,7 @@ state snapshots. Android cloud backup and device transfer are disabled.
 ## Redaction and included data
 
 Pairing codes, passwords, tokens, authorization values, and URLs are redacted before storage and
-export. Diagnostics can still include the Wi-Fi ADB endpoint, including its host and port, because
+export. Diagnostics can still include the Wifi-ADB endpoint, including its host and port, because
 that is the subject of the diagnosis.
 
 In an export, a valid BSSID shows only its first three-octet block (the OUI, or manufacturer

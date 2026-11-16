@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #913: the overview widget from about 4 cells wide: the information card (Wireless Debugging,
+<!-- #913: the overview widget from about 4 cells wide: the information card (Wifi-ADB,
      Wi-Fi, Keep-Alive) on the left; on the right the webhook block (delivery state and the last
      accepted report, kept apart) above the auto-sync pill, the widget's only control. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

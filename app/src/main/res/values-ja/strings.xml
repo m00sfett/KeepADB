@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;を、この端末に対して"adb devices"が表示した正確なシリアル番号に置き換えてください。</string>
     <string name="setup_state_offline_title">デバイスが"offline"と表示される場合は？</string>
-    <string name="setup_state_offline_body">接続が切断されています。USBケーブルを接続し直すか、スマートフォンでワイヤレスデバッグを再度有効にしてから、状態が"device"になるまで"adb devices"を再実行してください。</string>
+    <string name="setup_state_offline_body">接続が切断されています。USBケーブルを接続し直すか、開発者向けオプションでWifi-ADBを再度有効にしてから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_state_unauthorized_title">デバイスが"unauthorized"と表示される場合は？</string>
     <string name="setup_state_unauthorized_body">このスマートフォンの画面に表示されるデバッグ許可のダイアログを確認してから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_refresh">権限を確認</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
     <string name="connect_help_link">パソコンを接続…</string>
     <string name="connect_help_title">パソコンを接続</string>
-    <string name="connect_help_step_phone">スマートフォンで「開発者向けオプション」›「ワイヤレスデバッグ」›「ペア設定コードでデバイスをペア設定」を開きます。</string>
+    <string name="connect_help_step_phone">スマートフォンの「開発者向けオプション」でWifi-ADBの設定を開き、「ペア設定コードでデバイスをペア設定」をタップします。</string>
     <string name="connect_help_step_pair">パソコンで、パソコンごとに1回:下のコマンドを実行し、スマートフォンに表示されたコードを入力します。</string>
     <string name="connect_help_step_connect">Wifi-ADB がオンのとき、KeepADB が表示するアドレスでこのコマンドを実行します（アドレスをタップするとコマンドをコピーできます）。ペア設定済みのパソコンは、自動的に接続されることがよくあります。</string>
     <string name="connect_help_open_settings">開発者向けオプションを開く</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">VPN 経由の ADB</string>
     <string name="transport_row_format">%1$s: %2$s · 最終確認 %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s、主要トランスポート</string>
-    <string name="toggle_label">ワイヤレスデバッグ</string>
-    <string name="toggle_subtext">Wi-Fi経由のADB用にワイヤレスデバッグのオン/オフを切り替えます。</string>
-    <string name="keep_alive_toggle">常にアクティブに保つ</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Wifi-ADBのオン/オフを切り替え、パソコンからこのスマートフォンにWi-Fi経由で接続できるようにします。</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">切断、ネットワーク変更、または再起動時に自動再接続</string>
     <string name="tile_permission_error">%1$s: 権限がありません (pm grant が必要)</string>
     <string name="permission_error_toast">権限がありません。PCから一度実行してください:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">ワイヤレスデバッグ エンドポイント</string>
-    <string name="notification_channel_desc">ワイヤレスデバッグの現在のIPアドレスとポート</string>
+    <string name="notification_channel_name">Wifi-ADB エンドポイント</string>
+    <string name="notification_channel_desc">Wifi-ADB の現在のIPアドレスとポート</string>
     <string name="notification_title_active">%1$s: Wifi-ADB オン</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB オフ</string>
     <string name="endpoint_port_at_ip">ポート %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">タップしてアプリで接続の詳細を確認してください。</string>
     <string name="notification_title_searching">%1$s: エンドポイントを検索中…</string>
     <string name="notification_text_searching">ローカルネットワーク上でエンドポイントを解決中</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive がワイヤレスデバッグの再有効化を待機中です</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive が Wifi-ADB の再有効化を待機中です</string>
     <string name="notification_text_keepalive_on">Keep-Alive: オン</string>
     <string name="notification_text_keepalive_off">Keep-Alive: オフ</string>
     <string name="notification_text_webhook_synced">Webhook: 同期済み %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: まだ同期に成功していません</string>
     <string name="notification_action_keepalive_on">Keep-Aliveをオンにする</string>
     <string name="notification_action_keepalive_off">Keep-Aliveをオフにする</string>
-    <string name="notification_service_title">ワイヤレスデバッグをアクティブに維持</string>
-    <string name="notification_service_text">Wi-Fi接続とワイヤレスデバッグの状態を監視中</string>
+    <string name="notification_service_title">Wifi-ADB をオンに維持</string>
+    <string name="notification_service_text">Wi-Fi接続と Wifi-ADB の状態を監視中</string>
     <string name="notification_permission_missing_title">%1$s: 権限がありません</string>
     <string name="notification_permission_panel_title">通知</string>
-    <string name="notification_permission_panel_body">通知を有効にすると、KeepADBのバックグラウンドサービスとKeep-Aliveが動作しているかを確認できます。接続が切れた場合、KeepADBがすぐに知らせます。この権限がなくてもワイヤレスデバッグは問題なく動作します。</string>
+    <string name="notification_permission_panel_body">通知を有効にすると、KeepADBのバックグラウンドサービスとKeep-Aliveが動作しているかを確認できます。接続が切れた場合、KeepADBがすぐに知らせます。この権限がなくても Wifi-ADB は問題なく動作します。</string>
     <string name="notification_permission_request_button">通知を許可</string>
     <string name="notification_permission_settings_button">通知設定を開く</string>
     <string name="notification_permission_missing_text">PCから adb shell pm grant で WRITE_SECURE_SETTINGS を付与してください</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; エンドポイント同期</string>
     <string name="settings_webhook_toggle">Webhook 同期を有効にする</string>
-    <string name="settings_webhook_subtext">有効時はアクティブなエンドポイント (IP:ポート) を HTTP POST で送信し、停止時は DELETE の送信を試みます（失敗した場合は後で再試行）。</string>
+    <string name="settings_webhook_subtext">有効時はアクティブなエンドポイントを HTTP POST で送信し、停止時は DELETE の送信を試みます（失敗した場合は後で再試行）。</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL</string>
     <string name="settings_webhook_btn_save">URLを保存</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">このネットワークを信頼しますか？</string>
     <string name="network_decision_name_label">Wi-Fi名（SSID）</string>
     <string name="network_decision_ap_label">アクセスポイント（BSSID）</string>
-    <string name="network_decision_text">このアクセスポイントを信頼すると、Keep-Alive はここでワイヤレスデバッグを自動的に再びオンにできます。手動でのオンは常に可能です。</string>
+    <string name="network_decision_text">このアクセスポイントを信頼すると、Keep-Alive はここで Wifi-ADB を自動的に再びオンにできます。手動でのオンは常に可能です。</string>
     <string name="network_decision_comfort_note">コンフォートがオンです: 「%1$s」という名前の他のアクセスポイントも受け入れられます。</string>
     <string name="network_decision_trust">信頼する</string>
     <string name="network_decision_block_ap">このアクセスポイントだけをブロック</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="webhook_status_deregistered">登録解除済み</string>
     <string name="webhook_status_failed">失敗</string>
-    <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB はワイヤレスデバッグを切り替えられません。</string>
+    <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB は Wifi-ADB を切り替えられません。</string>
     <string name="settings_language_menu_label">言語</string>
     <string name="settings_language_accessibility">アプリの言語: %1$s</string>
     <string name="settings_language_system_default">システムデフォルト</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">その他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
-    <string name="settings_hide_notification_subtext">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。</string>
-    <string name="settings_hide_notification_subtext_keepalive">通知欄にデバッグ状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。\n\nKeep-Alive が有効な間は、Android がフォアグラウンドサービスの通知を必要とするため、スイッチは操作できません。Keep-Alive をオフにすると保存済みの選択が再び適用されます。</string>
+    <string name="settings_hide_notification_subtext">通知欄に Wifi-ADB の状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。</string>
+    <string name="settings_hide_notification_subtext_keepalive">通知欄に Wifi-ADB の状態とクイックアクセスを表示します。オフにしてもこの通知が非表示になるだけで、Keep-Alive、ウィジェット、クイック設定タイルは引き続き動作します。接続詳細を表示するかどうかは、プライバシーの「通知で非表示」で設定します。アドレスやネットワーク名が表示される場合があります。\n\nKeep-Alive が有効な間は、Android がフォアグラウンドサービスの通知を必要とするため、スイッチは操作できません。Keep-Alive をオフにすると保存済みの選択が再び適用されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">バックグラウンドでの検出を確認</string>
     <string name="background_location_dialog_later">あとで</string>
     <string name="background_location_status_granted">バックグラウンドでの検出：許可済み。Keep-Alive がバックグラウンドで起動しても、信頼済みのアクセスポイントを認識します。KeepADB が端末の位置を読み取ったり保存したりすることはありません。</string>
-    <string name="background_location_status_missing">バックグラウンドでの検出：制限あり。Keep-Alive がバックグラウンドで起動すると、Android が 接続中のアクセスポイントを隠すことがあります。その場合 KeepADB はネットワークを読み取れないものとして扱い、アプリを開くまでワイヤレスデバッグを自動で有効にしません。</string>
+    <string name="background_location_status_missing">バックグラウンドでの検出：制限あり。Keep-Alive がバックグラウンドで起動すると、Android が 接続中のアクセスポイントを隠すことがあります。その場合 KeepADB はネットワークを読み取れないものとして扱い、アプリを開くまで Wifi-ADB を自動で有効にしません。</string>
     <string name="background_location_status_missing_inactive">バックグラウンドでの検出：この設定では不要です。Keep-Alive がバックグラウンドで動作中にアクセスポイントや Wi-Fi 名を確認するために必要です。</string>
     <string name="location_permission_panel_title">信頼済みネットワークには位置情報の権限が必要です</string>
     <string name="location_permission_panel_body">信頼済みネットワークモードはWi-Fiネットワークを識別するために位置情報アクセスが必要です。これがないと、Keep-Aliveは信頼済みネットワークを確認できず、自動的に再有効化されません。</string>
@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">未接続</string>
     <string name="tile_state_searching">検索中…</string>
     <string name="tile_state_connected">接続済み</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">ポート %1$d</string>
     <string name="tile_state_permission_missing">権限がありません</string>
     <string name="settings_section_version">バージョン</string>
     <string name="settings_version_value">アプリバージョン: %1$s</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">その他の役立つ情報を追加してください。</string>
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
     <string name="advice_banner_title">セキュリティとネットワーク</string>
-    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼済みのWi-Fiまたは VPNを使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
+    <string name="advice_banner_text">Wifi-ADB はネットワーク上にADBポートを開きます。信頼済みのWi-Fiまたは VPNを使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
     <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">ブラウザでkeepadb.roteson.deを開く</string>
     <string name="settings_no_browser_found">このリンクを開けるアプリが見つかりません。</string>
-    <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
-    <string name="status_off_keep_alive_blocked_untrusted">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
-    <string name="status_off_keep_alive_blocked_by_user">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:Android のワイヤレスデバッグ ネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB は OFF です – Keep-Alive がネットワークを待機中</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB は OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB は OFF です – Keep-Alive は一時停止中:AndroidのWifi-ADBネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
     <string name="home_state_on">Wifi-ADB はオンです</string>
     <string name="home_state_off">Wifi-ADB はオフです</string>
@@ -264,19 +264,19 @@
     <string name="home_reason_untrusted">Keep-Alive は一時停止中:Wi-Fi は信頼されていません</string>
     <string name="home_reason_blocked">Keep-Alive は一時停止中:Wi-Fi はブロックされています</string>
     <string name="home_reason_identity">Keep-Alive は一時停止中:ネットワークを読み取れません</string>
-    <string name="home_reason_backoff">Keep-Alive は一時停止中:「ワイヤレスデバッグ」のダイアログが未確認</string>
+    <string name="home_reason_backoff">Keep-Alive は一時停止中:AndroidのWifi-ADBダイアログが未確認</string>
     <string name="home_reason_no_wifi">Wi-Fi 接続なし</string>
     <string name="home_reason_stays_off_untrusted">ここでは Keep-Alive はオフのまま:Wi-Fi は信頼されていません</string>
     <string name="home_reason_stays_off_blocked">ここでは Keep-Alive はオフのまま:Wi-Fi はブロックされています</string>
-    <string name="home_action_networks">ネットワーク</string>
+    <string name="home_action_networks">Wi-Fiネットワーク</string>
     <string name="home_action_retry">再試行</string>
     <string name="home_reason_details_action">詳細を表示</string>
     <string name="state_pending">切り替え中…</string>
     <string name="tile_state_keep_alive_waiting">オフ – Keep-Alive 待機中</string>
-    <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
+    <string name="toggle_failed_toast">Wifi-ADB を切り替えられませんでした。もう一度お試しください。</string>
     <string name="protection_title">保護</string>
     <string name="protection_automatic_title">自動動作</string>
-    <string name="untrusted_shutdown_hint_short">信頼していないWi-Fiでワイヤレスデバッグをオフにします。</string>
+    <string name="untrusted_shutdown_hint_short">信頼していないWi-Fiで Wifi-ADB をオフにします。</string>
     <string name="security_check_hint_short">信頼済みWi-Fiアクセス先のセキュリティが弱くなった場合、自動オンを一時停止します。</string>
     <string name="hint_more">もっと見る ▾</string>
     <string name="hint_less">閉じる ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">不明</string>
     <string name="network_badge_blocked">ブロック中</string>
     <string name="networks_title">Wi-Fiネットワーク</string>
-    <string name="networks_intro">Keep-Alive は、信頼済みのネットワークではワイヤレスデバッグを再度オンにできますが、ブロック中のネットワークでは行いません。手動でオンにすることは常にできます。</string>
+    <string name="networks_intro">Keep-Alive は、信頼済みのネットワークでは Wifi-ADB を再度オンにできますが、ブロック中のネットワークでは行いません。手動でオンにすることは常にできます。</string>
     <string name="networks_glossary_toggle">用語の説明</string>
     <string name="networks_glossary_ssid">Wi-Fi名（SSID）：Wi-Fiネットワークが発信する名前です。同じ名前のネットワークは誰でも作れます。</string>
     <string name="networks_glossary_bssid">アクセスポイント（BSSID）：ルーター、リピーター、メッシュノードなど、1台の送信機です。ハードウェアアドレス（例：AA:BB:CC:11:22:33）は名前より特定性が高いものの、これも確かな証明にはなりません。</string>
     <string name="untrusted_shutdown_title">信頼していないWi-Fiでオフにする</string>
-    <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなくワイヤレスデバッグをオフにします。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。</string>
+    <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなく Wifi-ADB をオフにします。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。</string>
     <string name="untrusted_shutdown_channel_name">信頼していないWi-Fiでのオフ</string>
-    <string name="untrusted_shutdown_channel_desc">信頼していないWi-FiでKeepADBがワイヤレスデバッグをオフにしたときに通知します。</string>
-    <string name="untrusted_shutdown_off_title">ワイヤレスデバッグをオフにしました</string>
+    <string name="untrusted_shutdown_channel_desc">信頼していないWi-FiでKeepADBが Wifi-ADB をオフにしたときに通知します。</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB をオフにしました</string>
     <string name="untrusted_shutdown_off_text">現在のWi-Fiは信頼されていないか、識別できません。信頼済みのWi-FiではKeep-Aliveが再びオンにします。</string>
-    <string name="untrusted_shutdown_failed_title">ワイヤレスデバッグをオフにできませんでした</string>
-    <string name="untrusted_shutdown_failed_text">現在のWi-Fiは信頼されていませんが、ワイヤレスデバッグをオフにできませんでした。手動でオフにしてください。</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB をオフにできませんでした</string>
+    <string name="untrusted_shutdown_failed_text">現在のWi-Fiは信頼されていませんが、Wifi-ADB をオフにできませんでした。手動でオフにしてください。</string>
     <string name="security_check_title">信頼済みWi-Fiアクセス先のセキュリティを確認</string>
-    <string name="security_check_hint">Android 12以降：Wi-Fiアクセス先を信頼すると、KeepADBはそのセキュリティレベル（オープン、パーソナル、エンタープライズ）を記録します。後でより低いレベルや読み取れないレベルで接続した場合、もう一度信頼するまでKeep-Aliveはそこでワイヤレスデバッグを自動でオンにしません。これはアクセス先が本物であることを証明するものではありません。このオプションより前に信頼したアクセス先は、もう一度信頼するまでアドレスだけで確認されます。</string>
+    <string name="security_check_hint">Android 12以降：Wi-Fiアクセス先を信頼すると、KeepADBはそのセキュリティレベル（オープン、パーソナル、エンタープライズ）を記録します。後でより低いレベルや読み取れないレベルで接続した場合、もう一度信頼するまでKeep-Aliveはそこで Wifi-ADB を自動でオンにしません。これはアクセス先が本物であることを証明するものではありません。このオプションより前に信頼したアクセス先は、もう一度信頼するまでアドレスだけで確認されます。</string>
     <string name="network_prompt_security_text">%1$s（%2$s）は信頼済みですが、Wi-Fiセキュリティが信頼した時より低いか、読み取れません。この変更に心当たりがある場合だけ、もう一度信頼してください。</string>
     <string name="network_prompt_security_confirm_in_app_text">信頼済みWi-Fiアクセス先のセキュリティが変わりました — タップしてアプリで確認してください。</string>
     <string name="network_prompt_security_title">信頼済みWi-Fiアクセス先のセキュリティが変わりました</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">名前を信頼</string>
     <string name="networks_badge_name_blocked">名前をブロック</string>
     <string name="networks_badge_unknown">不明</string>
-    <string name="networks_current_trusted">Keep-Alive はここでワイヤレスデバッグを再度オンにできます。</string>
+    <string name="networks_current_trusted">Keep-Alive はここで Wifi-ADB を再度オンにできます。</string>
     <string name="networks_current_trusted_name">Wi-Fi名により信頼されています。このアクセスポイントを個別に信頼またはブロックすることもできます。</string>
     <string name="networks_current_legacy">以前の設定「すべての Wi-Fi ネットワークで」によってのみ適用されています。このアクセスポイントを信頼またはブロックすることもできます。</string>
     <string name="networks_tap_to_change">タップして変更します。</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">自動再有効化は一時停止中：位置情報がオフのため、Android は接続中のアクセスポイントを隠します。</string>
     <string name="network_cause_unreadable_all_wifi">現在ネットワークを読み取れません。自動再有効化は続行できますが、保存済みのアクセスポイントや Wi-Fi 名を確認するには読み取り可能なネットワーク情報が必要です。</string>
     <string name="network_cause_not_allowed">自動再有効化は一時停止中：このアクセスポイントは信頼済みではありません。</string>
-    <string name="network_cause_blocked">このネットワークはブロックされています。Keep-Alive はここでワイヤレスデバッグを自動でオンにせず、確認も行いません。手動でオンにすることは常にできます。</string>
-    <string name="network_cause_allowed">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。この Wi-Fi 名を持つ、読み取れるアクセスポイントはすべて受け入れられます。</string>
+    <string name="network_cause_blocked">このネットワークはブロックされています。Keep-Alive はここで Wifi-ADB を自動でオンにせず、確認も行いません。手動でオンにすることは常にできます。</string>
+    <string name="network_cause_allowed">Keep-Alive はここで Wifi-ADB を再度有効にできます。</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive はここで Wifi-ADB を再度有効にできます。この Wi-Fi 名を持つ、読み取れるアクセスポイントはすべて受け入れられます。</string>
     <string name="network_cause_all_wifi">「すべての Wi-Fi ネットワークで」が有効なため、Keep-Alive はここで再有効化できます。このモードでは信頼リストは使われません。</string>
     <string name="network_action_allow_ap">このアクセスポイントを信頼</string>
     <string name="network_action_location_settings">位置情報の設定を開く</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">強制モード</string>
-    <string name="force_section_hint">選択した時間のあいだ、どのネットワークでもワイヤレスデバッグを再び有効にします。この間、ブロックと信頼済みネットワークは適用されません。</string>
+    <string name="force_section_hint">選択した時間のあいだ、どのネットワークでも Wifi-ADB を再び有効にします。この間、ブロックと信頼済みネットワークは適用されません。</string>
     <string name="force_status_off">オフ</string>
     <string name="force_status_until">%1$sまで有効</string>
     <string name="force_status_unlimited">有効（終了時刻なし）</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">強制モードを終了</string>
     <string name="force_action_change">期間を変更…</string>
     <string name="force_dialog_title">強制モードを有効にしますか？</string>
-    <string name="force_dialog_intro">Keep-Alive は、未知・ブロック済み・判別できないネットワークを含め、どのネットワークでもワイヤレスデバッグを再び有効にします。</string>
+    <string name="force_dialog_intro">Keep-Alive は、未知・ブロック済み・判別できないネットワークを含め、どのネットワークでも Wifi-ADB を再び有効にします。</string>
     <string name="force_dialog_duration_label">どのくらいの間？</string>
     <string name="force_duration_1h">1 時間</string>
     <string name="force_duration_24h">24 時間</string>
     <string name="force_duration_7d">7 日間</string>
     <string name="force_duration_30d">30 日間</string>
     <string name="force_duration_unlimited">終了時刻なし</string>
-    <string name="force_warning_all">ワイヤレスデバッグはネットワーク上でポートを開きます。以前にペアリングしたコンピューターは、これを通じて完全な ADB アクセスを得られます（アプリのインストール、データの読み取り、画面の録画）。知らないネットワークでは、誰が接続を試みているかわかりません。
+    <string name="force_warning_all">Wifi-ADB はネットワーク上でポートを開きます。以前にペアリングしたコンピューターは、これを通じて完全な ADB アクセスを得られます（アプリのインストール、データの読み取り、画面の録画）。知らないネットワークでは、誰が接続を試みているかわかりません。
 
 この間、ブロックと信頼済みネットワークは適用されません。
 
 ホーム画面または通知からいつでも終了できます。</string>
-    <string name="force_warning_days">数日のあいだには、今は思い浮かばないネットワーク（ホテル、電車、カフェ、職場など）に接続します。そこでデバッグは確認なしで有効になります。</string>
+    <string name="force_warning_days">数日のあいだには、今は思い浮かばないネットワーク（ホテル、電車、カフェ、職場など）に接続します。そこで Wifi-ADB は確認なしで有効になります。</string>
     <string name="force_warning_unlimited">終了時刻がない場合、強制モードは自分で終了するまで、再起動やアプリの更新後も有効なままです。</string>
-    <string name="force_unlimited_ack">ワイヤレスデバッグがどのネットワークでも有効になることを理解しました。</string>
+    <string name="force_unlimited_ack">Wifi-ADB がどのネットワークでも有効になることを理解しました。</string>
     <string name="force_keepalive_hint">強制モードは Keep-Alive と併用した場合にのみ機能します。Keep-Alive も一緒にオンになります。</string>
     <string name="force_not_started_toast">強制モードをオンにできませんでした。この端末では現在、時間制限を確実に守れません。何も変更されていません。</string>
     <string name="force_confirm_1h">1 時間オンにする</string>
@@ -419,8 +419,8 @@
     <string name="force_confirm_30d">30 日間オンにする</string>
     <string name="force_confirm_unlimited">終了時刻なしでオンにする</string>
     <string name="force_card_title">強制モードがオン</string>
-    <string name="force_card_text_until">ワイヤレスデバッグはどのネットワークでも再び有効になります。%1$sまで有効。</string>
-    <string name="force_card_text_unlimited">ワイヤレスデバッグはどのネットワークでも再び有効になります。終了時刻なし。</string>
+    <string name="force_card_text_until">Wifi-ADB はどのネットワークでも再び有効になります。%1$sまで有効。</string>
+    <string name="force_card_text_unlimited">Wifi-ADB はどのネットワークでも再び有効になります。終了時刻なし。</string>
     <string name="force_ended_toast">強制モードを終了しました。保護レベルは元の「%1$s」に戻りました。</string>
     <string name="force_notification_until">強制モードは%1$sまでオン</string>
     <string name="force_notification_unlimited">強制モードがオン（終了時刻なし）</string>
@@ -429,7 +429,7 @@
     <string name="force_expired_title">強制モードを終了しました</string>
     <string name="force_expired_text">選択した時間が経過しました。保護レベルは元の「%1$s」に戻りました。Keep-Alive は、保護レベルが許可する場所でのみ有効にします。</string>
     <string name="force_expired_text_safety">安全のため、強制モードを早めに終了しました。残り時間を確実に確認できませんでした。保護レベルは元の「%1$s」に戻りました。Keep-Alive は、保護レベルが許可する場所でのみ有効にします。</string>
-    <string name="force_expired_still_on">ワイヤレスデバッグは現在もオンです。</string>
+    <string name="force_expired_still_on">Wifi-ADB は現在もオンです。</string>
     <string name="force_expired_action_off">今すぐオフにする</string>
     <string name="force_level_maximum">最大セキュリティ</string>
     <string name="force_level_balanced">バランス</string>
@@ -465,11 +465,11 @@
     <string name="onboarding_privacy_summary_off">プライバシー: 非表示なし</string>
     <string name="onboarding_privacy_summary_on">プライバシー: %1$d/%2$d件がオン</string>
     <string name="onboarding_privacy_change">変更</string>
-    <string name="onboarding_keep_alive_question">再起動や接続切れのあと、ワイヤレスデバッグを自動でオンに戻しますか？</string>
-    <string name="onboarding_keep_alive_off_body">ワイヤレスデバッグは、アプリ、タイル、ウィジェットから自分でオンにします。再起動後はオフのままです。</string>
-    <string name="onboarding_keep_alive_on_body">KeepADBは、再起動や接続切れのあとにワイヤレスデバッグをオンに戻します。ただし、保護レベルが許可する場所に限ります（次のステップ）。</string>
+    <string name="onboarding_keep_alive_question">再起動や接続切れのあと、Wifi-ADB を自動でオンに戻しますか？</string>
+    <string name="onboarding_keep_alive_off_body">Wifi-ADB は、アプリ、タイル、ウィジェットから自分でオンにします。再起動後はオフのままです。</string>
+    <string name="onboarding_keep_alive_on_body">KeepADBは、再起動や接続切れのあとに Wifi-ADB をオンに戻します。ただし、保護レベルが許可する場所に限ります（次のステップ）。</string>
     <string name="onboarding_protection_title">保護レベル</string>
-    <string name="onboarding_protection_question">Keep-Aliveがワイヤレスデバッグを自動でオンにしてよいのはどこですか？</string>
+    <string name="onboarding_protection_question">Keep-Aliveが Wifi-ADB を自動でオンにしてよいのはどこですか？</string>
     <string name="onboarding_protection_max_body">信頼したアクセスポイントのみ。未知のものはKeepADBが確認します。</string>
     <string name="onboarding_protection_balanced_body">信頼済みWi-Fiと同じ名前のアクセスポイントでも。メッシュやリピーターでは便利ですが、名前は簡単にまねできます。</string>
     <string name="onboarding_protection_legacy_all_body">ブロックしない限り、すべてのWi-Fiネットワークを信頼します。この設定をやめるには、下のレベルを選んでください。</string>
@@ -493,7 +493,7 @@
     <string name="onboarding_permissions_summary_done">すべて完了</string>
     <string name="onboarding_permissions_summary_missing">不足: %1$d</string>
     <string name="onboarding_perm_system_title">システム権限</string>
-    <string name="onboarding_perm_system_body">これがないと、KeepADB はワイヤレスデバッグを切り替えられません。パソコンから一度だけ付与してください:</string>
+    <string name="onboarding_perm_system_body">これがないと、KeepADB は Wifi-ADB を切り替えられません。パソコンから一度だけ付与してください:</string>
     <string name="onboarding_perm_system_more">複数の端末や問題がある場合</string>
     <string name="onboarding_copy_command">コマンドをコピー</string>
     <string name="onboarding_copy_done">コマンドをコピーしました</string>
@@ -508,8 +508,8 @@
     <string name="onboarding_network_title">信頼する Wi-Fi</string>
     <string name="onboarding_network_question">現在接続している Wi-Fi を KeepADB で信頼しますか？</string>
     <string name="onboarding_network_privacy_note">プライバシーがオンです。「表示」をタップするまで、名前とアドレスは非表示のままです。</string>
-    <string name="onboarding_network_open_list">ネットワーク一覧で変更</string>
-    <string name="onboarding_webhook_question">任意です。ワイヤレスデバッグの現在のアドレスを、たとえば自宅のネットワークやVPN内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
+    <string name="onboarding_network_open_list">「Wi-Fiネットワーク」で変更</string>
+    <string name="onboarding_webhook_question">任意です。Wifi-ADB の現在のアドレスを、たとえば自宅のネットワークやVPN内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
     <string name="onboarding_protection_force_title">最大の利便性(強制モード)</string>
     <string name="onboarding_protection_force_body">未知のネットワークを含むすべてのネットワークで、選んだ時間だけ有効にします。事前に確認が必要です。</string>
     <string name="onboarding_protection_force_keep_alive">強制モードはKeep-Aliveと一緒にのみ動作します。Keep-Aliveも同時にオンになります。</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">強制モード終了後に適用されます。</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">システム権限がありません</string>
-    <string name="home_warning_system_text">パソコンから一度だけこの権限を付与するまで、KeepADB はワイヤレスデバッグを切り替えられません。</string>
+    <string name="home_warning_system_text">パソコンから一度だけこの権限を付与するまで、KeepADB は Wifi-ADB を切り替えられません。</string>
     <string name="home_warning_action_guide">手順</string>
     <string name="home_warning_less_secure_title">推奨より安全性が低い</string>
     <string name="home_warning_action_review">確認</string>
@@ -587,8 +587,8 @@
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB コントロール</string>
-    <string name="widget_picker_description">ワイヤレスデバッグ、Keep-Alive、Webhook の操作。大きくするほど多く表示されます。</string>
-    <string name="widget_action_adb">デバッグ</string>
+    <string name="widget_picker_description">Wifi-ADB、Keep-Alive、Webhook の操作。大きくするほど多く表示されます。</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">自動同期</string>
     <string name="widget_action_sync_description">Webhook 自動同期</string>

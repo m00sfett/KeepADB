@@ -46,6 +46,12 @@
             android:src="@drawable/ic_warning"
             android:visibility="gone" />
 
+        <!-- #971: the same privacy eye as in the phone layout, left of the gear. -->
+        <include
+            layout="@layout/view_privacy_toggle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp" />
         <ImageButton
             android:id="@+id/btn_open_settings"
             android:layout_width="48dp"
@@ -165,7 +171,7 @@
                     android:baselineAligned="false"
                     android:orientation="horizontal">
 
-                    <!-- Left column: Wireless Debugging toggle + status + transport card -->
+                    <!-- Left column: Wifi-ADB toggle + status + transport card -->
                     <LinearLayout
                         android:id="@+id/panel_adb_column"
                         android:layout_width="0dp"

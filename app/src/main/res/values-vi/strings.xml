@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Thay &lt;device-serial&gt; bằng đúng số sê-ri mà "adb devices" đã hiển thị cho thiết bị này.</string>
     <string name="setup_state_offline_title">Thiết bị hiển thị trạng thái "offline"?</string>
-    <string name="setup_state_offline_body">Kết nối đã bị mất. Cắm lại cáp USB hoặc bật lại gỡ lỗi không dây trên điện thoại, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
+    <string name="setup_state_offline_body">Kết nối đã bị mất. Cắm lại cáp USB hoặc bật lại Wifi-ADB trong Tùy chọn nhà phát triển, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
     <string name="setup_state_unauthorized_title">Thiết bị hiển thị trạng thái "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Xác nhận lời nhắc cho phép gỡ lỗi trên màn hình điện thoại này, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
     <string name="setup_refresh">Kiểm tra quyền</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Điểm cuối không khả dụng</string>
     <string name="connect_help_link">Kết nối máy tính…</string>
     <string name="connect_help_title">Kết nối máy tính</string>
-    <string name="connect_help_step_phone">Trên điện thoại, mở Tùy chọn nhà phát triển › “Gỡ lỗi không dây” › “Ghép nối thiết bị bằng mã ghép nối”.</string>
+    <string name="connect_help_step_phone">Trên điện thoại, mở cài đặt Wifi-ADB trong Tùy chọn nhà phát triển rồi nhấn “Ghép nối thiết bị bằng mã ghép nối”.</string>
     <string name="connect_help_step_pair">Trên máy tính, một lần cho mỗi máy tính: chạy lệnh bên dưới rồi nhập mã hiển thị trên điện thoại.</string>
     <string name="connect_help_step_connect">Khi Wifi-ADB đang bật, hãy chạy lệnh này với địa chỉ mà KeepADB hiển thị (nhấn vào địa chỉ để sao chép lệnh). Máy tính đã được ghép nối trước đó thường tự kết nối.</string>
     <string name="connect_help_open_settings">Mở Tùy chọn nhà phát triển</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB qua VPN</string>
     <string name="transport_row_format">%1$s: %2$s · kiểm tra lần cuối %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, đường truyền chính</string>
-    <string name="toggle_label">Gỡ lỗi không dây</string>
-    <string name="toggle_subtext">Bật hoặc tắt Gỡ lỗi không dây để dùng ADB qua Wi-Fi.</string>
-    <string name="keep_alive_toggle">Luôn duy trì hoạt động</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Bật hoặc tắt Wifi-ADB để máy tính có thể truy cập điện thoại này qua Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Tự động kết nối lại khi mất kết nối, đổi mạng hoặc khởi động lại</string>
     <string name="tile_permission_error">%1$s: Thiếu quyền (cần pm grant)</string>
     <string name="permission_error_toast">Thiếu quyền. Chạy một lần từ PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Điểm cuối gỡ lỗi không dây</string>
-    <string name="notification_channel_desc">Địa chỉ IP và cổng hiện tại của Gỡ lỗi không dây</string>
+    <string name="notification_channel_name">Điểm cuối Wifi-ADB</string>
+    <string name="notification_channel_desc">Địa chỉ IP và cổng hiện tại của Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB bật</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB tắt</string>
     <string name="endpoint_port_at_ip">Cổng %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Nhấn để xem chi tiết kết nối trong ứng dụng.</string>
     <string name="notification_title_searching">%1$s: Đang tìm điểm cuối…</string>
     <string name="notification_text_searching">Đang phân giải điểm cuối trên mạng cục bộ</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive đang chờ gỡ lỗi không dây được bật lại</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive đang chờ Wifi-ADB được bật lại</string>
     <string name="notification_text_keepalive_on">Keep-Alive: bật</string>
     <string name="notification_text_keepalive_off">Keep-Alive: tắt</string>
     <string name="notification_text_webhook_synced">Webhook: đã đồng bộ %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: chưa có lần đồng bộ thành công</string>
     <string name="notification_action_keepalive_on">Bật Keep-Alive</string>
     <string name="notification_action_keepalive_off">Tắt Keep-Alive</string>
-    <string name="notification_service_title">Duy trì gỡ lỗi không dây hoạt động</string>
-    <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái gỡ lỗi không dây</string>
+    <string name="notification_service_title">Duy trì Wifi-ADB hoạt động</string>
+    <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s: Thiếu quyền</string>
     <string name="notification_permission_panel_title">Thông báo</string>
-    <string name="notification_permission_panel_body">Khi bật thông báo, bạn có thể xem dịch vụ nền của KeepADB và Keep-Alive có đang chạy hay không. Nếu mất kết nối, KeepADB sẽ báo cho bạn ngay lập tức. Gỡ lỗi không dây vẫn hoạt động tốt mà không cần quyền này.</string>
+    <string name="notification_permission_panel_body">Khi bật thông báo, bạn có thể xem dịch vụ nền của KeepADB và Keep-Alive có đang chạy hay không. Nếu mất kết nối, KeepADB sẽ báo cho bạn ngay lập tức. Wifi-ADB vẫn hoạt động tốt mà không cần quyền này.</string>
     <string name="notification_permission_request_button">Cho phép thông báo</string>
     <string name="notification_permission_settings_button">Mở cài đặt thông báo</string>
     <string name="notification_permission_missing_text">Cấp quyền WRITE_SECURE_SETTINGS từ PC qua adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Đồng bộ hóa Webhook &amp; Điểm cuối</string>
     <string name="settings_webhook_toggle">Bật đồng bộ hóa Webhook</string>
-    <string name="settings_webhook_subtext">Gửi điểm cuối đang hoạt động (IP:cổng) qua HTTP POST khi bật và cố gắng gửi DELETE khi tắt (thử lại sau nếu thất bại).</string>
+    <string name="settings_webhook_subtext">Gửi điểm cuối đang hoạt động qua HTTP POST khi bật và cố gắng gửi DELETE khi tắt (thử lại sau nếu thất bại).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL Webhook</string>
     <string name="settings_webhook_btn_save">Lưu URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Tin cậy mạng này?</string>
     <string name="network_decision_name_label">Tên Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Điểm truy cập (BSSID)</string>
-    <string name="network_decision_text">Nếu bạn tin cậy điểm truy cập này, Keep-Alive có thể tự động bật lại Gỡ lỗi không dây tại đây. Bật thủ công luôn hoạt động.</string>
+    <string name="network_decision_text">Nếu bạn tin cậy điểm truy cập này, Keep-Alive có thể tự động bật lại Wifi-ADB tại đây. Bật thủ công luôn hoạt động.</string>
     <string name="network_decision_comfort_note">Chế độ tiện lợi đang bật: các điểm truy cập khác có tên “%1$s” cũng sẽ được chấp nhận.</string>
     <string name="network_decision_trust">Tin cậy</string>
     <string name="network_decision_block_ap">Chỉ chặn điểm truy cập này</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">chưa có</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="webhook_status_failed">thất bại</string>
-    <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Gỡ lỗi không dây cho đến khi được cấp quyền.</string>
+    <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Wifi-ADB cho đến khi được cấp quyền.</string>
     <string name="settings_language_menu_label">Ngôn ngữ</string>
     <string name="settings_language_accessibility">Ngôn ngữ ứng dụng: %1$s</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Khác</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
+    <string name="settings_hide_notification_subtext">Hiển thị trạng thái Wifi-ADB và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái Wifi-ADB và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Việc hiển thị chi tiết kết nối do công tắc “Ẩn trong thông báo” trong mục Quyền riêng tư quyết định; chúng có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Kiểm tra nhận diện trong nền</string>
     <string name="background_location_dialog_later">Để sau</string>
     <string name="background_location_status_granted">Nhận diện trong nền: đã cho phép. Điểm truy cập tin cậy vẫn được nhận ra ngay cả khi Keep-Alive khởi động trong nền. KeepADB không bao giờ đọc hay lưu vị trí thiết bị của bạn.</string>
-    <string name="background_location_status_missing">Nhận diện trong nền: bị hạn chế. Nếu Keep-Alive khởi động trong nền, Android có thể ẩn việc bạn đang kết nối với điểm truy cập nào; khi đó KeepADB coi mạng là không đọc được và không tự bật gỡ lỗi không dây cho đến khi bạn mở ứng dụng.</string>
+    <string name="background_location_status_missing">Nhận diện trong nền: bị hạn chế. Nếu Keep-Alive khởi động trong nền, Android có thể ẩn việc bạn đang kết nối với điểm truy cập nào; khi đó KeepADB coi mạng là không đọc được và không tự bật Wifi-ADB cho đến khi bạn mở ứng dụng.</string>
     <string name="background_location_status_missing_inactive">Nhận diện trong nền: không cần trong thiết lập này. Tính năng này dùng để kiểm tra điểm truy cập hoặc tên Wi-Fi khi Keep-Alive chạy trong nền.</string>
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng tin cậy và sẽ không tự động bật lại.</string>
@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Đã ngắt kết nối</string>
     <string name="tile_state_searching">Đang tìm…</string>
     <string name="tile_state_connected">Đã kết nối</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Cổng %1$d</string>
     <string name="tile_state_permission_missing">Thiếu quyền</string>
     <string name="settings_section_version">Phiên bản</string>
     <string name="settings_version_value">Phiên bản ứng dụng: %1$s</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
     <string name="advice_banner_title">Bảo mật và mạng</string>
-    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi tin cậy hoặc VPN và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ điểm cuối công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
+    <string name="advice_banner_text">Wifi-ADB mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi tin cậy hoặc VPN và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ điểm cuối công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
     <string name="settings_license_line">Được cấp phép theo GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Mở keepadb.roteson.de trong trình duyệt</string>
     <string name="settings_no_browser_found">Không tìm thấy ứng dụng để mở liên kết này.</string>
-    <string name="status_off_keep_alive_waiting">Gỡ lỗi không dây đang TẮT – Keep-Alive đang chờ mạng</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không tin cậy</string>
-    <string name="status_off_keep_alive_blocked_by_user">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này đã bị chặn</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Gỡ lỗi không dây của Android, sau đó nhấn vào công tắc để thử lại</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB đang TẮT – Keep-Alive đang chờ mạng</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không tin cậy</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này đã bị chặn</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Wifi-ADB của Android, sau đó nhấn vào công tắc để thử lại</string>
     <string name="status_pending">Đang chuyển…</string>
     <string name="home_state_on">Wifi-ADB đang bật</string>
     <string name="home_state_off">Wifi-ADB đang tắt</string>
@@ -264,19 +264,19 @@
     <string name="home_reason_untrusted">Keep-Alive đã tạm dừng: Wi-Fi không tin cậy</string>
     <string name="home_reason_blocked">Keep-Alive đã tạm dừng: Wi-Fi bị chặn</string>
     <string name="home_reason_identity">Keep-Alive đã tạm dừng: không đọc được mạng</string>
-    <string name="home_reason_backoff">Keep-Alive đã tạm dừng: hộp thoại “Gỡ lỗi không dây” chưa được xác nhận</string>
+    <string name="home_reason_backoff">Keep-Alive đã tạm dừng: hộp thoại Wifi-ADB của Android chưa được xác nhận</string>
     <string name="home_reason_no_wifi">Không có kết nối Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive sẽ không bật ở đây: Wi-Fi không tin cậy</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive sẽ không bật ở đây: Wi-Fi bị chặn</string>
-    <string name="home_action_networks">Mạng</string>
+    <string name="home_action_networks">Mạng Wi-Fi</string>
     <string name="home_action_retry">Thử lại</string>
     <string name="home_reason_details_action">Hiện chi tiết</string>
     <string name="state_pending">Đang chuyển…</string>
     <string name="tile_state_keep_alive_waiting">Tắt – Keep-Alive đang chờ</string>
-    <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
+    <string name="toggle_failed_toast">Không thể chuyển Wifi-ADB. Vui lòng thử lại.</string>
     <string name="protection_title">Bảo vệ</string>
     <string name="protection_automatic_title">Hành vi tự động</string>
-    <string name="untrusted_shutdown_hint_short">Tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy.</string>
+    <string name="untrusted_shutdown_hint_short">Tắt Wifi-ADB trên Wi-Fi không được tin cậy.</string>
     <string name="security_check_hint_short">Tạm dừng tự động bật nếu điểm Wi-Fi được tin cậy có mức bảo mật yếu hơn.</string>
     <string name="hint_more">Thêm ▾</string>
     <string name="hint_less">Ít hơn ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Không rõ</string>
     <string name="network_badge_blocked">Đã chặn</string>
     <string name="networks_title">Mạng Wi-Fi</string>
-    <string name="networks_intro">Keep-Alive có thể bật lại Gỡ lỗi không dây trong các mạng tin cậy, không bao giờ trong mạng đã chặn. Bật thủ công luôn hoạt động.</string>
+    <string name="networks_intro">Keep-Alive có thể bật lại Wifi-ADB trong các mạng tin cậy, không bao giờ trong mạng đã chặn. Bật thủ công luôn hoạt động.</string>
     <string name="networks_glossary_toggle">Giải thích thuật ngữ</string>
     <string name="networks_glossary_ssid">Tên Wi-Fi (SSID): tên mà mạng Wi-Fi phát ra. Ai cũng có thể tạo một mạng có cùng tên.</string>
     <string name="networks_glossary_bssid">Điểm truy cập (BSSID): một bộ phát riêng lẻ, như bộ định tuyến, bộ lặp hoặc nút mesh. Địa chỉ phần cứng của nó, ví dụ AA:BB:CC:11:22:33, cụ thể hơn tên, nhưng cũng không phải bằng chứng.</string>
     <string name="untrusted_shutdown_title">Tắt trên Wi-Fi không tin cậy</string>
-    <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Gỡ lỗi không dây trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
+    <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Wifi-ADB trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
     <string name="untrusted_shutdown_channel_name">Tắt trên Wi-Fi không tin cậy</string>
-    <string name="untrusted_shutdown_channel_desc">Thông báo khi KeepADB đã tắt Gỡ lỗi không dây trên Wi-Fi không tin cậy.</string>
-    <string name="untrusted_shutdown_off_title">Đã tắt Gỡ lỗi không dây</string>
+    <string name="untrusted_shutdown_channel_desc">Thông báo khi KeepADB đã tắt Wifi-ADB trên Wi-Fi không tin cậy.</string>
+    <string name="untrusted_shutdown_off_title">Đã tắt Wifi-ADB</string>
     <string name="untrusted_shutdown_off_text">Wi-Fi hiện tại không được tin cậy hoặc không xác định được. Keep-Alive sẽ bật lại trên Wi-Fi tin cậy.</string>
-    <string name="untrusted_shutdown_failed_title">Không thể tắt Gỡ lỗi không dây</string>
-    <string name="untrusted_shutdown_failed_text">Wi-Fi hiện tại không được tin cậy nhưng không thể tắt Gỡ lỗi không dây. Hãy tự tắt.</string>
+    <string name="untrusted_shutdown_failed_title">Không thể tắt Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">Wi-Fi hiện tại không được tin cậy nhưng không thể tắt Wifi-ADB. Hãy tự tắt.</string>
     <string name="security_check_title">Kiểm tra bảo mật Wi-Fi của các điểm Wi-Fi được tin cậy</string>
-    <string name="security_check_hint">Android 12 trở lên: khi bạn tin cậy một điểm Wi-Fi, KeepADB ghi lại mức bảo mật của nó (mở, cá nhân hoặc doanh nghiệp). Nếu sau đó nó kết nối với mức thấp hơn hoặc không đọc được, Keep-Alive sẽ không tự bật Gỡ lỗi không dây ở đó cho đến khi bạn tin cậy lại. Điều này không chứng minh điểm Wi-Fi là thật. Các điểm Wi-Fi được tin cậy trước tùy chọn này vẫn chỉ được kiểm tra theo địa chỉ cho đến khi bạn tin cậy lại.</string>
+    <string name="security_check_hint">Android 12 trở lên: khi bạn tin cậy một điểm Wi-Fi, KeepADB ghi lại mức bảo mật của nó (mở, cá nhân hoặc doanh nghiệp). Nếu sau đó nó kết nối với mức thấp hơn hoặc không đọc được, Keep-Alive sẽ không tự bật Wifi-ADB ở đó cho đến khi bạn tin cậy lại. Điều này không chứng minh điểm Wi-Fi là thật. Các điểm Wi-Fi được tin cậy trước tùy chọn này vẫn chỉ được kiểm tra theo địa chỉ cho đến khi bạn tin cậy lại.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) được tin cậy, nhưng bảo mật Wi-Fi của nó giờ thấp hơn lúc bạn tin cậy, hoặc không đọc được. Chỉ tin cậy lại nếu bạn mong đợi thay đổi này.</string>
     <string name="network_prompt_security_confirm_in_app_text">Bảo mật Wi-Fi của một điểm Wi-Fi được tin cậy đã thay đổi — nhấn để kiểm tra trong ứng dụng.</string>
     <string name="network_prompt_security_title">Bảo mật Wi-Fi của một điểm Wi-Fi được tin cậy đã thay đổi</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Tên tin cậy</string>
     <string name="networks_badge_name_blocked">Tên đã chặn</string>
     <string name="networks_badge_unknown">Không rõ</string>
-    <string name="networks_current_trusted">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây.</string>
+    <string name="networks_current_trusted">Keep-Alive được phép bật lại Wifi-ADB tại đây.</string>
     <string name="networks_current_trusted_name">Được tin cậy nhờ tên Wi-Fi. Bạn cũng có thể tin cậy hoặc chặn riêng điểm truy cập này.</string>
     <string name="networks_current_legacy">Chỉ áp dụng do cài đặt cũ “Trong mọi mạng Wi-Fi”. Bạn vẫn có thể tin cậy hoặc chặn điểm truy cập này.</string>
     <string name="networks_tap_to_change">Chạm để thay đổi.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Tự động bật lại đã tạm dừng: Vị trí đang tắt nên Android ẩn điểm truy cập mà bạn đang kết nối.</string>
     <string name="network_cause_unreadable_all_wifi">Hiện không thể đọc mạng. Tính năng tự động bật lại vẫn có thể tiếp tục, nhưng cần đọc được dữ liệu mạng để kiểm tra các điểm truy cập hoặc tên Wi-Fi đã lưu.</string>
     <string name="network_cause_not_allowed">Tự động bật lại đã tạm dừng: điểm truy cập này không được tin cậy.</string>
-    <string name="network_cause_blocked">Mạng này đã bị chặn: Keep-Alive không bao giờ bật Gỡ lỗi không dây tại đây và cũng không hỏi. Bật thủ công luôn hoạt động.</string>
-    <string name="network_cause_allowed">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây. Mọi điểm truy cập đọc được có tên Wi-Fi này đều được chấp nhận.</string>
+    <string name="network_cause_blocked">Mạng này đã bị chặn: Keep-Alive không bao giờ bật Wifi-ADB tại đây và cũng không hỏi. Bật thủ công luôn hoạt động.</string>
+    <string name="network_cause_allowed">Keep-Alive được phép bật lại Wifi-ADB tại đây.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive được phép bật lại Wifi-ADB tại đây. Mọi điểm truy cập đọc được có tên Wi-Fi này đều được chấp nhận.</string>
     <string name="network_cause_all_wifi">“Trong mọi mạng Wi-Fi” đang bật nên Keep-Alive được phép bật lại tại đây. Ở chế độ này, danh sách tin cậy không có tác dụng.</string>
     <string name="network_action_allow_ap">Tin cậy điểm truy cập này</string>
     <string name="network_action_location_settings">Mở cài đặt vị trí</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Chế độ cưỡng chế</string>
-    <string name="force_section_hint">Bật lại gỡ lỗi không dây ở mọi mạng trong khoảng thời gian bạn chọn. Trong thời gian này, các mạng bị chặn và mạng tin cậy không có hiệu lực.</string>
+    <string name="force_section_hint">Bật lại Wifi-ADB ở mọi mạng trong khoảng thời gian bạn chọn. Trong thời gian này, các mạng bị chặn và mạng tin cậy không có hiệu lực.</string>
     <string name="force_status_off">Tắt</string>
     <string name="force_status_until">Bật đến %1$s</string>
     <string name="force_status_unlimited">Đang bật, không có thời điểm kết thúc</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Kết thúc chế độ cưỡng chế</string>
     <string name="force_action_change">Đổi thời lượng…</string>
     <string name="force_dialog_title">Bật chế độ cưỡng chế?</string>
-    <string name="force_dialog_intro">Khi đó Keep-Alive sẽ bật lại gỡ lỗi không dây ở mọi mạng: kể cả mạng lạ, mạng bị chặn và mạng không đọc được.</string>
+    <string name="force_dialog_intro">Khi đó Keep-Alive sẽ bật lại Wifi-ADB ở mọi mạng: kể cả mạng lạ, mạng bị chặn và mạng không đọc được.</string>
     <string name="force_dialog_duration_label">Trong bao lâu?</string>
     <string name="force_duration_1h">1 giờ</string>
     <string name="force_duration_24h">24 giờ</string>
     <string name="force_duration_7d">7 ngày</string>
     <string name="force_duration_30d">30 ngày</string>
     <string name="force_duration_unlimited">Không có thời điểm kết thúc</string>
-    <string name="force_warning_all">Gỡ lỗi không dây mở một cổng trên mạng. Các máy tính bạn đã ghép đôi trước đây có toàn quyền truy cập ADB qua cổng đó: cài ứng dụng, đọc dữ liệu, quay màn hình. Ở mạng lạ, bạn không biết ai đang thử kết nối.
+    <string name="force_warning_all">Wifi-ADB mở một cổng trên mạng. Các máy tính bạn đã ghép đôi trước đây có toàn quyền truy cập ADB qua cổng đó: cài ứng dụng, đọc dữ liệu, quay màn hình. Ở mạng lạ, bạn không biết ai đang thử kết nối.
 
 Trong thời gian này, các mạng bị chặn và mạng tin cậy của bạn không có hiệu lực.
 
 Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc thông báo.</string>
-    <string name="force_warning_days">Trong nhiều ngày, bạn sẽ vào những mạng mà bây giờ chưa nghĩ tới: khách sạn, tàu, quán cà phê, chỗ làm. Gỡ lỗi sẽ bật ở đó mà không hỏi bạn.</string>
+    <string name="force_warning_days">Trong nhiều ngày, bạn sẽ vào những mạng mà bây giờ chưa nghĩ tới: khách sạn, tàu, quán cà phê, chỗ làm. Wifi-ADB sẽ bật ở đó mà không hỏi bạn.</string>
     <string name="force_warning_unlimited">Nếu không có thời điểm kết thúc, chế độ cưỡng chế vẫn bật cho đến khi chính bạn kết thúc, kể cả sau khi khởi động lại và cập nhật ứng dụng.</string>
-    <string name="force_unlimited_ack">Tôi hiểu rằng khi đó gỡ lỗi không dây sẽ bật ở mọi mạng.</string>
+    <string name="force_unlimited_ack">Tôi hiểu rằng khi đó Wifi-ADB sẽ bật ở mọi mạng.</string>
     <string name="force_keepalive_hint">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive sẽ được bật cùng.</string>
     <string name="force_not_started_toast">Chế độ cưỡng chế chưa được bật: hiện thiết bị này không thể giữ giới hạn thời gian một cách tin cậy. Không có gì bị thay đổi.</string>
     <string name="force_confirm_1h">Bật trong 1 giờ</string>
@@ -419,8 +419,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="force_confirm_30d">Bật trong 30 ngày</string>
     <string name="force_confirm_unlimited">Bật không có thời điểm kết thúc</string>
     <string name="force_card_title">Chế độ cưỡng chế đang bật</string>
-    <string name="force_card_text_until">Gỡ lỗi không dây được bật lại ở mọi mạng. Bật đến %1$s.</string>
-    <string name="force_card_text_unlimited">Gỡ lỗi không dây được bật lại ở mọi mạng. Không có thời điểm kết thúc.</string>
+    <string name="force_card_text_until">Wifi-ADB được bật lại ở mọi mạng. Bật đến %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB được bật lại ở mọi mạng. Không có thời điểm kết thúc.</string>
     <string name="force_ended_toast">Chế độ cưỡng chế đã kết thúc. Mức bảo vệ trở lại: %1$s.</string>
     <string name="force_notification_until">Chế độ cưỡng chế bật đến %1$s</string>
     <string name="force_notification_unlimited">Chế độ cưỡng chế đang bật, không có thời điểm kết thúc</string>
@@ -429,7 +429,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="force_expired_title">Chế độ cưỡng chế đã kết thúc</string>
     <string name="force_expired_text">Đã hết thời gian đã chọn. Mức bảo vệ trở lại: %1$s. Giờ đây Keep-Alive chỉ bật ở nơi mức bảo vệ cho phép.</string>
     <string name="force_expired_text_safety">Chế độ cưỡng chế đã kết thúc sớm vì an toàn: không thể kiểm tra chắc chắn thời gian còn lại. Mức bảo vệ trở lại: %1$s. Giờ đây Keep-Alive chỉ bật ở nơi mức bảo vệ cho phép.</string>
-    <string name="force_expired_still_on">Gỡ lỗi không dây hiện vẫn đang bật.</string>
+    <string name="force_expired_still_on">Wifi-ADB hiện vẫn đang bật.</string>
     <string name="force_expired_action_off">Tắt ngay</string>
     <string name="force_level_maximum">Bảo mật tối đa</string>
     <string name="force_level_balanced">Cân bằng</string>
@@ -465,11 +465,11 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_privacy_summary_off">Quyền riêng tư: không ẩn gì</string>
     <string name="onboarding_privacy_summary_on">Quyền riêng tư: bật %1$d trên %2$d</string>
     <string name="onboarding_privacy_change">Thay đổi</string>
-    <string name="onboarding_keep_alive_question">Gỡ lỗi không dây có nên tự bật lại sau khi khởi động lại hoặc mất kết nối không?</string>
-    <string name="onboarding_keep_alive_off_body">Bạn tự bật Gỡ lỗi không dây trong ứng dụng, ô cài đặt nhanh hoặc widget. Sau khi khởi động lại, nó vẫn tắt.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB bật lại Gỡ lỗi không dây sau khi khởi động lại hoặc mất kết nối, nhưng chỉ ở nơi mức bảo vệ của bạn cho phép (bước tiếp theo).</string>
+    <string name="onboarding_keep_alive_question">Wifi-ADB có nên tự bật lại sau khi khởi động lại hoặc mất kết nối không?</string>
+    <string name="onboarding_keep_alive_off_body">Bạn tự bật Wifi-ADB trong ứng dụng, ô cài đặt nhanh hoặc widget. Sau khi khởi động lại, nó vẫn tắt.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB bật lại Wifi-ADB sau khi khởi động lại hoặc mất kết nối, nhưng chỉ ở nơi mức bảo vệ của bạn cho phép (bước tiếp theo).</string>
     <string name="onboarding_protection_title">Mức bảo vệ</string>
-    <string name="onboarding_protection_question">Keep-Alive được tự bật Gỡ lỗi không dây ở đâu?</string>
+    <string name="onboarding_protection_question">Keep-Alive được tự bật Wifi-ADB ở đâu?</string>
     <string name="onboarding_protection_max_body">Chỉ ở các điểm truy cập bạn tin cậy. KeepADB sẽ hỏi về điểm chưa biết.</string>
     <string name="onboarding_protection_balanced_body">Cả ở mọi điểm truy cập mang tên của Wi-Fi tin cậy. Tiện hơn với mesh và bộ lặp, nhưng tên rất dễ bị giả mạo.</string>
     <string name="onboarding_protection_legacy_all_body">Mọi mạng Wi-Fi đều được coi là tin cậy trừ khi bạn chặn. Chọn một mức bên dưới để rời khỏi cài đặt này.</string>
@@ -493,7 +493,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_permissions_summary_done">Đã đủ</string>
     <string name="onboarding_permissions_summary_missing">Còn thiếu: %1$d</string>
     <string name="onboarding_perm_system_title">Quyền hệ thống</string>
-    <string name="onboarding_perm_system_body">Không có quyền này, KeepADB không thể bật/tắt Gỡ lỗi không dây. Hãy cấp một lần từ máy tính:</string>
+    <string name="onboarding_perm_system_body">Không có quyền này, KeepADB không thể bật/tắt Wifi-ADB. Hãy cấp một lần từ máy tính:</string>
     <string name="onboarding_perm_system_more">Nhiều thiết bị hoặc có sự cố?</string>
     <string name="onboarding_copy_command">Sao chép lệnh</string>
     <string name="onboarding_copy_done">Đã sao chép lệnh</string>
@@ -508,8 +508,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_network_title">Wi-Fi tin cậy</string>
     <string name="onboarding_network_question">KeepADB có nên tin cậy mạng Wi-Fi bạn đang kết nối không?</string>
     <string name="onboarding_network_privacy_note">Quyền riêng tư đang bật: tên và địa chỉ vẫn bị ẩn cho đến khi bạn chạm “Hiển thị”.</string>
-    <string name="onboarding_network_open_list">Đổi trong danh sách Mạng</string>
-    <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Gỡ lỗi không dây tới máy chủ riêng của bạn, ví dụ trong mạng gia đình hoặc VPN của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
+    <string name="onboarding_network_open_list">Đổi trong “Mạng Wi-Fi”</string>
+    <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Wifi-ADB tới máy chủ riêng của bạn, ví dụ trong mạng gia đình hoặc VPN của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
     <string name="onboarding_protection_force_title">Tiện nhất (chế độ cưỡng chế)</string>
     <string name="onboarding_protection_force_body">Trong mọi mạng, kể cả mạng lạ, trong khoảng thời gian bạn chọn. Bạn cần xác nhận trước.</string>
     <string name="onboarding_protection_force_keep_alive">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive được bật cùng.</string>
@@ -517,7 +517,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_protection_force_comfort_note">Áp dụng sau khi chế độ cưỡng chế kết thúc.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Thiếu quyền hệ thống</string>
-    <string name="home_warning_system_text">KeepADB chỉ có thể bật/tắt Gỡ lỗi không dây sau khi bạn cấp quyền này một lần từ máy tính.</string>
+    <string name="home_warning_system_text">KeepADB chỉ có thể bật/tắt Wifi-ADB sau khi bạn cấp quyền này một lần từ máy tính.</string>
     <string name="home_warning_action_guide">Hướng dẫn</string>
     <string name="home_warning_less_secure_title">Kém an toàn hơn khuyến nghị</string>
     <string name="home_warning_action_review">Xem lại</string>
@@ -587,8 +587,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Điều khiển KeepADB</string>
-    <string name="widget_picker_description">Điều khiển gỡ lỗi không dây, Keep-Alive và Webhook. Càng phóng to càng hiển thị nhiều hơn.</string>
-    <string name="widget_action_adb">Gỡ lỗi</string>
+    <string name="widget_picker_description">Điều khiển Wifi-ADB, Keep-Alive và Webhook. Càng phóng to càng hiển thị nhiều hơn.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Tự đồng bộ</string>
     <string name="widget_action_sync_description">Đồng bộ Webhook tự động</string>

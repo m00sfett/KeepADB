@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Vervang &lt;device-serial&gt; door het exacte serienummer dat "adb devices" voor dit apparaat toonde.</string>
     <string name="setup_state_offline_title">Apparaat toont "offline"?</string>
-    <string name="setup_state_offline_body">De verbinding is verbroken. Sluit de USB-kabel opnieuw aan of schakel draadloze foutopsporing op de telefoon opnieuw in, en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
+    <string name="setup_state_offline_body">De verbinding is verbroken. Sluit de USB-kabel opnieuw aan of schakel Wifi-ADB in de ontwikkelaarsopties opnieuw in, en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_state_unauthorized_title">Apparaat toont "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bevestig de foutopsporingsautorisatiemelding op het scherm van deze telefoon en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_refresh">Toestemming controleren</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
     <string name="connect_help_link">Computer verbinden…</string>
     <string name="connect_help_title">Computer verbinden</string>
-    <string name="connect_help_step_phone">Open op de telefoon Ontwikkelaarsopties › ‘Draadloze foutopsporing’ › ‘Apparaat koppelen met koppelingscode’.</string>
+    <string name="connect_help_step_phone">Open op de telefoon de Wifi-ADB-instellingen in Ontwikkelaarsopties en tik op ‘Apparaat koppelen met koppelingscode’.</string>
     <string name="connect_help_step_pair">Op de computer, eenmalig per computer: voer de onderstaande opdracht uit en voer de code in die op de telefoon staat.</string>
     <string name="connect_help_step_connect">Voer met Wifi-ADB aan deze opdracht uit met het adres dat KeepADB toont (tik op het adres om de opdracht te kopiëren). Een computer die al gekoppeld is, verbindt vaak vanzelf.</string>
     <string name="connect_help_open_settings">Ontwikkelaarsopties openen</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, primair transport</string>
-    <string name="toggle_label">Draadloze foutopsporing</string>
-    <string name="toggle_subtext">Schakelt draadloze foutopsporing in of uit voor ADB via wifi.</string>
-    <string name="keep_alive_toggle">Permanent actief houden</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Schakelt Wifi-ADB in of uit, zodat een computer deze telefoon via wifi kan bereiken.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>
     <string name="tile_permission_error">%1$s: Toestemming ontbreekt (pm grant vereist)</string>
     <string name="permission_error_toast">Toestemming ontbreekt. Voer eenmalig uit op PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Eindpunt voor draadloze foutopsporing</string>
-    <string name="notification_channel_desc">Huidig IP-adres en poort van draadloze foutopsporing</string>
+    <string name="notification_channel_name">Eindpunt van Wifi-ADB</string>
+    <string name="notification_channel_desc">Huidig IP-adres en poort van Wifi-ADB</string>
     <string name="notification_title_active">%1$s: Wifi-ADB aan</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB uit</string>
     <string name="endpoint_port_at_ip">Poort %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tik om verbindingsdetails in de app te bekijken.</string>
     <string name="notification_title_searching">%1$s: Zoeken naar eindpunt…</string>
     <string name="notification_text_searching">Eindpunt oplossen op lokaal netwerk</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wacht tot Draadloze foutopsporing weer wordt ingeschakeld</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wacht tot Wifi-ADB weer wordt ingeschakeld</string>
     <string name="notification_text_keepalive_on">Keep-Alive: aan</string>
     <string name="notification_text_keepalive_off">Keep-Alive: uit</string>
     <string name="notification_text_webhook_synced">Webhook: gesynchroniseerd %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook: nog geen geslaagde synchronisatie</string>
     <string name="notification_action_keepalive_on">Keep-Alive inschakelen</string>
     <string name="notification_action_keepalive_off">Keep-Alive uitschakelen</string>
-    <string name="notification_service_title">Draadloze foutopsporing actief houden</string>
-    <string name="notification_service_text">wifi-verbinding en status van draadloze foutopsporing controleren</string>
+    <string name="notification_service_title">Wifi-ADB actief houden</string>
+    <string name="notification_service_text">wifi-verbinding en status van Wifi-ADB controleren</string>
     <string name="notification_permission_missing_title">%1$s: Toestemming ontbreekt</string>
     <string name="notification_permission_panel_title">Meldingen</string>
-    <string name="notification_permission_panel_body">Met meldingen ingeschakeld zie je of de achtergrondservice van KeepADB en Keep-Alive actief zijn. Als de verbinding wegvalt, waarschuwt KeepADB je direct. Draadloze foutopsporing werkt ook zonder deze toestemming gewoon.</string>
+    <string name="notification_permission_panel_body">Met meldingen ingeschakeld zie je of de achtergrondservice van KeepADB en Keep-Alive actief zijn. Als de verbinding wegvalt, waarschuwt KeepADB je direct. Wifi-ADB werkt ook zonder deze toestemming gewoon.</string>
     <string name="notification_permission_request_button">Meldingen toestaan</string>
     <string name="notification_permission_settings_button">Meldingsinstellingen openen</string>
     <string name="notification_permission_missing_text">Verleen WRITE_SECURE_SETTINGS vanaf de pc via adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook- &amp; eindpuntsynchronisatie</string>
     <string name="settings_webhook_toggle">Webhook-synchronisatie inschakelen</string>
-    <string name="settings_webhook_subtext">Verzendt het actieve eindpunt (IP:poort) via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>
+    <string name="settings_webhook_subtext">Verzendt het actieve eindpunt via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>
     <string name="settings_webhook_url_hint">http://host:poort/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>
     <string name="settings_webhook_btn_save">URL opslaan</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Dit netwerk vertrouwen?</string>
     <string name="network_decision_name_label">Wifi-naam (SSID)</string>
     <string name="network_decision_ap_label">Access point (BSSID)</string>
-    <string name="network_decision_text">Als je dit access point vertrouwt, mag Keep-Alive draadloze foutopsporing hier automatisch weer inschakelen. Handmatig inschakelen werkt altijd.</string>
+    <string name="network_decision_text">Als je dit access point vertrouwt, mag Keep-Alive Wifi-ADB hier automatisch weer inschakelen. Handmatig inschakelen werkt altijd.</string>
     <string name="network_decision_comfort_note">Comfort staat aan: andere access points met de naam “%1$s” worden dan ook geaccepteerd.</string>
     <string name="network_decision_trust">Vertrouwen</string>
     <string name="network_decision_block_ap">Alleen dit access point blokkeren</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">nog geen</string>
     <string name="webhook_status_deregistered">afgemeld</string>
     <string name="webhook_status_failed">mislukt</string>
-    <string name="settings_permission_warning">Systeemtoestemming WRITE_SECURE_SETTINGS ontbreekt. KeepADB kan draadloze foutopsporing pas schakelen nadat toestemming is verleend.</string>
+    <string name="settings_permission_warning">Systeemtoestemming WRITE_SECURE_SETTINGS ontbreekt. KeepADB kan Wifi-ADB pas schakelen nadat toestemming is verleend.</string>
     <string name="settings_language_menu_label">Taal</string>
     <string name="settings_language_accessibility">App-taal: %1$s</string>
     <string name="settings_language_system_default">Systeemstandaard</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Overig</string>
     <string name="settings_section_notification">Melding</string>
     <string name="settings_hide_notification_toggle">Permanente melding</string>
-    <string name="settings_hide_notification_subtext">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
+    <string name="settings_hide_notification_subtext">Toont de Wifi-ADB-status en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Toont de Wifi-ADB-status en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Of verbindingsdetails verschijnen, bepaalt “Verbergen in meldingen” onder Privacy; ze kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Herkenning op de achtergrond controleren</string>
     <string name="background_location_dialog_later">Later</string>
     <string name="background_location_status_granted">Herkenning op de achtergrond: toegestaan. Vertrouwde access points worden ook herkend wanneer Keep-Alive op de achtergrond start. KeepADB leest of bewaart nooit de positie van je apparaat.</string>
-    <string name="background_location_status_missing">Herkenning op de achtergrond: beperkt. Start Keep-Alive op de achtergrond, dan kan Android verbergen met welk access point je verbonden bent; KeepADB behandelt het netwerk dan als onleesbaar en schakelt Draadloze foutopsporing pas automatisch in als je de app opent.</string>
+    <string name="background_location_status_missing">Herkenning op de achtergrond: beperkt. Start Keep-Alive op de achtergrond, dan kan Android verbergen met welk access point je verbonden bent; KeepADB behandelt het netwerk dan als onleesbaar en schakelt Wifi-ADB pas automatisch in als je de app opent.</string>
     <string name="background_location_status_missing_inactive">Herkenning op de achtergrond: niet nodig in deze configuratie. Hiermee worden access points of wifi-namen gecontroleerd wanneer Keep-Alive op de achtergrond actief is.</string>
     <string name="location_permission_panel_title">Locatietoestemming vereist voor vertrouwde netwerken</string>
     <string name="location_permission_panel_body">De modus vertrouwde netwerken heeft locatietoegang nodig om je wifi-netwerk te herkennen. Zonder deze kan Keep-Alive geen vertrouwd netwerk bevestigen en niet automatisch opnieuw inschakelen.</string>
@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Niet verbonden</string>
     <string name="tile_state_searching">Zoeken…</string>
     <string name="tile_state_connected">Verbonden</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Poort %1$d</string>
     <string name="tile_state_permission_missing">Toestemming ontbreekt</string>
     <string name="settings_section_version">Versie</string>
     <string name="settings_version_value">App-versie: %1$s</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Voeg andere nuttige informatie toe.</string>
     <string name="issue_report_diagnostics_section">Optionele geredigeerde KeepADB-diagnostische gegevens (controleer vóór verzending)</string>
     <string name="advice_banner_title">Beveiliging &amp; netwerk</string>
-    <string name="advice_banner_text">Draadloze foutopsporing opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn en schakel het uit op openbare hotspots. Deel je eindpunt nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
+    <string name="advice_banner_text">Wifi-ADB opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn en schakel het uit op openbare hotspots. Deel je eindpunt nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
     <string name="settings_license_line">Uitgebracht onder de GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de openen in browser</string>
     <string name="settings_no_browser_found">Geen app gevonden om deze link te openen.</string>
-    <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
-    <string name="status_off_keep_alive_blocked_by_user">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is geblokkeerd</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB is UIT – Keep-Alive wacht op het netwerk</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is geblokkeerd</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is UIT – Keep-Alive gepauzeerd: bevestig de netwerkdialoog van Android voor Wifi-ADB en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
     <string name="home_state_on">Wifi-ADB is aan</string>
     <string name="home_state_off">Wifi-ADB is uit</string>
@@ -264,19 +264,19 @@
     <string name="home_reason_untrusted">Keep-Alive gepauzeerd: wifi niet vertrouwd</string>
     <string name="home_reason_blocked">Keep-Alive gepauzeerd: wifi geblokkeerd</string>
     <string name="home_reason_identity">Keep-Alive gepauzeerd: netwerk onleesbaar</string>
-    <string name="home_reason_backoff">Keep-Alive gepauzeerd: dialoog ‘Draadloze foutopsporing’ niet bevestigd</string>
+    <string name="home_reason_backoff">Keep-Alive gepauzeerd: Android-dialoog voor Wifi-ADB niet bevestigd</string>
     <string name="home_reason_no_wifi">Geen wifi-verbinding</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive blijft hier uit: wifi niet vertrouwd</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive blijft hier uit: wifi geblokkeerd</string>
-    <string name="home_action_networks">Netwerken</string>
+    <string name="home_action_networks">Wifi-netwerken</string>
     <string name="home_action_retry">Opnieuw proberen</string>
     <string name="home_reason_details_action">Details tonen</string>
     <string name="state_pending">Bezig met omschakelen…</string>
     <string name="tile_state_keep_alive_waiting">Uit – Keep-Alive wacht</string>
-    <string name="toggle_failed_toast">Draadloze foutopsporing kon niet worden omgeschakeld. Probeer het opnieuw.</string>
+    <string name="toggle_failed_toast">Wifi-ADB kon niet worden omgeschakeld. Probeer het opnieuw.</string>
     <string name="protection_title">Beveiliging</string>
     <string name="protection_automatic_title">Automatisch gedrag</string>
-    <string name="untrusted_shutdown_hint_short">Schakelt draadloze foutopsporing uit op wifi die niet vertrouwd is.</string>
+    <string name="untrusted_shutdown_hint_short">Schakelt Wifi-ADB uit op wifi die niet vertrouwd is.</string>
     <string name="security_check_hint_short">Pauzeert automatisch inschakelen als een vertrouwd wifi-punt zwakkere beveiliging toont.</string>
     <string name="hint_more">Meer ▾</string>
     <string name="hint_less">Minder ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Onbekend</string>
     <string name="network_badge_blocked">Geblokkeerd</string>
     <string name="networks_title">Wifi-netwerken</string>
-    <string name="networks_intro">Keep-Alive mag Draadloze foutopsporing weer inschakelen in vertrouwde netwerken, nooit in geblokkeerde. Handmatig inschakelen werkt altijd.</string>
+    <string name="networks_intro">Keep-Alive mag Wifi-ADB weer inschakelen in vertrouwde netwerken, nooit in geblokkeerde. Handmatig inschakelen werkt altijd.</string>
     <string name="networks_glossary_toggle">Termen uitgelegd</string>
     <string name="networks_glossary_ssid">Wifi-naam (SSID): de naam die een wifi-netwerk uitzendt. Iedereen kan een netwerk met dezelfde naam opzetten.</string>
     <string name="networks_glossary_bssid">Access point (BSSID): één enkele zender, zoals een router, repeater of mesh-node. Het hardwareadres, bijvoorbeeld AA:BB:CC:11:22:33, is specifieker dan de naam, maar ook geen bewijs.</string>
     <string name="untrusted_shutdown_title">Uitschakelen op niet-vertrouwde wifi</string>
-    <string name="untrusted_shutdown_hint">Zolang Keep-Alive aan staat, schakelt KeepADB draadloze foutopsporing uit op wifi die niet vertrouwd, geblokkeerd of niet herkenbaar is, in plaats van je alleen te waarschuwen. Een sessie die je zelf in KeepADB hebt aangezet, blijft op dat wifi-punt aan. De geforceerde modus schort dit op.</string>
+    <string name="untrusted_shutdown_hint">Zolang Keep-Alive aan staat, schakelt KeepADB Wifi-ADB uit op wifi die niet vertrouwd, geblokkeerd of niet herkenbaar is, in plaats van je alleen te waarschuwen. Een sessie die je zelf in KeepADB hebt aangezet, blijft op dat wifi-punt aan. De geforceerde modus schort dit op.</string>
     <string name="untrusted_shutdown_channel_name">Uitschakelen op niet-vertrouwde wifi</string>
-    <string name="untrusted_shutdown_channel_desc">Meldt wanneer KeepADB draadloze foutopsporing heeft uitgeschakeld op niet-vertrouwde wifi.</string>
-    <string name="untrusted_shutdown_off_title">Draadloze foutopsporing uitgeschakeld</string>
+    <string name="untrusted_shutdown_channel_desc">Meldt wanneer KeepADB Wifi-ADB heeft uitgeschakeld op niet-vertrouwde wifi.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB uitgeschakeld</string>
     <string name="untrusted_shutdown_off_text">De huidige wifi is niet vertrouwd of niet herkenbaar. Keep-Alive zet het weer aan op vertrouwde wifi.</string>
-    <string name="untrusted_shutdown_failed_title">Draadloze foutopsporing kon niet worden uitgeschakeld</string>
-    <string name="untrusted_shutdown_failed_text">De huidige wifi is niet vertrouwd, maar het uitschakelen van draadloze foutopsporing is mislukt. Schakel het zelf uit.</string>
+    <string name="untrusted_shutdown_failed_title">Wifi-ADB kon niet worden uitgeschakeld</string>
+    <string name="untrusted_shutdown_failed_text">De huidige wifi is niet vertrouwd, maar het uitschakelen van Wifi-ADB is mislukt. Schakel het zelf uit.</string>
     <string name="security_check_title">Wifi-beveiliging van vertrouwde wifi-punten controleren</string>
-    <string name="security_check_hint">Android 12 en hoger: als je een wifi-punt vertrouwt, onthoudt KeepADB het beveiligingsniveau (open, persoonlijk of zakelijk). Maakt het later verbinding met een lager of onleesbaar niveau, dan zet Keep-Alive draadloze foutopsporing daar niet zelf aan totdat je het opnieuw vertrouwt. Dit bewijst niet dat het wifi-punt echt is. Wifi-punten die je vóór deze optie vertrouwde, worden alleen op adres gecontroleerd totdat je ze opnieuw vertrouwt.</string>
+    <string name="security_check_hint">Android 12 en hoger: als je een wifi-punt vertrouwt, onthoudt KeepADB het beveiligingsniveau (open, persoonlijk of zakelijk). Maakt het later verbinding met een lager of onleesbaar niveau, dan zet Keep-Alive Wifi-ADB daar niet zelf aan totdat je het opnieuw vertrouwt. Dit bewijst niet dat het wifi-punt echt is. Wifi-punten die je vóór deze optie vertrouwde, worden alleen op adres gecontroleerd totdat je ze opnieuw vertrouwt.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) is vertrouwd, maar de wifi-beveiliging is nu lager dan toen je het vertrouwde, of onleesbaar. Vertrouw het alleen opnieuw als je deze wijziging verwacht.</string>
     <string name="network_prompt_security_confirm_in_app_text">De wifi-beveiliging van een vertrouwd wifi-punt is gewijzigd — tik om dit in de app te controleren.</string>
     <string name="network_prompt_security_title">Wifi-beveiliging van een vertrouwd wifi-punt gewijzigd</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Naam vertrouwd</string>
     <string name="networks_badge_name_blocked">Naam geblokkeerd</string>
     <string name="networks_badge_unknown">Onbekend</string>
-    <string name="networks_current_trusted">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen.</string>
+    <string name="networks_current_trusted">Keep-Alive mag Wifi-ADB hier weer inschakelen.</string>
     <string name="networks_current_trusted_name">Vertrouwd vanwege de wifi-naam. Je kunt dit access point ook apart vertrouwen of blokkeren.</string>
     <string name="networks_current_legacy">Geldt alleen vanwege de vorige instelling ‘In alle wifi-netwerken’. Je kunt dit access point toch vertrouwen of blokkeren.</string>
     <string name="networks_tap_to_change">Tik om te wijzigen.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Automatisch opnieuw inschakelen gepauzeerd: locatie staat uit, dus Android verbergt met welk access point je verbonden bent.</string>
     <string name="network_cause_unreadable_all_wifi">Het netwerk kan nu niet worden gelezen. Automatisch opnieuw inschakelen kan doorgaan, maar leesbare netwerkgegevens zijn nodig om opgeslagen access points of wifi-namen te controleren.</string>
     <string name="network_cause_not_allowed">Automatisch opnieuw inschakelen gepauzeerd: dit access point is niet vertrouwd.</string>
-    <string name="network_cause_blocked">Dit netwerk is geblokkeerd: Keep-Alive schakelt Draadloze foutopsporing hier nooit in en vraagt er ook niet naar. Handmatig inschakelen werkt altijd.</string>
-    <string name="network_cause_allowed">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen. Elk leesbaar access point met deze wifi-naam wordt geaccepteerd.</string>
+    <string name="network_cause_blocked">Dit netwerk is geblokkeerd: Keep-Alive schakelt Wifi-ADB hier nooit in en vraagt er ook niet naar. Handmatig inschakelen werkt altijd.</string>
+    <string name="network_cause_allowed">Keep-Alive mag Wifi-ADB hier weer inschakelen.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive mag Wifi-ADB hier weer inschakelen. Elk leesbaar access point met deze wifi-naam wordt geaccepteerd.</string>
     <string name="network_cause_all_wifi">‘In alle wifi-netwerken’ is actief, dus Keep-Alive mag hier weer inschakelen. Lijsten met vertrouwde items tellen in deze modus niet mee.</string>
     <string name="network_action_allow_ap">Dit access point vertrouwen</string>
     <string name="network_action_location_settings">Locatie-instellingen openen</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Geforceerde modus</string>
-    <string name="force_section_hint">Schakelt draadloze foutopsporing in elk netwerk weer in, voor een tijd die je kiest. Blokkades en vertrouwde netwerken gelden in die tijd niet.</string>
+    <string name="force_section_hint">Schakelt Wifi-ADB in elk netwerk weer in, voor een tijd die je kiest. Blokkades en vertrouwde netwerken gelden in die tijd niet.</string>
     <string name="force_status_off">Uit</string>
     <string name="force_status_until">Actief tot %1$s</string>
     <string name="force_status_unlimited">Actief, zonder einde</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Geforceerde modus beëindigen</string>
     <string name="force_action_change">Duur wijzigen…</string>
     <string name="force_dialog_title">Geforceerde modus inschakelen?</string>
-    <string name="force_dialog_intro">Keep-Alive schakelt draadloze foutopsporing dan in elk netwerk weer in: ook in onbekende, geblokkeerde en onleesbare netwerken.</string>
+    <string name="force_dialog_intro">Keep-Alive schakelt Wifi-ADB dan in elk netwerk weer in: ook in onbekende, geblokkeerde en onleesbare netwerken.</string>
     <string name="force_dialog_duration_label">Hoe lang?</string>
     <string name="force_duration_1h">1 uur</string>
     <string name="force_duration_24h">24 uur</string>
     <string name="force_duration_7d">7 dagen</string>
     <string name="force_duration_30d">30 dagen</string>
     <string name="force_duration_unlimited">Zonder einde</string>
-    <string name="force_warning_all">Draadloze foutopsporing opent een poort op het netwerk. Computers die je eerder hebt gekoppeld krijgen daarmee volledige ADB-toegang: apps installeren, gegevens lezen, het scherm opnemen. In onbekende netwerken weet je niet wie het probeert.
+    <string name="force_warning_all">Wifi-ADB opent een poort op het netwerk. Computers die je eerder hebt gekoppeld krijgen daarmee volledige ADB-toegang: apps installeren, gegevens lezen, het scherm opnemen. In onbekende netwerken weet je niet wie het probeert.
 
 Je blokkades en vertrouwde netwerken gelden in deze tijd niet.
 
 Je kunt het op elk moment beëindigen via het startscherm of de melding.</string>
-    <string name="force_warning_days">Over meerdere dagen kom je in netwerken waar je nu niet aan denkt: hotel, trein, café, werk. Foutopsporing gaat daar aan zonder dat het je vraagt.</string>
+    <string name="force_warning_days">Over meerdere dagen kom je in netwerken waar je nu niet aan denkt: hotel, trein, café, werk. Wifi-ADB gaat daar aan zonder dat het je vraagt.</string>
     <string name="force_warning_unlimited">Zonder einde blijft de geforceerde modus aan tot je hem zelf beëindigt, ook na herstarts en app-updates.</string>
-    <string name="force_unlimited_ack">Ik begrijp dat draadloze foutopsporing dan in elk netwerk aangaat.</string>
+    <string name="force_unlimited_ack">Ik begrijp dat Wifi-ADB dan in elk netwerk aangaat.</string>
     <string name="force_keepalive_hint">De geforceerde modus werkt alleen met Keep-Alive. Keep-Alive wordt mee ingeschakeld.</string>
     <string name="force_not_started_toast">De geforceerde modus is niet ingeschakeld: een tijdslimiet kan op dit apparaat nu niet betrouwbaar worden bewaakt. Er is niets gewijzigd.</string>
     <string name="force_confirm_1h">Inschakelen voor 1 uur</string>
@@ -419,8 +419,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="force_confirm_30d">Inschakelen voor 30 dagen</string>
     <string name="force_confirm_unlimited">Inschakelen zonder einde</string>
     <string name="force_card_title">Geforceerde modus actief</string>
-    <string name="force_card_text_until">Draadloze foutopsporing wordt in elk netwerk weer ingeschakeld. Actief tot %1$s.</string>
-    <string name="force_card_text_unlimited">Draadloze foutopsporing wordt in elk netwerk weer ingeschakeld. Zonder einde.</string>
+    <string name="force_card_text_until">Wifi-ADB wordt in elk netwerk weer ingeschakeld. Actief tot %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB wordt in elk netwerk weer ingeschakeld. Zonder einde.</string>
     <string name="force_ended_toast">Geforceerde modus beëindigd. Beveiligingsniveau weer: %1$s.</string>
     <string name="force_notification_until">Geforceerde modus actief tot %1$s</string>
     <string name="force_notification_unlimited">Geforceerde modus actief, zonder einde</string>
@@ -429,7 +429,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="force_expired_title">Geforceerde modus beëindigd</string>
     <string name="force_expired_text">De gekozen tijd is om. Beveiligingsniveau weer: %1$s. Keep-Alive schakelt nu alleen nog in waar het beveiligingsniveau dat toestaat.</string>
     <string name="force_expired_text_safety">De geforceerde modus is om veiligheidsredenen eerder beëindigd: de resterende tijd kon niet betrouwbaar worden gecontroleerd. Beveiligingsniveau weer: %1$s. Keep-Alive schakelt nu alleen nog in waar het beveiligingsniveau dat toestaat.</string>
-    <string name="force_expired_still_on">Draadloze foutopsporing staat op dit moment nog aan.</string>
+    <string name="force_expired_still_on">Wifi-ADB staat op dit moment nog aan.</string>
     <string name="force_expired_action_off">Nu uitschakelen</string>
     <string name="force_level_maximum">Maximale beveiliging</string>
     <string name="force_level_balanced">Gebalanceerd</string>
@@ -465,11 +465,11 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_privacy_summary_off">Privacy: niets verborgen</string>
     <string name="onboarding_privacy_summary_on">Privacy: %1$d van %2$d aan</string>
     <string name="onboarding_privacy_change">Wijzigen</string>
-    <string name="onboarding_keep_alive_question">Moet draadloze foutopsporing zichzelf weer inschakelen na een herstart of een verbroken verbinding?</string>
-    <string name="onboarding_keep_alive_off_body">Je schakelt draadloze foutopsporing zelf in, in de app, via de tegel of de widget. Na een herstart blijft het uit.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB schakelt draadloze foutopsporing na een herstart of een verbroken verbinding weer in, maar alleen waar je beveiligingsniveau dat toestaat (volgende stap).</string>
+    <string name="onboarding_keep_alive_question">Moet Wifi-ADB zichzelf weer inschakelen na een herstart of een verbroken verbinding?</string>
+    <string name="onboarding_keep_alive_off_body">Je schakelt Wifi-ADB zelf in, in de app, via de tegel of de widget. Na een herstart blijft het uit.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB schakelt Wifi-ADB na een herstart of een verbroken verbinding weer in, maar alleen waar je beveiligingsniveau dat toestaat (volgende stap).</string>
     <string name="onboarding_protection_title">Beveiligingsniveau</string>
-    <string name="onboarding_protection_question">Waar mag Keep-Alive draadloze foutopsporing zelf inschakelen?</string>
+    <string name="onboarding_protection_question">Waar mag Keep-Alive Wifi-ADB zelf inschakelen?</string>
     <string name="onboarding_protection_max_body">Alleen bij access points die je vertrouwt. KeepADB vraagt het bij onbekende.</string>
     <string name="onboarding_protection_balanced_body">Ook bij elk access point met de naam van een vertrouwd wifi-netwerk. Handiger met mesh en repeaters, maar een naam is makkelijk na te bootsen.</string>
     <string name="onboarding_protection_legacy_all_body">Elk wifi-netwerk geldt als vertrouwd, tenzij je het blokkeerde. Kies hieronder een niveau om deze instelling te verlaten.</string>
@@ -493,7 +493,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_permissions_summary_done">Alles in orde</string>
     <string name="onboarding_permissions_summary_missing">Ontbrekend: %1$d</string>
     <string name="onboarding_perm_system_title">Systeemtoestemming</string>
-    <string name="onboarding_perm_system_body">Zonder deze toestemming kan KeepADB draadloze foutopsporing niet schakelen. Verleen haar eenmalig vanaf een computer:</string>
+    <string name="onboarding_perm_system_body">Zonder deze toestemming kan KeepADB Wifi-ADB niet schakelen. Verleen haar eenmalig vanaf een computer:</string>
     <string name="onboarding_perm_system_more">Meerdere apparaten of problemen?</string>
     <string name="onboarding_copy_command">Opdracht kopiëren</string>
     <string name="onboarding_copy_done">Opdracht gekopieerd</string>
@@ -508,7 +508,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_network_title">Vertrouwde wifi</string>
     <string name="onboarding_network_question">Moet KeepADB het wifi-netwerk vertrouwen waarmee je nu verbonden bent?</string>
     <string name="onboarding_network_privacy_note">Privacy staat aan: de naam en het adres blijven verborgen tot je op “Tonen” tikt.</string>
-    <string name="onboarding_network_open_list">Wijzigen in de lijst Netwerken</string>
+    <string name="onboarding_network_open_list">Wijzigen in ‘Wifi-netwerken’</string>
     <string name="onboarding_webhook_question">Optioneel. Meldt het huidige adres van draadloos foutopsporen aan een eigen server, bijvoorbeeld in je thuisnetwerk of vpn. De meeste mensen hebben dit niet nodig. Er wordt niets opgeslagen tot je op “URL opslaan” tikt.</string>
     <string name="onboarding_protection_force_title">Maximaal comfortabel (geforceerde modus)</string>
     <string name="onboarding_protection_force_body">In elk netwerk, ook onbekende, voor een tijd die je kiest. Eerst moet je bevestigen.</string>
@@ -517,7 +517,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_protection_force_comfort_note">Geldt nadat de geforceerde modus is afgelopen.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Systeemtoestemming ontbreekt</string>
-    <string name="home_warning_system_text">KeepADB kan draadloze foutopsporing pas schakelen als je deze toestemming eenmalig vanaf een computer verleent.</string>
+    <string name="home_warning_system_text">KeepADB kan Wifi-ADB pas schakelen als je deze toestemming eenmalig vanaf een computer verleent.</string>
     <string name="home_warning_action_guide">Instructies</string>
     <string name="home_warning_less_secure_title">Minder veilig dan aanbevolen</string>
     <string name="home_warning_action_review">Bekijken</string>
@@ -588,8 +588,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">KeepADB-bediening</string>
-    <string name="widget_picker_description">Bediening voor draadloze foutopsporing, Keep-Alive en webhook. Toont meer naarmate je hem groter maakt.</string>
-    <string name="widget_action_adb">Foutopsp.</string>
+    <string name="widget_picker_description">Bediening voor Wifi-ADB, Keep-Alive en webhook. Toont meer naarmate je hem groter maakt.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Auto-synchr.</string>
     <string name="widget_action_sync_description">Automatische webhook-synchronisatie</string>

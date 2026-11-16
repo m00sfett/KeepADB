@@ -167,13 +167,16 @@ public class KeepADBOverviewWidgetTest {
     public void showsTheStateTheEndpointTheWifiNameAndKeepAliveWithItsReason() {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBOverviewContent c = content(false);
-        assertEquals(HOST + ":" + PORT, c.adb.value);
+        assertEquals(name(R.string.endpoint_port_at_ip, PORT, HOST), c.adb.value);
+        assertEquals(name(R.string.endpoint_port_only, PORT), c.adb.shortValue);
         assertEquals(SSID, c.wifi.value);
         assertEquals(name(R.string.widget_state_on), c.keepAlive.value);
 
         for (Shape shape : Shape.values()) {
             String text = allText(render(shape, false));
-            assertTrue(shape + ": endpoint", text.contains(HOST + ":" + PORT));
+            assertTrue(shape + ": endpoint", text.contains(shape == Shape.COMPACT
+                    ? name(R.string.endpoint_port_only, PORT)
+                    : name(R.string.endpoint_port_at_ip, PORT, HOST)));
             assertTrue(shape + ": Wi-Fi name", text.contains(SSID));
         }
     }
@@ -458,7 +461,7 @@ public class KeepADBOverviewWidgetTest {
         KeepADBWidget.refreshAllState(context);
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertTrue(allText(widgets.getViewFor(overview)).contains(HOST + ":" + PORT));
+        assertTrue(allText(widgets.getViewFor(overview)).contains(name(R.string.endpoint_port_only, PORT)));
         assertFalse("the per-widget option hides only its own widget",
                 allText(widgets.getViewFor(hidden)).contains(HOST));
         assertTrue(allText(widgets.getViewFor(control)).contains(String.valueOf(PORT)));

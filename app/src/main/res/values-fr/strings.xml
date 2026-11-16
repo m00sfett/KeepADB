@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Remplacez &lt;device-serial&gt; par le numéro de série exact affiché par "adb devices" pour cet appareil.</string>
     <string name="setup_state_offline_title">L\'appareil apparaît comme "offline" ?</string>
-    <string name="setup_state_offline_body">La connexion a été interrompue. Rebranchez le câble USB ou réactivez le débogage sans fil sur le téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
+    <string name="setup_state_offline_body">La connexion a été interrompue. Rebranchez le câble USB ou réactivez Wifi-ADB dans les options pour les développeurs, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
     <string name="setup_state_unauthorized_title">L\'appareil apparaît comme "unauthorized" ?</string>
     <string name="setup_state_unauthorized_body">Confirmez l\'invite d\'autorisation de débogage sur l\'écran de ce téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Point de terminaison indisponible</string>
     <string name="connect_help_link">Connecter un ordinateur…</string>
     <string name="connect_help_title">Connecter un ordinateur</string>
-    <string name="connect_help_step_phone">Sur le téléphone, ouvrez Options pour les développeurs › « Débogage sans fil » › « Associer l\'appareil avec un code d\'association ».</string>
+    <string name="connect_help_step_phone">Sur le téléphone, ouvrez les réglages Wifi-ADB dans Options pour les développeurs et appuyez sur « Associer l\'appareil avec un code d\'association ».</string>
     <string name="connect_help_step_pair">Sur l\'ordinateur, une fois par ordinateur : exécutez la commande ci-dessous, puis saisissez le code affiché sur le téléphone.</string>
     <string name="connect_help_step_connect">Avec Wifi-ADB activé, exécutez cette commande avec l\'adresse affichée par KeepADB (touchez l\'adresse pour copier la commande). Un ordinateur déjà associé se connecte souvent tout seul.</string>
     <string name="connect_help_open_settings">Ouvrir les options pour les développeurs</string>
@@ -23,21 +23,21 @@
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s : %2$s · dernière vérification %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transport principal</string>
-    <string name="toggle_label">Débogage sans fil</string>
-    <string name="toggle_subtext">Active ou désactive le débogage sans fil pour ADB via Wi-Fi.</string>
-    <string name="keep_alive_toggle">Maintenir actif en permanence</string>
+    <string name="toggle_label">Wifi-ADB</string>
+    <string name="toggle_subtext">Active ou désactive Wifi-ADB pour qu’un ordinateur puisse joindre ce téléphone via Wi-Fi.</string>
+    <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Reconnexion automatique en cas de coupure, changement de réseau ou redémarrage</string>
     <string name="tile_permission_error">%1$s : Autorisation manquante (pm grant requis)</string>
     <string name="permission_error_toast">Autorisation manquante. Exécutez une fois depuis un PC :\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="notification_channel_name">Point de terminaison du débogage sans fil</string>
-    <string name="notification_channel_desc">Adresse IP et port actuels du débogage sans fil</string>
+    <string name="notification_channel_name">Point de terminaison de Wifi-ADB</string>
+    <string name="notification_channel_desc">Adresse IP et port actuels de Wifi-ADB</string>
     <string name="notification_title_active">%1$s : Wifi-ADB activé</string>
     <string name="notification_title_disabled">%1$s : Wifi-ADB désactivé</string>
     <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Touchez pour voir les détails de connexion dans l’application.</string>
     <string name="notification_title_searching">%1$s : Recherche du point de terminaison…</string>
     <string name="notification_text_searching">Résolution du point de terminaison sur le réseau local</string>
-    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attend que le débogage sans fil soit réactivé</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attend que Wifi-ADB soit réactivé</string>
     <string name="notification_text_keepalive_on">Keep-Alive : activé</string>
     <string name="notification_text_keepalive_off">Keep-Alive : désactivé</string>
     <string name="notification_text_webhook_synced">Webhook : synchronisé %1$s</string>
@@ -46,11 +46,11 @@
     <string name="notification_text_webhook_none_yet">Webhook : aucune synchronisation réussie pour l’instant</string>
     <string name="notification_action_keepalive_on">Activer Keep-Alive</string>
     <string name="notification_action_keepalive_off">Désactiver Keep-Alive</string>
-    <string name="notification_service_title">Maintenir le débogage sans fil actif</string>
-    <string name="notification_service_text">Surveillance de la connexion Wi-Fi et de l’état du débogage sans fil</string>
+    <string name="notification_service_title">Maintenir Wifi-ADB actif</string>
+    <string name="notification_service_text">Surveillance de la connexion Wi-Fi et de l’état de Wifi-ADB</string>
     <string name="notification_permission_missing_title">%1$s : Autorisation manquante</string>
     <string name="notification_permission_panel_title">Les notifications</string>
-    <string name="notification_permission_panel_body">Avec les notifications activées, vous pouvez voir si le service en arrière-plan de KeepADB et le Keep-Alive fonctionnent. En cas de perte de connexion, KeepADB vous prévient immédiatement. Le débogage sans fil fonctionne aussi sans cette autorisation.</string>
+    <string name="notification_permission_panel_body">Avec les notifications activées, vous pouvez voir si le service en arrière-plan de KeepADB et le Keep-Alive fonctionnent. En cas de perte de connexion, KeepADB vous prévient immédiatement. Wifi-ADB fonctionne aussi sans cette autorisation.</string>
     <string name="notification_permission_request_button">Autoriser les notifications</string>
     <string name="notification_permission_settings_button">Ouvrir les paramètres des notifications</string>
     <string name="notification_permission_missing_text">Accordez WRITE_SECURE_SETTINGS depuis un PC via adb shell pm grant</string>
@@ -78,7 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Synchronisation Webhook et point de terminaison</string>
     <string name="settings_webhook_toggle">Activer la synchronisation Webhook</string>
-    <string name="settings_webhook_subtext">Envoie le point de terminaison actif (IP:port) par HTTP POST lorsqu\'il est activé, et tente d\'envoyer DELETE lors de la désactivation (nouvelle tentative plus tard en cas d\'échec).</string>
+    <string name="settings_webhook_subtext">Envoie le point de terminaison actif par HTTP POST lorsqu\'il est activé, et tente d\'envoyer DELETE lors de la désactivation (nouvelle tentative plus tard en cas d\'échec).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL du Webhook</string>
     <string name="settings_webhook_btn_save">Enregistrer l’URL</string>
@@ -102,7 +102,7 @@
     <string name="network_decision_title">Faire confiance à ce réseau ?</string>
     <string name="network_decision_name_label">Nom du réseau Wi-Fi (SSID)</string>
     <string name="network_decision_ap_label">Point d’accès (BSSID)</string>
-    <string name="network_decision_text">Si vous faites confiance à ce point d’accès, Keep-Alive pourra réactiver automatiquement le débogage sans fil ici. L’activation manuelle fonctionne toujours.</string>
+    <string name="network_decision_text">Si vous faites confiance à ce point d’accès, Keep-Alive pourra réactiver automatiquement Wifi-ADB ici. L’activation manuelle fonctionne toujours.</string>
     <string name="network_decision_comfort_note">Le mode confort est activé : les autres points d’accès nommés « %1$s » seront aussi acceptés.</string>
     <string name="network_decision_trust">Faire confiance</string>
     <string name="network_decision_block_ap">Bloquer uniquement ce point d’accès</string>
@@ -129,7 +129,7 @@
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>
     <string name="webhook_status_deregistered">désenregistré</string>
     <string name="webhook_status_failed">échec</string>
-    <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
+    <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer Wifi-ADB tant que l’autorisation n’est pas accordée.</string>
     <string name="settings_language_menu_label">Langue</string>
     <string name="settings_language_accessibility">Langue de l’application : %1$s</string>
     <string name="settings_language_system_default">Langue du système</string>
@@ -137,8 +137,8 @@
     <string name="settings_section_misc">Autre</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Notification persistante</string>
-    <string name="settings_hide_notification_subtext">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
+    <string name="settings_hide_notification_subtext">Affiche l’état de Wifi-ADB et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Affiche l’état de Wifi-ADB et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. L’option « Masquer dans les notifications » de Confidentialité décide si les détails de connexion apparaissent ; ils peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>
@@ -160,7 +160,7 @@
     <string name="background_location_settings_button">Vérifier la détection en arrière-plan</string>
     <string name="background_location_dialog_later">Plus tard</string>
     <string name="background_location_status_granted">Détection en arrière-plan : autorisée. Les points d’accès approuvés sont reconnus même lorsque Keep-Alive démarre en arrière-plan. KeepADB ne lit ni n’enregistre jamais la position de votre appareil.</string>
-    <string name="background_location_status_missing">Détection en arrière-plan : restreinte. Si Keep-Alive démarre en arrière-plan, Android peut masquer à quel point d’accès vous êtes connecté ; KeepADB considère alors le réseau comme illisible et n’active pas automatiquement le débogage sans fil tant que vous n’avez pas ouvert l’app.</string>
+    <string name="background_location_status_missing">Détection en arrière-plan : restreinte. Si Keep-Alive démarre en arrière-plan, Android peut masquer à quel point d’accès vous êtes connecté ; KeepADB considère alors le réseau comme illisible et n’active pas automatiquement Wifi-ADB tant que vous n’avez pas ouvert l’app.</string>
     <string name="background_location_status_missing_inactive">Détection en arrière-plan : non requise dans cette configuration. Il sert à vérifier les points d’accès ou les noms Wi-Fi lorsque Keep-Alive s’exécute en arrière-plan.</string>
     <string name="location_permission_panel_title">Autorisation de localisation requise pour les réseaux approuvés</string>
     <string name="location_permission_panel_body">Le mode réseaux approuvés a besoin de la localisation pour identifier votre réseau Wi-Fi. Sans elle, Keep-Alive ne peut pas confirmer un réseau approuvé et ne se réactivera pas automatiquement.</string>
@@ -178,7 +178,7 @@
     <string name="tile_state_disconnected">Déconnecté</string>
     <string name="tile_state_searching">Recherche en cours…</string>
     <string name="tile_state_connected">Connecté</string>
-    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="endpoint_port_only">Port %1$d</string>
     <string name="tile_state_permission_missing">Autorisation manquante</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">Version de l’application : %1$s</string>
@@ -245,16 +245,16 @@
     <string name="issue_report_placeholder_notes">Ajoutez toute autre information utile.</string>
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
-    <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN, et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
+    <string name="advice_banner_text">Wifi-ADB ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN, et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Ouvrir keepadb.roteson.de dans le navigateur</string>
     <string name="settings_no_browser_found">Aucune application trouvée pour ouvrir ce lien.</string>
-    <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
-    <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
-    <string name="status_off_keep_alive_blocked_by_user">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi est bloqué</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : réseau illisible, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau du débogage sans fil d\'Android, puis appuyez sur l\'interrupteur pour réessayer</string>
+    <string name="status_off_keep_alive_waiting">Wifi-ADB DÉSACTIVÉ – Keep-Alive attend le réseau</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi est bloqué</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DÉSACTIVÉ – Keep-Alive en pause : réseau illisible, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau Android pour Wifi-ADB, puis appuyez sur l\'interrupteur pour réessayer</string>
     <string name="status_pending">Changement en cours…</string>
     <string name="home_state_on">Wifi-ADB activé</string>
     <string name="home_state_off">Wifi-ADB désactivé</string>
@@ -264,19 +264,19 @@
     <string name="home_reason_untrusted">Keep-Alive en pause : Wi-Fi non approuvé</string>
     <string name="home_reason_blocked">Keep-Alive en pause : Wi-Fi bloqué</string>
     <string name="home_reason_identity">Keep-Alive en pause : réseau illisible</string>
-    <string name="home_reason_backoff">Keep-Alive en pause : boîte de dialogue « Débogage sans fil » non confirmée</string>
+    <string name="home_reason_backoff">Keep-Alive en pause : boîte de dialogue Android pour Wifi-ADB non confirmée</string>
     <string name="home_reason_no_wifi">Pas de connexion Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive reste désactivé ici : Wi-Fi non approuvé</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive reste désactivé ici : Wi-Fi bloqué</string>
-    <string name="home_action_networks">Réseaux</string>
+    <string name="home_action_networks">Réseaux Wi-Fi</string>
     <string name="home_action_retry">Réessayer</string>
     <string name="home_reason_details_action">Afficher les détails</string>
     <string name="state_pending">Changement en cours…</string>
     <string name="tile_state_keep_alive_waiting">Désactivé – Keep-Alive en attente</string>
-    <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
+    <string name="toggle_failed_toast">Impossible de changer Wifi-ADB. Veuillez réessayer.</string>
     <string name="protection_title">Protection</string>
     <string name="protection_automatic_title">Comportement automatique</string>
-    <string name="untrusted_shutdown_hint_short">Désactive le débogage sans fil sur un Wi-Fi non approuvé.</string>
+    <string name="untrusted_shutdown_hint_short">Désactive Wifi-ADB sur un Wi-Fi non approuvé.</string>
     <string name="security_check_hint_short">Suspend l’activation automatique si un point d’accès approuvé présente une sécurité plus faible.</string>
     <string name="hint_more">Plus ▾</string>
     <string name="hint_less">Moins ▴</string>
@@ -294,20 +294,20 @@
     <string name="network_status_not_allowed">Inconnu</string>
     <string name="network_badge_blocked">Bloqué</string>
     <string name="networks_title">Réseaux Wi-Fi</string>
-    <string name="networks_intro">Keep-Alive peut réactiver le débogage sans fil dans les réseaux approuvés, jamais dans les réseaux bloqués. L’activation manuelle fonctionne toujours.</string>
+    <string name="networks_intro">Keep-Alive peut réactiver Wifi-ADB dans les réseaux approuvés, jamais dans les réseaux bloqués. L’activation manuelle fonctionne toujours.</string>
     <string name="networks_glossary_toggle">Termes expliqués</string>
     <string name="networks_glossary_ssid">Nom du réseau Wi-Fi (SSID) : le nom que diffuse un réseau Wi-Fi. N’importe qui peut créer un réseau portant le même nom.</string>
     <string name="networks_glossary_bssid">Point d’accès (BSSID) : un émetteur unique, par exemple un routeur, un répéteur ou un nœud mesh. Son adresse matérielle, par exemple AA:BB:CC:11:22:33, est plus précise que le nom, mais ne prouve rien non plus.</string>
     <string name="untrusted_shutdown_title">Désactiver sur un Wi-Fi non approuvé</string>
-    <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive le débogage sans fil sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même dans KeepADB reste active sur ce point d’accès. Le mode forcé suspend ce comportement.</string>
+    <string name="untrusted_shutdown_hint">Tant que Keep-Alive est actif, KeepADB désactive Wifi-ADB sur un Wi-Fi non approuvé, bloqué ou non identifiable, au lieu de seulement vous avertir. Une session que vous avez activée vous-même dans KeepADB reste active sur ce point d’accès. Le mode forcé suspend ce comportement.</string>
     <string name="untrusted_shutdown_channel_name">Désactivation sur Wi-Fi non approuvé</string>
-    <string name="untrusted_shutdown_channel_desc">Vous prévient lorsque KeepADB a désactivé le débogage sans fil sur un Wi-Fi non approuvé.</string>
-    <string name="untrusted_shutdown_off_title">Débogage sans fil désactivé</string>
+    <string name="untrusted_shutdown_channel_desc">Vous prévient lorsque KeepADB a désactivé Wifi-ADB sur un Wi-Fi non approuvé.</string>
+    <string name="untrusted_shutdown_off_title">Wifi-ADB désactivé</string>
     <string name="untrusted_shutdown_off_text">Le Wi-Fi actuel n’est pas approuvé ou ne peut pas être identifié. Keep-Alive le réactive sur un Wi-Fi approuvé.</string>
-    <string name="untrusted_shutdown_failed_title">Impossible de désactiver le débogage sans fil</string>
-    <string name="untrusted_shutdown_failed_text">Le Wi-Fi actuel n’est pas approuvé, mais la désactivation du débogage sans fil a échoué. Désactivez-le manuellement.</string>
+    <string name="untrusted_shutdown_failed_title">Impossible de désactiver Wifi-ADB</string>
+    <string name="untrusted_shutdown_failed_text">Le Wi-Fi actuel n’est pas approuvé, mais la désactivation de Wifi-ADB a échoué. Désactivez-le manuellement.</string>
     <string name="security_check_title">Vérifier la sécurité Wi-Fi des points d’accès approuvés</string>
-    <string name="security_check_hint">Android 12 et versions ultérieures : lorsque vous approuvez un point d’accès, KeepADB enregistre son niveau de sécurité (ouvert, personnel ou entreprise). S’il se connecte ensuite avec un niveau inférieur ou illisible, Keep-Alive n’y active pas le débogage sans fil de lui-même tant que vous ne l’approuvez pas à nouveau. Cela ne prouve pas que le point d’accès est authentique. Les points d’accès approuvés avant cette option restent vérifiés par leur seule adresse jusqu’à ce que vous les approuviez à nouveau.</string>
+    <string name="security_check_hint">Android 12 et versions ultérieures : lorsque vous approuvez un point d’accès, KeepADB enregistre son niveau de sécurité (ouvert, personnel ou entreprise). S’il se connecte ensuite avec un niveau inférieur ou illisible, Keep-Alive n’y active pas Wifi-ADB de lui-même tant que vous ne l’approuvez pas à nouveau. Cela ne prouve pas que le point d’accès est authentique. Les points d’accès approuvés avant cette option restent vérifiés par leur seule adresse jusqu’à ce que vous les approuviez à nouveau.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) est approuvé, mais sa sécurité Wi-Fi est maintenant inférieure à celle du moment de l’approbation, ou illisible. Approuvez-le à nouveau seulement si vous attendez ce changement.</string>
     <string name="network_prompt_security_confirm_in_app_text">La sécurité Wi-Fi d’un point d’accès approuvé a changé — touchez pour la vérifier dans l’app.</string>
     <string name="network_prompt_security_title">La sécurité Wi-Fi d’un point d’accès approuvé a changé</string>
@@ -320,7 +320,7 @@
     <string name="networks_badge_trusted_name">Nom approuvé</string>
     <string name="networks_badge_name_blocked">Nom bloqué</string>
     <string name="networks_badge_unknown">Inconnu</string>
-    <string name="networks_current_trusted">Keep-Alive peut réactiver ici le débogage sans fil.</string>
+    <string name="networks_current_trusted">Keep-Alive peut réactiver ici Wifi-ADB.</string>
     <string name="networks_current_trusted_name">Approuvé grâce à son nom Wi-Fi. Vous pouvez aussi approuver ou bloquer ce point d’accès séparément.</string>
     <string name="networks_current_legacy">S’applique uniquement à cause de l’ancien réglage « Dans tous les réseaux Wi-Fi ». Vous pouvez quand même approuver ou bloquer ce point d’accès.</string>
     <string name="networks_tap_to_change">Touchez pour modifier.</string>
@@ -358,9 +358,9 @@
     <string name="network_cause_location_off">Réactivation automatique en pause : la localisation est désactivée, donc Android masque le point d’accès auquel vous êtes connecté.</string>
     <string name="network_cause_unreadable_all_wifi">Le réseau ne peut pas être lu pour le moment. La réactivation automatique peut continuer, mais des données réseau lisibles sont nécessaires pour vérifier les points d’accès ou les noms Wi-Fi enregistrés.</string>
     <string name="network_cause_not_allowed">Réactivation automatique en pause : ce point d’accès n’est pas approuvé.</string>
-    <string name="network_cause_blocked">Ce réseau est bloqué : Keep-Alive n’active jamais le débogage sans fil ici et ne pose pas de question. L’activation manuelle fonctionne toujours.</string>
-    <string name="network_cause_allowed">Keep-Alive peut réactiver ici le débogage sans fil.</string>
-    <string name="network_cause_allowed_by_name">Keep-Alive peut réactiver ici le débogage sans fil. Tout point d’accès lisible portant ce nom Wi-Fi est accepté.</string>
+    <string name="network_cause_blocked">Ce réseau est bloqué : Keep-Alive n’active jamais Wifi-ADB ici et ne pose pas de question. L’activation manuelle fonctionne toujours.</string>
+    <string name="network_cause_allowed">Keep-Alive peut réactiver ici Wifi-ADB.</string>
+    <string name="network_cause_allowed_by_name">Keep-Alive peut réactiver ici Wifi-ADB. Tout point d’accès lisible portant ce nom Wi-Fi est accepté.</string>
     <string name="network_cause_all_wifi">« Dans tous les réseaux Wi-Fi » est actif, donc Keep-Alive peut réactiver ici. Les listes d’approbation ne comptent pas dans ce mode.</string>
     <string name="network_action_allow_ap">Faire confiance à ce point d’accès</string>
     <string name="network_action_location_settings">Ouvrir les paramètres de localisation</string>
@@ -388,7 +388,7 @@
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
     <!-- #763: force mode, a time-limited override of blocks and trust. -->
     <string name="force_section_title">Mode forcé</string>
-    <string name="force_section_hint">Réactive le débogage sans fil dans tous les réseaux pendant la durée choisie. Les blocages et les réseaux approuvés ne s\'appliquent pas pendant ce temps.</string>
+    <string name="force_section_hint">Réactive Wifi-ADB dans tous les réseaux pendant la durée choisie. Les blocages et les réseaux approuvés ne s\'appliquent pas pendant ce temps.</string>
     <string name="force_status_off">Désactivé</string>
     <string name="force_status_until">Actif jusqu\'à %1$s</string>
     <string name="force_status_unlimited">Actif, sans heure de fin</string>
@@ -396,21 +396,21 @@
     <string name="force_action_end">Arrêter le mode forcé</string>
     <string name="force_action_change">Modifier la durée…</string>
     <string name="force_dialog_title">Activer le mode forcé ?</string>
-    <string name="force_dialog_intro">Keep-Alive réactivera alors le débogage sans fil dans tous les réseaux : y compris les réseaux inconnus, bloqués et illisibles.</string>
+    <string name="force_dialog_intro">Keep-Alive réactivera alors Wifi-ADB dans tous les réseaux : y compris les réseaux inconnus, bloqués et illisibles.</string>
     <string name="force_dialog_duration_label">Pendant combien de temps ?</string>
     <string name="force_duration_1h">1 heure</string>
     <string name="force_duration_24h">24 heures</string>
     <string name="force_duration_7d">7 jours</string>
     <string name="force_duration_30d">30 jours</string>
     <string name="force_duration_unlimited">Sans heure de fin</string>
-    <string name="force_warning_all">Le débogage sans fil ouvre un port sur le réseau. Les ordinateurs que vous avez appairés auparavant obtiennent par là un accès ADB complet : installer des applis, lire des données, enregistrer l\'écran. Sur des réseaux inconnus, vous ne savez pas qui essaie.
+    <string name="force_warning_all">Wifi-ADB ouvre un port sur le réseau. Les ordinateurs que vous avez appairés auparavant obtiennent par là un accès ADB complet : installer des applis, lire des données, enregistrer l\'écran. Sur des réseaux inconnus, vous ne savez pas qui essaie.
 
 Vos blocages et vos réseaux approuvés ne s\'appliquent pas pendant ce temps.
 
 Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notification.</string>
-    <string name="force_warning_days">Sur plusieurs jours, vous rejoindrez des réseaux auxquels vous ne pensez pas maintenant : hôtel, train, café, travail. Le débogage s\'y active sans vous demander.</string>
+    <string name="force_warning_days">Sur plusieurs jours, vous rejoindrez des réseaux auxquels vous ne pensez pas maintenant : hôtel, train, café, travail. Wifi-ADB s\'y active sans vous demander.</string>
     <string name="force_warning_unlimited">Sans heure de fin, le mode forcé reste actif jusqu\'à ce que vous l\'arrêtiez vous-même, y compris après des redémarrages et des mises à jour de l\'appli.</string>
-    <string name="force_unlimited_ack">Je comprends que le débogage sans fil s\'activera alors dans tous les réseaux.</string>
+    <string name="force_unlimited_ack">Je comprends que Wifi-ADB s\'activera alors dans tous les réseaux.</string>
     <string name="force_keepalive_hint">Le mode forcé ne fonctionne qu\'avec Keep-Alive. Keep-Alive est activé en même temps.</string>
     <string name="force_not_started_toast">Le mode forcé n\'a pas été activé : cet appareil ne peut pas respecter une limite de durée de façon fiable pour le moment. Rien n\'a été modifié.</string>
     <string name="force_confirm_1h">Activer pour 1 heure</string>
@@ -419,8 +419,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="force_confirm_30d">Activer pour 30 jours</string>
     <string name="force_confirm_unlimited">Activer sans heure de fin</string>
     <string name="force_card_title">Mode forcé actif</string>
-    <string name="force_card_text_until">Le débogage sans fil est réactivé dans tous les réseaux. Actif jusqu\'à %1$s.</string>
-    <string name="force_card_text_unlimited">Le débogage sans fil est réactivé dans tous les réseaux. Sans heure de fin.</string>
+    <string name="force_card_text_until">Wifi-ADB est réactivé dans tous les réseaux. Actif jusqu\'à %1$s.</string>
+    <string name="force_card_text_unlimited">Wifi-ADB est réactivé dans tous les réseaux. Sans heure de fin.</string>
     <string name="force_ended_toast">Mode forcé terminé. Niveau de protection de nouveau : %1$s.</string>
     <string name="force_notification_until">Mode forcé actif jusqu\'à %1$s</string>
     <string name="force_notification_unlimited">Mode forcé actif, sans heure de fin</string>
@@ -429,7 +429,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="force_expired_title">Mode forcé terminé</string>
     <string name="force_expired_text">Le temps choisi est écoulé. Niveau de protection de nouveau : %1$s. Keep-Alive ne s\'active plus que là où le niveau de protection l\'autorise.</string>
     <string name="force_expired_text_safety">Le mode forcé s\'est terminé plus tôt par sécurité : le temps restant n\'a pas pu être vérifié de façon fiable. Niveau de protection de nouveau : %1$s. Keep-Alive ne s\'active plus que là où le niveau de protection l\'autorise.</string>
-    <string name="force_expired_still_on">Le débogage sans fil est encore activé en ce moment.</string>
+    <string name="force_expired_still_on">Wifi-ADB est encore activé en ce moment.</string>
     <string name="force_expired_action_off">Désactiver maintenant</string>
     <string name="force_level_maximum">Sécurité maximale</string>
     <string name="force_level_balanced">Équilibré</string>
@@ -465,11 +465,11 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_privacy_summary_off">Confidentialité : rien de masqué</string>
     <string name="onboarding_privacy_summary_on">Confidentialité : %1$d sur %2$d activés</string>
     <string name="onboarding_privacy_change">Modifier</string>
-    <string name="onboarding_keep_alive_question">Le débogage sans fil doit-il se réactiver tout seul après un redémarrage ou une connexion perdue ?</string>
-    <string name="onboarding_keep_alive_off_body">Vous activez vous-même le débogage sans fil, dans l’appli, la tuile ou le widget. Après un redémarrage, il reste désactivé.</string>
-    <string name="onboarding_keep_alive_on_body">KeepADB réactive le débogage sans fil après un redémarrage ou une connexion perdue, mais seulement là où votre niveau de protection l’autorise (étape suivante).</string>
+    <string name="onboarding_keep_alive_question">Wifi-ADB doit-il se réactiver tout seul après un redémarrage ou une connexion perdue ?</string>
+    <string name="onboarding_keep_alive_off_body">Vous activez vous-même Wifi-ADB, dans l’appli, la tuile ou le widget. Après un redémarrage, il reste désactivé.</string>
+    <string name="onboarding_keep_alive_on_body">KeepADB réactive Wifi-ADB après un redémarrage ou une connexion perdue, mais seulement là où votre niveau de protection l’autorise (étape suivante).</string>
     <string name="onboarding_protection_title">Niveau de protection</string>
-    <string name="onboarding_protection_question">Où Keep-Alive peut-il activer seul le débogage sans fil ?</string>
+    <string name="onboarding_protection_question">Où Keep-Alive peut-il activer seul Wifi-ADB ?</string>
     <string name="onboarding_protection_max_body">Uniquement aux points d’accès approuvés. KeepADB demande pour les inconnus.</string>
     <string name="onboarding_protection_balanced_body">Aussi à tout point d’accès portant le nom d’un Wi-Fi approuvé. Plus pratique avec le mesh et les répéteurs, mais un nom est facile à imiter.</string>
     <string name="onboarding_protection_legacy_all_body">Tout réseau Wi-Fi est approuvé tant que vous ne l’avez pas bloqué. Choisissez un niveau ci-dessous pour quitter ce réglage.</string>
@@ -493,7 +493,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_permissions_summary_done">Tout est prêt</string>
     <string name="onboarding_permissions_summary_missing">Manquantes : %1$d</string>
     <string name="onboarding_perm_system_title">Autorisation système</string>
-    <string name="onboarding_perm_system_body">Sans elle, KeepADB ne peut pas activer le débogage sans fil. À accorder une seule fois depuis un ordinateur :</string>
+    <string name="onboarding_perm_system_body">Sans elle, KeepADB ne peut pas activer Wifi-ADB. À accorder une seule fois depuis un ordinateur :</string>
     <string name="onboarding_perm_system_more">Plusieurs appareils ou des problèmes ?</string>
     <string name="onboarding_copy_command">Copier la commande</string>
     <string name="onboarding_copy_done">Commande copiée</string>
@@ -508,8 +508,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_network_title">Wi-Fi approuvé</string>
     <string name="onboarding_network_question">KeepADB doit-il faire confiance au Wi-Fi auquel vous êtes connecté en ce moment ?</string>
     <string name="onboarding_network_privacy_note">La confidentialité est activée : le nom et l’adresse restent masqués jusqu’à ce que vous touchiez « Afficher ».</string>
-    <string name="onboarding_network_open_list">Modifier dans la liste des réseaux</string>
-    <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle du débogage sans fil à un serveur à toi, par exemple dans ton réseau domestique ou ton VPN. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
+    <string name="onboarding_network_open_list">Modifier dans « Réseaux Wi-Fi »</string>
+    <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle de Wifi-ADB à un serveur à toi, par exemple dans ton réseau domestique ou ton VPN. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
     <string name="onboarding_protection_force_title">Confort maximal (mode forcé)</string>
     <string name="onboarding_protection_force_body">Dans tous les réseaux, y compris inconnus, pendant une durée que tu choisis. Une confirmation est demandée avant.</string>
     <string name="onboarding_protection_force_keep_alive">Le mode forcé ne fonctionne qu’avec Keep-Alive. Keep-Alive est activé avec lui.</string>
@@ -517,7 +517,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_protection_force_comfort_note">S’applique à la fin du mode forcé.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Autorisation système manquante</string>
-    <string name="home_warning_system_text">KeepADB ne peut activer le débogage sans fil qu’une fois cette autorisation accordée, une seule fois, depuis un ordinateur.</string>
+    <string name="home_warning_system_text">KeepADB ne peut activer Wifi-ADB qu’une fois cette autorisation accordée, une seule fois, depuis un ordinateur.</string>
     <string name="home_warning_action_guide">Mode d’emploi</string>
     <string name="home_warning_less_secure_title">Moins sûr que recommandé</string>
     <string name="home_warning_action_review">Vérifier</string>
@@ -589,8 +589,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
 
     <!-- #912: control widget (picker text, tile labels and states, details, settings) -->
     <string name="widget_picker_label">Commandes KeepADB</string>
-    <string name="widget_picker_description">Commandes du débogage sans fil, de Keep-Alive et du Webhook. Affiche plus en agrandissant le widget.</string>
-    <string name="widget_action_adb">Débogage</string>
+    <string name="widget_picker_description">Commandes de Wifi-ADB, de Keep-Alive et du Webhook. Affiche plus en agrandissant le widget.</string>
+    <string name="widget_action_adb">Wifi-ADB</string>
     <string name="widget_action_keep_alive">Keep-Alive</string>
     <string name="widget_action_sync">Synchro auto</string>
     <string name="widget_action_sync_description">Synchronisation Webhook automatique</string>

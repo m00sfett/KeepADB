@@ -22,7 +22,7 @@ network default was the only exception (“In all Wi-Fi networks”, `all_wifi`)
 changes here; #765 documents them and protects them against unnoticed changes (see “Evidence”).
 
 **Exception since #904:** connection details in notifications were hidden by default (#592) and
-are shown by default now, because the three privacy switches are uniformly opt-in (user decision of
+are shown by default now, because the four privacy switches are uniformly opt-in (user decision of
 2026-11-07). That is the one deliberate step away from the safest value; see “Privacy switches”
 below for what existing installations keep.
 
@@ -30,12 +30,12 @@ below for what existing installations keep.
 
 | Setting | Key | Default | Effect | Assessment |
 |---|---|---|---|---|
-| Keep-Alive | `keep_alive_enabled` | off | The service does not re-enable Wireless debugging on its own; boot and update receivers do not start anything | Safe; decision (F2 from #758): also preselected as “Off” in the assistant (#761) |
+| Keep-Alive | `keep_alive_enabled` | off | The service does not re-enable Wifi-ADB on its own; boot and update receivers do not start anything | Safe; decision (F2 from #758): also preselected as “Off” in the assistant (#761) |
 | Network rule | `trusted_network_mode` | `allowlist` | Automatic enabling is allowed only on trusted access points (BSSID); recovery pauses when identity cannot be read | Safe (#760); only the exact value `all_wifi` means the previous “In all Wi-Fi networks” setting; every other value means `allowlist` |
 | Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (the stored value behind the level “Balanced”, chosen under Settings → Protection since #959; no switch of its own) |
 | Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; kept only as the previous setting (“Wi-Fi name list”), shown on the Protection page while active |
 | Check Wi-Fi security of trusted access points | `trusted_network_security_check` | off | Trusted access points are matched by address only, as before | Off by user decision (#860): an opt-in hardening for Android 12 and later; existing trust entries are never tightened silently |
-| Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wireless debugging that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
+| Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wifi-ADB that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
 | Wi-Fi and access-point observation | `wifi_aps_feature_enabled` | off | No recording; since #769 there is no UI or new recording, and since #788 no code reads or writes the key. An earlier saved value remains unchanged. The old observation history (`bssid_history_*`) is discarded once during update since #778 (marker `observation_history_discarded`, bookkeeping only, not a setting) | Safe (#507, #769) |
 
@@ -52,7 +52,7 @@ reason for each documented here.
 | Privacy: in notifications | `notification_privacy_enabled` | off | User decision (#904, 2026-11-07): replaces the opt-in “Notification details” (`notification_details_enabled`, #592) with the opposite polarity. Off means port, IP address, Wi-Fi name and BSSID appear in notifications, and the notice about a new Wi-Fi has its two buttons. This is a deliberate weakening of #592 for new installations; the safe choice is one switch away, also on the first page of the setup assistant. Existing installations keep their behavior (see “Privacy switches” below) |
 | Privacy: hide on the lock screen | `lockscreen_privacy_enabled` | off | User decision (#920, 2026-11-08): a sub-option of the notification switch. On marks every KeepADB notification `VISIBILITY_SECRET`, so none appears on the lock screen, whatever Android's “sensitive content” setting is; unlocked, the shade shows them as the notification switch decides. A new key, so existing installations keep what they had. A notification channel the user set to hide on the lock screen stays hidden either way. Android applies it only with a secure screen lock (PIN, pattern or password). Since #941 it is in the eye's long-press menu with the other switches, and all of them live in Settings → Privacy |
 | Privacy: in widgets and the tile | `widget_privacy_enabled` | off | User decision (#904): the widget and the Quick Settings tile show the state only, without the port or the host. Off means they show them. It takes precedence over any per-widget “hide details” option |
-| Widget: main action, order, hide details | none in `keepadb_prefs` | main action Wireless Debugging, order Debugging, Keep-Alive, Auto-sync, details visible | #912: stored per widget id in its own file `keepadb_widget_config`, never in the app preferences; a widget without an entry (every widget placed before) reads these defaults. Removed with the widget. The overview widget (#913) uses the same store for its only option, hide details (default visible). The widget privacy switch above takes precedence over the per-widget hide option |
+| Widget: main action, order, hide details | none in `keepadb_prefs` | main action Wifi-ADB, order Wifi-ADB, Keep-Alive, Auto-sync, details visible | #912: stored per widget id in its own file `keepadb_widget_config`, never in the app preferences; a widget without an entry (every widget placed before) reads these defaults. Removed with the widget. The overview widget (#913) uses the same store for its only option, hide details (default visible). The widget privacy switch above takes precedence over the per-widget hide option |
 | Hide notification | `hide_notification_enabled` | off | The visible ongoing notification shows that the service is running; hiding it is a deliberate choice |
 | Keep display on | `keep_display_on_enabled` | off | Convenience with battery cost; turning it on adds no protection |
 | App language | `app_language` | empty (system language) | No security impact |
@@ -62,8 +62,7 @@ Removed in 1.13.0 (#956): the USB-ADB area (USB notification, host profiles, han
 application deletes its stored keys on the first start after the update (`usb_notification_enabled`,
 `usb_profile_notification_enabled`, `usb_wlan_handover_mode` and every `usb_profile_*` key, which
 includes the host names and IP addresses of the profiles) together with its notification channel.
-An installation that used the automatic handover loses it; Keep-Alive is the way to have Wireless
-debugging switched on again unattended.
+An installation that used the automatic handover loses it; Keep-Alive is the way to have Wifi-ADB switched on again unattended.
 
 Removed in 1.13.0 (#960): the two webhook retry selectors. `register_webhook_retry_profile` and
 `register_webhook_retry_count` are deleted on the first start after the update, and the series is
@@ -88,7 +87,7 @@ are cleared on first start. The advice stays readable under Settings → Setup a
 
 `trusted_network_<id>_security` (#860) is absent until the access point of that trust entry is trusted while the phone is connected to it on Android 12 or later; it records the security tier seen then, is replaced when the access point is trusted again and removed with the entry. Bookkeeping, not a setting.
 
-`untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wireless debugging is switched on manually in KeepADB on a readable access point; they record that access point and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wireless debugging goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
+`untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wifi-ADB is switched on manually in KeepADB on a readable access point; they record that access point and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wifi-ADB goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
 
 The webhook warning has no wording switch any more (#893): it always names when the disruption
 started and when a report last got through. A stored `register_webhook_freshness_warning` from an
@@ -98,8 +97,11 @@ URL. It is record data, not a setting, and is empty on a new installation.
 
 ### Privacy switches (#904)
 
-The single privacy mode is three independent opt-in switches. A new installation has all three
-off. Two of them are derived once for installations that already exist, so nothing is loosened:
+The single privacy mode is four independent opt-in switches: app, notifications, lock screen and
+widgets. A new installation has all four off. Two of them (notifications and widgets) are derived
+once for installations that already exist, so nothing is loosened; the lock-screen switch (#920,
+`lockscreen_privacy_enabled`, a sub-option of the notification switch) is off everywhere and never
+derived:
 
 | Stored before the update | App (`privacy_mode_enabled`) | Notifications (`notification_privacy_enabled`) | Widgets (`widget_privacy_enabled`) |
 |---|---|---|---|
@@ -113,7 +115,7 @@ The derivation follows the pattern of #760: `KeepADBApplication` calls
 the marker `privacy_split_initialized` once, and never touches the keys again. The marker is
 bookkeeping, not a setting. On a new installation only the marker is written, no setting key. The
 retired key `notification_details_enabled` stays in place, unread after the migration, so an older
-app that is installed again still finds it. The three switches write at once when changed, in the
+app that is installed again still finds it. The four switches write at once when changed, in the
 Settings and on the first page of the setup assistant; they are not part of “Next” or “Later”.
 
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit

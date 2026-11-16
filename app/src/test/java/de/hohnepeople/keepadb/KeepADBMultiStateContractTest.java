@@ -170,14 +170,13 @@ public class KeepADBMultiStateContractTest {
 
         assertEquals(context.getString(R.string.tile_state_connected), widgetText(renderWidget()));
         assertTrue("the status box of the larger sizes names the endpoint",
-                panelText().contains(context.getString(R.string.tile_state_connected_format, "127.0.0.1", endpointPort)));
+                panelText().contains(context.getString(R.string.endpoint_port_at_ip, endpointPort, "127.0.0.1")));
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
                 .create().get();
         tileService.onStartListening();
         assertEquals(Tile.STATE_ACTIVE, tileService.getQsTile().getState());
-        assertEquals(context.getString(R.string.tile_state_connected_format,
-                        "127.0.0.1", endpointPort), tileService.getQsTile().getSubtitle());
+        assertEquals(context.getString(R.string.endpoint_port_only, endpointPort), tileService.getQsTile().getSubtitle());
         stopTileService(tileService);
     }
 
@@ -196,8 +195,7 @@ public class KeepADBMultiStateContractTest {
                 .create().get();
         tileService.onStartListening();
 
-        assertEquals(context.getString(R.string.tile_state_connected_format,
-                        "127.0.0.1", endpointPort), tileService.getQsTile().getSubtitle());
+        assertEquals(context.getString(R.string.endpoint_port_only, endpointPort), tileService.getQsTile().getSubtitle());
         stopTileService(tileService);
     }
 
@@ -291,7 +289,7 @@ public class KeepADBMultiStateContractTest {
             tileService.onStartListening();
             assertEquals(only + ": tile", "widgets".equals(only)
                     ? context.getString(R.string.tile_state_connected)
-                    : context.getString(R.string.tile_state_connected_format, "127.0.0.1", endpointPort),
+                    : context.getString(R.string.endpoint_port_only, endpointPort),
                     tileService.getQsTile().getSubtitle());
             stopTileService(tileService);
         }

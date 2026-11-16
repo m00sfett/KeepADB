@@ -31,7 +31,7 @@ Die Protokolle dokumentieren weitere Vergleichsläufe und Korrekturen. Sie sind 
   Schnelleinstellungskachel beeinflusst und belegt daher keinen unabhängigen Gegenfall.
 - Das Hinzufügen einer BSSID über die normale Einstellungsoberfläche wurde nicht für jede
   Messvariante Ende-zu-Ende geprüft; einzelne Messwerte stammten aus einem temporären Prüfpfad.
-- Ein akzeptierter Schreibversuch für Drahtloses Debugging ist nicht in jedem Emulator ein Beleg,
+- Ein akzeptierter Schreibversuch für Wifi-ADB ist nicht in jedem Emulator ein Beleg,
   dass Android die Funktion tatsächlich eingeschaltet hat. Android kann weiterhin eine eigene
   Bestätigung verlangen.
 - Die Boot-Zeit und die Reaktion nach der ersten Geräteentsperrung können je nach Android-Version

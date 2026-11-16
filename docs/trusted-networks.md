@@ -1,6 +1,6 @@
 # Trusted Wi-Fi networks
 
-KeepADB can limit automatic Wireless debugging recovery to Wi-Fi networks that you trust. This
+KeepADB can limit automatic Wifi-ADB recovery to Wi-Fi networks that you trust. This
 rule protects automatic actions from an unexpected access point; it does not change the manual
 on/off control.
 
@@ -9,7 +9,7 @@ on/off control.
 One model (#760) decides whether every automatic recovery is allowed: the service (observer and
 60-second check), recovery pulse, and Keep-Alive switch all consult the same place.
 The UI previously said “allowed” and “allowlist”; the policy means “trusted.” The wording was
-updated with the Networks list (#762).
+updated with the Wi-Fi networks list (#762).
 
 **Components**
 
@@ -70,11 +70,10 @@ Trust decisions are only as strong as the identifiers they compare.
   depends on the saved network, the credentials and platform behavior. With WPA2/WPA3-Personal,
   anyone who knows the shared password can run an access point the phone cannot tell apart from the
   real one. KeepADB does not and will not collect Wi-Fi passwords.
-- **ADB has its own protection.** Android authenticates paired hosts and encrypts Wireless
-  debugging with TLS. Imitating an access point identifier does not by itself give anyone an ADB
+- **ADB has its own protection.** Android authenticates paired hosts and encrypts the ADB connection with TLS. Imitating an access point identifier does not by itself give anyone an ADB
   shell; a host still has to be paired.
 - **Trust gates automatic actions; shutdown is opt-in.** A trusted network allows automatic
-  enabling and recovery. If Wireless debugging is already on when the phone moves to an untrusted
+  enabling and recovery. If Wifi-ADB is already on when the phone moves to an untrusted
   network, KeepADB shows a notice and, by default, leaves it on. See "Turn off on untrusted Wi-Fi"
   below for the optional shutdown (#864).
 - **Security type as an extra signal.** The optional security check (#860, below) compares the
@@ -88,7 +87,7 @@ for #863.
 ## Turn off on untrusted Wi-Fi (#864)
 
 An optional setting in the “Automatic behavior” section of the Protection page, off by default. While Keep-Alive runs, KeepADB turns
-Wireless debugging off when it is on in a Wi-Fi that is not trusted, is blocked, or cannot be
+Wifi-ADB off when it is on in a Wi-Fi that is not trusted, is blocked, or cannot be
 identified, instead of only notifying:
 
 - **When:** on network callbacks (new Wi-Fi, roam, capability change), on the one-minute heartbeat,
@@ -96,9 +95,8 @@ identified, instead of only notifying:
   guarantee: a delayed callback or a suspended app delays it.
 - **Unreadable identity:** checked again after 5 s and after a further 10 s, so the few seconds of
   an access-point roam do not switch anything off.
-- **Your own session:** if you switched Wireless debugging on yourself, it stays on while the phone
-  stays on that access point. Any other access point (a trusted one too), a lost Wi-Fi or Wireless
-  debugging going off ends that exemption for good; returning to the first access point does not
+- **Your own session:** if you switched Wifi-ADB on yourself, it stays on while the phone
+  stays on that access point. Any other access point (a trusted one too), a lost Wi-Fi or Wifi-ADB going off ends that exemption for good; returning to the first access point does not
   revive it. An unreadable identity cannot prove the same access point: switching on there grants
   no exemption, and while the identity is unreadable an existing exemption does not apply. Only
   switching on in KeepADB (app, tile, widget, notification) counts; switching
@@ -109,9 +107,8 @@ identified, instead of only notifying:
 - **Recheck before writing:** every condition is checked again immediately before the OFF write, so
   a stale event cannot switch off a session that has become trusted meanwhile.
 - **Not your "off":** the policy does not record a user OFF. Keep-Alive stays armed and switches
-  Wireless debugging back on once the phone is on a trusted network again.
-- **Notices:** "Wireless Debugging turned off" after a shutdown, or "Could not turn off Wireless
-  Debugging" when the write failed. The trust prompt for the network appears as before.
+  Wifi-ADB back on once the phone is on a trusted network again.
+- **Notices:** "Wifi-ADB turned off" after a shutdown, or "Could not turn off Wifi-ADB" when the write failed. The trust prompt for the network appears as before.
 
 ## Check Wi-Fi security of trusted access points (#860)
 
@@ -119,7 +116,7 @@ An optional setting in the “Automatic behavior” section of the Protection pa
 It is defense in depth for automatic enabling, not authentication of the access point.
 
 - **Baseline:** whenever you trust the access point the phone is connected to (prompt, decision
-  dialog, Networks list), KeepADB records the security tier Android reports for that connection
+  dialog, Wi-Fi networks list), KeepADB records the security tier Android reports for that connection
   (`WifiInfo.getCurrentSecurityType`). Trusting an already trusted access point again records the
   current tier, which is the re-confirmation. An access point trusted while not connected to it (a
   mesh sibling) gets no baseline, and an unreadable tier at trust time leaves none.
@@ -129,8 +126,8 @@ It is defense in depth for automatic enabling, not authentication of the access 
   baseline is kept per BSSID, because mesh networks mix security types per access point.
 - **Effect with the check on:** a trusted access point with a baseline whose current tier is lower
   or unreadable is treated as not trusted for automatic enabling: Keep-Alive does not switch
-  Wireless debugging on there, the prompt explains the security change, and the decision dialog
-  and the Networks list offer to trust it again. A trusted Wi-Fi name does not override it; blocks
+  Wifi-ADB on there, the prompt explains the security change, and the decision dialog
+  and the Wi-Fi networks list offer to trust it again. A trusted Wi-Fi name does not override it; blocks
   and force mode keep their precedence. This also holds under the legacy "all networks" policy,
   which otherwise allows every network that is not blocked. With "Turn off on untrusted Wi-Fi" (#864) on, the access
   point counts as untrusted there too, and switching the check on applies that shutdown at once
@@ -165,7 +162,7 @@ forms and one tap target.
   point only,” “Always block Wi-Fi name…” (unavailable if the name is hidden or unreadable), and
   “Decide later.” If trust by name (“Balanced”) is on, a note explains that other access points with
   this name will also be accepted. The dialog is built as a reusable view
-  (`NetworkDecisionView`) that the Networks list (#762), assistant (#761), and home screen (#764)
+  (`NetworkDecisionView`) that the Wi-Fi networks list (#762), assistant (#761), and home screen (#764)
   can use.
 
 **Actions that do not decide.** “Decide later,” Back, tapping outside the dialog, rotating the
@@ -182,7 +179,7 @@ both are removed from the view again.
 
 **Binding.** The dialog belongs to the access point that prompted it, not the current Wi-Fi
 network; its name comes from the app's own record, never from the intent. If the request has
-already been answered (trusted or blocked, for example through the Networks list) or there is no
+already been answered (trusted or blocked, for example through the Wi-Fi networks list) or there is no
 record left (evicted, unknown, or placeholder BSSID), no dialog opens; a brief message appears
 instead. If the user taps “Trust” in a dialog opened before a block was added, KeepADB refuses
 (the block takes precedence, #760), saves nothing, and explains why.
@@ -258,8 +255,7 @@ Both “Stop trusting” and “Lift block” for an access point end in *Unknow
 when it next connects. To ensure this also applies when legacy data contains both trust and a block
 for an address, lifting the address block removes that trust; blocking from the list removes trust at
 the time of blocking. Lifting a **name** block instead preserves all saved data: trusted access
-points become trusted again, and unknown ones prompt. None of these actions turns Wireless
-debugging on or off.
+points become trusted again, and unknown ones prompt. None of these actions turns Wifi-ADB on or off.
 
 **Recently asked (#949).** Access points KeepADB prompted about and nobody answered — for
 example after the notice was swiped away while logging in to a shop's Wi-Fi — are listed under
@@ -272,7 +268,7 @@ only while the list is shown, so the privacy mode hides it like everything else.
 
 **Other ways in (#949).** On the Protection page, an undecided current access point offers “Block
 or decide…” next to “Trust this access point”; it opens this list on that access point. On the home
-screen, while Wireless Debugging is on and Keep-Alive is enabled, the reason line below the state
+screen, while Wifi-ADB is on and Keep-Alive is enabled, the reason line below the state
 says when the current Wi-Fi is not trusted or blocked ("Keep-Alive stays off here: Wi-Fi not
 trusted") and its button opens the decision (or this list for a blocked network or one without a
 prompt record), as it already did while Keep-Alive was paused (#957).
@@ -328,7 +324,7 @@ allowlist mode.
 The “recently prevented” history and observation list have never decided trust and are not part of
 the model. During cleanup (#769), **no key was deleted or rewritten**; both views were removed.
 “Recently prevented” history remains: the decision dialog (#766) uses its entry as the request
-record (name and BSSID) and deletes it once the request is answered. Since #949 the Networks list
+record (name and BSSID) and deletes it once the request is answered. Since #949 the Wi-Fi networks list
 shows the unanswered entries again as “Recently asked”, still without deciding anything. The observation list (BSSID
 history, `bssid_history_*`) is no longer updated since #769, and its stored data was
 **discarded once during update** since #778 (user decision 2026-10-06): `KeepADBBssidHistory.discardLegacyOnce`
@@ -336,7 +332,7 @@ deletes only keys with this prefix and sets the `observation_history_discarded` 
 same step, so it runs exactly once. A new installation has nothing to delete, and the marker does
 not count as stored history there. All other keys remain unchanged. There is no UI path to delete
 this history, and none is needed. The three readers were removed in #788: the mesh-node offer
-(#686) is gone (allowing an access point now allows exactly that one); the Networks list no longer
+(#686) is gone (allowing an access point now allows exactly that one); the Wi-Fi networks list no longer
 reads names from history (a blocked access point with no trust entry and no known name appears in
 the “Wi-Fi name unknown” group, as does a trust entry whose label is only its BSSID; new entries
 and blocks save their own name, see “Stored names” above); and bands are no longer saved (only the
@@ -379,14 +375,14 @@ identity, KeepADB pauses and explains why.
 ## Force mode
 
 Force mode (#763) is the only exception to the precedence above: for a chosen period,
-Keep-Alive re-enables Wireless debugging on **every** Wi-Fi network, including foreign, blocked,
+Keep-Alive re-enables Wifi-ADB on **every** Wi-Fi network, including foreign, blocked,
 and unreadable networks. It is an overlay, not a mode in the trust model. Starting and ending it
 do not read or change anything stored by the model (trusted access points, blocks, the convenience
 switch, or the previous setting). “Protection level back to: …” therefore means only
 that the overlay is removed. The overlay acts at the one decision point used by every automatic
 path (`KeepADBTrustedNetwork.evaluateCurrent`): the service (observer and minute interval),
 recovery pulse, and protection checks immediately before writing. It does not replace
-Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wireless Debugging remains in effect.
+Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wifi-ADB remains in effect.
 Adding trust to a blocked network remains impossible even in Force mode; Force mode changes neither
 blocks nor trust.
 
@@ -406,7 +402,7 @@ update surfaces, show a one-time notice) is handled by the service's minute inte
 alarm (which can run without a process), the receivers for reboot, app update, and clock changes,
 or opening the home screen or Settings. The notice appears exactly once, even when expiry occurs
 during a reboot or update. It uses its own “Security notices” channel, offers no way to resume
-Force mode, and names the restored protection level. If Wireless debugging is still on in a
+Force mode, and names the restored protection level. If Wifi-ADB is still on in a
 network that the protection level does not trust, the notice says so and offers “Turn off now”;
 nothing is turned off automatically.
 
@@ -503,9 +499,9 @@ The trust rule applies to automatic recovery. Manual toggles in the app, widget,
 remain deliberate user actions and are not blocked by the allowlist. Lock-screen rules for the
 tile and notification actions are in the [security policy](../SECURITY.md).
 
-## Names and bands in the Networks list
+## Names and bands in the Wi-Fi networks list
 
-The single Networks list groups trusted and blocked access points by Wi-Fi name. Each row can have
+The single Wi-Fi networks list groups trusted and blocked access points by Wi-Fi name. Each row can have
 a custom display name, entered through the pencil action. A custom name is local to the app, up to
 40 characters, and changes neither the SSID nor any trust decision: the BSSID remains authoritative.
 For a blocked access point, the custom name belongs to the block and disappears when the block is
