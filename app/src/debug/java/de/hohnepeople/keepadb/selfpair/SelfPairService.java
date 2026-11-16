@@ -15,16 +15,21 @@ import android.net.nsd.NsdManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * STAGE 1 TEST HARNESS (#962), debug build only. Keeps the process alive while the user is in
+ * TEST HARNESS (#962), debug build only. Keeps the process alive while the user is in
  * Android's pairing dialog, takes the six-digit code through a notification reply, pairs, runs
  * the grant and reports each step to logcat and to {@link SelfPairActivity}.
  */
@@ -35,6 +40,7 @@ public final class SelfPairService extends Service {
     static final String EXTRA_CODE = "code";
     static final String EXTRA_PAIR_PORT = "pair_port";
     static final String EXTRA_CONNECT_PORT = "connect_port";
+    static final String EXTRA_LEAVE_ON = "leave_on";
 
     private static final String TAG = "KeepADBSelfPair";
     private static final String CHANNEL = "selfpair_debug";
@@ -48,8 +54,9 @@ public final class SelfPairService extends Service {
     private final Object ports = new Object();
     private LocalAdbDiscovery pairingDiscovery;
     private LocalAdbDiscovery connectDiscovery;
-    private int pairPort;
-    private int connectPort;
+    private int forcedPairPort;
+    private int forcedConnectPort;
+    private boolean leaveOn;
     private boolean busy;
 
     static synchronized String logText() {
@@ -95,24 +102,24 @@ public final class SelfPairService extends Service {
         log("started on API " + Build.VERSION.SDK_INT + " (" + Build.MANUFACTURER + " "
                 + Build.MODEL + ")");
         stopDiscovery();
-        synchronized (ports) {
-            pairPort = intent.getIntExtra(EXTRA_PAIR_PORT, 0);
-            connectPort = intent.getIntExtra(EXTRA_CONNECT_PORT, 0);
-        }
+        leaveOn = intent.getBooleanExtra(EXTRA_LEAVE_ON, false);
+        forcedPairPort = intent.getIntExtra(EXTRA_PAIR_PORT, 0);
+        forcedConnectPort = intent.getIntExtra(EXTRA_CONNECT_PORT, 0);
         NsdManager nsd = getSystemService(NsdManager.class);
-        pairingDiscovery = new LocalAdbDiscovery(nsd, LocalAdbDiscovery.PAIRING, port -> {
-            synchronized (ports) {
-                pairPort = port;
+        pairingDiscovery = new LocalAdbDiscovery(nsd, LocalAdbDiscovery.PAIRING, () -> {
+            List<Integer> found = pairingDiscovery == null
+                    ? new ArrayList<>() : pairingDiscovery.candidatePorts();
+            log("pairing services: " + found);
+            if (!found.isEmpty()) {
+                notifyStatus("Pairing dialog found. Enter the six-digit code.", true);
             }
-            log("pairing service found on port " + port);
-            notifyStatus("Pairing dialog found. Enter the six-digit code.", true);
         });
-        connectDiscovery = new LocalAdbDiscovery(nsd, LocalAdbDiscovery.CONNECT, port -> {
+        connectDiscovery = new LocalAdbDiscovery(nsd, LocalAdbDiscovery.CONNECT, () -> {
             synchronized (ports) {
-                connectPort = port;
                 ports.notifyAll();
             }
-            log("connect service found on port " + port);
+            log("connect services: " + (connectDiscovery == null
+                    ? "[]" : connectDiscovery.candidatePorts().toString()));
         });
         pairingDiscovery.start();
         connectDiscovery.start();
@@ -123,9 +130,7 @@ public final class SelfPairService extends Service {
     }
 
     private void onCode(String code) {
-        final int port;
         synchronized (ports) {
-            port = pairPort;
             if (busy) {
                 return;
             }
@@ -133,7 +138,7 @@ public final class SelfPairService extends Service {
         }
         worker.execute(() -> {
             try {
-                run(port, code);
+                run(code);
             } finally {
                 synchronized (ports) {
                     busy = false;
@@ -142,37 +147,42 @@ public final class SelfPairService extends Service {
         });
     }
 
-    private void run(int port, String code) {
+    private void run(String code) {
         if (!code.matches("\\d{6}")) {
             fail("code must be six digits", true);
             return;
         }
-        if (port == 0) {
+        List<Integer> pairPorts = forcedPairPort != 0
+                ? Collections.singletonList(forcedPairPort)
+                : pairingDiscovery.candidatePorts();
+        if (pairPorts.isEmpty()) {
             fail("no pairing service found; is the pairing dialog open?", true);
             return;
         }
         long start = System.nanoTime();
         try {
             AdbIdentity identity = AdbIdentity.create();
-            log("ephemeral key created after " + elapsed(start) + " ms");
-            new AdbPairingClient(PlatformTlsChannel.FACTORY).pair(port, code, identity, KEY_NAME);
+            log("ephemeral key created after " + elapsed(start) + " ms, fingerprint "
+                    + identity.fingerprint());
+            pair(pairPorts, code, identity);
             log("paired after " + elapsed(start) + " ms");
             notifyStatus("Paired. Granting the permission…", false);
 
-            int connect = awaitConnectPort();
-            if (connect == 0) {
-                fail("paired, but no connect service found", false);
-                return;
-            }
-            String output = new AdbGrantClient(PlatformTlsChannel.FACTORY)
-                    .grant(connect, identity, getPackageName());
+            String output = grant(identity);
             log("grant command finished after " + elapsed(start) + " ms, output: \""
                     + output + "\"");
             boolean granted = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                     == PackageManager.PERMISSION_GRANTED;
             log("RESULT granted=" + granted);
-            notifyStatus(granted ? "Done: permission granted." : "Grant failed: " + output,
-                    false);
+            if (granted && !leaveOn) {
+                // The user switched Wireless debugging on only for the pairing.
+                Settings.Global.putInt(getContentResolver(), "adb_wifi_enabled", 0);
+                log("Wireless debugging switched off again");
+            }
+            notifyStatus(granted
+                    ? "Done: permission granted. The entry \"KeepADB\" with fingerprint "
+                            + identity.fingerprint() + " under paired devices can be removed."
+                    : "Grant failed: " + output, false);
             stopDiscovery();
             stopForeground(STOP_FOREGROUND_DETACH);
             stopSelf();
@@ -184,18 +194,56 @@ public final class SelfPairService extends Service {
         }
     }
 
-    private int awaitConnectPort() throws InterruptedException {
+    /** mDNS may still list a dialog that was closed; a refused connection means try the next. */
+    private void pair(List<Integer> candidates, String code, AdbIdentity identity)
+            throws IOException, GeneralSecurityException {
+        ConnectException refused = null;
+        for (int port : candidates) {
+            try {
+                new AdbPairingClient(Tls13Channel.FACTORY).pair(port, code, identity, KEY_NAME);
+                return;
+            } catch (ConnectException e) {
+                log("pairing port " + port + " is stale");
+                refused = e;
+            }
+        }
+        throw refused;
+    }
+
+    private String grant(AdbIdentity identity)
+            throws IOException, GeneralSecurityException, InterruptedException {
+        List<Integer> candidates = awaitConnectPorts();
+        if (candidates.isEmpty()) {
+            throw new IOException("paired, but no connect service found");
+        }
+        IOException last = null;
+        for (int port : candidates) {
+            try {
+                return new AdbGrantClient(Tls13Channel.FACTORY)
+                        .grant(port, identity, getPackageName());
+            } catch (ConnectException e) {
+                log("connect port " + port + " is stale");
+                last = e;
+            }
+        }
+        throw last;
+    }
+
+    private List<Integer> awaitConnectPorts() throws InterruptedException {
+        if (forcedConnectPort != 0) {
+            return Collections.singletonList(forcedConnectPort);
+        }
         long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(CONNECT_PORT_WAIT_MS);
         synchronized (ports) {
-            while (connectPort == 0) {
+            while (connectDiscovery.candidatePorts().isEmpty()) {
                 long left = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
                 if (left <= 0) {
                     break;
                 }
                 ports.wait(left);
             }
-            return connectPort;
         }
+        return connectDiscovery.candidatePorts();
     }
 
     private void fail(String reason, boolean retry) {

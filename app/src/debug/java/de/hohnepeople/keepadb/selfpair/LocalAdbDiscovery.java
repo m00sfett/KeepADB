@@ -8,13 +8,19 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.function.IntConsumer;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Finds one of this device's own ADB mDNS services (#962) and reports its port. Services that
- * other devices on the network announce are ignored: only a service whose resolved address
+ * Finds this device's own ADB mDNS services of one type (#962) and keeps their ports. Services
+ * that other devices on the network announce are ignored: only a service whose resolved address
  * belongs to a local interface counts, and the caller then connects to loopback.
+ *
+ * <p>mDNS can still hold records of services that are gone, so the result is a list of
+ * candidates, newest first, not a single truth.
  */
 final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     static final String PAIRING = "_adb-tls-pairing._tcp";
@@ -23,15 +29,17 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
 
     private final NsdManager nsd;
     private final String type;
-    private final IntConsumer onPort;
+    private final Runnable onChange;
     private final ArrayDeque<NsdServiceInfo> pending = new ArrayDeque<>();
+    /** Service name to port, in the order the services were resolved. */
+    private final Map<String, Integer> ports = new LinkedHashMap<>();
     private boolean resolving;
     private boolean stopped;
 
-    LocalAdbDiscovery(NsdManager nsd, String type, IntConsumer onPort) {
+    LocalAdbDiscovery(NsdManager nsd, String type, Runnable onChange) {
         this.nsd = nsd;
         this.type = type;
-        this.onPort = onPort;
+        this.onChange = onChange;
     }
 
     void start() {
@@ -50,10 +58,33 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         }
     }
 
+    /** Ports of the local services currently known, most recently resolved first. */
+    synchronized List<Integer> candidatePorts() {
+        List<Integer> out = new ArrayList<>();
+        for (Integer port : ports.values()) {
+            if (!out.contains(port)) {
+                out.add(port);
+            }
+        }
+        Collections.reverse(out);
+        return out;
+    }
+
     @Override
     public synchronized void onServiceFound(NsdServiceInfo info) {
         pending.add(info);
         resolveNext();
+    }
+
+    @Override
+    public void onServiceLost(NsdServiceInfo info) {
+        boolean changed;
+        synchronized (this) {
+            changed = ports.remove(info.getServiceName()) != null;
+        }
+        if (changed) {
+            onChange.run();
+        }
     }
 
     /** NsdManager resolves one service at a time on older releases, so queue them. */
@@ -66,23 +97,30 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
             @Override
             public void onResolveFailed(NsdServiceInfo info, int errorCode) {
                 Log.w(TAG, "resolve failed for " + type + ": " + errorCode);
-                done();
+                done(false);
             }
 
             @Override
             public void onServiceResolved(NsdServiceInfo info) {
                 boolean local = isLocalAddress(info.getHost());
-                Log.i(TAG, "resolved " + type + " port " + info.getPort() + ", local=" + local);
+                boolean changed = false;
                 if (local) {
-                    onPort.accept(info.getPort());
+                    synchronized (LocalAdbDiscovery.this) {
+                        Integer port = info.getPort();
+                        changed = !port.equals(ports.remove(info.getServiceName()));
+                        ports.put(info.getServiceName(), port);
+                    }
                 }
-                done();
+                done(changed);
             }
 
-            private void done() {
+            private void done(boolean changed) {
                 synchronized (LocalAdbDiscovery.this) {
                     resolving = false;
                     resolveNext();
+                }
+                if (changed) {
+                    onChange.run();
                 }
             }
         });
@@ -110,12 +148,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     }
 
     @Override
-    public void onServiceLost(NsdServiceInfo info) {
-    }
-
-    @Override
     public void onDiscoveryStarted(String serviceType) {
-        Log.i(TAG, "discovery started: " + serviceType);
     }
 
     @Override

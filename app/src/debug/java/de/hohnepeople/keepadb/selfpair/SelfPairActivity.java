@@ -10,20 +10,23 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * STAGE 1 TEST HARNESS (#962), debug build only: a bare screen to start the self-pairing run
+ * TEST HARNESS (#962), debug build only: a bare screen to start the self-pairing run
  * and watch its log. Hard-coded English text on purpose; nothing here is meant to ship.
  *
  * <p>For runs driven over adb the launch intent may carry {@code pair_port},
- * {@code connect_port} and {@code code} extras, which bypass discovery and the notification.
+ * {@code connect_port}, {@code code} and {@code leave_on} extras; the first three bypass
+ * discovery and the notification.
  */
 public final class SelfPairActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private TextView log;
+    private CheckBox leaveOn;
     private final Runnable refresh = new Runnable() {
         @Override
         public void run() {
@@ -60,6 +63,10 @@ public final class SelfPairActivity extends Activity {
         start.setOnClickListener(v -> start(new Intent()));
         root.addView(start);
 
+        leaveOn = new CheckBox(this);
+        leaveOn.setText("Leave Wireless debugging on afterwards");
+        root.addView(leaveOn);
+
         Button settings = new Button(this);
         settings.setText("Open developer options");
         settings.setOnClickListener(v -> startActivity(
@@ -85,6 +92,7 @@ public final class SelfPairActivity extends Activity {
             requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, 1);
         }
         Intent intent = SelfPairService.startIntent(this);
+        intent.putExtra(SelfPairService.EXTRA_LEAVE_ON, leaveOn.isChecked());
         if (extras.getExtras() != null) {
             intent.putExtras(extras.getExtras());
         }

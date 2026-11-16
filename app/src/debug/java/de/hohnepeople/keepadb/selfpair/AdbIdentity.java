@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
@@ -15,6 +16,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Base64;
+import java.util.Locale;
 
 /**
  * An ephemeral ADB client identity (#962): an RSA key that only ever lives in memory, the
@@ -52,10 +54,32 @@ final class AdbIdentity {
      * {@code libcrypto_utils/android_pubkey.cpp}, a space, a name and a terminating NUL.
      */
     byte[] adbPublicKey(String name) {
+        return Bytes.concat(Base64.getEncoder().encode(adbKeyStruct()),
+                Bytes.ascii(" " + name), new byte[1]);
+    }
+
+    /**
+     * The fingerprint Android shows for this key in the details of a paired device: MD5 over the
+     * key struct, as colon-separated upper-case hex. An identifier, not a security measure.
+     */
+    String fingerprint() throws GeneralSecurityException {
+        byte[] digest = MessageDigest.getInstance("MD5").digest(adbKeyStruct());
+        StringBuilder out = new StringBuilder();
+        for (byte b : digest) {
+            if (out.length() > 0) {
+                out.append(':');
+            }
+            out.append(String.format(Locale.ROOT, "%02X", b));
+        }
+        return out.toString();
+    }
+
+    private byte[] adbKeyStruct() {
         BigInteger modulus = publicKey.getModulus();
         BigInteger r32 = BigInteger.ONE.shiftLeft(32);
         BigInteger n0inv = r32.subtract(modulus.mod(r32).modInverse(r32));
-        BigInteger rr = BigInteger.ONE.shiftLeft(MODULUS_BYTES * 8).modPow(BigInteger.valueOf(2), modulus);
+        BigInteger rr = BigInteger.ONE.shiftLeft(MODULUS_BYTES * 8)
+                .modPow(BigInteger.valueOf(2), modulus);
         ByteBuffer buffer = ByteBuffer.allocate(8 + 2 * MODULUS_BYTES + 4)
                 .order(ByteOrder.LITTLE_ENDIAN);
         buffer.putInt(MODULUS_BYTES / 4);
@@ -63,8 +87,7 @@ final class AdbIdentity {
         buffer.put(Ed25519.toLittleEndian(modulus, MODULUS_BYTES));
         buffer.put(Ed25519.toLittleEndian(rr, MODULUS_BYTES));
         buffer.putInt(publicKey.getPublicExponent().intValue());
-        return Bytes.concat(Base64.getEncoder().encode(buffer.array()),
-                Bytes.ascii(" " + name), new byte[1]);
+        return buffer.array();
     }
 
     private static byte[] selfSignedCertificate(KeyPair pair) throws GeneralSecurityException {
