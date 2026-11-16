@@ -7,7 +7,7 @@
 # Testweg „frisches WLAN" über den P60-Hotspot (#496)
 
 Für Fixes am Wifi-ADB-Verhalten braucht der Pflicht-Gerätetest auf dem S20 (`s20`) ein
-Netzwerk, für das die Android-Systemfreigabe „Immer in diesem Netzwerk zulassen" (Wifi-ADB-
+Netzwerk, für das die Android-Systemfreigabe „Immer in diesem Netzwerk zulassen" (Android-
 Pairing-Dialog) garantiert noch nie erteilt wurde — ein bereits freigegebenes Heimnetz kann
 den zu prüfenden Erststart-Pfad nicht reproduzieren. Dieses Dokument hält den dafür etablierten
 Testweg fest, mit den beiden Problemen, die er tatsächlich verursacht hat, damit sie nicht bei

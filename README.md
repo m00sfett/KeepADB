@@ -44,8 +44,8 @@ command in the app while the permission is missing.
   link “Connect a computer…” below it, and the last page of the setup assistant, explain the one-time
   pairing Android requires for each new computer and open Android's developer options.
 - **Keep-Alive:** enable it in the app if KeepADB should observe state changes and try to recover.
-  Android may show its own confirmation the first time Wifi-ADB is enabled on a Wi-Fi
-  network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
+  Android may show its own confirmation the first time “Wireless debugging” is enabled on a
+  Wi-Fi network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
 
 The home-screen widget **KeepADB controls** grows with its size, from the main action alone to
 Wifi-ADB, Keep-Alive and webhook synchronization with a status line; each placed widget
