@@ -216,18 +216,22 @@ name and raise only the code.
     ("All Wi-Fi networks", "Wi-Fi name list") for as long as it is stored
     (`KeepADBProtectionLevelSection`; its selection is read from `getProtectionLevel` on every
     refresh, a tap writes through `KeepADBOnboarding#commitProtection`, the rule the assistant
-    already used, so the stored `trust_by_name` keeps its key and meaning and a previous list is
+    already used, which also syncs the service at once (`KeepADBService.sync`), so the level takes
+    effect without a further step; the stored `trust_by_name` keeps its key and meaning and a previous list is
     switched off and not emptied). The jump into the setup assistant is gone; the assistant keeps
     its protection step for the first setup. The switch "Also trust by Wi-Fi name"
     (`settings_trust_by_name_toggle`) is removed from Settings and from the Wi-Fi networks list,
     and so is its twin in the assistant's "Customize" area (the "Balanced" card is the same fact);
     the list shows the level as one row ("Protection level: Balanced ›") that opens the level on
     the page. While the force mode runs, a note under the cards says the level applies after it
-    ends, and choosing a level does not end the mode. The level, the default and the trust logic
+    ends, and choosing a level does not end the mode. An old extra that only forwards to the page
+    (`focus_force`, `focus_network`, `focus_network_card`) now finishes the Settings shell, so Back
+    returns to where the user came from. The level, the default and the trust logic
     are unchanged (`KeepADBTrustedNetwork` decides alone).
   - **Help texts in one line.** `untrusted_shutdown_hint`, `security_check_hint` and the background
     detection status are shown as one line with "More ▾" (`KeepADBHelpHint`; the whole line is the
-    48dp touch target, TalkBack gets the collapsed/expanded state); a tap shows the full text,
+    48dp touch target, TalkBack gets the collapsed/expanded state and the "More"/"Less" word without
+    its arrow glyph); a tap shows the full text,
     unchanged, with "Less ▴", and the current reading ("Right now: ...") with the status. The
     force row's text is unchanged. A refresh (a Wi-Fi change) keeps what is open.
   - **Every way in lands on the page at its section** (one test each in
