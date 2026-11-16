@@ -125,6 +125,49 @@ public class PrivacyToggleTitleBarsTest {
         assertTrue(new File(layouts.toFile(), "view_privacy_toggle.xml").isFile());
     }
 
+    /**
+     * #971: the tablet and wide-window variants of the main layout lacked the eye, so there was no
+     * way to hide the screen or reach the privacy switches from the home screen. Every variant
+     * includes it, in the same place as on a phone: between the warnings button and the gear.
+     */
+    @Test
+    public void everyVariantOfTheMainLayoutIncludesThePrivacyEyeLeftOfTheGear() throws Exception {
+        int variants = 0;
+        try (java.nio.file.DirectoryStream<Path> dirs = Files.newDirectoryStream(
+                Paths.get("src/main/res").toAbsolutePath(), "layout*")) {
+            for (Path dir : dirs) {
+                Path main = dir.resolve("activity_main.xml");
+                if (!Files.exists(main)) continue;
+                variants++;
+                String xml = new String(Files.readAllBytes(main), StandardCharsets.UTF_8);
+                String name = dir.getFileName().toString();
+                int eye = xml.indexOf("layout=\"@layout/view_privacy_toggle\"");
+                assertTrue(name + "/activity_main.xml includes the privacy eye", eye >= 0);
+                assertTrue(name + ": the eye comes after the warnings button",
+                        xml.indexOf("@+id/btn_security_warnings") < eye);
+                assertTrue(name + ": the eye comes before the gear",
+                        eye < xml.indexOf("@+id/btn_open_settings"));
+            }
+        }
+        assertEquals("the phone layout and its five tablet and wide-window variants", 6, variants);
+    }
+
+    @Test
+    public void theMainViewHasTheWiredEyeInItsTitleBarOnPhonesAndTablets() {
+        for (String qualifiers : new String[] {"port", "land", "sw600dp", "w600dp-h400dp",
+                "sw840dp", "w840dp-h600dp", "w900dp-h650dp", "sw720dp-w1000dp-h720dp"}) {
+            RuntimeEnvironment.setQualifiers("+" + qualifiers);
+            MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
+            View eye = main.findViewById(R.id.btn_toggle_privacy_mode);
+            assertNotNull(qualifiers + ": the main view has the privacy eye", eye);
+            assertTrue(qualifiers + ": the eye is inside the title bar",
+                    isDescendantOf(eye, main.findViewById(R.id.header_bar)));
+            assertEquals(qualifiers + ": visible", View.VISIBLE, eye.getVisibility());
+            assertTrue(qualifiers + ": a tap hides the screen", eye.hasOnClickListeners());
+            assertTrue(qualifiers + ": a long press opens the switches", eye.isLongClickable());
+        }
+    }
+
     // --- one shared state ----------------------------------------------------------------------
 
     @Test
