@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.13.0` (versionCode 269), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -444,6 +444,7 @@ name and raise only the code.
 - `README.md`, `SECURITY.md`, `docs/defaults.md` and the store description said "three" privacy
   switches; there are four (app, notifications, lock screen, widgets and the tile counted as one)
   and the texts now say so.
+- Store screenshots retaken (#947).
 
 ## [1.12.8] - Unreleased
 

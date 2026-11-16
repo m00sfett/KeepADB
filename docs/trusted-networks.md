@@ -184,7 +184,7 @@ record left (evicted, unknown, or placeholder BSSID), no dialog opens; a brief m
 instead. If the user taps “Trust” in a dialog opened before a block was added, KeepADB refuses
 (the block takes precedence, #760), saves nothing, and explains why.
 
-A block made from a notice or dialog is lifted in the **Networks** list (next section). Lifting a
+A block made from a notice or dialog is lifted in the **Wi-Fi networks** list (next section). Lifting a
 name block preserves saved trust, which becomes effective again.
 
 **Unreadable network.** If the identity cannot be read, there is nothing to trust or block, so
@@ -196,7 +196,7 @@ still unreadable on Wi-Fi at all three checks. Automatic enabling stays paused d
 If the network becomes readable or Wi-Fi is lost, nothing is posted and the 24-hour throttle is not
 used up.
 
-## The “Networks” list
+## The “Wi-Fi networks” list
 
 The list (#762, part a; Settings → Protection → “Wi-Fi networks”, or “Wi-Fi networks” in the home menu since #949;
 renamed from “Networks” in 1.13.0, #964)

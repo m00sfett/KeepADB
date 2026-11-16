@@ -39,9 +39,9 @@
   user actions and app-local options. `SettingsActivity` owns the screen and Android lifecycle,
   and delegates bounded areas to controllers:
 - [KeepADBNetworkCard](../app/src/main/java/de/hohnepeople/keepadb/KeepADBNetworkCard.java):
-  owns the network-card view (current network, protection level, convenience toggle, Force mode,
-  the Networks entry point, and background access), its actions, and dialogs. `SettingsActivity`
-  delegates restore, start/stop, refresh, state saving, destruction, and permission-result handling.
+  owns the network section of the Protection page (current connection, the Wi-Fi networks entry
+  point, and background access), its actions, and dialogs. `ProtectionActivity` delegates restore,
+  start/stop, refresh, state saving, destruction, and permission-result handling.
 - [KeepADBDiagnosticsController](../app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticsController.java):
   owns diagnostics export and the issue-report dialog and draft. The activity delegates restore,
   state saving, and destruction; the app-reset dialog remains in the activity. The controller opens
