@@ -71,6 +71,9 @@ public class OnboardingCopyCommandTest {
     public void theMissingSystemPermissionOffersToCopyTheCommand() {
         OnboardingActivity assistant = open(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS));
+        // #962: the command for the computer sits behind its own fold.
+        openFold(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_computer_toggle));
         Button copy = find(assistant.getWindow().getDecorView(),
                 context.getString(R.string.onboarding_copy_command));
         assertNotNull("a copy button next to the command", copy);
@@ -87,6 +90,21 @@ public class OnboardingCopyCommandTest {
                 .performClick();
         assertEquals(null, find(assistant.getWindow().getDecorView(),
                 context.getString(R.string.onboarding_copy_command)));
+    }
+
+    /** Taps the fold line whose text starts with {@code label}. */
+    private static boolean openFold(View root, String label) {
+        if (root instanceof TextView && !(root instanceof Button)
+                && ((TextView) root).getText().toString().startsWith(label)) {
+            return root.performClick();
+        }
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                if (openFold(group.getChildAt(i), label)) return true;
+            }
+        }
+        return false;
     }
 
     private static Button find(View root, String label) {

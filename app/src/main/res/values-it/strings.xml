@@ -666,4 +666,28 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_webhook_periodic_interval_4h">Ogni 3 ore e 59 minuti (predefinito)</string>
     <string name="settings_webhook_periodic_interval_12h">Ogni 11 ore e 59 minuti</string>
     <string name="settings_webhook_periodic_interval_24h">Ogni 23 ore e 59 minuti</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB può concedersi da solo questa autorizzazione, direttamente su questo telefono: si accoppia una sola volta con il Wifi-ADB di questo telefono. Non serve alcun computer.</string>
+    <string name="selfpair_start_button">Concedi su questo telefono</string>
+    <string name="selfpair_computer_toggle">Invece da un computer</string>
+    <string name="selfpair_need_wifi">Connettiti prima a una rete Wi-Fi. Il Wifi-ADB funziona solo con il Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB riceve il codice di accoppiamento tramite una notifica. Senza notifiche questo metodo non funziona; concedi invece l\'autorizzazione da un computer.</string>
+    <string name="selfpair_step_1">1. Apri le opzioni sviluppatore, vai su “Debug wireless” e attivalo.</string>
+    <string name="selfpair_step_2">2. Tocca “Accoppia dispositivo con codice di accoppiamento” e lascia aperta quella finestra.</string>
+    <string name="selfpair_step_3">3. Scorri verso il basso le notifiche, espandi quella di KeepADB e inserisci lì il codice di sei cifre.</string>
+    <string name="selfpair_open_developer_options">Apri opzioni sviluppatore</string>
+    <string name="selfpair_developer_options_hint">Nessuna opzione sviluppatore? Apri Impostazioni › Informazioni sul telefono e tocca sette volte “Numero build”.</string>
+    <string name="selfpair_status_waiting">In attesa della finestra di accoppiamento…</string>
+    <string name="selfpair_status_found">Finestra di accoppiamento trovata. Inserisci il codice nella notifica.</string>
+    <string name="selfpair_status_working">Accoppiamento e concessione dell\'autorizzazione in corso…</string>
+    <string name="selfpair_status_wrong_code">Il codice non è stato accettato. Inserisci le sei cifre mostrate nella finestra di accoppiamento.</string>
+    <string name="selfpair_status_no_dialog">Nessuna finestra di accoppiamento trovata. Aprila di nuovo e lasciala aperta.</string>
+    <string name="selfpair_status_failed">Non ha funzionato. Riprova oppure concedi l\'autorizzazione da un computer.</string>
+    <string name="selfpair_done_off">Il Wifi-ADB è stato disattivato di nuovo.</string>
+    <string name="selfpair_done_removable">La voce “KeepADB” tra i dispositivi accoppiati non serve più; puoi rimuoverla. La sua impronta: %1$s</string>
+    <string name="selfpair_channel_name">Configurazione su questo telefono</string>
+    <string name="selfpair_notification_title">Autorizzazione di sistema</string>
+    <string name="selfpair_notification_done">Autorizzazione concessa.</string>
+    <string name="selfpair_enter_code">Inserisci il codice</string>
+    <string name="selfpair_code_label">Codice di sei cifre</string>
 </resources>

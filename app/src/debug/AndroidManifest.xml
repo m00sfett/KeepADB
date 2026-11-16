@@ -4,19 +4,6 @@
 
     <application
         android:label="(DBG) KeepADB"
-        tools:replace="android:label">
-
-        <!-- #962 test harness: debug build only, never part of a release. Exported so a
-             test run can be driven over adb. -->
-        <activity
-            android:name=".selfpair.SelfPairActivity"
-            android:exported="true"
-            android:label="Self-pairing test" />
-
-        <service
-            android:name=".selfpair.SelfPairService"
-            android:exported="false"
-            android:foregroundServiceType="connectedDevice" />
-    </application>
+        tools:replace="android:label" />
 
 </manifest>

@@ -665,4 +665,28 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_webhook_periodic_interval_4h">Alle 3 Stunden 59 Minuten (Standard)</string>
     <string name="settings_webhook_periodic_interval_12h">Alle 11 Stunden 59 Minuten</string>
     <string name="settings_webhook_periodic_interval_24h">Alle 23 Stunden 59 Minuten</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB kann sich diese Berechtigung selbst erteilen, direkt auf diesem Telefon: Es koppelt sich einmalig mit dem Wifi-ADB dieses Telefons. Kein Computer nötig.</string>
+    <string name="selfpair_start_button">Auf diesem Telefon erteilen</string>
+    <string name="selfpair_computer_toggle">Stattdessen per Computer</string>
+    <string name="selfpair_need_wifi">Verbinde dich zuerst mit einem WLAN. Wifi-ADB funktioniert nur im WLAN.</string>
+    <string name="selfpair_need_notifications">KeepADB nimmt den Kopplungscode über eine Benachrichtigung entgegen. Ohne Benachrichtigungen funktioniert dieser Weg nicht; erteile die Berechtigung stattdessen per Computer.</string>
+    <string name="selfpair_step_1">1. Öffne die Entwickleroptionen, gehe zu „Debugging über WLAN“ und schalte es ein.</string>
+    <string name="selfpair_step_2">2. Tippe auf „Gerät über einen Kopplungscode koppeln“ und lass das Fenster geöffnet.</string>
+    <string name="selfpair_step_3">3. Ziehe die Benachrichtigungen herunter, klappe die von KeepADB auf und gib dort den sechsstelligen Code ein.</string>
+    <string name="selfpair_open_developer_options">Entwickleroptionen öffnen</string>
+    <string name="selfpair_developer_options_hint">Keine Entwickleroptionen? Öffne Einstellungen › Über das Telefon und tippe siebenmal auf „Build-Nummer“.</string>
+    <string name="selfpair_status_waiting">Warte auf das Kopplungsfenster …</string>
+    <string name="selfpair_status_found">Kopplungsfenster gefunden. Gib den Code in der Benachrichtigung ein.</string>
+    <string name="selfpair_status_working">Kopplung läuft, Berechtigung wird erteilt …</string>
+    <string name="selfpair_status_wrong_code">Der Code wurde nicht akzeptiert. Gib die sechs Ziffern aus dem Kopplungsfenster ein.</string>
+    <string name="selfpair_status_no_dialog">Kein Kopplungsfenster gefunden. Öffne es erneut und lass es geöffnet.</string>
+    <string name="selfpair_status_failed">Das hat nicht geklappt. Versuche es erneut oder erteile die Berechtigung per Computer.</string>
+    <string name="selfpair_done_off">Wifi-ADB wurde wieder ausgeschaltet.</string>
+    <string name="selfpair_done_removable">Der Eintrag „KeepADB“ unter den gekoppelten Geräten wird nicht mehr gebraucht; du kannst ihn entfernen. Sein Fingerabdruck: %1$s</string>
+    <string name="selfpair_channel_name">Einrichtung auf diesem Telefon</string>
+    <string name="selfpair_notification_title">Systemberechtigung</string>
+    <string name="selfpair_notification_done">Berechtigung erteilt.</string>
+    <string name="selfpair_enter_code">Code eingeben</string>
+    <string name="selfpair_code_label">Sechsstelliger Code</string>
 </resources>

@@ -53,6 +53,16 @@ final class OnboardingActionSteps {
         private String focusItem;
         private boolean moreOpen;
         private boolean built;
+        /** #962: the "from a computer" way, folded away behind the one on the phone. */
+        private boolean computerOpen;
+        /** #962: "Grant on this phone" was tapped and waits for the notification permission. */
+        private boolean selfPairPending;
+        private boolean selfPairNeedsNotifications;
+        private boolean selfPairNeedsWifi;
+        private boolean selfPairResultShown;
+        private final Runnable selfPairObserver = () -> {
+            if (built) render();
+        };
         /** The status word each row showed last time, to announce the ones that changed. */
         private final Map<String, String> lastStatus = new HashMap<>();
 
@@ -75,7 +85,15 @@ final class OnboardingActionSteps {
         void build(Activity activity, ViewGroup container) {
             host = activity;
             content = container;
+            KeepADBSelfPairService.observe(selfPairObserver);
             render();
+        }
+
+        @Override
+        void onDestroy() {
+            KeepADBSelfPairService.stopObserving(selfPairObserver);
+            // Said once: only an instance that actually showed the closing note retires it.
+            if (selfPairResultShown) KeepADBSelfPairService.acknowledgeDone();
         }
 
         @Override
@@ -93,6 +111,8 @@ final class OnboardingActionSteps {
 
         @Override
         void onResume(Context context) {
+            // Back from the notification settings with the permission: go on where it stopped.
+            if (selfPairPending && notificationsUsable()) startSelfPair();
             if (built) render();
             // Like MainActivity.onResume: the service follows the preference, and a Keep-Alive
             // service started from the background is promoted again (#628).
@@ -101,6 +121,15 @@ final class OnboardingActionSteps {
 
         @Override
         void onPermissionResult(int requestCode) {
+            if (selfPairPending && requestCode == OnboardingPermissions.REQUEST_NOTIFICATIONS) {
+                if (notificationsUsable()) {
+                    startSelfPair();
+                } else {
+                    selfPairPending = false;
+                    selfPairNeedsNotifications = true;
+                    computerOpen = true;
+                }
+            }
             if (built) render();
         }
 
@@ -117,7 +146,11 @@ final class OnboardingActionSteps {
             LinearLayout row = row(rows, status, ITEM_SYSTEM,
                     R.string.onboarding_perm_system_title,
                     system ? Tone.DONE : Tone.MISSING);
-            if (!system) addSystemHelp(row);
+            if (system) {
+                addSelfPairResult(row);
+            } else {
+                addSystemHelp(row);
+            }
 
             // Notifications: a runtime permission from API 33 on, nothing to ask before.
             if (OnboardingPermissions.hasNotificationPermission()) {
@@ -198,8 +231,141 @@ final class OnboardingActionSteps {
             focus(rows);
         }
 
-        /** The command for the computer, with the several-devices and problem help folded away. */
+        /**
+         * Two ways to the system permission (#962): KeepADB grants it to itself on this phone,
+         * or the command is typed at a computer. The first leads; the second is one tap away
+         * and opens by itself when the first cannot work.
+         */
         private void addSystemHelp(LinearLayout row) {
+            KeepADBSelfPairService.Status selfPair = KeepADBSelfPairService.status();
+            if (selfPair.isActive()) {
+                addSelfPairProgress(row, selfPair);
+            } else {
+                row.addView(body(host.getString(R.string.selfpair_intro)));
+                if (selfPairNeedsWifi) {
+                    row.addView(muted(host.getString(R.string.selfpair_need_wifi)));
+                }
+                if (selfPairNeedsNotifications) {
+                    row.addView(muted(host.getString(R.string.selfpair_need_notifications)));
+                }
+                row.addView(button(host.getString(R.string.selfpair_start_button), true,
+                        v -> startSelfPair()));
+            }
+            row.addView(foldToggle(host.getString(R.string.selfpair_computer_toggle),
+                    computerOpen, v -> {
+                        computerOpen = !computerOpen;
+                        render();
+                    }));
+            if (computerOpen) addComputerHelp(row);
+        }
+
+        /** What the user does in Android's settings, and where the run stands. */
+        private void addSelfPairProgress(LinearLayout row, KeepADBSelfPairService.Status status) {
+            row.addView(body(host.getString(R.string.selfpair_step_1)));
+            row.addView(button(host.getString(R.string.selfpair_open_developer_options), true,
+                    v -> openDeveloperOptions()));
+            row.addView(muted(host.getString(R.string.selfpair_developer_options_hint)));
+            row.addView(body(host.getString(R.string.selfpair_step_2)));
+            row.addView(body(host.getString(R.string.selfpair_step_3)));
+            TextView state = label(host.getString(KeepADBSelfPairService.text(status.phase)));
+            state.setTextColor(host.getColor(R.color.text_yellow));
+            state.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+            row.addView(state);
+            row.addView(button(host.getString(android.R.string.cancel), false,
+                    v -> KeepADBSelfPairService.cancel(host)));
+        }
+
+        /** After a grant on the phone: what is left behind, said once. */
+        private void addSelfPairResult(LinearLayout row) {
+            KeepADBSelfPairService.Status status = KeepADBSelfPairService.status();
+            if (status.phase != KeepADBSelfPairService.Phase.DONE) return;
+            selfPairResultShown = true;
+            if (status.switchedOff) {
+                row.addView(muted(host.getString(R.string.selfpair_done_off)));
+            }
+            if (status.fingerprint != null) {
+                row.addView(muted(host.getString(R.string.selfpair_done_removable,
+                        status.fingerprint)));
+            }
+        }
+
+        private void startSelfPair() {
+            selfPairNeedsWifi = !wifiConnected();
+            if (selfPairNeedsWifi) {
+                selfPairPending = false;
+                render();
+                return;
+            }
+            if (!notificationsUsable()) {
+                if (selfPairPending) {
+                    // Asked already and still missing: this way is closed.
+                    selfPairPending = false;
+                    selfPairNeedsNotifications = true;
+                    computerOpen = true;
+                    render();
+                    return;
+                }
+                // The code comes in through a notification reply; ask right before it is needed.
+                selfPairPending = true;
+                if (OnboardingPermissions.hasNotificationPermission()
+                        && OnboardingPermissions.isNotificationMissing(host)) {
+                    OnboardingPermissions.requestNotifications(host);
+                } else {
+                    OnboardingPermissions.openAppDetails(host);
+                }
+                return;
+            }
+            selfPairPending = false;
+            selfPairNeedsNotifications = false;
+            KeepADBSelfPairService.start(host);
+        }
+
+        private boolean notificationsUsable() {
+            return host.getSystemService(android.app.NotificationManager.class)
+                    .areNotificationsEnabled();
+        }
+
+        /** Wireless debugging exists only on Wi-Fi; a VPN on top of it still counts. */
+        private boolean wifiConnected() {
+            android.net.ConnectivityManager manager =
+                    host.getSystemService(android.net.ConnectivityManager.class);
+            if (manager == null) return true;
+            for (android.net.Network network : manager.getAllNetworks()) {
+                android.net.NetworkCapabilities capabilities =
+                        manager.getNetworkCapabilities(network);
+                if (capabilities != null && capabilities.hasTransport(
+                        android.net.NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void openDeveloperOptions() {
+            try {
+                host.startActivity(new android.content.Intent(
+                        android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+            } catch (android.content.ActivityNotFoundException e) {
+                // The hint below the button says how to unlock them.
+            }
+        }
+
+        private TextView foldToggle(String label, boolean open, View.OnClickListener listener) {
+            TextView toggle = body(label + (open ? "  ▴" : "  ▾"));
+            toggle.setTextColor(host.getColor(R.color.text_yellow));
+            toggle.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
+            toggle.setMinHeight(dp(host, 48));
+            toggle.setGravity(Gravity.CENTER_VERTICAL);
+            toggle.setClickable(true);
+            toggle.setFocusable(true);
+            toggle.setStateDescription(host.getString(open
+                    ? R.string.card_state_expanded : R.string.card_state_collapsed));
+            toggle.setOnClickListener(listener);
+            return toggle;
+        }
+
+        /** The command for the computer, with the several-devices and problem help folded away. */
+        private void addComputerHelp(LinearLayout row) {
             row.addView(body(host.getString(R.string.onboarding_perm_system_body)));
             String grant = host.getString(R.string.setup_command, host.getPackageName());
             row.addView(command(grant));
@@ -212,21 +378,11 @@ final class OnboardingActionSteps {
                 KeepADBWidget.refreshAll(host);
                 KeepADBEndpointCoordinator.refresh(host);
             }));
-            TextView toggle = body(host.getString(R.string.onboarding_perm_system_more)
-                    + (moreOpen ? "  ▴" : "  ▾"));
-            toggle.setTextColor(host.getColor(R.color.text_yellow));
-            toggle.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-            toggle.setMinHeight(dp(host, 48));
-            toggle.setGravity(Gravity.CENTER_VERTICAL);
-            toggle.setClickable(true);
-            toggle.setFocusable(true);
-            toggle.setStateDescription(host.getString(moreOpen
-                    ? R.string.card_state_expanded : R.string.card_state_collapsed));
-            toggle.setOnClickListener(v -> {
-                moreOpen = !moreOpen;
-                render();
-            });
-            row.addView(toggle);
+            row.addView(foldToggle(host.getString(R.string.onboarding_perm_system_more),
+                    moreOpen, v -> {
+                        moreOpen = !moreOpen;
+                        render();
+                    }));
             if (!moreOpen) return;
             row.addView(body(host.getString(R.string.setup_body)));
             row.addView(label(host.getString(R.string.setup_multi_device_label)));

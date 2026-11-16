@@ -665,4 +665,28 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_webhook_periodic_interval_4h">Her 3 saat 59 dakikada bir (varsayılan)</string>
     <string name="settings_webhook_periodic_interval_12h">Her 11 saat 59 dakikada bir</string>
     <string name="settings_webhook_periodic_interval_24h">Her 23 saat 59 dakikada bir</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB bu izni doğrudan bu telefonda kendisi verebilir: Bu telefonun kendi Wifi-ADB özelliğiyle bir kez eşleşir. Bilgisayar gerekmez.</string>
+    <string name="selfpair_start_button">Bu telefonda ver</string>
+    <string name="selfpair_computer_toggle">Bunun yerine bilgisayardan</string>
+    <string name="selfpair_need_wifi">Önce bir Wi-Fi ağına bağlanın. Wifi-ADB yalnızca Wi-Fi\'de çalışır.</string>
+    <string name="selfpair_need_notifications">KeepADB eşleme kodunu bir bildirim üzerinden alır. Bildirimler olmadan bu yöntem çalışmaz; izni bunun yerine bilgisayardan verin.</string>
+    <string name="selfpair_step_1">1. Geliştirici seçenekleri\'ni açın, “Kablosuz hata ayıklama”ya gidin ve açın.</string>
+    <string name="selfpair_step_2">2. “Cihazı eşleme koduyla eşle”ye dokunun ve bu pencereyi açık bırakın.</string>
+    <string name="selfpair_step_3">3. Bildirimleri aşağı çekin, KeepADB bildirimini genişletin ve altı haneli kodu orada girin.</string>
+    <string name="selfpair_open_developer_options">Geliştirici seçeneklerini aç</string>
+    <string name="selfpair_developer_options_hint">Geliştirici seçenekleri yok mu? Ayarlar › Telefon hakkında bölümünü açın ve “Derleme numarası”na yedi kez dokunun.</string>
+    <string name="selfpair_status_waiting">Eşleme penceresi bekleniyor…</string>
+    <string name="selfpair_status_found">Eşleme penceresi bulundu. Kodu bildirimde girin.</string>
+    <string name="selfpair_status_working">Eşleniyor ve izin veriliyor…</string>
+    <string name="selfpair_status_wrong_code">Bu kod kabul edilmedi. Eşleme penceresinde görünen altı haneyi girin.</string>
+    <string name="selfpair_status_no_dialog">Eşleme penceresi bulunamadı. Yeniden açın ve açık bırakın.</string>
+    <string name="selfpair_status_failed">Olmadı. Yeniden deneyin veya izni bilgisayardan verin.</string>
+    <string name="selfpair_done_off">Wifi-ADB yeniden kapatıldı.</string>
+    <string name="selfpair_done_removable">Eşlenen cihazlardaki “KeepADB” girdisi artık gerekli değil; kaldırabilirsiniz. Parmak izi: %1$s</string>
+    <string name="selfpair_channel_name">Bu telefonda kurulum</string>
+    <string name="selfpair_notification_title">Sistem izni</string>
+    <string name="selfpair_notification_done">İzin verildi.</string>
+    <string name="selfpair_enter_code">Kodu gir</string>
+    <string name="selfpair_code_label">Altı haneli kod</string>
 </resources>

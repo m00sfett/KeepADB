@@ -666,4 +666,28 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="settings_webhook_periodic_interval_4h">Cada 3 horas y 59 minutos (predeterminado)</string>
     <string name="settings_webhook_periodic_interval_12h">Cada 11 horas y 59 minutos</string>
     <string name="settings_webhook_periodic_interval_24h">Cada 23 horas y 59 minutos</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB puede concederse a sí mismo este permiso, directamente en este teléfono: se vincula una sola vez con el Wifi-ADB de este teléfono. No hace falta ningún ordenador.</string>
+    <string name="selfpair_start_button">Conceder en este teléfono</string>
+    <string name="selfpair_computer_toggle">Mejor desde un ordenador</string>
+    <string name="selfpair_need_wifi">Conéctate primero a una red Wi-Fi. Wifi-ADB solo funciona con Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB recibe el código de vinculación mediante una notificación. Sin notificaciones este método no funciona; concede el permiso desde un ordenador.</string>
+    <string name="selfpair_step_1">1. Abre las opciones para desarrolladores, ve a “Depuración inalámbrica” y actívala.</string>
+    <string name="selfpair_step_2">2. Toca “Vincular dispositivo con código de vinculación” y deja esa ventana abierta.</string>
+    <string name="selfpair_step_3">3. Despliega las notificaciones, expande la de KeepADB e introduce allí el código de seis dígitos.</string>
+    <string name="selfpair_open_developer_options">Abrir opciones para desarrolladores</string>
+    <string name="selfpair_developer_options_hint">¿No ves las opciones para desarrolladores? Abre Ajustes › Acerca del teléfono y toca siete veces “Número de compilación”.</string>
+    <string name="selfpair_status_waiting">Esperando la ventana de vinculación…</string>
+    <string name="selfpair_status_found">Ventana de vinculación encontrada. Introduce el código en la notificación.</string>
+    <string name="selfpair_status_working">Vinculando y concediendo el permiso…</string>
+    <string name="selfpair_status_wrong_code">No se aceptó ese código. Introduce los seis dígitos que muestra la ventana de vinculación.</string>
+    <string name="selfpair_status_no_dialog">No se encontró ninguna ventana de vinculación. Ábrela de nuevo y déjala abierta.</string>
+    <string name="selfpair_status_failed">No ha funcionado. Inténtalo de nuevo o concede el permiso desde un ordenador.</string>
+    <string name="selfpair_done_off">Wifi-ADB se ha vuelto a desactivar.</string>
+    <string name="selfpair_done_removable">La entrada “KeepADB” en los dispositivos vinculados ya no es necesaria; puedes eliminarla. Su huella digital: %1$s</string>
+    <string name="selfpair_channel_name">Configuración en este teléfono</string>
+    <string name="selfpair_notification_title">Permiso del sistema</string>
+    <string name="selfpair_notification_done">Permiso concedido.</string>
+    <string name="selfpair_enter_code">Introducir código</string>
+    <string name="selfpair_code_label">Código de seis dígitos</string>
 </resources>

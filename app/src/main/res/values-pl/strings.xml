@@ -667,4 +667,28 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_webhook_periodic_interval_4h">Co 3 godziny 59 minut (domyślnie)</string>
     <string name="settings_webhook_periodic_interval_12h">Co 11 godzin 59 minut</string>
     <string name="settings_webhook_periodic_interval_24h">Co 23 godziny 59 minut</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB może samodzielnie nadać sobie to uprawnienie, bezpośrednio na tym telefonie: jednorazowo paruje się z Wifi-ADB tego telefonu. Komputer nie jest potrzebny.</string>
+    <string name="selfpair_start_button">Nadaj na tym telefonie</string>
+    <string name="selfpair_computer_toggle">Zamiast tego z komputera</string>
+    <string name="selfpair_need_wifi">Najpierw połącz się z siecią Wi-Fi. Wifi-ADB działa tylko przez Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB odbiera kod parowania przez powiadomienie. Bez powiadomień ta metoda nie działa; nadaj uprawnienie z komputera.</string>
+    <string name="selfpair_step_1">1. Otwórz opcje programisty, przejdź do „Debugowanie bezprzewodowe” i włącz je.</string>
+    <string name="selfpair_step_2">2. Kliknij „Sparuj urządzenie za pomocą kodu parowania” i zostaw to okno otwarte.</string>
+    <string name="selfpair_step_3">3. Rozwiń panel powiadomień, rozwiń powiadomienie KeepADB i wpisz tam sześciocyfrowy kod.</string>
+    <string name="selfpair_open_developer_options">Otwórz opcje programisty</string>
+    <string name="selfpair_developer_options_hint">Brak opcji programisty? Otwórz Ustawienia › Informacje o telefonie i siedmiokrotnie kliknij „Numer kompilacji”.</string>
+    <string name="selfpair_status_waiting">Czekam na okno parowania…</string>
+    <string name="selfpair_status_found">Znaleziono okno parowania. Wpisz kod w powiadomieniu.</string>
+    <string name="selfpair_status_working">Parowanie i nadawanie uprawnienia…</string>
+    <string name="selfpair_status_wrong_code">Ten kod nie został zaakceptowany. Wpisz sześć cyfr widocznych w oknie parowania.</string>
+    <string name="selfpair_status_no_dialog">Nie znaleziono okna parowania. Otwórz je ponownie i zostaw otwarte.</string>
+    <string name="selfpair_status_failed">Nie udało się. Spróbuj ponownie albo nadaj uprawnienie z komputera.</string>
+    <string name="selfpair_done_off">Wifi-ADB zostało ponownie wyłączone.</string>
+    <string name="selfpair_done_removable">Wpis „KeepADB” na liście sparowanych urządzeń nie jest już potrzebny; możesz go usunąć. Jego odcisk palca: %1$s</string>
+    <string name="selfpair_channel_name">Konfiguracja na tym telefonie</string>
+    <string name="selfpair_notification_title">Uprawnienie systemowe</string>
+    <string name="selfpair_notification_done">Uprawnienie nadane.</string>
+    <string name="selfpair_enter_code">Wpisz kod</string>
+    <string name="selfpair_code_label">Kod sześciocyfrowy</string>
 </resources>

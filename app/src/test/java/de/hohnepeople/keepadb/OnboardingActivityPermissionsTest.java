@@ -132,6 +132,7 @@ public class OnboardingActivityPermissionsTest {
     public void theSystemPermissionShowsTheCommandWhileMissingAndIsDoneOnceGranted() {
         OnboardingActivity assistant = open(permissionsStepIntent());
         assertEquals("Missing", status(assistant, R.string.onboarding_perm_system_title));
+        openComputerWay(assistant);
         String shown = allText(assistant);
         assertTrue(shown, shown.contains(context.getString(R.string.setup_command,
                 context.getPackageName())));
@@ -148,9 +149,71 @@ public class OnboardingActivityPermissionsTest {
                 context.getPackageName())));
     }
 
+    // ---- #962: granting on the phone leads, the computer is one tap away -------------------------
+
+    @Test
+    public void grantingOnThePhoneLeadsAndTheComputerWayIsFoldedAway() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        assertTrue(shown, shown.contains(context.getString(R.string.selfpair_intro)));
+        assertFalse("the command is folded away", shown.contains(context.getString(
+                R.string.setup_command, context.getPackageName())));
+
+        openComputerWay(assistant);
+        assertTrue(allText(assistant).contains(context.getString(R.string.setup_command,
+                context.getPackageName())));
+        openComputerWay(assistant);
+        assertFalse(allText(assistant).contains(context.getString(R.string.setup_command,
+                context.getPackageName())));
+    }
+
+    @Test
+    public void grantingOnThePhoneStartsTheServiceWhenWifiAndNotificationsAreThere() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        android.content.Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("the self-pairing service was started", started);
+        assertEquals(KeepADBSelfPairService.class.getName(),
+                started.getComponent().getClassName());
+    }
+
+    @Test
+    public void withoutWifiTheStepSaysToConnectFirstAndStartsNothing() {
+        shadowOf(context.getSystemService(android.net.ConnectivityManager.class))
+                .clearAllNetworks();
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        assertTrue(allText(assistant).contains(context.getString(R.string.selfpair_need_wifi)));
+        assertNull(shadowOf((Application) context).getNextStartedService());
+    }
+
+    @Test
+    public void withNotificationsOffTheStepAsksFirstAndFallsBackToTheComputer() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+        assertNull("nothing starts before the code can be entered",
+                shadowOf((Application) context).getNextStartedService());
+
+        // Still off when the answer comes back: this way is closed, the other one opens.
+        assistant.onRequestPermissionsResult(OnboardingPermissions.REQUEST_NOTIFICATIONS,
+                new String[] {Manifest.permission.POST_NOTIFICATIONS},
+                new int[] {android.content.pm.PackageManager.PERMISSION_DENIED});
+        String shown = allText(assistant);
+        assertTrue(shown, shown.contains(
+                context.getString(R.string.selfpair_need_notifications)));
+        assertTrue(shown, shown.contains(context.getString(R.string.setup_command,
+                context.getPackageName())));
+        assertNull(shadowOf((Application) context).getNextStartedService());
+    }
+
     @Test
     public void theSeveralDevicesHelpOpensAndFoldsAgain() {
         OnboardingActivity assistant = open(permissionsStepIntent());
+        openComputerWay(assistant);
         String more = context.getString(R.string.onboarding_perm_system_more);
         findTextStarting(assistant, more).performClick();
         String shown = allText(assistant);
@@ -422,6 +485,7 @@ public class OnboardingActivityPermissionsTest {
         org.robolectric.RuntimeEnvironment.setFontScale(2.0f);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         OnboardingActivity assistant = open(permissionsStepIntent());
+        openComputerWay(assistant);
         findTextStarting(assistant, context.getString(R.string.onboarding_perm_system_more))
                 .performClick();
         OnboardingLayoutAssertions.assertFits(assistant, 320, "missing, help open, Keep-Alive on");
@@ -749,6 +813,12 @@ public class OnboardingActivityPermissionsTest {
             }
         }
         return null;
+    }
+
+    /** #962: the command for the computer sits behind its own fold. */
+    private void openComputerWay(android.app.Activity activity) {
+        findTextStarting(activity, context.getString(R.string.selfpair_computer_toggle))
+                .performClick();
     }
 
     private TextView findTextStarting(android.app.Activity activity, String prefix) {

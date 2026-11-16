@@ -108,6 +108,13 @@
             android:exported="false"
             android:theme="@style/Theme.KeepADB.Dialog" />
 
+        <!-- #962: grants the system permission on the device itself; runs only while the user
+             has Android's pairing dialog open. -->
+        <service
+            android:name=".KeepADBSelfPairService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
         <service
             android:name=".KeepADBService"
             android:exported="false"

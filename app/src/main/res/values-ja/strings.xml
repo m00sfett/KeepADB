@@ -664,4 +664,28 @@
     <string name="settings_webhook_periodic_interval_4h">3 時間 59 分ごと（デフォルト）</string>
     <string name="settings_webhook_periodic_interval_12h">11 時間 59 分ごと</string>
     <string name="settings_webhook_periodic_interval_24h">23 時間 59 分ごと</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB は、この端末上でこの権限を自分自身に付与できます。端末自身の Wifi-ADB と一度だけペア設定します。パソコンは不要です。</string>
+    <string name="selfpair_start_button">この端末で付与</string>
+    <string name="selfpair_computer_toggle">パソコンから行う</string>
+    <string name="selfpair_need_wifi">先に Wi-Fi に接続してください。Wifi-ADB は Wi-Fi でのみ動作します。</string>
+    <string name="selfpair_need_notifications">KeepADB はペア設定コードを通知で受け取ります。通知がないとこの方法は使えません。代わりにパソコンから権限を付与してください。</string>
+    <string name="selfpair_step_1">1. 開発者向けオプションを開き、「ワイヤレス デバッグ」をオンにします。</string>
+    <string name="selfpair_step_2">2. 「ペア設定コードによるデバイスのペア設定」をタップし、そのウィンドウを開いたままにします。</string>
+    <string name="selfpair_step_3">3. 通知を下に引き下げ、KeepADB の通知を展開して、6 桁のコードを入力します。</string>
+    <string name="selfpair_open_developer_options">開発者向けオプションを開く</string>
+    <string name="selfpair_developer_options_hint">開発者向けオプションがない場合は、「設定」›「端末情報」を開き、「ビルド番号」を 7 回タップします。</string>
+    <string name="selfpair_status_waiting">ペア設定ウィンドウを待っています…</string>
+    <string name="selfpair_status_found">ペア設定ウィンドウが見つかりました。通知にコードを入力してください。</string>
+    <string name="selfpair_status_working">ペア設定して権限を付与しています…</string>
+    <string name="selfpair_status_wrong_code">そのコードは受け付けられませんでした。ペア設定ウィンドウに表示されている 6 桁を入力してください。</string>
+    <string name="selfpair_status_no_dialog">ペア設定ウィンドウが見つかりません。もう一度開いて、開いたままにしてください。</string>
+    <string name="selfpair_status_failed">うまくいきませんでした。もう一度試すか、パソコンから権限を付与してください。</string>
+    <string name="selfpair_done_off">Wifi-ADB を再びオフにしました。</string>
+    <string name="selfpair_done_removable">ペア設定済みのデバイスにある「KeepADB」のエントリは不要になりました。削除できます。フィンガープリント: %1$s</string>
+    <string name="selfpair_channel_name">この端末でのセットアップ</string>
+    <string name="selfpair_notification_title">システム権限</string>
+    <string name="selfpair_notification_done">権限を付与しました。</string>
+    <string name="selfpair_enter_code">コードを入力</string>
+    <string name="selfpair_code_label">6 桁のコード</string>
 </resources>

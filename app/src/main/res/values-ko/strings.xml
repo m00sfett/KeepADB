@@ -664,4 +664,28 @@
     <string name="settings_webhook_periodic_interval_4h">3시간 59분마다(기본값)</string>
     <string name="settings_webhook_periodic_interval_12h">11시간 59분마다</string>
     <string name="settings_webhook_periodic_interval_24h">23시간 59분마다</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB는 이 휴대전화에서 직접 이 권한을 스스로 부여할 수 있습니다. 이 휴대전화 자체의 Wifi-ADB와 한 번만 페어링합니다. 컴퓨터는 필요 없습니다.</string>
+    <string name="selfpair_start_button">이 휴대전화에서 부여</string>
+    <string name="selfpair_computer_toggle">대신 컴퓨터에서 하기</string>
+    <string name="selfpair_need_wifi">먼저 Wi-Fi에 연결하세요. Wifi-ADB는 Wi-Fi에서만 작동합니다.</string>
+    <string name="selfpair_need_notifications">KeepADB는 페어링 코드를 알림으로 받습니다. 알림이 없으면 이 방법은 작동하지 않으니 컴퓨터에서 권한을 부여하세요.</string>
+    <string name="selfpair_step_1">1. 개발자 옵션을 열고 “무선 디버깅”으로 이동해 켜세요.</string>
+    <string name="selfpair_step_2">2. “페어링 코드로 기기 페어링”을 탭하고 그 창을 열어 두세요.</string>
+    <string name="selfpair_step_3">3. 알림을 아래로 당기고 KeepADB 알림을 펼친 다음 6자리 코드를 입력하세요.</string>
+    <string name="selfpair_open_developer_options">개발자 옵션 열기</string>
+    <string name="selfpair_developer_options_hint">개발자 옵션이 없나요? 설정 › 휴대전화 정보를 열고 “빌드 번호”를 7번 탭하세요.</string>
+    <string name="selfpair_status_waiting">페어링 창을 기다리는 중…</string>
+    <string name="selfpair_status_found">페어링 창을 찾았습니다. 알림에 코드를 입력하세요.</string>
+    <string name="selfpair_status_working">페어링하고 권한을 부여하는 중…</string>
+    <string name="selfpair_status_wrong_code">코드가 승인되지 않았습니다. 페어링 창에 표시된 6자리를 입력하세요.</string>
+    <string name="selfpair_status_no_dialog">페어링 창을 찾을 수 없습니다. 다시 열고 열어 두세요.</string>
+    <string name="selfpair_status_failed">작동하지 않았습니다. 다시 시도하거나 컴퓨터에서 권한을 부여하세요.</string>
+    <string name="selfpair_done_off">Wifi-ADB가 다시 꺼졌습니다.</string>
+    <string name="selfpair_done_removable">페어링된 기기의 “KeepADB” 항목은 더 이상 필요하지 않으므로 삭제해도 됩니다. 지문: %1$s</string>
+    <string name="selfpair_channel_name">이 휴대전화에서 설정</string>
+    <string name="selfpair_notification_title">시스템 권한</string>
+    <string name="selfpair_notification_done">권한이 부여되었습니다.</string>
+    <string name="selfpair_enter_code">코드 입력</string>
+    <string name="selfpair_code_label">6자리 코드</string>
 </resources>

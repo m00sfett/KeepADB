@@ -669,4 +669,28 @@
     <string name="settings_webhook_periodic_interval_4h">كل 3 ساعات و59 دقيقة (افتراضي)</string>
     <string name="settings_webhook_periodic_interval_12h">كل 11 ساعة و59 دقيقة</string>
     <string name="settings_webhook_periodic_interval_24h">كل 23 ساعة و59 دقيقة</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">يمكن لـ KeepADB منح نفسه هذا الإذن مباشرةً على هذا الهاتف: يقترن مرة واحدة مع Wifi-ADB الخاص بهذا الهاتف. لا حاجة إلى حاسوب.</string>
+    <string name="selfpair_start_button">المنح على هذا الهاتف</string>
+    <string name="selfpair_computer_toggle">استخدام حاسوب بدلاً من ذلك</string>
+    <string name="selfpair_need_wifi">اتصل بشبكة Wi-Fi أولاً. يعمل Wifi-ADB عبر Wi-Fi فقط.</string>
+    <string name="selfpair_need_notifications">يستلم KeepADB رمز الإقران عبر إشعار. من دون الإشعارات لا تعمل هذه الطريقة؛ امنح الإذن من حاسوب بدلاً من ذلك.</string>
+    <string name="selfpair_step_1">1. افتح خيارات المطوّر، وانتقل إلى «التصحيح اللاسلكي» وشغّله.</string>
+    <string name="selfpair_step_2">2. اضغط على «إقران الجهاز باستخدام رمز الإقران» واترك تلك النافذة مفتوحة.</string>
+    <string name="selfpair_step_3">3. اسحب الإشعارات للأسفل، ووسّع إشعار KeepADB، وأدخل الرمز المكوّن من ستة أرقام هناك.</string>
+    <string name="selfpair_open_developer_options">فتح خيارات المطوّر</string>
+    <string name="selfpair_developer_options_hint">لا تجد خيارات المطوّر؟ افتح الإعدادات › حول الهاتف واضغط على «رقم الإصدار» سبع مرات.</string>
+    <string name="selfpair_status_waiting">في انتظار نافذة الإقران…</string>
+    <string name="selfpair_status_found">تم العثور على نافذة الإقران. أدخل الرمز في الإشعار.</string>
+    <string name="selfpair_status_working">جارٍ الإقران ومنح الإذن…</string>
+    <string name="selfpair_status_wrong_code">لم يتم قبول هذا الرمز. أدخل الأرقام الستة الظاهرة في نافذة الإقران.</string>
+    <string name="selfpair_status_no_dialog">لم يتم العثور على نافذة إقران. افتحها مرة أخرى واتركها مفتوحة.</string>
+    <string name="selfpair_status_failed">لم تنجح العملية. حاول مرة أخرى أو امنح الإذن من حاسوب.</string>
+    <string name="selfpair_done_off">تم إيقاف Wifi-ADB مرة أخرى.</string>
+    <string name="selfpair_done_removable">لم تعد هناك حاجة إلى إدخال «KeepADB» ضمن الأجهزة المقترنة؛ يمكنك إزالته. بصمته: %1$s</string>
+    <string name="selfpair_channel_name">الإعداد على هذا الهاتف</string>
+    <string name="selfpair_notification_title">إذن النظام</string>
+    <string name="selfpair_notification_done">تم منح الإذن.</string>
+    <string name="selfpair_enter_code">إدخال الرمز</string>
+    <string name="selfpair_code_label">رمز من ستة أرقام</string>
 </resources>

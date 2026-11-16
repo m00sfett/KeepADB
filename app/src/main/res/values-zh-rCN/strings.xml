@@ -664,4 +664,28 @@
     <string name="settings_webhook_periodic_interval_4h">每 3 小时 59 分钟（默认）</string>
     <string name="settings_webhook_periodic_interval_12h">每 11 小时 59 分钟</string>
     <string name="settings_webhook_periodic_interval_24h">每 23 小时 59 分钟</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB 可以直接在这部手机上为自己授予此权限：它会与这部手机自身的 Wifi-ADB 配对一次。无需电脑。</string>
+    <string name="selfpair_start_button">在这部手机上授予</string>
+    <string name="selfpair_computer_toggle">改用电脑</string>
+    <string name="selfpair_need_wifi">请先连接 Wi-Fi。Wifi-ADB 仅在 Wi-Fi 下可用。</string>
+    <string name="selfpair_need_notifications">KeepADB 通过通知接收配对码。没有通知权限时此方式无法使用；请改用电脑授予权限。</string>
+    <string name="selfpair_step_1">1. 打开开发者选项，进入“无线调试”并将其开启。</string>
+    <string name="selfpair_step_2">2. 点按“使用配对码配对设备”，并保持该窗口打开。</string>
+    <string name="selfpair_step_3">3. 下拉通知栏，展开 KeepADB 的通知，并在其中输入六位数字配对码。</string>
+    <string name="selfpair_open_developer_options">打开开发者选项</string>
+    <string name="selfpair_developer_options_hint">没有开发者选项？请打开“设置”›“关于手机”，连续点按“版本号”七次。</string>
+    <string name="selfpair_status_waiting">正在等待配对窗口…</string>
+    <string name="selfpair_status_found">已找到配对窗口。请在通知中输入配对码。</string>
+    <string name="selfpair_status_working">正在配对并授予权限…</string>
+    <string name="selfpair_status_wrong_code">该配对码未被接受。请输入配对窗口中显示的六位数字。</string>
+    <string name="selfpair_status_no_dialog">未找到配对窗口。请重新打开并保持打开。</string>
+    <string name="selfpair_status_failed">未成功。请重试，或改用电脑授予权限。</string>
+    <string name="selfpair_done_off">Wifi-ADB 已再次关闭。</string>
+    <string name="selfpair_done_removable">已配对设备中的“KeepADB”条目不再需要，可以将其移除。其指纹：%1$s</string>
+    <string name="selfpair_channel_name">在这部手机上设置</string>
+    <string name="selfpair_notification_title">系统权限</string>
+    <string name="selfpair_notification_done">权限已授予。</string>
+    <string name="selfpair_enter_code">输入配对码</string>
+    <string name="selfpair_code_label">六位数字配对码</string>
 </resources>

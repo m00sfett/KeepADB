@@ -39,6 +39,12 @@ public class KeepADBGlossaryContractTest {
      */
     private static final Map<String, String> ANDROID_NAME = new LinkedHashMap<>();
 
+    /**
+     * #962: the one string that has to use Android's label. It sends the user into Android's
+     * developer options to tap that very entry, so it must be found under the name shown there.
+     */
+    private static final String ANDROID_LABEL_ON_PURPOSE = "selfpair_step_1";
+
     static {
         ANDROID_NAME.put("", "Wireless debugging");
         ANDROID_NAME.put("-ar", "تصحيح الأخطاء اللاسلكي");
@@ -175,6 +181,7 @@ public class KeepADBGlossaryContractTest {
             for (String form : locale.getValue().split("\\|")) {
                 String needle = form.toLowerCase(java.util.Locale.ROOT);
                 for (Map.Entry<String, String> entry : values.entrySet()) {
+                    if (ANDROID_LABEL_ON_PURPOSE.equals(entry.getKey())) continue;
                     assertFalse("values" + locale.getKey() + "/" + entry.getKey()
                                     + " quotes Android's label '" + form + "': " + entry.getValue(),
                             entry.getValue().toLowerCase(java.util.Locale.ROOT).contains(needle));

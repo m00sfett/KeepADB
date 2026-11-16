@@ -11,6 +11,7 @@
 -keep class de.hohnepeople.keepadb.SettingsActivity
 -keep class de.hohnepeople.keepadb.NetworkListActivity
 -keep class de.hohnepeople.keepadb.KeepADBService
+-keep class de.hohnepeople.keepadb.KeepADBSelfPairService
 -keep class de.hohnepeople.keepadb.KeepADBTileService
 -keep class de.hohnepeople.keepadb.KeepADBWidget
 -keep class de.hohnepeople.keepadb.BootReceiver

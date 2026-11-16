@@ -613,6 +613,7 @@ public class KeepADBResourceContractTest {
         int integerWitness = context.getApplicationInfo().uid;
         long longWitness = integerWitness;
         result.put("warnings_close", new Object[] {stringWitness});
+        result.put("selfpair_done_removable", new Object[] {"AA:BB:CC"});
         result.put("warnings_closed", new Object[] {stringWitness});
         result.put("onboarding_step_counter", new Object[] {integerWitness, integerWitness});
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});

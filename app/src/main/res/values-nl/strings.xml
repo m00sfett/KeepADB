@@ -665,4 +665,28 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_webhook_periodic_interval_4h">Elke 3 uur en 59 minuten (standaard)</string>
     <string name="settings_webhook_periodic_interval_12h">Elke 11 uur en 59 minuten</string>
     <string name="settings_webhook_periodic_interval_24h">Elke 23 uur en 59 minuten</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB kan zichzelf deze toestemming geven, rechtstreeks op deze telefoon: de app koppelt één keer met de Wifi-ADB van deze telefoon. Geen computer nodig.</string>
+    <string name="selfpair_start_button">Toestemming geven op deze telefoon</string>
+    <string name="selfpair_computer_toggle">In plaats daarvan via een computer</string>
+    <string name="selfpair_need_wifi">Maak eerst verbinding met wifi. Wifi-ADB werkt alleen via wifi.</string>
+    <string name="selfpair_need_notifications">KeepADB ontvangt de koppelingscode via een melding. Zonder meldingen werkt deze methode niet; geef de toestemming dan via een computer.</string>
+    <string name="selfpair_step_1">1. Open de ontwikkelaarsopties, ga naar “Draadloze foutopsporing” en zet die aan.</string>
+    <string name="selfpair_step_2">2. Tik op “Apparaat koppelen met koppelingscode” en laat dat venster open.</string>
+    <string name="selfpair_step_3">3. Trek de meldingen omlaag, vouw die van KeepADB open en voer daar de zescijferige code in.</string>
+    <string name="selfpair_open_developer_options">Ontwikkelaarsopties openen</string>
+    <string name="selfpair_developer_options_hint">Geen ontwikkelaarsopties? Open Instellingen › Over de telefoon en tik zeven keer op “Buildnummer”.</string>
+    <string name="selfpair_status_waiting">Wachten op het koppelingsvenster…</string>
+    <string name="selfpair_status_found">Koppelingsvenster gevonden. Voer de code in bij de melding.</string>
+    <string name="selfpair_status_working">Koppelen en toestemming geven…</string>
+    <string name="selfpair_status_wrong_code">Die code is niet geaccepteerd. Voer de zes cijfers in die in het koppelingsvenster staan.</string>
+    <string name="selfpair_status_no_dialog">Geen koppelingsvenster gevonden. Open het opnieuw en laat het open.</string>
+    <string name="selfpair_status_failed">Dat is niet gelukt. Probeer het opnieuw of geef de toestemming via een computer.</string>
+    <string name="selfpair_done_off">Wifi-ADB is weer uitgezet.</string>
+    <string name="selfpair_done_removable">Het item “KeepADB” bij gekoppelde apparaten is niet meer nodig; je kunt het verwijderen. De vingerafdruk: %1$s</string>
+    <string name="selfpair_channel_name">Instellen op deze telefoon</string>
+    <string name="selfpair_notification_title">Systeemtoestemming</string>
+    <string name="selfpair_notification_done">Toestemming gegeven.</string>
+    <string name="selfpair_enter_code">Code invoeren</string>
+    <string name="selfpair_code_label">Zescijferige code</string>
 </resources>
