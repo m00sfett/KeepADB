@@ -22,7 +22,7 @@ network default was the only exception (“In all Wi-Fi networks”, `all_wifi`)
 changes here; #765 documents them and protects them against unnoticed changes (see “Evidence”).
 
 **Exception since #904:** connection details in notifications were hidden by default (#592) and
-are shown by default now, because the three privacy switches are uniformly opt-in (user decision of
+are shown by default now, because the four privacy switches are uniformly opt-in (user decision of
 2026-11-07). That is the one deliberate step away from the safest value; see “Privacy switches”
 below for what existing installations keep.
 
@@ -98,8 +98,11 @@ URL. It is record data, not a setting, and is empty on a new installation.
 
 ### Privacy switches (#904)
 
-The single privacy mode is three independent opt-in switches. A new installation has all three
-off. Two of them are derived once for installations that already exist, so nothing is loosened:
+The single privacy mode is four independent opt-in switches: app, notifications, lock screen and
+widgets. A new installation has all four off. Two of them (notifications and widgets) are derived
+once for installations that already exist, so nothing is loosened; the lock-screen switch (#920,
+`lockscreen_privacy_enabled`, a sub-option of the notification switch) is off everywhere and never
+derived:
 
 | Stored before the update | App (`privacy_mode_enabled`) | Notifications (`notification_privacy_enabled`) | Widgets (`widget_privacy_enabled`) |
 |---|---|---|---|
@@ -113,7 +116,7 @@ The derivation follows the pattern of #760: `KeepADBApplication` calls
 the marker `privacy_split_initialized` once, and never touches the keys again. The marker is
 bookkeeping, not a setting. On a new installation only the marker is written, no setting key. The
 retired key `notification_details_enabled` stays in place, unread after the migration, so an older
-app that is installed again still finds it. The three switches write at once when changed, in the
+app that is installed again still finds it. The four switches write at once when changed, in the
 Settings and on the first page of the setup assistant; they are not part of “Next” or “Later”.
 
 Force mode (#763) is off on a new installation. `force_state` is not saved without explicit

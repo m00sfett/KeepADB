@@ -52,10 +52,10 @@ the connection, Wi-Fi, Keep-Alive and webhook delivery at a glance and offers on
 switch (see [docs/widgets.md](docs/widgets.md)).
 
 Settings also include notification privacy, diagnostics export, and optional webhook
-synchronization. Three optional privacy switches
+synchronization. Four optional privacy switches
 (first page of the setup assistant, also in Settings → Privacy and on a long press of the eye) hide
-Wi-Fi names and addresses in the app, in notifications (optionally also off the lock screen), and
-in widgets and the Quick Settings tile; they do not change the endpoint sent
+Wi-Fi names and addresses in the app, in notifications, and in widgets and the Quick Settings tile,
+and keep KeepADB notifications off the lock screen; they do not change the endpoint sent
 by an enabled webhook. Notifications and widgets omit addresses entirely, port included. Inside
 the app the masks are partial: an IPv4 address keeps its first number and the port stays visible
 (for example `192.*.*.*:41234`), an IPv6 address keeps its first group (`fe80:***`), and a BSSID

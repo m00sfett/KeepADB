@@ -99,9 +99,9 @@ point name in KeepADB when the notification privacy switch is on.
 
 ## Notifications, webhook, and local data
 
-KeepADB has three independent privacy switches, all opt-in and off on a new installation (#904):
-one for the screens and dialogs of the app, one for notifications (with a lock-screen option,
-#920), one for widgets and the Quick Settings tile. All of them live in Settings → Privacy (#941). A switch masks Wi-Fi names, access point addresses and IP addresses in its own
+KeepADB has four independent privacy switches, all opt-in and off on a new installation (#904):
+one for the screens and dialogs of the app, one for notifications, one that keeps KeepADB
+notifications off the lock screen (#920), one for widgets and the Quick Settings tile. All of them live in Settings → Privacy (#941). A switch masks Wi-Fi names, access point addresses and IP addresses in its own
 area only. The notification and widget switches omit them and the port entirely. The app switch
 masks names, BSSIDs, IPv6 addresses and every host name (DNS and Tailnet names alike, shown as
 `***`, in endpoint rows, report history and the webhook address); **by decision,
@@ -112,7 +112,7 @@ network page, the trust dialog, the webhook field) until that part is
 left, the screen stops or the switch is turned on again. A tap on the eye in the title bars (home
 screen included, #941) toggles “Show on this screen” / “Hide on this screen”, which applies to
 every part of that screen until it is left and never changes a stored switch; a long press opens a
-menu with the three stored switches and the lock-screen option and a link to Settings → Privacy. Shared
+menu with the four stored switches and a link to Settings → Privacy. Shared
 diagnostics and toasts that name a network stay masked under any
 “Show”, because they can outlive the screen; they are masked whenever the app switch is on or the
 screen is hidden. In the trust dialog and on the Protection page, trusting needs a “Show”
