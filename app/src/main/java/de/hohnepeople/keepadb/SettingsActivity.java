@@ -62,7 +62,6 @@ public class SettingsActivity extends Activity {
     /** #904, #941: the block with the privacy switches, in the Privacy card. */
     private View privacySwitches;
     private Switch keepDisplayOnToggle;
-    private Switch adviceBannerToggle;
 
     // #697: the Network card (views, rendered action snapshot, Wi-Fi callback and its dialogs).
     private KeepADBNetworkCard networkCard;
@@ -165,10 +164,6 @@ public class SettingsActivity extends Activity {
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
         keepDisplayOnToggle.setOnClickListener(v ->
                 KeepADBPreferences.setKeepDisplayOnEnabled(this, keepDisplayOnToggle.isChecked()));
-
-        adviceBannerToggle = findViewById(R.id.settings_advice_banner_toggle);
-        adviceBannerToggle.setOnClickListener(v ->
-                KeepADBPreferences.setAdviceBannerVisible(this, adviceBannerToggle.isChecked()));
 
         // #761: the setup assistant, whole from the top row, the protection step from its level line.
         onboardingSummary = findViewById(R.id.settings_onboarding_summary);
@@ -546,8 +541,6 @@ public class SettingsActivity extends Activity {
         KeepADBPrivacySwitches.refresh(this, privacySwitches);
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
-
-        adviceBannerToggle.setChecked(KeepADBPreferences.isAdviceBannerVisible(this));
 
         onboardingSummary.setText(getString(R.string.onboarding_settings_summary,
                 KeepADBForceNotice.levelLabel(this),

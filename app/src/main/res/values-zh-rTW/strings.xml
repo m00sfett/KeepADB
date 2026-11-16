@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">裝置顯示為「unauthorized」？</string>
     <string name="setup_state_unauthorized_body">請在此手機螢幕上確認偵錯授權提示，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
     <string name="setup_refresh">檢查權限</string>
-    <string name="status_on">無線偵錯已開啟</string>
-    <string name="status_off">無線偵錯已關閉</string>
-    <string name="endpoint_format">端點：%1$s:%2$d</string>
     <string name="endpoint_searching">正在搜尋端點…</string>
     <string name="endpoint_unavailable">端點無法使用</string>
+    <string name="connect_help_link">連接電腦…</string>
+    <string name="connect_help_title">連接電腦</string>
+    <string name="connect_help_step_phone">在手機上開啟「開發人員選項」›「無線偵錯」›「使用配對碼配對裝置」。</string>
+    <string name="connect_help_step_pair">在電腦上，每台電腦只需一次：執行下方指令，然後輸入手機上顯示的配對碼。</string>
+    <string name="connect_help_step_connect">開啟 Wifi-ADB 後，用 KeepADB 顯示的位址執行此指令（點選位址即可複製指令）。已配對的電腦通常會自動連線。</string>
+    <string name="connect_help_open_settings">開啟開發人員選項</string>
 
     <string name="transport_vpn_label">透過 VPN 的 ADB</string>
     <string name="transport_row_format">%1$s：%2$s · 上次檢查 %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">無線偵錯目前的 IP 位址與連接埠</string>
     <string name="notification_title_active">%1$s：Wifi-ADB 已開啟</string>
     <string name="notification_title_disabled">%1$s：Wifi-ADB 已關閉</string>
-    <string name="notification_text_active">連接埠 %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">連接埠 %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">輕觸以在應用程式中查看連線詳細資料。</string>
     <string name="notification_title_searching">%1$s：正在搜尋端點…</string>
     <string name="notification_text_searching">正在區域網路中解析端點</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">需要位置權限來識別目前的 Wi-Fi 網路和存取點。</string>
     <string name="location_permission_settings_button">開啟設定</string>
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
-    <string name="status_enabled_disconnected">無線偵錯已開啟（未連線）</string>
+    <string name="notification_action_copy">複製</string>
+    <string name="endpoint_copy_action">複製 adb connect 指令</string>
     <string name="status_permission_missing">缺少系統權限</string>
     <string name="tile_state_off">關閉</string>
     <string name="tile_state_disconnected">未連線</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">選用的已去除敏感資訊 KeepADB 診斷資料（傳送前請檢視）</string>
     <string name="advice_banner_title">安全與網路</string>
     <string name="advice_banner_text">無線偵錯會在你的網路上開啟一個 ADB 連接埠。請使用已信任的 Wi-Fi 或 VPN，並在公共熱點關閉它。切勿公開分享你的端點，也不要接受非預期的配對要求。</string>
-    <string name="security_notice_dismiss">關閉提示</string>
-    <string name="settings_advice_banner_toggle">顯示安全與網路提示</string>
-    <string name="settings_advice_banner_subtext">在主畫面頂部顯示安全警告橫幅。</string>
     <string name="settings_license_line">依 GNU Affero 通用公共授權條款第三版（AGPLv3）授權</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">在瀏覽器中開啟 keepadb.roteson.de</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">無線偵錯已關閉 – Keep-Alive 已暫停:網路無法讀取,請檢查位置權限（「一律允許」）或重新開啟應用程式</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">無線偵錯已關閉 – Keep-Alive 已暫停:請確認 Android 的無線偵錯網路對話方塊,然後點選開關重試</string>
     <string name="status_pending">正在切換…</string>
+    <string name="home_state_on">Wifi-ADB 已開啟</string>
+    <string name="home_state_off">Wifi-ADB 已關閉</string>
+    <string name="home_state_setup">缺少設定</string>
+    <string name="home_reason_permission">未授予系統權限</string>
+    <string name="home_reason_waiting">Keep-Alive 正在等待 Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive 已暫停：Wi-Fi 未信任</string>
+    <string name="home_reason_blocked">Keep-Alive 已暫停：Wi-Fi 已被封鎖</string>
+    <string name="home_reason_identity">Keep-Alive 已暫停：無法讀取網路</string>
+    <string name="home_reason_backoff">Keep-Alive 已暫停：「無線偵錯」對話方塊尚未確認</string>
+    <string name="home_reason_no_wifi">沒有 Wi-Fi 連線</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive 在此保持關閉：Wi-Fi 未信任</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive 在此保持關閉：Wi-Fi 已被封鎖</string>
+    <string name="home_action_networks">網路</string>
+    <string name="home_action_retry">重試</string>
+    <string name="home_reason_details_action">顯示詳細資料</string>
     <string name="state_pending">正在切換…</string>
     <string name="tile_state_keep_alive_waiting">關閉 – Keep-Alive 等待中</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
@@ -443,6 +459,9 @@
     <string name="onboarding_intro_title_existing">新的安全設定</string>
     <string name="onboarding_intro_body_existing">KeepADB 現在把主要設定集中到一個精靈中。您目前的值會保留並預先選取。「下一步」不會變更任何內容。比建議設定安全性更低的項目會被標示。</string>
     <string name="onboarding_intro_less_secure">部分設定的安全性低於建議水準。</string>
+    <string name="onboarding_privacy_summary_off">隱私：未隱藏任何內容</string>
+    <string name="onboarding_privacy_summary_on">隱私：已開啟 %1$d/%2$d 項</string>
+    <string name="onboarding_privacy_change">變更</string>
     <string name="onboarding_keep_alive_question">重新啟動或連線中斷後，無線偵錯要自動重新開啟嗎？</string>
     <string name="onboarding_keep_alive_off_body">由您自己在應用程式、快速設定圖塊或小工具中開啟無線偵錯。重新啟動後維持關閉。</string>
     <string name="onboarding_keep_alive_on_body">重新啟動或連線中斷後，KeepADB 會重新開啟無線偵錯，但僅限保護等級允許的地方（下一步）。</string>
@@ -504,8 +523,6 @@
     <string name="home_warning_action_fix">修復</string>
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
     <string name="home_warning_limited_text">缺少讓 Keep-Alive 穩定運作所需的權限。</string>
-    <string name="status_tap_to_decide">輕觸以決定</string>
-    <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">語言</string>
     <string name="menu_item_all_settings">設定</string>

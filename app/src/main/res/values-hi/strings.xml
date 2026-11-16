@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">डिवाइस "unauthorized" दिखा रहा है?</string>
     <string name="setup_state_unauthorized_body">इस फोन की स्क्रीन पर दिखने वाले डीबगिंग अनुमति संकेत की पुष्टि करें, फिर "adb devices" तब तक चलाते रहें जब तक स्थिति "device" न हो जाए।</string>
     <string name="setup_refresh">अनुमति जांचें</string>
-    <string name="status_on">वायरलेस डीबगिंग चालू है</string>
-    <string name="status_off">वायरलेस डीबगिंग बंद है</string>
-    <string name="endpoint_format">एंडपॉइंट: %1$s:%2$d</string>
     <string name="endpoint_searching">एंडपॉइंट खोजा जा रहा है…</string>
     <string name="endpoint_unavailable">एंडपॉइंट अनुपलब्ध है</string>
+    <string name="connect_help_link">कंप्यूटर कनेक्ट करें…</string>
+    <string name="connect_help_title">कंप्यूटर कनेक्ट करें</string>
+    <string name="connect_help_step_phone">फ़ोन पर डेवलपर विकल्प › “वायरलेस डीबगिंग” › “पेयरिंग कोड से डिवाइस पेयर करें” खोलें।</string>
+    <string name="connect_help_step_pair">कंप्यूटर पर, हर कंप्यूटर के लिए एक बार: नीचे दिया कमांड चलाएँ और फ़ोन पर दिखा कोड दर्ज करें।</string>
+    <string name="connect_help_step_connect">Wifi-ADB चालू होने पर, KeepADB द्वारा दिखाए गए पते के साथ यह कमांड चलाएँ (कमांड कॉपी करने के लिए पते पर टैप करें)। पहले से पेयर किया गया कंप्यूटर अक्सर अपने आप कनेक्ट हो जाता है।</string>
+    <string name="connect_help_open_settings">डेवलपर विकल्प खोलें</string>
 
     <string name="transport_vpn_label">VPN के ज़रिए ADB</string>
     <string name="transport_row_format">%1$s: %2$s · अंतिम जाँच %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">वायरलेस डीबगिंग का वर्तमान IP पता और पोर्ट</string>
     <string name="notification_title_active">%1$s: Wifi-ADB चालू</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB बंद</string>
-    <string name="notification_text_active">पोर्ट %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">पोर्ट %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">कनेक्शन विवरण ऐप में देखने के लिए टैप करें।</string>
     <string name="notification_title_searching">%1$s: एंडपॉइंट खोजा जा रहा है…</string>
     <string name="notification_text_searching">स्थानीय नेटवर्क पर एंडपॉइंट खोजा जा रहा है</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">वर्तमान Wi-Fi नेटवर्क और ऐक्सेस पॉइंट की पहचान के लिए स्थान एक्सेस की आवश्यकता है।</string>
     <string name="location_permission_settings_button">सेटिंग खोलें</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
-    <string name="status_enabled_disconnected">वायरलेस डीबगिंग चालू (कनेक्ट नहीं है)</string>
+    <string name="notification_action_copy">कॉपी करें</string>
+    <string name="endpoint_copy_action">adb connect कमांड कॉपी करें</string>
     <string name="status_permission_missing">सिस्टम अनुमति नहीं है</string>
     <string name="tile_state_off">बंद</string>
     <string name="tile_state_disconnected">कनेक्ट नहीं है</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">वैकल्पिक, साफ़ किए गए KeepADB निदान डेटा (भेजने से पहले समीक्षा करें)</string>
     <string name="advice_banner_title">सुरक्षा और नेटवर्क</string>
     <string name="advice_banner_text">वायरलेस डीबगिंग आपके नेटवर्क पर एक ADB पोर्ट खोलती है। भरोसेमंद Wi-Fi या VPN का उपयोग करें, और सार्वजनिक हॉटस्पॉट पर इसे बंद करें। अपना एंडपॉइंट कभी सार्वजनिक रूप से साझा न करें और अनपेक्षित पेयरिंग अनुरोध स्वीकार न करें।</string>
-    <string name="security_notice_dismiss">सूचना बंद करें</string>
-    <string name="settings_advice_banner_toggle">सुरक्षा और नेटवर्क सलाह दिखाएं</string>
-    <string name="settings_advice_banner_subtext">मुख्य स्क्रीन के शीर्ष पर एक सुरक्षा चेतावनी बैनर दिखाता है।</string>
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">ब्राउज़र में keepadb.roteson.de खोलें</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: Android के वायरलेस डीबगिंग नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
+    <string name="home_state_on">Wifi-ADB चालू है</string>
+    <string name="home_state_off">Wifi-ADB बंद है</string>
+    <string name="home_state_setup">सेटअप अधूरा है</string>
+    <string name="home_reason_permission">सिस्टम अनुमति नहीं दी गई</string>
+    <string name="home_reason_waiting">Keep-Alive Wi-Fi की प्रतीक्षा कर रहा है</string>
+    <string name="home_reason_untrusted">Keep-Alive रोका गया: Wi-Fi भरोसेमंद नहीं है</string>
+    <string name="home_reason_blocked">Keep-Alive रोका गया: Wi-Fi ब्लॉक है</string>
+    <string name="home_reason_identity">Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता</string>
+    <string name="home_reason_backoff">Keep-Alive रोका गया: “वायरलेस डीबगिंग” संवाद की पुष्टि नहीं हुई</string>
+    <string name="home_reason_no_wifi">Wi-Fi कनेक्शन नहीं है</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive यहाँ बंद रहेगा: Wi-Fi भरोसेमंद नहीं है</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive यहाँ बंद रहेगा: Wi-Fi ब्लॉक है</string>
+    <string name="home_action_networks">नेटवर्क</string>
+    <string name="home_action_retry">फिर कोशिश करें</string>
+    <string name="home_reason_details_action">विवरण दिखाएँ</string>
     <string name="state_pending">बदला जा रहा है…</string>
     <string name="tile_state_keep_alive_waiting">बंद – Keep-Alive प्रतीक्षा में</string>
     <string name="toggle_failed_toast">वायरलेस डीबगिंग नहीं बदली जा सकी। कृपया फिर से प्रयास करें।</string>
@@ -443,6 +459,9 @@
     <string name="onboarding_intro_title_existing">नई सुरक्षा सेटिंग</string>
     <string name="onboarding_intro_body_existing">KeepADB अब अपनी मुख्य सेटिंग एक सहायक में एक साथ लाता है। आपके मौजूदा मान बने रहते हैं और पहले से चुने हुए हैं। “आगे” कुछ नहीं बदलता। जो सेटिंग अनुशंसित से कम सुरक्षित है, उस पर निशान है।</string>
     <string name="onboarding_intro_less_secure">कुछ सेटिंग सुझाए गए स्तर से कम सुरक्षित हैं।</string>
+    <string name="onboarding_privacy_summary_off">गोपनीयता: कुछ भी छिपा नहीं</string>
+    <string name="onboarding_privacy_summary_on">गोपनीयता: %1$d/%2$d चालू</string>
+    <string name="onboarding_privacy_change">बदलें</string>
     <string name="onboarding_keep_alive_question">क्या रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग अपने आप फिर चालू होनी चाहिए?</string>
     <string name="onboarding_keep_alive_off_body">आप वायरलेस डीबगिंग खुद चालू करते हैं — ऐप, टाइल या विजेट से। रीस्टार्ट के बाद यह बंद रहती है।</string>
     <string name="onboarding_keep_alive_on_body">KeepADB रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग फिर चालू करता है, लेकिन केवल वहीं जहाँ आपका सुरक्षा स्तर इसकी अनुमति दे (अगला चरण)।</string>
@@ -504,8 +523,6 @@
     <string name="home_warning_action_fix">ठीक करें</string>
     <string name="home_warning_limited_title">Keep-Alive सीमित है</string>
     <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए कुछ अनुमतियाँ अभी बाकी हैं।</string>
-    <string name="status_tap_to_decide">निर्णय के लिए टैप करें</string>
-    <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">भाषा</string>
     <string name="menu_item_all_settings">सेटिंग्स</string>

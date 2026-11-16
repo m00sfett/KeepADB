@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">デバイスが"unauthorized"と表示される場合は？</string>
     <string name="setup_state_unauthorized_body">このスマートフォンの画面に表示されるデバッグ許可のダイアログを確認してから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_refresh">権限を確認</string>
-    <string name="status_on">ワイヤレスデバッグは ON です</string>
-    <string name="status_off">ワイヤレスデバッグは OFF です</string>
-    <string name="endpoint_format">エンドポイント: %1$s:%2$d</string>
     <string name="endpoint_searching">エンドポイントを検索中…</string>
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
+    <string name="connect_help_link">パソコンを接続…</string>
+    <string name="connect_help_title">パソコンを接続</string>
+    <string name="connect_help_step_phone">スマートフォンで「開発者向けオプション」›「ワイヤレスデバッグ」›「ペア設定コードでデバイスをペア設定」を開きます。</string>
+    <string name="connect_help_step_pair">パソコンで、パソコンごとに1回:下のコマンドを実行し、スマートフォンに表示されたコードを入力します。</string>
+    <string name="connect_help_step_connect">Wifi-ADB がオンのとき、KeepADB が表示するアドレスでこのコマンドを実行します（アドレスをタップするとコマンドをコピーできます）。ペア設定済みのパソコンは、自動的に接続されることがよくあります。</string>
+    <string name="connect_help_open_settings">開発者向けオプションを開く</string>
 
     <string name="transport_vpn_label">VPN 経由の ADB</string>
     <string name="transport_row_format">%1$s: %2$s · 最終確認 %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">ワイヤレスデバッグの現在のIPアドレスとポート</string>
     <string name="notification_title_active">%1$s: Wifi-ADB オン</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB オフ</string>
-    <string name="notification_text_active">ポート %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">ポート %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">タップしてアプリで接続の詳細を確認してください。</string>
     <string name="notification_title_searching">%1$s: エンドポイントを検索中…</string>
     <string name="notification_text_searching">ローカルネットワーク上でエンドポイントを解決中</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">現在のWi-Fiネットワークとアクセスポイントを識別するには位置情報へのアクセスが必要です。</string>
     <string name="location_permission_settings_button">設定を開く</string>
     <string name="notification_action_disable">Wifi-ADBを無効化</string>
-    <string name="status_enabled_disconnected">ワイヤレスデバッグ: オン（未接続）</string>
+    <string name="notification_action_copy">コピー</string>
+    <string name="endpoint_copy_action">adb connect コマンドをコピー</string>
     <string name="status_permission_missing">システム権限がありません</string>
     <string name="tile_state_off">オフ</string>
     <string name="tile_state_disconnected">未接続</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
     <string name="advice_banner_title">セキュリティとネットワーク</string>
     <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼済みのWi-Fiまたは VPNを使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
-    <string name="security_notice_dismiss">通知を閉じる</string>
-    <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
-    <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
     <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">ブラウザでkeepadb.roteson.deを開く</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:Android のワイヤレスデバッグ ネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
+    <string name="home_state_on">Wifi-ADB はオンです</string>
+    <string name="home_state_off">Wifi-ADB はオフです</string>
+    <string name="home_state_setup">設定が未完了</string>
+    <string name="home_reason_permission">システム権限が未許可</string>
+    <string name="home_reason_waiting">Keep-Alive は Wi-Fi を待機中</string>
+    <string name="home_reason_untrusted">Keep-Alive は一時停止中:Wi-Fi は信頼されていません</string>
+    <string name="home_reason_blocked">Keep-Alive は一時停止中:Wi-Fi はブロックされています</string>
+    <string name="home_reason_identity">Keep-Alive は一時停止中:ネットワークを読み取れません</string>
+    <string name="home_reason_backoff">Keep-Alive は一時停止中:「ワイヤレスデバッグ」のダイアログが未確認</string>
+    <string name="home_reason_no_wifi">Wi-Fi 接続なし</string>
+    <string name="home_reason_stays_off_untrusted">ここでは Keep-Alive はオフのまま:Wi-Fi は信頼されていません</string>
+    <string name="home_reason_stays_off_blocked">ここでは Keep-Alive はオフのまま:Wi-Fi はブロックされています</string>
+    <string name="home_action_networks">ネットワーク</string>
+    <string name="home_action_retry">再試行</string>
+    <string name="home_reason_details_action">詳細を表示</string>
     <string name="state_pending">切り替え中…</string>
     <string name="tile_state_keep_alive_waiting">オフ – Keep-Alive 待機中</string>
     <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
@@ -443,6 +459,9 @@
     <string name="onboarding_intro_title_existing">新しいセキュリティ設定</string>
     <string name="onboarding_intro_body_existing">KeepADBは主な設定を1つのアシスタントにまとめました。現在の値はそのまま引き継がれ、選択済みになっています。「次へ」では何も変わりません。推奨より安全性が低いものには印が付いています。</string>
     <string name="onboarding_intro_less_secure">一部の設定が推奨よりも安全性の低い状態です。</string>
+    <string name="onboarding_privacy_summary_off">プライバシー: 非表示なし</string>
+    <string name="onboarding_privacy_summary_on">プライバシー: %1$d/%2$d件がオン</string>
+    <string name="onboarding_privacy_change">変更</string>
     <string name="onboarding_keep_alive_question">再起動や接続切れのあと、ワイヤレスデバッグを自動でオンに戻しますか？</string>
     <string name="onboarding_keep_alive_off_body">ワイヤレスデバッグは、アプリ、タイル、ウィジェットから自分でオンにします。再起動後はオフのままです。</string>
     <string name="onboarding_keep_alive_on_body">KeepADBは、再起動や接続切れのあとにワイヤレスデバッグをオンに戻します。ただし、保護レベルが許可する場所に限ります（次のステップ）。</string>
@@ -504,8 +523,6 @@
     <string name="home_warning_action_fix">修正</string>
     <string name="home_warning_limited_title">Keep-Alive が制限されています</string>
     <string name="home_warning_limited_text">Keep-Alive を確実に動かすために必要な権限が足りません。</string>
-    <string name="status_tap_to_decide">タップして決定</string>
-    <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">言語</string>
     <string name="menu_item_all_settings">設定</string>

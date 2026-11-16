@@ -89,6 +89,9 @@ public class OnboardingPrivacySwitchesTest {
 
         assertEquals(context.getString(R.string.onboarding_intro_title_new,
                 OnboardingActivity.buildSteps().size()), text(assistant, R.id.onboarding_page_title));
+        // #958: collapsed to one row; the switches are in the page and open on a tap.
+        assertEquals(View.GONE, assistant.findViewById(R.id.privacy_switches).getVisibility());
+        assistant.findViewById(R.id.onboarding_privacy_toggle).performClick();
         assertEquals(View.VISIBLE, assistant.findViewById(R.id.privacy_switches).getVisibility());
         assertFalse(app(assistant).isChecked());
         assertFalse(notifications(assistant).isChecked());
@@ -150,6 +153,125 @@ public class OnboardingPrivacySwitchesTest {
         String all = allText(assistant);
         assertFalse(all, all.contains(HOME));
         assertFalse(all, all.toLowerCase(java.util.Locale.ROOT).contains(KITCHEN));
+    }
+
+    // ---- #958: one collapsed row, the advice above it -----------------------------------------------
+
+    @Test
+    public void theRowIsCollapsedByDefaultWithTheSummaryAndAChangeButton() {
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+
+        assertEquals("Privacy: nothing hidden", text(assistant, R.id.onboarding_privacy_summary));
+        android.widget.Button button = assistant.findViewById(R.id.onboarding_privacy_toggle);
+        assertEquals(context.getString(R.string.onboarding_privacy_change), button.getText().toString());
+        assertTrue("a real button of at least 48dp", button.getMinHeight()
+                >= Math.round(48 * assistant.getResources().getDisplayMetrics().density));
+        assertEquals(View.GONE, assistant.findViewById(R.id.privacy_switches).getVisibility());
+    }
+
+    @Test
+    public void tappingTheButtonOrTheRowOpensAndClosesTheSwitchesInPlace() {
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+        View switches = assistant.findViewById(R.id.privacy_switches);
+        android.widget.Button button = assistant.findViewById(R.id.onboarding_privacy_toggle);
+        View row = (View) button.getParent();
+        int pageBefore = assistant.findViewById(R.id.onboarding_page_content).getId();
+
+        button.performClick();
+        assertEquals(View.VISIBLE, switches.getVisibility());
+        assertEquals(context.getString(R.string.onboarding_done), button.getText().toString());
+        assertEquals(context.getString(R.string.card_state_expanded), row.getStateDescription());
+
+        row.performClick();
+        assertEquals(View.GONE, switches.getVisibility());
+        assertEquals(context.getString(R.string.onboarding_privacy_change), button.getText().toString());
+        assertEquals(context.getString(R.string.card_state_collapsed), row.getStateDescription());
+
+        row.performClick();
+        assertEquals(View.VISIBLE, switches.getVisibility());
+        button.performClick();
+        assertEquals(View.GONE, switches.getVisibility());
+        assertEquals(pageBefore, assistant.findViewById(R.id.onboarding_page_content).getId());
+    }
+
+    @Test
+    public void theSummaryCountsTheSwitchesThatAreOnAndFollowsEveryChange() {
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+        assistant.findViewById(R.id.onboarding_privacy_toggle).performClick();
+
+        app(assistant).performClick();
+        assertEquals("Privacy: 1 of 4 on", text(assistant, R.id.onboarding_privacy_summary));
+        widgets(assistant).performClick();
+        notifications(assistant).performClick();
+        assistant.findViewById(R.id.privacy_switch_lockscreen).performClick();
+        assertEquals("Privacy: 4 of 4 on", text(assistant, R.id.onboarding_privacy_summary));
+        assertEquals("the row reads as its summary",
+                "Privacy: 4 of 4 on", ((View) assistant.findViewById(R.id.onboarding_privacy_toggle)
+                        .getParent()).getContentDescription().toString());
+        app(assistant).performClick();
+        notifications(assistant).performClick();
+        widgets(assistant).performClick();
+        assistant.findViewById(R.id.privacy_switch_lockscreen).performClick();
+        assertEquals("Privacy: nothing hidden", text(assistant, R.id.onboarding_privacy_summary));
+    }
+
+    @Test
+    public void theSummaryStartsFromTheStoredState() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, true);
+        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+
+        assertEquals("Privacy: 2 of 4 on", text(assistant, R.id.onboarding_privacy_summary));
+    }
+
+    @Test
+    public void theRowStaysOpenAcrossARotation() {
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class, OnboardingActivity.autoStartIntent(context)).setup();
+        controllers.add(controller);
+        controller.get().findViewById(R.id.onboarding_privacy_toggle).performClick();
+
+        android.os.Bundle state = new android.os.Bundle();
+        controller.saveInstanceState(state).pause().stop().destroy();
+        ActivityController<OnboardingActivity> again = Robolectric.buildActivity(
+                OnboardingActivity.class, OnboardingActivity.autoStartIntent(context))
+                .create(state).start().restoreInstanceState(state).resume().visible();
+        controllers.add(again);
+
+        assertEquals(View.VISIBLE, again.get().findViewById(R.id.privacy_switches).getVisibility());
+    }
+
+    @Test
+    public void theAdviceIsAStaticRowUnderTheIntroTextAndAboveThePrivacyRow() {
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+        ViewGroup content = assistant.findViewById(R.id.onboarding_page_content);
+
+        assertEquals(context.getString(R.string.advice_banner_title),
+                text(assistant, R.id.onboarding_advice_title));
+        assertEquals(context.getString(R.string.advice_banner_text),
+                text(assistant, R.id.onboarding_advice_text));
+        View advice = (View) assistant.findViewById(R.id.onboarding_advice_title).getParent().getParent();
+        View privacy = ((View) assistant.findViewById(R.id.onboarding_privacy_toggle).getParent())
+                .getParent() instanceof View
+                ? (View) ((View) assistant.findViewById(R.id.onboarding_privacy_toggle).getParent())
+                        .getParent() : null;
+        assertNotNull(privacy);
+        assertTrue("the advice comes before the privacy row",
+                content.indexOfChild(advice) >= 0
+                        && content.indexOfChild(advice) < content.indexOfChild(privacy));
+        assertFalse("no dismiss button of any kind: " + allText(assistant),
+                allText(assistant).contains("Dismiss"));
+        assertFalse(advice.hasOnClickListeners());
+    }
+
+    @Test
+    public void theAdviceIsOnTheIntroPageOnly() {
+        OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
+        assistant.findViewById(R.id.onboarding_next).performClick();
+
+        assertNull(assistant.findViewById(R.id.onboarding_advice_title));
+        assertNull(assistant.findViewById(R.id.onboarding_privacy_toggle));
     }
 
     // ---- They write at once, each its own key ----------------------------------------------------------

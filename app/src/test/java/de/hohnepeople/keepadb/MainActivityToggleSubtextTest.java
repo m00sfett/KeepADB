@@ -64,11 +64,13 @@ public class MainActivityToggleSubtextTest {
         // Same parent as the toggle and the status line, ordered strictly between them.
         ViewGroup parent = (ViewGroup) toggle.getParent();
         assertEquals(parent, subtext.getParent());
-        assertEquals(parent, status.getParent());
+        // #957: the status sits in the block (view_home_status.xml) that follows the subtext.
+        View block = status;
+        while (block.getParent() != parent) block = (View) block.getParent();
 
         int toggleIndex = parent.indexOfChild(toggle);
         int subtextIndex = parent.indexOfChild(subtext);
-        int statusIndex = parent.indexOfChild(status);
+        int statusIndex = parent.indexOfChild(block);
 
         assertTrue("subtext must come after the toggle", subtextIndex > toggleIndex);
         assertTrue("subtext must come before the status line", subtextIndex < statusIndex);

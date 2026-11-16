@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">¿El dispositivo aparece como "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Confirma el aviso de autorización de depuración en la pantalla de este teléfono y ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
     <string name="setup_refresh">Comprobar permiso</string>
-    <string name="status_on">Depuración inalámbrica ACTIVADA</string>
-    <string name="status_off">Depuración inalámbrica DESACTIVADA</string>
-    <string name="endpoint_format">Punto final: %1$s:%2$d</string>
     <string name="endpoint_searching">Buscando punto final…</string>
     <string name="endpoint_unavailable">Punto final no disponible</string>
+    <string name="connect_help_link">Conectar un ordenador…</string>
+    <string name="connect_help_title">Conectar un ordenador</string>
+    <string name="connect_help_step_phone">En el teléfono, abre Opciones para desarrolladores › «Depuración inalámbrica» › «Vincular dispositivo con código de sincronización».</string>
+    <string name="connect_help_step_pair">En el ordenador, una vez por cada ordenador: ejecuta el comando de abajo e introduce el código que muestra el teléfono.</string>
+    <string name="connect_help_step_connect">Con Wifi-ADB activado, ejecuta este comando con la dirección que muestra KeepADB (toca la dirección para copiar el comando). Un ordenador ya vinculado suele conectarse solo.</string>
+    <string name="connect_help_open_settings">Abrir opciones para desarrolladores</string>
 
     <string name="transport_vpn_label">ADB por VPN</string>
     <string name="transport_row_format">%1$s: %2$s · última verificación %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Dirección IP y puerto actuales de la depuración inalámbrica</string>
     <string name="notification_title_active">%1$s: Wifi-ADB activado</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB desactivado</string>
-    <string name="notification_text_active">Puerto %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Puerto %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Toca para ver los detalles de conexión en la app.</string>
     <string name="notification_title_searching">%1$s: Buscando punto final…</string>
     <string name="notification_text_searching">Resolviendo punto final en la red local</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">Se necesita acceso a la ubicación para identificar la red Wi-Fi actual y los puntos de acceso.</string>
     <string name="location_permission_settings_button">Abrir ajustes</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Depuración inalámbrica ACTIVADA (desconectada)</string>
+    <string name="notification_action_copy">Copiar</string>
+    <string name="endpoint_copy_action">Copiar comando adb connect</string>
     <string name="status_permission_missing">Falta el permiso del sistema</string>
     <string name="tile_state_off">Desactivado</string>
     <string name="tile_state_disconnected">Desconectado</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">Datos de diagnóstico opcionales redactados de KeepADB (revísalos antes de enviarlos)</string>
     <string name="advice_banner_title">Seguridad y red</string>
     <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Usa una red Wi-Fi de confianza o una VPN y desactívala en puntos de acceso públicos. Nunca compartas tu punto final públicamente ni aceptes solicitudes de vinculación inesperadas.</string>
-    <string name="security_notice_dismiss">Cerrar aviso</string>
-    <string name="settings_advice_banner_toggle">Mostrar aviso de seguridad y red</string>
-    <string name="settings_advice_banner_subtext">Muestra un aviso de seguridad en la parte superior de la pantalla principal.</string>
     <string name="settings_license_line">Licenciado bajo la GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Abrir keepadb.roteson.de en el navegador</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: red no legible, revisa el permiso de ubicación («Permitir todo el tiempo») o vuelve a abrir la app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: confirma el diálogo de red de depuración inalámbrica de Android y luego toca el interruptor para reintentar</string>
     <string name="status_pending">Cambiando…</string>
+    <string name="home_state_on">Wifi-ADB activado</string>
+    <string name="home_state_off">Wifi-ADB desactivado</string>
+    <string name="home_state_setup">Falta la configuración</string>
+    <string name="home_reason_permission">Permiso del sistema no concedido</string>
+    <string name="home_reason_waiting">Keep-Alive espera al Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive en pausa: Wi-Fi no es de confianza</string>
+    <string name="home_reason_blocked">Keep-Alive en pausa: Wi-Fi bloqueado</string>
+    <string name="home_reason_identity">Keep-Alive en pausa: red no legible</string>
+    <string name="home_reason_backoff">Keep-Alive en pausa: diálogo de «Depuración inalámbrica» sin confirmar</string>
+    <string name="home_reason_no_wifi">Sin conexión Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive sigue apagado aquí: Wi-Fi no es de confianza</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive sigue apagado aquí: Wi-Fi bloqueado</string>
+    <string name="home_action_networks">Redes</string>
+    <string name="home_action_retry">Reintentar</string>
+    <string name="home_reason_details_action">Mostrar detalles</string>
     <string name="state_pending">Cambiando…</string>
     <string name="tile_state_keep_alive_waiting">Desactivado: Keep-Alive esperando</string>
     <string name="toggle_failed_toast">No se pudo cambiar la depuración inalámbrica. Inténtalo de nuevo.</string>
@@ -443,6 +459,9 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_intro_title_existing">Nuevos ajustes de seguridad</string>
     <string name="onboarding_intro_body_existing">KeepADB reúne ahora sus ajustes principales en un asistente. Tus valores actuales se conservan y quedan preseleccionados. Siguiente no cambia nada. Lo que sea menos seguro de lo recomendado aparece marcado.</string>
     <string name="onboarding_intro_less_secure">Algunos ajustes son menos seguros de lo recomendado.</string>
+    <string name="onboarding_privacy_summary_off">Privacidad: nada oculto</string>
+    <string name="onboarding_privacy_summary_on">Privacidad: %1$d de %2$d activados</string>
+    <string name="onboarding_privacy_change">Cambiar</string>
     <string name="onboarding_keep_alive_question">¿Debe la depuración inalámbrica volver a activarse sola tras un reinicio o una conexión perdida?</string>
     <string name="onboarding_keep_alive_off_body">Activas la depuración inalámbrica tú mismo, en la app, en el mosaico o en el widget. Tras un reinicio sigue desactivada.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB vuelve a activar la depuración inalámbrica tras un reinicio o una conexión perdida, pero solo donde tu nivel de protección lo permite (siguiente paso).</string>
@@ -504,8 +523,6 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="home_warning_action_fix">Solucionar</string>
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
     <string name="home_warning_limited_text">Faltan permisos para que Keep-Alive funcione de forma fiable.</string>
-    <string name="status_tap_to_decide">Toca para decidir</string>
-    <string name="status_tap_to_open_list">Toca para abrir la lista de redes</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Idioma</string>
     <string name="menu_item_all_settings">Ajustes</string>

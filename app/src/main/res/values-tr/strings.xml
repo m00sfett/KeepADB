@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
     <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
-    <string name="status_on">Kablosuz Hata Ayıklama AÇIK</string>
-    <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>
-    <string name="endpoint_format">Uç Nokta: %1$s:%2$d</string>
     <string name="endpoint_searching">Uç nokta aranıyor…</string>
     <string name="endpoint_unavailable">Uç nokta kullanılamıyor</string>
+    <string name="connect_help_link">Bilgisayar bağla…</string>
+    <string name="connect_help_title">Bilgisayar bağla</string>
+    <string name="connect_help_step_phone">Telefonda Geliştirici seçenekleri › “Kablosuz hata ayıklama” › “Cihazı eşleme koduyla eşle” bölümünü açın.</string>
+    <string name="connect_help_step_pair">Bilgisayarda, her bilgisayar için bir kez: aşağıdaki komutu çalıştırın ve telefonda görünen kodu girin.</string>
+    <string name="connect_help_step_connect">Wifi-ADB açıkken bu komutu KeepADB\'nin gösterdiği adresle çalıştırın (komutu kopyalamak için adrese dokunun). Daha önce eşlenmiş bir bilgisayar çoğu zaman kendiliğinden bağlanır.</string>
+    <string name="connect_help_open_settings">Geliştirici seçeneklerini aç</string>
 
     <string name="transport_vpn_label">VPN üzerinden ADB</string>
     <string name="transport_row_format">%1$s: %2$s · son kontrol %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Kablosuz Hata Ayıklamanın geçerli IP adresi ve bağlantı noktası</string>
     <string name="notification_title_active">%1$s: Wifi-ADB açık</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB kapalı</string>
-    <string name="notification_text_active">Bağlantı noktası %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Bağlantı noktası %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Bağlantı ayrıntılarını uygulamada görmek için dokunun.</string>
     <string name="notification_title_searching">%1$s: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
     <string name="location_permission_settings_button">Ayarları aç</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
-    <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>
+    <string name="notification_action_copy">Kopyala</string>
+    <string name="endpoint_copy_action">adb connect komutunu kopyala</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
     <string name="tile_state_off">Kapalı</string>
     <string name="tile_state_disconnected">Bağlı değil</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">İsteğe bağlı redakte edilmiş KeepADB tanılama verileri (göndermeden önce inceleyin)</string>
     <string name="advice_banner_title">Güvenlik ve ağ</string>
     <string name="advice_banner_text">Kablosuz hata ayıklama, ağınızda bir ADB bağlantı noktası açar. Güvenilir Wi-Fi veya bir VPN kullanın ve halka açık ağlarda kapatın. Uç noktanızı herkese açık paylaşmayın ve beklenmedik eşleştirme isteklerini kabul etmeyin.</string>
-    <string name="security_notice_dismiss">Uyarıyı kapat</string>
-    <string name="settings_advice_banner_toggle">Güvenlik ve Ağ Önerisini Göster</string>
-    <string name="settings_advice_banner_subtext">Ana ekranın üst kısmında bir güvenlik uyarısı gösterir.</string>
     <string name="settings_license_line">GNU Affero General Public License v3 (AGPLv3) ile lisanslanmıştır</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de\'yi tarayıcıda aç</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
+    <string name="home_state_on">Wifi-ADB açık</string>
+    <string name="home_state_off">Wifi-ADB kapalı</string>
+    <string name="home_state_setup">Kurulum eksik</string>
+    <string name="home_reason_permission">Sistem izni verilmedi</string>
+    <string name="home_reason_waiting">Keep-Alive Wi-Fi\'yi bekliyor</string>
+    <string name="home_reason_untrusted">Keep-Alive duraklatıldı: Wi-Fi güvenilir değil</string>
+    <string name="home_reason_blocked">Keep-Alive duraklatıldı: Wi-Fi engellendi</string>
+    <string name="home_reason_identity">Keep-Alive duraklatıldı: ağ okunamıyor</string>
+    <string name="home_reason_backoff">Keep-Alive duraklatıldı: “Kablosuz hata ayıklama” iletişim kutusu onaylanmadı</string>
+    <string name="home_reason_no_wifi">Wi-Fi bağlantısı yok</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive burada kapalı kalır: Wi-Fi güvenilir değil</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive burada kapalı kalır: Wi-Fi engellendi</string>
+    <string name="home_action_networks">Ağlar</string>
+    <string name="home_action_retry">Yeniden dene</string>
+    <string name="home_reason_details_action">Ayrıntıları göster</string>
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
@@ -443,6 +459,9 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_intro_title_existing">Yeni güvenlik ayarları</string>
     <string name="onboarding_intro_body_existing">KeepADB artık ana ayarlarını tek bir sihirbazda topluyor. Mevcut değerleriniz korunur ve önceden seçilidir. İleri hiçbir şeyi değiştirmez. Önerilenden daha az güvenli olanlar işaretlidir.</string>
     <string name="onboarding_intro_less_secure">Bazı ayarlar önerilenden daha az güvenli.</string>
+    <string name="onboarding_privacy_summary_off">Gizlilik: hiçbir şey gizli değil</string>
+    <string name="onboarding_privacy_summary_on">Gizlilik: %1$d / %2$d açık</string>
+    <string name="onboarding_privacy_change">Değiştir</string>
     <string name="onboarding_keep_alive_question">Kablosuz Hata Ayıklama yeniden başlatma veya bağlantı kopmasından sonra kendiliğinden tekrar açılsın mı?</string>
     <string name="onboarding_keep_alive_off_body">Kablosuz Hata Ayıklamayı uygulamadan, karodan veya widget’tan kendiniz açarsınız. Yeniden başlatmadan sonra kapalı kalır.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB, yeniden başlatma veya bağlantı kopmasından sonra Kablosuz Hata Ayıklamayı tekrar açar; ancak yalnızca koruma düzeyinizin izin verdiği yerlerde (sonraki adım).</string>
@@ -504,8 +523,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="home_warning_action_fix">Düzelt</string>
     <string name="home_warning_limited_title">Keep-Alive sınırlı</string>
     <string name="home_warning_limited_text">Güvenilir Keep-Alive için bazı izinler eksik.</string>
-    <string name="status_tap_to_decide">Karar vermek için dokunun</string>
-    <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Dil</string>
     <string name="menu_item_all_settings">Ayarlar</string>

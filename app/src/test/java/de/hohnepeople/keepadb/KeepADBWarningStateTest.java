@@ -150,14 +150,12 @@ public class KeepADBWarningStateTest {
         assertTrue(KeepADBWarningState.mute(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, false));
         assertTrue(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
-    @Test public void resetOnlyInvalidatesPreviouslyMutedReasonsAndLeavesAdviceAlone() {
-        KeepADBPreferences.setAdviceBannerVisible(context, false);
+    @Test public void resetOnlyInvalidatesPreviouslyMutedReasons() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         dismiss(KeepADBWarningState.Card.LESS_SECURE);
         assertTrue(KeepADBWarningState.mute(context, KeepADBWarningState.Reason.BATTERY_EXEMPTION_MISSING, true));
         KeepADBWarningState.resetMutes(context);
         assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
-        assertFalse(KeepADBPreferences.isAdviceBannerVisible(context));
     }
     @Test public void inactiveMuteSurvivesReturnAndResetRevealsActiveReason() {
         http(true);

@@ -318,21 +318,8 @@ final class OnboardingActionSteps {
         }
 
         private void copyCommand(String command) {
-            try {
-                android.content.ClipboardManager clipboard =
-                        host.getSystemService(android.content.ClipboardManager.class);
-                if (clipboard == null) throw new IllegalStateException("Clipboard unavailable");
-                clipboard.setPrimaryClip(android.content.ClipData.newPlainText(
-                        host.getString(R.string.onboarding_perm_system_title), command));
-                // From Android 13 the system confirms a copy itself.
-                if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.S_V2) {
-                    android.widget.Toast.makeText(host, R.string.onboarding_copy_done,
-                            android.widget.Toast.LENGTH_SHORT).show();
-                }
-            } catch (RuntimeException exception) {
-                android.widget.Toast.makeText(host, R.string.feedback_copy_failed,
-                        android.widget.Toast.LENGTH_LONG).show();
-            }
+            KeepADBClipboard.copy(host, host.getString(R.string.onboarding_perm_system_title),
+                    command, false, R.string.onboarding_copy_done);
         }
 
         private TextView command(String text) {

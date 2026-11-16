@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -109,7 +110,7 @@ public class KeepADBAccessibilityContractTest {
         measureAndLayout(widget, 360, 160);
 
         int[] mainControls = {
-                R.id.btn_open_settings, R.id.btn_toggle_privacy_mode, R.id.btn_dismiss_advice_banner,
+                R.id.btn_open_settings, R.id.btn_toggle_privacy_mode,
                 R.id.toggle, R.id.keep_alive_toggle
         };
         for (int id : mainControls) assertMinSize(main.findViewById(id));
@@ -129,7 +130,6 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
-                R.id.settings_advice_banner_toggle,
                 R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
                 R.id.settings_reset_app,
@@ -166,8 +166,10 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity main = mainController.get();
         assertEquals(View.VISIBLE, main.findViewById(R.id.warning_system).getVisibility());
-        assertEquals(main.getString(R.string.status_permission_missing),
+        assertEquals(main.getString(R.string.home_state_setup),
                 ((TextView) main.findViewById(R.id.status)).getText().toString());
+        assertEquals(main.getString(R.string.home_reason_permission),
+                ((TextView) main.findViewById(R.id.status_reason)).getText().toString());
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         gateway.write(context, true);
         gateway.writes.clear();
@@ -176,12 +178,13 @@ public class KeepADBAccessibilityContractTest {
         assertEquals(View.GONE, main.findViewById(R.id.warning_system).getVisibility());
         assertTrue(main.findViewById(R.id.toggle).isEnabled());
         assertTrue(((android.widget.Switch) main.findViewById(R.id.toggle)).isChecked());
-        assertEquals(main.getString(R.string.status_enabled_disconnected),
+        assertEquals(main.getString(R.string.home_state_on),
                 ((TextView) main.findViewById(R.id.status)).getText().toString());
+        assertEquals(main.getString(R.string.home_reason_no_wifi),
+                ((TextView) main.findViewById(R.id.status_reason)).getText().toString());
         assertTrue(gateway.writes.isEmpty());
         assertNotNull(main.findViewById(R.id.toggle));
         assertTrue(main.findViewById(R.id.btn_open_settings).hasOnClickListeners());
-        assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.toggle).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.keep_alive_toggle).hasOnClickListeners());
         assertNull(main.findViewById(R.id.settings_hide_notification_toggle));
@@ -213,7 +216,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.network_status_action, R.id.settings_trust_by_name_toggle,
                 R.id.network_networks_row, R.id.settings_background_location_button,
                 R.id.settings_hide_notification_toggle,
-                R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
+                R.id.settings_keep_display_on_toggle,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
                 R.id.settings_reset_app,
                 R.id.settings_website_link
@@ -254,10 +257,6 @@ public class KeepADBAccessibilityContractTest {
         View main = runtimeView(R.layout.activity_main);
         View settings = runtimeView(R.layout.activity_settings);
 
-        assertHasText(main.findViewById(R.id.advice_banner),
-                context.getString(R.string.advice_banner_title));
-        assertHasText(main.findViewById(R.id.advice_banner),
-                context.getString(R.string.advice_banner_text));
         // #764: every warning card has a heading and announces changes politely.
         for (int id : new int[] {R.id.warning_system, R.id.warning_less_secure,
                 R.id.warning_paused, R.id.warning_limited}) {
@@ -280,34 +279,40 @@ public class KeepADBAccessibilityContractTest {
         assertPoliteLiveRegion(settings.findViewById(R.id.network_status_label));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_background_location_status));
 
-        assertPoliteLiveRegion(main.findViewById(R.id.status));
+        // #957: state and reason are one polite live region, so a change is announced as one
+        // message; the two lines inside it are not live regions of their own.
+        View summary = main.findViewById(R.id.status_summary);
+        assertPoliteLiveRegion(summary);
+        assertSame(summary, main.findViewById(R.id.status).getParent());
+        assertSame(summary, main.findViewById(R.id.status_reason_row).getParent());
+        assertEquals(View.ACCESSIBILITY_LIVE_REGION_NONE,
+                main.findViewById(R.id.status).getAccessibilityLiveRegion());
+        assertEquals(View.ACCESSIBILITY_LIVE_REGION_NONE,
+                main.findViewById(R.id.status_reason).getAccessibilityLiveRegion());
         assertPoliteLiveRegion(main.findViewById(R.id.webhook_status));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_webhook_error));
         assertPoliteLiveRegion(settings.findViewById(R.id.settings_webhook_cleartext_warning));
-        assertTrue(findTextView(main, context.getString(R.string.advice_banner_title))
-                .isAccessibilityHeading());
     }
 
     @Test
-    public void securityAdviceIsRenderedAsDismissibleMainBannerOnly() {
-        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity main = controller.get();
-        View banner = main.findViewById(R.id.advice_banner);
-        assertEquals(View.VISIBLE, banner.getVisibility());
-        assertNotNull(((ViewGroup) banner).getChildAt(0));
-        assertNotNull(((ImageView) ((ViewGroup) banner).getChildAt(0)).getDrawable());
-        assertHasText(banner, main.getString(R.string.advice_banner_title));
-        assertHasText(banner, main.getString(R.string.advice_banner_text));
-        assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
-
-        main.findViewById(R.id.btn_dismiss_advice_banner).performClick();
-        assertEquals(View.GONE, banner.getVisibility());
-
+    public void securityAdviceIsRenderedOnTheAssistantIntroOnly() {
+        // #958: no home card, no Settings switch; the assistant's intro page shows it as a heading
+        // and its text, without a dismiss button.
+        View main = runtimeView(R.layout.activity_main);
         View settings = runtimeView(R.layout.activity_settings);
+        assertFalse(containsText(main, context.getString(R.string.advice_banner_title)));
+        assertFalse(containsText(main, context.getString(R.string.advice_banner_text)));
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_title)));
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_text)));
+
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class, OnboardingActivity.fullIntent(context)).setup();
+        OnboardingActivity assistant = controller.get();
+        TextView title = assistant.findViewById(R.id.onboarding_advice_title);
+        assertEquals(assistant.getString(R.string.advice_banner_title), title.getText().toString());
+        assertTrue(title.isAccessibilityHeading());
+        assertHasText(assistant.findViewById(R.id.onboarding_page_content),
+                assistant.getString(R.string.advice_banner_text));
         controller.pause().stop().destroy();
     }
 
@@ -383,7 +388,7 @@ public class KeepADBAccessibilityContractTest {
         assertEquals("The background access is the last content of the Network card",
                 R.id.settings_network_background_panel, lastNetworkChild.getId());
 
-        // #521: persistent notification, keep-display-on, advice-banner and battery-optimization
+        // #521: persistent notification, keep-display-on and battery-optimization
         // are no longer direct children of the settings content column either -- they sit
         // directly inside the "Sonstiges" card's body (not as sub-cards with their own panel ids
         // like Network (Beta) above), so their relative order is checked by switch id
@@ -392,17 +397,13 @@ public class KeepADBAccessibilityContractTest {
         assertNotNull(miscBody);
         View hideNotificationToggle = miscBody.findViewById(R.id.settings_hide_notification_toggle);
         View keepDisplayOnToggle = miscBody.findViewById(R.id.settings_keep_display_on_toggle);
-        View adviceBannerToggle = miscBody.findViewById(R.id.settings_advice_banner_toggle);
         assertNotNull(hideNotificationToggle);
         assertNotNull(keepDisplayOnToggle);
-        assertNotNull(adviceBannerToggle);
         assertTrue("Persistent notification must come before keep-display-on inside Sonstiges",
                 miscBody.indexOfChild(hideNotificationToggle) < miscBody.indexOfChild(keepDisplayOnToggle));
-        assertTrue("Keep-display-on must come before the advice banner inside Sonstiges",
-                miscBody.indexOfChild(keepDisplayOnToggle) < miscBody.indexOfChild(adviceBannerToggle));
-        // #764: the battery-optimization toggle is gone with the home card it controlled; the
-        // advice-banner switch (with its subtext) closes Sonstiges again.
-        assertEquals(miscBody.getChildCount() - 2, miscBody.indexOfChild(adviceBannerToggle));
+        // #764: the battery-optimization toggle is gone with the home card it controlled, #958 the
+        // advice-banner switch: the keep-display-on switch (with its subtext) closes Sonstiges.
+        assertEquals(miscBody.getChildCount() - 2, miscBody.indexOfChild(keepDisplayOnToggle));
     }
 
     @Test

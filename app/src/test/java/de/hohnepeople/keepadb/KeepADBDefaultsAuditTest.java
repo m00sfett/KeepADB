@@ -160,9 +160,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isKeepDisplayOnEnabled(c)),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
-            // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
-            new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
-                    c -> KeepADBPreferences.isAdviceBannerVisible(c)),
             // Not a setting: the persisted last explicit on/off intent
             new Setting("last_desired_on", Kind.RUNTIME_STATE, true, false,
                     c -> KeepADBPreferences.getLastDesiredOn(c))));

@@ -13,13 +13,16 @@
     <string name="setup_state_unauthorized_title">Device shown as \"unauthorized\"?</string>
     <string name="setup_state_unauthorized_body">Confirm the debugging authorization prompt on this phone\'s screen, then run \"adb devices\" again until the state changes to \"device\".</string>
     <string name="setup_refresh">Check permission</string>
-    <string name="status_on">Wireless Debugging is ON (Connected)</string>
-    <string name="status_off">Wireless Debugging is OFF</string>
-    <string name="status_enabled_disconnected">Wireless Debugging is ON (Disconnected)</string>
     <string name="status_permission_missing">System permission missing</string>
-    <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Searching for endpoint…</string>
     <string name="endpoint_unavailable">Endpoint unavailable</string>
+    <!-- #952: help for connecting a computer. The adb commands are not translated; Android's own screens keep Android's names in quotation marks. -->
+    <string name="connect_help_link">Connect a computer…</string>
+    <string name="connect_help_title">Connect a computer</string>
+    <string name="connect_help_step_phone">On the phone, open Developer options › “Wireless debugging” › “Pair device with pairing code”.</string>
+    <string name="connect_help_step_pair">On the computer, once for each computer: run the command below and enter the code shown on the phone.</string>
+    <string name="connect_help_step_connect">With Wifi-ADB on, run this with the address KeepADB shows (tap the address to copy the command). A computer that is already paired often connects by itself.</string>
+    <string name="connect_help_open_settings">Open developer options</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · last checked %3$s</string>
@@ -41,7 +44,7 @@
     <string name="notification_channel_desc">Current IP address and port of Wireless Debugging</string>
     <string name="notification_title_active">%1$s: Wifi-ADB on</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB off</string>
-    <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tap to see connection details in the app.</string>
     <string name="notification_title_searching">%1$s: Searching for endpoint…</string>
     <string name="notification_text_searching">Resolving endpoint on local network</string>
@@ -182,6 +185,9 @@
     <string name="back">Back</string>
     <string name="settings_section_network">Network</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>
+    <!-- #951: copy the adb connect command of the endpoint (home screen rows, notification action). The command itself is not translated. -->
+    <string name="notification_action_copy">Copy</string>
+    <string name="endpoint_copy_action">Copy adb connect command</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App version: %1$s</string>
     <string name="settings_version_code_value">Version code: %1$d</string>
@@ -248,9 +254,6 @@
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
     <string name="advice_banner_title">Security &amp; network advice</string>
     <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN, and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
-    <string name="security_notice_dismiss">Dismiss notice</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
     <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Open keepadb.roteson.de in your browser</string>
@@ -261,6 +264,22 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wireless Debugging is OFF – Keep-Alive is paused: confirm Android\'s Wireless Debugging network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
+    <!-- #957: the home status is a short state, one reason line and an action; the long sentences (status_*) are the details behind the reason line. "Wifi-ADB" is the product term; Android's own setting keeps its name in quotation marks. -->
+    <string name="home_state_on">Wifi-ADB is on</string>
+    <string name="home_state_off">Wifi-ADB is off</string>
+    <string name="home_state_setup">Setup missing</string>
+    <string name="home_reason_permission">System permission not granted</string>
+    <string name="home_reason_waiting">Keep-Alive waits for Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive paused: Wi-Fi not trusted</string>
+    <string name="home_reason_blocked">Keep-Alive paused: Wi-Fi blocked</string>
+    <string name="home_reason_identity">Keep-Alive paused: network unreadable</string>
+    <string name="home_reason_backoff">Keep-Alive paused: “Wireless debugging” dialog not confirmed</string>
+    <string name="home_reason_no_wifi">No Wi-Fi connection</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive stays off here: Wi-Fi not trusted</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive stays off here: Wi-Fi blocked</string>
+    <string name="home_action_networks">Networks</string>
+    <string name="home_action_retry">Retry</string>
+    <string name="home_reason_details_action">Show details</string>
     <string name="state_pending">Switching…</string>
     <string name="tile_state_keep_alive_waiting">Off – Keep-Alive waiting</string>
     <string name="toggle_failed_toast">Wireless Debugging could not be switched. Please try again.</string>
@@ -450,6 +469,9 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_intro_title_existing">New security settings</string>
     <string name="onboarding_intro_body_existing">KeepADB now brings its main settings together in one assistant. Your current values are kept and preselected. Next changes nothing. Anything less secure than recommended is marked.</string>
     <string name="onboarding_intro_less_secure">Some settings are less secure than recommended.</string>
+    <string name="onboarding_privacy_summary_off">Privacy: nothing hidden</string>
+    <string name="onboarding_privacy_summary_on">Privacy: %1$d of %2$d on</string>
+    <string name="onboarding_privacy_change">Change</string>
     <string name="onboarding_keep_alive_question">Should Wireless Debugging switch itself back on after a restart or a lost connection?</string>
     <string name="onboarding_keep_alive_off_body">You switch Wireless Debugging on yourself, in the app, the tile or the widget. After a restart it stays off.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB switches Wireless Debugging back on after a restart or a lost connection, but only where your protection level allows it (next step).</string>
@@ -511,8 +533,6 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_action_fix">Fix</string>
     <string name="home_warning_limited_title">Keep-Alive is limited</string>
     <string name="home_warning_limited_text">Keep-Alive needs more permissions to run reliably.</string>
-    <string name="status_tap_to_decide">Tap to decide</string>
-    <string name="status_tap_to_open_list">Tap to open the network list</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Language</string>
     <string name="menu_item_all_settings">Settings</string>

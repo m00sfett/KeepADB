@@ -17,6 +17,11 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_DISABLE = "de.hohnepeople.keepadb.ACTION_DISABLE";
     /** #734: the notification's Keep-Alive on/off action. */
     static final String ACTION_TOGGLE_KEEP_ALIVE = "de.hohnepeople.keepadb.ACTION_TOGGLE_KEEP_ALIVE";
+    /**
+     * #951: the notification's "Copy" action: {@code adb connect <host>:<port>} of the endpoint the
+     * app knows at the time of the tap. The intent carries no address.
+     */
+    static final String ACTION_COPY_ENDPOINT = "de.hohnepeople.keepadb.ACTION_COPY_ENDPOINT";
     /** #446: the user allowed the access point the trust prompt named. */
     static final String ACTION_TRUST_NETWORK = "de.hohnepeople.keepadb.ACTION_TRUST_NETWORK";
     /**
@@ -48,6 +53,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleDisableAction(context);
         } else if (ACTION_TOGGLE_KEEP_ALIVE.equals(action)) {
             handleToggleKeepAliveAction(context);
+        } else if (ACTION_COPY_ENDPOINT.equals(action)) {
+            handleCopyEndpointAction(context);
         } else if (ACTION_TRUST_NETWORK.equals(action)) {
             handleTrustNetworkAction(context,
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
@@ -156,6 +163,22 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         boolean ended = KeepADBForceMode.endNow(context);
         if (ended) KeepADBForceNotice.showEndedToast(context);
         return ended;
+    }
+
+    /**
+     * #951: copies the endpoint the card shows. Nothing happens without a known endpoint, and none
+     * while the notification hides its details (the action is gone from the card then, and a tap on
+     * one posted before the switch was turned on must not copy what the card no longer shows).
+     *
+     * @return whether the command is on the clipboard
+     */
+    static boolean handleCopyEndpointAction(Context context) {
+        KeepADBEndpointCoordinator.Snapshot snapshot = KeepADBEndpointCoordinator.snapshot();
+        if (!snapshot.hasEndpoint() || KeepADBPreferences.isNotificationPrivacyEnabled(context)) {
+            return false;
+        }
+        return KeepADBEndpointText.copyAdbConnect(KeepADBLocaleHelper.wrapContext(context),
+                snapshot.host, snapshot.port, "notification");
     }
 
     static boolean handleDisableAction(Context context) {

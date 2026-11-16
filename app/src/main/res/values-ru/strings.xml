@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">Устройство показывает статус "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Подтвердите запрос на разрешение отладки на экране этого телефона, затем повторяйте "adb devices", пока статус не станет "device".</string>
     <string name="setup_refresh">Проверить разрешение</string>
-    <string name="status_on">Беспроводная отладка ВКЛЮЧЕНА</string>
-    <string name="status_off">Беспроводная отладка ВЫКЛЮЧЕНА</string>
-    <string name="endpoint_format">Конечная точка: %1$s:%2$d</string>
     <string name="endpoint_searching">Поиск конечной точки…</string>
     <string name="endpoint_unavailable">Конечная точка недоступна</string>
+    <string name="connect_help_link">Подключить компьютер…</string>
+    <string name="connect_help_title">Подключить компьютер</string>
+    <string name="connect_help_step_phone">На телефоне откройте «Для разработчиков» › «Беспроводная отладка» › «Подключить устройство с помощью кода подключения».</string>
+    <string name="connect_help_step_pair">На компьютере, один раз для каждого компьютера: выполните команду ниже и введите код, показанный на телефоне.</string>
+    <string name="connect_help_step_connect">При включённом Wifi-ADB выполните эту команду с адресом, который показывает KeepADB (нажмите на адрес, чтобы скопировать команду). Уже подключавшийся ранее компьютер часто подключается сам.</string>
+    <string name="connect_help_open_settings">Открыть «Для разработчиков»</string>
 
     <string name="transport_vpn_label">ADB через VPN</string>
     <string name="transport_row_format">%1$s: %2$s · последняя проверка %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Текущий IP-адрес и порт беспроводной отладки</string>
     <string name="notification_title_active">%1$s: Wifi-ADB включено</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB выключено</string>
-    <string name="notification_text_active">Порт %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Порт %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Нажмите, чтобы увидеть сведения о подключении в приложении.</string>
     <string name="notification_title_searching">%1$s: Поиск конечной точки…</string>
     <string name="notification_text_searching">Определение конечной точки в локальной сети</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">Доступ к геолокации необходим для распознавания текущей сети Wi-Fi и точек доступа.</string>
     <string name="location_permission_settings_button">Открыть настройки</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>
+    <string name="notification_action_copy">Копировать</string>
+    <string name="endpoint_copy_action">Скопировать команду adb connect</string>
     <string name="status_permission_missing">Нет системного разрешения</string>
     <string name="tile_state_off">Отключено</string>
     <string name="tile_state_disconnected">Нет подключения</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">Дополнительные отредактированные диагностические данные KeepADB (проверьте перед отправкой)</string>
     <string name="advice_banner_title">Безопасность и сеть</string>
     <string name="advice_banner_text">Беспроводная отладка открывает порт ADB в вашей сети. Используйте доверенную сеть Wi-Fi или VPN и отключайте её в публичных точках доступа. Никогда не публикуйте свою конечную точку и не подтверждайте неожиданные запросы сопряжения.</string>
-    <string name="security_notice_dismiss">Закрыть уведомление</string>
-    <string name="settings_advice_banner_toggle">Показывать рекомендации по безопасности и сети</string>
-    <string name="settings_advice_banner_subtext">Показывает баннер предупреждения о безопасности вверху главного экрана.</string>
     <string name="settings_license_line">Распространяется по лицензии GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Открыть keepadb.roteson.de в браузере</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: сеть не читается, проверьте разрешение на геолокацию («Разрешить в любом режиме») или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: подтвердите системный диалог Android о сети для беспроводной отладки, затем нажмите переключатель, чтобы повторить попытку</string>
     <string name="status_pending">Переключение…</string>
+    <string name="home_state_on">Wifi-ADB включён</string>
+    <string name="home_state_off">Wifi-ADB выключен</string>
+    <string name="home_state_setup">Настройка не завершена</string>
+    <string name="home_reason_permission">Системное разрешение не выдано</string>
+    <string name="home_reason_waiting">Keep-Alive ждёт Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive приостановлен: сеть Wi-Fi не доверенная</string>
+    <string name="home_reason_blocked">Keep-Alive приостановлен: сеть Wi-Fi заблокирована</string>
+    <string name="home_reason_identity">Keep-Alive приостановлен: сеть не читается</string>
+    <string name="home_reason_backoff">Keep-Alive приостановлен: диалог «Беспроводная отладка» не подтверждён</string>
+    <string name="home_reason_no_wifi">Нет подключения к Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive здесь не включится: сеть Wi-Fi не доверенная</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive здесь не включится: сеть Wi-Fi заблокирована</string>
+    <string name="home_action_networks">Сети</string>
+    <string name="home_action_retry">Повторить</string>
+    <string name="home_reason_details_action">Показать подробности</string>
     <string name="state_pending">Переключение…</string>
     <string name="tile_state_keep_alive_waiting">Выключено — Keep-Alive ждёт</string>
     <string name="toggle_failed_toast">Не удалось переключить беспроводную отладку. Повторите попытку.</string>
@@ -443,6 +459,9 @@
     <string name="onboarding_intro_title_existing">Новые настройки безопасности</string>
     <string name="onboarding_intro_body_existing">KeepADB теперь собирает основные настройки в одном помощнике. Ваши текущие значения сохранены и выбраны заранее. «Далее» ничего не меняет. То, что менее безопасно, чем рекомендуется, отмечено.</string>
     <string name="onboarding_intro_less_secure">Некоторые настройки менее безопасны, чем рекомендуется.</string>
+    <string name="onboarding_privacy_summary_off">Конфиденциальность: ничего не скрыто</string>
+    <string name="onboarding_privacy_summary_on">Конфиденциальность: включено %1$d из %2$d</string>
+    <string name="onboarding_privacy_change">Изменить</string>
     <string name="onboarding_keep_alive_question">Должна ли беспроводная отладка сама включаться снова после перезагрузки или обрыва соединения?</string>
     <string name="onboarding_keep_alive_off_body">Вы включаете беспроводную отладку сами: в приложении, плитке или виджете. После перезагрузки она остаётся выключенной.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB снова включает беспроводную отладку после перезагрузки или обрыва соединения, но только там, где это позволяет ваш уровень защиты (следующий шаг).</string>
@@ -504,8 +523,6 @@
     <string name="home_warning_action_fix">Исправить</string>
     <string name="home_warning_limited_title">Keep-Alive ограничен</string>
     <string name="home_warning_limited_text">Не хватает разрешений для надёжной работы Keep-Alive.</string>
-    <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
-    <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Язык</string>
     <string name="menu_item_all_settings">Настройки</string>

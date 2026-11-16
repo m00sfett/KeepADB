@@ -20,13 +20,22 @@ public class MainActivity extends Activity {
     static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
 
     private static final String STATE_LANGUAGE_PICKER = "main_language_picker_showing";
+    private static final String STATE_CONNECT_HELP = "main_connect_help_showing";
     private AlertDialog activeLanguageSelectionDialog;
+    private AlertDialog activeConnectHelpDialog;
     private KeepADBSettingsMenu settingsMenu;
 
     private Switch toggle;
     private Switch keepAliveToggle;
     private TextView keepAliveSubtext;
     private TextView status;
+    private View statusReasonRow;
+    private TextView statusReason;
+    private View statusReasonInfo;
+    private Button statusAction;
+    private AlertDialog activeStatusDetailsDialog;
+    private View endpointRow;
+    private View endpointCopyIcon;
     private TextView endpoint;
     // #761: set when onCreate handed over to the setup assistant; nothing of the screen exists then.
     private boolean handedOverToAssistant;
@@ -37,7 +46,6 @@ public class MainActivity extends Activity {
     private long transportOverviewGeneration;
     private TextView webhookStatus;
     private View webhookStatusPanel;
-    private View adviceBanner;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
     private KeepADBWarningState.Snapshot warningSnapshot;
     private KeepADBWarningState.Snapshot dismissedSnapshot;
@@ -56,6 +64,14 @@ public class MainActivity extends Activity {
     // #763: permanent warning card while the force mode is on.
     private View forceWarningPanel;
     private TextView forceWarningText;
+    /**
+     * #963: the warnings whose explanation is open. A warning that is not shown is not in the set,
+     * so one that goes away and comes back starts collapsed; the set survives the periodic refresh
+     * (nothing there touches it) and a rotation ({@link #STATE_EXPANDED_WARNINGS}).
+     */
+    private final java.util.EnumSet<KeepADBWarningState.Card> expandedWarnings =
+            java.util.EnumSet.noneOf(KeepADBWarningState.Card.class);
+    private static final String STATE_EXPANDED_WARNINGS = "warnings_expanded";
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
     // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
@@ -94,7 +110,14 @@ public class MainActivity extends Activity {
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         keepAliveSubtext = findViewById(R.id.keep_alive_subtext);
         status = findViewById(R.id.status);
+        statusReasonRow = findViewById(R.id.status_reason_row);
+        statusReason = findViewById(R.id.status_reason);
+        statusReasonInfo = findViewById(R.id.status_reason_info);
+        statusAction = findViewById(R.id.status_action);
+        endpointRow = findViewById(R.id.endpoint_row);
+        endpointCopyIcon = findViewById(R.id.endpoint_copy_icon);
         endpoint = findViewById(R.id.endpoint);
+        findViewById(R.id.connect_help).setOnClickListener(v -> showConnectHelp());
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
@@ -106,7 +129,6 @@ public class MainActivity extends Activity {
         // #906: swiping the feedback bar away ends it early, like its timeout; the card stays closed.
         ((KeepADBSwipeDismissLayout) findViewById(R.id.warning_feedback))
                 .setOnDismissListener(expireWarningFeedback::run);
-        adviceBanner = findViewById(R.id.advice_banner);
         forceWarningPanel = findViewById(R.id.force_warning_panel);
         forceWarningText = findViewById(R.id.force_warning_text);
         findViewById(R.id.btn_force_end).setOnClickListener(v -> {
@@ -122,10 +144,6 @@ public class MainActivity extends Activity {
         // #941: tap masks or shows this screen, long press opens the privacy switches.
         KeepADBPrivacyToggle.bind(this, this::refreshUiAndComponents);
         findViewById(R.id.btn_open_settings).setOnClickListener(v -> settingsMenu.show());
-        findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
-            KeepADBPreferences.setAdviceBannerVisible(this, false);
-            updateAdviceBannerVisibility();
-        });
 
         findViewById(R.id.btn_security_warnings).setOnClickListener(v -> {
             returningFromWarnings = true;
@@ -144,31 +162,17 @@ public class MainActivity extends Activity {
         findViewById(R.id.warning_mute).setOnClickListener(v -> chooseWarningMutes());
         if (savedInstanceState != null) {
             restoreWarningFeedback(savedInstanceState);
+            restoreExpandedWarnings(savedInstanceState);
             returningFromWarnings = savedInstanceState.getBoolean("warnings_return_to_triangle");
             if (dismissedCard != null) armWarningFeedbackTimeout();
         }
-        updateAdviceBannerVisibility();
 
         // #764: no setup cards here any more. What is missing is shown as a warning (see
         // renderWarnings) and the assistant asks for it, including the notification permission,
         // on a deliberate tap (#501).
 
         // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
-        toggle.setOnClickListener(v -> {
-            // #318: the desired value comes from the shared click semantics in KeepADB, not from
-            // the view's own checked state, so this switch, the tile and the widget request the
-            // same thing for the same state. refresh() below re-renders the switch from the real
-            // adb_wifi_enabled value either way.
-            boolean want = KeepADB.desiredOnForClick(KeepADB.getState(this));
-            KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", "toggle");
-            KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "app");
-            if (!result.isSuccess()) {
-                toggle.setChecked(!want);
-                showToggleErrorToast(result);
-            }
-            KeepADBService.sync(this);
-            refreshUiAndComponents();
-        });
+        toggle.setOnClickListener(v -> requestMainSwitchChange());
 
         keepAliveToggle.setOnClickListener(v -> {
             boolean wantKeepAlive = keepAliveToggle.isChecked();
@@ -210,6 +214,43 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_LANGUAGE_PICKER, false)) {
             showLanguageSelectionDialog();
         }
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_CONNECT_HELP, false)) {
+            showConnectHelp();
+        }
+    }
+
+    /** #952: how to connect a new computer; the dialog survives a rotation. */
+    private void showConnectHelp() {
+        if (activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing()) return;
+        AlertDialog help = KeepADBConnectHelp.show(this);
+        activeConnectHelpDialog = help;
+        help.setOnDismissListener(d -> {
+            if (activeConnectHelpDialog == d) activeConnectHelpDialog = null;
+        });
+    }
+
+    /**
+     * The user asks the main switch to change: its click, and (#957) the "Retry" button of the home
+     * status, which therefore runs exactly the same path.
+     */
+    private void requestMainSwitchChange() {
+        // #318: the desired value comes from the shared click semantics in KeepADB, not from
+        // the view's own checked state, so this switch, the tile and the widget request the
+        // same thing for the same state. refresh() below re-renders the switch from the real
+        // adb_wifi_enabled value either way.
+        applyMainSwitchRequest(KeepADB.desiredOnForClick(KeepADB.getState(this)), "toggle");
+    }
+
+    /** The write and the follow-up refreshes the main switch and the "Retry" action share. */
+    private void applyMainSwitchRequest(boolean want, String source) {
+        KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", source);
+        KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "app");
+        if (!result.isSuccess()) {
+            toggle.setChecked(!want);
+            showToggleErrorToast(result);
+        }
+        KeepADBService.sync(this);
+        refreshUiAndComponents();
     }
 
     void showLanguageSelectionDialog() {
@@ -242,9 +283,14 @@ public class MainActivity extends Activity {
         }
 
         outState.putBoolean("warnings_return_to_triangle", returningFromWarnings);
+        java.util.ArrayList<String> expanded = new java.util.ArrayList<>();
+        for (KeepADBWarningState.Card card : expandedWarnings) expanded.add(card.name());
+        outState.putStringArrayList(STATE_EXPANDED_WARNINGS, expanded);
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_LANGUAGE_PICKER,
                 activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
+        outState.putBoolean(STATE_CONNECT_HELP,
+                activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing());
     }
 
     @Override
@@ -259,6 +305,10 @@ public class MainActivity extends Activity {
         }
         if (activeLanguageSelectionDialog != null) activeLanguageSelectionDialog.dismiss();
         activeLanguageSelectionDialog = null;
+        if (activeStatusDetailsDialog != null) activeStatusDetailsDialog.dismiss();
+        activeStatusDetailsDialog = null;
+        if (activeConnectHelpDialog != null) activeConnectHelpDialog.dismiss();
+        activeConnectHelpDialog = null;
         super.onDestroy();
     }
 
@@ -325,9 +375,6 @@ public class MainActivity extends Activity {
         } else {
             getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-        // #226: re-read the preference on every resume, since it may have changed in
-        // SettingsActivity while this activity was paused.
-        updateAdviceBannerVisibility();
         // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
         KeepADBForceMode.finishIfExpired(this);
         KeepADBForceMode.setStateListener(this::refresh);
@@ -375,6 +422,19 @@ public class MainActivity extends Activity {
         String text = force.isUnlimited() ? getString(R.string.force_card_text_unlimited)
                 : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force));
         if (!android.text.TextUtils.equals(forceWarningText.getText(), text)) forceWarningText.setText(text);
+        // #963: the remaining time is state, not explanation: it stays in the collapsed row.
+        String status = force.isUnlimited() ? getString(R.string.force_status_unlimited)
+                : getString(R.string.force_status_until, KeepADBForceMode.formatEnd(this, force));
+        String title = getString(R.string.force_card_title);
+        android.text.SpannableStringBuilder line = new android.text.SpannableStringBuilder(title)
+                .append('\n').append(status);
+        int from = title.length() + 1;
+        line.setSpan(new android.text.style.RelativeSizeSpan(0.8f), from, line.length(),
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        line.setSpan(new android.text.style.ForegroundColorSpan(getColor(R.color.night_muted)),
+                from, line.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((KeepADBWarningRow) forceWarningPanel.findViewById(R.id.warning_row))
+                .setTitle(line, title + ", " + status);
     }
 
     /**
@@ -441,50 +501,13 @@ public class MainActivity extends Activity {
         renderWarnings();
         toggle.setEnabled(configured);
         toggle.setChecked(on);
-        clearStatusDecisionEntry();
         if (!configured) {
             // #791: without the permission nothing is known about the endpoint; an address found
             // earlier must not stay on the screen.
             lastEndpointHost = null;
             renderEndpoint();
-            status.setText(getString(R.string.status_permission_missing));
-        } else if (KeepADB.isTogglePending()) {
-            // #318: a scheduled-but-not-yet-written toggle is its own visible state.
-            status.setText(getString(R.string.status_pending));
-        } else if (appState == KeepADB.State.OFF) {
-            status.setText(getString(R.string.status_off));
-        } else if (appState == KeepADB.State.OFF_KEEP_ALIVE_WAITING) {
-            // #458: distinguish real "no Wi-Fi yet" waiting from Keep-Alive being blocked by an
-            // untrusted network or an unreadable network identity, so the status card never looks
-            // like KeepADB simply failed to notice a live Wi-Fi connection.
-            KeepAliveWaitingDetail detail = resolveKeepAliveWaitingDetail(this);
-            if (detail == KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
-                // #790: a network the user blocked is not "not trusted yet": say so, and lead to
-                // the list where the block can be lifted instead of to a question with no answer.
-                boolean blocked = KeepADBTrustedNetwork.evaluate(this,
-                        KeepADBNetworkIdentity.current(this)).isBlocked();
-                status.setText(getString(blocked
-                                ? R.string.status_off_keep_alive_blocked_by_user
-                                : R.string.status_off_keep_alive_blocked_untrusted)
-                        + "\n" + getString(blocked ? R.string.status_tap_to_open_list
-                                : R.string.status_tap_to_decide));
-                makeStatusDecisionEntry();
-            } else if (detail == KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
-                status.setText(getString(R.string.status_off_keep_alive_blocked_identity_unavailable));
-            } else if (detail == KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF) {
-                // #496: an automatic enable's write was accepted but its readback never flipped
-                // on -- most commonly Android's own Wireless Debugging "always allow on this
-                // network" dialog was never confirmed. Automatic retries are paused; the switch
-                // itself is still the sanctioned manual retry (see KeepADB#setEnabled).
-                status.setText(getString(R.string.status_off_keep_alive_blocked_recovery_backoff));
-            } else {
-                status.setText(getString(R.string.status_off_keep_alive_waiting));
-            }
-        } else if (appState == KeepADB.State.ENABLED_DISCONNECTED) {
-            status.setText(withUntrustedNetworkHint(getString(R.string.status_enabled_disconnected)));
-        } else {
-            status.setText(withUntrustedNetworkHint(getString(R.string.status_on)));
         }
+        renderHomeStatus(resolveHomeStatus(appState, configured));
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         renderKeepAliveSubtext();
@@ -546,45 +569,158 @@ public class MainActivity extends Activity {
 
 
     /**
-     * #949: while Wireless Debugging is on, Keep-Alive is enabled and the device sits on a Wi-Fi
-     * that is not trusted (or blocked), the status line says so and becomes the same tap target as
-     * the paused state: the decision for an undecided network, the list for a decided one. Without
-     * it, joining a public Wi-Fi with debugging already on left Home without any way in.
+     * #957: reads what {@link KeepADBHomeStatus} needs from the platform and the network rules; the
+     * mapping itself is pure. The reads happen only where they matter, as before.
      */
-    private String withUntrustedNetworkHint(String base) {
-        if (!KeepADBPreferences.isKeepAliveEnabled(this)
-                || KeepADBTrustedNetwork.getBlockReason(this)
-                        != KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
-            return base;
+    private KeepADBHomeStatus.Model resolveHomeStatus(KeepADB.State appState, boolean configured) {
+        boolean pending = configured && KeepADB.isTogglePending();
+        KeepAliveWaitingDetail waiting = null;
+        KeepADBHomeStatus.Network network = KeepADBHomeStatus.Network.NONE;
+        if (!configured || pending) {
+            // The state alone says it.
+        } else if (appState == KeepADB.State.OFF_KEEP_ALIVE_WAITING) {
+            // #458: distinguish real "no Wi-Fi yet" waiting from Keep-Alive being blocked by an
+            // untrusted network or an unreadable network identity, so the status never looks
+            // like KeepADB simply failed to notice a live Wi-Fi connection.
+            waiting = resolveKeepAliveWaitingDetail(this);
+            if (waiting == KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
+                network = currentNetworkIsBlocked()
+                        ? KeepADBHomeStatus.Network.BLOCKED : KeepADBHomeStatus.Network.UNDECIDED;
+            }
+        } else if (appState == KeepADB.State.ENABLED_DISCONNECTED
+                || appState == KeepADB.State.ENABLED_CONNECTED) {
+            // #949: while Wireless Debugging is on, Keep-Alive is enabled and the device sits on a
+            // Wi-Fi that is not trusted (or blocked), the status says so and leads to the decision
+            // (or the list). Without it, joining a public Wi-Fi with debugging already on left
+            // Home without any way in.
+            if (KeepADBPreferences.isKeepAliveEnabled(this)
+                    && KeepADBTrustedNetwork.getBlockReason(this)
+                            == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
+                network = currentNetworkIsBlocked()
+                        ? KeepADBHomeStatus.Network.BLOCKED : KeepADBHomeStatus.Network.UNDECIDED;
+            }
         }
-        boolean blocked = KeepADBTrustedNetwork.evaluate(this,
-                KeepADBNetworkIdentity.current(this)).isBlocked();
-        makeStatusDecisionEntry();
-        return base + "\n" + getString(blocked ? R.string.status_on_network_blocked
-                : R.string.status_on_network_untrusted)
-                + "\n" + getString(blocked ? R.string.status_tap_to_open_list
-                        : R.string.status_tap_to_decide);
+        return KeepADBHomeStatus.of(appState, pending, waiting, network);
+    }
+
+    /** #790: a network the user blocked is not "not trusted yet". */
+    private boolean currentNetworkIsBlocked() {
+        return KeepADBTrustedNetwork.evaluate(this, KeepADBNetworkIdentity.current(this)).isBlocked();
     }
 
     /**
-     * #764 (UX concept 5.3): the status line "this Wi-Fi isn't trusted" is the shortest way from
-     * "why does it not switch on?" to the answer, so it opens the trust decision for the access
-     * point the device is on. It only carries the BSSID as a selector, like the notification does;
-     * the dialog resolves everything else itself. #790: where the network is already decided
-     * (blocked, or trusted in the meantime) there is no question left, so the tap opens the
-     * Networks list instead, whose top card is the current network.
+     * #957: state line, reason line and action button. The state and the reason sit in one polite
+     * live region (see view_home_status.xml), so a change of either is announced as one message;
+     * text that did not change is not set again, so the periodic refresh stays silent. The reason
+     * is a tap target only where a long explanation exists, and then says so: an info mark, the
+     * role of a button and "Show details" as its click label for TalkBack.
      */
-    private void makeStatusDecisionEntry() {
-        status.setBackgroundResource(R.drawable.bg_card_clickable);
-        int pad = (int) (12 * getResources().getDisplayMetrics().density);
-        status.setPadding(pad, pad, pad, pad);
-        status.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-        status.setClickable(true);
-        status.setFocusable(true);
-        status.setOnClickListener(v -> startActivity(statusEntryIntent()));
+    private void renderHomeStatus(KeepADBHomeStatus.Model model) {
+        setTextIfChanged(status, getString(model.stateRes));
+        if (!model.hasReason()) {
+            statusReasonRow.setVisibility(View.GONE);
+            clearStatusReasonDetails();
+        } else {
+            statusReasonRow.setVisibility(View.VISIBLE);
+            setTextIfChanged(statusReason, getString(model.reasonRes));
+            if (model.hasExplanation()) {
+                bindStatusReasonDetails(model.explanationRes);
+            } else {
+                clearStatusReasonDetails();
+            }
+        }
+        if (model.action == KeepADBHomeStatus.Action.NONE) {
+            statusAction.setVisibility(View.GONE);
+            statusAction.setOnClickListener(null);
+        } else {
+            statusAction.setText(model.action.labelRes);
+            statusAction.setVisibility(View.VISIBLE);
+            statusAction.setOnClickListener(v -> runStatusAction(model.action));
+        }
     }
 
-    /** Where the tap on the status line leads, read when tapped so a decision in between counts. */
+    private static void setTextIfChanged(TextView view, CharSequence text) {
+        if (!android.text.TextUtils.equals(view.getText(), text)) view.setText(text);
+    }
+
+    private void bindStatusReasonDetails(int explanationRes) {
+        statusReasonInfo.setVisibility(View.VISIBLE);
+        statusReasonRow.setMinimumHeight((int) (48 * getResources().getDisplayMetrics().density));
+        statusReasonRow.setClickable(true);
+        statusReasonRow.setFocusable(true);
+        statusReasonRow.setOnClickListener(v -> showStatusDetails(explanationRes));
+        statusReasonRow.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    android.view.accessibility.AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setClassName(Button.class.getName());
+                info.addAction(new android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK,
+                        getString(R.string.home_reason_details_action)));
+            }
+        });
+    }
+
+    private void clearStatusReasonDetails() {
+        statusReasonInfo.setVisibility(View.GONE);
+        statusReasonRow.setMinimumHeight(0);
+        statusReasonRow.setOnClickListener(null);
+        statusReasonRow.setClickable(false);
+        statusReasonRow.setFocusable(false);
+        statusReasonRow.setAccessibilityDelegate(null);
+    }
+
+    /** The long sentence of the reason, as before the split, in a plain dialog with one button. */
+    private void showStatusDetails(int explanationRes) {
+        if (activeStatusDetailsDialog != null) activeStatusDetailsDialog.dismiss();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setMessage(explanationRes)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        dialog.setOnDismissListener(d -> {
+            if (activeStatusDetailsDialog == d) activeStatusDetailsDialog = null;
+        });
+        activeStatusDetailsDialog = dialog;
+        dialog.show();
+    }
+
+    /**
+     * The targets of the action button: the decision or the Networks list as the status line led
+     * before (#764, #790), "Fix" where the "Keep-Alive paused" warning leads, "Retry" the enable path of
+     * the main switch and "Instructions" where the permission warning leads.
+     */
+    private void runStatusAction(KeepADBHomeStatus.Action action) {
+        switch (action) {
+            case DECIDE:
+            case NETWORKS:
+                startActivity(statusEntryIntent());
+                break;
+            case FIX:
+                startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this));
+                break;
+            case RETRY:
+                // Retry only ever enables: the state may have flipped to on since it was drawn, and
+                // the switch's click semantics would then switch it off.
+                applyMainSwitchRequest(true, "retry");
+                break;
+            case INSTRUCTIONS:
+                startActivity(KeepADBHomeWarnings.systemIntent(this));
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * #764 (UX concept 5.3): "this Wi-Fi isn't trusted" is the shortest way from "why does it not
+     * switch on?" to the answer, so its action opens the trust decision for the access point the
+     * device is on. It only carries the BSSID as a selector, like the notification does; the
+     * dialog resolves everything else itself. #790: where the network is already decided
+     * (blocked, or trusted in the meantime) there is no question left, so the tap opens the
+     * Networks list instead, whose top card is the current network. Read when tapped, so a
+     * decision in between counts.
+     */
     private Intent statusEntryIntent() {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluate(this, identity);
@@ -599,36 +735,27 @@ public class MainActivity extends Activity {
                 : NetworkListActivity.intent(this, identity.bssid);
     }
 
-    private void clearStatusDecisionEntry() {
-        status.setOnClickListener(null);
-        status.setClickable(false);
-        status.setFocusable(false);
-        status.setBackground(null);
-        status.setPadding(0, 0, 0, 0);
-        status.setMinHeight(0);
-    }
-
     /**
      * #764: the warning cards. The force card (W2) is drawn by {@link #renderForceWarning}; the
      * others come from {@link KeepADBHomeWarnings}, each leading to the assistant's matching step.
      */
     private void renderWarnings() {
         warningSnapshot = KeepADBWarningState.observe(this);
-        bindWarning(warningSystem, warningSnapshot.visible.contains(KeepADBWarningState.Card.SYSTEM),
+        bindWarning(warningSystem, KeepADBWarningState.Card.SYSTEM,
                 R.string.home_warning_system_title, getString(R.string.home_warning_system_text),
                 R.string.home_warning_action_guide,
                 () -> startActivity(KeepADBHomeWarnings.systemIntent(this)));
-        bindWarning(warningLessSecure, warningSnapshot.visible.contains(KeepADBWarningState.Card.LESS_SECURE),
+        bindWarning(warningLessSecure, KeepADBWarningState.Card.LESS_SECURE,
                 R.string.home_warning_less_secure_title,
                 warningReasonText(KeepADBWarningState.Card.LESS_SECURE),
                 R.string.home_warning_action_review,
                 () -> startActivity(KeepADBWarningState.reviewIntent(this,
                         warningSnapshot.reasons(KeepADBWarningState.Card.LESS_SECURE).iterator().next())));
-        bindWarning(warningPaused, warningSnapshot.visible.contains(KeepADBWarningState.Card.PAUSED),
+        bindWarning(warningPaused, KeepADBWarningState.Card.PAUSED,
                 R.string.home_warning_paused_title, getString(R.string.home_warning_paused_text),
                 R.string.home_warning_action_fix,
                 () -> startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this)));
-        bindWarning(warningLimited, warningSnapshot.visible.contains(KeepADBWarningState.Card.LIMITED),
+        bindWarning(warningLimited, KeepADBWarningState.Card.LIMITED,
                 R.string.home_warning_limited_title,
                 warningReasonText(KeepADBWarningState.Card.LIMITED),
                 R.string.home_warning_action_fix,
@@ -636,6 +763,7 @@ public class MainActivity extends Activity {
                         warningSnapshot.reasons(KeepADBWarningState.Card.LIMITED).iterator().next())));
         forceWarningPanel.setVisibility(warningSnapshot.visible.contains(KeepADBWarningState.Card.FORCE)
                 ? View.VISIBLE : View.GONE);
+        bindWarningExpansion(forceWarningPanel, KeepADBWarningState.Card.FORCE);
         bindWarningDismiss(warningSystem, KeepADBWarningState.Card.SYSTEM, R.string.home_warning_system_title);
         bindWarningDismiss(warningLessSecure, KeepADBWarningState.Card.LESS_SECURE, R.string.home_warning_less_secure_title);
         bindWarningDismiss(warningPaused, KeepADBWarningState.Card.PAUSED, R.string.home_warning_paused_title);
@@ -823,16 +951,58 @@ public class MainActivity extends Activity {
         } catch (IllegalArgumentException invalid) { dismissedCard = null; }
     }
 
-    private void bindWarning(View card, boolean visible, int titleRes, String text, int actionRes,
-            Runnable onAction) {
+    private void bindWarning(View card, KeepADBWarningState.Card kind, int titleRes, String text,
+            int actionRes, Runnable onAction) {
+        boolean visible = warningSnapshot.visible.contains(kind);
         card.setVisibility(visible ? View.VISIBLE : View.GONE);
-        if (!visible) return;
-        ((TextView) card.findViewById(R.id.home_warning_title)).setText(titleRes);
+        if (!visible) {
+            // #963: a warning that goes away and returns starts collapsed.
+            expandedWarnings.remove(kind);
+            return;
+        }
+        String title = getString(titleRes);
+        ((KeepADBWarningRow) card.findViewById(R.id.warning_row)).setTitle(title, title);
         TextView body = card.findViewById(R.id.home_warning_text);
         if (!android.text.TextUtils.equals(body.getText(), text)) body.setText(text);
         Button action = card.findViewById(R.id.home_warning_action);
         action.setText(actionRes);
         action.setOnClickListener(v -> onAction.run());
+        bindWarningExpansion(card, kind);
+    }
+
+    /**
+     * #963: a tap on the row (not on its buttons) opens or closes the explanation below it. The
+     * state lives in {@link #expandedWarnings}, so a refresh that binds the card again keeps it.
+     */
+    private void bindWarningExpansion(View card, KeepADBWarningState.Card kind) {
+        if (card.getVisibility() != View.VISIBLE) {
+            expandedWarnings.remove(kind);
+            return;
+        }
+        KeepADBWarningRow row = card.findViewById(R.id.warning_row);
+        row.setOnClickListener(v -> {
+            if (!expandedWarnings.remove(kind)) expandedWarnings.add(kind);
+            showWarningExpansion(card, kind);
+        });
+        showWarningExpansion(card, kind);
+    }
+
+    private void showWarningExpansion(View card, KeepADBWarningState.Card kind) {
+        boolean expanded = expandedWarnings.contains(kind);
+        ((KeepADBWarningRow) card.findViewById(R.id.warning_row)).setExpanded(expanded);
+        card.findViewById(R.id.warning_details).setVisibility(expanded ? View.VISIBLE : View.GONE);
+    }
+
+    private void restoreExpandedWarnings(Bundle saved) {
+        java.util.ArrayList<String> names = saved.getStringArrayList(STATE_EXPANDED_WARNINGS);
+        if (names == null) return;
+        for (String name : names) {
+            try {
+                expandedWarnings.add(KeepADBWarningState.Card.valueOf(name));
+            } catch (IllegalArgumentException ignored) {
+                // A name from another version: that warning simply starts collapsed.
+            }
+        }
     }
 
     private void refreshWebhookStatus() {
@@ -907,11 +1077,68 @@ public class MainActivity extends Activity {
                     && KeepADB.getState(MainActivity.this) != KeepADB.State.PERMISSION_MISSING;
             endpoint.setText(searching
                     ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            // #957: no address yet is a status, not a value: secondary color, normal size, and
+            // nothing to copy (#951).
+            endpoint.setTextColor(getColor(R.color.night_muted));
+            endpoint.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+            clearEndpointCopy();
             return;
         }
-        endpoint.setText(getString(R.string.endpoint_format,
+        endpoint.setText(KeepADBEndpointText.display(MainActivity.this,
                 KeepADBPreferences.maskHostForDisplay(MainActivity.this, lastEndpointHost),
                 lastEndpointPort));
+        // #957: the address is what people came for: primary color and larger.
+        endpoint.setTextColor(getColor(R.color.night_text));
+        endpoint.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18);
+        bindEndpointCopy();
+    }
+
+    /**
+     * #951: a tap on the row copies {@code adb connect <host>:<port>}. The real host is used
+     * whatever the row shows (a tap is an explicit action); {@code lastEndpointHost} is read when
+     * tapped, so a newer endpoint wins over the one the row was bound with.
+     */
+    private void bindEndpointCopy() {
+        endpointCopyIcon.setVisibility(View.VISIBLE);
+        endpointRow.setMinimumHeight(dp(48));
+        endpointRow.setClickable(true);
+        endpointRow.setFocusable(true);
+        endpointRow.setOnClickListener(v -> {
+            if (lastEndpointHost != null) {
+                KeepADBEndpointText.copyAdbConnect(this, lastEndpointHost, lastEndpointPort, "app");
+            }
+        });
+        setCopyClickLabel(endpointRow);
+    }
+
+    private void clearEndpointCopy() {
+        endpointCopyIcon.setVisibility(View.GONE);
+        endpointRow.setMinimumHeight(0);
+        endpointRow.setOnClickListener(null);
+        endpointRow.setClickable(false);
+        endpointRow.setFocusable(false);
+        endpointRow.setAccessibilityDelegate(null);
+    }
+
+    /**
+     * TalkBack announces the row as what a tap does, "copy adb connect command", through the click
+     * action's label; the content description is left alone.
+     */
+    private void setCopyClickLabel(View row) {
+        row.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    android.view.accessibility.AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.addAction(new android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK,
+                        getString(R.string.endpoint_copy_action)));
+            }
+        });
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density);
     }
 
     private boolean isEndpointSurfaceActive(long listenerGeneration) {
@@ -985,8 +1212,8 @@ public class MainActivity extends Activity {
      * KeepADBTransportEndpoint#primary}. */
     private TextView buildTransportRow(KeepADBTransportEndpoint transport) {
         String label = getString(R.string.transport_vpn_label);
-        String value = KeepADBPreferences.maskEndpointForDisplay(this,
-                KeepADBEndpoint.formatEndpoint(transport.host, transport.port));
+        String value = KeepADBEndpointText.display(this,
+                KeepADBPreferences.maskHostForDisplay(this, transport.host), transport.port);
         java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
                 java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
                 getResources().getConfiguration().getLocales().get(0));
@@ -996,6 +1223,19 @@ public class MainActivity extends Activity {
         if (transport.primary) {
             row.setContentDescription(getString(R.string.transport_primary_accessibility_format, text));
         }
+        // #951: a verified transport row copies its adb connect command like the WLAN/LAN row.
+        android.util.TypedValue ripple = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ripple, true);
+        row.setBackgroundResource(ripple.resourceId);
+        row.setMinHeight(dp(48));
+        row.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        row.setCompoundDrawablePadding(dp(8));
+        row.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_copy, 0);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setOnClickListener(v -> KeepADBEndpointText.copyAdbConnect(this, transport.host,
+                transport.port, "app"));
+        setCopyClickLabel(row);
         return row;
     }
 
@@ -1043,10 +1283,5 @@ public class MainActivity extends Activity {
             return;
         }
         Toast.makeText(this, getString(R.string.toggle_failed_toast), Toast.LENGTH_LONG).show();
-    }
-
-    private void updateAdviceBannerVisibility() {
-        boolean visible = KeepADBPreferences.isAdviceBannerVisible(this);
-        adviceBanner.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }

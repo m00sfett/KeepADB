@@ -47,3 +47,11 @@ tablet/Fire 7 matrix. The matrix covers portrait and landscape, 100% and 200% fo
 translations, night mode, and real keyboard/TalkBack order, including cards with duplicate IDs.
 New unit tests use real setters, preferences, and Force drivers. Activity tests exercise X, Undo,
 triangle, Check, mute reversal, recreation, and Settings focus.
+
+## Collapsed rows (#963)
+
+Each home warning and the Force panel is one compact row; a tap on the row opens its explanation.
+Whether a warning is open is held in memory by `MainActivity` only: it is neither stored nor part
+of the display state above, survives the periodic refresh and a rotation (saved instance state),
+and is dropped when the warning is no longer shown, so one that closes, is muted or resolves and
+later returns starts collapsed. Opening or closing a row never acknowledges anything.

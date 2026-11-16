@@ -867,7 +867,6 @@ public class SettingsActivityTest {
         int[] miscSwitches = {
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
-                R.id.settings_advice_banner_toggle,
         };
         for (int id : miscSwitches) {
             assertNotNull("Switch must exist before expansion: " + id, activity.findViewById(id));

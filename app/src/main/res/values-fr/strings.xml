@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">L\'appareil apparaît comme "unauthorized" ?</string>
     <string name="setup_state_unauthorized_body">Confirmez l\'invite d\'autorisation de débogage sur l\'écran de ce téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
-    <string name="status_on">Débogage sans fil ACTIVÉ</string>
-    <string name="status_off">Débogage sans fil DÉSACTIVÉ</string>
-    <string name="endpoint_format">Point de terminaison : %1$s:%2$d</string>
     <string name="endpoint_searching">Recherche du point de terminaison…</string>
     <string name="endpoint_unavailable">Point de terminaison indisponible</string>
+    <string name="connect_help_link">Connecter un ordinateur…</string>
+    <string name="connect_help_title">Connecter un ordinateur</string>
+    <string name="connect_help_step_phone">Sur le téléphone, ouvrez Options pour les développeurs › « Débogage sans fil » › « Associer l\'appareil avec un code d\'association ».</string>
+    <string name="connect_help_step_pair">Sur l\'ordinateur, une fois par ordinateur : exécutez la commande ci-dessous, puis saisissez le code affiché sur le téléphone.</string>
+    <string name="connect_help_step_connect">Avec Wifi-ADB activé, exécutez cette commande avec l\'adresse affichée par KeepADB (touchez l\'adresse pour copier la commande). Un ordinateur déjà associé se connecte souvent tout seul.</string>
+    <string name="connect_help_open_settings">Ouvrir les options pour les développeurs</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s : %2$s · dernière vérification %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Adresse IP et port actuels du débogage sans fil</string>
     <string name="notification_title_active">%1$s : Wifi-ADB activé</string>
     <string name="notification_title_disabled">%1$s : Wifi-ADB désactivé</string>
-    <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Touchez pour voir les détails de connexion dans l’application.</string>
     <string name="notification_title_searching">%1$s : Recherche du point de terminaison…</string>
     <string name="notification_text_searching">Résolution du point de terminaison sur le réseau local</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">L’accès à la localisation est nécessaire pour identifier le réseau Wi-Fi actuel et les points d’accès.</string>
     <string name="location_permission_settings_button">Ouvrir les paramètres</string>
     <string name="notification_action_disable">Désactiver Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Débogage sans fil ACTIVÉ (déconnecté)</string>
+    <string name="notification_action_copy">Copier</string>
+    <string name="endpoint_copy_action">Copier la commande adb connect</string>
     <string name="status_permission_missing">Autorisation système manquante</string>
     <string name="tile_state_off">Désactivé</string>
     <string name="tile_state_disconnected">Déconnecté</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
     <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN, et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
-    <string name="security_notice_dismiss">Fermer l\'avis</string>
-    <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
-    <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Ouvrir keepadb.roteson.de dans le navigateur</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : réseau illisible, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau du débogage sans fil d\'Android, puis appuyez sur l\'interrupteur pour réessayer</string>
     <string name="status_pending">Changement en cours…</string>
+    <string name="home_state_on">Wifi-ADB activé</string>
+    <string name="home_state_off">Wifi-ADB désactivé</string>
+    <string name="home_state_setup">Configuration manquante</string>
+    <string name="home_reason_permission">Autorisation système non accordée</string>
+    <string name="home_reason_waiting">Keep-Alive attend le Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive en pause : Wi-Fi non approuvé</string>
+    <string name="home_reason_blocked">Keep-Alive en pause : Wi-Fi bloqué</string>
+    <string name="home_reason_identity">Keep-Alive en pause : réseau illisible</string>
+    <string name="home_reason_backoff">Keep-Alive en pause : boîte de dialogue « Débogage sans fil » non confirmée</string>
+    <string name="home_reason_no_wifi">Pas de connexion Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive reste désactivé ici : Wi-Fi non approuvé</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive reste désactivé ici : Wi-Fi bloqué</string>
+    <string name="home_action_networks">Réseaux</string>
+    <string name="home_action_retry">Réessayer</string>
+    <string name="home_reason_details_action">Afficher les détails</string>
     <string name="state_pending">Changement en cours…</string>
     <string name="tile_state_keep_alive_waiting">Désactivé – Keep-Alive en attente</string>
     <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
@@ -443,6 +459,9 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_intro_title_existing">Nouveaux réglages de sécurité</string>
     <string name="onboarding_intro_body_existing">KeepADB réunit désormais ses réglages principaux dans un assistant. Vos valeurs actuelles sont conservées et présélectionnées. Suivant ne change rien. Ce qui est moins sûr que recommandé est signalé.</string>
     <string name="onboarding_intro_less_secure">Certains réglages sont moins sûrs que recommandé.</string>
+    <string name="onboarding_privacy_summary_off">Confidentialité : rien de masqué</string>
+    <string name="onboarding_privacy_summary_on">Confidentialité : %1$d sur %2$d activés</string>
+    <string name="onboarding_privacy_change">Modifier</string>
     <string name="onboarding_keep_alive_question">Le débogage sans fil doit-il se réactiver tout seul après un redémarrage ou une connexion perdue ?</string>
     <string name="onboarding_keep_alive_off_body">Vous activez vous-même le débogage sans fil, dans l’appli, la tuile ou le widget. Après un redémarrage, il reste désactivé.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB réactive le débogage sans fil après un redémarrage ou une connexion perdue, mais seulement là où votre niveau de protection l’autorise (étape suivante).</string>
@@ -504,8 +523,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="home_warning_action_fix">Corriger</string>
     <string name="home_warning_limited_title">Keep-Alive limité</string>
     <string name="home_warning_limited_text">Il manque des autorisations pour un Keep-Alive fiable.</string>
-    <string name="status_tap_to_decide">Touchez pour décider</string>
-    <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Langue</string>
     <string name="menu_item_all_settings">Paramètres</string>

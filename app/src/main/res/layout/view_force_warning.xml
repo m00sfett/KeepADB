@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #763, #826, #963: the warning card while the force mode is on, the same pattern as
+     view_home_warning.xml: one row (icon, title with the remaining time, "End force mode", close)
+     whose explanation and the Settings button open on a tap. The remaining time is state and
+     stays in the collapsed row. Included by activity_main.xml as force_warning_panel. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_panel_advice"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp">
+
+    <de.hohnepeople.keepadb.KeepADBWarningRow
+        android:id="@+id/warning_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:minHeight="48dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="12dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_warning" />
+
+        <TextView
+            android:id="@+id/force_warning_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:drawableEnd="@drawable/ic_expand_more"
+            android:drawablePadding="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="@color/title_yellow"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_force_end"
+            android:nextFocusForward="@id/force_warning_dismiss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_btn_primary"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="@string/force_action_end"
+            android:textColor="@color/title_yellow"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/force_warning_dismiss"
+            android:accessibilityTraversalAfter="@id/btn_force_end"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="12dp"
+            android:src="@drawable/ic_close" />
+
+        <!-- The explanation and the way to the force row of Settings, aligned with the title. -->
+        <LinearLayout
+            android:id="@+id/warning_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/force_warning_text"
+                android:focusable="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="3dp"
+                android:textColor="@color/night_text"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btn_force_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_btn_secondary"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/action_settings"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </de.hohnepeople.keepadb.KeepADBWarningRow>
+</LinearLayout>

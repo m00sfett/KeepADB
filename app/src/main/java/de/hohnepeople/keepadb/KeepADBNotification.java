@@ -272,9 +272,15 @@ final class KeepADBNotification {
         if (forceLine != null) {
             builder.setSubText(forceLine).addAction(KeepADBForceNotice.endAction(context));
         }
+        builder.addAction(disableAction(context)).addAction(keepAliveAction(context));
+        // #951: "Copy" comes last, so the existing actions keep their order, and only while there is
+        // room: Android shows three actions at most (One UI cuts off the last one, #593), and
+        // "End force mode", "Turn off" and Keep-Alive already fill them while the force mode is on.
+        // The details switch decided above whether the card names the address at all.
+        if (forceLine == null && !KeepADBPreferences.isNotificationPrivacyEnabled(context)) {
+            builder.addAction(copyAction(context));
+        }
         return builder
-                .addAction(disableAction(context))
-                .addAction(keepAliveAction(context))
                 .addExtras(marker)
                 .setOngoing(true)
                 .setShowWhen(false)
@@ -351,11 +357,7 @@ final class KeepADBNotification {
 
     private static CharSequence styledEndpointText(Context context, String host, int port) {
         // The app privacy switch does not apply here: this notification has its own (#904).
-        String displayHost = host;
-        if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
-            displayHost = "[" + displayHost + "]";
-        }
-        String content = context.getString(R.string.notification_text_active, port, displayHost);
+        String content = KeepADBEndpointText.display(context, host, port);
         SpannableString styled = new SpannableString(content);
         int portStart = content.indexOf(String.valueOf(port));
         if (portStart >= 0) {
@@ -420,6 +422,24 @@ final class KeepADBNotification {
             builder.addAction(disableAction(context));
         }
         return builder.build();
+    }
+
+    /**
+     * #951: copies {@code adb connect <host>:<port>}. Goes through the non-exported receiver, which
+     * reads the endpoint when the action is tapped, so the intent carries no address.
+     */
+    static Notification.Action copyAction(Context context) {
+        Intent intent = new Intent(context, KeepADBReceiver.class)
+                .setAction(KeepADBReceiver.ACTION_COPY_ENDPOINT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                2,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        return new Notification.Action.Builder(
+                null,
+                context.getString(R.string.notification_action_copy),
+                pendingIntent).build();
     }
 
     /** #734: toggles Keep-Alive; labelled with what it will do, the status line states what is. */

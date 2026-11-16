@@ -26,7 +26,11 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.13.0] - Unreleased
 
 Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (versionCode 264 and
-265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. The version carries a minor bump (approved by the
+265): the USB-ADB feature area (#956) and the webhook retry options (#960) are removed. Block 3
+(versionCode 266 and 267): the home screen: the security advice (#958), the warning rows (#963), the
+status split into a state, a reason and an action (#957), copying the endpoint (#951) and the help
+for connecting a computer (#952).
+The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
 
@@ -46,7 +50,152 @@ name and raise only the code.
   (`app/src/debug/res/xml/shortcuts.xml`, package id with the `.debug` suffix);
   `KeepADBShortcutsContractTest` checks both against `app/build.gradle`. Labels in all 19 locales.
 
+- **Copy the Wi-Fi ADB endpoint as an `adb connect` command (#951).** A tap on the endpoint row of
+  the home screen ("Port 5555 @ 192.168.0.5") puts exactly `adb connect <host>:<port>` on the
+  clipboard (IPv6 hosts in brackets; the command is technical and not translated). The row is a
+  48dp borderless tap target with a small copy icon at its end, not the card background, and only
+  while an address is known: while it is unknown or still searched, the "unavailable"/"searching"
+  text stays in the secondary color, with no icon and no tap. A verified transport row (the debug
+  VPN row of #538) copies its own command the same way. With "Hide in the app" on, the row shows the
+  masked address, the clip holds the real one and is flagged sensitive
+  (`ClipDescription.EXTRA_IS_SENSITIVE` on Android 13+, the string key
+  `android.content.extra.IS_SENSITIVE` on 11 and 12); without the switch the clip is not flagged
+  (`KeepADBEndpointText#isCopySensitive`: the stored switch, or "Hide on this screen" of the eye
+  menu). Feedback: Android 13+ confirms by itself, below that a toast ("Command copied", the string
+  of the setup assistant). The assistant's `pm grant` copy and the endpoint share one routine,
+  `KeepADBClipboard#copy` (no second copy routine). The status notification gets a "Copy" action
+  (`notification_action_copy`) after "Turn off Wifi-ADB" and the Keep-Alive action, so the existing
+  actions keep their order, while an address is known and "Hide in notifications" is off; it goes
+  through the non-exported `KeepADBReceiver` (`ACTION_COPY_ENDPOINT`), which reads the endpoint at
+  the tap, so the intent carries no address, and refuses when details are hidden by then. The
+  card keeps at most three actions: while the force mode is on, "End force mode", "Turn off" and
+  Keep-Alive fill them (One UI cuts off the fourth, #593), so "Copy" is left out then. TalkBack
+  announces the row as "copy adb connect command" through the click action's label
+  (`endpoint_copy_action`); the content description is untouched. Two new strings in 19 locales.
+  `KeepADBEndpointCopyTest` fails without the sensitive flag, without the action's conditions and
+  without the real-address copy; `SECURITY.md` describes the copy. Not verified in this change:
+  the clipboard preview on a real Android 13+ device and the notification on One UI (needs the
+  emulator and the phone).
+
+- **"Connect a computer" help (#952).** Android needs its own TLS pairing before a new computer can
+  connect to Wireless debugging; the app never said so. `KeepADBConnectHelp` is a dialog with three
+  steps: on the phone open Developer options > "Wireless debugging" > "Pair device with pairing
+  code"; on the computer, once per computer, `adb pair <ip>:<pairing-port>` and enter the code; then
+  `adb connect <ip>:<port>` with the address KeepADB shows (a tap copies it, #951). The commands are
+  monospace, selectable and not translated; Android's own screens keep Android's names in quotation
+  marks (localized as the app already names the setting), KeepADB's switch is "Wifi-ADB". The steps
+  scroll, so the dialog also fits at font scale 1.3. Buttons: "Open developer options"
+  (`Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS`; a device without that screen gets the
+  existing "No app found" toast, `settings_no_browser_found`) and "Close". Reachable from the
+  text-style button "Connect a computer…" directly below the endpoint row (in the shared
+  `view_home_status.xml`, so in all six layout variants, no extra card) and from the last page of
+  the setup assistant (`OnboardingActivity`, the summary); the dialog survives a rotation on both.
+  KeepADB cannot read whether a computer is paired, pairs nothing itself and shows no code, so the
+  help claims no pairing state (`KeepADBConnectHelpTest` checks that no digit but the step numbers
+  appears). The security advice about unexpected pairing prompts is unchanged. Six new strings in
+  19 locales; the label wording of Android's own screens ("Pair device with pairing code", "Developer
+  options") follows what Android shows per language from memory of its translations, to be checked
+  against a device. README and the F-Droid description say where the help is. Not verified in this
+  change: the button on the emulator and on One UI, and the tablet layouts (needs the emulators).
+
 ### Changed
+- **Security advice and privacy switches on the assistant's intro page (#958).** Maintainer
+  decision of 2026-11-14 and 2026-11-15. The general "Security & network advice"
+  (`advice_banner_title`, `advice_banner_text`, wording unchanged) is a static row directly under
+  the intro text of the setup assistant (`OnboardingActivity#securityAdviceRow`, no dismiss button,
+  so everyone sees it on a first start, also with "Later") and stays readable through Settings >
+  Setup assistant. The four privacy switches below it collapse to one row
+  (`OnboardingPrivacyRow`): a summary ("Privacy: nothing hidden" with every switch off, otherwise
+  "Privacy: 2 of 4 on", counting app, notifications, lock screen and widgets) and a "Change"
+  button; a tap on the button or the row opens the switches in place and the button reads "Done"
+  while they are open. The row announces the summary and "Collapsed"/"Expanded" (the existing
+  `card_state_*` strings) to TalkBack, the button is a real 48dp button, and an open row stays open
+  across a rotation. Keys and behavior of the switches are unchanged, and the row stays on the
+  first page, so it still comes before any step that shows a network name (#904). Three new strings
+  (`onboarding_privacy_summary_off`, `onboarding_privacy_summary_on`, `onboarding_privacy_change`)
+  in 19 locales; "Done" reuses `onboarding_done`. Not verified in this change: the target that the
+  intro text, the advice and the collapsed row fit one 360dp phone screen in English and German
+  (needs the emulator).
+- **Compact warning rows that open on tap (#963).** Maintainer decision of 2026-11-15 after a
+  design critique of 1.12.8: each home warning (`view_home_warning.xml`) and the force-mode panel
+  (now `view_force_warning.xml`, included as `force_warning_panel` by the six `activity_main.xml`
+  variants instead of six copies of the markup) shrink to one row of at least 48dp: warning icon,
+  title with a small chevron (`ic_expand_more`/`ic_expand_less`, decorative), the action button in
+  its existing style and the 48dp close button. A tap on the row, not on a button, opens the
+  explanation below it (aligned with the title, including the list of missing items of "Keep-Alive
+  is limited") and a second tap closes it; "Settings" of the force panel moved into its explanation,
+  and the remaining time ("Active until 14:30", `force_status_until`/`force_status_unlimited`) is
+  state and stays in the collapsed row under the title. No text changed and no string was added.
+  `KeepADBWarningRow` lays the row out: the title takes what is left and may use two lines next to
+  the action; when it needs more (large font scale, long translation) the action moves to its own
+  line below the title, start-aligned with it, instead of squeezing or clipping the title. The
+  decision (`KeepADBWarningRow#stackAction`) is made inside the measure pass from the title's
+  measured line count, with a second measure of the title only when it applies, so nothing is
+  posted and no layout is requested from within a pass. Expanded or collapsed is kept per warning
+  in `MainActivity` (not stored): it survives the periodic refresh and a rotation, and a warning
+  that goes away and returns starts collapsed. Unchanged: order of the cards, the conditions under
+  which each appears, close, undo and mute, the header counter. TalkBack: the row is one focus
+  target announced as a button, labelled with the title and carrying the state "Collapsed" or
+  "Expanded" (the existing `card_state_*` strings, `View#setStateDescription`); the explanation
+  (a polite live region) follows the row in focus order; action and close stay separate targets.
+  The list of security reasons (`WarningsActivity`) reuses the card and switches the row to inert
+  (`setExpandable(false)`). `MainActivityWarningRowTest` fails without the state handling,
+  `KeepADBWarningRowLayoutTest` covers the placement of the action with a title that reports a line
+  count (the test runtime does not measure real text). Not verified in this change: the acceptance
+  that with two warnings in German at font scale 1.3 on a 360dp phone the main switch and its state
+  are visible without scrolling, and the rendering on tablets (needs the emulators).
+  - **Follow-up after the emulator check: the explanation of a stacked row.** When a long title
+    (large font, long translation) puts the action on its own line, the opened explanation used to
+    appear below the button. It now sits between the title and the button. The explanation
+    (`warning_details`) is the optional fifth child of `KeepADBWarningRow` in `view_home_warning.xml`
+    and `view_force_warning.xml`, so the row can place it; collapsed rows and the side-by-side
+    layout are unchanged. A tap on the explanation is not a tap on the row (it does not toggle and
+    draws no press feedback), and its text is marked focusable, because a focusable row would
+    otherwise hide plain text inside it from TalkBack. `KeepADBWarningRowLayoutTest` pins the order
+    for a stacked and an inline action, the unchanged collapsed layouts and the touch behavior.
+  - **Checked for the maintainer: "Keep-Alive is limited" and the header warning icon.** The card
+    is shown but not counted by the icon, and that is intended: `KeepADBWarningState.Reason` marks
+    the three reasons of that card (`NOTIFICATIONS_MISSING`, `BACKGROUND_LOCATION_MISSING`,
+    `BATTERY_EXEMPTION_MISSING`) as `security = false`, like `NETWORK_IDENTITY_UNAVAILABLE` of the
+    "Keep-Alive paused" card, since #826 introduced the reason table. The icon and its list
+    ("Security warnings") count only reasons that weaken protection; a missing permission limits
+    reliability and is not a security reason. Nothing changed.
+- **Home status split into a state, one reason line and an action button (#957).** Maintainer
+  decision of 2026-11-14 and 2026-11-15. The single status text (up to three sentences at 20sp,
+  with a card-backed `TextView` as tap target and "(Connected)" for "the phone has Wi-Fi") is now,
+  in `view_home_status.xml` (one include in the six `activity_main.xml` variants, so they cannot
+  drift): the **state** (`@+id/status`, 20sp, medium weight: "Wifi-ADB is on", "Wifi-ADB is off",
+  "Switching…", "Setup missing"), a **reason line** when there is one (14sp, secondary color) and a
+  real **button** when the user can act, below it the endpoint row. The mapping from the resolved
+  app state to state, reason, long explanation and action is one pure class,
+  `KeepADBHomeStatus`, covered row by row by `KeepADBHomeStatusTest` (the issue's table, including
+  both "on, but Keep-Alive stays off here" rows); `MainActivity` resolves the inputs
+  (`resolveHomeStatus`, the same checks as before) and renders. The state logic itself
+  (`KeepADB.State`, when Keep-Alive is blocked) is unchanged. Where a long sentence exists
+  (`status_off_keep_alive_*`, `status_on_network_*`, reused unchanged) the reason line ends in an
+  info mark, is a 48dp tap target and opens a plain dialog with that sentence and one "OK"; without
+  one the line is plain text. Actions: "Decide…" and "Networks" lead where the status line led
+  (`statusEntryIntent()`, read at tap time), "Fix" where the "Keep-Alive paused" warning leads,
+  "Retry" through the switch's own path (`requestMainSwitchChange()`), "Instructions" where the
+  permission warning leads; the button uses the primary style of the warning rows. No clickable
+  `TextView` with a card background remains (`makeStatusDecisionEntry` and its twin are gone).
+  TalkBack: state and reason are one polite live region (the container `status_summary`, text is
+  only set when it changed, so the periodic refresh stays silent), the reason line is announced as
+  a button with "Show details" as its click label, and the action is a separate button of at least
+  48dp. The endpoint row reads "Port 5555 @ 192.168.0.5" (primary color, 18sp, monospace) with the
+  one shared format string `endpoint_port_at_ip` (formerly `notification_text_active`, now used by
+  the home screen, the notification and the transport rows; `endpoint_format` is gone); while no
+  address is known it keeps the secondary color and size. The widgets no longer say
+  "(Connected)"/"(Disconnected)" either: their system line now reads "Wifi-ADB is on" or "Wifi-ADB
+  is on · No Wi-Fi connection", and "Wifi-ADB is off" instead of "Wireless Debugging is OFF" for the
+  plain off state (`status_on`, `status_enabled_disconnected`, `status_tap_to_decide`,
+  `status_tap_to_open_list` and `status_off` are removed in all 19 locales). Fifteen new strings in 19 locales;
+  they say "Wifi-ADB" for KeepADB's switch and put Android's own name in quotation marks where
+  they point at its setting ("Wireless debugging" in the "dialog not confirmed" reason). The
+  glossary test allows "Wifi-ADB" only in the two new state strings. Not verified in this change:
+  the acceptance that no state needs more than one state line and one reason line at 360dp in
+  English and German and that nothing is cut off at font scale 1.3, and the tablet layouts (needs
+  the emulators).
 - **Gear menu with four entries (#964):** Settings, Wi-Fi networks, Setup assistant, Language, in
   this order and without dividers. The per-section links (Network, Webhook Sync, USB-ADB, Privacy,
   Other, Diagnostics & Maintenance) are removed with their ids and dispatch cases; the sections stay
@@ -76,6 +225,19 @@ name and raise only the code.
   an invalid URL is unchanged.
 
 ### Removed
+- **The advice card on the home screen (#958).** `advice_banner` and `btn_dismiss_advice_banner`
+  leave all six `activity_main.xml` variants and `MainActivity` (`updateAdviceBannerVisibility`),
+  the Settings > Other switch "Show Security & Network Advice" (`settings_advice_banner_toggle` and
+  its subtext) goes, and so does the preference `advice_banner_visible`
+  (`KeepADBPreferences#isAdviceBannerVisible`/`setAdviceBannerVisible`). The stored key is deleted
+  on the first start after the update (`KeepADBPreferences#removeObsoleteAdviceBannerKey`, called
+  from `KeepADBApplication#onCreate` like the USB and webhook cleanups; the assistant's
+  existing/new decision is frozen first), whether or not the card had been dismissed.
+  `KeepADBAdviceBannerRemovalMigrationTest` fails without it. Existing installations lose the card
+  on update and do not get the assistant again for this. `security_notice_dismiss`,
+  `settings_advice_banner_toggle` and `settings_advice_banner_subtext` are removed from the 19
+  locales; the warning cards keep their place above the main switch
+  (`MainActivityWarningPositionTest`, replacing the advice position test).
 - **The USB-ADB feature area (#956).** Maintainer decision of 2026-11-14: the card, a second
   notification and 48 strings in 19 languages did not serve the purpose of the app, keeping
   Wireless Debugging available, and host profiles were hand-maintained labels because KeepADB

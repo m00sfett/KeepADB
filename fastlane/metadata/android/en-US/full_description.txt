@@ -4,6 +4,7 @@ Toggle Wireless Debugging from the main screen, a Quick Settings tile, or a home
 
 Features:
 * Quick Settings tile and main app controls
+* Tap the address to copy the adb connect command; “Connect a computer…” below it, and the last page of the setup assistant, explain how to pair a new computer
 * Two home-screen widgets: KeepADB controls grows with its size (Wireless Debugging, Keep-Alive, webhook auto-sync; main action and order per widget), KeepADB overview shows address, Wi-Fi, Keep-Alive and webhook delivery at a glance
 * Optional Keep-Alive service across restarts and network changes
 * Endpoint discovery through Android NSD/mDNS (_adb-tls-connect._tcp); timing depends on network conditions

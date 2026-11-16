@@ -33,7 +33,6 @@ final class KeepADBPreferences {
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
-    private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
     // #764: keys of the home cards that moved into the assistant. Never read or written any more;
     // kept only to be deleted (removeObsoleteHomeCardKeys). Their meaning, for the record:
     // #528 notification permission, #502 battery optimization, #619 network onboarding and #616
@@ -57,6 +56,10 @@ final class KeepADBPreferences {
             "usb_wlan_handover_mode",
     };
     private static final String OBSOLETE_USB_PROFILE_PREFIX = "usb_profile_";
+    // #958: the dismiss flag of the home-screen advice card (#225). The advice moved into the
+    // setup assistant and is always shown there, so nothing reads the flag; kept only to be
+    // deleted (removeObsoleteAdviceBannerKey).
+    private static final String OBSOLETE_ADVICE_BANNER_KEY = "advice_banner_visible";
     // #960: the retry timing profile ("fast", "standard", "gentle") and the retry count. The series
     // is fixed now, so nothing reads them; kept only to be deleted (removeObsoleteWebhookRetryKeys),
     // so a value an older version stored cannot be mistaken for a setting that still applies.
@@ -810,17 +813,6 @@ final class KeepADBPreferences {
         prefs.edit().putInt(KEY_ONBOARDING_COMPLETED_VERSION, version).apply();
     }
 
-    /** #225: advice banner visibility. Default ON (true). */
-    static boolean isAdviceBannerVisible(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_ADVICE_BANNER_VISIBLE, true);
-    }
-
-    static void setAdviceBannerVisible(Context context, boolean visible) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
-    }
-
     /**
      * #764: deletes the dismiss flags of the home cards that no longer exist. The assistant's
      * existing/new decision is frozen first: it counts any stored key as "existing", and removing
@@ -859,6 +851,15 @@ final class KeepADBPreferences {
     static void removeObsoleteWebhookRetryKeys(Context context) {
         removeStoredKeys(context,
                 key -> java.util.Arrays.asList(OBSOLETE_WEBHOOK_RETRY_KEYS).contains(key));
+    }
+
+    /**
+     * #958: deletes the stored dismiss flag of the removed home-screen advice card, whether it was
+     * dismissed or not. Same rules as {@link #removeObsoleteUsbKeys}: idempotent, silent when
+     * nothing is stored, run at the first start after the update.
+     */
+    static void removeObsoleteAdviceBannerKey(Context context) {
+        removeStoredKeys(context, OBSOLETE_ADVICE_BANNER_KEY::equals);
     }
 
     private static void removeStoredKeys(Context context,

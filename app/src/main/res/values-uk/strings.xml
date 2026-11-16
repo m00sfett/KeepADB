@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">Пристрій показує статус "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Підтвердіть запит на дозвіл налагодження на екрані цього телефону, потім повторюйте "adb devices", поки статус не стане "device".</string>
     <string name="setup_refresh">Перевірити дозвіл</string>
-    <string name="status_on">Бездротове налагодження УВІМКНЕНО</string>
-    <string name="status_off">Бездротове налагодження ВИМКНЕНО</string>
-    <string name="endpoint_format">Кінцева точка: %1$s:%2$d</string>
     <string name="endpoint_searching">Пошук кінцевої точки…</string>
     <string name="endpoint_unavailable">Кінцева точка недоступна</string>
+    <string name="connect_help_link">Підключити комп’ютер…</string>
+    <string name="connect_help_title">Підключити комп’ютер</string>
+    <string name="connect_help_step_phone">На телефоні відкрийте «Для розробників» › «Бездротове налагодження» › «Підключити пристрій за допомогою коду підключення».</string>
+    <string name="connect_help_step_pair">На комп’ютері, один раз для кожного комп’ютера: виконайте команду нижче та введіть код, показаний на телефоні.</string>
+    <string name="connect_help_step_connect">Коли Wifi-ADB увімкнено, виконайте цю команду з адресою, яку показує KeepADB (торкніться адреси, щоб скопіювати команду). Комп’ютер, який уже підключали, часто підключається сам.</string>
+    <string name="connect_help_open_settings">Відкрити «Для розробників»</string>
 
     <string name="transport_vpn_label">ADB через VPN</string>
     <string name="transport_row_format">%1$s: %2$s · остання перевірка %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Поточна IP-адреса та порт бездротового налагодження</string>
     <string name="notification_title_active">%1$s: Wifi-ADB увімкнено</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB вимкнено</string>
-    <string name="notification_text_active">Порт %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Порт %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Торкніться, щоб побачити відомості про з’єднання в застосунку.</string>
     <string name="notification_title_searching">%1$s: Пошук кінцевої точки…</string>
     <string name="notification_text_searching">Визначення кінцевої точки в локальній мережі</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">Доступ до геолокації потрібен для визначення поточної мережі Wi-Fi та точок доступу.</string>
     <string name="location_permission_settings_button">Відкрити налаштування</string>
     <string name="notification_action_disable">Вимкнути Wifi-ADB</string>
-    <string name="status_enabled_disconnected">Бездротове налагодження УВІМКНЕНО (не підключено)</string>
+    <string name="notification_action_copy">Копіювати</string>
+    <string name="endpoint_copy_action">Скопіювати команду adb connect</string>
     <string name="status_permission_missing">Немає системного дозволу</string>
     <string name="tile_state_off">Вимкнено</string>
     <string name="tile_state_disconnected">Не підключено</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">Додаткові відредаговані діагностичні дані KeepADB (перевірте перед надсиланням)</string>
     <string name="advice_banner_title">Безпека та мережа</string>
     <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте довірену мережу Wi-Fi або VPN і вимикайте її в публічних точках доступу. Ніколи не публікуйте свою кінцеву точку та не приймайте неочікувані запити на створення пари.</string>
-    <string name="security_notice_dismiss">Закрити повідомлення</string>
-    <string name="settings_advice_banner_toggle">Показувати поради з безпеки та мережі</string>
-    <string name="settings_advice_banner_subtext">Показує банер попередження про безпеку вгорі головного екрана.</string>
     <string name="settings_license_line">Розповсюджується за ліцензією GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">Відкрити keepadb.roteson.de у браузері</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: мережа не читається, перевірте дозвіл на геолокацію («Дозволити завжди») або відкрийте застосунок знову</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог Android про мережу бездротового налагодження, потім торкніться перемикача, щоб повторити спробу</string>
     <string name="status_pending">Перемикання…</string>
+    <string name="home_state_on">Wifi-ADB увімкнено</string>
+    <string name="home_state_off">Wifi-ADB вимкнено</string>
+    <string name="home_state_setup">Налаштування не завершено</string>
+    <string name="home_reason_permission">Системний дозвіл не надано</string>
+    <string name="home_reason_waiting">Keep-Alive чекає на Wi-Fi</string>
+    <string name="home_reason_untrusted">Keep-Alive призупинено: мережа Wi-Fi не довірена</string>
+    <string name="home_reason_blocked">Keep-Alive призупинено: мережа Wi-Fi заблокована</string>
+    <string name="home_reason_identity">Keep-Alive призупинено: мережа не читається</string>
+    <string name="home_reason_backoff">Keep-Alive призупинено: діалог «Бездротове налагодження» не підтверджено</string>
+    <string name="home_reason_no_wifi">Немає підключення до Wi-Fi</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive тут не ввімкнеться: мережа Wi-Fi не довірена</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive тут не ввімкнеться: мережа Wi-Fi заблокована</string>
+    <string name="home_action_networks">Мережі</string>
+    <string name="home_action_retry">Повторити</string>
+    <string name="home_reason_details_action">Показати докладніше</string>
     <string name="state_pending">Перемикання…</string>
     <string name="tile_state_keep_alive_waiting">Вимкнено — Keep-Alive чекає</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
@@ -443,6 +459,9 @@
     <string name="onboarding_intro_title_existing">Нові налаштування безпеки</string>
     <string name="onboarding_intro_body_existing">KeepADB тепер збирає основні налаштування в одному помічнику. Ваші поточні значення збережено й вибрано наперед. «Далі» нічого не змінює. Те, що менш безпечне, ніж рекомендовано, позначено.</string>
     <string name="onboarding_intro_less_secure">Деякі налаштування менш безпечні, ніж рекомендовано.</string>
+    <string name="onboarding_privacy_summary_off">Конфіденційність: нічого не приховано</string>
+    <string name="onboarding_privacy_summary_on">Конфіденційність: увімкнено %1$d з %2$d</string>
+    <string name="onboarding_privacy_change">Змінити</string>
     <string name="onboarding_keep_alive_question">Чи має бездротове налагодження вмикатися саме після перезавантаження або обриву з’єднання?</string>
     <string name="onboarding_keep_alive_off_body">Ви вмикаєте бездротове налагодження самі: у застосунку, плитці чи віджеті. Після перезавантаження воно лишається вимкненим.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB знову вмикає бездротове налагодження після перезавантаження або обриву з’єднання, але лише там, де це дозволяє ваш рівень захисту (наступний крок).</string>
@@ -504,8 +523,6 @@
     <string name="home_warning_action_fix">Виправити</string>
     <string name="home_warning_limited_title">Keep-Alive обмежено</string>
     <string name="home_warning_limited_text">Бракує дозволів для надійної роботи Keep-Alive.</string>
-    <string name="status_tap_to_decide">Торкніться, щоб вирішити</string>
-    <string name="status_tap_to_open_list">Торкніться, щоб відкрити список мереж</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Мова</string>
     <string name="menu_item_all_settings">Налаштування</string>

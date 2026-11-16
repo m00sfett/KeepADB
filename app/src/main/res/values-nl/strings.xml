@@ -11,11 +11,14 @@
     <string name="setup_state_unauthorized_title">Apparaat toont "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bevestig de foutopsporingsautorisatiemelding op het scherm van deze telefoon en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_refresh">Toestemming controleren</string>
-    <string name="status_on">Draadloze foutopsporing is AAN</string>
-    <string name="status_off">Draadloze foutopsporing is UIT</string>
-    <string name="endpoint_format">Eindpunt: %1$s:%2$d</string>
     <string name="endpoint_searching">Zoeken naar eindpunt…</string>
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
+    <string name="connect_help_link">Computer verbinden…</string>
+    <string name="connect_help_title">Computer verbinden</string>
+    <string name="connect_help_step_phone">Open op de telefoon Ontwikkelaarsopties › ‘Draadloze foutopsporing’ › ‘Apparaat koppelen met koppelingscode’.</string>
+    <string name="connect_help_step_pair">Op de computer, eenmalig per computer: voer de onderstaande opdracht uit en voer de code in die op de telefoon staat.</string>
+    <string name="connect_help_step_connect">Voer met Wifi-ADB aan deze opdracht uit met het adres dat KeepADB toont (tik op het adres om de opdracht te kopiëren). Een computer die al gekoppeld is, verbindt vaak vanzelf.</string>
+    <string name="connect_help_open_settings">Ontwikkelaarsopties openen</string>
 
     <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>
@@ -30,7 +33,7 @@
     <string name="notification_channel_desc">Huidig IP-adres en poort van draadloze foutopsporing</string>
     <string name="notification_title_active">%1$s: Wifi-ADB aan</string>
     <string name="notification_title_disabled">%1$s: Wifi-ADB uit</string>
-    <string name="notification_text_active">Poort %1$d @ %2$s</string>
+    <string name="endpoint_port_at_ip">Poort %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tik om verbindingsdetails in de app te bekijken.</string>
     <string name="notification_title_searching">%1$s: Zoeken naar eindpunt…</string>
     <string name="notification_text_searching">Eindpunt oplossen op lokaal netwerk</string>
@@ -168,7 +171,8 @@
     <string name="location_permission_panel_body_discovery">Locatietoegang is vereist om het huidige wifi-netwerk en de access points te herkennen.</string>
     <string name="location_permission_settings_button">Instellingen openen</string>
     <string name="notification_action_disable">Wifi-ADB uitschakelen</string>
-    <string name="status_enabled_disconnected">Draadloze foutopsporing is AAN (Verbinding verbroken)</string>
+    <string name="notification_action_copy">Kopiëren</string>
+    <string name="endpoint_copy_action">adb connect-opdracht kopiëren</string>
     <string name="status_permission_missing">Systeemtoestemming ontbreekt</string>
     <string name="tile_state_off">Uit</string>
     <string name="tile_state_disconnected">Niet verbonden</string>
@@ -242,9 +246,6 @@
     <string name="issue_report_diagnostics_section">Optionele geredigeerde KeepADB-diagnostische gegevens (controleer vóór verzending)</string>
     <string name="advice_banner_title">Beveiliging &amp; netwerk</string>
     <string name="advice_banner_text">Draadloze foutopsporing opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn en schakel het uit op openbare hotspots. Deel je eindpunt nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
-    <string name="security_notice_dismiss">Melding sluiten</string>
-    <string name="settings_advice_banner_toggle">Beveiligings- en netwerkadvies tonen</string>
-    <string name="settings_advice_banner_subtext">Toont een beveiligingswaarschuwing bovenaan het hoofdscherm.</string>
     <string name="settings_license_line">Uitgebracht onder de GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">keepadb.roteson.de</string>
     <string name="settings_website_link_accessibility">keepadb.roteson.de openen in browser</string>
@@ -255,6 +256,21 @@
     <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
+    <string name="home_state_on">Wifi-ADB is aan</string>
+    <string name="home_state_off">Wifi-ADB is uit</string>
+    <string name="home_state_setup">Instelling ontbreekt</string>
+    <string name="home_reason_permission">Systeemtoestemming niet verleend</string>
+    <string name="home_reason_waiting">Keep-Alive wacht op wifi</string>
+    <string name="home_reason_untrusted">Keep-Alive gepauzeerd: wifi niet vertrouwd</string>
+    <string name="home_reason_blocked">Keep-Alive gepauzeerd: wifi geblokkeerd</string>
+    <string name="home_reason_identity">Keep-Alive gepauzeerd: netwerk onleesbaar</string>
+    <string name="home_reason_backoff">Keep-Alive gepauzeerd: dialoog ‘Draadloze foutopsporing’ niet bevestigd</string>
+    <string name="home_reason_no_wifi">Geen wifi-verbinding</string>
+    <string name="home_reason_stays_off_untrusted">Keep-Alive blijft hier uit: wifi niet vertrouwd</string>
+    <string name="home_reason_stays_off_blocked">Keep-Alive blijft hier uit: wifi geblokkeerd</string>
+    <string name="home_action_networks">Netwerken</string>
+    <string name="home_action_retry">Opnieuw proberen</string>
+    <string name="home_reason_details_action">Details tonen</string>
     <string name="state_pending">Bezig met omschakelen…</string>
     <string name="tile_state_keep_alive_waiting">Uit – Keep-Alive wacht</string>
     <string name="toggle_failed_toast">Draadloze foutopsporing kon niet worden omgeschakeld. Probeer het opnieuw.</string>
@@ -443,6 +459,9 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_intro_title_existing">Nieuwe beveiligingsinstellingen</string>
     <string name="onboarding_intro_body_existing">KeepADB bundelt de belangrijkste instellingen nu in één assistent. Je huidige waarden blijven behouden en zijn voorgeselecteerd. Volgende wijzigt niets. Wat minder veilig is dan aanbevolen, is gemarkeerd.</string>
     <string name="onboarding_intro_less_secure">Sommige instellingen zijn minder veilig dan aanbevolen.</string>
+    <string name="onboarding_privacy_summary_off">Privacy: niets verborgen</string>
+    <string name="onboarding_privacy_summary_on">Privacy: %1$d van %2$d aan</string>
+    <string name="onboarding_privacy_change">Wijzigen</string>
     <string name="onboarding_keep_alive_question">Moet draadloze foutopsporing zichzelf weer inschakelen na een herstart of een verbroken verbinding?</string>
     <string name="onboarding_keep_alive_off_body">Je schakelt draadloze foutopsporing zelf in, in de app, via de tegel of de widget. Na een herstart blijft het uit.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB schakelt draadloze foutopsporing na een herstart of een verbroken verbinding weer in, maar alleen waar je beveiligingsniveau dat toestaat (volgende stap).</string>
@@ -504,8 +523,6 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="home_warning_action_fix">Oplossen</string>
     <string name="home_warning_limited_title">Keep-Alive beperkt</string>
     <string name="home_warning_limited_text">Er ontbreken machtigingen voor een betrouwbare Keep-Alive.</string>
-    <string name="status_tap_to_decide">Tik om te beslissen</string>
-    <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
     <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
     <string name="menu_item_language">Taal</string>
     <string name="menu_item_all_settings">Instellingen</string>

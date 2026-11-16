@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #957/#951/#952: the block of the main panel below the switch and its one-line description, in
+     one place so the six activity_main.xml variants cannot drift. Top to bottom: the state, the
+     reason (only when there is one; a tap target with an info mark when a long explanation
+     exists), the action button (only when the user can act), the endpoint row (the whole row
+     copies the adb connect command while an address is known, #951) and the "Connect a computer"
+     link (#952). MainActivity renders it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- One polite live region around state and reason: a change of either is announced as one
+         message, instead of two live regions talking over each other. -->
+    <LinearLayout
+        android:id="@+id/status_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/home_state_off"
+            android:textColor="@color/night_text"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:id="@+id/status_reason_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="2dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/status_reason"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/night_muted"
+                android:textSize="14sp"
+                tools:text="Keep-Alive paused: Wi-Fi not trusted" />
+
+            <ImageView
+                android:id="@+id/status_reason_info"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_info"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/status_action"
+        style="@style/Widget.KeepADB.Button.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        tools:text="Decide…"
+        tools:visibility="visible" />
+
+    <!-- The endpoint: "Port <port> @ <ip>", the row of the adb connect command (#951). -->
+    <LinearLayout
+        android:id="@+id/endpoint_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/endpoint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:text="@string/endpoint_unavailable"
+            android:textColor="@color/night_muted"
+            android:textSize="15sp" />
+
+        <!-- Decorative: the row is the control, and TalkBack gets its click label. -->
+        <ImageView
+            android:id="@+id/endpoint_copy_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_copy"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- #952: a text-style button below the endpoint, not another card. -->
+    <Button
+        android:id="@+id/connect_help"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginBottom="4dp"
+        android:fontFamily="sans-serif-condensed"
+        android:minHeight="48dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="16dp"
+        android:text="@string/connect_help_link"
+        android:textAllCaps="false"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+</LinearLayout>

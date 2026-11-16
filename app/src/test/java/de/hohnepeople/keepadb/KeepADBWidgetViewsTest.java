@@ -514,6 +514,18 @@ public class KeepADBWidgetViewsTest {
     }
 
     @Test
+    public void thePlainOffStateUsesTheHomeScreenWording() {
+        setAdb(false);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        assertTrue(statusText(render(SizeClass.PANEL)).startsWith(name(R.string.home_state_off)));
+
+        // Keep-Alive blocked while the last explicit intent was off: nothing to solve, same words.
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, false);
+        assertTrue(statusText(render(SizeClass.PANEL)).startsWith(name(R.string.home_state_off)));
+    }
+
+    @Test
     public void theStatusLineNamesTheReasonsThatCanBeSolved() {
         setAdb(false);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
@@ -586,7 +598,7 @@ public class KeepADBWidgetViewsTest {
         String text = KeepADBWidgetTestSupport.allText(widget);
         assertFalse(text, text.contains(HOST));
         assertFalse(text, text.contains(String.valueOf(PORT)));
-        assertFalse(text, text.contains(name(R.string.endpoint_format, HOST, PORT)));
+        assertFalse(text, text.contains(name(R.string.endpoint_port_at_ip, PORT, HOST)));
     }
 
     // -- text fitting and touch targets ------------------------------------------------------------

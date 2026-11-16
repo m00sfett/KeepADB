@@ -52,6 +52,8 @@ public class OnboardingActivity extends Activity {
     static final String EXTRA_OPEN_HOME = "onboarding_open_home";
 
     private static final String STATE_PAGE = "onboarding_page";
+    private static final String STATE_PRIVACY_EXPANDED = "onboarding_privacy_expanded";
+    private static final String STATE_CONNECT_HELP = "onboarding_connect_help_showing";
     private static final int PAGE_INTRO = 0;
 
     private List<OnboardingStep> steps;
@@ -61,6 +63,10 @@ public class OnboardingActivity extends Activity {
     private boolean existing;
     /** 0 = intro, 1..steps = a step, steps + 1 = summary. Always 0 in the single-step mode. */
     private int page;
+    /** #958: whether the privacy switches of the intro are open; survives a rotation. */
+    private boolean privacyExpanded;
+    private OnboardingPrivacyRow privacyRow;
+    private android.app.AlertDialog activeConnectHelpDialog;
 
     private TextView headerTitle;
     private TextView headerCounter;
@@ -171,9 +177,23 @@ public class OnboardingActivity extends Activity {
 
         if (savedInstanceState != null) {
             page = savedInstanceState.getInt(STATE_PAGE, PAGE_INTRO);
+            privacyExpanded = savedInstanceState.getBoolean(STATE_PRIVACY_EXPANDED);
             for (OnboardingStep step : steps) step.restoreState(savedInstanceState);
         }
         showPage(single != null ? PAGE_INTRO : clampPage(page));
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_CONNECT_HELP, false)) {
+            showConnectHelp();
+        }
+    }
+
+    /** #952: how to connect a new computer, from the last page; the dialog survives a rotation. */
+    private void showConnectHelp() {
+        if (activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing()) return;
+        android.app.AlertDialog help = KeepADBConnectHelp.show(this);
+        activeConnectHelpDialog = help;
+        help.setOnDismissListener(d -> {
+            if (activeConnectHelpDialog == d) activeConnectHelpDialog = null;
+        });
     }
 
     @Override
@@ -190,6 +210,8 @@ public class OnboardingActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (activeConnectHelpDialog != null) activeConnectHelpDialog.dismiss();
+        activeConnectHelpDialog = null;
         for (OnboardingStep step : steps) step.onDestroy();
         super.onDestroy();
     }
@@ -208,6 +230,9 @@ public class OnboardingActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_PAGE, page);
+        outState.putBoolean(STATE_PRIVACY_EXPANDED, privacyExpanded);
+        outState.putBoolean(STATE_CONNECT_HELP,
+                activeConnectHelpDialog != null && activeConnectHelpDialog.isShowing());
         // Only the page that is showing has a pending choice; a left page's is discarded (Back).
         OnboardingStep current = currentStep();
         if (current != null) current.saveState(outState);
@@ -352,10 +377,14 @@ public class OnboardingActivity extends Activity {
             params.topMargin = dp(16);
             pageContent.addView(notice, params);
         }
-        // #904: the three privacy switches sit here, before any step shows a network name or an
-        // address, so the rest of the assistant respects them. They write at once, like the
-        // buttons of the action steps; "Later" and "Next" write nothing on top.
-        addPrivacySwitches();
+        // #958: the general security advice, a static row. It used to be a card on the home
+        // screen; everyone passes this page on a first start, including with "Later".
+        pageContent.addView(securityAdviceRow());
+        // #904: the privacy switches sit here, before any step shows a network name or an
+        // address, so the rest of the assistant respects them. #958: collapsed to one row that
+        // opens in place. They write at once, like the buttons of the action steps; "Later" and
+        // "Next" write nothing on top.
+        addPrivacyRow();
         if (existing && !marked.isEmpty()) {
             pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure)));
         }
@@ -366,22 +395,13 @@ public class OnboardingActivity extends Activity {
         applyBarOrder();
     }
 
-    private void addPrivacySwitches() {
-        TextView heading = new TextView(this);
-        heading.setText(R.string.privacy_switches_title);
-        heading.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        heading.setTextColor(getColor(R.color.title_yellow));
-        heading.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
-                android.graphics.Typeface.BOLD));
-        heading.setAccessibilityHeading(true);
-        LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(
+    private void addPrivacyRow() {
+        privacyRow = OnboardingPrivacyRow.create(this, privacyExpanded,
+                () -> privacyExpanded = privacyRow.isExpanded());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        headingParams.topMargin = dp(24);
-        pageContent.addView(heading, headingParams);
-        View switches = getLayoutInflater().inflate(R.layout.view_privacy_switches, pageContent,
-                false);
-        pageContent.addView(switches);
-        KeepADBPrivacySwitches.bind(this, switches, null);
+        params.topMargin = dp(8);
+        pageContent.addView(privacyRow.view(), params);
     }
 
     private void showStep(OnboardingStep step) {
@@ -446,6 +466,23 @@ public class OnboardingActivity extends Activity {
             offParams.topMargin = dp(8);
             pageContent.addView(off, offParams);
         }
+        // #952: the one place of the assistant that says how to connect a computer afterwards.
+        Button help = new Button(this, null, android.R.attr.borderlessButtonStyle);
+        help.setId(R.id.onboarding_connect_help);
+        help.setText(R.string.connect_help_link);
+        help.setAllCaps(false);
+        help.setMinHeight(dp(48));
+        help.setPadding(0, 0, dp(16), 0);
+        help.setTextColor(getColor(R.color.text_yellow));
+        help.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        help.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        help.setOnClickListener(v -> showConnectHelp());
+        LinearLayout.LayoutParams helpParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        helpParams.topMargin = dp(8);
+        helpParams.gravity = Gravity.START;
+        pageContent.addView(help, helpParams);
         backButton.setVisibility(View.VISIBLE);
         secondaryButton.setVisibility(View.GONE);
         nextButton.setText(R.string.onboarding_done);
@@ -486,6 +523,54 @@ public class OnboardingActivity extends Activity {
 
         row.setContentDescription(getString(step.titleRes) + ", " + valueText);
         row.setOnClickListener(v -> showPage(stepPage));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(8);
+        row.setLayoutParams(params);
+        return row;
+    }
+
+    /**
+     * #958: the general security and network advice (the text of the former home card, unchanged)
+     * in the style of {@link #adviceRow}: a title above the text, no dismiss button. Paddings are
+     * a little tighter than the card's so the intro text, this row and the collapsed privacy row
+     * fit one phone screen.
+     */
+    private View securityAdviceRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.TOP);
+        row.setBackgroundResource(R.drawable.bg_panel_advice);
+        row.setPadding(dp(12), dp(12), dp(12), dp(12));
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(R.drawable.ic_warning);
+        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dp(24), dp(24));
+        iconParams.setMarginEnd(dp(12));
+        row.addView(icon, iconParams);
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView title = new TextView(this);
+        title.setId(R.id.onboarding_advice_title);
+        title.setText(R.string.advice_banner_title);
+        title.setAccessibilityHeading(true);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        title.setTextColor(getColor(R.color.title_yellow));
+        title.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        texts.addView(title);
+        TextView body = new TextView(this);
+        body.setId(R.id.onboarding_advice_text);
+        body.setText(R.string.advice_banner_text);
+        body.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        body.setTextColor(getColor(R.color.night_text));
+        body.setLineSpacing(dp(3), 1f);
+        LinearLayout.LayoutParams bodyParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bodyParams.topMargin = dp(4);
+        texts.addView(body, bodyParams);
+        row.addView(texts, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.topMargin = dp(8);

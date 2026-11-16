@@ -320,10 +320,13 @@ final class KeepADBWidgetContent {
         }
         if (p.systemState == KeepADB.State.ENABLED_CONNECTED) {
             // Details withheld (#904): the state only, never the address.
-            return ctx.getString(R.string.status_on);
+            return ctx.getString(R.string.home_state_on);
         }
         if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
-            return ctx.getString(R.string.status_enabled_disconnected);
+            // #957: "on" and why there is no connection, not "(Disconnected)" as if a computer
+            // were meant.
+            return KeepADBOverviewContent.withDetail(ctx.getString(R.string.home_state_on),
+                    ctx.getString(R.string.home_reason_no_wifi));
         }
         switch (p.keepAlive) {
             case BLOCKED:
@@ -336,7 +339,7 @@ final class KeepADBWidgetContent {
                     return ctx.getString(R.string.status_off_keep_alive_blocked_identity_unavailable);
                 }
                 // The last explicit intent was off: nothing to solve, the plain state is the answer.
-                return ctx.getString(R.string.status_off);
+                return ctx.getString(R.string.home_state_off);
             case WAITING:
                 if (p.keepAliveReason == KeepADBWidgetState.Reason.RECOVERY_BACKOFF) {
                     click[0] = Click.OPEN_APP;
@@ -346,7 +349,7 @@ final class KeepADBWidgetContent {
             case ACTIVE:
             case DISABLED:
             default:
-                return ctx.getString(R.string.status_off);
+                return ctx.getString(R.string.home_state_off);
         }
     }
 
