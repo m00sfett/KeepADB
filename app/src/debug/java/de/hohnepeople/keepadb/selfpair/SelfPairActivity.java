@@ -29,8 +29,12 @@ public final class SelfPairActivity extends Activity {
         public void run() {
             boolean granted = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                     == PackageManager.PERMISSION_GRANTED;
-            log.setText("WRITE_SECURE_SETTINGS granted: " + granted + "\n\n"
-                    + SelfPairService.logText());
+            String text = "WRITE_SECURE_SETTINGS granted: " + granted + "\n\n"
+                    + SelfPairService.logText();
+            // Only touch the view on change, so the window can go idle for UI automation.
+            if (!text.contentEquals(log.getText())) {
+                log.setText(text);
+            }
             handler.postDelayed(this, 500);
         }
     };
