@@ -44,6 +44,9 @@ public class SettingsActivity extends Activity {
     /** Formerly the heading of the Network card; since #959 it opens the Protection page. */
     public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
     private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
+    private static final String STATE_STARTED_ONLY_TO_FORWARD = "settings_started_only_to_forward";
+    /** True when this instance was started only to forward an old extra to the Protection page. */
+    private boolean startedOnlyToForward;
     private final java.util.ArrayList<String> consumedFocus = new java.util.ArrayList<>();
     /**
      * #672: flags for the reset-app and language dialogs showing at the time of
@@ -104,6 +107,11 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startedOnlyToForward = savedInstanceState != null
+                ? savedInstanceState.getBoolean(STATE_STARTED_ONLY_TO_FORWARD, false)
+                : getIntent().hasExtra(EXTRA_FOCUS_FORCE)
+                        || getIntent().hasExtra(EXTRA_FOCUS_NETWORK)
+                        || getIntent().hasExtra(EXTRA_FOCUS_NETWORK_CARD);
         setContentView(R.layout.activity_settings);
         // #324: keep header and content clear of the system bars and the keyboard under forced
         // edge-to-edge.
@@ -207,14 +215,24 @@ public class SettingsActivity extends Activity {
 
         // #959: the three extras of the former Network card lead to the Protection page. Current
         // senders open it directly; these only come from a notification an older version posted.
+        boolean forwarded = false;
         if (consumeFocus(EXTRA_FOCUS_FORCE)) {
             startActivity(ProtectionActivity.forceIntent(this));
+            forwarded = true;
         }
         if (consumeFocus(EXTRA_FOCUS_NETWORK)) {
             startActivity(ProtectionActivity.levelIntent(this));
+            forwarded = true;
         }
         if (consumeFocus(EXTRA_FOCUS_NETWORK_CARD)) {
             startActivity(ProtectionActivity.intent(this));
+            forwarded = true;
+        }
+        // Back from the Protection page then returns to where the user came from, not to a
+        // Settings page they never asked for.
+        if (forwarded && startedOnlyToForward) {
+            finish();
+            return;
         }
         if (consumeFocus(EXTRA_FOCUS_WEBHOOK)) {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
@@ -253,6 +271,7 @@ public class SettingsActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putStringArrayList(STATE_CONSUMED_FOCUS, new java.util.ArrayList<>(consumedFocus));
+        outState.putBoolean(STATE_STARTED_ONLY_TO_FORWARD, startedOnlyToForward);
         webhookForm.saveState(outState);
         diagnosticsController.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));

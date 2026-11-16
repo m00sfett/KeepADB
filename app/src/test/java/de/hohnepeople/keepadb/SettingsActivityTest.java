@@ -770,6 +770,36 @@ public class SettingsActivityTest {
         controller.pause().stop().destroy();
     }
 
+    /** #959: an old extra only forwards to the Protection page and the shell then finishes. */
+    @Test
+    public void anOldProtectionExtraForwardsAndFinishesTheSettingsShell() {
+        for (String extra : new String[] {SettingsActivity.EXTRA_FOCUS_FORCE,
+                SettingsActivity.EXTRA_FOCUS_NETWORK, SettingsActivity.EXTRA_FOCUS_NETWORK_CARD}) {
+            Intent launch = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
+                    .putExtra(extra, true);
+            ActivityController<SettingsActivity> controller =
+                    Robolectric.buildActivity(SettingsActivity.class, launch).setup();
+            SettingsActivity activity = controller.get();
+            assertEquals(ProtectionActivity.class.getName(),
+                    shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
+            assertTrue("Finished after forwarding " + extra, activity.isFinishing());
+        }
+    }
+
+    /** #959: a normally opened Settings page stays open and is not finished by the forwarding. */
+    @Test
+    public void aNormallyOpenedSettingsPageIsNotFinished() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        assertFalse(activity.isFinishing());
+        activity.findViewById(R.id.settings_protection_row).performClick();
+        controller.pause();
+        controller.resume();
+        assertFalse(activity.isFinishing());
+        controller.pause().stop().destroy();
+    }
+
     /** #959: the row's summary names the protection level and the counts, and hides the counts. */
     @Test
     public void theProtectionRowSummaryNamesTheLevelAndTheCountsAndFollowsThePrivacyMode() {
