@@ -441,6 +441,7 @@ name and raise only the code.
 - `README.md`, `SECURITY.md`, `docs/defaults.md` and the store description said "three" privacy
   switches; there are four (app, notifications, lock screen, widgets and the tile counted as one)
   and the texts now say so.
+- Store screenshots retaken (#947).
 
 ## [1.12.8] - Unreleased
 
