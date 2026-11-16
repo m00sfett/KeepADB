@@ -71,7 +71,6 @@ public class SettingsActivity extends Activity {
     private KeepADBForceSection forceSection;
 
     private KeepADBWebhookForm webhookForm;
-    private KeepADBWebhookRetrySettings webhookRetrySettings;
     private TextView versionNameText;
     private TextView versionCodeText;
     private TextView versionDebugBadge;
@@ -187,7 +186,6 @@ public class SettingsActivity extends Activity {
 
         webhookForm = new KeepADBWebhookForm(this, this::refresh);
         webhookForm.restoreDraft(savedInstanceState);
-        webhookRetrySettings = new KeepADBWebhookRetrySettings(this);
         findViewById(R.id.settings_webhook_history).setOnClickListener(
                 v -> startActivity(ReportHistoryActivity.intent(this)));
 
@@ -316,7 +314,6 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        webhookRetrySettings.dismiss();
         diagnosticsController.destroy();
 
         if (activeResetAppDialog != null) {
@@ -534,7 +531,6 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();
-        webhookRetrySettings.refreshVisual();
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
         boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);

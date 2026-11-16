@@ -86,7 +86,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
     /** One failed report with no retries left: an episode whose series is given up on. */
     private void giveUp() {
         transport.setPostSuccess(false);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         advance(0);
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
@@ -108,7 +108,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
 
     @Test
     public void aFailedReattemptIsASingleAttemptNotANewSeries() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         transport.setPostSuccess(false);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         for (int i = 0; i < 6; i++) advance(60_000L);
@@ -138,20 +138,6 @@ public class KeepADBRegisterEpisodeReattemptTest {
         assertEquals("no episode, no re-attempt", 2, posts());
     }
 
-    /** Codex review round 2: raising the retry count during the attempt keeps it single-shot. */
-    @Test
-    public void retryCountChangedDuringTheAttemptKeepsItSingleShot() {
-        giveUp();
-        transport.setRequestCallback(request -> KeepADBPreferences.setWebhookRetryCount(context, 4));
-
-        advance(INTERVAL);
-        heartbeat();
-        transport.setRequestCallback(null);
-        for (int i = 0; i < 3; i++) advance(60_000L);
-
-        assertEquals("one request, no retry series", 2, posts());
-        assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
-    }
 
     /** Codex review: an endpoint that no longer answers is not reported by a re-attempt. */
     @Test
@@ -180,7 +166,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         assertEquals("a healthy webhook is never polled", 1, posts());
 
         transport.setPostSuccess(false);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         KeepADBRegisterClient.requestResyncNow(context);
         advance(0);
         assertEquals(2, posts());
@@ -197,7 +183,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         advance(0);
         transport.setPostSuccess(false);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         KeepADBRegisterClient.requestResyncNow(context);
         advance(0);
         assertEquals(2, posts());

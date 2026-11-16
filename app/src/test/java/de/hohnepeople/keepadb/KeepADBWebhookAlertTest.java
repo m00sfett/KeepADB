@@ -61,7 +61,7 @@ public class KeepADBWebhookAlertTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         // No retries: each test drives the failures it needs, so the timing is the episode's only.
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         transport = new KeepADBFakeHttpTransport();
         transport.setPostSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
@@ -261,7 +261,7 @@ public class KeepADBWebhookAlertTest {
     /** Codex review: the retry number is the one sent, even if a new series starts meanwhile. */
     @Test
     public void aRetryKeepsItsNumberWhenANewSeriesStartsWhileItIsInFlight() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         failReport();
         int before = transport.recordedRequests.size();
         java.util.concurrent.atomic.AtomicBoolean started =
@@ -288,28 +288,6 @@ public class KeepADBWebhookAlertTest {
         assertTrue("the in-flight retry keeps its number in the history", retryRecorded);
     }
 
-    /** Codex review: the retry budget recorded is the one in effect when the request was sent. */
-    @Test
-    public void aRetryKeepsItsBudgetWhenTheSettingChangesWhileItIsInFlight() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
-        failReport();
-        int before = transport.recordedRequests.size();
-        transport.setRequestCallback(request -> {
-            if (transport.recordedRequests.size() > before) {
-                KeepADBPreferences.setWebhookRetryCount(context, 2);
-            }
-        });
-
-        ShadowLooper.idleMainLooper(60, TimeUnit.SECONDS);
-        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
-
-        KeepADBReportHistory.Entry retry = null;
-        for (KeepADBReportHistory.Entry entry : KeepADBReportHistory.entries(context)) {
-            if (entry.event == KeepADBReportHistory.Event.REPORT && entry.retry == 1) retry = entry;
-        }
-        assertNotNull("precondition: the first retry was recorded", retry);
-        assertEquals("sent as retry 1 of 4", 4, retry.maxRetries);
-    }
 
     /** #893: system time, two actions, a tap that keeps the alert and opens the history. */
     @Test
@@ -354,7 +332,7 @@ public class KeepADBWebhookAlertTest {
     /** #893 (Codex review): a retry waiting for its timer is sent at once, not joined. */
     @Test
     public void reportNowSendsAScheduledRetryImmediately() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         failReport();
         int before = transport.recordedRequests.size();
 
@@ -369,7 +347,7 @@ public class KeepADBWebhookAlertTest {
     /** #893 (Codex review): a debounced resync waiting next to the retry adds no second POST. */
     @Test
     public void reportNowDropsAWaitingDebouncedResync() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         failReport();
         KeepADBRegisterClient.requestResyncAsync(context);
         int before = transport.recordedRequests.size();
@@ -443,7 +421,7 @@ public class KeepADBWebhookAlertTest {
 
     @Test
     public void obsoleteRetryWithoutEndpointEndsTheEpisode() {
-        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        KeepADBRegisterClient.setRetryBudgetForTesting(4);
         failReport();
         assertTrue(KeepADBRegisterClient.hasPendingPostRetryForTesting());
         KeepADBRegisterClient.setCoordinatorEndpointForTesting("");

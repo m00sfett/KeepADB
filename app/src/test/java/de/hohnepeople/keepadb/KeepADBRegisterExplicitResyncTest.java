@@ -83,7 +83,7 @@ public class KeepADBRegisterExplicitResyncTest {
         // have registered, and the refresh behind "Save URL" (no endpoint in the real coordinator
         // here) would then withdraw it before reporting again.
         transport.setPostResponseCode(500);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());

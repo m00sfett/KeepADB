@@ -153,7 +153,7 @@ public class KeepADBRegisterResyncTest {
     @Test
     public void resyncStartsANewSeriesAfterAnExhaustedOne() {
         transport.setPostSuccess(false);
-        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.setRetryBudgetForTesting(0);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
