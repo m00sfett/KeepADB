@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Sustituye &lt;device-serial&gt; por el número de serie exacto que "adb devices" mostró para este dispositivo.</string>
     <string name="setup_state_offline_title">¿El dispositivo aparece como "offline"?</string>
-    <string name="setup_state_offline_body">Se perdió la conexión. Vuelve a conectar el cable USB o reactiva «Depuración inalámbrica» en las opciones para desarrolladores, luego ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
+    <string name="setup_state_offline_body">Se perdió la conexión. Vuelve a conectar el cable USB o reactiva Wifi-ADB en las opciones para desarrolladores, luego ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
     <string name="setup_state_unauthorized_title">¿El dispositivo aparece como "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Confirma el aviso de autorización de depuración en la pantalla de este teléfono y ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
     <string name="setup_refresh">Comprobar permiso</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Punto final no disponible</string>
     <string name="connect_help_link">Conectar un ordenador…</string>
     <string name="connect_help_title">Conectar un ordenador</string>
-    <string name="connect_help_step_phone">En el teléfono, abre Opciones para desarrolladores › «Depuración inalámbrica» › «Vincular dispositivo con código de sincronización».</string>
+    <string name="connect_help_step_phone">En el teléfono, abre los ajustes de Wifi-ADB en Opciones para desarrolladores y toca «Vincular dispositivo con código de sincronización».</string>
     <string name="connect_help_step_pair">En el ordenador, una vez por cada ordenador: ejecuta el comando de abajo e introduce el código que muestra el teléfono.</string>
     <string name="connect_help_step_connect">Con Wifi-ADB activado, ejecuta este comando con la dirección que muestra KeepADB (toca la dirección para copiar el comando). Un ordenador ya vinculado suele conectarse solo.</string>
     <string name="connect_help_open_settings">Abrir opciones para desarrolladores</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · última verificación %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transporte principal</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Activa o desactiva la «Depuración inalámbrica» de Android para que un ordenador pueda acceder a este teléfono por Wi-Fi.</string>
+    <string name="toggle_subtext">Activa o desactiva Wifi-ADB para que un ordenador pueda acceder a este teléfono por Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Reconexión automática en desconexión, cambio de red o reinicio</string>
     <string name="tile_permission_error">%1$s: Falta permiso (requiere pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: esta red Wi-Fi no es de confianza</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: esta red Wi-Fi está bloqueada</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: red no legible, revisa el permiso de ubicación («Permitir todo el tiempo») o vuelve a abrir la app</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: confirma el diálogo de red de «Depuración inalámbrica» y luego toca el interruptor para reintentar</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: confirma el diálogo de red de Android para Wifi-ADB y luego toca el interruptor para reintentar</string>
     <string name="status_pending">Cambiando…</string>
     <string name="home_state_on">Wifi-ADB activado</string>
     <string name="home_state_off">Wifi-ADB desactivado</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive en pausa: Wi-Fi no es de confianza</string>
     <string name="home_reason_blocked">Keep-Alive en pausa: Wi-Fi bloqueado</string>
     <string name="home_reason_identity">Keep-Alive en pausa: red no legible</string>
-    <string name="home_reason_backoff">Keep-Alive en pausa: diálogo de «Depuración inalámbrica» sin confirmar</string>
+    <string name="home_reason_backoff">Keep-Alive en pausa: diálogo de Android para Wifi-ADB sin confirmar</string>
     <string name="home_reason_no_wifi">Sin conexión Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive sigue apagado aquí: Wi-Fi no es de confianza</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive sigue apagado aquí: Wi-Fi bloqueado</string>

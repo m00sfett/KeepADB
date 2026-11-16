@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;을 이 기기에 대해 "adb devices"가 표시한 정확한 시리얼 번호로 바꾸세요.</string>
     <string name="setup_state_offline_title">기기가 "offline"으로 표시되나요?</string>
-    <string name="setup_state_offline_body">연결이 끊겼습니다. USB 케이블을 다시 연결하거나 개발자 옵션에서 ‘무선 디버깅’을 다시 켠 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
+    <string name="setup_state_offline_body">연결이 끊겼습니다. USB 케이블을 다시 연결하거나 개발자 옵션에서 Wifi-ADB를 다시 켠 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
     <string name="setup_state_unauthorized_title">기기가 "unauthorized"로 표시되나요?</string>
     <string name="setup_state_unauthorized_body">이 휴대폰 화면에 표시되는 디버깅 허용 알림을 확인한 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
     <string name="setup_refresh">권한 확인</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">엔드포인트를 사용할 수 없음</string>
     <string name="connect_help_link">컴퓨터 연결…</string>
     <string name="connect_help_title">컴퓨터 연결</string>
-    <string name="connect_help_step_phone">휴대전화에서 개발자 옵션 › ‘무선 디버깅’ › ‘페어링 코드로 기기 페어링’을 엽니다.</string>
+    <string name="connect_help_step_phone">휴대전화의 개발자 옵션에서 Wifi-ADB 설정을 열고 ‘페어링 코드로 기기 페어링’을 탭합니다.</string>
     <string name="connect_help_step_pair">컴퓨터에서 컴퓨터마다 한 번: 아래 명령어를 실행하고 휴대전화에 표시된 코드를 입력합니다.</string>
     <string name="connect_help_step_connect">Wifi-ADB가 켜져 있을 때 KeepADB에 표시된 주소로 이 명령어를 실행합니다(주소를 탭하면 명령어가 복사됩니다). 이미 페어링된 컴퓨터는 자동으로 연결되는 경우가 많습니다.</string>
     <string name="connect_help_open_settings">개발자 옵션 열기</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · 마지막 확인 %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, 기본 전송</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Android의 ‘무선 디버깅’을 켜거나 꺼서 컴퓨터가 Wi-Fi로 이 휴대폰에 접속할 수 있게 합니다.</string>
+    <string name="toggle_subtext">Wifi-ADB를 켜거나 꺼서 컴퓨터가 Wi-Fi로 이 휴대폰에 접속할 수 있게 합니다.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">연결 끊김, 네트워크 변경 또는 재부팅 시 자동 재연결</string>
     <string name="tile_permission_error">%1$s: 권한 누락 (pm grant 필요)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 차단되었습니다</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없습니다. 위치 권한(‘항상 허용’)을 확인하거나 앱을 다시 여세요</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: ‘무선 디버깅’ 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: Android의 Wifi-ADB 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
     <string name="status_pending">전환 중…</string>
     <string name="home_state_on">Wifi-ADB 켜짐</string>
     <string name="home_state_off">Wifi-ADB 꺼짐</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive 일시 중지됨: Wi-Fi를 신뢰할 수 없음</string>
     <string name="home_reason_blocked">Keep-Alive 일시 중지됨: Wi-Fi 차단됨</string>
     <string name="home_reason_identity">Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없음</string>
-    <string name="home_reason_backoff">Keep-Alive 일시 중지됨: ‘무선 디버깅’ 대화상자 미확인</string>
+    <string name="home_reason_backoff">Keep-Alive 일시 중지됨: Android의 Wifi-ADB 대화상자 미확인</string>
     <string name="home_reason_no_wifi">Wi-Fi 연결 없음</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi를 신뢰할 수 없음</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi 차단됨</string>

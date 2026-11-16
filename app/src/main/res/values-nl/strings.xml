@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Vervang &lt;device-serial&gt; door het exacte serienummer dat "adb devices" voor dit apparaat toonde.</string>
     <string name="setup_state_offline_title">Apparaat toont "offline"?</string>
-    <string name="setup_state_offline_body">De verbinding is verbroken. Sluit de USB-kabel opnieuw aan of schakel ‘Draadloze foutopsporing’ in de ontwikkelaarsopties opnieuw in, en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
+    <string name="setup_state_offline_body">De verbinding is verbroken. Sluit de USB-kabel opnieuw aan of schakel Wifi-ADB in de ontwikkelaarsopties opnieuw in, en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_state_unauthorized_title">Apparaat toont "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Bevestig de foutopsporingsautorisatiemelding op het scherm van deze telefoon en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_refresh">Toestemming controleren</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
     <string name="connect_help_link">Computer verbinden…</string>
     <string name="connect_help_title">Computer verbinden</string>
-    <string name="connect_help_step_phone">Open op de telefoon Ontwikkelaarsopties › ‘Draadloze foutopsporing’ › ‘Apparaat koppelen met koppelingscode’.</string>
+    <string name="connect_help_step_phone">Open op de telefoon de Wifi-ADB-instellingen in Ontwikkelaarsopties en tik op ‘Apparaat koppelen met koppelingscode’.</string>
     <string name="connect_help_step_pair">Op de computer, eenmalig per computer: voer de onderstaande opdracht uit en voer de code in die op de telefoon staat.</string>
     <string name="connect_help_step_connect">Voer met Wifi-ADB aan deze opdracht uit met het adres dat KeepADB toont (tik op het adres om de opdracht te kopiëren). Een computer die al gekoppeld is, verbindt vaak vanzelf.</string>
     <string name="connect_help_open_settings">Ontwikkelaarsopties openen</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, primair transport</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Schakelt de ‘Draadloze foutopsporing’ van Android in of uit, zodat een computer deze telefoon via wifi kan bereiken.</string>
+    <string name="toggle_subtext">Schakelt Wifi-ADB in of uit, zodat een computer deze telefoon via wifi kan bereiken.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>
     <string name="tile_permission_error">%1$s: Toestemming ontbreekt (pm grant vereist)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is geblokkeerd</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is UIT – Keep-Alive gepauzeerd: bevestig de netwerkdialoog ‘Draadloze foutopsporing’ en tik daarna op de schakelaar om het opnieuw te proberen</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is UIT – Keep-Alive gepauzeerd: bevestig de netwerkdialoog van Android voor Wifi-ADB en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
     <string name="home_state_on">Wifi-ADB is aan</string>
     <string name="home_state_off">Wifi-ADB is uit</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive gepauzeerd: wifi niet vertrouwd</string>
     <string name="home_reason_blocked">Keep-Alive gepauzeerd: wifi geblokkeerd</string>
     <string name="home_reason_identity">Keep-Alive gepauzeerd: netwerk onleesbaar</string>
-    <string name="home_reason_backoff">Keep-Alive gepauzeerd: dialoog ‘Draadloze foutopsporing’ niet bevestigd</string>
+    <string name="home_reason_backoff">Keep-Alive gepauzeerd: Android-dialoog voor Wifi-ADB niet bevestigd</string>
     <string name="home_reason_no_wifi">Geen wifi-verbinding</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive blijft hier uit: wifi niet vertrouwd</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive blijft hier uit: wifi geblokkeerd</string>

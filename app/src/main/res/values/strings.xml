@@ -9,7 +9,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Replace &lt;device-serial&gt; with the exact serial number \"adb devices\" showed for this device.</string>
     <string name="setup_state_offline_title">Device shown as \"offline\"?</string>
-    <string name="setup_state_offline_body">The connection dropped. Reconnect the USB cable or re-enable “Wireless debugging” in the developer options, then run \"adb devices\" again until the state changes to \"device\".</string>
+    <string name="setup_state_offline_body">The connection dropped. Reconnect the USB cable or re-enable Wifi-ADB in the developer options, then run \"adb devices\" again until the state changes to \"device\".</string>
     <string name="setup_state_unauthorized_title">Device shown as \"unauthorized\"?</string>
     <string name="setup_state_unauthorized_body">Confirm the debugging authorization prompt on this phone\'s screen, then run \"adb devices\" again until the state changes to \"device\".</string>
     <string name="setup_refresh">Check permission</string>
@@ -19,7 +19,7 @@
     <!-- #952: help for connecting a computer. The adb commands are not translated; Android's own screens keep Android's names in quotation marks. -->
     <string name="connect_help_link">Connect a computer…</string>
     <string name="connect_help_title">Connect a computer</string>
-    <string name="connect_help_step_phone">On the phone, open Developer options › “Wireless debugging” › “Pair device with pairing code”.</string>
+    <string name="connect_help_step_phone">On the phone, open the Wifi-ADB settings in Developer options and tap “Pair device with pairing code”.</string>
     <string name="connect_help_step_pair">On the computer, once for each computer: run the command below and enter the code shown on the phone.</string>
     <string name="connect_help_step_connect">With Wifi-ADB on, run this with the address KeepADB shows (tap the address to copy the command). A computer that is already paired often connects by itself.</string>
     <string name="connect_help_open_settings">Open developer options</string>
@@ -28,7 +28,7 @@
     <string name="transport_row_format">%1$s: %2$s · last checked %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, primary transport</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Turns Android’s “Wireless debugging” on or off, so a computer can reach this phone over Wi-Fi.</string>
+    <string name="toggle_subtext">Turns Wifi-ADB on or off, so a computer can reach this phone over Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>
     <string name="tile_label" translatable="false">@string/app_name</string>
@@ -271,7 +271,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB is OFF – Keep-Alive is paused: this Wi-Fi network is blocked</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is OFF – Keep-Alive is paused: confirm the “Wireless debugging” network dialog, then tap the switch to retry</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is OFF – Keep-Alive is paused: confirm Android’s Wifi-ADB network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
     <!-- #957: the home status is a short state, one reason line and an action; the long sentences (status_*) are the details behind the reason line. "Wifi-ADB" is the product term; Android's own setting keeps its name in quotation marks. -->
     <string name="home_state_on">Wifi-ADB is on</string>
@@ -282,7 +282,7 @@
     <string name="home_reason_untrusted">Keep-Alive paused: Wi-Fi not trusted</string>
     <string name="home_reason_blocked">Keep-Alive paused: Wi-Fi blocked</string>
     <string name="home_reason_identity">Keep-Alive paused: network unreadable</string>
-    <string name="home_reason_backoff">Keep-Alive paused: “Wireless debugging” dialog not confirmed</string>
+    <string name="home_reason_backoff">Keep-Alive paused: Android’s Wifi-ADB dialog not confirmed</string>
     <string name="home_reason_no_wifi">No Wi-Fi connection</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive stays off here: Wi-Fi not trusted</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive stays off here: Wi-Fi blocked</string>

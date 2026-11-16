@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Sostituisci &lt;device-serial&gt; con il numero di serie esatto mostrato da "adb devices" per questo dispositivo.</string>
     <string name="setup_state_offline_title">Il dispositivo risulta "offline"?</string>
-    <string name="setup_state_offline_body">La connessione è caduta. Ricollega il cavo USB oppure riattiva «Debug wireless» nelle opzioni sviluppatore, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
+    <string name="setup_state_offline_body">La connessione è caduta. Ricollega il cavo USB oppure riattiva Wifi-ADB nelle opzioni sviluppatore, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_state_unauthorized_title">Il dispositivo risulta "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Conferma la richiesta di autorizzazione al debug sullo schermo di questo telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_refresh">Verifica autorizzazione</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Endpoint non disponibile</string>
     <string name="connect_help_link">Collega un computer…</string>
     <string name="connect_help_title">Collega un computer</string>
-    <string name="connect_help_step_phone">Sul telefono, apri Opzioni sviluppatore › «Debug wireless» › «Associa dispositivo con codice di accoppiamento».</string>
+    <string name="connect_help_step_phone">Sul telefono, apri le impostazioni Wifi-ADB in Opzioni sviluppatore e tocca «Associa dispositivo con codice di accoppiamento».</string>
     <string name="connect_help_step_pair">Sul computer, una volta per computer: esegui il comando qui sotto e inserisci il codice mostrato sul telefono.</string>
     <string name="connect_help_step_connect">Con Wifi-ADB attivo, esegui questo comando con l\'indirizzo mostrato da KeepADB (tocca l\'indirizzo per copiare il comando). Un computer già associato spesso si connette da solo.</string>
     <string name="connect_help_open_settings">Apri opzioni sviluppatore</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, trasporto principale</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Attiva o disattiva il «Debug wireless» di Android, così un computer può raggiungere questo telefono via Wi-Fi.</string>
+    <string name="toggle_subtext">Attiva o disattiva Wifi-ADB, così un computer può raggiungere questo telefono via Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
     <string name="tile_permission_error">%1$s: Autorizzazione mancante (richiesto pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete «Debug wireless», poi tocca l’interruttore per riprovare</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete di Android per Wifi-ADB, poi tocca l’interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
     <string name="home_state_on">Wifi-ADB attivo</string>
     <string name="home_state_off">Wifi-ADB disattivo</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive in pausa: Wi-Fi non affidabile</string>
     <string name="home_reason_blocked">Keep-Alive in pausa: Wi-Fi bloccato</string>
     <string name="home_reason_identity">Keep-Alive in pausa: rete non leggibile</string>
-    <string name="home_reason_backoff">Keep-Alive in pausa: finestra di «Debug wireless» non confermata</string>
+    <string name="home_reason_backoff">Keep-Alive in pausa: finestra di Android per Wifi-ADB non confermata</string>
     <string name="home_reason_no_wifi">Nessuna connessione Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive resta disattivato qui: Wi-Fi non affidabile</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive resta disattivato qui: Wi-Fi bloccato</string>

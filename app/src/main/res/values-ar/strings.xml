@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">استبدل &lt;device-serial&gt; بالرقم التسلسلي الدقيق الذي أظهره "adb devices" لهذا الجهاز.</string>
     <string name="setup_state_offline_title">الجهاز يظهر بحالة "offline"؟</string>
-    <string name="setup_state_offline_body">انقطع الاتصال. أعد توصيل كابل USB أو أعد تفعيل «تصحيح الأخطاء اللاسلكي» في خيارات المطور، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
+    <string name="setup_state_offline_body">انقطع الاتصال. أعد توصيل كابل USB أو أعد تفعيل Wifi-ADB في خيارات المطور، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
     <string name="setup_state_unauthorized_title">الجهاز يظهر بحالة "unauthorized"؟</string>
     <string name="setup_state_unauthorized_body">أكّد نافذة السماح بالتصحيح التي تظهر على شاشة الهاتف، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
     <string name="setup_refresh">فحص الإذن</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">نقطة النهاية غير متوفرة</string>
     <string name="connect_help_link">ربط حاسوب…</string>
     <string name="connect_help_title">ربط حاسوب</string>
-    <string name="connect_help_step_phone">على الهاتف، افتح «خيارات المطور» › «تصحيح الأخطاء اللاسلكي» › «إقران الجهاز باستخدام رمز الإقران».</string>
+    <string name="connect_help_step_phone">على الهاتف، افتح إعدادات Wifi-ADB في «خيارات المطور» ثم اضغط على «إقران الجهاز باستخدام رمز الإقران».</string>
     <string name="connect_help_step_pair">على الحاسوب، مرة واحدة لكل حاسوب: شغّل الأمر أدناه ثم أدخل الرمز الظاهر على الهاتف.</string>
     <string name="connect_help_step_connect">عندما يكون Wifi-ADB قيد التشغيل، شغّل هذا الأمر بالعنوان الذي يعرضه KeepADB (اضغط على العنوان لنسخ الأمر). غالبًا ما يتصل الحاسوب المقترن سابقًا تلقائيًا.</string>
     <string name="connect_help_open_settings">فتح خيارات المطور</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · آخر فحص %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s، الناقل الأساسي</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">يشغّل أو يوقف «تصحيح الأخطاء اللاسلكي» في Android ليتمكن الكمبيوتر من الوصول إلى هذا الهاتف عبر Wi-Fi.</string>
+    <string name="toggle_subtext">يشغّل Wifi-ADB أو يوقفه ليتمكن الكمبيوتر من الوصول إلى هذا الهاتف عبر Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">إعادة الاتصال تلقائيًا عند انقطاع الاتصال أو تغيير الشبكة أو إعادة التشغيل</string>
     <string name="tile_permission_error">%1$s: الإذن مفقود (مطلوب pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة غير موثوقة</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة محظورة</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة، تحقق من إذن الموقع («السماح طوال الوقت») أو أعد فتح التطبيق</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار الشبكة «تصحيح الأخطاء اللاسلكي»، ثم اضغط على المفتاح لإعادة المحاولة</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار الشبكة Wifi-ADB من Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
     <string name="status_pending">جارٍ التبديل…</string>
     <string name="home_state_on">Wifi-ADB قيد التشغيل</string>
     <string name="home_state_off">Wifi-ADB متوقف</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi غير موثوقة</string>
     <string name="home_reason_blocked">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi محظورة</string>
     <string name="home_reason_identity">تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة</string>
-    <string name="home_reason_backoff">تم إيقاف Keep-Alive مؤقتًا: لم يتم تأكيد مربع حوار «تصحيح الأخطاء اللاسلكي»</string>
+    <string name="home_reason_backoff">تم إيقاف Keep-Alive مؤقتًا: لم يتم تأكيد مربع حوار Wifi-ADB من Android</string>
     <string name="home_reason_no_wifi">لا يوجد اتصال Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi غير موثوقة</string>
     <string name="home_reason_stays_off_blocked">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi محظورة</string>

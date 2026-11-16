@@ -7,7 +7,7 @@
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Ganti &lt;device-serial&gt; dengan nomor seri persis yang ditampilkan "adb devices" untuk perangkat ini.</string>
     <string name="setup_state_offline_title">Perangkat menampilkan status "offline"?</string>
-    <string name="setup_state_offline_body">Koneksi terputus. Sambungkan kembali kabel USB atau aktifkan ulang “Debugging nirkabel” di opsi developer, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
+    <string name="setup_state_offline_body">Koneksi terputus. Sambungkan kembali kabel USB atau aktifkan ulang Wifi-ADB di opsi developer, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_state_unauthorized_title">Perangkat menampilkan status "unauthorized"?</string>
     <string name="setup_state_unauthorized_body">Konfirmasi permintaan otorisasi debugging di layar ponsel ini, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_refresh">Periksa izin</string>
@@ -15,7 +15,7 @@
     <string name="endpoint_unavailable">Endpoint tidak tersedia</string>
     <string name="connect_help_link">Hubungkan komputer…</string>
     <string name="connect_help_title">Hubungkan komputer</string>
-    <string name="connect_help_step_phone">Di ponsel, buka Opsi developer › “Debugging nirkabel” › “Sambungkan perangkat dengan kode penyambungan”.</string>
+    <string name="connect_help_step_phone">Di ponsel, buka pengaturan Wifi-ADB di Opsi developer lalu ketuk “Sambungkan perangkat dengan kode penyambungan”.</string>
     <string name="connect_help_step_pair">Di komputer, sekali untuk setiap komputer: jalankan perintah di bawah, lalu masukkan kode yang tampil di ponsel.</string>
     <string name="connect_help_step_connect">Saat Wifi-ADB aktif, jalankan perintah ini dengan alamat yang ditampilkan KeepADB (ketuk alamat untuk menyalin perintah). Komputer yang sudah dipasangkan sering tersambung sendiri.</string>
     <string name="connect_help_open_settings">Buka Opsi developer</string>
@@ -24,7 +24,7 @@
     <string name="transport_row_format">%1$s: %2$s · terakhir diperiksa %3$s</string>
     <string name="transport_primary_accessibility_format">%1$s, transport utama</string>
     <string name="toggle_label">Wifi-ADB</string>
-    <string name="toggle_subtext">Mengaktifkan atau menonaktifkan “Debugging nirkabel” Android agar komputer dapat menjangkau ponsel ini lewat Wi-Fi.</string>
+    <string name="toggle_subtext">Mengaktifkan atau menonaktifkan Wifi-ADB agar komputer dapat menjangkau ponsel ini lewat Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep-Alive</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>
     <string name="tile_permission_error">%1$s: Izin kurang (perlu pm grant)</string>
@@ -254,7 +254,7 @@
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak dipercaya</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini diblokir</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
-    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan “Debugging nirkabel”, lalu ketuk sakelar untuk mencoba lagi</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Android untuk Wifi-ADB, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
     <string name="home_state_on">Wifi-ADB aktif</string>
     <string name="home_state_off">Wifi-ADB nonaktif</string>
@@ -264,7 +264,7 @@
     <string name="home_reason_untrusted">Keep-Alive dijeda: Wi-Fi tidak dipercaya</string>
     <string name="home_reason_blocked">Keep-Alive dijeda: Wi-Fi diblokir</string>
     <string name="home_reason_identity">Keep-Alive dijeda: jaringan tidak terbaca</string>
-    <string name="home_reason_backoff">Keep-Alive dijeda: dialog “Debugging nirkabel” belum dikonfirmasi</string>
+    <string name="home_reason_backoff">Keep-Alive dijeda: dialog Android untuk Wifi-ADB belum dikonfirmasi</string>
     <string name="home_reason_no_wifi">Tidak ada koneksi Wi-Fi</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tetap nonaktif di sini: Wi-Fi tidak dipercaya</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tetap nonaktif di sini: Wi-Fi diblokir</string>
