@@ -553,7 +553,7 @@
     <string name="warnings_reset">Скинути всі приховані попередження</string>
     <string name="warnings_none">Немає активних попереджень безпеки</string>
     <string name="onboarding_upgrade_notice">Під час оновлення стару історію спостережень за Wi-Fi видалено; відновити її неможливо. Ваші налаштування захисту й довіри, Keep-Alive та вебхука збережено. Під час першого відкриття KeepADB показує картки попереджень про активні проблеми безпеки або невиконані вимоги; після закриття вони залишаються прихованими, поки активна та сама причина. Активні причини, пов’язані з безпекою, і далі можна перевірити в розділі «Попередження безпеки»; картки не змінюють ваших налаштувань.</string>
-    <string name="settings_webhook_retry_subtext">Якщо звіт не вдався, KeepADB повторює спробу через 5, 15, 30 і 60 секунд, потім припиняє. Подальша зміна мережі може запустити нову спробу. KeepADB не опитує постійно.</string>
+    <string name="settings_webhook_retry_subtext">Якщо звіт не вдався, KeepADB повторює спробу через 5, 15, 30 і 60 секунд, а потім припиняє. Наступна зміна мережі може розпочати нову спробу. Заплановане оновлення працює лише тоді, коли воно ввімкнене вище.</string>
     <string name="webhook_alert_channel_name">Попередження Webhook</string>
     <string name="webhook_alert_channel_desc">Попереджає, якщо звіти Webhook і далі не доходять</string>
     <string name="webhook_alert_title">Поточний порт ADB не передано</string>
@@ -659,4 +659,12 @@
     <string name="network_action_decide">Заблокувати або вирішити…</string>
     <string name="status_on_network_untrusted">Keep-Alive не ввімкне його тут знову: ця мережа Wi-Fi не є довіреною</string>
     <string name="status_on_network_blocked">Keep-Alive не ввімкне його тут знову: ця мережа Wi-Fi заблокована</string>
+    <string name="settings_webhook_periodic_toggle">Періодичне оновлення</string>
+    <string name="settings_webhook_periodic_subtext">Повторно надсилає активну кінцеву точку Wifi-ADB за розкладом, доки ввімкнені Keep-Alive і синхронізація Webhook. Корисно для отримувачів, чиї повідомлення втрачають чинність за кілька годин.</string>
+    <string name="settings_webhook_periodic_interval_15m">Кожні 15 хвилин</string>
+    <string name="settings_webhook_periodic_interval_30m">Кожні 30 хвилин</string>
+    <string name="settings_webhook_periodic_interval_1h">Кожні 59 хвилин</string>
+    <string name="settings_webhook_periodic_interval_4h">Кожні 3 години 59 хвилин (типово)</string>
+    <string name="settings_webhook_periodic_interval_12h">Кожні 11 годин 59 хвилин</string>
+    <string name="settings_webhook_periodic_interval_24h">Кожні 23 години 59 хвилин</string>
 </resources>

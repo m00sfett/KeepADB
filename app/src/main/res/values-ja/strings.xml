@@ -550,7 +550,7 @@
     <string name="warnings_reset">すべての非表示設定を解除</string>
     <string name="warnings_none">有効なセキュリティ警告はありません</string>
     <string name="onboarding_upgrade_notice">更新により以前のWi-Fi観測履歴が削除され、復元できなくなりました。保護と信頼の設定、Keep-AliveとWebhookの設定は引き継がれています。初回起動時に、KeepADBは現在のセキュリティ上の問題や不足している条件を警告カードで表示し、閉じたカードは同じ原因が続く間は非表示になります。「セキュリティ警告」では現在のセキュリティ上の原因を引き続き確認でき、警告カードが設定を変更することはありません。</string>
-    <string name="settings_webhook_retry_subtext">報告に失敗すると、KeepADB は5 秒、15 秒、30 秒、60 秒の間隔で再試行し、その後は中止します。後でネットワークが変わると、新たな試行が始まることがあります。KeepADB は常時ポーリングしません。</string>
+    <string name="settings_webhook_retry_subtext">報告に失敗すると、KeepADB は 5 秒、15 秒、30 秒、60 秒の間隔で再試行し、その後は中止します。後でネットワークが変わると、新たな試行が始まることがあります。定期更新は上で有効にした場合にのみ実行されます。</string>
     <string name="webhook_alert_channel_name">Webhook の警告</string>
     <string name="webhook_alert_channel_desc">Webhook の報告が失敗し続けると警告します</string>
     <string name="webhook_alert_title">現在の ADB ポートを報告できていません</string>
@@ -656,4 +656,12 @@
     <string name="network_action_decide">ブロックまたは判断…</string>
     <string name="status_on_network_untrusted">Keep-Alive はここでは再度オンにしません: このWi-Fiネットワークは信頼されていません</string>
     <string name="status_on_network_blocked">Keep-Alive はここでは再度オンにしません: このWi-Fiネットワークはブロックされています</string>
+    <string name="settings_webhook_periodic_toggle">定期更新</string>
+    <string name="settings_webhook_periodic_subtext">Keep-Alive と Webhook 同期が有効な間、設定した間隔で有効な Wifi-ADB エンドポイントを再送信します。数時間でメッセージが期限切れになる送信先に便利です。</string>
+    <string name="settings_webhook_periodic_interval_15m">15 分ごと</string>
+    <string name="settings_webhook_periodic_interval_30m">30 分ごと</string>
+    <string name="settings_webhook_periodic_interval_1h">59 分ごと</string>
+    <string name="settings_webhook_periodic_interval_4h">3 時間 59 分ごと（デフォルト）</string>
+    <string name="settings_webhook_periodic_interval_12h">11 時間 59 分ごと</string>
+    <string name="settings_webhook_periodic_interval_24h">23 時間 59 分ごと</string>
 </resources>

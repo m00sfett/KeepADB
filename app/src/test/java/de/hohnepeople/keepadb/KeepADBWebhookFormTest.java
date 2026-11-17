@@ -411,4 +411,73 @@ public class KeepADBWebhookFormTest {
                 !(url.getTransformationMethod()
                         instanceof android.text.method.SingleLineTransformationMethod));
     }
+
+    @Test
+    public void periodicSwitchDefaultsOffAndIntervalSelectionReschedulesAlarm() {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBPreferences.setKeepAliveEnabled(activity, true);
+        KeepADBPreferences.setRegisterWebhookUrl(activity, "https://register.example/dev");
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> { });
+        form.refreshVisual();
+
+        Switch periodicToggle = activity.findViewById(R.id.settings_webhook_periodic_toggle);
+        android.widget.RadioGroup intervals =
+                activity.findViewById(R.id.settings_webhook_periodic_intervals);
+        android.app.AlarmManager alarms = activity.getSystemService(android.app.AlarmManager.class);
+
+        assertFalse(periodicToggle.isChecked());
+        assertEquals(View.GONE, intervals.getVisibility());
+        assertFalse(KeepADBPeriodicReport.isArmed(activity));
+
+        // Turning periodic refresh on reveals presets with 4 h (3 h 59 m) selected and arms.
+        periodicToggle.performClick();
+        assertTrue(KeepADBPreferences.isPeriodicWebhookReportEnabled(activity));
+        assertEquals(View.VISIBLE, intervals.getVisibility());
+        assertEquals(R.id.settings_webhook_periodic_4h, intervals.getCheckedRadioButtonId());
+        assertTrue(KeepADBPeriodicReport.isArmed(activity));
+        long start = android.os.SystemClock.elapsedRealtime();
+        assertEquals(start + KeepADBPeriodicReport.Interval.HOURS_4.durationMs,
+                org.robolectric.Shadows.shadowOf(alarms).peekNextScheduledAlarm().getTriggerAtMs());
+
+        // Picking 15 min immediately reschedules the armed alarm to 15 min.
+        activity.findViewById(R.id.settings_webhook_periodic_15m).performClick();
+        assertEquals(KeepADBPeriodicReport.Interval.MIN_15,
+                KeepADBPreferences.getPeriodicWebhookInterval(activity));
+        assertEquals(start + KeepADBPeriodicReport.Interval.MIN_15.durationMs,
+                org.robolectric.Shadows.shadowOf(alarms).peekNextScheduledAlarm().getTriggerAtMs());
+
+        // Picking 24 h (23 h 59 m) reschedules again.
+        activity.findViewById(R.id.settings_webhook_periodic_24h).performClick();
+        assertEquals(KeepADBPeriodicReport.Interval.HOURS_24,
+                KeepADBPreferences.getPeriodicWebhookInterval(activity));
+        assertEquals(start + KeepADBPeriodicReport.Interval.HOURS_24.durationMs,
+                org.robolectric.Shadows.shadowOf(alarms).peekNextScheduledAlarm().getTriggerAtMs());
+
+        // Turning periodic refresh back off hides intervals and cancels the alarm.
+        periodicToggle.performClick();
+        assertFalse(KeepADBPreferences.isPeriodicWebhookReportEnabled(activity));
+        assertEquals(View.GONE, intervals.getVisibility());
+        assertFalse(KeepADBPeriodicReport.isArmed(activity));
+    }
+
+    @Test
+    public void refreshVisualReflectsPersistedPeriodicStateWithoutMutatingPreferences() {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(activity, true);
+        KeepADBPreferences.setPeriodicWebhookInterval(
+                activity, KeepADBPeriodicReport.Interval.HOURS_12);
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> { });
+
+        form.refreshVisual();
+
+        Switch periodicToggle = activity.findViewById(R.id.settings_webhook_periodic_toggle);
+        android.widget.RadioGroup intervals =
+                activity.findViewById(R.id.settings_webhook_periodic_intervals);
+        assertTrue(periodicToggle.isChecked());
+        assertEquals(View.VISIBLE, intervals.getVisibility());
+        assertEquals(R.id.settings_webhook_periodic_12h, intervals.getCheckedRadioButtonId());
+        assertEquals(KeepADBPeriodicReport.Interval.HOURS_12,
+                KeepADBPreferences.getPeriodicWebhookInterval(activity));
+    }
 }

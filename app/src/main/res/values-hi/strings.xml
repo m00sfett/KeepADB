@@ -551,7 +551,7 @@
     <string name="warnings_reset">सभी म्यूट हटाएँ</string>
     <string name="warnings_none">कोई सक्रिय सुरक्षा चेतावनी नहीं</string>
     <string name="onboarding_upgrade_notice">अपडेट ने पुराना Wi-Fi निगरानी इतिहास हटा दिया है; इसे वापस नहीं लाया जा सकता। आपकी सुरक्षा और भरोसे की सेटिंग, Keep-Alive और webhook की सेटिंग सुरक्षित रखी गई हैं। पहली बार खोलने पर KeepADB सक्रिय सुरक्षा समस्याओं या अधूरी ज़रूरतों के लिए चेतावनी कार्ड दिखाता है; बंद करने के बाद उसी कारण के सक्रिय रहने तक वे छिपे रहते हैं। आप “सुरक्षा चेतावनियाँ” में सक्रिय सुरक्षा कारणों की जाँच अब भी कर सकते हैं; कार्ड आपकी सेटिंग नहीं बदलते।</string>
-    <string name="settings_webhook_retry_subtext">अगर कोई रिपोर्ट विफल होती है, तो KeepADB 5, 15, 30 और 60 सेकंड के बाद फिर से प्रयास करता है, फिर रुक जाता है। बाद में नेटवर्क बदलने पर नया प्रयास शुरू हो सकता है। KeepADB लगातार पोलिंग नहीं करता।</string>
+    <string name="settings_webhook_retry_subtext">अगर कोई रिपोर्ट विफल होती है, तो KeepADB 5, 15, 30 और 60 सेकंड के बाद फिर से प्रयास करता है, फिर रुक जाता है। बाद में नेटवर्क बदलने पर नया प्रयास शुरू हो सकता है। निर्धारित रीफ़्रेश केवल ऊपर चालू करने पर ही चलते हैं।</string>
     <string name="webhook_alert_channel_name">Webhook चेतावनियाँ</string>
     <string name="webhook_alert_channel_desc">Webhook रिपोर्ट लगातार विफल होने पर चेतावनी देता है</string>
     <string name="webhook_alert_title">मौजूदा ADB पोर्ट रिपोर्ट नहीं हुआ</string>
@@ -657,4 +657,12 @@
     <string name="network_action_decide">रोकें या निर्णय लें…</string>
     <string name="status_on_network_untrusted">Keep-Alive इसे यहाँ फिर से चालू नहीं करेगा: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
     <string name="status_on_network_blocked">Keep-Alive इसे यहाँ फिर से चालू नहीं करेगा: यह Wi-Fi नेटवर्क रोका गया है</string>
+    <string name="settings_webhook_periodic_toggle">नियमित रीफ़्रेश</string>
+    <string name="settings_webhook_periodic_subtext">Keep-Alive और Webhook सिंक चालू रहने तक तय समय पर सक्रिय Wifi-ADB एंडपॉइंट को फिर से भेजता है। उन गंतव्यों के लिए उपयोगी जहाँ संदेश कुछ घंटों में समाप्त हो जाते हैं।</string>
+    <string name="settings_webhook_periodic_interval_15m">हर 15 मिनट में</string>
+    <string name="settings_webhook_periodic_interval_30m">हर 30 मिनट में</string>
+    <string name="settings_webhook_periodic_interval_1h">हर 59 मिनट में</string>
+    <string name="settings_webhook_periodic_interval_4h">हर 3 घंटे 59 मिनट में (डिफ़ॉल्ट)</string>
+    <string name="settings_webhook_periodic_interval_12h">हर 11 घंटे 59 मिनट में</string>
+    <string name="settings_webhook_periodic_interval_24h">हर 23 घंटे 59 मिनट में</string>
 </resources>

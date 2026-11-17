@@ -93,6 +93,7 @@ public class KeepADBPeriodicReportTest {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(context, true);
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
     }
 
@@ -103,8 +104,13 @@ public class KeepADBPeriodicReportTest {
     }
 
     @Test
-    public void ensureArmedRequiresKeepAliveWebhookAndValidUrl() {
-        // Neither Keep-Alive nor Webhook Sync enabled.
+    public void ensureArmedRequiresKeepAliveWebhookPeriodicAndValidUrl() {
+        // Defaults to periodic OFF even when Keep-Alive and Webhook Sync are configured.
+        assertFalse(KeepADBPreferences.isPeriodicWebhookReportEnabled(context));
+        assertEquals(KeepADBPeriodicReport.Interval.HOURS_4,
+                KeepADBPreferences.getPeriodicWebhookInterval(context));
+
+        // Neither Keep-Alive, Webhook Sync, nor Periodic Refresh enabled.
         KeepADBPeriodicReport.ensureArmed(context);
         assertFalse(KeepADBPeriodicReport.isArmed(context));
 
@@ -114,9 +120,14 @@ public class KeepADBPeriodicReportTest {
         KeepADBPeriodicReport.ensureArmed(context);
         assertFalse(KeepADBPeriodicReport.isArmed(context));
 
-        // Webhook Sync on, URL invalid -> still not armed.
-        KeepADBPreferences.setRegisterWebhookUrl(context, "not-a-url");
+        // Keep-Alive + Webhook Sync on, Periodic Refresh still off (default) -> not armed.
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPeriodicReport.ensureArmed(context);
+        assertFalse(KeepADBPeriodicReport.isArmed(context));
+
+        // Periodic Refresh on, URL invalid -> still not armed.
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "not-a-url");
         KeepADBPeriodicReport.ensureArmed(context);
         assertFalse(KeepADBPeriodicReport.isArmed(context));
 
@@ -124,6 +135,23 @@ public class KeepADBPeriodicReportTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPeriodicReport.ensureArmed(context);
         assertTrue(KeepADBPeriodicReport.isArmed(context));
+    }
+
+    @Test
+    public void intervalPresetsUseExpectedDurationsAndSubtractOneMinuteFromHourlyValues() {
+        assertEquals(15L * 60_000L, KeepADBPeriodicReport.Interval.MIN_15.durationMs);
+        assertEquals(30L * 60_000L, KeepADBPeriodicReport.Interval.MIN_30.durationMs);
+        assertEquals(59L * 60_000L, KeepADBPeriodicReport.Interval.HOUR_1.durationMs);
+        assertEquals(239L * 60_000L, KeepADBPeriodicReport.Interval.HOURS_4.durationMs);
+        assertEquals(719L * 60_000L, KeepADBPeriodicReport.Interval.HOURS_12.durationMs);
+        assertEquals(1439L * 60_000L, KeepADBPeriodicReport.Interval.HOURS_24.durationMs);
+        assertEquals(KeepADBPeriodicReport.Interval.HOURS_4, KeepADBPeriodicReport.Interval.DEFAULT);
+        assertEquals(KeepADBPeriodicReport.Interval.DEFAULT,
+                KeepADBPeriodicReport.Interval.fromId(null));
+        assertEquals(KeepADBPeriodicReport.Interval.DEFAULT,
+                KeepADBPeriodicReport.Interval.fromId("unknown"));
+        assertEquals(KeepADBPeriodicReport.Interval.MIN_15,
+                KeepADBPeriodicReport.Interval.fromId("15m"));
     }
 
     @Test
@@ -137,7 +165,8 @@ public class KeepADBPeriodicReportTest {
         assertNotNull(scheduled);
         assertEquals(AlarmManager.ELAPSED_REALTIME_WAKEUP, scheduled.getType());
         assertTrue(scheduled.isAllowWhileIdle());
-        assertEquals(before + KeepADBPeriodicReport.INTERVAL_MS, scheduled.getTriggerAtMs());
+        assertEquals(before + KeepADBPeriodicReport.Interval.DEFAULT.durationMs,
+                scheduled.getTriggerAtMs());
 
         PendingIntent op = scheduled.operation;
         ShadowPendingIntent shadowOp = shadowOf(op);
@@ -179,7 +208,8 @@ public class KeepADBPeriodicReportTest {
     public void periodicReportActionReArmsNextAlarmAndSendsReport() {
         enableKeepAliveAndWebhook();
         KeepADBPeriodicReport.arm(context);
-        ShadowSystemClock.advanceBy(Duration.ofMillis(KeepADBPeriodicReport.INTERVAL_MS));
+        ShadowSystemClock.advanceBy(
+                Duration.ofMillis(KeepADBPeriodicReport.Interval.DEFAULT.durationMs));
         long firedAt = SystemClock.elapsedRealtime();
 
         new KeepADBReceiver().onReceive(context,
@@ -196,9 +226,44 @@ public class KeepADBPeriodicReportTest {
 
         ShadowAlarmManager.ScheduledAlarm next = shadowOf(alarms).peekNextScheduledAlarm();
         assertNotNull(next);
-        assertEquals(firedAt + KeepADBPeriodicReport.INTERVAL_MS, next.getTriggerAtMs());
+        assertEquals(firedAt + KeepADBPeriodicReport.Interval.DEFAULT.durationMs,
+                next.getTriggerAtMs());
         String export = KeepADBDiagnostics.export(context);
         assertTrue(export.contains("event=webhook_periodic source=alarm outcome=fired"));
+    }
+
+    @Test
+    public void periodicReportActionWhenPeriodicOffCancelsChainAndSendsNothing() {
+        enableKeepAliveAndWebhook();
+        KeepADBPeriodicReport.arm(context);
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(context, false);
+
+        AtomicBoolean finished = new AtomicBoolean(false);
+        KeepADBRegisterClient.ReportNowResult result = KeepADBReceiver.handlePeriodicReportAction(
+                context, () -> finished.set(true));
+        settle();
+
+        assertEquals(KeepADBRegisterClient.ReportNowResult.SYNC_OFF, result);
+        assertTrue(finished.get());
+        assertFalse(KeepADBPeriodicReport.isArmed(context));
+        assertNull(shadowOf(alarms).peekNextScheduledAlarm());
+        assertTrue(transport.recordedRequests.isEmpty());
+        assertTrue(KeepADBDiagnostics.export(context).contains("periodic_off"));
+    }
+
+    @Test
+    public void rescheduleReplacesPendingAlarmWithSelectedInterval() {
+        enableKeepAliveAndWebhook();
+        KeepADBPeriodicReport.ensureArmed(context);
+        long start = SystemClock.elapsedRealtime();
+        assertEquals(start + KeepADBPeriodicReport.Interval.HOURS_4.durationMs,
+                shadowOf(alarms).peekNextScheduledAlarm().getTriggerAtMs());
+
+        KeepADBPreferences.setPeriodicWebhookInterval(
+                context, KeepADBPeriodicReport.Interval.MIN_15);
+        KeepADBPeriodicReport.reschedule(context);
+        assertEquals(start + KeepADBPeriodicReport.Interval.MIN_15.durationMs,
+                shadowOf(alarms).peekNextScheduledAlarm().getTriggerAtMs());
     }
 
     @Test
@@ -257,8 +322,13 @@ public class KeepADBPeriodicReportTest {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         assertFalse(KeepADBPeriodicReport.isArmed(context));
 
+        // Periodic refresh is opt-in (default off): enabling Webhook Sync alone does not arm it.
         KeepADBWebhookSync.enable(context, URL);
         settle();
+        assertFalse(KeepADBPeriodicReport.isArmed(context));
+
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(context, true);
+        KeepADBPeriodicReport.sync(context);
         assertTrue(KeepADBPeriodicReport.isArmed(context));
 
         KeepADBWebhookSync.disable(context);
@@ -316,9 +386,10 @@ public class KeepADBPeriodicReportTest {
         settle();
         assertEquals(1, transport.recordedRequests.size());
 
-        // The 4-hour periodic alarm still re-sends it so expiring destinations stay fresh.
+        // The periodic alarm still re-sends it so expiring destinations stay fresh.
         KeepADBPeriodicReport.arm(context);
-        ShadowSystemClock.advanceBy(Duration.ofMillis(KeepADBPeriodicReport.INTERVAL_MS));
+        ShadowSystemClock.advanceBy(
+                Duration.ofMillis(KeepADBPeriodicReport.Interval.DEFAULT.durationMs));
         KeepADBReceiver.handlePeriodicReportAction(context, () -> {});
         settle();
         assertEquals(2, transport.recordedRequests.size());

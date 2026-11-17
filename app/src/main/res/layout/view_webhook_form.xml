@@ -202,4 +202,101 @@
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- #976: opt-in periodic webhook refresh with preset intervals (4 h default when turned on). -->
+    <LinearLayout
+        android:id="@+id/settings_webhook_periodic_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <Switch
+            android:id="@+id/settings_webhook_periodic_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_webhook_periodic_toggle"
+            android:textColor="@color/text_yellow"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/settings_webhook_periodic_subtext"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+
+        <RadioGroup
+            android:id="@+id/settings_webhook_periodic_intervals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_15m"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_15m"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_30m"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_30m"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_1h"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_1h"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_4h"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_4h"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_12h"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_12h"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/settings_webhook_periodic_24h"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:text="@string/settings_webhook_periodic_interval_24h"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+        </RadioGroup>
+    </LinearLayout>
 </merge>

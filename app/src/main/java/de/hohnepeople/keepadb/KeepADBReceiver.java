@@ -105,18 +105,21 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     }
 
     /**
-     * #976: handles the 4-hour alarm ({@link KeepADBPeriodicReport}). Arms the next alarm first
+     * #976: handles the scheduled alarm ({@link KeepADBPeriodicReport}). Arms the next alarm first
      * so a failure below cannot break the chain, then sends the current endpoint through
-     * {@link KeepADBRegisterClient#reportNow}. When Keep-Alive or Webhook Sync is off, the chain
-     * stops immediately.
+     * {@link KeepADBRegisterClient#reportNow}. When Keep-Alive, Webhook Sync, or Periodic Refresh
+     * is off, the chain stops immediately.
      */
     static KeepADBRegisterClient.ReportNowResult handlePeriodicReportAction(Context app,
             Runnable finishBroadcast) {
         Runnable safeFinish = finishBroadcast != null ? finishBroadcast : () -> {};
         if (!KeepADBPeriodicReport.isEligible(app)) {
             KeepADBPeriodicReport.cancel(app);
-            KeepADBDiagnostics.event(app, "webhook_periodic", "alarm", "skipped",
-                    KeepADBService.shouldRun(app) ? "webhook_off" : "service_not_running");
+            String reason = !KeepADBService.shouldRun(app) ? "service_not_running"
+                    : !KeepADBPreferences.isRegisterWebhookEnabled(app) ? "webhook_off"
+                    : !KeepADBPreferences.isPeriodicWebhookReportEnabled(app) ? "periodic_off"
+                    : "invalid_url";
+            KeepADBDiagnostics.event(app, "webhook_periodic", "alarm", "skipped", reason);
             safeFinish.run();
             return !KeepADBPreferences.isValidWebhookUrl(
                     KeepADBPreferences.getRegisterWebhookUrl(app))

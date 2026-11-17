@@ -551,7 +551,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="warnings_reset">Tüm susturmaları kaldır</string>
     <string name="warnings_none">Etkin güvenlik uyarısı yok</string>
     <string name="onboarding_upgrade_notice">Güncelleme eski Wi-Fi gözlem geçmişini kaldırdı; bu geçmiş geri yüklenemez. Koruma ve güven ayarların, Keep-Alive ve webhook ayarların korundu. İlk açılışta KeepADB, etkin güvenlik sorunları veya eksik gereksinimler için uyarı kartları gösterir; kapatıldıktan sonra aynı neden etkin kaldığı sürece gizli kalırlar. Etkin güvenlik nedenlerini “Güvenlik uyarıları” altında kontrol etmeye devam edebilirsin; kartlar ayarlarını değiştirmez.</string>
-    <string name="settings_webhook_retry_subtext">Bir bildirim başarısız olursa KeepADB 5, 15, 30 ve 60 saniye sonra yeniden dener, ardından vazgeçer. Daha sonraki bir ağ değişikliği yeni bir deneme başlatabilir. KeepADB sürekli sorgulama yapmaz.</string>
+    <string name="settings_webhook_retry_subtext">Bir bildirim başarısız olursa KeepADB 5, 15, 30 ve 60 saniye sonra yeniden dener, ardından vazgeçer. Daha sonraki bir ağ değişikliği yeni bir deneme başlatabilir. Zamanlanmış yenilemeler yalnızca yukarıdan açıldığında çalışır.</string>
     <string name="webhook_alert_channel_name">Webhook uyarıları</string>
     <string name="webhook_alert_channel_desc">Webhook bildirimleri başarısız olmaya devam ettiğinde uyarır</string>
     <string name="webhook_alert_title">Mevcut ADB bağlantı noktası bildirilmedi</string>
@@ -657,4 +657,12 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="network_action_decide">Engelle veya karar ver…</string>
     <string name="status_on_network_untrusted">Keep-Alive burada yeniden açmaz: bu Wi-Fi ağı güvenilir değil</string>
     <string name="status_on_network_blocked">Keep-Alive burada yeniden açmaz: bu Wi-Fi ağı engellendi</string>
+    <string name="settings_webhook_periodic_toggle">Düzenli yenileme</string>
+    <string name="settings_webhook_periodic_subtext">Keep-Alive ve Webhook eşitlemesi açıkken etkin Wifi-ADB uç noktasını zamanlamaya göre yeniden gönderir. İletileri birkaç saat sonra silinen hedefler için kullanışlıdır.</string>
+    <string name="settings_webhook_periodic_interval_15m">Her 15 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_30m">Her 30 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_1h">Her 59 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_4h">Her 3 saat 59 dakikada bir (varsayılan)</string>
+    <string name="settings_webhook_periodic_interval_12h">Her 11 saat 59 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_24h">Her 23 saat 59 dakikada bir</string>
 </resources>

@@ -552,7 +552,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="warnings_reset">Réafficher toutes les alertes masquées</string>
     <string name="warnings_none">Aucune alerte de sécurité active</string>
     <string name="onboarding_upgrade_notice">La mise à jour a supprimé l’ancien historique d’observation Wi-Fi ; il ne peut pas être restauré. Tes réglages de protection, tes choix concernant la confiance et tes réglages de Keep-Alive et de webhook ont été conservés. À la première ouverture, KeepADB affiche des cartes d’avertissement pour les problèmes de sécurité actifs ou les prérequis manquants ; une fois fermées, elles restent masquées tant que le même motif est actif. Tu peux toujours consulter les motifs de sécurité actifs dans « Alertes de sécurité » ; les cartes ne modifient pas tes réglages.</string>
-    <string name="settings_webhook_retry_subtext">Si un signalement échoue, KeepADB réessaie après 5, 15, 30 et 60 secondes, puis abandonne. Un changement de réseau ultérieur peut lancer une nouvelle tentative. KeepADB n\'interroge pas en continu.</string>
+    <string name="settings_webhook_retry_subtext">Si un signalement échoue, KeepADB réessaie après 5, 15, 30 et 60 secondes, puis abandonne. Un changement de réseau ultérieur peut lancer une nouvelle tentative. Les actualisations planifiées ne s\'exécutent que si elles sont activées ci-dessus.</string>
     <string name="webhook_alert_channel_name">Alertes du webhook</string>
     <string name="webhook_alert_channel_desc">Avertit lorsque les signalements du webhook échouent de manière répétée</string>
     <string name="webhook_alert_title">Port ADB actuel non signalé</string>
@@ -658,4 +658,12 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="network_action_decide">Bloquer ou décider…</string>
     <string name="status_on_network_untrusted">Keep-Alive ne le réactivera pas ici : ce réseau Wi-Fi n\'est pas approuvé</string>
     <string name="status_on_network_blocked">Keep-Alive ne le réactivera pas ici : ce réseau Wi-Fi est bloqué</string>
+    <string name="settings_webhook_periodic_toggle">Actualisation périodique</string>
+    <string name="settings_webhook_periodic_subtext">Renvoie le point de terminaison Wifi-ADB actif selon un calendrier tant que Keep-Alive et la synchronisation Webhook sont activés. Utile pour les destinations dont les messages expirent après quelques heures.</string>
+    <string name="settings_webhook_periodic_interval_15m">Toutes les 15 minutes</string>
+    <string name="settings_webhook_periodic_interval_30m">Toutes les 30 minutes</string>
+    <string name="settings_webhook_periodic_interval_1h">Toutes les 59 minutes</string>
+    <string name="settings_webhook_periodic_interval_4h">Toutes les 3 heures 59 minutes (par défaut)</string>
+    <string name="settings_webhook_periodic_interval_12h">Toutes les 11 heures 59 minutes</string>
+    <string name="settings_webhook_periodic_interval_24h">Toutes les 23 heures 59 minutes</string>
 </resources>

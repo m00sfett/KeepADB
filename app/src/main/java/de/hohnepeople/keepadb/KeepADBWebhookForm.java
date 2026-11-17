@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,25 @@ final class KeepADBWebhookForm {
     private final TextView error;
     private final TextView cleartextWarning;
     private final View vpnHint;
+    private final Switch periodicToggle;
+    private final RadioGroup periodicIntervals;
+
+    private static final int[] PERIODIC_RADIO_IDS = {
+            R.id.settings_webhook_periodic_15m,
+            R.id.settings_webhook_periodic_30m,
+            R.id.settings_webhook_periodic_1h,
+            R.id.settings_webhook_periodic_4h,
+            R.id.settings_webhook_periodic_12h,
+            R.id.settings_webhook_periodic_24h,
+    };
+    private static final KeepADBPeriodicReport.Interval[] PERIODIC_INTERVALS = {
+            KeepADBPeriodicReport.Interval.MIN_15,
+            KeepADBPeriodicReport.Interval.MIN_30,
+            KeepADBPeriodicReport.Interval.HOUR_1,
+            KeepADBPeriodicReport.Interval.HOURS_4,
+            KeepADBPeriodicReport.Interval.HOURS_12,
+            KeepADBPeriodicReport.Interval.HOURS_24,
+    };
 
     private boolean draftInitialized;
     /** True while this class sets the field itself, so the watcher can tell the user's typing apart. */
@@ -82,6 +102,8 @@ final class KeepADBWebhookForm {
         this.error = error;
         this.cleartextWarning = cleartextWarning;
         this.vpnHint = root.findViewById(R.id.settings_webhook_vpn_hint);
+        this.periodicToggle = root.findViewById(R.id.settings_webhook_periodic_toggle);
+        this.periodicIntervals = root.findViewById(R.id.settings_webhook_periodic_intervals);
         root.findViewById(R.id.settings_webhook_vpn_battery).setOnClickListener(
                 v -> KeepADBBatteryOptimization.openOptimizationList(activity));
         root.findViewById(R.id.settings_webhook_vpn_settings).setOnClickListener(
@@ -126,6 +148,19 @@ final class KeepADBWebhookForm {
         toggle.setOnClickListener(v -> onToggleClicked());
         save.setOnClickListener(v -> onSaveClicked());
         clear.setOnClickListener(v -> onClearClicked());
+        if (periodicToggle != null) {
+            periodicToggle.setOnClickListener(v -> onPeriodicToggleClicked());
+        }
+        if (periodicIntervals != null) {
+            periodicIntervals.setOnCheckedChangeListener((group, checkedId) -> {
+                if (programmatic) return;
+                KeepADBPeriodicReport.Interval chosen = intervalForRadioId(checkedId);
+                if (chosen == null) return;
+                KeepADBPreferences.setPeriodicWebhookInterval(activity, chosen);
+                KeepADBPeriodicReport.reschedule(activity);
+                onChange.run();
+            });
+        }
     }
 
     /** Call from {@code SettingsActivity#onCreate} with the incoming (possibly null) state. */
@@ -192,6 +227,7 @@ final class KeepADBWebhookForm {
         toggle.setChecked(webhookEnabled);
         // #891: the VPN battery hint only matters while reports are actually sent.
         vpnHint.setVisibility(webhookEnabled ? View.VISIBLE : View.GONE);
+        refreshPeriodicSection();
 
         refreshUrlMask();
 
@@ -249,6 +285,45 @@ final class KeepADBWebhookForm {
             Toast.makeText(activity, R.string.settings_webhook_disabled_toast, Toast.LENGTH_SHORT).show();
         }
         onChange.run();
+    }
+
+    private void onPeriodicToggleClicked() {
+        boolean enabled = periodicToggle.isChecked();
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(activity, enabled);
+        KeepADBPeriodicReport.sync(activity);
+        refreshPeriodicSection();
+        onChange.run();
+    }
+
+    private void refreshPeriodicSection() {
+        if (periodicToggle == null || periodicIntervals == null) return;
+        boolean periodicEnabled = KeepADBPreferences.isPeriodicWebhookReportEnabled(activity);
+        int selectedRadioId = radioIdForInterval(
+                KeepADBPreferences.getPeriodicWebhookInterval(activity));
+        programmatic = true;
+        try {
+            periodicToggle.setChecked(periodicEnabled);
+            periodicIntervals.setVisibility(periodicEnabled ? View.VISIBLE : View.GONE);
+            if (periodicIntervals.getCheckedRadioButtonId() != selectedRadioId) {
+                periodicIntervals.check(selectedRadioId);
+            }
+        } finally {
+            programmatic = false;
+        }
+    }
+
+    private static int radioIdForInterval(KeepADBPeriodicReport.Interval interval) {
+        for (int i = 0; i < PERIODIC_INTERVALS.length; i++) {
+            if (PERIODIC_INTERVALS[i] == interval) return PERIODIC_RADIO_IDS[i];
+        }
+        return R.id.settings_webhook_periodic_4h;
+    }
+
+    private static KeepADBPeriodicReport.Interval intervalForRadioId(int radioId) {
+        for (int i = 0; i < PERIODIC_RADIO_IDS.length; i++) {
+            if (PERIODIC_RADIO_IDS[i] == radioId) return PERIODIC_INTERVALS[i];
+        }
+        return null;
     }
 
     /**

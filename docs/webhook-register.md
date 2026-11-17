@@ -57,8 +57,12 @@ setting). If it is given up on while the
 endpoint stays the same, a later network change (#867), saving the URL again (#869), or, while the
 failure lasts, one single re-attempt at most every 15 minutes on the Keep-Alive service heartbeat
 (#881) reports again. The episode is persisted, so these re-attempts also resume after the app
-process restarts during it (#884). A healthy webhook is never polled: without a failure episode nothing is sent
-until the endpoint changes.
+process restarts during it (#884). Without a failure episode, a healthy webhook sends nothing
+until the endpoint changes unless the opt-in **Periodic refresh** switch (#976, based on work by
+`@inaciopestana`) is turned on. When Periodic refresh is enabled alongside Keep-Alive and Webhook
+Sync, `AlarmManager.setAndAllowWhileIdle` re-sends the active Wifi-ADB endpoint on the chosen
+schedule (`15 min`, `30 min`, `59 min`, `3 h 59 min` default, `11 h 59 min`, or `23 h 59 min`),
+joining any in-flight POST instead of duplicating requests.
 
 The HTTP client does not follow redirects. An HTTP status from 200 through 299 counts locally as a
 successful request. This does not prove that a receiver accepted the data semantically, stored it

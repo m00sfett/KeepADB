@@ -550,7 +550,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="warnings_reset">Batalkan semua pembisuan</string>
     <string name="warnings_none">Tidak ada peringatan keamanan aktif</string>
     <string name="onboarding_upgrade_notice">Pembaruan menghapus riwayat pengamatan Wi-Fi lama; riwayat ini tidak dapat dipulihkan. Pengaturan perlindungan dan kepercayaan, Keep-Alive, serta webhook kamu tetap tersimpan. Saat pertama dibuka, KeepADB menampilkan kartu peringatan untuk masalah keamanan aktif atau persyaratan yang belum terpenuhi; setelah ditutup, kartu tetap tersembunyi selama alasan yang sama masih aktif. Kamu tetap dapat memeriksa alasan keamanan aktif di “Peringatan keamanan”; kartu tidak mengubah pengaturan kamu.</string>
-    <string name="settings_webhook_retry_subtext">Jika laporan gagal, KeepADB mencoba lagi setelah 5, 15, 30, dan 60 detik, lalu berhenti. Perubahan jaringan berikutnya dapat memulai percobaan baru. KeepADB tidak melakukan polling terus-menerus.</string>
+    <string name="settings_webhook_retry_subtext">Jika laporan gagal, KeepADB mencoba lagi setelah 5, 15, 30, dan 60 detik, lalu berhenti. Perubahan jaringan berikutnya dapat memulai percobaan baru. Pembaruan terjadwal hanya berjalan jika diaktifkan di atas.</string>
     <string name="webhook_alert_channel_name">Peringatan Webhook</string>
     <string name="webhook_alert_channel_desc">Memperingatkan saat laporan Webhook terus gagal</string>
     <string name="webhook_alert_title">Port ADB saat ini belum dilaporkan</string>
@@ -656,4 +656,12 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="network_action_decide">Blokir atau putuskan…</string>
     <string name="status_on_network_untrusted">Keep-Alive tidak akan mengaktifkannya lagi di sini: jaringan Wi-Fi ini tidak dipercaya</string>
     <string name="status_on_network_blocked">Keep-Alive tidak akan mengaktifkannya lagi di sini: jaringan Wi-Fi ini diblokir</string>
+    <string name="settings_webhook_periodic_toggle">Pembaruan berkala</string>
+    <string name="settings_webhook_periodic_subtext">Mengirim ulang endpoint Wifi-ADB yang aktif sesuai jadwal selama Keep-Alive dan Sinkronisasi Webhook aktif. Berguna untuk tujuan yang pesanannya kedaluwarsa setelah beberapa jam.</string>
+    <string name="settings_webhook_periodic_interval_15m">Setiap 15 menit</string>
+    <string name="settings_webhook_periodic_interval_30m">Setiap 30 menit</string>
+    <string name="settings_webhook_periodic_interval_1h">Setiap 59 menit</string>
+    <string name="settings_webhook_periodic_interval_4h">Setiap 3 jam 59 menit (bawaan)</string>
+    <string name="settings_webhook_periodic_interval_12h">Setiap 11 jam 59 menit</string>
+    <string name="settings_webhook_periodic_interval_24h">Setiap 23 jam 59 menit</string>
 </resources>

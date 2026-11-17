@@ -37,6 +37,7 @@ below for what existing installations keep.
 | Check Wi-Fi security of trusted access points | `trusted_network_security_check` | off | Trusted access points are matched by address only, as before | Off by user decision (#860): an opt-in hardening for Android 12 and later; existing trust entries are never tightened silently |
 | Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wifi-ADB that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
+| Periodic webhook refresh | `register_webhook_periodic_enabled` | off | Scheduled endpoint re-sends do not run unless turned on (#976) | Safe; opt-in so existing and new webhook setups never emit unexpected background requests |
 | Wi-Fi and access-point observation | `wifi_aps_feature_enabled` | off | No recording; since #769 there is no UI or new recording, and since #788 no code reads or writes the key. An earlier saved value remains unchanged. The old observation history (`bssid_history_*`) is discarded once during update since #778 (marker `observation_history_discarded`, bookkeeping only, not a setting) | Safe (#507, #769) |
 
 Lists that inform a decision start empty: there are no trusted access points, name matches or blocks.
@@ -56,6 +57,7 @@ reason for each documented here.
 | Hide notification | `hide_notification_enabled` | off | The visible ongoing notification shows that the service is running; hiding it is a deliberate choice |
 | Keep display on | `keep_display_on_enabled` | off | Convenience with battery cost; turning it on adds no protection |
 | App language | `app_language` | empty (system language) | No security impact |
+| Periodic webhook interval | `register_webhook_periodic_interval` | `4h` (3 h 59 m) | Preset duration used once Periodic refresh is turned on (#976); does not arm any alarm while `register_webhook_periodic_enabled` is off |
 | Webhook retries | none | fixed: 4 retries after 5, 15, 30, 60 s | Only used while webhook sync is on and a report failed; bounded, no polling (#866). Not a setting since #960. After a given-up series, one single re-attempt at most every 15 minutes while the failure lasts (#881) |
 
 Removed in 1.13.0 (#956): the USB-ADB area (USB notification, host profiles, handover mode). The

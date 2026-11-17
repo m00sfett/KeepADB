@@ -551,7 +551,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="warnings_reset">Alle Stummschaltungen zurücksetzen</string>
     <string name="warnings_none">Keine aktiven Sicherheitswarnungen</string>
     <string name="onboarding_upgrade_notice">Beim Update wurde die alte WLAN-Beobachtungshistorie entfernt; sie lässt sich nicht wiederherstellen. Deine Schutz- und Vertrauenseinstellungen, Keep-Alive und Webhook-Einstellungen wurden übernommen. Beim ersten Öffnen zeigt KeepADB Warnkarten für aktive Sicherheitsprobleme oder fehlende Voraussetzungen; nach dem Schließen bleiben sie für denselben aktiven Grund verborgen. Unter „Sicherheitswarnungen“ kannst du aktive Sicherheitsgründe weiterhin prüfen; die Warnkarten ändern deine Einstellungen nicht.</string>
-    <string name="settings_webhook_retry_subtext">Schlägt eine Meldung fehl, versucht KeepADB es nach 5, 15, 30 und 60 Sekunden erneut und gibt dann auf. Ein späterer Netzwechsel kann einen neuen Versuch starten. KeepADB fragt nicht ständig ab.</string>
+    <string name="settings_webhook_retry_subtext">Schlägt eine Meldung fehl, versucht KeepADB es nach 5, 15, 30 und 60 Sekunden erneut und gibt dann auf. Ein späterer Netzwechsel kann einen neuen Versuch starten. Zeitgesteuerte Meldungen laufen nur, wenn oben aktiviert.</string>
     <string name="webhook_alert_channel_name">Webhook-Warnungen</string>
     <string name="webhook_alert_channel_desc">Warnt, wenn Webhook-Meldungen dauerhaft fehlschlagen</string>
     <string name="webhook_alert_title">Aktueller ADB-Port nicht gemeldet</string>
@@ -657,4 +657,12 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="network_action_decide">Blockieren oder entscheiden…</string>
     <string name="status_on_network_untrusted">Keep-Alive schaltet es hier nicht wieder ein: Dieses WLAN ist nicht vertraut</string>
     <string name="status_on_network_blocked">Keep-Alive schaltet es hier nicht wieder ein: Dieses WLAN ist blockiert</string>
+    <string name="settings_webhook_periodic_toggle">Periodische Aktualisierung</string>
+    <string name="settings_webhook_periodic_subtext">Sendet den aktiven Wifi-ADB-Endpunkt nach Zeitplan erneut, solange Keep-Alive und Webhook-Sync aktiv sind. Praktisch für Ziele, deren Meldungen nach einigen Stunden verfallen.</string>
+    <string name="settings_webhook_periodic_interval_15m">Alle 15 Minuten</string>
+    <string name="settings_webhook_periodic_interval_30m">Alle 30 Minuten</string>
+    <string name="settings_webhook_periodic_interval_1h">Alle 59 Minuten</string>
+    <string name="settings_webhook_periodic_interval_4h">Alle 3 Stunden 59 Minuten (Standard)</string>
+    <string name="settings_webhook_periodic_interval_12h">Alle 11 Stunden 59 Minuten</string>
+    <string name="settings_webhook_periodic_interval_24h">Alle 23 Stunden 59 Minuten</string>
 </resources>
