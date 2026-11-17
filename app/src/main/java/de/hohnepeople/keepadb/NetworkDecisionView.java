@@ -222,4 +222,15 @@ public final class NetworkDecisionView extends LinearLayout {
     private void toast(String text, int duration) {
         Toast.makeText(getContext(), text, duration).show();
     }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int maximum = getResources().getDimensionPixelSize(R.dimen.main_content_max_width);
+        int mode = MeasureSpec.getMode(widthMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        if (mode == MeasureSpec.UNSPECIFIED || width > maximum) {
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(maximum, MeasureSpec.EXACTLY);
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
 }

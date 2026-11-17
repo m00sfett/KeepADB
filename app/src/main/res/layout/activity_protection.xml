@@ -55,9 +55,10 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <LinearLayout
+        <de.hohnepeople.keepadb.KeepADBContentColumnLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -405,6 +406,6 @@
                     android:textColor="@color/text_yellow"
                     android:textSize="15sp" />
             </LinearLayout>
-        </LinearLayout>
+        </de.hohnepeople.keepadb.KeepADBContentColumnLayout>
     </ScrollView>
 </LinearLayout>

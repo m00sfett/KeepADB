@@ -245,7 +245,8 @@ public class KeepADBWidgetConfigActivityTest {
         View body = activity.findViewById(R.id.widget_config_body);
         View scroll = activity.findViewById(R.id.widget_config_scroll);
         assertEquals("not inside the scrolling part, so it cannot scroll away",
-                body, save.getParent());
+                body, save.getParent().getParent());
+        assertTrue(save.getParent() instanceof KeepADBContentColumnLayout);
         assertEquals(body, scroll.getParent());
 
         // The navigation bar's room goes to the body that holds the button.
