@@ -1,1 +1,0 @@
-Grant the WRITE_SECURE_SETTINGS permission right on your phone without a PC (Android 11+ self-pairing in the setup assistant) or use the new keepadb.roteson.de/setup browser guide and USB ADB Share command. Also adds opt-in Periodic refresh with configurable intervals (15 min to 23 h 59 min) to Webhook Sync, based on work by inaciopestana.

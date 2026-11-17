@@ -1,0 +1,1 @@
+Grant WRITE_SECURE_SETTINGS without a PC via Android 11+ self-pairing right on your phone, or fall back to keepadb.roteson.de/setup (WebUSB in Chrome/Edge) or USB ADB Share. Adds opt-in Periodic refresh (15 min–23 h 59 min, by inaciopestana) to Webhook Sync, Protection page, launcher shortcuts, expanded privacy switches (including lock screen), and two widgets.

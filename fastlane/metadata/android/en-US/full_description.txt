@@ -3,12 +3,12 @@ KeepADB helps keep Wifi-ADB, Android’s “Wireless debugging”, available acr
 Toggle Wifi-ADB from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and attempts recovery when Android disables it. Android may ask for approval to enable Wifi-ADB on Wi-Fi. Approve only expected prompts on a private network you trust. Select “Always allow on this network” if you want Android to allow Wifi-ADB automatically when your device reconnects to that network. KeepADB cannot grant this Android approval itself; its trusted-network rule is separate and only controls where automatic recovery may run. If Android does not confirm an automatic enable, KeepADB backs off instead of retrying rapidly.
 
 Features:
-* Quick Settings tile and main app controls
+* Quick Settings tile, main app controls, and launcher shortcuts (Toggle Wifi-ADB, Wi-Fi networks, Settings)
 * Tap the endpoint to copy the adb connect command; “Connect a computer…” below it, and the last page of the setup assistant, explain how to pair a new computer
 * Two home-screen widgets: KeepADB controls grows with its size (Wifi-ADB, Keep-Alive, webhook auto-sync; main action and order per widget), KeepADB overview shows the endpoint, Wi-Fi, Keep-Alive and webhook delivery at a glance
 * Optional Keep-Alive service across restarts and network changes
 * Endpoint discovery through Android NSD/mDNS (_adb-tls-connect._tcp); timing depends on network conditions
-* Optional HTTP(S) webhook, disabled by default, for verified Wifi-ADB endpoints
+* Optional HTTP(S) webhook, disabled by default, for verified Wifi-ADB endpoints, with opt-in periodic refresh (15 min to 23 h 59 min)
 * Configurable status notification and endpoint display
 * Four optional privacy switches that hide names and addresses in the app, in notifications, and in widgets and the tile, and keep notifications off the lock screen
 * Protection page: choose where Keep-Alive may re-enable Wifi-ADB, with a Wi-Fi networks list to trust, block, and name access points; optional Force mode, for a chosen time or until you end it

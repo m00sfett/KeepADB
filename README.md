@@ -14,20 +14,27 @@ recently saved intent.
 - No runtime dependencies in the shipped app
 - Application ID: `de.hohnepeople.keepadb`
 
-KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Android's mDNS
-discovery finds the dynamic Wifi-ADB endpoint; KeepADB does not scan a general port range. Android
-still requires its own TLS pairing before a new ADB client can connect.
+KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Regular endpoint discovery uses Android mDNS (`_adb-tls-connect._tcp`) without scanning arbitrary network hosts; only the optional on-device self-pairing setup checks local loopback ports for an already-running `adbd` if mDNS misses it. Android still requires its own TLS pairing before a new ADB client can connect.
+
+## Highlights
+
+- **Setup without a PC (Android 11+ self-pairing):** Grant the one-time `WRITE_SECURE_SETTINGS` permission directly on your phone — no computer and no USB cable required. KeepADB pairs locally over loopback TLS 1.3 + SPAKE2 using Android's pairing dialog code and discards its ephemeral key afterwards.
+- **Browser WebUSB & classic USB `adb` fallbacks:** If self-pairing cannot be used, open [`https://keepadb.roteson.de/setup`](https://keepadb.roteson.de/setup) in Chrome or Edge to grant the permission over USB right from your browser (nothing leaves the browser), or use the proven manual `adb` command (with a one-tap **Share command** action in the setup assistant).
+- **Control from anywhere:** Main screen switch, Quick Settings tile, **launcher shortcuts** (long-press the app icon for Toggle Wifi-ADB, Wi-Fi networks, and Settings), and two adaptive home-screen widgets (**KeepADB controls** and **KeepADB overview**).
+- **Network Protection & Force mode:** Keep-Alive recovers Wifi-ADB only where your protection level permits (**Maximum security** by BSSID or **Balanced** by Wi-Fi name), optionally turns off on untrusted Wi-Fi, checks for security-tier downgrades on Android 12+, and offers timed or unlimited **Force mode**.
+- **Webhook Sync with opt-in periodic refresh:** Send verified endpoints via HTTP(S) and optionally re-send active endpoints on a configurable schedule (`15 min` to `23 h 59 min`, based on work by `@inaciopestana`) so external registers that expire idle entries stay current.
+- **Zero bloat & four privacy switches:** No runtime dependencies, no ads, no analytics, and independent switches to mask names and addresses in the app, notifications, lock screen, and widgets/tile.
 
 ## Install and first start
 
 Install KeepADB from the [official F-Droid catalog](https://f-droid.org/packages/de.hohnepeople.keepadb/)
 or download the APK from [GitHub Releases](https://github.com/m00sfett/KeepADB/releases).
 
-Then grant `WRITE_SECURE_SETTINGS` once in one of three ways:
+Then grant `WRITE_SECURE_SETTINGS` once in the setup assistant (**Permissions › System permission**) using the recommended method or either fallback:
 
-1. **On the phone (Android 11+, no computer needed):** open the setup assistant, start "Grant on this phone" at **Permissions › System permission**, enable Wifi-ADB's pairing window, and enter the six-digit pairing code in KeepADB's notification. KeepADB grants the permission to itself over loopback, discards its in-memory pairing key, and switches Wifi-ADB back off when it turned it on for setup.
-2. **In a computer browser (`https://keepadb.roteson.de/setup`):** open the setup page in Chrome or Edge, enable USB debugging, connect the phone with a USB cable, and follow the three steps (no device data leaves the browser).
-3. **Manually over USB (`adb`):**
+1. **On the phone (Android 11+, recommended, no computer needed):** start **Grant on this phone**, open Wifi-ADB's pairing dialog in developer options, and enter the six-digit pairing code in KeepADB's notification. KeepADB grants the permission to itself over loopback, discards its in-memory pairing key, and switches Wifi-ADB back off when it turned it on for setup.
+2. **Fallback — in a computer browser (`https://keepadb.roteson.de/setup`):** if self-pairing cannot be used or fails, open the setup page in Chrome or Edge, enable USB debugging, connect the phone with a USB cable, and follow the three steps (no device data leaves the browser).
+3. **Fallback — manually over USB (`adb`):** if neither on-device self-pairing nor WebUSB is an option, use the setup assistant's **Share command** button or run the proven CLI command:
 
 ~~~sh
 adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS
@@ -87,6 +94,8 @@ Webhook synchronization is off by default. After you configure it, KeepADB sends
 endpoint data to the URL you entered. The sender currently allows only Wifi-ADB events to be
 transmitted. `http://` is supported, but it is unencrypted. Use
 HTTP only for an endpoint you operate on a trusted LAN or VPN, and heed the warning in the app.
+
+Under **Settings → Webhook & Endpoint Sync**, you can also turn on **Periodic refresh** (off by default, based on work by `@inaciopestana`): while Keep-Alive and Webhook Sync are active, KeepADB periodically re-sends the active endpoint (`15 min`, `30 min`, `59 min`, `3 h 59 min` default on enable, `11 h 59 min`, or `23 h 59 min`) so external receivers with expiring entries stay updated.
 
 The [webhook contract](docs/webhook-register.md) describes the exact message, deletion requests,
 local opt-in rule, and the boundary between the app sender and an external receiver.
