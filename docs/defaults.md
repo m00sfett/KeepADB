@@ -51,7 +51,7 @@ reason for each documented here.
 |---|---|---|---|
 | Privacy: in the app | `privacy_mode_enabled` | off | User decision (#758, #904): the former single privacy mode, key and meaning unchanged. Masks Wi-Fi names, BSSIDs, IP addresses and the webhook host on every screen and dialog; a “Show” lifts it for one screen until it is left. It hides display text only and does not protect an action |
 | Privacy: in notifications | `notification_privacy_enabled` | off | User decision (#904, 2026-11-07): replaces the opt-in “Notification details” (`notification_details_enabled`, #592) with the opposite polarity. Off means port, IP address, Wi-Fi name and BSSID appear in notifications, and the notice about a new Wi-Fi has its two buttons. This is a deliberate weakening of #592 for new installations; the safe choice is one switch away, also on the first page of the setup assistant. Existing installations keep their behavior (see “Privacy switches” below) |
-| Privacy: hide on the lock screen | `lockscreen_privacy_enabled` | off | User decision (#920, 2026-11-08): a sub-option of the notification switch. On marks every KeepADB notification except the self-pairing ones (#993) `VISIBILITY_SECRET`, so none appears on the lock screen, whatever Android's “sensitive content” setting is; unlocked, the shade shows them as the notification switch decides. A new key, so existing installations keep what they had. A notification channel the user set to hide on the lock screen stays hidden either way. Android applies it only with a secure screen lock (PIN, pattern or password). Since #941 it is in the eye's long-press menu with the other switches, and all of them live in Settings → Privacy |
+| Privacy: hide on the lock screen | `lockscreen_privacy_enabled` | off | User decision (#920, 2026-11-08): a sub-option of the notification switch. On marks every KeepADB notification, the self-pairing ones included (#993), `VISIBILITY_SECRET`, so none appears on the lock screen, whatever Android's “sensitive content” setting is; unlocked, the shade shows them as the notification switch decides. A new key, so existing installations keep what they had. A notification channel the user set to hide on the lock screen stays hidden either way. Android applies it only with a secure screen lock (PIN, pattern or password). Since #941 it is in the eye's long-press menu with the other switches, and all of them live in Settings → Privacy |
 | Privacy: in widgets and the tile | `widget_privacy_enabled` | off | User decision (#904): the widget and the Quick Settings tile show the state only, without the port or the host. Off means they show them. It takes precedence over any per-widget “hide details” option |
 | Widget: main action, order, hide details | none in `keepadb_prefs` | main action Wifi-ADB, order Wifi-ADB, Keep-Alive, Auto-sync, details visible | #912: stored per widget id in its own file `keepadb_widget_config`, never in the app preferences; a widget without an entry (every widget placed before) reads these defaults. Removed with the widget. The overview widget (#913) uses the same store for its only option, hide details (default visible). The widget privacy switch above takes precedence over the per-widget hide option |
 | Hide notification | `hide_notification_enabled` | off | The visible ongoing notification shows that the service is running; hiding it is a deliberate choice |
@@ -60,19 +60,19 @@ reason for each documented here.
 | Periodic webhook interval | `register_webhook_periodic_interval` | `4h` (3 h 59 m) | Preset duration used once Periodic refresh is turned on (#976); does not arm any alarm while `register_webhook_periodic_enabled` is off |
 | Webhook retries | none | fixed: 4 retries after 5, 15, 30, 60 s | Only used while webhook sync is on and a report failed; bounded, no polling (#866). Not a setting since #960. After a given-up series, one single re-attempt at most every 15 minutes while the failure lasts (#881) |
 
-Removed in 1.13.0 (#956): the USB-ADB area (USB notification, host profiles, handover mode). The
+Removed in 1.14.1 (#956; developed as 1.13.0, never published on its own): the USB-ADB area (USB notification, host profiles, handover mode). The
 application deletes its stored keys on the first start after the update (`usb_notification_enabled`,
 `usb_profile_notification_enabled`, `usb_wlan_handover_mode` and every `usb_profile_*` key, which
 includes the host names and IP addresses of the profiles) together with its notification channel.
 An installation that used the automatic handover loses it; Keep-Alive is the way to have Wifi-ADB switched on again unattended.
 
-Removed in 1.13.0 (#960): the two webhook retry selectors. `register_webhook_retry_profile` and
+Removed in 1.14.1 (#960; developed as 1.13.0): the two webhook retry selectors. `register_webhook_retry_profile` and
 `register_webhook_retry_count` are deleted on the first start after the update, and the series is
 fixed at 4 retries after 5, 15, 30 and 60 seconds, which is what an installation that never touched
 the selectors already did. An installation set to “Fast” or “Gentle”, or to fewer retries, changes
 to that series.
 
-Removed in 1.13.0 (#958): the general security and network advice left the home screen for the
+Removed in 1.14.1 (#958; developed as 1.13.0): the general security and network advice left the home screen for the
 intro page of the setup assistant, where it is always shown without a dismiss button. The stored
 dismiss flag `advice_banner_visible` (“Do not show again”, #225; default visible) is deleted on the
 first start after the update, whether the card had been dismissed or not, together with the
