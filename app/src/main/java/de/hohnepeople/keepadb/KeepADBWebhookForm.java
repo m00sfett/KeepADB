@@ -152,14 +152,12 @@ final class KeepADBWebhookForm {
             periodicToggle.setOnClickListener(v -> onPeriodicToggleClicked());
         }
         if (periodicIntervals != null) {
-            periodicIntervals.setOnCheckedChangeListener((group, checkedId) -> {
-                if (programmatic) return;
-                KeepADBPeriodicReport.Interval chosen = intervalForRadioId(checkedId);
-                if (chosen == null) return;
-                KeepADBPreferences.setPeriodicWebhookInterval(activity, chosen);
-                KeepADBPeriodicReport.reschedule(activity);
-                onChange.run();
-            });
+            for (int i = 0; i < PERIODIC_RADIO_IDS.length; i++) {
+                View radio = periodicIntervals.findViewById(PERIODIC_RADIO_IDS[i]);
+                if (radio == null) continue;
+                KeepADBPeriodicReport.Interval chosen = PERIODIC_INTERVALS[i];
+                radio.setOnClickListener(v -> onPeriodicIntervalSelected(chosen));
+            }
         }
     }
 
@@ -295,20 +293,24 @@ final class KeepADBWebhookForm {
         onChange.run();
     }
 
+    private void onPeriodicIntervalSelected(KeepADBPeriodicReport.Interval chosen) {
+        boolean changed = chosen != KeepADBPreferences.getPeriodicWebhookInterval(activity);
+        KeepADBPreferences.setPeriodicWebhookInterval(activity, chosen);
+        if (changed) {
+            KeepADBPeriodicReport.reschedule(activity);
+        }
+        onChange.run();
+    }
+
     private void refreshPeriodicSection() {
         if (periodicToggle == null || periodicIntervals == null) return;
         boolean periodicEnabled = KeepADBPreferences.isPeriodicWebhookReportEnabled(activity);
         int selectedRadioId = radioIdForInterval(
                 KeepADBPreferences.getPeriodicWebhookInterval(activity));
-        programmatic = true;
-        try {
-            periodicToggle.setChecked(periodicEnabled);
-            periodicIntervals.setVisibility(periodicEnabled ? View.VISIBLE : View.GONE);
-            if (periodicIntervals.getCheckedRadioButtonId() != selectedRadioId) {
-                periodicIntervals.check(selectedRadioId);
-            }
-        } finally {
-            programmatic = false;
+        periodicToggle.setChecked(periodicEnabled);
+        periodicIntervals.setVisibility(periodicEnabled ? View.VISIBLE : View.GONE);
+        if (periodicEnabled && periodicIntervals.getCheckedRadioButtonId() != selectedRadioId) {
+            periodicIntervals.check(selectedRadioId);
         }
     }
 
@@ -317,13 +319,6 @@ final class KeepADBWebhookForm {
             if (PERIODIC_INTERVALS[i] == interval) return PERIODIC_RADIO_IDS[i];
         }
         return R.id.settings_webhook_periodic_4h;
-    }
-
-    private static KeepADBPeriodicReport.Interval intervalForRadioId(int radioId) {
-        for (int i = 0; i < PERIODIC_RADIO_IDS.length; i++) {
-            if (PERIODIC_RADIO_IDS[i] == radioId) return PERIODIC_INTERVALS[i];
-        }
-        return null;
     }
 
     /**

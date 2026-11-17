@@ -236,6 +236,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="vertical"
+            android:saveEnabled="false"
             android:visibility="gone">
 
             <RadioButton
@@ -244,6 +245,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_15m"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />
@@ -254,6 +256,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_30m"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />
@@ -264,6 +267,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_1h"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />
@@ -274,6 +278,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_4h"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />
@@ -284,6 +289,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_12h"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />
@@ -294,6 +300,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:minHeight="48dp"
+                android:saveEnabled="false"
                 android:text="@string/settings_webhook_periodic_interval_24h"
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp" />

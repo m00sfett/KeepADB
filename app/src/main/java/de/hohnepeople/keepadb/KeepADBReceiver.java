@@ -45,7 +45,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_WEBHOOK_SYNC_ENABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_ENABLE";
     static final String ACTION_WEBHOOK_SYNC_DISABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_DISABLE";
     /**
-     * #976 (based on inaciopestana/KeepADB@bd9983bc): the 4-hour alarm armed by
+     * #976 (based on inaciopestana/KeepADB@bd9983bc): the scheduled alarm armed by
      * {@link KeepADBPeriodicReport}. Explicit intents to this non-exported receiver only; not in
      * the manifest's intent filter.
      */

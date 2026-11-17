@@ -270,7 +270,7 @@ public class KeepADBService extends Service {
         registerAdbObserver();
         registerNetworkCallback();
         startHeartbeatTicker();
-        // #976: periodic 4-hour webhook refresh while Keep-Alive and Webhook Sync are both active.
+        // #976: opt-in periodic webhook refresh while Keep-Alive and Webhook Sync are both active.
         KeepADBPeriodicReport.sync(this);
         recheckAndEnable();
         return START_STICKY;

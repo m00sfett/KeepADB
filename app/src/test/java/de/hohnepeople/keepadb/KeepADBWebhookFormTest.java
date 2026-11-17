@@ -49,10 +49,12 @@ public class KeepADBWebhookFormTest {
 
     @After
     public void tearDown() {
+        android.content.Context app = RuntimeEnvironment.getApplication();
+        KeepADBPeriodicReport.cancel(app);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(null);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBRegisterClientResetRule.awaitIdle();
-        RuntimeEnvironment.getApplication()
-                .getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+        app.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBRegisterClient.resetForTesting();
         KeepADB.resetForTesting();
@@ -459,6 +461,47 @@ public class KeepADBWebhookFormTest {
         assertFalse(KeepADBPreferences.isPeriodicWebhookReportEnabled(activity));
         assertEquals(View.GONE, intervals.getVisibility());
         assertFalse(KeepADBPeriodicReport.isArmed(activity));
+    }
+
+    @Test
+    public void recreatingSettingsActivityDoesNotPersistPeriodicDefaultOrPushActiveAlarm() {
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        android.content.SharedPreferences prefs = context.getSharedPreferences(
+                "keepadb_prefs", android.content.Context.MODE_PRIVATE);
+
+        // Fresh install: opening SettingsActivity and recreating must never write the interval key.
+        org.robolectric.android.controller.ActivityController<SettingsActivity> fresh =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        fresh.recreate();
+        assertFalse(prefs.contains("register_webhook_periodic_interval"));
+        assertFalse(KeepADBPreferences.isPeriodicWebhookReportEnabled(context));
+        fresh.pause().stop().destroy();
+
+        // Active schedule: SettingsActivity recreation after elapsed time must keep the alarm due
+        // timestamp untouched and must not overwrite the saved interval.
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "https://register.example/dev");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setPeriodicWebhookReportEnabled(context, true);
+        KeepADBPreferences.setPeriodicWebhookInterval(
+                context, KeepADBPeriodicReport.Interval.HOUR_1);
+        KeepADBPeriodicReport.arm(context);
+        android.app.AlarmManager alarms = context.getSystemService(android.app.AlarmManager.class);
+        long dueAt = org.robolectric.Shadows.shadowOf(alarms).peekNextScheduledAlarm()
+                .getTriggerAtMs();
+
+        org.robolectric.android.controller.ActivityController<SettingsActivity> active =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        org.robolectric.shadows.ShadowSystemClock.advanceBy(java.time.Duration.ofMinutes(10));
+        active.recreate();
+
+        assertEquals(dueAt, org.robolectric.Shadows.shadowOf(alarms).peekNextScheduledAlarm()
+                .getTriggerAtMs());
+        assertEquals(KeepADBPeriodicReport.Interval.HOUR_1,
+                KeepADBPreferences.getPeriodicWebhookInterval(context));
+        active.pause().stop().destroy();
     }
 
     @Test

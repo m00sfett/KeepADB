@@ -34,8 +34,8 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * #976 (based on work by inaciopestana): 4-hour periodic webhook refresh while Keep-Alive
- * monitoring and Webhook Sync are active.
+ * #976 (based on work by inaciopestana): opt-in configurable periodic webhook refresh while
+ * Keep-Alive monitoring and Webhook Sync are active.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -374,7 +374,7 @@ public class KeepADBPeriodicReportTest {
     }
 
     @Test
-    public void periodicReportResendsUnchangedEndpointEveryFourHours() {
+    public void periodicReportResendsUnchangedEndpointAtConfiguredInterval() {
         enableKeepAliveAndWebhook();
         // Initial report for HOST:PORT succeeds.
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
