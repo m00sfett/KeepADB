@@ -184,6 +184,8 @@ public class KeepADBDefaultsAuditTest {
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             // #962: who may switch Wifi-ADB off after a grant on the phone (KeepADBSelfPairCleanup).
             "claim_run", "claim_elapsed", "claim_boot",
+            // #982: a run found Wifi-ADB off, so a retry that finds it on still cleans up.
+            "found_off_elapsed", "found_off_boot",
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",

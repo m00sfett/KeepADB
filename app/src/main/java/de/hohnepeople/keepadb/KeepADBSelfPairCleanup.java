@@ -33,6 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>It is valid for a short time within the same boot, measured on the monotonic clock,
  *       and only if the boot can be identified. Wireless debugging does not survive a reboot,
  *       so there is nothing to clean up after one.</li>
+ *   <li>A run that found Wifi-ADB already on records none (#982): the user did not switch it on
+ *       for this setup. Unless an earlier run of this boot found it off within the last half
+ *       hour and nothing was granted since, or that run's claim is still pending: then the
+ *       earlier run is why Wifi-ADB is on, and this run takes the cleanup over.</li>
  *   <li>Anything the user does afterwards about Wifi-ADB or Keep-Alive in KeepADB supersedes it:
  *       the claim is dropped and nothing is switched off behind their back.</li>
  *   <li>It is released only when the cleanup is confirmed, superseded, expired or not needed
@@ -47,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * treated as its own. And a user decision is void in this process at once, but reaches the disk
  * a moment later; a process killed in that moment may find the old claim again.
  *
- * <p>Nothing secret is stored: a random run id and two clock values.
+ * <p>Nothing secret is stored: a random run id, clock values and boot counts.
  */
 final class KeepADBSelfPairCleanup {
     /** What {@link #settle} found and did. */
@@ -73,7 +77,13 @@ final class KeepADBSelfPairCleanup {
         /** The run is no longer the current one; its attempt must not go on. */
         OBSOLETE,
         /** The record could not be written; without it a grant could not be cleaned up. */
-        FAILED
+        FAILED,
+        /**
+         * Wifi-ADB was already on when the run began and no earlier claim is pending (#982): the
+         * user did not switch it on for this setup, so the grant goes ahead and nothing is
+         * recorded, and nothing is switched off afterwards.
+         */
+        NOT_NEEDED
     }
 
     /** What {@link #settle} found and did, with the owner and decision epoch it acted under. */
@@ -98,10 +108,21 @@ final class KeepADBSelfPairCleanup {
     private static final String KEY_RUN = "claim_run";
     private static final String KEY_ELAPSED = "claim_elapsed";
     private static final String KEY_BOOT = "claim_boot";
+    /** When and in which boot a run last found Wifi-ADB off (#982). */
+    private static final String KEY_FOUND_OFF_ELAPSED = "found_off_elapsed";
+    private static final String KEY_FOUND_OFF_BOOT = "found_off_boot";
+    /**
+     * How long "a run found Wifi-ADB off" carries over to a later run that finds it on (#982):
+     * long enough for a cancelled or killed run and a second try, short enough that a Wifi-ADB
+     * the user switched on later for other reasons is not taken for this setup's.
+     */
+    static final long FOUND_OFF_WINDOW_MS = 30 * 60 * 1000L;
     private static final int UNKNOWN_BOOT = -1;
     private static final Object LOCK = new Object();
     /** The run that may record a claim; guarded by LOCK. */
     private static String authorizedRun;
+    /** Whether Wifi-ADB was (or may have been) on when {@link #authorizedRun} began; LOCK. */
+    private static boolean authorizedRunFoundOn;
     /** The run during which the user decided otherwise; guarded by LOCK. */
     private static String supersededRun;
     /**
@@ -166,6 +187,7 @@ final class KeepADBSelfPairCleanup {
         WATCHING.set(false);
         synchronized (LOCK) {
             authorizedRun = null;
+            authorizedRunFoundOn = false;
             supersededRun = null;
             managedRun = null;
             settledRun = null;
@@ -185,13 +207,52 @@ final class KeepADBSelfPairCleanup {
      */
     static void authorize(String runId) {
         synchronized (LOCK) {
-            authorizedRun = runId;
-            supersededRun = null;
-            managedRun = null;
-            settledRun = null;
-            settledOutcome = null;
-            decisionEpoch++;
+            authorizeLocked(runId, false);
         }
+    }
+
+    /**
+     * Same as {@link #authorize(String)}, also naming the state of Wifi-ADB when the run began
+     * (#982). {@code foundOn} is true if it was on or could not be read: then the switch is not
+     * this run's to make. Two exceptions keep the cleanup: an earlier run found it off within
+     * {@link #FOUND_OFF_WINDOW_MS} of this boot and no grant has happened since (the user
+     * switched it on for that run's setup, which was cancelled or killed), or an earlier run's
+     * claim is still pending (checked in {@link #claim}).
+     */
+    static void authorize(Context context, String runId, boolean foundOn) {
+        synchronized (LOCK) {
+            boolean effectivelyOn = foundOn;
+            try {
+                SharedPreferences prefs = prefs(context);
+                if (foundOn && foundOffRecently(context, prefs)) {
+                    effectivelyOn = false;
+                }
+                // Only an actual off observation starts the window. Inheriting a note must
+                // not renew it: repeated retries could otherwise own the switch indefinitely.
+                if (!foundOn) {
+                    int boot = bootCount(context);
+                    if (boot != UNKNOWN_BOOT) {
+                        prefs.edit()
+                                .putLong(KEY_FOUND_OFF_ELAPSED, SystemClock.elapsedRealtime())
+                                .putInt(KEY_FOUND_OFF_BOOT, boot)
+                                .apply();
+                    }
+                }
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot read or record the state Wifi-ADB was found in", e);
+            }
+            authorizeLocked(runId, effectivelyOn);
+        }
+    }
+
+    private static void authorizeLocked(String runId, boolean foundOn) {
+        authorizedRun = runId;
+        authorizedRunFoundOn = foundOn;
+        supersededRun = null;
+        managedRun = null;
+        settledRun = null;
+        settledOutcome = null;
+        decisionEpoch++;
     }
 
     /**
@@ -241,6 +302,9 @@ final class KeepADBSelfPairCleanup {
                 return Claim.OBSOLETE;
             }
             try {
+                if (authorizedRunFoundOn && !hasValidClaim(context)) {
+                    return Claim.NOT_NEEDED;
+                }
                 int boot = bootCount(context);
                 boolean stored = boot != UNKNOWN_BOOT && prefs(context).edit()
                         .putString(KEY_RUN, runId)
@@ -280,7 +344,7 @@ final class KeepADBSelfPairCleanup {
             decisionEpoch++;
             try {
                 SharedPreferences prefs = prefs(context);
-                if (prefs.contains(KEY_RUN)) {
+                if (prefs.contains(KEY_RUN) || prefs.contains(KEY_FOUND_OFF_BOOT)) {
                     prefs.edit().clear().apply();
                 }
             } catch (RuntimeException e) {
@@ -378,11 +442,17 @@ final class KeepADBSelfPairCleanup {
                 SharedPreferences prefs = prefs(app);
                 String owner = prefs.getString(KEY_RUN, null);
                 if (owner != null && !isValid(app, prefs)) {
-                    prefs.edit().clear().apply();
+                    // Only the claim: a run that found Wifi-ADB off may still be retried (#982).
+                    prefs.edit().remove(KEY_RUN).remove(KEY_ELAPSED).remove(KEY_BOOT).apply();
                     owner = null;
                 }
                 if (!granted) {
                     return new Settlement(Outcome.NOT_GRANTED, null, decisionEpoch);
+                }
+                if (prefs.contains(KEY_FOUND_OFF_BOOT)) {
+                    // The setup is over: a later run judges Wifi-ADB by what it finds (#982).
+                    prefs.edit().remove(KEY_FOUND_OFF_ELAPSED).remove(KEY_FOUND_OFF_BOOT)
+                            .apply();
                 }
                 if (owner == null || (runId != null && !runId.equals(owner))) {
                     // If a watcher or delayed check already settled this run's claim under the
@@ -428,6 +498,21 @@ final class KeepADBSelfPairCleanup {
     }
 
     /** True while a claim is recorded, valid or not. */
+    /** A run of this boot found Wifi-ADB off within {@link #FOUND_OFF_WINDOW_MS}; LOCK held. */
+    private static boolean foundOffRecently(Context context, SharedPreferences prefs) {
+        int recorded = prefs.getInt(KEY_FOUND_OFF_BOOT, UNKNOWN_BOOT);
+        long age = SystemClock.elapsedRealtime()
+                - prefs.getLong(KEY_FOUND_OFF_ELAPSED, Long.MIN_VALUE / 2);
+        return recorded != UNKNOWN_BOOT && recorded == bootCount(context)
+                && age >= 0 && age < FOUND_OFF_WINDOW_MS;
+    }
+
+    /** A claim on disk that is still inside its window; caller holds LOCK. */
+    private static boolean hasValidClaim(Context context) {
+        SharedPreferences prefs = prefs(context);
+        return prefs.getString(KEY_RUN, null) != null && isValid(context, prefs);
+    }
+
     static boolean hasClaim(Context context) {
         synchronized (LOCK) {
             return prefs(context).contains(KEY_RUN);

@@ -20,6 +20,11 @@ final class KeepADBFakeSettingsGateway implements KeepADBSettingsGateway {
         this.enabled = initiallyEnabled;
     }
 
+    /** The user switched Wifi-ADB in Android's own settings: no write by the app is logged. */
+    void setEnabledByUser(boolean on) {
+        this.enabled = on;
+    }
+
     void setWriteSuccess(boolean writeSuccess) {
         this.writeSuccess = writeSuccess;
     }
