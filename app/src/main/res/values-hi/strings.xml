@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">सिस्टम अनुमति</string>
     <string name="onboarding_perm_system_body">इसके बिना KeepADB Wifi-ADB चालू नहीं कर सकता। इसे एक बार कंप्यूटर से दें:</string>
     <string name="onboarding_perm_system_more">कई डिवाइस या समस्याएँ?</string>
-    <string name="onboarding_copy_command">कमांड कॉपी करें</string>
+    <string name="onboarding_share_command">कमांड साझा करें</string>
     <string name="onboarding_copy_done">कमांड कॉपी हो गया</string>
     <string name="onboarding_perm_location_title">Wi-Fi की पहचान</string>
     <string name="onboarding_perm_location_body">Android Wi-Fi का नाम और ऐक्सेस पॉइंट तभी दिखाता है जब जगह की जानकारी का एक्सेस हो। KeepADB आपकी लोकेशन कभी नहीं पढ़ता।</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">फ़ोर्स मोड खत्म होने के बाद लागू होता है।</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">सिस्टम अनुमति नहीं मिली</string>
-    <string name="home_warning_system_text">KeepADB Wifi-ADB तभी चालू कर सकता है जब आप यह अनुमति एक बार कंप्यूटर से दें।</string>
+    <string name="home_warning_system_text">Wifi-ADB चालू या बंद करने के लिए KeepADB को एक बार सिस्टम अनुमति चाहिए। इसे सीधे इसी फ़ोन पर, Chrome या Edge में keepadb.roteson.de/setup पर, या USB के ज़रिए adb से दें।</string>
     <string name="home_warning_action_guide">निर्देश</string>
     <string name="home_warning_less_secure_title">सुझाव से कम सुरक्षित</string>
     <string name="home_warning_action_review">जाँचें</string>
@@ -665,4 +665,33 @@
     <string name="settings_webhook_periodic_interval_4h">हर 3 घंटे 59 मिनट में (डिफ़ॉल्ट)</string>
     <string name="settings_webhook_periodic_interval_12h">हर 11 घंटे 59 मिनट में</string>
     <string name="settings_webhook_periodic_interval_24h">हर 23 घंटे 59 मिनट में</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB यह अनुमति सीधे इसी फ़ोन पर खुद को दे सकता है: यह इसी फ़ोन के अपने Wifi-ADB से एक बार पेयर होता है। कंप्यूटर की ज़रूरत नहीं है।</string>
+    <string name="selfpair_start_button">इसी फ़ोन पर अनुमति दें</string>
+    <string name="selfpair_computer_toggle">USB के ज़रिए मैन्युअल रूप से (adb कमांड)</string>
+    <string name="selfpair_need_wifi">पहले Wi-Fi से कनेक्ट करें। Wifi-ADB सिर्फ़ Wi-Fi पर काम करता है।</string>
+    <string name="selfpair_need_notifications">KeepADB पेयरिंग कोड एक सूचना के ज़रिए लेता है। सूचनाओं के बिना यह तरीका काम नहीं करता; इसके बजाय कंप्यूटर से अनुमति दें।</string>
+    <string name="selfpair_step_1">1. डेवलपर विकल्प खोलें, “वायरलेस डीबगिंग” पर जाएँ और उसे चालू करें।</string>
+    <string name="selfpair_step_2">2. “पेयरिंग कोड से डिवाइस को जोड़ें” पर टैप करें और वह विंडो खुली रहने दें।</string>
+    <string name="selfpair_step_3">3. सूचनाएँ नीचे खींचें, KeepADB की सूचना को बड़ा करें और वहाँ छह अंकों का कोड दर्ज करें।</string>
+    <string name="selfpair_open_developer_options">डेवलपर विकल्प खोलें</string>
+    <string name="selfpair_developer_options_hint">डेवलपर विकल्प नहीं दिख रहे? सेटिंग › फ़ोन के बारे में खोलें और “बिल्ड नंबर” पर सात बार टैप करें।</string>
+    <string name="selfpair_status_waiting">पेयरिंग विंडो का इंतज़ार है…</string>
+    <string name="selfpair_status_found">पेयरिंग विंडो मिल गई। सूचना में कोड दर्ज करें।</string>
+    <string name="selfpair_status_working">पेयर किया जा रहा है और अनुमति दी जा रही है…</string>
+    <string name="selfpair_status_wrong_code">यह कोड स्वीकार नहीं हुआ। पेयरिंग विंडो में दिखे छह अंक दर्ज करें।</string>
+    <string name="selfpair_status_no_dialog">कोई पेयरिंग विंडो नहीं मिली। उसे फिर से खोलें और खुली रहने दें।</string>
+    <string name="selfpair_status_failed">यह काम नहीं किया। फिर कोशिश करें या कंप्यूटर से अनुमति दें।</string>
+    <string name="selfpair_done_off">Wifi-ADB फिर से बंद कर दिया गया।</string>
+    <string name="selfpair_done_still_on">Wifi-ADB अभी भी चालू है। अगर आपको अब इसकी ज़रूरत नहीं है, तो इसे KeepADB में बंद करें।</string>
+    <string name="selfpair_done_removable">पेयर किए गए डिवाइस में “KeepADB” की प्रविष्टि अब ज़रूरी नहीं है; आप उसे हटा सकते हैं। उसका फ़िंगरप्रिंट: %1$s</string>
+    <string name="selfpair_channel_name">इस फ़ोन पर सेटअप</string>
+    <string name="selfpair_notification_title">सिस्टम अनुमति</string>
+    <string name="selfpair_notification_done">अनुमति दे दी गई।</string>
+    <string name="selfpair_enter_code">कोड दर्ज करें</string>
+    <string name="selfpair_code_label">छह अंकों का कोड</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">कंप्यूटर के ब्राउज़र से</string>
+    <string name="onboarding_perm_browser_body">कंप्यूटर पर Chrome या Edge में यह पता खोलें और तीनों चरण पूरे करें:</string>
+    <string name="onboarding_perm_browser_prereq">इस फ़ोन पर USB डीबगिंग चालू करें और USB केबल से जोड़ें।</string>
 </resources>

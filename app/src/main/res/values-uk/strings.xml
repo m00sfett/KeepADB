@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">Системний дозвіл</string>
     <string name="onboarding_perm_system_body">Без нього KeepADB не зможе перемикати Wifi-ADB. Надайте його один раз з комп’ютера:</string>
     <string name="onboarding_perm_system_more">Кілька пристроїв або проблеми?</string>
-    <string name="onboarding_copy_command">Копіювати команду</string>
+    <string name="onboarding_share_command">Поділитися командою</string>
     <string name="onboarding_copy_done">Команду скопійовано</string>
     <string name="onboarding_perm_location_title">Розпізнавання Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android показує назву Wi-Fi і точку доступу лише за наявності доступу до геоданих. KeepADB ніколи не зчитує ваше розташування.</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">Діє після завершення примусового режиму.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Немає системного дозволу</string>
-    <string name="home_warning_system_text">KeepADB зможе перемикати Wifi-ADB, лише коли ви один раз надасте цей дозвіл з комп’ютера.</string>
+    <string name="home_warning_system_text">Щоб перемикати Wifi-ADB, KeepADB одноразово потрібен системний дозвіл. Надайте його безпосередньо на цьому телефоні, у Chrome чи Edge на keepadb.roteson.de/setup або через USB за допомогою adb.</string>
     <string name="home_warning_action_guide">Інструкція</string>
     <string name="home_warning_less_secure_title">Менш безпечно, ніж рекомендовано</string>
     <string name="home_warning_action_review">Перевірити</string>
@@ -667,4 +667,33 @@
     <string name="settings_webhook_periodic_interval_4h">Кожні 3 години 59 хвилин (типово)</string>
     <string name="settings_webhook_periodic_interval_12h">Кожні 11 годин 59 хвилин</string>
     <string name="settings_webhook_periodic_interval_24h">Кожні 23 години 59 хвилин</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB може сам надати собі цей дозвіл прямо на цьому телефоні: він один раз виконує підключення до Wifi-ADB цього телефона. Комп’ютер не потрібен.</string>
+    <string name="selfpair_start_button">Надати на цьому телефоні</string>
+    <string name="selfpair_computer_toggle">Уручну через USB (команда adb)</string>
+    <string name="selfpair_need_wifi">Спершу підключіться до мережі Wi-Fi. Wifi-ADB працює лише через Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB отримує код підключення через сповіщення. Без сповіщень цей спосіб не працює; надайте дозвіл із комп’ютера.</string>
+    <string name="selfpair_step_1">1. Відкрийте «Параметри розробника», перейдіть до «Бездротове налагодження» та ввімкніть його.</string>
+    <string name="selfpair_step_2">2. Торкніться «Підключити пристрій за кодом підключення» і залиште це вікно відкритим.</string>
+    <string name="selfpair_step_3">3. Відкрийте панель сповіщень, розгорніть сповіщення від KeepADB і введіть там шестизначний код.</string>
+    <string name="selfpair_open_developer_options">Відкрити «Параметри розробника»</string>
+    <string name="selfpair_developer_options_hint">Немає параметрів розробника? Відкрийте «Налаштування» › «Про телефон» і сім разів торкніться «Номер збірки».</string>
+    <string name="selfpair_status_waiting">Очікування вікна підключення…</string>
+    <string name="selfpair_status_found">Вікно підключення знайдено. Введіть код у сповіщенні.</string>
+    <string name="selfpair_status_working">Виконується підключення та надання дозволу…</string>
+    <string name="selfpair_status_wrong_code">Код не прийнято. Введіть шість цифр, показаних у вікні підключення.</string>
+    <string name="selfpair_status_no_dialog">Вікно підключення не знайдено. Відкрийте його знову й залиште відкритим.</string>
+    <string name="selfpair_status_failed">Не вдалося. Спробуйте ще раз або надайте дозвіл із комп’ютера.</string>
+    <string name="selfpair_done_off">Wifi-ADB знову вимкнено.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB усе ще ввімкнено. Вимкніть його в KeepADB, якщо він більше не потрібен.</string>
+    <string name="selfpair_done_removable">Запис «KeepADB» у списку підключених пристроїв більше не потрібен; його можна видалити. Його відбиток: %1$s</string>
+    <string name="selfpair_channel_name">Налаштування на цьому телефоні</string>
+    <string name="selfpair_notification_title">Системний дозвіл</string>
+    <string name="selfpair_notification_done">Дозвіл надано.</string>
+    <string name="selfpair_enter_code">Ввести код</string>
+    <string name="selfpair_code_label">Шестизначний код</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">У браузері на комп’ютері</string>
+    <string name="onboarding_perm_browser_body">Відкрийте цю адресу на комп’ютері в Chrome або Edge і виконайте три кроки:</string>
+    <string name="onboarding_perm_browser_prereq">Увімкніть налагодження через USB на цьому телефоні та підключіть його USB-кабелем.</string>
 </resources>

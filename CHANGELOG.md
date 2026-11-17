@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.14.0` (versionCode 271), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.14.0` (versionCode 272), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -26,9 +26,12 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.14.0] - Unreleased
 
 ### Added
+- On-device system permission setup by self-pairing (#962): on Android 11+, Step 3 of the setup assistant ("Permissions › System permission") leads with "Grant on this phone", runs an ephemeral loopback TLS 1.3 + SPAKE2 pairing session using a six-digit pairing code entered via notification reply, grants `WRITE_SECURE_SETTINGS`, switches Wifi-ADB back off when started for setup, and discards its in-memory pairing key afterwards (Android's paired-devices entry can be removed separately).
+- Browser-based setup guidance and command sharing (#961): directly underneath self-pairing, Step 3 offers the two computer alternatives in order — first `keepadb.roteson.de/setup` (WebUSB setup in Chrome or Edge, with a "Open developer options" shortcut), then manual USB `adb` with a "Share command" action.
 - Opt-in periodic webhook refresh (#976, based on work by `@inaciopestana`): adds a "Periodic refresh" switch (default off) and interval selector (`15 min`, `30 min`, `59 min`, `3 h 59 min` default when enabled, `11 h 59 min`, `23 h 59 min`) to the webhook settings card. Hour-based intervals subtract 1 minute so refreshes land ahead of external expiry windows. While Keep-Alive, Webhook Sync, and Periodic Refresh are enabled, `AlarmManager.setAndAllowWhileIdle` re-sends the active Wifi-ADB endpoint on that schedule and joins any in-flight POST instead of duplicating requests.
 
 ### Changed
+- Updated `home_warning_system_text` across all 19 locales, `README.md`, and `fastlane/metadata/android/en-US/full_description.txt` to explain granting `WRITE_SECURE_SETTINGS` directly on the phone, via `keepadb.roteson.de/setup` in Chrome or Edge, or manually over USB with `adb`.
 - Updated `settings_webhook_retry_subtext` across all 19 locales to clarify that scheduled refreshes only run when turned on in the webhook card.
 
 ## [1.13.0] - Unreleased

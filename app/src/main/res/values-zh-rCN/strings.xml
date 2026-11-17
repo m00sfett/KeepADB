@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">系统权限</string>
     <string name="onboarding_perm_system_body">没有它，KeepADB 无法切换 Wifi-ADB。请在电脑上一次性授予：</string>
     <string name="onboarding_perm_system_more">多台设备或遇到问题？</string>
-    <string name="onboarding_copy_command">复制命令</string>
+    <string name="onboarding_share_command">分享命令</string>
     <string name="onboarding_copy_done">命令已复制</string>
     <string name="onboarding_perm_location_title">检测 Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android 只有在拥有位置信息权限时才会显示 Wi-Fi 名称和接入点。KeepADB 绝不会读取你的位置。</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">在强制模式结束后生效。</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">缺少系统权限</string>
-    <string name="home_warning_system_text">只有在你从电脑上一次性授予此权限后，KeepADB 才能切换 Wifi-ADB。</string>
+    <string name="home_warning_system_text">KeepADB 需要一次性系统权限才能切换 Wifi-ADB。可直接在本手机上授予，或在 Chrome 或 Edge 中打开 keepadb.roteson.de/setup，或通过 USB 使用 adb 授予。</string>
     <string name="home_warning_action_guide">操作说明</string>
     <string name="home_warning_less_secure_title">比推荐设置更不安全</string>
     <string name="home_warning_action_review">查看</string>
@@ -664,4 +664,33 @@
     <string name="settings_webhook_periodic_interval_4h">每 3 小时 59 分钟（默认）</string>
     <string name="settings_webhook_periodic_interval_12h">每 11 小时 59 分钟</string>
     <string name="settings_webhook_periodic_interval_24h">每 23 小时 59 分钟</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB 可以直接在这部手机上为自己授予此权限：它会与这部手机自身的 Wifi-ADB 配对一次。无需电脑。</string>
+    <string name="selfpair_start_button">在这部手机上授予</string>
+    <string name="selfpair_computer_toggle">通过 USB 手动设置（adb 命令）</string>
+    <string name="selfpair_need_wifi">请先连接 Wi-Fi。Wifi-ADB 仅在 Wi-Fi 下可用。</string>
+    <string name="selfpair_need_notifications">KeepADB 通过通知接收配对码。没有通知权限时此方式无法使用；请改用电脑授予权限。</string>
+    <string name="selfpair_step_1">1. 打开开发者选项，进入“无线调试”并将其开启。</string>
+    <string name="selfpair_step_2">2. 点按“使用配对码配对设备”，并保持该窗口打开。</string>
+    <string name="selfpair_step_3">3. 下拉通知栏，展开 KeepADB 的通知，并在其中输入六位数字配对码。</string>
+    <string name="selfpair_open_developer_options">打开开发者选项</string>
+    <string name="selfpair_developer_options_hint">没有开发者选项？请打开“设置”›“关于手机”，连续点按“版本号”七次。</string>
+    <string name="selfpair_status_waiting">正在等待配对窗口…</string>
+    <string name="selfpair_status_found">已找到配对窗口。请在通知中输入配对码。</string>
+    <string name="selfpair_status_working">正在配对并授予权限…</string>
+    <string name="selfpair_status_wrong_code">该配对码未被接受。请输入配对窗口中显示的六位数字。</string>
+    <string name="selfpair_status_no_dialog">未找到配对窗口。请重新打开并保持打开。</string>
+    <string name="selfpair_status_failed">未成功。请重试，或改用电脑授予权限。</string>
+    <string name="selfpair_done_off">Wifi-ADB 已再次关闭。</string>
+    <string name="selfpair_done_still_on">Wifi-ADB 仍处于开启状态。如果不再需要，请在 KeepADB 中将其关闭。</string>
+    <string name="selfpair_done_removable">已配对设备中的“KeepADB”条目不再需要，可以将其移除。其指纹：%1$s</string>
+    <string name="selfpair_channel_name">在这部手机上设置</string>
+    <string name="selfpair_notification_title">系统权限</string>
+    <string name="selfpair_notification_done">权限已授予。</string>
+    <string name="selfpair_enter_code">输入配对码</string>
+    <string name="selfpair_code_label">六位数字配对码</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">在电脑浏览器中设置</string>
+    <string name="onboarding_perm_browser_body">在电脑上用 Chrome 或 Edge 打开此网址，按三个步骤操作：</string>
+    <string name="onboarding_perm_browser_prereq">在此手机上开启 USB 调试并用 USB 数据线连接。</string>
 </resources>

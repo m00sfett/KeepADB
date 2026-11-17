@@ -322,6 +322,10 @@ public class OnboardingActivity extends Activity {
         return page >= 1 && page <= steps.size() ? steps.get(page - 1) : null;
     }
 
+    boolean isShowing(OnboardingStep step) {
+        return !isDestroyed() && currentStep() == step;
+    }
+
     // ---- Pages ------------------------------------------------------------------------------------
 
     private void showPage(int target) {

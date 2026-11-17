@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">システム権限</string>
     <string name="onboarding_perm_system_body">これがないと、KeepADB は Wifi-ADB を切り替えられません。パソコンから一度だけ付与してください:</string>
     <string name="onboarding_perm_system_more">複数の端末や問題がある場合</string>
-    <string name="onboarding_copy_command">コマンドをコピー</string>
+    <string name="onboarding_share_command">コマンドを共有</string>
     <string name="onboarding_copy_done">コマンドをコピーしました</string>
     <string name="onboarding_perm_location_title">Wi-Fi の検出</string>
     <string name="onboarding_perm_location_body">Android は、位置情報へのアクセスがある場合にのみ Wi-Fi 名とアクセスポイントを表示します。KeepADB が位置を読み取ることはありません。</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">強制モード終了後に適用されます。</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">システム権限がありません</string>
-    <string name="home_warning_system_text">パソコンから一度だけこの権限を付与するまで、KeepADB は Wifi-ADB を切り替えられません。</string>
+    <string name="home_warning_system_text">Wifi-ADB を切り替えるには、KeepADB に一度だけシステム権限が必要です。この端末で直接付与するか、Chrome または Edge で keepadb.roteson.de/setup を開くか、USB 経由で adb を使って付与してください。</string>
     <string name="home_warning_action_guide">手順</string>
     <string name="home_warning_less_secure_title">推奨より安全性が低い</string>
     <string name="home_warning_action_review">確認</string>
@@ -664,4 +664,33 @@
     <string name="settings_webhook_periodic_interval_4h">3 時間 59 分ごと（デフォルト）</string>
     <string name="settings_webhook_periodic_interval_12h">11 時間 59 分ごと</string>
     <string name="settings_webhook_periodic_interval_24h">23 時間 59 分ごと</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB は、この端末上でこの権限を自分自身に付与できます。端末自身の Wifi-ADB と一度だけペア設定します。パソコンは不要です。</string>
+    <string name="selfpair_start_button">この端末で付与</string>
+    <string name="selfpair_computer_toggle">USB 経由で手動設定（adb コマンド）</string>
+    <string name="selfpair_need_wifi">先に Wi-Fi に接続してください。Wifi-ADB は Wi-Fi でのみ動作します。</string>
+    <string name="selfpair_need_notifications">KeepADB はペア設定コードを通知で受け取ります。通知がないとこの方法は使えません。代わりにパソコンから権限を付与してください。</string>
+    <string name="selfpair_step_1">1. 開発者向けオプションを開き、「ワイヤレス デバッグ」をオンにします。</string>
+    <string name="selfpair_step_2">2. 「ペア設定コードによるデバイスのペア設定」をタップし、そのウィンドウを開いたままにします。</string>
+    <string name="selfpair_step_3">3. 通知を下に引き下げ、KeepADB の通知を展開して、6 桁のコードを入力します。</string>
+    <string name="selfpair_open_developer_options">開発者向けオプションを開く</string>
+    <string name="selfpair_developer_options_hint">開発者向けオプションがない場合は、「設定」›「端末情報」を開き、「ビルド番号」を 7 回タップします。</string>
+    <string name="selfpair_status_waiting">ペア設定ウィンドウを待っています…</string>
+    <string name="selfpair_status_found">ペア設定ウィンドウが見つかりました。通知にコードを入力してください。</string>
+    <string name="selfpair_status_working">ペア設定して権限を付与しています…</string>
+    <string name="selfpair_status_wrong_code">そのコードは受け付けられませんでした。ペア設定ウィンドウに表示されている 6 桁を入力してください。</string>
+    <string name="selfpair_status_no_dialog">ペア設定ウィンドウが見つかりません。もう一度開いて、開いたままにしてください。</string>
+    <string name="selfpair_status_failed">うまくいきませんでした。もう一度試すか、パソコンから権限を付与してください。</string>
+    <string name="selfpair_done_off">Wifi-ADB を再びオフにしました。</string>
+    <string name="selfpair_done_still_on">Wifi-ADB はまだオンです。不要になった場合は、KeepADB でオフにしてください。</string>
+    <string name="selfpair_done_removable">ペア設定済みのデバイスにある「KeepADB」のエントリは不要になりました。削除できます。フィンガープリント: %1$s</string>
+    <string name="selfpair_channel_name">この端末でのセットアップ</string>
+    <string name="selfpair_notification_title">システム権限</string>
+    <string name="selfpair_notification_done">権限を付与しました。</string>
+    <string name="selfpair_enter_code">コードを入力</string>
+    <string name="selfpair_code_label">6 桁のコード</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">パソコンのブラウザーから</string>
+    <string name="onboarding_perm_browser_body">パソコンの Chrome または Edge で次のアドレスを開き、3 つの手順に進んでください:</string>
+    <string name="onboarding_perm_browser_prereq">この端末で USB デバッグを有効にし、USB ケーブルで接続してください。</string>
 </resources>

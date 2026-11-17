@@ -495,7 +495,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_perm_system_title">Autorisation système</string>
     <string name="onboarding_perm_system_body">Sans elle, KeepADB ne peut pas activer Wifi-ADB. À accorder une seule fois depuis un ordinateur :</string>
     <string name="onboarding_perm_system_more">Plusieurs appareils ou des problèmes ?</string>
-    <string name="onboarding_copy_command">Copier la commande</string>
+    <string name="onboarding_share_command">Partager la commande</string>
     <string name="onboarding_copy_done">Commande copiée</string>
     <string name="onboarding_perm_location_title">Détecter le Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android n’affiche le nom du Wi-Fi et le point d’accès qu’avec l’accès à la position. KeepADB ne lit jamais votre position.</string>
@@ -517,7 +517,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_protection_force_comfort_note">S’applique à la fin du mode forcé.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Autorisation système manquante</string>
-    <string name="home_warning_system_text">KeepADB ne peut activer Wifi-ADB qu’une fois cette autorisation accordée, une seule fois, depuis un ordinateur.</string>
+    <string name="home_warning_system_text">KeepADB a besoin d’une autorisation système unique pour activer Wifi-ADB. Accordez-la directement sur ce téléphone, dans Chrome ou Edge sur keepadb.roteson.de/setup, ou par USB avec adb.</string>
     <string name="home_warning_action_guide">Mode d’emploi</string>
     <string name="home_warning_less_secure_title">Moins sûr que recommandé</string>
     <string name="home_warning_action_review">Vérifier</string>
@@ -666,4 +666,33 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_webhook_periodic_interval_4h">Toutes les 3 heures 59 minutes (par défaut)</string>
     <string name="settings_webhook_periodic_interval_12h">Toutes les 11 heures 59 minutes</string>
     <string name="settings_webhook_periodic_interval_24h">Toutes les 23 heures 59 minutes</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB peut s\'accorder lui-même cette autorisation, directement sur ce téléphone : il s\'associe une seule fois au Wifi-ADB de ce téléphone. Aucun ordinateur n\'est nécessaire.</string>
+    <string name="selfpair_start_button">Accorder sur ce téléphone</string>
+    <string name="selfpair_computer_toggle">Manuellement par USB (commande adb)</string>
+    <string name="selfpair_need_wifi">Connectez-vous d\'abord à un réseau Wi-Fi. Wifi-ADB ne fonctionne qu\'en Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB reçoit le code d\'association via une notification. Sans notifications, cette méthode ne fonctionne pas ; accordez plutôt l\'autorisation depuis un ordinateur.</string>
+    <string name="selfpair_step_1">1. Ouvrez les options pour les développeurs, accédez à « Débogage sans fil » et activez-le.</string>
+    <string name="selfpair_step_2">2. Appuyez sur « Associer l\'appareil avec un code d\'association » et laissez cette fenêtre ouverte.</string>
+    <string name="selfpair_step_3">3. Déroulez les notifications, développez celle de KeepADB et saisissez-y le code à six chiffres.</string>
+    <string name="selfpair_open_developer_options">Ouvrir les options pour les développeurs</string>
+    <string name="selfpair_developer_options_hint">Pas d\'options pour les développeurs ? Ouvrez Paramètres › À propos du téléphone et appuyez sept fois sur « Numéro de build ».</string>
+    <string name="selfpair_status_waiting">En attente de la fenêtre d\'association…</string>
+    <string name="selfpair_status_found">Fenêtre d\'association trouvée. Saisissez le code dans la notification.</string>
+    <string name="selfpair_status_working">Association en cours et octroi de l\'autorisation…</string>
+    <string name="selfpair_status_wrong_code">Ce code n\'a pas été accepté. Saisissez les six chiffres affichés dans la fenêtre d\'association.</string>
+    <string name="selfpair_status_no_dialog">Aucune fenêtre d\'association trouvée. Rouvrez-la et laissez-la ouverte.</string>
+    <string name="selfpair_status_failed">Cela n\'a pas fonctionné. Réessayez ou accordez l\'autorisation depuis un ordinateur.</string>
+    <string name="selfpair_done_off">Wifi-ADB a été désactivé à nouveau.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB est toujours activé. Désactivez-le dans KeepADB si vous n\'en avez plus besoin.</string>
+    <string name="selfpair_done_removable">L\'entrée « KeepADB » dans les appareils associés n\'est plus nécessaire ; vous pouvez la supprimer. Son empreinte : %1$s</string>
+    <string name="selfpair_channel_name">Configuration sur ce téléphone</string>
+    <string name="selfpair_notification_title">Autorisation système</string>
+    <string name="selfpair_notification_done">Autorisation accordée.</string>
+    <string name="selfpair_enter_code">Saisir le code</string>
+    <string name="selfpair_code_label">Code à six chiffres</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Depuis un navigateur sur ordinateur</string>
+    <string name="onboarding_perm_browser_body">Sur un ordinateur, ouvrez cette adresse dans Chrome ou Edge et suivez les trois étapes :</string>
+    <string name="onboarding_perm_browser_prereq">Activez le débogage USB sur ce téléphone et branchez-le avec un câble USB.</string>
 </resources>

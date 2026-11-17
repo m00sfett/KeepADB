@@ -143,6 +143,14 @@ actions; “Next” and “Skip” write nothing. Like the buttons on the home s
 the marker that records whether a permission was requested before—used to distinguish “denied”
 from “permanently denied”—is stored in Activity preferences, not `keepadb_prefs`.
 
+Granting the system permission on the phone itself (#962) keeps a short-lived claim in its own
+preference file `keepadb_selfpair`: `claim_run`, `claim_elapsed` and `claim_boot`. It is absent on a
+new installation and is written only after the app has paired with the phone, right before the
+grant command can be sent. It records which run may switch Wifi-ADB off again once the permission
+is there, and nothing secret (a random run id and two clock values). It is removed when that
+cleanup is confirmed, when Keep-Alive is on, when the user changes Wifi-ADB or Keep-Alive in the
+app, after three minutes, and after a reboot. Bookkeeping, not a setting.
+
 ### Permissions and system state
 
 Android permissions are not app settings and are all ungranted on a new installation: precise

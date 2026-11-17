@@ -495,7 +495,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_perm_system_title">Izin sistem</string>
     <string name="onboarding_perm_system_body">Tanpa izin ini, KeepADB tidak dapat menyalakan Wifi-ADB. Berikan sekali dari komputer:</string>
     <string name="onboarding_perm_system_more">Beberapa perangkat atau masalah?</string>
-    <string name="onboarding_copy_command">Salin perintah</string>
+    <string name="onboarding_share_command">Bagikan perintah</string>
     <string name="onboarding_copy_done">Perintah disalin</string>
     <string name="onboarding_perm_location_title">Deteksi Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android hanya menampilkan nama Wi-Fi dan titik akses jika akses lokasi diizinkan. KeepADB tidak pernah membaca posisi Anda.</string>
@@ -517,7 +517,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_protection_force_comfort_note">Berlaku setelah mode paksa berakhir.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Izin sistem belum ada</string>
-    <string name="home_warning_system_text">KeepADB baru dapat menyalakan Wifi-ADB setelah Anda memberikan izin ini sekali dari komputer.</string>
+    <string name="home_warning_system_text">KeepADB memerlukan izin sistem satu kali untuk menyalakan Wifi-ADB. Berikan langsung di ponsel ini, melalui Chrome atau Edge di keepadb.roteson.de/setup, atau lewat USB dengan adb.</string>
     <string name="home_warning_action_guide">Petunjuk</string>
     <string name="home_warning_less_secure_title">Kurang aman dari yang disarankan</string>
     <string name="home_warning_action_review">Tinjau</string>
@@ -664,4 +664,33 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_webhook_periodic_interval_4h">Setiap 3 jam 59 menit (bawaan)</string>
     <string name="settings_webhook_periodic_interval_12h">Setiap 11 jam 59 menit</string>
     <string name="settings_webhook_periodic_interval_24h">Setiap 23 jam 59 menit</string>
+    <!-- #962: granting the system permission on the phone itself -->
+    <string name="selfpair_intro">KeepADB dapat memberi izin ini kepada dirinya sendiri, langsung di ponsel ini: aplikasi menyambungkan diri sekali dengan Wifi-ADB milik ponsel ini. Tidak perlu komputer.</string>
+    <string name="selfpair_start_button">Berikan di ponsel ini</string>
+    <string name="selfpair_computer_toggle">Secara manual lewat USB (perintah adb)</string>
+    <string name="selfpair_need_wifi">Hubungkan ke Wi-Fi terlebih dahulu. Wifi-ADB hanya berfungsi di Wi-Fi.</string>
+    <string name="selfpair_need_notifications">KeepADB menerima kode penyambungan melalui notifikasi. Tanpa notifikasi, cara ini tidak berfungsi; berikan izin dari komputer.</string>
+    <string name="selfpair_step_1">1. Buka Opsi developer, masuk ke “Proses debug nirkabel”, lalu aktifkan.</string>
+    <string name="selfpair_step_2">2. Ketuk “Sambungkan perangkat dengan kode penyambungan” dan biarkan jendela itu tetap terbuka.</string>
+    <string name="selfpair_step_3">3. Tarik ke bawah panel notifikasi, perluas notifikasi dari KeepADB, lalu masukkan kode enam digit di sana.</string>
+    <string name="selfpair_open_developer_options">Buka Opsi developer</string>
+    <string name="selfpair_developer_options_hint">Tidak ada Opsi developer? Buka Setelan › Tentang ponsel lalu ketuk “Nomor build” tujuh kali.</string>
+    <string name="selfpair_status_waiting">Menunggu jendela penyambungan…</string>
+    <string name="selfpair_status_found">Jendela penyambungan ditemukan. Masukkan kode di notifikasi.</string>
+    <string name="selfpair_status_working">Menyambungkan dan memberikan izin…</string>
+    <string name="selfpair_status_wrong_code">Kode itu tidak diterima. Masukkan enam digit yang tampil di jendela penyambungan.</string>
+    <string name="selfpair_status_no_dialog">Jendela penyambungan tidak ditemukan. Buka lagi dan biarkan tetap terbuka.</string>
+    <string name="selfpair_status_failed">Tidak berhasil. Coba lagi atau berikan izin dari komputer.</string>
+    <string name="selfpair_done_off">Wifi-ADB dimatikan kembali.</string>
+    <string name="selfpair_done_still_on">Wifi-ADB masih aktif. Matikan di KeepADB jika Anda tidak memerlukannya lagi.</string>
+    <string name="selfpair_done_removable">Entri “KeepADB” di perangkat yang tersambung tidak diperlukan lagi; Anda dapat menghapusnya. Sidik jarinya: %1$s</string>
+    <string name="selfpair_channel_name">Penyiapan di ponsel ini</string>
+    <string name="selfpair_notification_title">Izin sistem</string>
+    <string name="selfpair_notification_done">Izin diberikan.</string>
+    <string name="selfpair_enter_code">Masukkan kode</string>
+    <string name="selfpair_code_label">Kode enam digit</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Melalui browser di komputer</string>
+    <string name="onboarding_perm_browser_body">Di komputer, buka alamat ini di Chrome atau Edge dan ikuti ketiga langkahnya:</string>
+    <string name="onboarding_perm_browser_prereq">Aktifkan debugging USB di ponsel ini dan sambungkan dengan kabel USB.</string>
 </resources>

@@ -58,7 +58,8 @@ public class KeepADBResourceContractTest {
      * same rule: it is never translated, so it is defined in values/ only.
      */
     private static final Set<String> BRAND_KEYS =
-            Set.of("app_name", "title_keepadb", "tile_label", "widget_label_adb_short");
+            Set.of("app_name", "title_keepadb", "tile_label", "widget_label_adb_short",
+                    "onboarding_perm_browser_url");
     private static final int[] TRANSLATED_CONTRACTS = {
             R.string.notification_permission_panel_title,
             R.string.battery_optimization_body,
@@ -613,6 +614,7 @@ public class KeepADBResourceContractTest {
         int integerWitness = context.getApplicationInfo().uid;
         long longWitness = integerWitness;
         result.put("warnings_close", new Object[] {stringWitness});
+        result.put("selfpair_done_removable", new Object[] {"AA:BB:CC"});
         result.put("warnings_closed", new Object[] {stringWitness});
         result.put("onboarding_step_counter", new Object[] {integerWitness, integerWitness});
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});

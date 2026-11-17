@@ -90,6 +90,9 @@ public class OnboardingActivityPermissionsTest {
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
         KeepADBForceMode.resetForTesting();
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.IDLE, null,
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
     }
 
     // ---- sync() on resume (#628, N2) ---------------------------------------------------------------
@@ -132,6 +135,7 @@ public class OnboardingActivityPermissionsTest {
     public void theSystemPermissionShowsTheCommandWhileMissingAndIsDoneOnceGranted() {
         OnboardingActivity assistant = open(permissionsStepIntent());
         assertEquals("Missing", status(assistant, R.string.onboarding_perm_system_title));
+        openComputerWay(assistant);
         String shown = allText(assistant);
         assertTrue(shown, shown.contains(context.getString(R.string.setup_command,
                 context.getPackageName())));
@@ -148,9 +152,103 @@ public class OnboardingActivityPermissionsTest {
                 context.getPackageName())));
     }
 
+    // ---- #962 + #961: granting on the phone leads, browser then manual USB sit below ---------
+
+    @Test
+    public void grantingOnThePhoneLeadsAndBothComputerAlternativesSitBelowInOrder() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        String intro = context.getString(R.string.selfpair_intro);
+        String browserToggle = context.getString(R.string.onboarding_perm_browser_toggle);
+        String manualToggle = context.getString(R.string.selfpair_computer_toggle);
+        assertTrue(shown, shown.contains(intro));
+        assertTrue(shown, shown.contains(browserToggle));
+        assertTrue(shown, shown.contains(manualToggle));
+        assertTrue("on-device leads, then browser, then manual USB",
+                shown.indexOf(intro) < shown.indexOf(browserToggle)
+                        && shown.indexOf(browserToggle) < shown.indexOf(manualToggle));
+
+        String url = context.getString(R.string.onboarding_perm_browser_url);
+        String cmd = context.getString(R.string.setup_command, context.getPackageName());
+        assertFalse("browser details start folded", shown.contains(url));
+        assertFalse("manual command starts folded", shown.contains(cmd));
+
+        openBrowserWay(assistant);
+        assertTrue(allText(assistant).contains(url));
+        assertFalse(allText(assistant).contains(cmd));
+        openBrowserWay(assistant);
+        assertFalse(allText(assistant).contains(url));
+
+        openComputerWay(assistant);
+        assertTrue(allText(assistant).contains(cmd));
+        openComputerWay(assistant);
+        assertFalse(allText(assistant).contains(cmd));
+    }
+
+    @Test
+    public void grantingOnThePhoneStartsTheServiceWhenWifiAndNotificationsAreThere() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        android.content.Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("the self-pairing service was started", started);
+        assertEquals(KeepADBSelfPairService.class.getName(),
+                started.getComponent().getClassName());
+    }
+
+    @Test
+    public void withoutWifiTheStepSaysToConnectFirstAndStartsNothing() {
+        shadowOf(context.getSystemService(android.net.ConnectivityManager.class))
+                .clearAllNetworks();
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        assertTrue(allText(assistant).contains(context.getString(R.string.selfpair_need_wifi)));
+        assertNull(shadowOf((Application) context).getNextStartedService());
+    }
+
+    @Test
+    public void withNotificationsOffTheStepAsksFirstAndFallsBackToTheComputer() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+        assertNull("nothing starts before the code can be entered",
+                shadowOf((Application) context).getNextStartedService());
+
+        // Still off when the answer comes back: this way is closed, the other one opens.
+        assistant.onRequestPermissionsResult(OnboardingPermissions.REQUEST_NOTIFICATIONS,
+                new String[] {Manifest.permission.POST_NOTIFICATIONS},
+                new int[] {android.content.pm.PackageManager.PERMISSION_DENIED});
+        String shown = allText(assistant);
+        assertTrue(shown, shown.contains(
+                context.getString(R.string.selfpair_need_notifications)));
+        assertTrue(shown, shown.contains(
+                context.getString(R.string.onboarding_perm_browser_url)));
+        assertNull(shadowOf((Application) context).getNextStartedService());
+    }
+
+    @Test
+    public void browserAndManualFoldsSurviveActivityRecreation() {
+        ActivityController<OnboardingActivity> controller =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent())
+                        .setup();
+        controllers.add(controller);
+        OnboardingActivity assistant = controller.get();
+        openBrowserWay(assistant);
+        openComputerWay(assistant);
+
+        controller.recreate();
+        String shown = allText(controller.get());
+        assertTrue(shown.contains(context.getString(R.string.onboarding_perm_browser_url)));
+        assertTrue(shown.contains(context.getString(
+                R.string.setup_command, context.getPackageName())));
+    }
+
     @Test
     public void theSeveralDevicesHelpOpensAndFoldsAgain() {
         OnboardingActivity assistant = open(permissionsStepIntent());
+        openComputerWay(assistant);
         String more = context.getString(R.string.onboarding_perm_system_more);
         findTextStarting(assistant, more).performClick();
         String shown = allText(assistant);
@@ -161,6 +259,121 @@ public class OnboardingActivityPermissionsTest {
         findTextStarting(assistant, more).performClick();
         assertFalse(allText(assistant).contains(context.getString(R.string.setup_command_multi,
                 context.getPackageName())));
+    }
+
+    @Test
+    public void publishingStatusWhileAnotherStepIsShowingLeavesItsContentUntouched() {
+        OnboardingActivity assistant = open(new Intent(context, OnboardingActivity.class));
+        // Advance past Intro to Step 1, 2, 3 (Permissions)
+        click(assistant, R.id.onboarding_next);
+        click(assistant, R.id.onboarding_next);
+        click(assistant, R.id.onboarding_next);
+        assertTrue(allText(assistant).contains(
+                context.getString(R.string.onboarding_permissions_title)));
+
+        click(assistant, R.id.onboarding_next); // Step 4: Wi-Fi Trust
+        String step4Content = allText(assistant);
+        assertFalse(step4Content.contains(context.getString(R.string.onboarding_permissions_title)));
+
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.DIALOG_FOUND, null,
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+        assertEquals("Step 4 content must not be cleared or overwritten by self-pair status",
+                step4Content, allText(assistant));
+    }
+
+    @Test
+    public void returningToResumeWithSelfPairPendingAndNotificationsStillDisabledResetsPendingAndOpensComputer() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+
+        // Returning to onResume with notifications still disabled resets selfPairPending,
+        // shows the warning, and opens the browser fallback.
+        lastController.resume();
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_need_notifications)));
+        assertTrue(shown.contains(context.getString(R.string.onboarding_perm_browser_url)));
+    }
+
+    @Test
+    public void failedPhaseOpensComputerWay() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.FAILED, null,
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+        assertTrue("FAILED phase opens browser fallback",
+                allText(assistant).contains(context.getString(R.string.onboarding_perm_browser_url)));
+
+        // The user can still collapse the browser fold while the FAILED status remains visible.
+        openBrowserWay(assistant);
+        assertFalse("browser fallback should collapse on toggle",
+                allText(assistant).contains(context.getString(R.string.onboarding_perm_browser_url)));
+    }
+
+    @Test
+    public void aStartWaitingForNotificationsSurvivesRecreation() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+        android.os.Bundle out = new android.os.Bundle();
+        lastController.saveInstanceState(out);
+        assertTrue("the pending start is saved", out.getBoolean("onboarding_perm_self_pair_pending"));
+
+        // The activity is recreated while the permission question is open; the user says yes,
+        // and the restored step resumes with the permission in place.
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(true);
+        ActivityController<OnboardingActivity> restored =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent()).setup(out);
+        controllers.add(restored);
+        android.content.Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("the restored step goes on where the first one stopped", started);
+        assertEquals(KeepADBSelfPairService.class.getName(),
+                started.getComponent().getClassName());
+    }
+
+    @Test
+    public void theOpenComputerWaySurvivesRecreation() {
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        openComputerWay(assistant);
+        android.os.Bundle out = new android.os.Bundle();
+        lastController.saveInstanceState(out);
+        assertTrue(out.getBoolean("onboarding_perm_computer_open"));
+
+        ActivityController<OnboardingActivity> restoredController =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent()).setup(out);
+        controllers.add(restoredController);
+        assertTrue(allText(restoredController.get()).contains(
+                context.getString(R.string.setup_command, context.getPackageName())));
+    }
+
+    @Test
+    public void selfPairDoneWithStillOnShowsStillOnMessageAndRemovable() {
+        shadowOf((Application) context).grantPermissions(Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.DONE, "AA:BB:CC",
+                KeepADBSelfPairService.Cleanup.STILL_ON));
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_still_on)));
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_removable, "AA:BB:CC")));
+    }
+
+    @Test
+    public void selfPairFailedWithPairedFingerprintShowsRemovable() {
+        KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
+                KeepADBSelfPairService.Phase.FAILED, "11:22:33",
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        String shown = allText(assistant);
+        assertTrue(shown.contains(context.getString(R.string.selfpair_done_removable, "11:22:33")));
     }
 
     // ---- Notifications: denied, denied for good, granted, API 30 against 33 and later ---------------
@@ -422,6 +635,8 @@ public class OnboardingActivityPermissionsTest {
         org.robolectric.RuntimeEnvironment.setFontScale(2.0f);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         OnboardingActivity assistant = open(permissionsStepIntent());
+        openBrowserWay(assistant);
+        openComputerWay(assistant);
         findTextStarting(assistant, context.getString(R.string.onboarding_perm_system_more))
                 .performClick();
         OnboardingLayoutAssertions.assertFits(assistant, 320, "missing, help open, Keep-Alive on");
@@ -749,6 +964,17 @@ public class OnboardingActivityPermissionsTest {
             }
         }
         return null;
+    }
+
+    /** #961/#962: the two computer alternatives sit behind their own folds below self-pairing. */
+    private void openBrowserWay(android.app.Activity activity) {
+        findTextStarting(activity, context.getString(R.string.onboarding_perm_browser_toggle))
+                .performClick();
+    }
+
+    private void openComputerWay(android.app.Activity activity) {
+        findTextStarting(activity, context.getString(R.string.selfpair_computer_toggle))
+                .performClick();
     }
 
     private TextView findTextStarting(android.app.Activity activity, String prefix) {

@@ -94,10 +94,16 @@ final class KeepADB {
      * like the automatic Keep-Alive paths it unblocks.
      */
     static final String SOURCE_NETWORK_TRUST_PROMPT = "network_trust_prompt";
+    /**
+     * #962: the user granted the system permission on the phone itself and had switched Wifi-ADB
+     * on only for that; it is switched off again as the last act of what they started. Manual:
+     * it writes at once, so the result can be read back and reported.
+     */
+    static final String SOURCE_SELF_PAIRING = "self_pairing";
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT)));
+                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {
@@ -435,6 +441,11 @@ final class KeepADB {
      */
     static ToggleResult setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
+        if (isManualSource(source) && !SOURCE_SELF_PAIRING.equals(source)) {
+            // #962: the user decided about Wifi-ADB; a pending self-pairing cleanup is void.
+            // Before any lock of this class is taken: the cleanup holds its own while it calls in.
+            KeepADBSelfPairCleanup.supersede(appContext);
+        }
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
         // the caller.

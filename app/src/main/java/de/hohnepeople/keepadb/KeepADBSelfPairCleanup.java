@@ -1,0 +1,460 @@
+package de.hohnepeople.keepadb;
+
+import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.util.Log;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * Who may switch Wifi-ADB off after the app granted itself the system permission (#962), and
+ * the one place that does it.
+ *
+ * <p>The user switches Wireless debugging on only to pair. Once the permission is there and
+ * Keep-Alive is off, it is switched off again. That act needs an owner, because it can become
+ * due late: {@code adbd} may run the grant after the connection broke, and the process may die
+ * between the grant and the cleanup.
+ *
+ * <p>The owner is a <em>claim</em>, a small record that survives the process. Its rules:
+ * <ul>
+ *   <li>It is written only once pairing has succeeded, right before the grant command can be
+ *       sent, and synchronously. An attempt that never paired cannot have granted anything and
+ *       never holds a claim. If it cannot be written, the grant is not sent.</li>
+ *   <li>It belongs to one run of the service, and only the run that is current may record it.
+ *       A run settles only its own claim; the next process start may settle whatever claim it
+ *       finds.</li>
+ *   <li>It is valid for a short time within the same boot, measured on the monotonic clock,
+ *       and only if the boot can be identified. Wireless debugging does not survive a reboot,
+ *       so there is nothing to clean up after one.</li>
+ *   <li>Anything the user does afterwards about Wifi-ADB or Keep-Alive in KeepADB supersedes it:
+ *       the claim is dropped and nothing is switched off behind their back.</li>
+ *   <li>It is released only when the cleanup is confirmed, superseded, expired or not needed
+ *       (Keep-Alive on). A refused write keeps it, so the next entry tries again.</li>
+ * </ul>
+ *
+ * <p>What this cannot do: clean up at the moment a process is killed. That waits for the next
+ * start, and only inside the window; after it, a Wifi-ADB that is still on stays on until the
+ * user switches it off. A change the user makes in Android's own settings is invisible here; the
+ * short window is what bounds that case. Pairing is evidence that a grant may follow, not that
+ * this attempt caused the permission: one that arrives from elsewhere inside the window is
+ * treated as its own. And a user decision is void in this process at once, but reaches the disk
+ * a moment later; a process killed in that moment may find the old claim again.
+ *
+ * <p>Nothing secret is stored: a random run id and two clock values.
+ */
+final class KeepADBSelfPairCleanup {
+    /** What {@link #settle} found and did. */
+    enum Outcome {
+        /** The permission is not granted (yet); a valid claim stays for a late grant. */
+        NOT_GRANTED,
+        /** Granted; Wifi-ADB was left as it is (Keep-Alive, or not this caller's to switch). */
+        LEFT_ON,
+        /** Granted; Wifi-ADB was switched off and read back as off. */
+        SWITCHED_OFF,
+        /** Granted; switching off failed or could not be confirmed. The claim stays. */
+        STILL_ON,
+        /** The check itself failed; nothing is known and nothing was changed. */
+        UNKNOWN
+    }
+
+    /** What became of an attempt to record the claim. */
+    enum Claim {
+        /** Recorded on disk: the run owns the cleanup and may send the grant. */
+        HELD,
+        /** The user decided about Wifi-ADB or Keep-Alive since the run began: grant, no cleanup. */
+        SUPERSEDED,
+        /** The run is no longer the current one; its attempt must not go on. */
+        OBSOLETE,
+        /** The record could not be written; without it a grant could not be cleaned up. */
+        FAILED
+    }
+
+    /** What {@link #settle} found and did, with the owner and decision epoch it acted under. */
+    static final class Settlement {
+        final Outcome outcome;
+        /** The run whose claim was acted on; {@code null} when no claim was touched. */
+        final String claimOwner;
+        final long epoch;
+
+        Settlement(Outcome outcome, String claimOwner, long epoch) {
+            this.outcome = outcome;
+            this.claimOwner = claimOwner;
+            this.epoch = epoch;
+        }
+    }
+
+    /** Long enough to come back to the app after pairing, short enough not to surprise later. */
+    static final long WINDOW_MS = 3 * 60 * 1000L;
+
+    private static final String TAG = "KeepADBSelfPair";
+    private static final String PREFS_NAME = "keepadb_selfpair";
+    private static final String KEY_RUN = "claim_run";
+    private static final String KEY_ELAPSED = "claim_elapsed";
+    private static final String KEY_BOOT = "claim_boot";
+    private static final int UNKNOWN_BOOT = -1;
+    private static final Object LOCK = new Object();
+    /** The run that may record a claim; guarded by LOCK. */
+    private static String authorizedRun;
+    /** The run during which the user decided otherwise; guarded by LOCK. */
+    private static String supersededRun;
+    /**
+     * The run whose attempt is currently working and looks after its own claim; guarded by LOCK.
+     * While it is, nobody else settles that claim: the attempt would otherwise report "left as
+     * it is" for a cleanup that someone did behind its back.
+     */
+    private static String managedRun;
+    /** Monotonic counter bumped whenever a new run begins or the user decides otherwise; LOCK. */
+    private static long decisionEpoch;
+    /** Last claim outcome settled for {@link #settledRun} within {@link #settledEpoch}; LOCK. */
+    private static String settledRun;
+    private static Outcome settledOutcome;
+    private static long settledEpoch;
+
+    /** How often an unresolved claim is looked at again after its attempt has ended. */
+    static final long WATCH_INTERVAL_MS = 5_000L;
+
+    /** Runs work off the caller's thread; a seam for tests. */
+    interface Deferrer {
+        void run(Runnable task);
+
+        void later(long delayMs, Runnable task);
+    }
+
+    /** Told when a cleanup happened outside an attempt, so the assistant can still say so. */
+    interface Observer {
+        void onBackgroundCleanup(Context context, Settlement settlement);
+    }
+
+    private static final Deferrer REAL_DEFERRER = new Deferrer() {
+        private final ScheduledExecutorService executor =
+                Executors.newSingleThreadScheduledExecutor(task -> {
+                    Thread thread = new Thread(task, "selfpair-cleanup");
+                    thread.setDaemon(true);
+                    return thread;
+                });
+
+        @Override
+        public void run(Runnable task) {
+            executor.execute(task);
+        }
+
+        @Override
+        public void later(long delayMs, Runnable task) {
+            executor.schedule(task, delayMs, TimeUnit.MILLISECONDS);
+        }
+    };
+
+    private static volatile Deferrer deferrer = REAL_DEFERRER;
+    private static volatile Observer observer;
+    private static final AtomicBoolean RECONCILE_PENDING = new AtomicBoolean();
+    private static final AtomicBoolean WATCHING = new AtomicBoolean();
+
+    static void setObserver(Observer next) {
+        observer = next;
+    }
+
+    static void setDeferrerForTesting(Deferrer next) {
+        deferrer = next == null ? REAL_DEFERRER : next;
+        RECONCILE_PENDING.set(false);
+        WATCHING.set(false);
+        synchronized (LOCK) {
+            authorizedRun = null;
+            supersededRun = null;
+            managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            settledEpoch = 0;
+            decisionEpoch = 0;
+        }
+    }
+
+    private KeepADBSelfPairCleanup() {}
+
+    /**
+     * A new run begins: only it may record a claim from now on. An attempt of an earlier run
+     * that is still finishing its pairing gets {@link Claim#OBSOLETE} and cannot take the
+     * cleanup away from this one. No attempt is working yet, so any unresolved claim stays
+     * watchable until an attempt starts.
+     */
+    static void authorize(String runId) {
+        synchronized (LOCK) {
+            authorizedRun = runId;
+            supersededRun = null;
+            managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            decisionEpoch++;
+        }
+    }
+
+    /**
+     * An attempt of {@code runId} starts working: keep background reconciliation and the watcher
+     * off its claim until the attempt finishes.
+     */
+    static void manage(String runId) {
+        synchronized (LOCK) {
+            if (runId != null && runId.equals(authorizedRun)) {
+                managedRun = runId;
+            }
+        }
+    }
+
+    /**
+     * The attempt or run is no longer actively working on its claim. If one is still unresolved
+     * (paired, no permission seen yet), it is looked at again every few seconds until it is
+     * settled, superseded or expired: {@code adbd} may run the grant after the connection broke,
+     * and nobody else would notice while the process lives.
+     */
+    static void release(Context context, String runId) {
+        synchronized (LOCK) {
+            if (runId != null && runId.equals(managedRun)) {
+                managedRun = null;
+            }
+        }
+        watch(context.getApplicationContext());
+    }
+
+    /** True while no new run or user decision has invalidated {@code epoch}. */
+    static boolean isEpochCurrent(long epoch) {
+        synchronized (LOCK) {
+            return epoch == decisionEpoch;
+        }
+    }
+
+    /**
+     * Records that {@code runId} is about to send the grant command. Blocks until the record is
+     * on disk; call it off the main thread.
+     */
+    static Claim claim(Context context, String runId) {
+        synchronized (LOCK) {
+            if (runId.equals(supersededRun)) {
+                return Claim.SUPERSEDED;
+            }
+            if (!runId.equals(authorizedRun)) {
+                return Claim.OBSOLETE;
+            }
+            try {
+                int boot = bootCount(context);
+                boolean stored = boot != UNKNOWN_BOOT && prefs(context).edit()
+                        .putString(KEY_RUN, runId)
+                        .putLong(KEY_ELAPSED, SystemClock.elapsedRealtime())
+                        .putInt(KEY_BOOT, boot)
+                        .commit();
+                return stored ? Claim.HELD : Claim.FAILED;
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot record the cleanup claim", e);
+                return Claim.FAILED;
+            }
+        }
+    }
+
+    /**
+     * The user decided something about Wifi-ADB or Keep-Alive: any claim is void, and the run
+     * under way may not record one any more.
+     *
+     * <p>Takes the lock on purpose, although it is called from the main thread: a cleanup that
+     * is switching off right now has to finish before the user's own switch is written, or it
+     * would undo it. What it can wait for is local (a permission check, preferences, one
+     * settings write), never the network. There is no time limit on that wait; making the user's
+     * switch part of an asynchronous queue instead would mean rebuilding the app's central
+     * toggle path for it, and that was judged the larger risk (maintainer decision, #962). The
+     * removal is written asynchronously; within this process the claim is void at once.
+     */
+    static void supersede(Context context) {
+        if (context == null) return;
+        synchronized (LOCK) {
+            if (authorizedRun != null) {
+                supersededRun = authorizedRun;
+                authorizedRun = null;
+            }
+            managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            decisionEpoch++;
+            try {
+                SharedPreferences prefs = prefs(context);
+                if (prefs.contains(KEY_RUN)) {
+                    prefs.edit().clear().apply();
+                }
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot drop the cleanup claim", e);
+            }
+        }
+    }
+
+    /**
+     * At process start, and when the assistant comes to the front: finish what an earlier
+     * process or an ended run may have left undone. Returns at once; the work happens on a
+     * thread of its own, because it reads preferences and may write a setting.
+     */
+    static void reconcileAtStart(Context context) {
+        final Context app = context.getApplicationContext();
+        if (RECONCILE_PENDING.compareAndSet(false, true)) {
+            // One at a time: repeated returns to the assistant do not pile up work.
+            try {
+                deferrer.run(() -> {
+                    RECONCILE_PENDING.set(false);
+                    background(app);
+                });
+            } catch (RuntimeException e) {
+                RECONCILE_PENDING.set(false);
+                Log.w(TAG, "cannot schedule background reconciliation", e);
+            }
+        }
+    }
+
+    /** The reconciliation itself, on the calling thread. Never throws. */
+    static Outcome reconcile(Context context) {
+        return settle(context, null);
+    }
+
+    private static void watch(Context app) {
+        if (hasWatchableClaim(app) && WATCHING.compareAndSet(false, true)) {
+            try {
+                deferrer.later(WATCH_INTERVAL_MS, () -> {
+                    WATCHING.set(false);
+                    background(app);
+                });
+            } catch (RuntimeException e) {
+                WATCHING.set(false);
+                Log.w(TAG, "cannot schedule cleanup watcher", e);
+            }
+        }
+    }
+
+    /** One look outside an attempt: settle what can be settled, say so, and keep watching if needed. */
+    private static void background(Context app) {
+        Settlement settlement = settleDetailed(app, null);
+        Observer current = observer;
+        if (current != null && (settlement.outcome == Outcome.SWITCHED_OFF
+                || settlement.outcome == Outcome.STILL_ON
+                || (settlement.outcome == Outcome.LEFT_ON && settlement.claimOwner != null))) {
+            try {
+                current.onBackgroundCleanup(app, settlement);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot report the background cleanup", e);
+            }
+        }
+        watch(app);
+    }
+
+    /** A claim that is valid and that no working attempt looks after. */
+    private static boolean hasWatchableClaim(Context app) {
+        synchronized (LOCK) {
+            try {
+                SharedPreferences prefs = prefs(app);
+                String owner = prefs.getString(KEY_RUN, null);
+                return owner != null && !owner.equals(managedRun) && isValid(app, prefs);
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Checks the permission and, if this caller holds the claim, switches Wifi-ADB off.
+     * {@code runId} names the calling run; {@code null} is the process start, which may act on
+     * any valid claim. Never throws.
+     */
+    static Outcome settle(Context context, String runId) {
+        return settleDetailed(context, runId).outcome;
+    }
+
+    /** Same as {@link #settle}, also returning the claim owner and decision epoch it acted under. */
+    static Settlement settleDetailed(Context context, String runId) {
+        synchronized (LOCK) {
+            try {
+                Context app = context.getApplicationContext();
+                boolean granted = app.checkSelfPermission(
+                        Manifest.permission.WRITE_SECURE_SETTINGS)
+                        == PackageManager.PERMISSION_GRANTED;
+                SharedPreferences prefs = prefs(app);
+                String owner = prefs.getString(KEY_RUN, null);
+                if (owner != null && !isValid(app, prefs)) {
+                    prefs.edit().clear().apply();
+                    owner = null;
+                }
+                if (!granted) {
+                    return new Settlement(Outcome.NOT_GRANTED, null, decisionEpoch);
+                }
+                if (owner == null || (runId != null && !runId.equals(owner))) {
+                    // If a watcher or delayed check already settled this run's claim under the
+                    // same decision epoch, carry that result forward to the calling attempt.
+                    if (runId != null && runId.equals(settledRun)
+                            && settledEpoch == decisionEpoch) {
+                        return new Settlement(settledOutcome, null, decisionEpoch);
+                    }
+                    // No claim, or another run's: the permission is there, the switch is not ours.
+                    return new Settlement(Outcome.LEFT_ON, null, decisionEpoch);
+                }
+                if (runId == null && owner.equals(managedRun)) {
+                    // A working attempt looks after this claim and will report what it did with it.
+                    return new Settlement(Outcome.LEFT_ON, null, decisionEpoch);
+                }
+                if (KeepADBPreferences.isKeepAliveEnabled(app)) {
+                    prefs.edit().clear().apply();
+                    return new Settlement(Outcome.LEFT_ON, owner, decisionEpoch);
+                }
+                KeepADB.ToggleResult result =
+                        KeepADB.setEnabled(app, false, KeepADB.SOURCE_SELF_PAIRING);
+                Boolean enabled = KeepADB.isEnabledOrNull(app, KeepADB.SOURCE_SELF_PAIRING);
+                if (result != null && result.isSuccess() && Boolean.FALSE.equals(enabled)) {
+                    prefs.edit().clear().apply();
+                    if (owner.equals(authorizedRun)) {
+                        settledRun = owner;
+                        settledOutcome = Outcome.SWITCHED_OFF;
+                        settledEpoch = decisionEpoch;
+                    }
+                    return new Settlement(Outcome.SWITCHED_OFF, owner, decisionEpoch);
+                }
+                if (owner.equals(authorizedRun)) {
+                    settledRun = owner;
+                    settledOutcome = Outcome.STILL_ON;
+                    settledEpoch = decisionEpoch;
+                }
+                return new Settlement(Outcome.STILL_ON, owner, decisionEpoch);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "self-pairing cleanup failed", e);
+                return new Settlement(Outcome.UNKNOWN, null, decisionEpoch);
+            }
+        }
+    }
+
+    /** True while a claim is recorded, valid or not. */
+    static boolean hasClaim(Context context) {
+        synchronized (LOCK) {
+            return prefs(context).contains(KEY_RUN);
+        }
+    }
+
+    private static boolean isValid(Context context, SharedPreferences prefs) {
+        long age = SystemClock.elapsedRealtime() - prefs.getLong(KEY_ELAPSED, Long.MIN_VALUE / 2);
+        int recorded = prefs.getInt(KEY_BOOT, UNKNOWN_BOOT);
+        // An unknown boot proves nothing: after a reboot the monotonic clock starts over and
+        // could land inside the window by chance.
+        return recorded != UNKNOWN_BOOT && recorded == bootCount(context)
+                && age >= 0 && age < WINDOW_MS;
+    }
+
+    /** Distinguishes boots where the monotonic clock alone could not. */
+    private static int bootCount(Context context) {
+        try {
+            return Settings.Global.getInt(context.getContentResolver(),
+                    Settings.Global.BOOT_COUNT, UNKNOWN_BOOT);
+        } catch (RuntimeException e) {
+            return UNKNOWN_BOOT;
+        }
+    }
+
+    private static SharedPreferences prefs(Context context) {
+        return context.getApplicationContext()
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+}

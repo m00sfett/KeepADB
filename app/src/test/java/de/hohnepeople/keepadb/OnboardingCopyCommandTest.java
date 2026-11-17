@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.List;
 
-/** #791 (F8): the missing system permission offers to copy its command. */
+/** #791 / #961: the missing system permission offers browser setup and command sharing. */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class OnboardingCopyCommandTest {
@@ -68,25 +67,74 @@ public class OnboardingCopyCommandTest {
     }
 
     @Test
-    public void theMissingSystemPermissionOffersToCopyTheCommand() {
+    public void theMissingSystemPermissionOffersToShareTheCommand() {
         OnboardingActivity assistant = open(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS));
-        Button copy = find(assistant.getWindow().getDecorView(),
-                context.getString(R.string.onboarding_copy_command));
-        assertNotNull("a copy button next to the command", copy);
-        copy.performClick();
+        // #961/#962: the manual USB command sits behind its own fold below browser setup.
+        openFold(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_computer_toggle));
+        Button share = find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.onboarding_share_command));
+        assertNotNull("a share button next to the command", share);
+        share.performClick();
 
-        ClipboardManager clipboard = context.getSystemService(ClipboardManager.class);
+        android.content.Intent chooser = shadowOf(assistant).getNextStartedActivity();
+        assertNotNull("a share chooser was launched", chooser);
+        assertEquals(android.content.Intent.ACTION_CHOOSER, chooser.getAction());
+        android.content.Intent send = chooser.getParcelableExtra(android.content.Intent.EXTRA_INTENT);
+        assertNotNull(send);
+        assertEquals(android.content.Intent.ACTION_SEND, send.getAction());
+        assertEquals("text/plain", send.getType());
         assertEquals(context.getString(R.string.setup_command, context.getPackageName()),
-                clipboard.getPrimaryClip().getItemAt(0).getText().toString());
+                send.getStringExtra(android.content.Intent.EXTRA_TEXT));
 
-        // Granted: command and button are gone together.
+        // Granted: command and share button are gone together.
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         find(assistant.getWindow().getDecorView(), context.getString(R.string.setup_refresh))
                 .performClick();
         assertEquals(null, find(assistant.getWindow().getDecorView(),
-                context.getString(R.string.onboarding_copy_command)));
+                context.getString(R.string.onboarding_share_command)));
+    }
+
+    @Test
+    public void theMissingSystemPermissionOffersBrowserSetupWithDeveloperOptions() {
+        OnboardingActivity assistant = open(
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS));
+        openFold(assistant.getWindow().getDecorView(),
+                context.getString(R.string.onboarding_perm_browser_toggle));
+        Button devOptions = find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_open_developer_options));
+        assertNotNull("developer options button inside browser setup", devOptions);
+        devOptions.performClick();
+
+        android.content.Intent devIntent = shadowOf(assistant).getNextStartedActivity();
+        assertNotNull(devIntent);
+        assertEquals(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS,
+                devIntent.getAction());
+
+        // Granted: browser setup fold and button are gone.
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        find(assistant.getWindow().getDecorView(), context.getString(R.string.setup_refresh))
+                .performClick();
+        assertEquals(null, find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_open_developer_options)));
+    }
+
+    /** Taps the fold line whose text starts with {@code label}. */
+    private static boolean openFold(View root, String label) {
+        if (root instanceof TextView && !(root instanceof Button)
+                && ((TextView) root).getText().toString().startsWith(label)) {
+            return root.performClick();
+        }
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                if (openFold(group.getChildAt(i), label)) return true;
+            }
+        }
+        return false;
     }
 
     private static Button find(View root, String label) {
