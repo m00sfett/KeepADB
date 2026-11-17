@@ -130,10 +130,11 @@
 
         <!-- The three buttons are reordered and widened by OnboardingActivity when the display is
              narrow or the font large; here they sit side by side. -->
-        <LinearLayout
+        <de.hohnepeople.keepadb.KeepADBContentColumnLayout
             android:id="@+id/onboarding_bottom_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:background="@color/ground"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -194,6 +195,6 @@
                 android:text="@string/onboarding_next"
                 android:textColor="@color/title_yellow"
                 android:textSize="15sp" />
-        </LinearLayout>
+        </de.hohnepeople.keepadb.KeepADBContentColumnLayout>
     </LinearLayout>
 </LinearLayout>

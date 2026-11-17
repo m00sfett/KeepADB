@@ -34,7 +34,7 @@ public class KeepADBVersionContractTest {
         assertTrue(layout.indexOf("@+id/btn_settings_language") > toolbarIndex);
         assertTrue(layout.indexOf("@+id/btn_settings_language") < layout.indexOf("</Toolbar>"));
         assertTrue(activity.contains("R.id.btn_settings_language"));
-        assertTrue(layout.indexOf("</LinearLayout>\n\n    </LinearLayout>", versionPanelIndex) > versionPanelIndex);
+        assertTrue(layout.indexOf("</LinearLayout>\n\n    </de.hohnepeople.keepadb.KeepADBContentColumnLayout>", versionPanelIndex) > versionPanelIndex);
         assertTrue(activity.contains("getPackageManager().getPackageInfo(getPackageName(), 0)"));
         assertTrue(activity.contains("bindVersionInfo();"));
         assertTrue(activity.contains("packageInfo.versionName"));

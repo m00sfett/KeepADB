@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.13.0` (versionCode 269), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.13.0` (versionCode 270), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -31,8 +31,9 @@ Block 1 of 1.13.0: five small fixes and additions to the entry points. Block 2 (
 status split into a state, a reason and an action (#957), copying the endpoint (#951) and the help
 for connecting a computer (#952). Block 4 (versionCode 268): the Protection page (#959): the
 Network card of Settings becomes one row that opens its own page, and the "Also trust by Wi-Fi
-name" switch is gone. Block 5 (versionCode 269): one name per thing across the app, the docs and
-the store texts (#965), and the privacy eye on the tablet and wide-window layouts (#971).
+name" switch is gone. Block 5 (versionCode 269 and 270): one name per thing across the app, the docs and
+the store texts (#965), the privacy eye on the tablet and wide-window layouts (#971), and the
+centered 800dp content column on sub-pages (#975).
 The version carries a minor bump (approved by the
 maintainer, because a feature of the public 1.11.0 disappears); later blocks of 1.13.0 keep the
 name and raise only the code.
@@ -309,6 +310,15 @@ name and raise only the code.
     phone (the screenshot check of the issue is open).
 
 ### Fixed
+- **Content width of sub-pages on tablets (#975):** on wide displays and tablets, sub-pages
+  (`ProtectionActivity`, `SettingsActivity`, `NetworkListActivity`, `ReportHistoryActivity`,
+  `WarningsActivity`, `KeepADBWidgetConfigActivity`, the bottom bar of `OnboardingActivity`, and
+  `NetworkDecisionView`) stretched across the entire viewport up to 1200dp+. A shared layout
+  `KeepADBContentColumnLayout` (and an equivalent measure cap in `NetworkDecisionView`) centers the
+  content column and caps it at `main_content_max_width` (800dp) while remaining full-width on
+  phones (<800dp). In the widget configuration, the save button area also aligns with the 800dp column.
+  `SubPageContentWidthTest` guards the two-sided invariant and the width cap across all sub-pages
+  under tablet and phone configurations.
 - **The privacy eye is on the tablet and wide-window layouts (#971):** only `layout/activity_main.xml`
   included `view_privacy_toggle`; the five variants for wide windows and tablets (`layout-w600dp`,
   `-w840dp`, `-sw600dp`, `-sw840dp`, `-sw600dp-w840dp`) had none, so there the screen could not be

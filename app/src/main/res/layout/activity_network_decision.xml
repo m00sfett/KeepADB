@@ -9,5 +9,6 @@
     <de.hohnepeople.keepadb.NetworkDecisionView
         android:id="@+id/network_decision"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
 </ScrollView>
