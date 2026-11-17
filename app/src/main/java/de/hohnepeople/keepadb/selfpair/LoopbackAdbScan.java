@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 /**
  * Fallback for finding {@code adbd}'s TLS port when mDNS does not report it (#962). Observed on
@@ -45,15 +46,24 @@ final class LoopbackAdbScan {
     }
 
     static List<Integer> find() throws InterruptedException {
-        List<Integer> found = scanRange(EPHEMERAL_FIRST_PORT, LAST_PORT);
-        if (!found.isEmpty()) {
+        return find(() -> false);
+    }
+
+    static List<Integer> find(BooleanSupplier isCancelled) throws InterruptedException {
+        List<Integer> found = scanRange(EPHEMERAL_FIRST_PORT, LAST_PORT, isCancelled);
+        if (!found.isEmpty() || isCancelled.getAsBoolean()) {
             return found;
         }
-        return scanRange(LOW_FIRST_PORT, EPHEMERAL_FIRST_PORT - 1);
+        return scanRange(LOW_FIRST_PORT, EPHEMERAL_FIRST_PORT - 1, isCancelled);
     }
 
     static List<Integer> scanRange(int firstPort, int lastPort) throws InterruptedException {
-        if (firstPort > lastPort) {
+        return scanRange(firstPort, lastPort, () -> false);
+    }
+
+    static List<Integer> scanRange(int firstPort, int lastPort, BooleanSupplier isCancelled)
+            throws InterruptedException {
+        if (firstPort > lastPort || isCancelled.getAsBoolean()) {
             return Collections.emptyList();
         }
         InetAddress loopback = ipv4Loopback();
@@ -66,8 +76,8 @@ final class LoopbackAdbScan {
             final int from = start;
             final int to = Math.min(lastPort, start + slice - 1);
             pool.execute(() -> {
-                for (int port = from; port <= to && !Thread.currentThread().isInterrupted();
-                        port++) {
+                for (int port = from; port <= to && !Thread.currentThread().isInterrupted()
+                        && !isCancelled.getAsBoolean(); port++) {
                     if (isPortBusy(loopback, port)) {
                         open.add(port);
                     }
@@ -76,12 +86,15 @@ final class LoopbackAdbScan {
         }
         pool.shutdown();
         try {
-            pool.awaitTermination(RANGE_SCAN_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            awaitOrCancel(pool, RANGE_SCAN_TIMEOUT_MS, isCancelled);
         } finally {
             pool.shutdownNow();
         }
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
+        }
+        if (isCancelled.getAsBoolean()) {
+            return Collections.emptyList();
         }
         List<Integer> candidates;
         synchronized (open) {
@@ -96,7 +109,7 @@ final class LoopbackAdbScan {
         // Probe busy ports in parallel so unrelated silent listeners cannot exhaust the budget.
         for (int port : candidates) {
             probePool.execute(() -> {
-                if (!Thread.currentThread().isInterrupted()
+                if (!Thread.currentThread().isInterrupted() && !isCancelled.getAsBoolean()
                         && (offersAdbOverTls(loopback, port)
                                 || (!defaultLoopback.equals(loopback)
                                         && offersAdbOverTls(defaultLoopback, port)))) {
@@ -106,15 +119,32 @@ final class LoopbackAdbScan {
         }
         probePool.shutdown();
         try {
-            probePool.awaitTermination(PROBE_BUDGET_MS, TimeUnit.MILLISECONDS);
+            awaitOrCancel(probePool, PROBE_BUDGET_MS, isCancelled);
         } finally {
             probePool.shutdownNow();
         }
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
         }
+        if (isCancelled.getAsBoolean()) {
+            return Collections.emptyList();
+        }
         synchronized (adb) {
             return new ArrayList<>(adb);
+        }
+    }
+
+    private static void awaitOrCancel(ExecutorService pool, long timeoutMs,
+            BooleanSupplier isCancelled) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+        while (!isCancelled.getAsBoolean()) {
+            long remainingMs = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
+            if (remainingMs <= 0) {
+                return;
+            }
+            if (pool.awaitTermination(Math.min(100L, remainingMs), TimeUnit.MILLISECONDS)) {
+                return;
+            }
         }
     }
 

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.List;
 
-/** #791 (F8): the missing system permission offers to copy its command. */
+/** #791 / #961: the missing system permission offers browser setup and command sharing. */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class OnboardingCopyCommandTest {

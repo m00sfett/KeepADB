@@ -309,6 +309,11 @@ public class OnboardingActivityPermissionsTest {
 
         assertTrue("FAILED phase opens browser fallback",
                 allText(assistant).contains(context.getString(R.string.onboarding_perm_browser_url)));
+
+        // The user can still collapse the browser fold while the FAILED status remains visible.
+        openBrowserWay(assistant);
+        assertFalse("browser fallback should collapse on toggle",
+                allText(assistant).contains(context.getString(R.string.onboarding_perm_browser_url)));
     }
 
     @Test
@@ -630,6 +635,7 @@ public class OnboardingActivityPermissionsTest {
         org.robolectric.RuntimeEnvironment.setFontScale(2.0f);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         OnboardingActivity assistant = open(permissionsStepIntent());
+        openBrowserWay(assistant);
         openComputerWay(assistant);
         findTextStarting(assistant, context.getString(R.string.onboarding_perm_system_more))
                 .performClick();

@@ -29,6 +29,8 @@ public class LoopbackAdbScanTest {
 
             Thread adbThread = new Thread(() -> serveStls(adbServer));
             Thread noiseThread = new Thread(() -> serveGarbage(noiseServer));
+            adbThread.setDaemon(true);
+            noiseThread.setDaemon(true);
             adbThread.start();
             noiseThread.start();
 
@@ -45,6 +47,18 @@ public class LoopbackAdbScanTest {
     @Test
     public void scanRangeHandlesEmptyInvertedBounds() throws Exception {
         assertEquals(List.of(), LoopbackAdbScan.scanRange(5000, 4999));
+    }
+
+    @Test
+    public void scanRangeReturnsEmptyWhenCancelled() throws Exception {
+        try (ServerSocket adbServer = new ServerSocket(0, 4, InetAddress.getLoopbackAddress())) {
+            int port = adbServer.getLocalPort();
+            Thread adbThread = new Thread(() -> serveStls(adbServer));
+            adbThread.setDaemon(true);
+            adbThread.start();
+
+            assertEquals(List.of(), LoopbackAdbScan.scanRange(port, port, () -> true));
+        }
     }
 
     private static void serveStls(ServerSocket server) {

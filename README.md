@@ -25,7 +25,7 @@ or download the APK from [GitHub Releases](https://github.com/m00sfett/KeepADB/r
 
 Then grant `WRITE_SECURE_SETTINGS` once in one of three ways:
 
-1. **On the phone (Android 11+, no computer needed):** open the setup assistant, start "Grant on this phone" at **Permissions › System permission**, enable Wifi-ADB's pairing window, and enter the six-digit pairing code in KeepADB's notification. KeepADB grants the permission to itself over loopback, cleans up its temporary pairing key, and switches Wifi-ADB back off when it turned it on for setup.
+1. **On the phone (Android 11+, no computer needed):** open the setup assistant, start "Grant on this phone" at **Permissions › System permission**, enable Wifi-ADB's pairing window, and enter the six-digit pairing code in KeepADB's notification. KeepADB grants the permission to itself over loopback, discards its in-memory pairing key, and switches Wifi-ADB back off when it turned it on for setup.
 2. **In a computer browser (`https://keepadb.roteson.de/setup`):** open the setup page in Chrome or Edge, enable USB debugging, connect the phone with a USB cable, and follow the three steps (no device data leaves the browser).
 3. **Manually over USB (`adb`):**
 

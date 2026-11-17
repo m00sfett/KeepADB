@@ -56,6 +56,7 @@ final class OnboardingActionSteps {
         private boolean built;
         /** #961/#962: the browser-based setup way, first alternative below on-device pairing. */
         private boolean browserOpen;
+        private boolean browserAutoOpenedForFailure;
         /** #961/#962: the manual USB command-line way, second alternative below browser setup. */
         private boolean computerOpen;
         /** #962: "Grant on this phone" was tapped and waits for the notification permission. */
@@ -66,6 +67,8 @@ final class OnboardingActionSteps {
                 "onboarding_perm_self_pair_pending";
         private static final String STATE_BROWSER_OPEN =
                 "onboarding_perm_browser_open";
+        private static final String STATE_BROWSER_AUTO_OPENED =
+                "onboarding_perm_browser_auto_opened";
         private static final String STATE_COMPUTER_OPEN =
                 "onboarding_perm_computer_open";
         private static final String STATE_SELF_PAIR_NEEDS_NOTIFICATIONS =
@@ -115,6 +118,7 @@ final class OnboardingActionSteps {
         void saveState(Bundle out) {
             out.putBoolean(STATE_SELF_PAIR_PENDING, selfPairPending);
             out.putBoolean(STATE_BROWSER_OPEN, browserOpen);
+            out.putBoolean(STATE_BROWSER_AUTO_OPENED, browserAutoOpenedForFailure);
             out.putBoolean(STATE_COMPUTER_OPEN, computerOpen);
             out.putBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, selfPairNeedsNotifications);
             out.putBoolean(STATE_SELF_PAIR_NEEDS_WIFI, selfPairNeedsWifi);
@@ -124,6 +128,7 @@ final class OnboardingActionSteps {
         void restoreState(Bundle in) {
             selfPairPending = in.getBoolean(STATE_SELF_PAIR_PENDING, false);
             browserOpen = in.getBoolean(STATE_BROWSER_OPEN, false);
+            browserAutoOpenedForFailure = in.getBoolean(STATE_BROWSER_AUTO_OPENED, false);
             computerOpen = in.getBoolean(STATE_COMPUTER_OPEN, false);
             selfPairNeedsNotifications = in.getBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, false);
             selfPairNeedsWifi = in.getBoolean(STATE_SELF_PAIR_NEEDS_WIFI, false);
@@ -283,7 +288,12 @@ final class OnboardingActionSteps {
         private void addSystemHelp(LinearLayout row) {
             KeepADBSelfPairService.Status selfPair = KeepADBSelfPairService.status();
             if (selfPair.phase == KeepADBSelfPairService.Phase.FAILED) {
-                browserOpen = true;
+                if (!browserAutoOpenedForFailure) {
+                    browserOpen = true;
+                    browserAutoOpenedForFailure = true;
+                }
+            } else {
+                browserAutoOpenedForFailure = false;
             }
             if (selfPair.isActive()) {
                 addSelfPairProgress(row, selfPair);

@@ -638,7 +638,7 @@ public final class KeepADBSelfPairService extends Service {
                         KeepADBOnboarding.Step.PERMISSIONS,
                         OnboardingActionSteps.Permissions.ITEM_SYSTEM),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Builder(context, CHANNEL_ID)
+        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(context.getString(R.string.selfpair_notification_title))
                 .setContentText(text)
@@ -647,6 +647,10 @@ public final class KeepADBSelfPairService extends Service {
                 // notifications and the reply action ends up two taps deep (seen on Android 16).
                 .setGroup(GROUP)
                 .setContentIntent(open);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        }
+        return builder;
     }
 
     private void cancel() {

@@ -239,6 +239,6 @@ public final class SelfPairSession {
         List<Integer> found = connect.candidatePorts();
         // Android 11 never reports a connect service that was announced before the discovery
         // started; then look for adbd on loopback directly.
-        return found.isEmpty() ? LoopbackAdbScan.find() : found;
+        return found.isEmpty() ? LoopbackAdbScan.find(() -> cancelled) : found;
     }
 }

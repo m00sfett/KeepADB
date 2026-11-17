@@ -32,6 +32,7 @@ public class LocalAdbDiscoveryTest {
         final List<NsdServiceInfo> resolvedRequests = new ArrayList<>();
         final ArrayDeque<NsdManager.ResolveListener> listeners = new ArrayDeque<>();
         int stopCalls;
+        RuntimeException throwOnNextResolve;
 
         @Override
         public void discoverServices(String serviceType, NsdManager.DiscoveryListener listener) {
@@ -45,6 +46,11 @@ public class LocalAdbDiscoveryTest {
         @Override
         public void resolveService(
                 NsdServiceInfo serviceInfo, NsdManager.ResolveListener listener) {
+            if (throwOnNextResolve != null) {
+                RuntimeException error = throwOnNextResolve;
+                throwOnNextResolve = null;
+                throw error;
+            }
             resolvedRequests.add(serviceInfo);
             listeners.add(listener);
         }
@@ -156,5 +162,24 @@ public class LocalAdbDiscoveryTest {
         Shadows.shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(LocalAdbDiscovery.RETRY_DELAY_MS * 2));
         assertEquals(1, bridge.resolvedRequests.size());
+    }
+
+    @Test
+    public void resolveExceptionUnblocksQueueAndContinuesToNextService() {
+        FakeBridge bridge = new FakeBridge();
+        bridge.throwOnNextResolve = new IllegalArgumentException("nsd failed synchronously");
+        AtomicInteger changes = new AtomicInteger();
+        LocalAdbDiscovery discovery =
+                new LocalAdbDiscovery(bridge, LocalAdbDiscovery.PAIRING, changes::incrementAndGet);
+        discovery.start();
+
+        discovery.onServiceFound(service("adb-throws"));
+        discovery.onServiceFound(service("adb-recovers"));
+
+        assertEquals(1, bridge.resolvedRequests.size());
+        assertEquals("adb-recovers", bridge.resolvedRequests.get(0).getServiceName());
+        bridge.listeners.poll().onServiceResolved(resolvedService("adb-recovers", 39876));
+        assertEquals(List.of(39876), discovery.candidatePorts());
+        assertEquals(1, changes.get());
     }
 }

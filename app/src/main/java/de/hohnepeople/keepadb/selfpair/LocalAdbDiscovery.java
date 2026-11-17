@@ -167,84 +167,96 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
             resolveNext();
             return;
         }
-        nsd.resolveService(next, new NsdManager.ResolveListener() {
-            @Override
-            public void onResolveFailed(NsdServiceInfo info, int errorCode) {
-                Log.w(TAG, "resolve failed for " + type + ": " + errorCode);
-                if (errorCode == NsdManager.FAILURE_ALREADY_ACTIVE
-                        && attempt < MAX_ALREADY_ACTIVE_RETRIES && requeue(next, token, attempt + 1)) {
-                    scheduleDeferredRetry();
-                    return;
-                }
-                release();
-                done(false);
-            }
-
-            /** Re-queues when NsdManager reports FAILURE_ALREADY_ACTIVE (Android < 13 single-resolve limit). */
-            private boolean requeue(NsdServiceInfo service, Integer entryToken, int nextAttempt) {
-                synchronized (LocalAdbDiscovery.this) {
-                    if (stopped || pending.size() >= MAX_PENDING
-                            || entryToken == null || !entryToken.equals(announced.get(name))) {
-                        return false;
+        try {
+            nsd.resolveService(next, new NsdManager.ResolveListener() {
+                @Override
+                public void onResolveFailed(NsdServiceInfo info, int errorCode) {
+                    Log.w(TAG, "resolve failed for " + type + ": " + errorCode);
+                    if (errorCode == NsdManager.FAILURE_ALREADY_ACTIVE
+                            && attempt < MAX_ALREADY_ACTIVE_RETRIES
+                            && requeue(next, token, attempt + 1)) {
+                        scheduleDeferredRetry();
+                        return;
                     }
-                    pending.add(service);
-                    pendingTokens.add(entryToken);
-                    pendingRetries.add(nextAttempt);
-                    return true;
+                    release();
+                    done(false);
                 }
-            }
 
-            private void scheduleDeferredRetry() {
-                handler.postDelayed(() -> {
+                /** Re-queues when NsdManager reports FAILURE_ALREADY_ACTIVE (Android < 13 single-resolve limit). */
+                private boolean requeue(NsdServiceInfo service, Integer entryToken, int nextAttempt) {
+                    synchronized (LocalAdbDiscovery.this) {
+                        if (stopped || pending.size() >= MAX_PENDING
+                                || entryToken == null || !entryToken.equals(announced.get(name))) {
+                            return false;
+                        }
+                        pending.add(service);
+                        pendingTokens.add(entryToken);
+                        pendingRetries.add(nextAttempt);
+                        return true;
+                    }
+                }
+
+                private void scheduleDeferredRetry() {
+                    handler.postDelayed(() -> {
+                        synchronized (LocalAdbDiscovery.this) {
+                            resolving = false;
+                            if (!stopped) {
+                                resolveNext();
+                            }
+                        }
+                    }, RETRY_DELAY_MS);
+                }
+
+                /** A rejected candidate must not keep occupying one of the bounded slots. */
+                private void release() {
+                    synchronized (LocalAdbDiscovery.this) {
+                        if (token != null && token.equals(announced.get(name))) {
+                            announced.remove(name);
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceResolved(NsdServiceInfo info) {
+                    boolean local = isLocalAddress(info.getHost());
+                    boolean changed = false;
+                    int resolved = info.getPort();
+                    if (local && resolved > 0 && resolved <= 65535) {
+                        synchronized (LocalAdbDiscovery.this) {
+                            if (!stopped && token != null && token.equals(announced.get(name))) {
+                                Integer port = resolved;
+                                changed = !port.equals(ports.remove(name));
+                                ports.put(name, port);
+                            }
+                        }
+                    } else {
+                        release();
+                    }
+                    done(changed);
+                }
+
+                private void done(boolean changed) {
+                    boolean notify;
                     synchronized (LocalAdbDiscovery.this) {
                         resolving = false;
-                        if (!stopped) {
-                            resolveNext();
-                        }
+                        resolveNext();
+                        notify = changed && !stopped;
                     }
-                }, RETRY_DELAY_MS);
-            }
-
-            /** A rejected candidate must not keep occupying one of the bounded slots. */
-            private void release() {
-                synchronized (LocalAdbDiscovery.this) {
-                    if (token != null && token.equals(announced.get(name))) {
-                        announced.remove(name);
+                    if (notify) {
+                        onChange.run();
                     }
                 }
-            }
-
-            @Override
-            public void onServiceResolved(NsdServiceInfo info) {
-                boolean local = isLocalAddress(info.getHost());
-                boolean changed = false;
-                int resolved = info.getPort();
-                if (local && resolved > 0 && resolved <= 65535) {
-                    synchronized (LocalAdbDiscovery.this) {
-                        if (!stopped && token != null && token.equals(announced.get(name))) {
-                            Integer port = resolved;
-                            changed = !port.equals(ports.remove(name));
-                            ports.put(name, port);
-                        }
-                    }
-                } else {
-                    release();
+            });
+        } catch (RuntimeException e) {
+            Log.w(TAG, "resolve threw for " + type + ": " + e);
+            synchronized (this) {
+                if (token != null && token.equals(announced.get(name))) {
+                    announced.remove(name);
                 }
-                done(changed);
+                resolving = false;
+                resolveNext();
             }
-
-            private void done(boolean changed) {
-                boolean notify;
-                synchronized (LocalAdbDiscovery.this) {
-                    resolving = false;
-                    resolveNext();
-                    notify = changed && !stopped;
-                }
-                if (notify) {
-                    onChange.run();
-                }
-            }
-        });
+        }
     }
 
     static boolean isLocalAddress(InetAddress address) {
