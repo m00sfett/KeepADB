@@ -17,13 +17,13 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.14.1` (versionCode 277), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.14.1` (versionCode 277, tag `v1.14.1`) is the stable release that follows `1.11.0`. It combines the unreleased `1.11.1` through `1.11.9`, `1.12.0` through `1.12.8`, `1.13.0` and `1.14.0` candidates below, one section each; none of them was published on its own. `1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
-## [1.14.1] - Unreleased
+## [1.14.1] - 2026-11-17
 
 ### Added
 - Home screen webhook hint (#981, versionCode 275): while Webhook Sync has no valid URL or is switched off, the Webhook panel no longer disappears. It says so (without showing a saved URL) and offers a text button, "Set up Webhook Sync" or "Open Webhook Sync", that opens the Webhook card of Settings (`SettingsActivity.EXTRA_FOCUS_WEBHOOK`). Once Webhook Sync is set up and on, the panel shows the status as before. Four new strings in all 19 locales.
@@ -31,6 +31,9 @@ are retrospective issue-version records and were never published as separate rel
 ### Fixed
 - The self-pairing completion notification no longer gets stuck on "Pairing and granting the permission…" (#985, versionCode 276). When the foreground notification was still deferred, detaching the service queues a post of the notification the service last showed (Android 16 `ActiveServices`), and that could overwrite the completion text posted right after it. The service now hands the completion notification to `startForeground` before it detaches. Found on the emulator (Android 16) in the run that switches Wifi-ADB off again; the setup assistant always showed the right result.
 - Self-pairing no longer switches Wifi-ADB off after the grant when it was already on before the run started (#982), for example while a computer is connected over Wireless debugging. The run notes the state when it starts; if it was on (or unreadable), no cleanup claim is recorded and Wifi-ADB stays on. Exceptions keep the cleanup: an earlier run of the same boot found it off within the last 30 minutes and nothing was granted since (a cancelled or killed first try), or that run's cleanup claim is still pending.
+
+### Testing
+- `KeepADBWidgetLifecycleTest.aProcessStartWatchesTheSettingAgainWhenAWidgetIsPlacedAndTheJobIsGone` failed once on CI but never locally (#989): the widget placement's background report could be recorded after the test cleared the transport, and was then counted against `KeepADBApplication.onCreate()`. The test now lets the placement settle first, the same fix as in `71a83f30`. Test-only, so the APK and versionCode 277 are unchanged.
 
 ### Documentation
 - Release-preparation bump (versionCode 277): the store note `277.txt` summarizes the user-visible changes since the stable 1.11.0, leading with on-phone setup, the removed USB-ADB area and webhook retry options, and the new notification privacy default. `full_description.txt` now names the setup assistant and the main-screen warning for the background-location step (the closable card left in #764) and the main-screen webhook hint (#981). `README.md` describes the home-screen webhook hint. `CONTRIBUTING.md` makes the release documentation check its own `versionCode` bump, with the store note covering everything since the last stable release.

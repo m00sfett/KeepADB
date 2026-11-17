@@ -379,7 +379,9 @@ public class KeepADBWidgetLifecycleTest {
         assertTrue("the application object is the one that re-arms the watch",
                 context instanceof KeepADBApplication);
         widgets.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
-        shadowOf(Looper.getMainLooper()).idle();
+        // #989: placing is an update and may report in the background; let that finish before
+        // the transport is cleared, or a slow runner counts it against onCreate() below.
+        settle();
         assertNotNull(shadowOf(jobs()).getPendingJob(KeepADBWidgetRefreshJob.JOB_ID));
 
         // A force-stop deletes the app's jobs; the widget stays placed.
