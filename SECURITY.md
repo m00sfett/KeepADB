@@ -87,10 +87,15 @@ least 24 hours.
 
 ## Security-relevant interaction rules
 
-KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission, granted from a computer over
-ADB. The app cannot grant it itself. Automatic recovery requires a Wi-Fi connection, Keep-Alive,
-and the user's most recently saved explicit intent. Android may also require its own confirmation;
-if the state is not confirmed, KeepADB waits instead of repeatedly trying to enable it.
+KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission. Users can grant it directly on
+the device via an authenticated loopback self-pairing session (Android 11+: the user intentionally
+opens Android's pairing-code dialog and enters the 6-digit code in KeepADB's notification;
+KeepADB discards its in-memory pairing key afterwards and turns Wifi-ADB back off if it enabled it
+only for setup), from Chrome or Edge over WebUSB at `https://keepadb.roteson.de/setup` (client-side
+in the browser), or manually from a computer over USB ADB. Automatic recovery requires a Wi-Fi
+connection, Keep-Alive, and the user's most recently saved explicit intent. Android may also
+require its own confirmation; if the state is not confirmed, KeepADB waits instead of repeatedly
+trying to enable it.
 
 A locked device must be unlocked before enabling Wifi-ADB through the Quick Settings
 tile. Turning it off through the tile remains possible from the lock
