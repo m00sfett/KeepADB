@@ -1,0 +1,1 @@
+Fix: after setting up the system permission on the phone, the notification now reliably says that the permission was granted instead of staying on the progress text.

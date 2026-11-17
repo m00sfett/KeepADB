@@ -700,6 +700,15 @@ public final class KeepADBSelfPairService extends Service {
         if (last == null) {
             stopForeground(STOP_FOREGROUND_REMOVE);
         } else {
+            // #985: detaching re-posts the notification the service last handed to
+            // startForeground, asynchronously; a notify() right after it can lose that race and
+            // leave the progress text behind. Hand the final notification to the service first.
+            try {
+                startForeground(NOTIFICATION_ID, last,
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot update the foreground notification before detaching", e);
+            }
             stopForeground(STOP_FOREGROUND_DETACH);
             getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, last);
         }
