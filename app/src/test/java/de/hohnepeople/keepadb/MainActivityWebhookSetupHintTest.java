@@ -78,6 +78,28 @@ public class MainActivityWebhookSetupHintTest {
     }
 
     @Test
+    public void savedButInvalidUrlIsTreatedAsUnconfigured() {
+        KeepADBPreferences.setAppPrivacyEnabled(context, false);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "not-a-url");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        assertEquals("not-a-url", KeepADBPreferences.getRegisterWebhookUrl(context));
+
+        MainActivity activity = launch();
+
+        View panel = activity.findViewById(R.id.webhook_status_panel);
+        TextView status = activity.findViewById(R.id.webhook_status);
+        Button action = activity.findViewById(R.id.webhook_status_action);
+        assertEquals(View.VISIBLE, panel.getVisibility());
+        assertEquals(activity.getString(R.string.webhook_status_unconfigured),
+                status.getText().toString());
+        assertEquals(View.VISIBLE, action.getVisibility());
+        assertEquals(activity.getString(R.string.webhook_status_action_setup),
+                action.getText().toString());
+        assertFalse("the invalid saved URL is not shown",
+                status.getText().toString().contains("not-a-url"));
+    }
+
+    @Test
     public void theActionOpensTheWebhookCardOfTheSettings() {
         MainActivity activity = launch();
 
