@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [Unreleased]
+
+### Documentation
+- New store screenshots (#991): the ten images in `fastlane/metadata/android/en-US/images/phoneScreenshots/` were retaken with the signed 1.14.1 release on Android 17 (API 37, 1080×2400) in one consistent system look (roteson.de wallpaper, red Material You palette, dark mode, demo status bar at 12:00). New in the set: the home screen with both widgets and the self-pairing code entry in the notification; demo leftovers such as `AndroidWifi` and the `10.0.2.2` webhook URL are gone. Metadata only, no version change; F-Droid shows them with the next stable release.
+
 ## [1.14.1] - 2026-11-17
 
 ### Added
