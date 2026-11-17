@@ -414,16 +414,28 @@ public class KeepADBSelfPairServiceTest {
         idle();
         assertEquals(Phase.FAILED, phase());
 
-        // The user enters the code again before the delayed check is due.
+        // The user enters the code again before the delayed check is due, and the grant of the
+        // first attempt lands while the second is still under way.
+        script = pairsThen("AA:06b", null, false);
         controller.get().onCode("123456");
         assertEquals(Phase.WORKING, phase());
+        grant(true);
         shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS * 2));
 
         assertEquals("the check of the first attempt does not end the second", Phase.WORKING,
                 phase());
-        assertTrue("nor does it drop the claim", KeepADBSelfPairCleanup.hasClaim(context));
+        assertTrue("nor does it settle the claim behind its back",
+                KeepADBSelfPairCleanup.hasClaim(context));
+        assertTrue(gateway.isEnabled(context));
         assertFalse(shadowOf(controller.get()).isStoppedBySelf());
+
+        // The second attempt reports and closes the run itself.
+        executor.runAll();
+        idle();
+        assertEquals(Phase.DONE, phase());
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
     }
 
     // ---- What stays visible ---------------------------------------------------------------------
