@@ -44,6 +44,12 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      */
     static final String ACTION_WEBHOOK_SYNC_ENABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_ENABLE";
     static final String ACTION_WEBHOOK_SYNC_DISABLE = "de.hohnepeople.keepadb.ACTION_WEBHOOK_SYNC_DISABLE";
+    /**
+     * #976 (based on inaciopestana/KeepADB@bd9983bc): the 4-hour alarm armed by
+     * {@link KeepADBPeriodicReport}. Explicit intents to this non-exported receiver only; not in
+     * the manifest's intent filter.
+     */
+    static final String ACTION_PERIODIC_REPORT = "de.hohnepeople.keepadb.ACTION_PERIODIC_REPORT";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -88,7 +94,45 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     ACTION_WEBHOOK_SYNC_ENABLE.equals(action), () -> {
                         if (pending != null) pending.finish();
                     });
+        } else if (ACTION_PERIODIC_REPORT.equals(action)) {
+            // #976: keep the process alive until the scheduled report attempt is done, also while
+            // the device was asleep.
+            PendingResult pending = goAsync();
+            handlePeriodicReportAction(context.getApplicationContext(), () -> {
+                if (pending != null) pending.finish();
+            });
         }
+    }
+
+    /**
+     * #976: handles the 4-hour alarm ({@link KeepADBPeriodicReport}). Arms the next alarm first
+     * so a failure below cannot break the chain, then sends the current endpoint through
+     * {@link KeepADBRegisterClient#reportNow}. When Keep-Alive or Webhook Sync is off, the chain
+     * stops immediately.
+     */
+    static KeepADBRegisterClient.ReportNowResult handlePeriodicReportAction(Context app,
+            Runnable finishBroadcast) {
+        Runnable safeFinish = finishBroadcast != null ? finishBroadcast : () -> {};
+        if (!KeepADBPeriodicReport.isEligible(app)) {
+            KeepADBPeriodicReport.cancel(app);
+            KeepADBDiagnostics.event(app, "webhook_periodic", "alarm", "skipped",
+                    KeepADBService.shouldRun(app) ? "webhook_off" : "service_not_running");
+            safeFinish.run();
+            return !KeepADBPreferences.isValidWebhookUrl(
+                    KeepADBPreferences.getRegisterWebhookUrl(app))
+                    ? KeepADBRegisterClient.ReportNowResult.NEEDS_SETUP
+                    : KeepADBRegisterClient.ReportNowResult.SYNC_OFF;
+        }
+        KeepADBPeriodicReport.arm(app);
+        Runnable finish = boundedFinish(safeFinish);
+        KeepADBDiagnostics.event(app, "webhook_periodic", "alarm", "fired", "scheduled_report");
+        KeepADBRegisterClient.ReportNowResult result =
+                KeepADBRegisterClient.reportNow(app, finish);
+        if (result == KeepADBRegisterClient.ReportNowResult.NO_ENDPOINT
+                && KeepADBService.isWifiConnected(app)) {
+            KeepADBEndpointCoordinator.refresh(app);
+        }
+        return result;
     }
 
     /**

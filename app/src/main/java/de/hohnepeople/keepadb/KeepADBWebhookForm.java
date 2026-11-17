@@ -317,6 +317,7 @@ final class KeepADBWebhookForm {
             KeepADBRegisterClient.unregisterAndDisableAsync(activity);
             KeepADBPreferences.setRegisterWebhookEnabled(activity, false);
         }
+        KeepADBPeriodicReport.cancel(activity);
         KeepADBPreferences.setRegisterWebhookUrl(activity, null);
         Toast.makeText(activity, R.string.settings_webhook_cleared_toast, Toast.LENGTH_SHORT).show();
         onChange.run();

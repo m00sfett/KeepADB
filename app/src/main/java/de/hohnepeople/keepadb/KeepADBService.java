@@ -94,6 +94,7 @@ public class KeepADBService extends Service {
     }
 
     static void stop(Context context) {
+        KeepADBPeriodicReport.cancel(context);
         Intent intent = new Intent(context, KeepADBService.class);
         context.stopService(intent);
         KeepADBDiagnostics.event(context, "service_stop", "state_change", "requested", "stopService");
@@ -260,6 +261,7 @@ public class KeepADBService extends Service {
         if (!shouldRun(this)) {
             Log.i(TAG, "onStartCommand: service should not run; stopping foreground mode");
             KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "stopped", "should_not_run");
+            KeepADBPeriodicReport.cancel(this);
             stopForeground(STOP_FOREGROUND_REMOVE);
             stopSelfResult(startId);
             return START_NOT_STICKY;
@@ -268,6 +270,8 @@ public class KeepADBService extends Service {
         registerAdbObserver();
         registerNetworkCallback();
         startHeartbeatTicker();
+        // #976: periodic 4-hour webhook refresh while Keep-Alive and Webhook Sync are both active.
+        KeepADBPeriodicReport.sync(this);
         recheckAndEnable();
         return START_STICKY;
     }
@@ -301,6 +305,9 @@ public class KeepADBService extends Service {
         stopHeartbeatTicker();
         // #864: no shutdown confirmation may outlive the observation it belongs to.
         KeepADBUntrustedShutdown.onObservationStopped();
+        if (!shouldRun(this)) {
+            KeepADBPeriodicReport.cancel(this);
+        }
         unregisterAdbObserver();
         unregisterNetworkCallback();
         try {
