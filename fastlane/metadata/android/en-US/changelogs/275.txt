@@ -1,0 +1,1 @@
+The home screen now shows the Webhook panel even when Webhook Sync is not set up or is off, with a button straight to its settings. Fix: setting up the system permission on the phone no longer switches Wifi-ADB off afterwards if it was already on before you started.
