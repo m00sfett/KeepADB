@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">nog geen</string>
     <string name="webhook_status_deregistered">afgemeld</string>
     <string name="webhook_status_failed">mislukt</string>
+    <string name="webhook_status_unconfigured">Niet ingesteld. Webhook-synchronisatie kan het Wifi-ADB-eindpunt van deze telefoon melden aan een URL naar keuze.</string>
+    <string name="webhook_status_disabled">Webhook-synchronisatie staat uit. De opgeslagen URL wordt niet gebruikt.</string>
+    <string name="webhook_status_action_setup">Webhook-synchronisatie instellen</string>
+    <string name="webhook_status_action_open">Webhook-synchronisatie openen</string>
     <string name="settings_permission_warning">Systeemtoestemming WRITE_SECURE_SETTINGS ontbreekt. KeepADB kan Wifi-ADB pas schakelen nadat toestemming is verleend.</string>
     <string name="settings_language_menu_label">Taal</string>
     <string name="settings_language_accessibility">App-taal: %1$s</string>

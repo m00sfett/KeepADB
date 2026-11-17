@@ -46,6 +46,7 @@ public class MainActivity extends Activity {
     private long transportOverviewGeneration;
     private TextView webhookStatus;
     private View webhookStatusPanel;
+    private Button webhookStatusAction;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
     private KeepADBWarningState.Snapshot warningSnapshot;
     private KeepADBWarningState.Snapshot dismissedSnapshot;
@@ -122,6 +123,8 @@ public class MainActivity extends Activity {
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
+        webhookStatusAction = findViewById(R.id.webhook_status_action);
+        webhookStatusAction.setOnClickListener(v -> openWebhookSettings());
         warningSystem = findViewById(R.id.warning_system);
         warningLessSecure = findViewById(R.id.warning_less_secure);
         warningPaused = findViewById(R.id.warning_paused);
@@ -1007,10 +1010,18 @@ public class MainActivity extends Activity {
     private void refreshWebhookStatus() {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
-        if (!enabled || url == null || url.trim().isEmpty()) {
-            webhookStatusPanel.setVisibility(View.GONE);
+        // #981: unconfigured or off stays visible as a short hint with a way to the settings.
+        if (!KeepADBPreferences.isValidWebhookUrl(url)) {
+            showWebhookSetupHint(R.string.webhook_status_unconfigured,
+                    R.string.webhook_status_action_setup);
             return;
         }
+        if (!enabled) {
+            showWebhookSetupHint(R.string.webhook_status_disabled,
+                    R.string.webhook_status_action_open);
+            return;
+        }
+        webhookStatusAction.setVisibility(View.GONE);
         String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
         long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
         String lastReported;
@@ -1039,6 +1050,19 @@ public class MainActivity extends Activity {
         webhookStatus.setText(getString(R.string.webhook_status_hint,
                 KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
+    }
+
+    private void showWebhookSetupHint(int textRes, int actionRes) {
+        webhookStatus.setText(textRes);
+        webhookStatusAction.setText(actionRes);
+        webhookStatusAction.setVisibility(View.VISIBLE);
+        webhookStatusPanel.setVisibility(View.VISIBLE);
+    }
+
+    /** #981: the Webhook card of Settings, expanded and in view (same as the widget's setup). */
+    private void openWebhookSettings() {
+        startActivity(new Intent(this, SettingsActivity.class)
+                .putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true));
     }
 
     private void postEndpointAvailable(long listenerGeneration, String host, int port) {

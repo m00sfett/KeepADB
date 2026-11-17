@@ -159,6 +159,11 @@
     <string name="webhook_status_no_endpoint">none yet</string>
     <string name="webhook_status_deregistered">deregistered</string>
     <string name="webhook_status_failed">failed</string>
+    <!-- #981: the home panel while Webhook Sync is not set up or off -->
+    <string name="webhook_status_unconfigured">Not set up. Webhook Sync can report this phone\'s Wifi-ADB endpoint to a URL you choose.</string>
+    <string name="webhook_status_disabled">Webhook Sync is off. The saved URL is not used.</string>
+    <string name="webhook_status_action_setup">Set up Webhook Sync</string>
+    <string name="webhook_status_action_open">Open Webhook Sync</string>
     <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wifi-ADB until permission is granted.</string>
     <string name="settings_language_menu_label">Language</string>
     <string name="settings_language_accessibility">App Language: %1$s</string>

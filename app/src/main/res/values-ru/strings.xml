@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">пока нет</string>
     <string name="webhook_status_deregistered">регистрация отменена</string>
     <string name="webhook_status_failed">ошибка</string>
+    <string name="webhook_status_unconfigured">Не настроено. Синхронизация Webhook может сообщать конечную точку Wifi-ADB этого телефона на выбранный вами URL.</string>
+    <string name="webhook_status_disabled">Синхронизация Webhook выключена. Сохранённый URL не используется.</string>
+    <string name="webhook_status_action_setup">Настроить синхронизацию Webhook</string>
+    <string name="webhook_status_action_open">Открыть синхронизацию Webhook</string>
     <string name="settings_permission_warning">Отсутствует системное разрешение WRITE_SECURE_SETTINGS. KeepADB не может переключать Wifi-ADB до предоставления разрешения.</string>
     <string name="settings_language_menu_label">Язык</string>
     <string name="settings_language_accessibility">Язык приложения: %1$s</string>

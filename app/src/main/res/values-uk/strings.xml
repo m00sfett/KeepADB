@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">поки що немає</string>
     <string name="webhook_status_deregistered">реєстрацію скасовано</string>
     <string name="webhook_status_failed">помилка</string>
+    <string name="webhook_status_unconfigured">Не налаштовано. Синхронізація Webhook може повідомляти кінцеву точку Wifi-ADB цього телефона на вибрану вами URL-адресу.</string>
+    <string name="webhook_status_disabled">Синхронізацію Webhook вимкнено. Збережена URL-адреса не використовується.</string>
+    <string name="webhook_status_action_setup">Налаштувати синхронізацію Webhook</string>
+    <string name="webhook_status_action_open">Відкрити синхронізацію Webhook</string>
     <string name="settings_permission_warning">Відсутній системний дозвіл WRITE_SECURE_SETTINGS. KeepADB не може перемикати Wifi-ADB до надання дозволу.</string>
     <string name="settings_language_menu_label">Мова</string>
     <string name="settings_language_accessibility">Мова програми: %1$s</string>

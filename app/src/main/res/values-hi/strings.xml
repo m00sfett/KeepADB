@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
     <string name="webhook_status_deregistered">पंजीकरण रद्द</string>
     <string name="webhook_status_failed">विफल</string>
+    <string name="webhook_status_unconfigured">सेट अप नहीं है। वेबहुक सिंक इस फ़ोन का Wifi-ADB एंडपॉइंट आपके चुने हुए URL पर भेज सकता है।</string>
+    <string name="webhook_status_disabled">वेबहुक सिंक बंद है। सहेजा गया URL इस्तेमाल नहीं होता।</string>
+    <string name="webhook_status_action_setup">वेबहुक सिंक सेट अप करें</string>
+    <string name="webhook_status_action_open">वेबहुक सिंक खोलें</string>
     <string name="settings_permission_warning">सिस्टम अनुमति WRITE_SECURE_SETTINGS गायब है। अनुमति दिए जाने तक KeepADB Wifi-ADB को टॉगल नहीं कर सकता।</string>
     <string name="settings_language_menu_label">भाषा</string>
     <string name="settings_language_accessibility">ऐप की भाषा: %1$s</string>

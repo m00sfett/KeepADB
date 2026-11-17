@@ -153,6 +153,10 @@
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>
     <string name="webhook_status_failed">fehlgeschlagen</string>
+    <string name="webhook_status_unconfigured">Nicht eingerichtet. Die Webhook-Synchronisierung kann den Wifi-ADB-Endpunkt dieses Telefons an eine URL deiner Wahl melden.</string>
+    <string name="webhook_status_disabled">Die Webhook-Synchronisierung ist aus. Die gespeicherte URL wird nicht verwendet.</string>
+    <string name="webhook_status_action_setup">Webhook-Synchronisierung einrichten</string>
+    <string name="webhook_status_action_open">Webhook-Synchronisierung öffnen</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Wifi-ADB erst nach Berechtigungsvergabe steuern.</string>
     <string name="settings_language_menu_label">Sprache</string>
     <string name="settings_language_accessibility">App-Sprache: %1$s</string>

@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
     <string name="webhook_status_deregistered">تم إلغاء التسجيل</string>
     <string name="webhook_status_failed">فشل</string>
+    <string name="webhook_status_unconfigured">غير مُعدّ. يمكن لمزامنة Webhook إرسال نقطة نهاية Wifi-ADB لهذا الهاتف إلى عنوان URL تختاره.</string>
+    <string name="webhook_status_disabled">مزامنة Webhook متوقفة. لا يُستخدم عنوان URL المحفوظ.</string>
+    <string name="webhook_status_action_setup">إعداد مزامنة Webhook</string>
+    <string name="webhook_status_action_open">فتح مزامنة Webhook</string>
     <string name="settings_permission_warning">إذن النظام WRITE_SECURE_SETTINGS مفقود. لا يمكن لـ KeepADB تبديل Wifi-ADB حتى يتم منح الإذن.</string>
     <string name="settings_language_menu_label">اللغة</string>
     <string name="settings_language_accessibility">لغة التطبيق: %1$s</string>
