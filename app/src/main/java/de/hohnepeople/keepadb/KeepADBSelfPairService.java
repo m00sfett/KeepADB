@@ -548,7 +548,7 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
-    /** A destroyed instance that has reported its last attempt owns nothing any more. */
+    /** An ended instance owns nothing any more. */
     private void relinquish() {
         if (owner == this) {
             owner = null;
@@ -685,6 +685,7 @@ public final class KeepADBSelfPairService extends Service {
     /** Ends the run and the service; {@code last} stays in the shade, or nothing does. */
     private void finish(Notification last) {
         release();
+        relinquish();
         if (last == null) {
             stopForeground(STOP_FOREGROUND_REMOVE);
         } else {

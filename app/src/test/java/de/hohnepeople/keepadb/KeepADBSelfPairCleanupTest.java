@@ -382,22 +382,33 @@ public class KeepADBSelfPairCleanupTest {
     public void aRejectedDeferrerClearsItsPendingFlag() {
         KeepADBSelfPairCleanup.claim(context, "run-a");
         grant(true);
+        final boolean[] reject = {true};
         KeepADBSelfPairCleanup.setDeferrerForTesting(new KeepADBSelfPairCleanup.Deferrer() {
             @Override
             public void run(Runnable task) {
-                throw new java.util.concurrent.RejectedExecutionException("busy");
+                if (reject[0]) {
+                    throw new java.util.concurrent.RejectedExecutionException("busy");
+                }
+                deferrer.run(task);
             }
 
             @Override
             public void later(long delayMs, Runnable task) {
-                throw new java.util.concurrent.RejectedExecutionException("busy");
+                if (reject[0]) {
+                    throw new java.util.concurrent.RejectedExecutionException("busy");
+                }
+                deferrer.later(delayMs, task);
             }
         });
         KeepADBSelfPairCleanup.reconcileAtStart(context);
         KeepADBSelfPairCleanup.release(context, "run-a");
+        assertTrue(deferrer.now.isEmpty());
+        assertTrue(deferrer.later.isEmpty());
 
-        // A later call still runs once the deferrer accepts work again.
-        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        // Same deferrer recovers without resetting test seams, for both reconcile and watch.
+        reject[0] = false;
+        KeepADBSelfPairCleanup.release(context, "run-a");
+        assertEquals(1, deferrer.later.size());
         KeepADBSelfPairCleanup.reconcileAtStart(context);
         assertEquals(1, deferrer.now.size());
         deferrer.tick();

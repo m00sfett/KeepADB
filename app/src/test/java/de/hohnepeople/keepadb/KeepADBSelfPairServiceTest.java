@@ -721,6 +721,50 @@ public class KeepADBSelfPairServiceTest {
         assertEquals(Cleanup.LEFT_ON, KeepADBSelfPairService.status().cleanup);
     }
 
+    @Test
+    public void aGrantSettledAfterCancelBeforeOnDestroyIsStillPublished() {
+        script = pairsThen("AA:21", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        controller.get().onStartCommand(intent(CANCEL), 0, 1);
+        assertEquals(Phase.IDLE, phase());
+        assertTrue(shadowOf(controller.get()).isStoppedBySelf());
+
+        // System has not delivered onDestroy yet; watcher settles the claim meanwhile.
+        grant(true);
+        deferrer.tick();
+        idle();
+
+        assertFalse(gateway.isEnabled(context));
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+        assertEquals("AA:21", KeepADBSelfPairService.status().fingerprint);
+    }
+
+    @Test
+    public void aWatcherRetryAfterStillOnBeforeOnDestroyUpdatesToSwitchedOff() {
+        script = pairsThen("AA:22", null, true);
+        gateway.setWriteSuccess(false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.STILL_ON, KeepADBSelfPairService.status().cleanup);
+        assertTrue(shadowOf(controller.get()).isStoppedBySelf());
+
+        // Before onDestroy arrives, the write becomes possible and the watcher retries.
+        gateway.setWriteSuccess(true);
+        deferrer.tick();
+        idle();
+
+        assertFalse(gateway.isEnabled(context));
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+    }
+
     // ---- The claim belongs to the current run ---------------------------------------------------
 
     @Test
