@@ -2,6 +2,8 @@ package de.hohnepeople.keepadb.selfpair;
 
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.net.InetAddress;
@@ -31,16 +33,26 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     static final String CONNECT = "_adb-tls-connect._tcp";
     private static final String TAG = "KeepADBSelfPair";
 
-    private final NsdManager nsd;
+    interface Bridge {
+        void discoverServices(String serviceType, NsdManager.DiscoveryListener listener);
+        void stopServiceDiscovery(NsdManager.DiscoveryListener listener);
+        void resolveService(NsdServiceInfo serviceInfo, NsdManager.ResolveListener listener);
+    }
+
+    private final Bridge nsd;
     private final String type;
     private final Runnable onChange;
     /** Bounds for what a flood of announcements can make this object hold. */
     private static final int MAX_PENDING = 32;
     private static final int MAX_SERVICES = 16;
+    private static final int MAX_ALREADY_ACTIVE_RETRIES = 4;
+    static final long RETRY_DELAY_MS = 250;
 
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final ArrayDeque<NsdServiceInfo> pending = new ArrayDeque<>();
     /** The announcement each queued entry belongs to, in the same order as {@link #pending}. */
     private final ArrayDeque<Integer> pendingTokens = new ArrayDeque<>();
+    private final ArrayDeque<Integer> pendingRetries = new ArrayDeque<>();
     /** Names currently announced; a resolution that finishes after the loss is dropped. */
     private final Map<String, Integer> announced = new HashMap<>();
     private int generation;
@@ -50,6 +62,26 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     private boolean stopped;
 
     LocalAdbDiscovery(NsdManager nsd, String type, Runnable onChange) {
+        this(nsd == null ? null : new Bridge() {
+            @Override
+            public void discoverServices(String serviceType, NsdManager.DiscoveryListener listener) {
+                nsd.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, listener);
+            }
+
+            @Override
+            public void stopServiceDiscovery(NsdManager.DiscoveryListener listener) {
+                nsd.stopServiceDiscovery(listener);
+            }
+
+            @Override
+            public void resolveService(
+                    NsdServiceInfo serviceInfo, NsdManager.ResolveListener listener) {
+                nsd.resolveService(serviceInfo, listener);
+            }
+        }, type, onChange);
+    }
+
+    LocalAdbDiscovery(Bridge nsd, String type, Runnable onChange) {
         this.nsd = nsd;
         this.type = type;
         this.onChange = onChange;
@@ -58,7 +90,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
     void start() {
         try {
             if (nsd != null) {
-                nsd.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this);
+                nsd.discoverServices(type, this);
             }
         } catch (RuntimeException e) {
             Log.w(TAG, "cannot start discovery for " + type + ": " + e);
@@ -70,6 +102,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
             return;
         }
         stopped = true;
+        handler.removeCallbacksAndMessages(null);
         try {
             if (nsd != null) {
                 nsd.stopServiceDiscovery(this);
@@ -101,6 +134,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         announced.put(name, ++generation);
         pending.add(info);
         pendingTokens.add(generation);
+        pendingRetries.add(0);
         resolveNext();
     }
 
@@ -126,6 +160,7 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
         final String name = next.getServiceName();
         // The announcement this entry was queued for; a later one of the same name differs.
         final Integer token = pendingTokens.poll();
+        final int attempt = pendingRetries.isEmpty() ? 0 : pendingRetries.poll();
         if (!token.equals(announced.get(name))) {
             // Lost (and possibly announced again) while it waited: not ours to resolve.
             resolving = false;
@@ -136,8 +171,38 @@ final class LocalAdbDiscovery implements NsdManager.DiscoveryListener {
             @Override
             public void onResolveFailed(NsdServiceInfo info, int errorCode) {
                 Log.w(TAG, "resolve failed for " + type + ": " + errorCode);
+                if (errorCode == NsdManager.FAILURE_ALREADY_ACTIVE
+                        && attempt < MAX_ALREADY_ACTIVE_RETRIES && requeue(next, token, attempt + 1)) {
+                    scheduleDeferredRetry();
+                    return;
+                }
                 release();
                 done(false);
+            }
+
+            /** Re-queues when NsdManager reports FAILURE_ALREADY_ACTIVE (Android < 13 single-resolve limit). */
+            private boolean requeue(NsdServiceInfo service, Integer entryToken, int nextAttempt) {
+                synchronized (LocalAdbDiscovery.this) {
+                    if (stopped || pending.size() >= MAX_PENDING
+                            || entryToken == null || !entryToken.equals(announced.get(name))) {
+                        return false;
+                    }
+                    pending.add(service);
+                    pendingTokens.add(entryToken);
+                    pendingRetries.add(nextAttempt);
+                    return true;
+                }
+            }
+
+            private void scheduleDeferredRetry() {
+                handler.postDelayed(() -> {
+                    synchronized (LocalAdbDiscovery.this) {
+                        resolving = false;
+                        if (!stopped) {
+                            resolveNext();
+                        }
+                    }
+                }, RETRY_DELAY_MS);
             }
 
             /** A rejected candidate must not keep occupying one of the bounded slots. */

@@ -189,6 +189,7 @@ public final class SelfPairSession {
             return Failure.CANCELLED;
         }
         if (candidates.isEmpty()) {
+            Log.w(TAG, "no ADB connect service found");
             return Failure.NO_ADB_SERVICE;
         }
         Failure failure = Failure.NO_ADB_SERVICE;
@@ -207,6 +208,7 @@ public final class SelfPairSession {
                     Log.w(TAG, "grant printed " + output.length() + " characters");
                     return Failure.GRANT_REFUSED;
                 } catch (ConnectException e) {
+                    Log.w(TAG, "grant connect refused on port " + port);
                     break;
                 } catch (IOException | GeneralSecurityException e) {
                     // adbd drops a new connection while it still tears down the previous one,
