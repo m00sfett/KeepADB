@@ -169,6 +169,48 @@ public class KeepADBSelfPairCleanupTest {
     }
 
     @Test
+    public void aLateGrantAfterRestartHonorsTheBaseline() {
+        KeepADBSelfPairCleanup.authorize(context, "run-on", true);
+        assertEquals(KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-on"));
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        grant(true);
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.reconcile(context));
+        assertTrue(gateway.isEnabled(context));
+        assertTrue(gateway.writes.isEmpty());
+
+        grant(false);
+        KeepADBSelfPairCleanup.authorize(context, "run-off", false);
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-off"));
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        grant(true);
+        assertEquals(Outcome.SWITCHED_OFF, KeepADBSelfPairCleanup.reconcile(context));
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aRetryThatFindsWifiAdbOnDoesNotExtendTheFoundOffWindow() {
+        KeepADBSelfPairCleanup.authorize(context, "run-a", false);
+        ShadowSystemClock.advanceBy(Duration.ofMinutes(20));
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+
+        // The retry's claim has expired and the original off observation is over 30 minutes
+        // old. A process restart must not turn that observation into a renewed window.
+        ShadowSystemClock.advanceBy(Duration.ofMinutes(11));
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        KeepADBSelfPairCleanup.authorize(context, "run-c", true);
+        assertEquals(KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-c"));
+        grant(true);
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.reconcile(context));
+        assertTrue(gateway.isEnabled(context));
+        assertTrue("no write was attempted", gateway.writes.isEmpty());
+    }
+
+    @Test
     public void foundOffIsForgottenAfterItsWindowAndAfterAGrant() {
         KeepADBSelfPairCleanup.authorize(context, "run-a", false);
         ShadowSystemClock.advanceBy(

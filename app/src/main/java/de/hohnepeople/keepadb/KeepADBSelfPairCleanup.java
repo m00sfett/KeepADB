@@ -227,7 +227,9 @@ final class KeepADBSelfPairCleanup {
                 if (foundOn && foundOffRecently(context, prefs)) {
                     effectivelyOn = false;
                 }
-                if (!effectivelyOn) {
+                // Only an actual off observation starts the window. Inheriting a note must
+                // not renew it: repeated retries could otherwise own the switch indefinitely.
+                if (!foundOn) {
                     int boot = bootCount(context);
                     if (boot != UNKNOWN_BOOT) {
                         prefs.edit()
