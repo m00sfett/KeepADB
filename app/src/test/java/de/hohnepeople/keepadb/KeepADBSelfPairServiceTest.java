@@ -986,6 +986,26 @@ public class KeepADBSelfPairServiceTest {
     // ---- Notifications --------------------------------------------------------------------------
 
     @Test
+    public void theServiceHoldsTheCompletionNotificationWhenItDetaches() {
+        // #985: detaching re-posts the service's own foreground notification; it has to be the
+        // completion text, not the progress text, or a racing notify() can leave the latter.
+        script = pairsThen("AA:85", null, true);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        assertEquals(Phase.DONE, phase());
+        Notification held = shadowOf(controller.get()).getLastForegroundNotification();
+        assertNotNull(held);
+        String text = String.valueOf(held.extras.getCharSequence(Notification.EXTRA_TEXT));
+        assertTrue("completion text, was: " + text,
+                text.startsWith(context.getString(R.string.selfpair_notification_done)));
+        assertTrue(text.contains(context.getString(R.string.selfpair_done_off)));
+        assertFalse(text.contains(context.getString(R.string.selfpair_status_working)));
+    }
+
+    @Test
     public void aBlockedChannelMakesNotificationsUnusable() {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         assertTrue("before the channel exists", KeepADBSelfPairService.notificationsUsable(context));
