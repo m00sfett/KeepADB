@@ -63,7 +63,7 @@ public class AdbPairingClientTest {
     }
 
     @Test
-    public void exchangeCleansUpSpakeWhenExceptionThrown() {
+    public void exchangeFailsWithAnIoExceptionWhenTheTransportFails() {
         TlsChannel channel = new TlsChannel() {
             @Override
             public InputStream input() {

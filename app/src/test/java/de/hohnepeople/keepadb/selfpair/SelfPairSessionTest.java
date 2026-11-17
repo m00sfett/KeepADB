@@ -32,7 +32,7 @@ public class SelfPairSessionTest {
     }
 
     @Test
-    public void cancelSetsCancelledAndWakesWaiters() {
+    public void cancelIsHarmlessBeforeAnyRunAndMayBeRepeated() {
         Context context = ApplicationProvider.getApplicationContext();
         NsdManager nsd = context.getSystemService(NsdManager.class);
         SelfPairSession session = new SelfPairSession(nsd, "de.hohnepeople.keepadb", visible -> {});

@@ -182,6 +182,8 @@ public class KeepADBDefaultsAuditTest {
             "trusted_network_next_id", "trusted_network_ids", "trusted_network_mode_initialized",
             "trusted_ssid_next_id", "trusted_ssid_ids", "blocked_bssids", "blocked_ssids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
+            // #962: who may switch Wifi-ADB off after a grant on the phone (KeepADBSelfPairCleanup).
+            "claim_run", "claim_elapsed", "claim_boot",
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",

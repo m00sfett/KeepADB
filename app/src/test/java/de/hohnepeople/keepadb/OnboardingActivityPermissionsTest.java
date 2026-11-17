@@ -92,7 +92,7 @@ public class OnboardingActivityPermissionsTest {
         KeepADBForceMode.resetForTesting();
         KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
                 KeepADBSelfPairService.Phase.IDLE, null,
-                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
     }
 
     // ---- sync() on resume (#628, N2) ---------------------------------------------------------------
@@ -245,7 +245,7 @@ public class OnboardingActivityPermissionsTest {
 
         KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
                 KeepADBSelfPairService.Phase.DIALOG_FOUND, null,
-                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
         org.robolectric.shadows.ShadowLooper.idleMainLooper();
 
         assertEquals("Step 4 content must not be cleared or overwritten by self-pair status",
@@ -272,7 +272,7 @@ public class OnboardingActivityPermissionsTest {
         OnboardingActivity assistant = open(permissionsStepIntent());
         KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
                 KeepADBSelfPairService.Phase.FAILED, null,
-                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
         org.robolectric.shadows.ShadowLooper.idleMainLooper();
 
         assertTrue("FAILED phase opens computer fallback",
@@ -281,7 +281,30 @@ public class OnboardingActivityPermissionsTest {
     }
 
     @Test
-    public void saveStateAndRestoreStatePreservesSelfPairPendingAndComputerOpen() {
+    public void aStartWaitingForNotificationsSurvivesRecreation() {
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(false);
+        OnboardingActivity assistant = open(permissionsStepIntent());
+        button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
+        android.os.Bundle out = new android.os.Bundle();
+        lastController.saveInstanceState(out);
+        assertTrue("the pending start is saved", out.getBoolean("onboarding_perm_self_pair_pending"));
+
+        // The activity is recreated while the permission question is open; the user says yes,
+        // and the restored step resumes with the permission in place.
+        shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .setNotificationsEnabled(true);
+        ActivityController<OnboardingActivity> restored =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent()).setup(out);
+        controllers.add(restored);
+        android.content.Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("the restored step goes on where the first one stopped", started);
+        assertEquals(KeepADBSelfPairService.class.getName(),
+                started.getComponent().getClassName());
+    }
+
+    @Test
+    public void theOpenComputerWaySurvivesRecreation() {
         OnboardingActivity assistant = open(permissionsStepIntent());
         openComputerWay(assistant);
         android.os.Bundle out = new android.os.Bundle();
@@ -311,7 +334,7 @@ public class OnboardingActivityPermissionsTest {
     public void selfPairFailedWithPairedFingerprintShowsRemovable() {
         KeepADBSelfPairService.publishForTesting(new KeepADBSelfPairService.Status(
                 KeepADBSelfPairService.Phase.FAILED, "11:22:33",
-                KeepADBSelfPairService.Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+                KeepADBSelfPairService.Cleanup.LEFT_ON));
         OnboardingActivity assistant = open(permissionsStepIntent());
         String shown = allText(assistant);
         assertTrue(shown.contains(context.getString(R.string.selfpair_done_removable, "11:22:33")));

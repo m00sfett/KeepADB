@@ -441,6 +441,11 @@ final class KeepADB {
      */
     static ToggleResult setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
+        if (isManualSource(source) && !SOURCE_SELF_PAIRING.equals(source)) {
+            // #962: the user decided about Wifi-ADB; a pending self-pairing cleanup is void.
+            // Before any lock of this class is taken: the cleanup holds its own while it calls in.
+            KeepADBSelfPairCleanup.supersede(appContext);
+        }
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
         // the caller.

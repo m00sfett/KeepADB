@@ -9,7 +9,6 @@ import android.app.RemoteInput;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.net.Uri;
@@ -23,10 +22,15 @@ import android.util.Log;
 
 import de.hohnepeople.keepadb.selfpair.SelfPairSession;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Lets KeepADB grant itself the system permission on the device, without a computer (#962). The
@@ -35,32 +39,56 @@ import java.util.concurrent.Executors;
  * open, so the app cannot be in front), and hands it to a {@link SelfPairSession}.
  *
  * <p>The outcome is never taken from the session's word. After every attempt, however it ended
- * and even if the service is being destroyed, the permission itself is checked; if it is there
- * and Keep-Alive is off, Wireless debugging is switched off again, because the user switched it
- * on only for this.
+ * and even if the service is being destroyed, {@link KeepADBSelfPairCleanup#settle} checks the
+ * permission itself and, where this run holds the claim, switches Wifi-ADB off again.
  *
- * <p>Immediate cleanup across an unexpected process termination cannot be guaranteed by the
- * service itself. {@link #reconcile} checks for an uncleaned grant on the next process start
- * within one hour and switches Wireless debugging off if Keep-Alive is disabled.
+ * <p><b>Ownership.</b> One start of the service is a <em>run</em> with a random id. Everything
+ * that can arrive late is bound to it: the reply intent carries the id, the cleanup claim names
+ * it, the delayed re-check is a callback of this instance that is removed when the run ends, and
+ * the shared {@link #status()} is written only by the instance that owns it. An instance that
+ * was destroyed while its worker was still busy therefore finishes its own cleanup, but cannot
+ * overwrite the state of a newer run or end it.
+ *
+ * <p>All fields of an instance are confined to the main thread. The worker only runs the session
+ * and the cleanup, and posts its result back.
  */
 public final class KeepADBSelfPairService extends Service {
     /** What the setup assistant shows; held in memory only, gone with the process. */
     enum Phase { IDLE, WAITING, DIALOG_FOUND, WORKING, WRONG_CODE, NO_DIALOG, FAILED, DONE }
 
-    /** What was done with Wireless debugging after a successful grant. */
-    enum Cleanup { KEPT_ON_FOR_KEEP_ALIVE, SWITCHED_OFF, STILL_ON }
+    /** What happened to Wifi-ADB after a successful grant. */
+    enum Cleanup {
+        /** Left as it is: Keep-Alive is on, or the switch was not this run's to make. */
+        LEFT_ON,
+        SWITCHED_OFF,
+        /** Switching off was tried and could not be confirmed; the user has to do it. */
+        STILL_ON
+    }
 
     /** A snapshot of the run for the user interface. */
     static final class Status {
         final Phase phase;
-        /** The key's fingerprint once paired; carried across phases, null if not paired. */
+        /** Fingerprint of the key paired last, as Android lists it; null if none was paired. */
         final String fingerprint;
-        /** After {@link Phase#DONE}: what happened to Wireless debugging. */
+        /**
+         * Every key this process has paired, oldest first. Each left an entry "KeepADB" under
+         * Android's paired devices, so each is named until the process ends, whatever the phase.
+         */
+        final List<String> fingerprints;
+        /** After {@link Phase#DONE}: what happened to Wifi-ADB. */
         final Cleanup cleanup;
 
         Status(Phase phase, String fingerprint, Cleanup cleanup) {
+            this(phase, cleanup, fingerprint == null
+                    ? Collections.<String>emptyList()
+                    : Collections.singletonList(fingerprint));
+        }
+
+        Status(Phase phase, Cleanup cleanup, List<String> fingerprints) {
             this.phase = phase;
-            this.fingerprint = fingerprint;
+            this.fingerprints = Collections.unmodifiableList(new ArrayList<>(fingerprints));
+            this.fingerprint = this.fingerprints.isEmpty()
+                    ? null : this.fingerprints.get(this.fingerprints.size() - 1);
             this.cleanup = cleanup;
         }
 
@@ -69,31 +97,84 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
+    /** The part of {@link SelfPairSession} the service uses; a seam for tests. */
+    interface Runner {
+        void start();
+
+        void stop();
+
+        void cancel();
+
+        SelfPairSession.Result run(String code, SelfPairSession.PairedListener onPaired)
+                throws InterruptedException;
+    }
+
+    /** Creates the runner of a run; {@code onDialogChanged} may be called on any thread. */
+    interface RunnerFactory {
+        Runner create(Context context, SelfPairSession.Listener onDialogChanged);
+    }
+
     private static final String TAG = "KeepADBSelfPair";
     private static final String ACTION_START = "de.hohnepeople.keepadb.selfpair.START";
     private static final String ACTION_CODE = "de.hohnepeople.keepadb.selfpair.CODE";
     private static final String ACTION_CANCEL = "de.hohnepeople.keepadb.selfpair.CANCEL";
     private static final String EXTRA_CODE = "code";
     private static final String CHANNEL_ID = "keepadb_selfpair";
-    private static final String PREFS_NAME = "keepadb_selfpair";
-    private static final String MARKER_CLEANUP_PENDING_AT = "cleanup_pending_at";
-    private static final long RECONCILE_MAX_AGE_MS = 60 * 60 * 1000L;
+    private static final String TOKEN_SCHEME = "keepadb-selfpair:";
     private static final int NOTIFICATION_ID = 962;
+    private static final int MAX_REMEMBERED_FINGERPRINTS = 8;
     /** Nobody leaves a pairing dialog open this long; do not hold a foreground service for it. */
     private static final long IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+    /** adbd may run the grant after the connection broke; look once more after this pause. */
+    static final long LATE_CHECK_MS = 3_000;
 
-    private static volatile Status status = new Status(Phase.IDLE, null, Cleanup.KEPT_ON_FOR_KEEP_ALIVE);
+    private static final RunnerFactory REAL_RUNNERS = (context, onDialogChanged) -> {
+        final SelfPairSession session = new SelfPairSession(
+                context.getSystemService(NsdManager.class), context.getPackageName(),
+                onDialogChanged);
+        return new Runner() {
+            @Override
+            public void start() {
+                session.start();
+            }
+
+            @Override
+            public void stop() {
+                session.stop();
+            }
+
+            @Override
+            public void cancel() {
+                session.cancel();
+            }
+
+            @Override
+            public SelfPairSession.Result run(String code, SelfPairSession.PairedListener paired)
+                    throws InterruptedException {
+                return session.run(code, paired);
+            }
+        };
+    };
+
+    private static volatile Status status = new Status(Phase.IDLE, null, Cleanup.LEFT_ON);
     private static final CopyOnWriteArraySet<Runnable> OBSERVERS = new CopyOnWriteArraySet<>();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    /** Keys paired in this process; guarded by itself. */
+    private static final LinkedHashSet<String> PAIRED = new LinkedHashSet<>();
+    /** The instance whose run the shared status describes; main thread only. */
+    private static KeepADBSelfPairService owner;
+    private static RunnerFactory runnerFactory = REAL_RUNNERS;
+    private static ExecutorService executorForTesting;
 
-    private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final Runnable idleTimeout = this::cancel;
-    private SelfPairSession session;
+    private final Runnable lateCheck = this::checkForLateGrant;
+    private ExecutorService worker;
+    private Runner runner;
+    private String runId;
+    private PendingIntent replyPendingIntent;
     private boolean working;
     private boolean cancelRequested;
     private boolean destroyed;
-    private String currentRunToken;
-    private PendingIntent replyPendingIntent;
 
     static Status status() {
         return status;
@@ -120,53 +201,33 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
-    static void publishForTesting(Status next) {
-        publish(next);
-    }
-
+    /** The code is entered in a notification reply: both the app and this channel must show. */
     static boolean notificationsUsable(Context context) {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager == null || !manager.areNotificationsEnabled()) {
             return false;
         }
         NotificationChannel channel = manager.getNotificationChannel(CHANNEL_ID);
-        if (channel != null && channel.getImportance() == NotificationManager.IMPORTANCE_NONE) {
-            return false;
-        }
-        return true;
+        return channel == null || channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
     }
 
-    static void reconcile(Context context) {
-        if (status.isActive()) {
-            return;
-        }
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (!prefs.contains(MARKER_CLEANUP_PENDING_AT)) {
-            return;
-        }
-        long timestamp = prefs.getLong(MARKER_CLEANUP_PENDING_AT, 0);
-        prefs.edit().remove(MARKER_CLEANUP_PENDING_AT).apply();
-        long age = System.currentTimeMillis() - timestamp;
-        if (timestamp > 0 && age >= 0 && age < RECONCILE_MAX_AGE_MS
-                && context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
-                        == PackageManager.PERMISSION_GRANTED
-                && !KeepADBPreferences.isKeepAliveEnabled(context)) {
-            KeepADB.setEnabled(context.getApplicationContext(), false, KeepADB.SOURCE_SELF_PAIRING);
-        }
+    static void publishForTesting(Status next) {
+        publish(next);
     }
 
-    private static void setCleanupMarker(Context context) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putLong(MARKER_CLEANUP_PENDING_AT, System.currentTimeMillis())
-                .apply();
+    /** Tests: fake sessions and a controlled executor; {@code null} restores the real ones. */
+    static void setSeamsForTesting(RunnerFactory runners, ExecutorService executor) {
+        runnerFactory = runners == null ? REAL_RUNNERS : runners;
+        executorForTesting = executor;
     }
 
-    static void clearCleanupMarker(Context context) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .remove(MARKER_CLEANUP_PENDING_AT)
-                .apply();
+    static void resetForTesting() {
+        setSeamsForTesting(null, null);
+        owner = null;
+        synchronized (PAIRED) {
+            PAIRED.clear();
+        }
+        status = new Status(Phase.IDLE, null, Cleanup.LEFT_ON);
     }
 
     private static void publish(Status next) {
@@ -174,6 +235,31 @@ public final class KeepADBSelfPairService extends Service {
         for (Runnable observer : OBSERVERS) {
             MAIN.post(observer);
         }
+    }
+
+    private static List<String> pairedFingerprints() {
+        synchronized (PAIRED) {
+            return new ArrayList<>(PAIRED);
+        }
+    }
+
+    /** Called on the worker the moment a key is registered with the device. */
+    private static void rememberPaired(String fingerprint) {
+        if (fingerprint == null) return;
+        synchronized (PAIRED) {
+            PAIRED.remove(fingerprint);
+            PAIRED.add(fingerprint);
+            while (PAIRED.size() > MAX_REMEMBERED_FINGERPRINTS) {
+                PAIRED.remove(PAIRED.iterator().next());
+            }
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        worker = executorForTesting != null
+                ? executorForTesting : Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -186,11 +272,11 @@ public final class KeepADBSelfPairService extends Service {
         String action = intent == null ? null : intent.getAction();
         if (ACTION_START.equals(action)) {
             begin();
-        } else if (ACTION_CODE.equals(action) && session != null) {
+        } else if (ACTION_CODE.equals(action) && runner != null) {
             Uri data = intent.getData();
-            if (data == null || currentRunToken == null
-                    || !("keepadb-selfpair:" + currentRunToken).equals(data.toString())) {
-                Log.w(TAG, "ignoring ACTION_CODE with stale or invalid token: " + data);
+            if (data == null || runId == null || !(TOKEN_SCHEME + runId).equals(data.toString())) {
+                // A reply from a notification of an earlier run; it has no say in this one.
+                Log.w(TAG, "ignoring a code that does not belong to this run");
                 return START_NOT_STICKY;
             }
             Bundle reply = RemoteInput.getResultsFromIntent(intent);
@@ -206,26 +292,28 @@ public final class KeepADBSelfPairService extends Service {
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(new NotificationChannel(CHANNEL_ID,
                 getString(R.string.selfpair_channel_name), NotificationManager.IMPORTANCE_HIGH));
-        if (session != null) {
-            startForeground(NOTIFICATION_ID,
-                    notificationForPhase(status.phase, status.fingerprint),
+        if (runner != null) {
+            // Already running: a second tap on the button changes nothing, and the notification
+            // keeps what the current phase offers.
+            startForeground(NOTIFICATION_ID, notificationForPhase(status.phase),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
             return;
         }
+        owner = this;
+        runId = UUID.randomUUID().toString();
         cancelRequested = false;
-        currentRunToken = UUID.randomUUID().toString();
-        startForeground(NOTIFICATION_ID,
-                notificationForPhase(Phase.WAITING, null),
+        startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
-        session = new SelfPairSession(getSystemService(NsdManager.class), getPackageName(),
-                visible -> MAIN.post(() -> onDialogChanged(visible)));
-        session.start();
-        publish(new Status(Phase.WAITING, null, Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+        final String run = runId;
+        runner = runnerFactory.create(this,
+                visible -> MAIN.post(() -> onDialogChanged(run, visible)));
+        runner.start();
+        publishOwned(Phase.WAITING, Cleanup.LEFT_ON);
         MAIN.postDelayed(idleTimeout, IDLE_TIMEOUT_MS);
     }
 
-    private void onDialogChanged(boolean visible) {
-        if (session == null || working) {
+    private void onDialogChanged(String run, boolean visible) {
+        if (runner == null || working || !run.equals(runId)) {
             return;
         }
         Phase phase = status.phase;
@@ -237,7 +325,7 @@ public final class KeepADBSelfPairService extends Service {
     }
 
     void onCode(String code) {
-        if (working) {
+        if (working || runner == null) {
             return;
         }
         if (!SelfPairSession.isCode(code)) {
@@ -246,152 +334,169 @@ public final class KeepADBSelfPairService extends Service {
         }
         working = true;
         MAIN.removeCallbacks(idleTimeout);
+        MAIN.removeCallbacks(lateCheck);
         show(Phase.WORKING);
-        final SelfPairSession running = session;
+        final Runner running = runner;
+        final String run = runId;
         final Context app = getApplicationContext();
-        setCleanupMarker(app);
-        worker.execute(() -> {
-            SelfPairSession.Result result = null;
-            try {
-                result = running.run(code);
-            } catch (InterruptedException e) {
-                // The service is going away; the check below still runs.
-            } catch (RuntimeException e) {
-                Log.w(TAG, "self-pairing failed unexpectedly", e);
-            } finally {
-                final SelfPairSession.Result finished = result;
-                final String fp = (finished != null && finished.fingerprint != null)
-                        ? finished.fingerprint : running.pairedFingerprint();
-                Status outcome = null;
-                try {
-                    outcome = conclude(app, fp);
-                } catch (RuntimeException e) {
-                    Log.w(TAG, "self-pairing cleanup failed", e);
-                } finally {
-                    final Status done = outcome;
-                    MAIN.post(() -> onFinished(finished, done, fp));
-                }
-            }
-        });
+        try {
+            worker.execute(() -> attempt(app, running, run, code));
+        } catch (RejectedExecutionException e) {
+            // The executor is shutting down: this attempt never starts, so it ends here.
+            onFinished(run, null, KeepADBSelfPairCleanup.Outcome.NOT_GRANTED);
+        }
     }
 
     /**
-     * Decides by the permission itself and cleans up. Runs on the worker and needs nothing from
-     * the service, so it also completes while the service is being destroyed. Returns the DONE
-     * status if the permission is there, else null.
+     * One attempt, on the worker. Touches no field of the service: whatever it needs was handed
+     * in, and its result goes back through the main thread under the id of its run.
      */
-    static Status conclude(Context app, String fingerprint) {
+    private void attempt(Context app, Runner running, String run, String code) {
+        SelfPairSession.Result result = null;
         try {
-            if (app.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
-            Cleanup cleanup;
-            if (KeepADBPreferences.isKeepAliveEnabled(app)) {
-                cleanup = Cleanup.KEPT_ON_FOR_KEEP_ALIVE;
-            } else {
-                KeepADB.ToggleResult result = KeepADB.setEnabled(app, false, KeepADB.SOURCE_SELF_PAIRING);
-                boolean setOk = result != null && result.isSuccess();
-                Boolean enabled = KeepADB.isEnabledOrNull(app, KeepADB.SOURCE_SELF_PAIRING);
-                cleanup = (setOk && Boolean.FALSE.equals(enabled))
-                        ? Cleanup.SWITCHED_OFF : Cleanup.STILL_ON;
-            }
-            return new Status(Phase.DONE, fingerprint, cleanup);
+            result = running.run(code, fingerprint -> {
+                rememberPaired(fingerprint);
+                // From here on the grant may be sent: the cleanup needs an owner on disk first.
+                KeepADBSelfPairCleanup.claim(app, run);
+            });
+        } catch (InterruptedException e) {
+            // The service is going away; the check below still runs.
+        } catch (RuntimeException e) {
+            Log.w(TAG, "self-pairing failed unexpectedly", e);
         } finally {
-            clearCleanupMarker(app);
+            final SelfPairSession.Result finished = result;
+            final KeepADBSelfPairCleanup.Outcome outcome =
+                    KeepADBSelfPairCleanup.settle(app, run);
+            MAIN.post(() -> onFinished(run, finished, outcome));
         }
     }
 
-    private void onFinished(SelfPairSession.Result result, Status done, String pairedFingerprint) {
+    /** The terminal transition of an attempt; every accepted attempt reaches it exactly once. */
+    private void onFinished(String run, SelfPairSession.Result result,
+                            KeepADBSelfPairCleanup.Outcome outcome) {
+        if (!run.equals(runId) && !destroyed) {
+            // A leftover of an earlier run of this instance; that run was already closed.
+            return;
+        }
         working = false;
+        if (isGranted(outcome)) {
+            complete(outcome);
+            return;
+        }
+        if (cancelRequested || destroyed || runner == null) {
+            publishOwned(Phase.IDLE, Cleanup.LEFT_ON);
+            if (destroyed) {
+                release();
+                relinquish();
+            } else {
+                finish(null);
+            }
+            return;
+        }
+        SelfPairSession.Failure failure = result == null ? null : result.failure;
+        if (failure == SelfPairSession.Failure.WRONG_CODE) {
+            show(Phase.WRONG_CODE);
+        } else if (failure == SelfPairSession.Failure.NO_PAIRING_DIALOG) {
+            show(Phase.NO_DIALOG);
+        } else {
+            show(Phase.FAILED);
+        }
+        MAIN.postDelayed(idleTimeout, IDLE_TIMEOUT_MS);
+        if (result != null && result.fingerprint != null) {
+            // Paired, so the command may have been sent; give a late grant one more look.
+            MAIN.postDelayed(lateCheck, LATE_CHECK_MS);
+        }
+    }
+
+    /** Runs only while this run is alive and idle; a new attempt or the end of the run removes it. */
+    private void checkForLateGrant() {
+        if (destroyed || working || runner == null) {
+            return;
+        }
+        KeepADBSelfPairCleanup.Outcome outcome =
+                KeepADBSelfPairCleanup.settle(getApplicationContext(), runId);
+        if (isGranted(outcome)) {
+            complete(outcome);
+        }
+    }
+
+    private boolean isGranted(KeepADBSelfPairCleanup.Outcome outcome) {
+        if (outcome == KeepADBSelfPairCleanup.Outcome.UNKNOWN) {
+            try {
+                return checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
+                        == PackageManager.PERMISSION_GRANTED;
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
+        return outcome != KeepADBSelfPairCleanup.Outcome.NOT_GRANTED;
+    }
+
+    /** The permission is there: say so, bring the other surfaces up to date, end the run. */
+    private void complete(KeepADBSelfPairCleanup.Outcome outcome) {
+        Cleanup cleanup;
+        if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF) {
+            cleanup = Cleanup.SWITCHED_OFF;
+        } else if (outcome == KeepADBSelfPairCleanup.Outcome.LEFT_ON) {
+            cleanup = Cleanup.LEFT_ON;
+        } else {
+            cleanup = Cleanup.STILL_ON;
+        }
         final Context app = getApplicationContext();
-        if (done != null) {
+        final Status done = new Status(Phase.DONE, cleanup, pairedFingerprints());
+        if (owner == this) {
             publish(done);
+        } else if (owner != null) {
+            // A newer run owns the state. The permission it is after has arrived; let it see.
+            MAIN.post(owner.lateCheck);
+        } else {
+            publish(done);
+        }
+        try {
             KeepADBWidget.refreshAll(app);
             KeepADBEndpointCoordinator.refresh(app);
             KeepADBService.sync(app);
-            Notification last = buildCompletionNotification(app, done);
-            if (destroyed) {
-                if (replyPendingIntent != null) {
-                    replyPendingIntent.cancel();
-                    replyPendingIntent = null;
-                }
-                currentRunToken = null;
-                if (session != null) {
-                    session.cancel();
-                    session.stop();
-                    session = null;
-                }
-                NotificationManager nm = app.getSystemService(NotificationManager.class);
-                if (nm != null) {
-                    nm.notify(NOTIFICATION_ID, last);
-                }
-            } else {
-                finish(last);
-            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "cannot refresh after the grant", e);
+        }
+        if (owner != null && owner != this) {
+            release();
             return;
         }
-
-        if (pairedFingerprint != null) {
-            MAIN.postDelayed(() -> {
-                Status delayedDone = conclude(app, pairedFingerprint);
-                if (delayedDone != null) {
-                    publish(delayedDone);
-                    KeepADBWidget.refreshAll(app);
-                    KeepADBEndpointCoordinator.refresh(app);
-                    KeepADBService.sync(app);
-                    Notification last = buildCompletionNotification(app, delayedDone);
-                    if (destroyed) {
-                        NotificationManager nm = app.getSystemService(NotificationManager.class);
-                        if (nm != null) {
-                            nm.notify(NOTIFICATION_ID, last);
-                        }
-                    } else {
-                        finish(last);
-                    }
-                }
-            }, 3_000L);
-        }
-
-        if (cancelRequested || destroyed || session == null) {
-            publish(new Status(Phase.IDLE, pairedFingerprint, Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
-            if (!destroyed) {
-                finish(null);
-            } else {
-                if (replyPendingIntent != null) {
-                    replyPendingIntent.cancel();
-                    replyPendingIntent = null;
-                }
-                currentRunToken = null;
-                if (session != null) {
-                    session.cancel();
-                    session.stop();
-                    session = null;
-                }
+        Notification last = completionNotification(app, done);
+        if (destroyed) {
+            release();
+            relinquish();
+            NotificationManager manager = app.getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.notify(NOTIFICATION_ID, last);
             }
-            return;
-        }
-
-        SelfPairSession.Failure failure = result == null ? null : result.failure;
-        if (failure == SelfPairSession.Failure.WRONG_CODE) {
-            show(Phase.WRONG_CODE, pairedFingerprint);
-        } else if (failure == SelfPairSession.Failure.NO_PAIRING_DIALOG) {
-            show(Phase.NO_DIALOG, pairedFingerprint);
         } else {
-            show(Phase.FAILED, pairedFingerprint);
+            finish(last);
         }
-        MAIN.postDelayed(idleTimeout, IDLE_TIMEOUT_MS);
     }
 
-    private void show(Phase phase) {
-        show(phase, status.fingerprint);
+    /** A destroyed instance that has reported its last attempt owns nothing any more. */
+    private void relinquish() {
+        if (owner == this) {
+            owner = null;
+        }
+    }
+
+    /** Writes the shared status, but only for the run it belongs to. */
+    private void publishOwned(Phase phase, Cleanup cleanup) {
+        if (owner == this) {
+            publish(new Status(phase, cleanup, pairedFingerprints()));
+        }
     }
 
     /** Publishes the phase and puts the matching text into the notification. */
-    private void show(Phase phase, String fingerprint) {
-        publish(new Status(phase, fingerprint, Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
-        getSystemService(NotificationManager.class)
-                .notify(NOTIFICATION_ID, notificationForPhase(phase, fingerprint));
+    private void show(Phase phase) {
+        publishOwned(phase, Cleanup.LEFT_ON);
+        if (!destroyed) {
+            getSystemService(NotificationManager.class)
+                    .notify(NOTIFICATION_ID, notificationForPhase(phase));
+        }
     }
 
     static int text(Phase phase) {
@@ -413,34 +518,19 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
-    private Notification notificationForPhase(Phase phase, String fingerprint) {
+    private Notification notificationForPhase(Phase phase) {
         boolean reply = phase == Phase.DIALOG_FOUND || phase == Phase.WRONG_CODE
                 || phase == Phase.FAILED;
-        StringBuilder sb = new StringBuilder(getString(text(phase)));
-        if (fingerprint != null) {
-            sb.append('\n').append(getString(R.string.selfpair_done_removable, fingerprint));
-        }
-        return notification(sb.toString(), reply);
-    }
-
-    private Notification notification(String text, boolean withReply) {
-        PendingIntent open = PendingIntent.getActivity(this, 0,
-                OnboardingActivity.notificationIntent(this, KeepADBOnboarding.Step.PERMISSIONS,
-                        OnboardingActionSteps.Permissions.ITEM_SYSTEM),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_keepadb)
-                .setContentTitle(getString(R.string.selfpair_notification_title))
-                .setContentText(text)
-                .setStyle(new Notification.BigTextStyle().bigText(text))
-                .setContentIntent(open);
-        if (withReply && currentRunToken != null) {
+        StringBuilder text = new StringBuilder(getString(text(phase)));
+        appendRemovable(this, text, pairedFingerprints());
+        Notification.Builder builder = builder(this, text.toString());
+        if (reply && runId != null) {
             int flags = PendingIntent.FLAG_UPDATE_CURRENT
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                             ? PendingIntent.FLAG_MUTABLE : 0);
             Intent codeIntent = new Intent(this, KeepADBSelfPairService.class)
                     .setAction(ACTION_CODE)
-                    .setData(Uri.parse("keepadb-selfpair:" + currentRunToken));
+                    .setData(Uri.parse(TOKEN_SCHEME + runId));
             replyPendingIntent = PendingIntent.getService(this, 1, codeIntent, flags);
             builder.addAction(new Notification.Action.Builder(null,
                     getString(R.string.selfpair_enter_code), replyPendingIntent)
@@ -451,57 +541,72 @@ public final class KeepADBSelfPairService extends Service {
         return builder.build();
     }
 
-    static Notification buildCompletionNotification(Context context, Status done) {
+    static Notification completionNotification(Context context, Status done) {
         StringBuilder text = new StringBuilder(context.getString(R.string.selfpair_notification_done));
         if (done.cleanup == Cleanup.SWITCHED_OFF) {
             text.append('\n').append(context.getString(R.string.selfpair_done_off));
         } else if (done.cleanup == Cleanup.STILL_ON) {
             text.append('\n').append(context.getString(R.string.selfpair_done_still_on));
         }
-        if (done.fingerprint != null) {
+        appendRemovable(context, text, done.fingerprints);
+        return builder(context, text.toString()).build();
+    }
+
+    private static void appendRemovable(Context context, StringBuilder text,
+                                        List<String> fingerprints) {
+        for (String fingerprint : fingerprints) {
             text.append('\n').append(
-                    context.getString(R.string.selfpair_done_removable, done.fingerprint));
+                    context.getString(R.string.selfpair_done_removable, fingerprint));
         }
+    }
+
+    private static Notification.Builder builder(Context context, String text) {
         PendingIntent open = PendingIntent.getActivity(context, 0,
-                OnboardingActivity.notificationIntent(context, KeepADBOnboarding.Step.PERMISSIONS,
+                OnboardingActivity.notificationIntent(context,
+                        KeepADBOnboarding.Step.PERMISSIONS,
                         OnboardingActionSteps.Permissions.ITEM_SYSTEM),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(context.getString(R.string.selfpair_notification_title))
-                .setContentText(text.toString())
-                .setStyle(new Notification.BigTextStyle().bigText(text.toString()))
-                .setContentIntent(open)
-                .build();
+                .setContentText(text)
+                .setStyle(new Notification.BigTextStyle().bigText(text))
+                .setContentIntent(open);
     }
 
     private void cancel() {
         if (working) {
+            // The attempt may already have sent the grant. Stop it at its next step, but keep
+            // the service in front until it has reported; onFinished ends the run.
             cancelRequested = true;
-            if (session != null) {
-                session.cancel();
+            if (runner != null) {
+                runner.cancel();
             }
             return;
         }
-        if (status.isActive()) {
-            publish(new Status(Phase.IDLE, null, Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
-        }
+        publishOwned(Phase.IDLE, Cleanup.LEFT_ON);
         finish(null);
     }
 
-    /** Ends the service; {@code last} stays in the shade, or the notification goes with it. */
-    private void finish(Notification last) {
+    /** Lets go of everything the run holds; the service itself may already be gone. */
+    private void release() {
         MAIN.removeCallbacks(idleTimeout);
+        MAIN.removeCallbacks(lateCheck);
         if (replyPendingIntent != null) {
             replyPendingIntent.cancel();
             replyPendingIntent = null;
         }
-        currentRunToken = null;
-        if (session != null) {
-            session.cancel();
-            session.stop();
-            session = null;
+        runId = null;
+        if (runner != null) {
+            runner.cancel();
+            runner.stop();
+            runner = null;
         }
+    }
+
+    /** Ends the run and the service; {@code last} stays in the shade, or nothing does. */
+    private void finish(Notification last) {
+        release();
         if (last == null) {
             stopForeground(STOP_FOREGROUND_REMOVE);
         } else {
@@ -514,22 +619,34 @@ public final class KeepADBSelfPairService extends Service {
     @Override
     public void onDestroy() {
         destroyed = true;
+        final String run = runId;
         MAIN.removeCallbacks(idleTimeout);
-        if (session != null) {
-            session.cancel();
-            session.stop();
-            session = null;
-        }
+        MAIN.removeCallbacks(lateCheck);
         if (replyPendingIntent != null) {
             replyPendingIntent.cancel();
             replyPendingIntent = null;
         }
-        currentRunToken = null;
-        // Interrupts waits; a running connection ends at its own deadline, and the worker's
-        // finally block still checks the permission and cleans up.
-        worker.shutdownNow();
-        if (!working && status.isActive()) {
-            publish(new Status(Phase.IDLE, null, Cleanup.KEPT_ON_FOR_KEEP_ALIVE));
+        if (runner != null) {
+            runner.cancel();
+            runner.stop();
+        }
+        // Interrupts waits; a running connection ends at its own deadline, and the attempt's
+        // finally block still settles the cleanup and reports back.
+        List<Runnable> neverStarted = worker.shutdownNow();
+        if (working && !neverStarted.isEmpty()) {
+            // The accepted attempt was still queued and will never run: end it here.
+            working = false;
+        }
+        if (!working) {
+            publishOwned(Phase.IDLE, Cleanup.LEFT_ON);
+            runner = null;
+            runId = null;
+            if (owner == this) {
+                owner = null;
+            }
+        } else {
+            // Keep the id: the attempt reports under it, and onFinished closes the run.
+            runId = run;
         }
         super.onDestroy();
     }

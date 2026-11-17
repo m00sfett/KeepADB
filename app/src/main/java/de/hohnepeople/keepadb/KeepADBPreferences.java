@@ -249,6 +249,8 @@ final class KeepADBPreferences {
             KeepADB.recordExplicitIntent(context, true);
         }
         if (context == null) return;
+        // #962: a decision about Keep-Alive voids a pending self-pairing cleanup.
+        KeepADBSelfPairCleanup.supersede(context);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
         KeepADBWarningState.observe(context);

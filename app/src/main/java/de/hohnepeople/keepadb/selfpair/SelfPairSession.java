@@ -47,7 +47,7 @@ public final class SelfPairSession {
         /** Fingerprint of the key as Android lists it under paired devices; {@code null} if not paired. */
         public final String fingerprint;
 
-        Result(Failure failure, String fingerprint) {
+        public Result(Failure failure, String fingerprint) {
             this.failure = failure;
             this.fingerprint = fingerprint;
         }
@@ -56,6 +56,15 @@ public final class SelfPairSession {
     /** Called on an arbitrary thread whenever the pairing dialog appears or disappears. */
     public interface Listener {
         void onPairingDialogChanged(boolean visible);
+    }
+
+    /**
+     * Called on the thread of {@link #run} the moment the key is registered with the device,
+     * before the grant command can be sent. Whatever the caller needs in place before a grant
+     * may happen belongs here.
+     */
+    public interface PairedListener {
+        void onPaired(String fingerprint);
     }
 
     private static final String TAG = "KeepADBSelfPair";
@@ -117,10 +126,10 @@ public final class SelfPairSession {
     }
 
     /**
-     * Pairs with {@code code} and runs the grant. Blocks; call it off the main thread. One call
-     * at a time.
+     * Pairs with {@code code}, tells {@code onPaired} (may be null), and runs the grant. Blocks;
+     * call it off the main thread. One call at a time.
      */
-    public Result run(String code) throws InterruptedException {
+    public Result run(String code, PairedListener onPaired) throws InterruptedException {
         if (!isCode(code)) {
             return new Result(Failure.WRONG_CODE, null);
         }
@@ -142,6 +151,9 @@ public final class SelfPairSession {
             return new Result(pairFailure, null);
         }
         pairedFingerprint = fingerprint;
+        if (onPaired != null) {
+            onPaired.onPaired(fingerprint);
+        }
         if (cancelled) {
             return new Result(Failure.CANCELLED, fingerprint);
         }

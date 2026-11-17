@@ -280,10 +280,7 @@ final class OnboardingActionSteps {
                 addSelfPairProgress(row, selfPair);
             } else {
                 row.addView(body(host.getString(R.string.selfpair_intro)));
-                if (selfPair.fingerprint != null) {
-                    row.addView(muted(host.getString(R.string.selfpair_done_removable,
-                            selfPair.fingerprint)));
-                }
+                addRemovableNotes(row, selfPair);
                 if (selfPairNeedsWifi) {
                     row.addView(muted(host.getString(R.string.selfpair_need_wifi)));
                 }
@@ -313,10 +310,7 @@ final class OnboardingActionSteps {
             state.setTextColor(host.getColor(R.color.text_yellow));
             state.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
             row.addView(state);
-            if (status.fingerprint != null) {
-                row.addView(muted(host.getString(R.string.selfpair_done_removable,
-                        status.fingerprint)));
-            }
+            addRemovableNotes(row, status);
             row.addView(button(host.getString(android.R.string.cancel), false,
                     v -> KeepADBSelfPairService.cancel(host)));
         }
@@ -334,9 +328,14 @@ final class OnboardingActionSteps {
                     row.addView(muted(host.getString(R.string.selfpair_done_still_on)));
                 }
             }
-            if (status.fingerprint != null) {
+            addRemovableNotes(row, status);
+        }
+
+        /** One line per key this process paired: each left an entry the user may remove. */
+        private void addRemovableNotes(LinearLayout row, KeepADBSelfPairService.Status status) {
+            for (String fingerprint : status.fingerprints) {
                 row.addView(muted(host.getString(R.string.selfpair_done_removable,
-                        status.fingerprint)));
+                        fingerprint)));
             }
         }
 
