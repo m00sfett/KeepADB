@@ -495,7 +495,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_perm_system_title">Permiso del sistema</string>
     <string name="onboarding_perm_system_body">Sin él, KeepADB no puede activar Wifi-ADB. Concédelo una sola vez desde un ordenador:</string>
     <string name="onboarding_perm_system_more">¿Varios dispositivos o problemas?</string>
-    <string name="onboarding_copy_command">Copiar comando</string>
+    <string name="onboarding_share_command">Compartir comando</string>
     <string name="onboarding_copy_done">Comando copiado</string>
     <string name="onboarding_perm_location_title">Detectar el Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android solo muestra el nombre del Wi-Fi y el punto de acceso con acceso a la ubicación. KeepADB nunca lee tu posición.</string>
@@ -517,7 +517,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_protection_force_comfort_note">Se aplica cuando termina el modo forzado.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Falta el permiso del sistema</string>
-    <string name="home_warning_system_text">KeepADB solo puede activar Wifi-ADB cuando concedes este permiso una vez desde un ordenador.</string>
+    <string name="home_warning_system_text">KeepADB necesita un permiso del sistema una sola vez para cambiar Wifi-ADB. Concédelo directamente en este teléfono, en Chrome o Edge en keepadb.roteson.de/setup, o por USB con adb.</string>
     <string name="home_warning_action_guide">Instrucciones</string>
     <string name="home_warning_less_secure_title">Menos seguro de lo recomendado</string>
     <string name="home_warning_action_review">Revisar</string>
@@ -669,7 +669,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB puede concederse a sí mismo este permiso, directamente en este teléfono: se vincula una sola vez con el Wifi-ADB de este teléfono. No hace falta ningún ordenador.</string>
     <string name="selfpair_start_button">Conceder en este teléfono</string>
-    <string name="selfpair_computer_toggle">Mejor desde un ordenador</string>
+    <string name="selfpair_computer_toggle">Manualmente por USB (comando adb)</string>
     <string name="selfpair_need_wifi">Conéctate primero a una red Wi-Fi. Wifi-ADB solo funciona con Wi-Fi.</string>
     <string name="selfpair_need_notifications">KeepADB recibe el código de vinculación mediante una notificación. Sin notificaciones este método no funciona; concede el permiso desde un ordenador.</string>
     <string name="selfpair_step_1">1. Abre las opciones para desarrolladores, ve a “Depuración inalámbrica” y actívala.</string>
@@ -691,4 +691,8 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="selfpair_notification_done">Permiso concedido.</string>
     <string name="selfpair_enter_code">Introducir código</string>
     <string name="selfpair_code_label">Código de seis dígitos</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Desde el navegador de un ordenador</string>
+    <string name="onboarding_perm_browser_body">En un ordenador, abre esta dirección en Chrome o Edge y sigue los tres pasos:</string>
+    <string name="onboarding_perm_browser_prereq">Activa la depuración USB en este teléfono y conéctalo con un cable USB.</string>
 </resources>

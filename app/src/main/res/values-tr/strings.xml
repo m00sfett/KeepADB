@@ -495,7 +495,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_perm_system_title">Sistem izni</string>
     <string name="onboarding_perm_system_body">Bu izin olmadan KeepADB Wifi-ADB\'yi açıp kapatamaz. Bir bilgisayardan yalnızca bir kez verin:</string>
     <string name="onboarding_perm_system_more">Birden çok cihaz veya sorunlar?</string>
-    <string name="onboarding_copy_command">Komutu kopyala</string>
+    <string name="onboarding_share_command">Komutu paylaş</string>
     <string name="onboarding_copy_done">Komut kopyalandı</string>
     <string name="onboarding_perm_location_title">Wi-Fi algılama</string>
     <string name="onboarding_perm_location_body">Android, Wi-Fi adını ve erişim noktasını yalnızca konum erişimi varsa gösterir. KeepADB konumunuzu hiçbir zaman okumaz.</string>
@@ -517,7 +517,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_protection_force_comfort_note">Zorunlu mod bittikten sonra geçerli olur.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Sistem izni eksik</string>
-    <string name="home_warning_system_text">KeepADB, bu izni bir kez bilgisayardan vermeden Wifi-ADB\'yi açıp kapatamaz.</string>
+    <string name="home_warning_system_text">KeepADB\'nin Wifi-ADB\'yi açıp kapatabilmesi için bir kez sistem iznine ihtiyacı vardır. İzni doğrudan bu telefondan, Chrome veya Edge ile keepadb.roteson.de/setup adresinden ya da USB üzerinden adb ile verin.</string>
     <string name="home_warning_action_guide">Yönergeler</string>
     <string name="home_warning_less_secure_title">Önerilenden daha az güvenli</string>
     <string name="home_warning_action_review">İncele</string>
@@ -668,7 +668,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB bu izni doğrudan bu telefonda kendisi verebilir: Bu telefonun kendi Wifi-ADB özelliğiyle bir kez eşleşir. Bilgisayar gerekmez.</string>
     <string name="selfpair_start_button">Bu telefonda ver</string>
-    <string name="selfpair_computer_toggle">Bunun yerine bilgisayardan</string>
+    <string name="selfpair_computer_toggle">USB üzerinden elle (adb komutu)</string>
     <string name="selfpair_need_wifi">Önce bir Wi-Fi ağına bağlanın. Wifi-ADB yalnızca Wi-Fi\'de çalışır.</string>
     <string name="selfpair_need_notifications">KeepADB eşleme kodunu bir bildirim üzerinden alır. Bildirimler olmadan bu yöntem çalışmaz; izni bunun yerine bilgisayardan verin.</string>
     <string name="selfpair_step_1">1. Geliştirici seçenekleri\'ni açın, “Kablosuz hata ayıklama”ya gidin ve açın.</string>
@@ -690,4 +690,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="selfpair_notification_done">İzin verildi.</string>
     <string name="selfpair_enter_code">Kodu gir</string>
     <string name="selfpair_code_label">Altı haneli kod</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Bilgisayar tarayıcısından</string>
+    <string name="onboarding_perm_browser_body">Bilgisayarda bu adresi Chrome veya Edge ile açın ve üç adımı izleyin:</string>
+    <string name="onboarding_perm_browser_prereq">Bu telefonda USB hata ayıklamayı açın ve USB kablosuyla bağlayın.</string>
 </resources>

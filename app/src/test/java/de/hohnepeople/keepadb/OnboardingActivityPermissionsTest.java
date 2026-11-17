@@ -152,22 +152,37 @@ public class OnboardingActivityPermissionsTest {
                 context.getPackageName())));
     }
 
-    // ---- #962: granting on the phone leads, the computer is one tap away -------------------------
+    // ---- #962 + #961: granting on the phone leads, browser then manual USB sit below ---------
 
     @Test
-    public void grantingOnThePhoneLeadsAndTheComputerWayIsFoldedAway() {
+    public void grantingOnThePhoneLeadsAndBothComputerAlternativesSitBelowInOrder() {
         OnboardingActivity assistant = open(permissionsStepIntent());
         String shown = allText(assistant);
-        assertTrue(shown, shown.contains(context.getString(R.string.selfpair_intro)));
-        assertFalse("the command is folded away", shown.contains(context.getString(
-                R.string.setup_command, context.getPackageName())));
+        String intro = context.getString(R.string.selfpair_intro);
+        String browserToggle = context.getString(R.string.onboarding_perm_browser_toggle);
+        String manualToggle = context.getString(R.string.selfpair_computer_toggle);
+        assertTrue(shown, shown.contains(intro));
+        assertTrue(shown, shown.contains(browserToggle));
+        assertTrue(shown, shown.contains(manualToggle));
+        assertTrue("on-device leads, then browser, then manual USB",
+                shown.indexOf(intro) < shown.indexOf(browserToggle)
+                        && shown.indexOf(browserToggle) < shown.indexOf(manualToggle));
+
+        String url = context.getString(R.string.onboarding_perm_browser_url);
+        String cmd = context.getString(R.string.setup_command, context.getPackageName());
+        assertFalse("browser details start folded", shown.contains(url));
+        assertFalse("manual command starts folded", shown.contains(cmd));
+
+        openBrowserWay(assistant);
+        assertTrue(allText(assistant).contains(url));
+        assertFalse(allText(assistant).contains(cmd));
+        openBrowserWay(assistant);
+        assertFalse(allText(assistant).contains(url));
 
         openComputerWay(assistant);
-        assertTrue(allText(assistant).contains(context.getString(R.string.setup_command,
-                context.getPackageName())));
+        assertTrue(allText(assistant).contains(cmd));
         openComputerWay(assistant);
-        assertFalse(allText(assistant).contains(context.getString(R.string.setup_command,
-                context.getPackageName())));
+        assertFalse(allText(assistant).contains(cmd));
     }
 
     @Test
@@ -208,9 +223,26 @@ public class OnboardingActivityPermissionsTest {
         String shown = allText(assistant);
         assertTrue(shown, shown.contains(
                 context.getString(R.string.selfpair_need_notifications)));
-        assertTrue(shown, shown.contains(context.getString(R.string.setup_command,
-                context.getPackageName())));
+        assertTrue(shown, shown.contains(
+                context.getString(R.string.onboarding_perm_browser_url)));
         assertNull(shadowOf((Application) context).getNextStartedService());
+    }
+
+    @Test
+    public void browserAndManualFoldsSurviveActivityRecreation() {
+        ActivityController<OnboardingActivity> controller =
+                Robolectric.buildActivity(OnboardingActivity.class, permissionsStepIntent())
+                        .setup();
+        controllers.add(controller);
+        OnboardingActivity assistant = controller.get();
+        openBrowserWay(assistant);
+        openComputerWay(assistant);
+
+        controller.recreate();
+        String shown = allText(controller.get());
+        assertTrue(shown.contains(context.getString(R.string.onboarding_perm_browser_url)));
+        assertTrue(shown.contains(context.getString(
+                R.string.setup_command, context.getPackageName())));
     }
 
     @Test
@@ -260,11 +292,11 @@ public class OnboardingActivityPermissionsTest {
         button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
 
         // Returning to onResume with notifications still disabled resets selfPairPending,
-        // shows the warning, and opens computer help.
+        // shows the warning, and opens the browser fallback.
         lastController.resume();
         String shown = allText(assistant);
         assertTrue(shown.contains(context.getString(R.string.selfpair_need_notifications)));
-        assertTrue(shown.contains(context.getString(R.string.setup_command, context.getPackageName())));
+        assertTrue(shown.contains(context.getString(R.string.onboarding_perm_browser_url)));
     }
 
     @Test
@@ -275,9 +307,8 @@ public class OnboardingActivityPermissionsTest {
                 KeepADBSelfPairService.Cleanup.LEFT_ON));
         org.robolectric.shadows.ShadowLooper.idleMainLooper();
 
-        assertTrue("FAILED phase opens computer fallback",
-                allText(assistant).contains(context.getString(R.string.setup_command,
-                        context.getPackageName())));
+        assertTrue("FAILED phase opens browser fallback",
+                allText(assistant).contains(context.getString(R.string.onboarding_perm_browser_url)));
     }
 
     @Test
@@ -929,7 +960,12 @@ public class OnboardingActivityPermissionsTest {
         return null;
     }
 
-    /** #962: the command for the computer sits behind its own fold. */
+    /** #961/#962: the two computer alternatives sit behind their own folds below self-pairing. */
+    private void openBrowserWay(android.app.Activity activity) {
+        findTextStarting(activity, context.getString(R.string.onboarding_perm_browser_toggle))
+                .performClick();
+    }
+
     private void openComputerWay(android.app.Activity activity) {
         findTextStarting(activity, context.getString(R.string.selfpair_computer_toggle))
                 .performClick();

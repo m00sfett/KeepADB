@@ -495,7 +495,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_perm_system_title">Systemberechtigung</string>
     <string name="onboarding_perm_system_body">Ohne sie kann KeepADB Wifi-ADB nicht schalten. Einmalig am Computer vergeben:</string>
     <string name="onboarding_perm_system_more">Mehrere Geräte oder Probleme?</string>
-    <string name="onboarding_copy_command">Befehl kopieren</string>
+    <string name="onboarding_share_command">Befehl teilen</string>
     <string name="onboarding_copy_done">Befehl kopiert</string>
     <string name="onboarding_perm_location_title">WLAN erkennen</string>
     <string name="onboarding_perm_location_body">Android zeigt WLAN-Name und Access Point nur mit Standortzugriff. KeepADB liest nie deine Position.</string>
@@ -517,7 +517,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_protection_force_comfort_note">Gilt nach Ende des Force-Modus.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Systemberechtigung fehlt</string>
-    <string name="home_warning_system_text">KeepADB kann Wifi-ADB erst schalten, wenn du sie einmalig am Computer vergibst.</string>
+    <string name="home_warning_system_text">KeepADB braucht einmalig eine Systemberechtigung, um Wifi-ADB zu schalten. Vergib sie direkt auf diesem Handy, am Computer in Chrome oder Edge unter keepadb.roteson.de/setup oder manuell per USB mit adb.</string>
     <string name="home_warning_action_guide">Anleitung</string>
     <string name="home_warning_less_secure_title">Weniger sicher als empfohlen</string>
     <string name="home_warning_action_review">Prüfen</string>
@@ -668,7 +668,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB kann sich diese Berechtigung selbst erteilen, direkt auf diesem Telefon: Es koppelt sich einmalig mit dem Wifi-ADB dieses Telefons. Kein Computer nötig.</string>
     <string name="selfpair_start_button">Auf diesem Telefon erteilen</string>
-    <string name="selfpair_computer_toggle">Stattdessen per Computer</string>
+    <string name="selfpair_computer_toggle">Manuell per USB (adb-Befehl)</string>
     <string name="selfpair_need_wifi">Verbinde dich zuerst mit einem WLAN. Wifi-ADB funktioniert nur im WLAN.</string>
     <string name="selfpair_need_notifications">KeepADB nimmt den Kopplungscode über eine Benachrichtigung entgegen. Ohne Benachrichtigungen funktioniert dieser Weg nicht; erteile die Berechtigung stattdessen per Computer.</string>
     <string name="selfpair_step_1">1. Öffne die Entwickleroptionen, gehe zu „Debugging über WLAN“ und schalte es ein.</string>
@@ -690,4 +690,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="selfpair_notification_done">Berechtigung erteilt.</string>
     <string name="selfpair_enter_code">Code eingeben</string>
     <string name="selfpair_code_label">Sechsstelliger Code</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Per Browser am Computer</string>
+    <string name="onboarding_perm_browser_body">Öffne am Computer diese Adresse in Chrome oder Edge und folge den drei Schritten:</string>
+    <string name="onboarding_perm_browser_prereq">Schalte USB-Debugging auf diesem Handy ein und verbinde es per USB-Kabel.</string>
 </resources>

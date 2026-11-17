@@ -495,7 +495,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_perm_system_title">Izin sistem</string>
     <string name="onboarding_perm_system_body">Tanpa izin ini, KeepADB tidak dapat menyalakan Wifi-ADB. Berikan sekali dari komputer:</string>
     <string name="onboarding_perm_system_more">Beberapa perangkat atau masalah?</string>
-    <string name="onboarding_copy_command">Salin perintah</string>
+    <string name="onboarding_share_command">Bagikan perintah</string>
     <string name="onboarding_copy_done">Perintah disalin</string>
     <string name="onboarding_perm_location_title">Deteksi Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android hanya menampilkan nama Wi-Fi dan titik akses jika akses lokasi diizinkan. KeepADB tidak pernah membaca posisi Anda.</string>
@@ -517,7 +517,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_protection_force_comfort_note">Berlaku setelah mode paksa berakhir.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Izin sistem belum ada</string>
-    <string name="home_warning_system_text">KeepADB baru dapat menyalakan Wifi-ADB setelah Anda memberikan izin ini sekali dari komputer.</string>
+    <string name="home_warning_system_text">KeepADB memerlukan izin sistem satu kali untuk menyalakan Wifi-ADB. Berikan langsung di ponsel ini, melalui Chrome atau Edge di keepadb.roteson.de/setup, atau lewat USB dengan adb.</string>
     <string name="home_warning_action_guide">Petunjuk</string>
     <string name="home_warning_less_secure_title">Kurang aman dari yang disarankan</string>
     <string name="home_warning_action_review">Tinjau</string>
@@ -667,7 +667,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB dapat memberi izin ini kepada dirinya sendiri, langsung di ponsel ini: aplikasi menyambungkan diri sekali dengan Wifi-ADB milik ponsel ini. Tidak perlu komputer.</string>
     <string name="selfpair_start_button">Berikan di ponsel ini</string>
-    <string name="selfpair_computer_toggle">Gunakan komputer saja</string>
+    <string name="selfpair_computer_toggle">Secara manual lewat USB (perintah adb)</string>
     <string name="selfpair_need_wifi">Hubungkan ke Wi-Fi terlebih dahulu. Wifi-ADB hanya berfungsi di Wi-Fi.</string>
     <string name="selfpair_need_notifications">KeepADB menerima kode penyambungan melalui notifikasi. Tanpa notifikasi, cara ini tidak berfungsi; berikan izin dari komputer.</string>
     <string name="selfpair_step_1">1. Buka Opsi developer, masuk ke “Proses debug nirkabel”, lalu aktifkan.</string>
@@ -689,4 +689,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="selfpair_notification_done">Izin diberikan.</string>
     <string name="selfpair_enter_code">Masukkan kode</string>
     <string name="selfpair_code_label">Kode enam digit</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Melalui browser di komputer</string>
+    <string name="onboarding_perm_browser_body">Di komputer, buka alamat ini di Chrome atau Edge dan ikuti ketiga langkahnya:</string>
+    <string name="onboarding_perm_browser_prereq">Aktifkan debugging USB di ponsel ini dan sambungkan dengan kabel USB.</string>
 </resources>

@@ -54,7 +54,9 @@ final class OnboardingActionSteps {
         private String focusItem;
         private boolean moreOpen;
         private boolean built;
-        /** #962: the "from a computer" way, folded away behind the one on the phone. */
+        /** #961/#962: the browser-based setup way, first alternative below on-device pairing. */
+        private boolean browserOpen;
+        /** #961/#962: the manual USB command-line way, second alternative below browser setup. */
         private boolean computerOpen;
         /** #962: "Grant on this phone" was tapped and waits for the notification permission. */
         private boolean selfPairPending;
@@ -62,6 +64,8 @@ final class OnboardingActionSteps {
         private boolean selfPairNeedsWifi;
         private static final String STATE_SELF_PAIR_PENDING =
                 "onboarding_perm_self_pair_pending";
+        private static final String STATE_BROWSER_OPEN =
+                "onboarding_perm_browser_open";
         private static final String STATE_COMPUTER_OPEN =
                 "onboarding_perm_computer_open";
         private static final String STATE_SELF_PAIR_NEEDS_NOTIFICATIONS =
@@ -110,6 +114,7 @@ final class OnboardingActionSteps {
         @Override
         void saveState(Bundle out) {
             out.putBoolean(STATE_SELF_PAIR_PENDING, selfPairPending);
+            out.putBoolean(STATE_BROWSER_OPEN, browserOpen);
             out.putBoolean(STATE_COMPUTER_OPEN, computerOpen);
             out.putBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, selfPairNeedsNotifications);
             out.putBoolean(STATE_SELF_PAIR_NEEDS_WIFI, selfPairNeedsWifi);
@@ -118,6 +123,7 @@ final class OnboardingActionSteps {
         @Override
         void restoreState(Bundle in) {
             selfPairPending = in.getBoolean(STATE_SELF_PAIR_PENDING, false);
+            browserOpen = in.getBoolean(STATE_BROWSER_OPEN, false);
             computerOpen = in.getBoolean(STATE_COMPUTER_OPEN, false);
             selfPairNeedsNotifications = in.getBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, false);
             selfPairNeedsWifi = in.getBoolean(STATE_SELF_PAIR_NEEDS_WIFI, false);
@@ -145,7 +151,7 @@ final class OnboardingActionSteps {
                 } else {
                     selfPairPending = false;
                     selfPairNeedsNotifications = true;
-                    computerOpen = true;
+                    browserOpen = true;
                 }
             }
             if (built) render();
@@ -164,7 +170,7 @@ final class OnboardingActionSteps {
                 } else {
                     selfPairPending = false;
                     selfPairNeedsNotifications = true;
-                    computerOpen = true;
+                    browserOpen = true;
                 }
             }
             if (built) render();
@@ -269,14 +275,15 @@ final class OnboardingActionSteps {
         }
 
         /**
-         * Two ways to the system permission (#962): KeepADB grants it to itself on this phone,
-         * or the command is typed at a computer. The first leads; the second is one tap away
-         * and opens by itself when the first cannot work.
+         * Three ways to the system permission (#961, #962): KeepADB grants it to itself on this
+         * phone (primary), or via the WebUSB setup page in a computer's browser, or manually over
+         * USB with the adb command line. Browser setup opens by itself when on-device pairing
+         * cannot work.
          */
         private void addSystemHelp(LinearLayout row) {
             KeepADBSelfPairService.Status selfPair = KeepADBSelfPairService.status();
             if (selfPair.phase == KeepADBSelfPairService.Phase.FAILED) {
-                computerOpen = true;
+                browserOpen = true;
             }
             if (selfPair.isActive()) {
                 addSelfPairProgress(row, selfPair);
@@ -292,6 +299,12 @@ final class OnboardingActionSteps {
                 row.addView(button(host.getString(R.string.selfpair_start_button), true,
                         v -> startSelfPair()));
             }
+            row.addView(foldToggle(host.getString(R.string.onboarding_perm_browser_toggle),
+                    browserOpen, v -> {
+                        browserOpen = !browserOpen;
+                        render();
+                    }));
+            if (browserOpen) addBrowserHelp(row);
             row.addView(foldToggle(host.getString(R.string.selfpair_computer_toggle),
                     computerOpen, v -> {
                         computerOpen = !computerOpen;
@@ -353,7 +366,7 @@ final class OnboardingActionSteps {
                     // Asked already and still missing: this way is closed.
                     selfPairPending = false;
                     selfPairNeedsNotifications = true;
-                    computerOpen = true;
+                    browserOpen = true;
                     render();
                     return;
                 }
@@ -411,20 +424,28 @@ final class OnboardingActionSteps {
             return toggle;
         }
 
+        /** #961: browser-based WebUSB setup page on a computer. No network call from the app. */
+        private void addBrowserHelp(LinearLayout row) {
+            row.addView(body(host.getString(R.string.onboarding_perm_browser_body)));
+            row.addView(command(host.getString(R.string.onboarding_perm_browser_url)));
+            row.addView(body(host.getString(R.string.onboarding_perm_browser_prereq)));
+            row.addView(button(host.getString(R.string.selfpair_open_developer_options), false,
+                    v -> openDeveloperOptions()));
+            row.addView(muted(host.getString(R.string.selfpair_developer_options_hint)));
+            row.addView(button(host.getString(R.string.setup_refresh), false,
+                    v -> refreshSystemPermission()));
+        }
+
         /** The command for the computer, with the several-devices and problem help folded away. */
         private void addComputerHelp(LinearLayout row) {
             row.addView(body(host.getString(R.string.onboarding_perm_system_body)));
             String grant = host.getString(R.string.setup_command, host.getPackageName());
             row.addView(command(grant));
-            // #791: the command is meant to be pasted at a computer; selecting it by long press
-            // is not an obvious way to get it there.
-            row.addView(button(host.getString(R.string.onboarding_copy_command), false,
-                    v -> copyCommand(grant)));
-            row.addView(button(host.getString(R.string.setup_refresh), false, v -> {
-                render();
-                KeepADBWidget.refreshAll(host);
-                KeepADBEndpointCoordinator.refresh(host);
-            }));
+            // #961: share sheet lets the user pass the command from phone to computer.
+            row.addView(button(host.getString(R.string.onboarding_share_command), false,
+                    v -> shareCommand(grant)));
+            row.addView(button(host.getString(R.string.setup_refresh), false,
+                    v -> refreshSystemPermission()));
             row.addView(foldToggle(host.getString(R.string.onboarding_perm_system_more),
                     moreOpen, v -> {
                         moreOpen = !moreOpen;
@@ -520,9 +541,24 @@ final class OnboardingActionSteps {
             return actionButton(host, label, primary, listener);
         }
 
-        private void copyCommand(String command) {
-            KeepADBClipboard.copy(host, host.getString(R.string.onboarding_perm_system_title),
-                    command, false, R.string.onboarding_copy_done);
+        private void refreshSystemPermission() {
+            render();
+            KeepADBWidget.refreshAll(host);
+            KeepADBEndpointCoordinator.refresh(host);
+        }
+
+        private void shareCommand(String command) {
+            android.content.Intent send = new android.content.Intent(
+                    android.content.Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(android.content.Intent.EXTRA_TEXT, command);
+            android.content.Intent chooser = android.content.Intent.createChooser(send,
+                    host.getString(R.string.onboarding_share_command));
+            try {
+                host.startActivity(chooser);
+            } catch (android.content.ActivityNotFoundException ignored) {
+                // No share target installed; the command above remains selectable.
+            }
         }
 
         private TextView command(String text) {

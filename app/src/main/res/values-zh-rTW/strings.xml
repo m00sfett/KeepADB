@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">系統權限</string>
     <string name="onboarding_perm_system_body">沒有它，KeepADB 無法切換 Wifi-ADB。請在電腦上一次性授予：</string>
     <string name="onboarding_perm_system_more">多部裝置或遇到問題？</string>
-    <string name="onboarding_copy_command">複製指令</string>
+    <string name="onboarding_share_command">分享指令</string>
     <string name="onboarding_copy_done">指令已複製</string>
     <string name="onboarding_perm_location_title">偵測 Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android 只有在擁有位置存取權時才會顯示 Wi-Fi 名稱和存取點。KeepADB 絕不會讀取你的位置。</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">在強制模式結束後生效。</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">缺少系統權限</string>
-    <string name="home_warning_system_text">必須先在電腦上一次性授予此權限，KeepADB 才能切換 Wifi-ADB。</string>
+    <string name="home_warning_system_text">KeepADB 需要一次性系統權限才能切換 Wifi-ADB。可直接在這支手機上授予，或在 Chrome 或 Edge 開啟 keepadb.roteson.de/setup，或透過 USB 使用 adb 授予。</string>
     <string name="home_warning_action_guide">操作說明</string>
     <string name="home_warning_less_secure_title">比建議設定更不安全</string>
     <string name="home_warning_action_review">檢視</string>
@@ -667,7 +667,7 @@
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB 可以直接在這支手機上為自己授予此權限：它會與這支手機本身的 Wifi-ADB 配對一次。不需要電腦。</string>
     <string name="selfpair_start_button">在這支手機上授予</string>
-    <string name="selfpair_computer_toggle">改用電腦</string>
+    <string name="selfpair_computer_toggle">透過 USB 手動設定（adb 指令）</string>
     <string name="selfpair_need_wifi">請先連線至 Wi-Fi。Wifi-ADB 僅能在 Wi-Fi 下使用。</string>
     <string name="selfpair_need_notifications">KeepADB 透過通知接收配對碼。沒有通知時此方式無法使用；請改用電腦授予權限。</string>
     <string name="selfpair_step_1">1. 開啟開發人員選項，進入「無線偵錯」並將其開啟。</string>
@@ -689,4 +689,8 @@
     <string name="selfpair_notification_done">權限已授予。</string>
     <string name="selfpair_enter_code">輸入配對碼</string>
     <string name="selfpair_code_label">六位數配對碼</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">透過電腦瀏覽器設定</string>
+    <string name="onboarding_perm_browser_body">在電腦上用 Chrome 或 Edge 開啟此網址並依三個步驟操作：</string>
+    <string name="onboarding_perm_browser_prereq">在此手機上開啟 USB 偵錯並用 USB 傳輸線連接。</string>
 </resources>

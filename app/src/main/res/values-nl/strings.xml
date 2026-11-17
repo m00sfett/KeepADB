@@ -495,7 +495,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_perm_system_title">Systeemtoestemming</string>
     <string name="onboarding_perm_system_body">Zonder deze toestemming kan KeepADB Wifi-ADB niet schakelen. Verleen haar eenmalig vanaf een computer:</string>
     <string name="onboarding_perm_system_more">Meerdere apparaten of problemen?</string>
-    <string name="onboarding_copy_command">Opdracht kopiëren</string>
+    <string name="onboarding_share_command">Opdracht delen</string>
     <string name="onboarding_copy_done">Opdracht gekopieerd</string>
     <string name="onboarding_perm_location_title">Wifi herkennen</string>
     <string name="onboarding_perm_location_body">Android toont de wifi-naam en het access point alleen met locatietoegang. KeepADB leest nooit je positie.</string>
@@ -517,7 +517,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_protection_force_comfort_note">Geldt nadat de geforceerde modus is afgelopen.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">Systeemtoestemming ontbreekt</string>
-    <string name="home_warning_system_text">KeepADB kan Wifi-ADB pas schakelen als je deze toestemming eenmalig vanaf een computer verleent.</string>
+    <string name="home_warning_system_text">KeepADB heeft eenmalig een systeemtoestemming nodig om Wifi-ADB te schakelen. Verleen die rechtstreeks op deze telefoon, in Chrome of Edge via keepadb.roteson.de/setup, of via USB met adb.</string>
     <string name="home_warning_action_guide">Instructies</string>
     <string name="home_warning_less_secure_title">Minder veilig dan aanbevolen</string>
     <string name="home_warning_action_review">Bekijken</string>
@@ -668,7 +668,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB kan zichzelf deze toestemming geven, rechtstreeks op deze telefoon: de app koppelt één keer met de Wifi-ADB van deze telefoon. Geen computer nodig.</string>
     <string name="selfpair_start_button">Toestemming geven op deze telefoon</string>
-    <string name="selfpair_computer_toggle">In plaats daarvan via een computer</string>
+    <string name="selfpair_computer_toggle">Handmatig via USB (adb-opdracht)</string>
     <string name="selfpair_need_wifi">Maak eerst verbinding met wifi. Wifi-ADB werkt alleen via wifi.</string>
     <string name="selfpair_need_notifications">KeepADB ontvangt de koppelingscode via een melding. Zonder meldingen werkt deze methode niet; geef de toestemming dan via een computer.</string>
     <string name="selfpair_step_1">1. Open de ontwikkelaarsopties, ga naar “Draadloze foutopsporing” en zet die aan.</string>
@@ -690,4 +690,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="selfpair_notification_done">Toestemming gegeven.</string>
     <string name="selfpair_enter_code">Code invoeren</string>
     <string name="selfpair_code_label">Zescijferige code</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">Via de browser op een computer</string>
+    <string name="onboarding_perm_browser_body">Open op een computer dit adres in Chrome of Edge en volg de drie stappen:</string>
+    <string name="onboarding_perm_browser_prereq">Schakel USB-foutopsporing in op deze telefoon en sluit hem met een USB-kabel aan.</string>
 </resources>

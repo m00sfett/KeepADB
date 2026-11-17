@@ -495,7 +495,7 @@
     <string name="onboarding_perm_system_title">시스템 권한</string>
     <string name="onboarding_perm_system_body">이 권한이 없으면 KeepADB가 Wifi-ADB를 전환할 수 없습니다. 컴퓨터에서 한 번만 부여하세요:</string>
     <string name="onboarding_perm_system_more">기기가 여러 대이거나 문제가 있나요?</string>
-    <string name="onboarding_copy_command">명령어 복사</string>
+    <string name="onboarding_share_command">명령어 공유</string>
     <string name="onboarding_copy_done">명령어를 복사했습니다</string>
     <string name="onboarding_perm_location_title">Wi-Fi 감지</string>
     <string name="onboarding_perm_location_body">Android는 위치 액세스가 있어야만 Wi-Fi 이름과 액세스 포인트를 표시합니다. KeepADB는 위치를 읽지 않습니다.</string>
@@ -517,7 +517,7 @@
     <string name="onboarding_protection_force_comfort_note">강제 모드가 끝난 뒤에 적용됩니다.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">시스템 권한 없음</string>
-    <string name="home_warning_system_text">컴퓨터에서 이 권한을 한 번 부여해야 KeepADB가 Wifi-ADB를 전환할 수 있습니다.</string>
+    <string name="home_warning_system_text">Wifi-ADB를 전환하려면 KeepADB에 한 번 시스템 권한이 필요합니다. 이 휴대전화에서 직접 부여하거나, Chrome 또는 Edge에서 keepadb.roteson.de/setup에 접속하거나, USB를 통해 adb로 부여하세요.</string>
     <string name="home_warning_action_guide">안내</string>
     <string name="home_warning_less_secure_title">권장보다 보안이 낮음</string>
     <string name="home_warning_action_review">검토</string>
@@ -667,7 +667,7 @@
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB는 이 휴대전화에서 직접 이 권한을 스스로 부여할 수 있습니다. 이 휴대전화 자체의 Wifi-ADB와 한 번만 페어링합니다. 컴퓨터는 필요 없습니다.</string>
     <string name="selfpair_start_button">이 휴대전화에서 부여</string>
-    <string name="selfpair_computer_toggle">대신 컴퓨터에서 하기</string>
+    <string name="selfpair_computer_toggle">USB로 직접 입력(adb 명령어)</string>
     <string name="selfpair_need_wifi">먼저 Wi-Fi에 연결하세요. Wifi-ADB는 Wi-Fi에서만 작동합니다.</string>
     <string name="selfpair_need_notifications">KeepADB는 페어링 코드를 알림으로 받습니다. 알림이 없으면 이 방법은 작동하지 않으니 컴퓨터에서 권한을 부여하세요.</string>
     <string name="selfpair_step_1">1. 개발자 옵션을 열고 “무선 디버깅”으로 이동해 켜세요.</string>
@@ -689,4 +689,8 @@
     <string name="selfpair_notification_done">권한이 부여되었습니다.</string>
     <string name="selfpair_enter_code">코드 입력</string>
     <string name="selfpair_code_label">6자리 코드</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">컴퓨터 브라우저에서 설정</string>
+    <string name="onboarding_perm_browser_body">컴퓨터의 Chrome 또는 Edge에서 아래 주소를 열고 세 단계를 따라 진행하세요:</string>
+    <string name="onboarding_perm_browser_prereq">이 휴대전화에서 USB 디버깅을 켜고 USB 케이블로 연결하세요.</string>
 </resources>

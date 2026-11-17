@@ -68,28 +68,59 @@ public class OnboardingCopyCommandTest {
     }
 
     @Test
-    public void theMissingSystemPermissionOffersToCopyTheCommand() {
+    public void theMissingSystemPermissionOffersToShareTheCommand() {
         OnboardingActivity assistant = open(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS));
-        // #962: the command for the computer sits behind its own fold.
+        // #961/#962: the manual USB command sits behind its own fold below browser setup.
         openFold(assistant.getWindow().getDecorView(),
                 context.getString(R.string.selfpair_computer_toggle));
-        Button copy = find(assistant.getWindow().getDecorView(),
-                context.getString(R.string.onboarding_copy_command));
-        assertNotNull("a copy button next to the command", copy);
-        copy.performClick();
+        Button share = find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.onboarding_share_command));
+        assertNotNull("a share button next to the command", share);
+        share.performClick();
 
-        ClipboardManager clipboard = context.getSystemService(ClipboardManager.class);
+        android.content.Intent chooser = shadowOf(assistant).getNextStartedActivity();
+        assertNotNull("a share chooser was launched", chooser);
+        assertEquals(android.content.Intent.ACTION_CHOOSER, chooser.getAction());
+        android.content.Intent send = chooser.getParcelableExtra(android.content.Intent.EXTRA_INTENT);
+        assertNotNull(send);
+        assertEquals(android.content.Intent.ACTION_SEND, send.getAction());
+        assertEquals("text/plain", send.getType());
         assertEquals(context.getString(R.string.setup_command, context.getPackageName()),
-                clipboard.getPrimaryClip().getItemAt(0).getText().toString());
+                send.getStringExtra(android.content.Intent.EXTRA_TEXT));
 
-        // Granted: command and button are gone together.
+        // Granted: command and share button are gone together.
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         find(assistant.getWindow().getDecorView(), context.getString(R.string.setup_refresh))
                 .performClick();
         assertEquals(null, find(assistant.getWindow().getDecorView(),
-                context.getString(R.string.onboarding_copy_command)));
+                context.getString(R.string.onboarding_share_command)));
+    }
+
+    @Test
+    public void theMissingSystemPermissionOffersBrowserSetupWithDeveloperOptions() {
+        OnboardingActivity assistant = open(
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS));
+        openFold(assistant.getWindow().getDecorView(),
+                context.getString(R.string.onboarding_perm_browser_toggle));
+        Button devOptions = find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_open_developer_options));
+        assertNotNull("developer options button inside browser setup", devOptions);
+        devOptions.performClick();
+
+        android.content.Intent devIntent = shadowOf(assistant).getNextStartedActivity();
+        assertNotNull(devIntent);
+        assertEquals(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS,
+                devIntent.getAction());
+
+        // Granted: browser setup fold and button are gone.
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        find(assistant.getWindow().getDecorView(), context.getString(R.string.setup_refresh))
+                .performClick();
+        assertEquals(null, find(assistant.getWindow().getDecorView(),
+                context.getString(R.string.selfpair_open_developer_options)));
     }
 
     /** Taps the fold line whose text starts with {@code label}. */

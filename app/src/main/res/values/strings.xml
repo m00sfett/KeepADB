@@ -506,7 +506,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_perm_system_title">System permission</string>
     <string name="onboarding_perm_system_body">Without it, KeepADB cannot switch Wifi-ADB. Grant it once from a computer:</string>
     <string name="onboarding_perm_system_more">Several devices or problems?</string>
-    <string name="onboarding_copy_command">Copy command</string>
+    <string name="onboarding_share_command">Share command</string>
     <string name="onboarding_copy_done">Command copied</string>
     <string name="onboarding_perm_location_title">Detect Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android only shows the Wi-Fi name and access point with location access. KeepADB never reads your position.</string>
@@ -528,7 +528,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_protection_force_comfort_note">Applies after force mode ends.</string>
     <!-- #764: warning cards of the home screen -->
     <string name="home_warning_system_title">System permission missing</string>
-    <string name="home_warning_system_text">KeepADB can only switch Wifi-ADB after you grant this permission once from a computer.</string>
+    <string name="home_warning_system_text">KeepADB needs a one-time system permission to switch Wifi-ADB. Grant it directly on this phone, in Chrome or Edge at keepadb.roteson.de/setup, or over USB with adb.</string>
     <string name="home_warning_action_guide">Instructions</string>
     <string name="home_warning_less_secure_title">Less secure than recommended</string>
     <string name="home_warning_action_review">Review</string>
@@ -684,7 +684,7 @@ You can end it at any time from the home screen or the notification.</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB can grant itself this permission, right on this phone: it pairs once with this phone\'s own Wifi-ADB. No computer needed.</string>
     <string name="selfpair_start_button">Grant on this phone</string>
-    <string name="selfpair_computer_toggle">From a computer instead</string>
+    <string name="selfpair_computer_toggle">Manually over USB (adb command)</string>
     <string name="selfpair_need_wifi">Connect to Wi-Fi first. Wifi-ADB only works on Wi-Fi.</string>
     <string name="selfpair_need_notifications">KeepADB takes the pairing code through a notification. Without notifications this way does not work; grant the permission from a computer instead.</string>
     <string name="selfpair_step_1">1. Open the developer options, go to “Wireless debugging” and turn it on.</string>
@@ -706,4 +706,9 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="selfpair_notification_done">Permission granted.</string>
     <string name="selfpair_enter_code">Enter code</string>
     <string name="selfpair_code_label">Six-digit code</string>
+    <!-- #961: WebUSB browser setup option directly below self-pairing -->
+    <string name="onboarding_perm_browser_toggle">From a computer in a browser</string>
+    <string name="onboarding_perm_browser_body">On a computer, open this address in Chrome or Edge and follow the three steps:</string>
+    <string name="onboarding_perm_browser_prereq">Turn on USB debugging on this phone and connect it with a USB cable.</string>
+    <string name="onboarding_perm_browser_url" translatable="false">keepadb.roteson.de/setup</string>
 </resources>

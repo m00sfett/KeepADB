@@ -23,15 +23,19 @@ still requires its own TLS pairing before a new ADB client can connect.
 Install KeepADB from the [official F-Droid catalog](https://f-droid.org/packages/de.hohnepeople.keepadb/)
 or download the APK from [GitHub Releases](https://github.com/m00sfett/KeepADB/releases).
 
-Then grant `WRITE_SECURE_SETTINGS` once from a computer that can reach the device over ADB:
+Then grant `WRITE_SECURE_SETTINGS` once in one of three ways:
+
+1. **On the phone (Android 11+, no computer needed):** open the setup assistant, start "Grant on this phone" at **Permissions › System permission**, enable Wifi-ADB's pairing window, and enter the six-digit pairing code in KeepADB's notification. KeepADB grants the permission to itself over loopback, cleans up its temporary pairing key, and switches Wifi-ADB back off when it turned it on for setup.
+2. **In a computer browser (`https://keepadb.roteson.de/setup`):** open the setup page in Chrome or Edge, enable USB debugging, connect the phone with a USB cable, and follow the three steps (no device data leaves the browser).
+3. **Manually over USB (`adb`):**
 
 ~~~sh
 adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS
 ~~~
 
 This Android permission applies to the installed app and survives a reboot. It must be granted
-again after uninstalling and reinstalling the app. KeepADB cannot grant it itself and displays the
-command in the app while the permission is missing.
+again after uninstalling and reinstalling the app. KeepADB cannot grant it silently in the
+background and guides you through all three options in the setup assistant while the permission is missing.
 
 ## Use KeepADB
 
