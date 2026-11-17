@@ -76,6 +76,20 @@ final class KeepADBSelfPairCleanup {
         FAILED
     }
 
+    /** What {@link #settle} found and did, with the owner and decision epoch it acted under. */
+    static final class Settlement {
+        final Outcome outcome;
+        /** The run whose claim was acted on; {@code null} when no claim was touched. */
+        final String claimOwner;
+        final long epoch;
+
+        Settlement(Outcome outcome, String claimOwner, long epoch) {
+            this.outcome = outcome;
+            this.claimOwner = claimOwner;
+            this.epoch = epoch;
+        }
+    }
+
     /** Long enough to come back to the app after pairing, short enough not to surprise later. */
     static final long WINDOW_MS = 3 * 60 * 1000L;
 
@@ -91,13 +105,19 @@ final class KeepADBSelfPairCleanup {
     /** The run during which the user decided otherwise; guarded by LOCK. */
     private static String supersededRun;
     /**
-     * The run that is alive and looks after its own claim; guarded by LOCK. While it is, nobody
-     * else settles that claim: the run would otherwise report "left as it is" for a cleanup
-     * that someone did behind its back.
+     * The run whose attempt is currently working and looks after its own claim; guarded by LOCK.
+     * While it is, nobody else settles that claim: the attempt would otherwise report "left as
+     * it is" for a cleanup that someone did behind its back.
      */
     private static String managedRun;
+    /** Monotonic counter bumped whenever a new run begins or the user decides otherwise; LOCK. */
+    private static long decisionEpoch;
+    /** Last claim outcome settled for {@link #settledRun} within {@link #settledEpoch}; LOCK. */
+    private static String settledRun;
+    private static Outcome settledOutcome;
+    private static long settledEpoch;
 
-    /** How often an unresolved claim is looked at again after its run has ended. */
+    /** How often an unresolved claim is looked at again after its attempt has ended. */
     static final long WATCH_INTERVAL_MS = 5_000L;
 
     /** Runs work off the caller's thread; a seam for tests. */
@@ -107,9 +127,9 @@ final class KeepADBSelfPairCleanup {
         void later(long delayMs, Runnable task);
     }
 
-    /** Told when a cleanup happened outside a run, so the assistant can still say so. */
+    /** Told when a cleanup happened outside an attempt, so the assistant can still say so. */
     interface Observer {
-        void onBackgroundCleanup(Context context, Outcome outcome);
+        void onBackgroundCleanup(Context context, Settlement settlement);
     }
 
     private static final Deferrer REAL_DEFERRER = new Deferrer() {
@@ -148,6 +168,10 @@ final class KeepADBSelfPairCleanup {
             authorizedRun = null;
             supersededRun = null;
             managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            settledEpoch = 0;
+            decisionEpoch = 0;
         }
     }
 
@@ -156,21 +180,37 @@ final class KeepADBSelfPairCleanup {
     /**
      * A new run begins: only it may record a claim from now on. An attempt of an earlier run
      * that is still finishing its pairing gets {@link Claim#OBSOLETE} and cannot take the
-     * cleanup away from this one.
+     * cleanup away from this one. No attempt is working yet, so any unresolved claim stays
+     * watchable until an attempt starts.
      */
     static void authorize(String runId) {
         synchronized (LOCK) {
             authorizedRun = runId;
             supersededRun = null;
-            managedRun = runId;
+            managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            decisionEpoch++;
         }
     }
 
     /**
-     * The run has ended and no longer looks after its claim. If one is still unresolved (paired,
-     * no permission seen yet), it is looked at again every few seconds until it is settled,
-     * superseded or expired: {@code adbd} may run the grant after the connection broke, and
-     * nobody else would notice while the process lives.
+     * An attempt of {@code runId} starts working: keep background reconciliation and the watcher
+     * off its claim until the attempt finishes.
+     */
+    static void manage(String runId) {
+        synchronized (LOCK) {
+            if (runId != null && runId.equals(authorizedRun)) {
+                managedRun = runId;
+            }
+        }
+    }
+
+    /**
+     * The attempt or run is no longer actively working on its claim. If one is still unresolved
+     * (paired, no permission seen yet), it is looked at again every few seconds until it is
+     * settled, superseded or expired: {@code adbd} may run the grant after the connection broke,
+     * and nobody else would notice while the process lives.
      */
     static void release(Context context, String runId) {
         synchronized (LOCK) {
@@ -179,6 +219,13 @@ final class KeepADBSelfPairCleanup {
             }
         }
         watch(context.getApplicationContext());
+    }
+
+    /** True while no new run or user decision has invalidated {@code epoch}. */
+    static boolean isEpochCurrent(long epoch) {
+        synchronized (LOCK) {
+            return epoch == decisionEpoch;
+        }
     }
 
     /**
@@ -227,6 +274,10 @@ final class KeepADBSelfPairCleanup {
                 supersededRun = authorizedRun;
                 authorizedRun = null;
             }
+            managedRun = null;
+            settledRun = null;
+            settledOutcome = null;
+            decisionEpoch++;
             try {
                 SharedPreferences prefs = prefs(context);
                 if (prefs.contains(KEY_RUN)) {
@@ -247,10 +298,15 @@ final class KeepADBSelfPairCleanup {
         final Context app = context.getApplicationContext();
         if (RECONCILE_PENDING.compareAndSet(false, true)) {
             // One at a time: repeated returns to the assistant do not pile up work.
-            deferrer.run(() -> {
+            try {
+                deferrer.run(() -> {
+                    RECONCILE_PENDING.set(false);
+                    background(app);
+                });
+            } catch (RuntimeException e) {
                 RECONCILE_PENDING.set(false);
-                background(app);
-            });
+                Log.w(TAG, "cannot schedule background reconciliation", e);
+            }
         }
     }
 
@@ -261,21 +317,27 @@ final class KeepADBSelfPairCleanup {
 
     private static void watch(Context app) {
         if (hasWatchableClaim(app) && WATCHING.compareAndSet(false, true)) {
-            deferrer.later(WATCH_INTERVAL_MS, () -> {
+            try {
+                deferrer.later(WATCH_INTERVAL_MS, () -> {
+                    WATCHING.set(false);
+                    background(app);
+                });
+            } catch (RuntimeException e) {
                 WATCHING.set(false);
-                background(app);
-            });
+                Log.w(TAG, "cannot schedule cleanup watcher", e);
+            }
         }
     }
 
-    /** One look outside any run: settle what can be settled, say so, and keep watching if needed. */
+    /** One look outside an attempt: settle what can be settled, say so, and keep watching if needed. */
     private static void background(Context app) {
-        Outcome outcome = settle(app, null);
+        Settlement settlement = settleDetailed(app, null);
         Observer current = observer;
-        if (current != null
-                && (outcome == Outcome.SWITCHED_OFF || outcome == Outcome.STILL_ON)) {
+        if (current != null && (settlement.outcome == Outcome.SWITCHED_OFF
+                || settlement.outcome == Outcome.STILL_ON
+                || (settlement.outcome == Outcome.LEFT_ON && settlement.claimOwner != null))) {
             try {
-                current.onBackgroundCleanup(app, outcome);
+                current.onBackgroundCleanup(app, settlement);
             } catch (RuntimeException e) {
                 Log.w(TAG, "cannot report the background cleanup", e);
             }
@@ -283,7 +345,7 @@ final class KeepADBSelfPairCleanup {
         watch(app);
     }
 
-    /** A claim that is valid and that no live run looks after. */
+    /** A claim that is valid and that no working attempt looks after. */
     private static boolean hasWatchableClaim(Context app) {
         synchronized (LOCK) {
             try {
@@ -302,6 +364,11 @@ final class KeepADBSelfPairCleanup {
      * any valid claim. Never throws.
      */
     static Outcome settle(Context context, String runId) {
+        return settleDetailed(context, runId).outcome;
+    }
+
+    /** Same as {@link #settle}, also returning the claim owner and decision epoch it acted under. */
+    static Settlement settleDetailed(Context context, String runId) {
         synchronized (LOCK) {
             try {
                 Context app = context.getApplicationContext();
@@ -315,31 +382,47 @@ final class KeepADBSelfPairCleanup {
                     owner = null;
                 }
                 if (!granted) {
-                    return Outcome.NOT_GRANTED;
+                    return new Settlement(Outcome.NOT_GRANTED, null, decisionEpoch);
                 }
                 if (owner == null || (runId != null && !runId.equals(owner))) {
+                    // If a watcher or delayed check already settled this run's claim under the
+                    // same decision epoch, carry that result forward to the calling attempt.
+                    if (runId != null && runId.equals(settledRun)
+                            && settledEpoch == decisionEpoch) {
+                        return new Settlement(settledOutcome, null, decisionEpoch);
+                    }
                     // No claim, or another run's: the permission is there, the switch is not ours.
-                    return Outcome.LEFT_ON;
+                    return new Settlement(Outcome.LEFT_ON, null, decisionEpoch);
                 }
                 if (runId == null && owner.equals(managedRun)) {
-                    // A live run looks after this claim and will report what it did with it.
-                    return Outcome.LEFT_ON;
+                    // A working attempt looks after this claim and will report what it did with it.
+                    return new Settlement(Outcome.LEFT_ON, null, decisionEpoch);
                 }
                 if (KeepADBPreferences.isKeepAliveEnabled(app)) {
                     prefs.edit().clear().apply();
-                    return Outcome.LEFT_ON;
+                    return new Settlement(Outcome.LEFT_ON, owner, decisionEpoch);
                 }
                 KeepADB.ToggleResult result =
                         KeepADB.setEnabled(app, false, KeepADB.SOURCE_SELF_PAIRING);
                 Boolean enabled = KeepADB.isEnabledOrNull(app, KeepADB.SOURCE_SELF_PAIRING);
                 if (result != null && result.isSuccess() && Boolean.FALSE.equals(enabled)) {
                     prefs.edit().clear().apply();
-                    return Outcome.SWITCHED_OFF;
+                    if (owner.equals(authorizedRun)) {
+                        settledRun = owner;
+                        settledOutcome = Outcome.SWITCHED_OFF;
+                        settledEpoch = decisionEpoch;
+                    }
+                    return new Settlement(Outcome.SWITCHED_OFF, owner, decisionEpoch);
                 }
-                return Outcome.STILL_ON;
+                if (owner.equals(authorizedRun)) {
+                    settledRun = owner;
+                    settledOutcome = Outcome.STILL_ON;
+                    settledEpoch = decisionEpoch;
+                }
+                return new Settlement(Outcome.STILL_ON, owner, decisionEpoch);
             } catch (RuntimeException e) {
                 Log.w(TAG, "self-pairing cleanup failed", e);
-                return Outcome.UNKNOWN;
+                return new Settlement(Outcome.UNKNOWN, null, decisionEpoch);
             }
         }
     }

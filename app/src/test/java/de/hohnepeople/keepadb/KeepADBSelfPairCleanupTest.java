@@ -75,7 +75,7 @@ public class KeepADBSelfPairCleanupTest {
         grant(false);
         deferrer = new ManualDeferrer();
         KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
-        KeepADBSelfPairCleanup.setObserver((ctx, outcome) -> reported.add(outcome));
+        KeepADBSelfPairCleanup.setObserver((ctx, result) -> reported.add(result.outcome));
         KeepADBSelfPairCleanup.authorize("run-a");
     }
 
@@ -336,19 +336,72 @@ public class KeepADBSelfPairCleanupTest {
     }
 
     @Test
-    public void aClaimALiveRunLooksAfterIsLeftToThatRun() {
+    public void aClaimAWorkingAttemptLooksAfterIsLeftToThatAttempt() {
         KeepADBSelfPairCleanup.claim(context, "run-a");
+        KeepADBSelfPairCleanup.manage("run-a");
         grant(true);
 
         // The assistant comes to the front while the attempt is still under way.
         KeepADBSelfPairCleanup.reconcileAtStart(context);
         deferrer.tick();
-        assertTrue("not switched off behind the run's back", gateway.isEnabled(context));
+        assertTrue("not switched off behind the attempt's back", gateway.isEnabled(context));
         assertTrue(KeepADBSelfPairCleanup.hasClaim(context));
         assertTrue(reported.isEmpty());
 
-        assertEquals("the run settles it itself and knows what it did", Outcome.SWITCHED_OFF,
+        assertEquals("the attempt settles it itself and knows what it did", Outcome.SWITCHED_OFF,
                 KeepADBSelfPairCleanup.settle(context, "run-a"));
+    }
+
+    @Test
+    public void anIdleRunWithNoWorkingAttemptLeavesItsClaimWatchable() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        KeepADBSelfPairCleanup.manage("run-a");
+        KeepADBSelfPairCleanup.release(context, "run-a");
+        grant(true);
+
+        deferrer.tick();
+        assertFalse("an idle run does not hold the watcher off", gateway.isEnabled(context));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        assertEquals(java.util.Collections.singletonList(Outcome.SWITCHED_OFF), reported);
+    }
+
+    @Test
+    public void aUserDecisionInvalidatesTheSettlementEpoch() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        grant(true);
+        KeepADBSelfPairCleanup.Settlement settlement =
+                KeepADBSelfPairCleanup.settleDetailed(context, null);
+        assertEquals(Outcome.SWITCHED_OFF, settlement.outcome);
+        assertTrue(KeepADBSelfPairCleanup.isEpochCurrent(settlement.epoch));
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertFalse(KeepADBSelfPairCleanup.isEpochCurrent(settlement.epoch));
+    }
+
+    @Test
+    public void aRejectedDeferrerClearsItsPendingFlag() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        grant(true);
+        KeepADBSelfPairCleanup.setDeferrerForTesting(new KeepADBSelfPairCleanup.Deferrer() {
+            @Override
+            public void run(Runnable task) {
+                throw new java.util.concurrent.RejectedExecutionException("busy");
+            }
+
+            @Override
+            public void later(long delayMs, Runnable task) {
+                throw new java.util.concurrent.RejectedExecutionException("busy");
+            }
+        });
+        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.release(context, "run-a");
+
+        // A later call still runs once the deferrer accepts work again.
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        assertEquals(1, deferrer.now.size());
+        deferrer.tick();
+        assertFalse(gateway.isEnabled(context));
     }
 
     @Test

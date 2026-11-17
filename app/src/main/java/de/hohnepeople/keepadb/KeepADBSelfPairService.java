@@ -173,8 +173,6 @@ public final class KeepADBSelfPairService extends Service {
     private String runId;
     private PendingIntent replyPendingIntent;
     private boolean working;
-    /** What the delayed check of this run did with the claim, if it was the one to settle it. */
-    private KeepADBSelfPairCleanup.Outcome settledEarlier;
     private boolean cancelRequested;
     private boolean destroyed;
 
@@ -233,27 +231,56 @@ public final class KeepADBSelfPairService extends Service {
     }
 
     /**
-     * A cleanup happened outside any run (the watcher or the reconciliation settled a claim
-     * whose run had ended). Called on a background thread. The assistant shows what became of
-     * Wifi-ADB from the status, so it is brought up to date, unless a run is under way.
+     * A cleanup happened outside an attempt (the watcher or the reconciliation settled a claim
+     * while no attempt was working). Called on a background thread. Brings the assistant and the
+     * closing notification up to date, unless a user decision or newer run invalidated it.
      */
-    static void onBackgroundCleanup(Context context, KeepADBSelfPairCleanup.Outcome outcome) {
-        final Cleanup cleanup = outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF
-                ? Cleanup.SWITCHED_OFF : Cleanup.STILL_ON;
+    static void onBackgroundCleanup(Context context, KeepADBSelfPairCleanup.Settlement settlement) {
         final Context app = context.getApplicationContext();
         MAIN.post(() -> {
-            if (owner != null || status.isActive()) {
+            if (!KeepADBSelfPairCleanup.isEpochCurrent(settlement.epoch)) {
                 return;
             }
-            publish(new Status(Phase.DONE, cleanup, pairedFingerprints()));
-            try {
-                KeepADBWidget.refreshAll(app);
-                KeepADBEndpointCoordinator.refresh(app);
-                KeepADBService.sync(app);
-            } catch (RuntimeException e) {
-                Log.w(TAG, "cannot refresh after the background cleanup", e);
+            if (owner != null) {
+                if (settlement.claimOwner != null && settlement.claimOwner.equals(owner.runId)) {
+                    if (!owner.working && !owner.destroyed && owner.runner != null) {
+                        owner.complete(settlement);
+                    }
+                } else {
+                    refreshSurfaces(app);
+                    MAIN.post(owner.lateCheck);
+                }
+                return;
+            }
+            if (status.isActive()) {
+                return;
+            }
+            if (settlement.outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF
+                    || settlement.outcome == KeepADBSelfPairCleanup.Outcome.STILL_ON) {
+                publish(new Status(Phase.DONE, toCleanup(settlement.outcome), pairedFingerprints()));
+                refreshSurfaces(app);
             }
         });
+    }
+
+    private static Cleanup toCleanup(KeepADBSelfPairCleanup.Outcome outcome) {
+        if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF) {
+            return Cleanup.SWITCHED_OFF;
+        }
+        if (outcome == KeepADBSelfPairCleanup.Outcome.LEFT_ON) {
+            return Cleanup.LEFT_ON;
+        }
+        return Cleanup.STILL_ON;
+    }
+
+    private static void refreshSurfaces(Context app) {
+        try {
+            KeepADBWidget.refreshAll(app);
+            KeepADBEndpointCoordinator.refresh(app);
+            KeepADBService.sync(app);
+        } catch (RuntimeException e) {
+            Log.w(TAG, "cannot refresh after self-pairing cleanup", e);
+        }
     }
 
     private static void publish(Status next) {
@@ -328,7 +355,6 @@ public final class KeepADBSelfPairService extends Service {
         runId = UUID.randomUUID().toString();
         KeepADBSelfPairCleanup.authorize(runId);
         cancelRequested = false;
-        settledEarlier = null;
         startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
         final String run = runId;
@@ -366,11 +392,13 @@ public final class KeepADBSelfPairService extends Service {
         final Runner running = runner;
         final String run = runId;
         final Context app = getApplicationContext();
+        KeepADBSelfPairCleanup.manage(run);
         try {
             worker.execute(() -> attempt(app, running, run, code));
         } catch (RejectedExecutionException e) {
             // The executor is shutting down: this attempt never starts, so it ends here.
-            onFinished(run, null, KeepADBSelfPairCleanup.Outcome.NOT_GRANTED);
+            onFinished(run, null, new KeepADBSelfPairCleanup.Settlement(
+                    KeepADBSelfPairCleanup.Outcome.NOT_GRANTED, null, 0));
         }
     }
 
@@ -396,22 +424,22 @@ public final class KeepADBSelfPairService extends Service {
             Log.w(TAG, "self-pairing failed unexpectedly", e);
         } finally {
             final SelfPairSession.Result finished = result;
-            final KeepADBSelfPairCleanup.Outcome outcome =
-                    KeepADBSelfPairCleanup.settle(app, run);
-            MAIN.post(() -> onFinished(run, finished, outcome));
+            final KeepADBSelfPairCleanup.Settlement settlement =
+                    KeepADBSelfPairCleanup.settleDetailed(app, run);
+            MAIN.post(() -> onFinished(run, finished, settlement));
         }
     }
 
     /** The terminal transition of an attempt; every accepted attempt reaches it exactly once. */
     private void onFinished(String run, SelfPairSession.Result result,
-                            KeepADBSelfPairCleanup.Outcome outcome) {
+                            KeepADBSelfPairCleanup.Settlement settlement) {
         if (!run.equals(runId) && !destroyed) {
             // A leftover of an earlier run of this instance; that run was already closed.
             return;
         }
         working = false;
-        if (isGranted(outcome)) {
-            complete(outcome);
+        if (isGranted(settlement.outcome)) {
+            complete(settlement);
             return;
         }
         if (cancelRequested || destroyed || runner == null) {
@@ -424,6 +452,9 @@ public final class KeepADBSelfPairService extends Service {
             }
             return;
         }
+        // No attempt is working while the run waits for a retry or timeout: hand any unresolved
+        // claim over to the watcher so a grant landing after the 3s check is still cleaned up.
+        KeepADBSelfPairCleanup.release(getApplicationContext(), run);
         SelfPairSession.Failure failure = result == null ? null : result.failure;
         if (failure == SelfPairSession.Failure.WRONG_CODE) {
             show(Phase.WRONG_CODE);
@@ -452,31 +483,21 @@ public final class KeepADBSelfPairService extends Service {
         final Context app = getApplicationContext();
         try {
             worker.execute(() -> {
-                final KeepADBSelfPairCleanup.Outcome outcome =
-                        KeepADBSelfPairCleanup.settle(app, run);
-                MAIN.post(() -> onLateOutcome(run, outcome));
+                final KeepADBSelfPairCleanup.Settlement settlement =
+                        KeepADBSelfPairCleanup.settleDetailed(app, run);
+                MAIN.post(() -> onLateOutcome(run, settlement));
             });
         } catch (RejectedExecutionException e) {
             // The service is going away; the claim stays for the next start.
         }
     }
 
-    private void onLateOutcome(String run, KeepADBSelfPairCleanup.Outcome outcome) {
-        if (!run.equals(runId)) {
+    private void onLateOutcome(String run, KeepADBSelfPairCleanup.Settlement settlement) {
+        if (!run.equals(runId) || destroyed || working || runner == null) {
             return;
         }
-        if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF
-                || outcome == KeepADBSelfPairCleanup.Outcome.STILL_ON) {
-            // This check settled the run's claim. If a retry is under way, its own settle will
-            // find nothing left to do; what was done must still be reported.
-            settledEarlier = outcome;
-        }
-        if (destroyed || working || runner == null) {
-            // The run ended or moved on meanwhile; whatever was settled stays settled.
-            return;
-        }
-        if (isGranted(outcome)) {
-            complete(outcome);
+        if (isGranted(settlement.outcome)) {
+            complete(settlement);
         }
     }
 
@@ -493,18 +514,12 @@ public final class KeepADBSelfPairService extends Service {
     }
 
     /** The permission is there: say so, bring the other surfaces up to date, end the run. */
-    private void complete(KeepADBSelfPairCleanup.Outcome outcome) {
-        if (outcome == KeepADBSelfPairCleanup.Outcome.LEFT_ON && settledEarlier != null) {
-            outcome = settledEarlier;
+    private void complete(KeepADBSelfPairCleanup.Settlement settlement) {
+        KeepADBSelfPairCleanup.Outcome outcome = settlement.outcome;
+        if (!KeepADBSelfPairCleanup.isEpochCurrent(settlement.epoch)) {
+            outcome = KeepADBSelfPairCleanup.Outcome.LEFT_ON;
         }
-        Cleanup cleanup;
-        if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF) {
-            cleanup = Cleanup.SWITCHED_OFF;
-        } else if (outcome == KeepADBSelfPairCleanup.Outcome.LEFT_ON) {
-            cleanup = Cleanup.LEFT_ON;
-        } else {
-            cleanup = Cleanup.STILL_ON;
-        }
+        Cleanup cleanup = toCleanup(outcome);
         final Context app = getApplicationContext();
         final Status done = new Status(Phase.DONE, cleanup, pairedFingerprints());
         if (owner == this) {
@@ -515,13 +530,7 @@ public final class KeepADBSelfPairService extends Service {
         } else {
             publish(done);
         }
-        try {
-            KeepADBWidget.refreshAll(app);
-            KeepADBEndpointCoordinator.refresh(app);
-            KeepADBService.sync(app);
-        } catch (RuntimeException e) {
-            Log.w(TAG, "cannot refresh after the grant", e);
-        }
+        refreshSurfaces(app);
         if (owner != null && owner != this) {
             release();
             return;

@@ -539,6 +539,188 @@ public class KeepADBSelfPairServiceTest {
                 Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
     }
 
+    @Test
+    public void aLateGrantAfterTheDelayedCheckMissedIsSettledWhileTheRunLives() {
+        script = pairsThen("AA:16", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Phase.FAILED, phase());
+
+        // The one delayed check runs without the permission and stays in FAILED.
+        shadowOf(Looper.getMainLooper())
+                .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS));
+        executor.runAll();
+        idle();
+        assertEquals(Phase.FAILED, phase());
+        assertTrue(KeepADBSelfPairCleanup.hasClaim(context));
+
+        // The grant lands afterwards while the run is still open and idle: the watcher settles
+        // it and closes the living run cleanly.
+        grant(true);
+        deferrer.tick();
+        idle();
+
+        assertFalse("Wifi-ADB is switched off although the run stayed open",
+                gateway.isEnabled(context));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+        assertTrue(shadowOf(controller.get()).isStoppedBySelf());
+    }
+
+    @Test
+    public void aReconciliationWhileTheRunWaitsInFailedCompletesTheRun() {
+        script = pairsThen("AA:16b", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Phase.FAILED, phase());
+
+        // User returns to the assistant after the grant landed while the run sits idle.
+        grant(true);
+        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        deferrer.tick();
+        idle();
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+        assertTrue(shadowOf(controller.get()).isStoppedBySelf());
+    }
+
+    @Test
+    public void aStaleBackgroundCleanupAfterAUserDecisionDoesNotPublishSwitchedOff() {
+        List<KeepADBSelfPairCleanup.Settlement> held = new ArrayList<>();
+        KeepADBSelfPairCleanup.setObserver((ctx, settlement) -> held.add(settlement));
+
+        script = pairsThen("AA:17", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        controller.get().onStartCommand(intent(CANCEL), 0, 1);
+        controller.destroy();
+        idle();
+        assertEquals(Phase.IDLE, phase());
+
+        grant(true);
+        deferrer.tick();
+        assertEquals(1, held.size());
+
+        // Before the background outcome reaches the main thread, the user switches Wifi-ADB on.
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        KeepADBSelfPairService.onBackgroundCleanup(context, held.get(0));
+        idle();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(KeepADB.TOGGLE_COOLDOWN_MS));
+
+        assertEquals("the stale cleanup does not override the user's decision",
+                Phase.IDLE, phase());
+        assertTrue(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aStaleBackgroundCleanupFromAnEarlierRunDoesNotOverwriteANewerRun() {
+        List<KeepADBSelfPairCleanup.Settlement> held = new ArrayList<>();
+        KeepADBSelfPairCleanup.setObserver((ctx, settlement) -> held.add(settlement));
+
+        script = pairsThen("AA:18", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> first = start();
+        first.get().onCode("123456");
+        executor.runAll();
+        idle();
+        first.get().onStartCommand(intent(CANCEL), 0, 1);
+        first.destroy();
+        idle();
+
+        grant(true);
+        deferrer.tick();
+        assertEquals(1, held.size());
+
+        // A second run starts and finishes with Keep-Alive on (so LEFT_ON).
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        executor = new ManualExecutor();
+        KeepADBSelfPairService.setSeamsForTesting((ctx, dialog) -> {
+            FakeRunner runner = new FakeRunner(dialog);
+            runners.add(runner);
+            return runner;
+        }, executor);
+        script = pairsThen("AA:18b", null, true);
+        ServiceController<KeepADBSelfPairService> second = start();
+        second.get().onCode("123456");
+        executor.runAll();
+        idle();
+        second.destroy();
+        idle();
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.LEFT_ON, KeepADBSelfPairService.status().cleanup);
+
+        // Now the first run's background cleanup arrives late on the main thread.
+        KeepADBSelfPairService.onBackgroundCleanup(context, held.get(0));
+        idle();
+
+        assertEquals("the second run's outcome stands", Cleanup.LEFT_ON,
+                KeepADBSelfPairService.status().cleanup);
+        assertEquals("AA:18b", KeepADBSelfPairService.status().fingerprint);
+    }
+
+    @Test
+    public void aUserDecisionAfterALateCheckSwitchedOffKeepsTheRunFromReportingSwitchedOff() {
+        script = pairsThen("AA:19", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Phase.FAILED, phase());
+
+        // The delayed check is queued; grant lands and the user enters a retry code.
+        shadowOf(Looper.getMainLooper())
+                .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS));
+        grant(true);
+        script = (runner, onPaired) -> new SelfPairSession.Result(
+                SelfPairSession.Failure.NO_PAIRING_DIALOG, null);
+        controller.get().onCode("123456");
+
+        // The delayed check runs first and switches Wifi-ADB off.
+        executor.begin();
+        executor.finishStarted();
+        assertFalse(gateway.isEnabled(context));
+
+        // Before the retry ends, the user consciously turns Wifi-ADB back on in the app.
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        executor.runAll();
+        idle();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(KeepADB.TOGGLE_COOLDOWN_MS));
+
+        assertEquals(Phase.DONE, phase());
+        assertTrue(gateway.isEnabled(context));
+        assertEquals("never report 'switched off' after the user turned it on",
+                Cleanup.LEFT_ON, KeepADBSelfPairService.status().cleanup);
+    }
+
+    @Test
+    public void aUserDecisionRightBeforeOnFinishedReportsLeftOn() {
+        script = pairsThen("AA:20", null, true);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        // Worker finishes settle (SWITCHED_OFF) and posts onFinished to MAIN, not yet drained.
+        executor.runAll();
+        assertFalse(gateway.isEnabled(context));
+
+        // User switches Wifi-ADB back on before onFinished runs on MAIN.
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        idle();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(KeepADB.TOGGLE_COOLDOWN_MS));
+
+        assertEquals(Phase.DONE, phase());
+        assertTrue(gateway.isEnabled(context));
+        assertEquals(Cleanup.LEFT_ON, KeepADBSelfPairService.status().cleanup);
+    }
+
     // ---- The claim belongs to the current run ---------------------------------------------------
 
     @Test
