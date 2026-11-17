@@ -241,6 +241,43 @@ public class KeepADBSelfPairServiceTest {
         };
     }
 
+    // ---- Lock screen (#993) ---------------------------------------------------------------------
+
+    private static final int SELF_PAIR_NOTIFICATION_ID = 962;
+
+    private android.app.Notification posted() {
+        return shadowOf(context.getSystemService(android.app.NotificationManager.class))
+                .getNotification(SELF_PAIR_NOTIFICATION_ID);
+    }
+
+    @Test
+    public void theSelfPairingNotificationsAreSecretWhileTheLockScreenOptionIsOn() {
+        KeepADBPreferences.setLockScreenPrivacyEnabled(context, true);
+        script = pairsThen("AA:93", null, true);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        android.app.Notification waiting = posted();
+        assertTrue("the progress notification is posted", waiting != null);
+        assertEquals(android.app.Notification.VISIBILITY_SECRET, waiting.visibility);
+
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        android.app.Notification done = posted();
+        assertTrue("the completion notification is posted", done != null);
+        assertEquals(android.app.Notification.VISIBILITY_SECRET, done.visibility);
+    }
+
+    @Test
+    public void theSelfPairingNotificationsKeepTheirVisibilityWithoutTheOption() {
+        KeepADBPreferences.setLockScreenPrivacyEnabled(context, false);
+        script = pairsThen("AA:94", null, true);
+        start();
+        android.app.Notification waiting = posted();
+        assertTrue(waiting != null);
+        assertFalse(android.app.Notification.VISIBILITY_SECRET == waiting.visibility);
+    }
+
     // ---- The plain ways through -----------------------------------------------------------------
 
     @Test

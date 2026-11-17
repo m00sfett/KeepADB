@@ -43,7 +43,7 @@ their remaining limits are documented in the
 [trusted-networks guide](docs/trusted-networks.md) and
 [measurement summary](docs/trusted-networks-measurement.md).
 
-The protection level **Balanced** (trust by Wi-Fi name; there is no separate switch since 1.13.0) is a
+The protection level **Balanced** (trust by Wi-Fi name; there has been no separate switch since 1.14.1, the first public release with this change) is a
 disabled-by-default extension of the default level “Maximum security”. Because unrelated access
 points can advertise the same user-chosen name, this rule is weaker than trusting an individual
 BSSID. KeepADB shows this warning next to the level.
@@ -97,8 +97,7 @@ cleanup the new run takes over) and the grant succeeded; it stays on if Keep-Ali
 claim expired, or switching off fails, in which case the user switches it off manually. The pairing entry stays
 in Android's list of paired devices until the user removes it; without the discarded key it cannot
 be used. KeepADB does not check network trust for this run: the user switches Wifi-ADB on
-themselves, as with any manual control. The self-pairing notifications are not covered by the
-lock-screen switch below (#993).
+themselves, as with any manual control.
 
 Alternatively, users can grant it from Chrome or Edge over WebUSB at
 `https://keepadb.roteson.de/setup`, or manually from a computer over USB ADB. Both need USB debugging
@@ -160,7 +159,7 @@ non-exported receiver, which reads the endpoint when it is tapped (the intent ca
 and is left out while the force mode uses the card's three action slots.
 
 **Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
-every KeepADB notification except the self-pairing ones (#993) is posted with `VISIBILITY_SECRET`, so none of them (main, network
+every KeepADB notification, the self-pairing ones included (#993), is posted with `VISIBILITY_SECRET`, so none of them (main, network
 trust notice with its Allow/Block buttons, webhook warning, Force Mode and network shutdown notices)
 appears on the lock screen, whether or not Android shows sensitive content there. The option is
 read and each notification posted under one lock, so a post cannot slip past a change. A change

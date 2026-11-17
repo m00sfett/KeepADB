@@ -25,7 +25,7 @@ updated with the Wi-Fi networks list (#762).
   separate name list. A blocked access point does not contribute its name. Because names can be
   imitated, this is off by default. It is the protection level “Balanced”: the level is chosen on
   the Protection page (Settings → Protection, #959), and there is no separate switch for it
-  anywhere (before 1.13.0: the “Also trust by Wi-Fi name” switch in Settings and in the list).
+  anywhere (before 1.14.1: the “Also trust by Wi-Fi name” switch in Settings and in the list).
   The stored key and its meaning are unchanged.
 - **Previous “In all Wi-Fi networks” setting** (saved value `all_wifi`): every network is trusted,
   including a network whose identity cannot be read, **unless it is blocked**. Existing
@@ -199,7 +199,7 @@ used up.
 ## The “Wi-Fi networks” list
 
 The list (#762, part a; Settings → Protection → “Wi-Fi networks”, or “Wi-Fi networks” in the home menu since #949;
-renamed from “Networks” in 1.13.0, #964)
+renamed from “Networks” in 1.14.1, #964)
 shows trust and blocks in one place: the current network at the top, then recently asked access
 points (#949), then saved access points grouped by Wi-Fi name. A “Protection” heading at the end
 holds one row with the current protection level (a tap leads to its choice on the Protection page;
@@ -209,7 +209,7 @@ observation option, and separate name list were removed from Settings.
 
 **The Protection page (#959).** Settings shows “Protection” as one row (with the protection level
 and the trusted/blocked count as its summary); it opens its own page, which holds what the
-collapsible “Network” card held before 1.13.0, in this order: the current connection with its
+collapsible “Network” card held before 1.14.1, in this order: the current connection with its
 action, the **protection level** (chosen right there: “Maximum security” or “Balanced”; a previous
 setting stays visible while it is active), the **automatic behavior** (“Turn off on untrusted
 Wi-Fi”, “Check Wi-Fi security of trusted access points”; one help line each, “More” shows the
