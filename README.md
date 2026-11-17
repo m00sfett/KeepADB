@@ -94,6 +94,8 @@ Webhook synchronization is off by default. After you configure it, KeepADB sends
 endpoint data to the URL you entered. The sender currently allows only Wifi-ADB events to be
 transmitted. `http://` is supported, but it is unencrypted. Use
 HTTP only for an endpoint you operate on a trusted LAN or VPN, and heed the warning in the app.
+The home screen shows the webhook status; while Webhook Sync is not set up or is off, it shows a
+short hint with a button that opens **Settings → Webhook & Endpoint Sync**.
 
 Under **Settings → Webhook & Endpoint Sync**, you can also turn on **Periodic refresh** (off by default, based on work by `@inaciopestana`): while Keep-Alive and Webhook Sync are active, KeepADB periodically re-sends the active endpoint (`15 min`, `30 min`, `59 min`, `3 h 59 min` default on enable, `11 h 59 min`, or `23 h 59 min`) so external receivers with expiring entries stay updated.
 

@@ -87,7 +87,11 @@ Check each point against the code of the release commit:
    current features and the security defaults recorded in `docs/defaults.md` (network rule,
    Keep-Alive, webhook, notification details). Remove features that no longer exist.
 2. `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` summarizes the user-visible
-   changes since the last stable release.
+   changes since the last stable release, not only those of the last candidate. Do the
+   documentation check in a release-preparation commit with its own `versionCode` bump, so the
+   store note of the released `versionCode` is the summary. Lead with what matters most to users,
+   including removed features and changed privacy or security defaults, then add details as far
+   as the F-Droid limit of 500 characters allows.
 3. `CHANGELOG.md`: the release-status paragraph and the section heading describe the version being
    released, and no released version is still called a candidate.
 4. Every Settings path or label quoted in `README.md`, `SECURITY.md`, and `docs/` matches
