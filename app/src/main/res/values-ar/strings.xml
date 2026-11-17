@@ -555,7 +555,7 @@
     <string name="warnings_reset">إلغاء كل عمليات الكتم</string>
     <string name="warnings_none">لا توجد تحذيرات أمان نشطة</string>
     <string name="onboarding_upgrade_notice">أزال التحديث سجل رصد Wi-Fi القديم؛ ولا يمكن استعادته. تم الاحتفاظ بإعدادات الحماية والثقة وKeep-Alive وwebhook لديك. عند الفتح لأول مرة، يعرض KeepADB بطاقات تحذير لمشكلات الأمان النشطة أو المتطلبات الناقصة؛ وبعد إغلاقها تظل مخفية ما دام السبب نفسه نشطًا. يمكنك متابعة فحص أسباب الأمان النشطة ضمن «تحذيرات الأمان»؛ ولا تغيّر البطاقات إعداداتك.</string>
-    <string name="settings_webhook_retry_subtext">إذا فشل تقرير، يعيد KeepADB المحاولة بعد 5 و15 و30 و60 ثانية، ثم يتوقف. يمكن أن يبدأ تغيير لاحق في الشبكة محاولة جديدة. لا يستعلم KeepADB بشكل مستمر.</string>
+    <string name="settings_webhook_retry_subtext">إذا فشل تقرير، يعيد KeepADB المحاولة بعد 5 و15 و30 و60 ثانية، ثم يتوقف. يمكن أن يبدأ تغيير لاحق في الشبكة محاولة جديدة. لا تعمل التحديثات المجدولة إلا عند تفعيلها أعلاه.</string>
     <string name="webhook_alert_channel_name">تحذيرات Webhook</string>
     <string name="webhook_alert_channel_desc">يحذّر عندما تستمر تقارير Webhook في الفشل</string>
     <string name="webhook_alert_title">لم يتم الإبلاغ عن منفذ ADB الحالي</string>
@@ -661,4 +661,12 @@
     <string name="network_action_decide">حظر أو قرار…</string>
     <string name="status_on_network_untrusted">لن يعيد Keep-Alive تشغيله هنا: هذه الشبكة غير موثوقة</string>
     <string name="status_on_network_blocked">لن يعيد Keep-Alive تشغيله هنا: هذه الشبكة محظورة</string>
+    <string name="settings_webhook_periodic_toggle">التحديث الدوري</string>
+    <string name="settings_webhook_periodic_subtext">يعيد إرسال نقطة نهاية Wifi-ADB النشطة وفق جدول زمني ما دام Keep-Alive ومزامنة Webhook قيد التشغيل. مفيد للوجهات التي تنتهي صلاحية رسائلها بعد بضع ساعات.</string>
+    <string name="settings_webhook_periodic_interval_15m">كل 15 دقيقة</string>
+    <string name="settings_webhook_periodic_interval_30m">كل 30 دقيقة</string>
+    <string name="settings_webhook_periodic_interval_1h">كل 59 دقيقة</string>
+    <string name="settings_webhook_periodic_interval_4h">كل 3 ساعات و59 دقيقة (افتراضي)</string>
+    <string name="settings_webhook_periodic_interval_12h">كل 11 ساعة و59 دقيقة</string>
+    <string name="settings_webhook_periodic_interval_24h">كل 23 ساعة و59 دقيقة</string>
 </resources>

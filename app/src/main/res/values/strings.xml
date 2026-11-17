@@ -563,7 +563,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="warnings_reset">Reset all mutes</string>
     <string name="warnings_none">No active security warnings</string>
     <string name="onboarding_upgrade_notice">The update removed the old Wi-Fi observation history; it cannot be restored. Your protection and trust settings, Keep-Alive and webhook settings were kept. On first opening, KeepADB shows warning cards for active security issues or missing requirements; after closing them, they stay hidden for the same active reason. You can still check active security reasons under “Security warnings”; the warning cards do not change your settings.</string>
-    <string name="settings_webhook_retry_subtext">If a report fails, KeepADB tries again after 5, 15, 30 and 60 seconds, then gives up. A later network change can start a new attempt. KeepADB does not poll continuously.</string>
+    <string name="settings_webhook_retry_subtext">If a report fails, KeepADB tries again after 5, 15, 30 and 60 seconds, then gives up. A later network change can start a new attempt. Scheduled refreshes only run when turned on above.</string>
     <string name="webhook_alert_channel_name">Webhook warnings</string>
     <string name="webhook_alert_channel_desc">Warns when webhook reports keep failing</string>
     <string name="webhook_alert_title">Current ADB port not reported</string>
@@ -673,4 +673,12 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="network_action_decide">Block or decide…</string>
     <string name="status_on_network_untrusted">Keep-Alive won\'t switch it back on here: this Wi-Fi network isn\'t trusted</string>
     <string name="status_on_network_blocked">Keep-Alive won\'t switch it back on here: this Wi-Fi network is blocked</string>
+    <string name="settings_webhook_periodic_toggle">Periodic refresh</string>
+    <string name="settings_webhook_periodic_subtext">Re-sends the active Wifi-ADB endpoint on a schedule while Keep-Alive and Webhook Sync are on. Useful for targets that expire messages after a few hours.</string>
+    <string name="settings_webhook_periodic_interval_15m">Every 15 minutes</string>
+    <string name="settings_webhook_periodic_interval_30m">Every 30 minutes</string>
+    <string name="settings_webhook_periodic_interval_1h">Every 59 minutes</string>
+    <string name="settings_webhook_periodic_interval_4h">Every 3 hours 59 minutes (default)</string>
+    <string name="settings_webhook_periodic_interval_12h">Every 11 hours 59 minutes</string>
+    <string name="settings_webhook_periodic_interval_24h">Every 23 hours 59 minutes</string>
 </resources>

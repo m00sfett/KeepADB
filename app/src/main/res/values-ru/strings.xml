@@ -553,7 +553,7 @@
     <string name="warnings_reset">Сбросить все скрытые предупреждения</string>
     <string name="warnings_none">Нет активных предупреждений безопасности</string>
     <string name="onboarding_upgrade_notice">При обновлении старая история наблюдений за Wi-Fi была удалена; восстановить её нельзя. Настройки защиты и доверия, Keep-Alive и вебхука сохранены. При первом открытии KeepADB показывает карточки предупреждений об активных проблемах безопасности или невыполненных требованиях; после закрытия они остаются скрытыми, пока активна та же причина. Активные причины, связанные с безопасностью, по-прежнему доступны в разделе «Предупреждения безопасности»; карточки не меняют ваши настройки.</string>
-    <string name="settings_webhook_retry_subtext">Если отчёт не удался, KeepADB повторяет попытку через 5, 15, 30 и 60 секунд, затем прекращает. Последующая смена сети может запустить новую попытку. KeepADB не опрашивает постоянно.</string>
+    <string name="settings_webhook_retry_subtext">Если отчёт не удался, KeepADB повторяет попытку через 5, 15, 30 и 60 секунд, затем прекращает. Последующая смена сети может запустить новую попытку. Запланированное обновление работает только при включении выше.</string>
     <string name="webhook_alert_channel_name">Предупреждения Webhook</string>
     <string name="webhook_alert_channel_desc">Предупреждает, если отчёты Webhook продолжают не доходить</string>
     <string name="webhook_alert_title">Текущий порт ADB не передан</string>
@@ -659,4 +659,12 @@
     <string name="network_action_decide">Заблокировать или решить…</string>
     <string name="status_on_network_untrusted">Keep-Alive не включит его здесь снова: эта сеть Wi-Fi не является доверенной</string>
     <string name="status_on_network_blocked">Keep-Alive не включит его здесь снова: эта сеть Wi-Fi заблокирована</string>
+    <string name="settings_webhook_periodic_toggle">Периодическое обновление</string>
+    <string name="settings_webhook_periodic_subtext">Повторно отправляет активную конечную точку Wifi-ADB по расписанию, пока включены Keep-Alive и синхронизация Webhook. Полезно для получателей, у которых сообщения истекают через несколько часов.</string>
+    <string name="settings_webhook_periodic_interval_15m">Каждые 15 минут</string>
+    <string name="settings_webhook_periodic_interval_30m">Каждые 30 минут</string>
+    <string name="settings_webhook_periodic_interval_1h">Каждые 59 минут</string>
+    <string name="settings_webhook_periodic_interval_4h">Каждые 3 часа 59 минут (по умолчанию)</string>
+    <string name="settings_webhook_periodic_interval_12h">Каждые 11 часов 59 минут</string>
+    <string name="settings_webhook_periodic_interval_24h">Каждые 23 часа 59 минут</string>
 </resources>

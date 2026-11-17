@@ -40,6 +40,7 @@ final class KeepADBWebhookSync {
     static void enable(Context context, String validUrl) {
         KeepADBPreferences.setRegisterWebhookUrl(context, validUrl);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPeriodicReport.sync(context);
         KeepADBEndpointCoordinator.refresh(context);
     }
 
@@ -61,6 +62,7 @@ final class KeepADBWebhookSync {
     static void disable(Context context, Runnable onDone) {
         KeepADBRegisterClient.unregisterAndDisableAsync(context, onDone);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBPeriodicReport.cancel(context);
     }
 
     /** {@link #setAutomaticSync(Context, boolean, Runnable)} for a caller that does not wait. */

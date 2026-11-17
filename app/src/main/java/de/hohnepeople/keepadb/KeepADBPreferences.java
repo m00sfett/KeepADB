@@ -9,6 +9,9 @@ final class KeepADBPreferences {
     private static final String KEY_KEEP_ALIVE = "keep_alive_enabled";
     private static final String KEY_REGISTER_URL = "register_webhook_url";
     private static final String KEY_WEBHOOK_ENABLED = "register_webhook_enabled";
+    /** #976: opt-in periodic webhook refresh while Keep-Alive and Webhook Sync are active. */
+    private static final String KEY_WEBHOOK_PERIODIC_ENABLED = "register_webhook_periodic_enabled";
+    private static final String KEY_WEBHOOK_PERIODIC_INTERVAL = "register_webhook_periodic_interval";
     private static final String KEY_WEBHOOK_LAST_REPORTED = "register_webhook_last_reported";
     private static final String KEY_WEBHOOK_LAST_ENDPOINT = "register_webhook_last_endpoint";
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
@@ -262,6 +265,37 @@ final class KeepADBPreferences {
         prefs.edit().putBoolean(KEY_WEBHOOK_ENABLED, enabled).apply();
         KeepADBWarningState.observe(context);
         refreshWidgetState(context);
+    }
+
+    /** #976: opt-in periodic webhook refresh while Keep-Alive and Webhook Sync are active; default off. */
+    static boolean isPeriodicWebhookReportEnabled(Context context) {
+        if (context == null) return false;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_WEBHOOK_PERIODIC_ENABLED, false);
+    }
+
+    static void setPeriodicWebhookReportEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_WEBHOOK_PERIODIC_ENABLED, enabled).apply();
+    }
+
+    /** #976: chosen schedule preset for periodic webhook refreshes; defaults to 4 h (3 h 59 m). */
+    static KeepADBPeriodicReport.Interval getPeriodicWebhookInterval(Context context) {
+        if (context == null) return KeepADBPeriodicReport.Interval.DEFAULT;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return KeepADBPeriodicReport.Interval.fromId(
+                prefs.getString(KEY_WEBHOOK_PERIODIC_INTERVAL,
+                        KeepADBPeriodicReport.Interval.DEFAULT.id));
+    }
+
+    static void setPeriodicWebhookInterval(Context context,
+            KeepADBPeriodicReport.Interval interval) {
+        if (context == null) return;
+        KeepADBPeriodicReport.Interval chosen = interval != null
+                ? interval : KeepADBPeriodicReport.Interval.DEFAULT;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_WEBHOOK_PERIODIC_INTERVAL, chosen.id).apply();
     }
 
     static String getRegisterWebhookUrl(Context context) {

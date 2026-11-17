@@ -551,7 +551,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="warnings_reset">Alle dempingen opheffen</string>
     <string name="warnings_none">Geen actieve beveiligingswaarschuwingen</string>
     <string name="onboarding_upgrade_notice">De update heeft de oude Wi-Fi-observatiegeschiedenis verwijderd; deze kan niet worden hersteld. Je instellingen voor bescherming en vertrouwen, Keep-Alive en webhooks zijn behouden. Bij de eerste opening toont KeepADB waarschuwingskaarten voor actieve beveiligingsproblemen of ontbrekende vereisten; na het sluiten blijven ze verborgen zolang dezelfde reden actief blijft. Je kunt actieve beveiligingsredenen nog bekijken onder “Beveiligingswaarschuwingen”; de kaarten veranderen je instellingen niet.</string>
-    <string name="settings_webhook_retry_subtext">Als een melding mislukt, probeert KeepADB het na 5, 15, 30 en 60 seconden opnieuw en geeft dan op. Een latere netwerkwijziging kan een nieuwe poging starten. KeepADB vraagt niet voortdurend op.</string>
+    <string name="settings_webhook_retry_subtext">Als een melding mislukt, probeert KeepADB het na 5, 15, 30 en 60 seconden opnieuw en geeft dan op. Een latere netwerkwijziging kan een nieuwe poging starten. Geplande meldingen worden alleen uitgevoerd als ze hierboven zijn ingeschakeld.</string>
     <string name="webhook_alert_channel_name">Webhook-waarschuwingen</string>
     <string name="webhook_alert_channel_desc">Waarschuwt wanneer webhookmeldingen blijven mislukken</string>
     <string name="webhook_alert_title">Huidige ADB-poort niet gemeld</string>
@@ -657,4 +657,12 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="network_action_decide">Blokkeren of beslissen…</string>
     <string name="status_on_network_untrusted">Keep-Alive zet het hier niet weer aan: dit wifi-netwerk is niet vertrouwd</string>
     <string name="status_on_network_blocked">Keep-Alive zet het hier niet weer aan: dit wifi-netwerk is geblokkeerd</string>
+    <string name="settings_webhook_periodic_toggle">Periodiek vernieuwen</string>
+    <string name="settings_webhook_periodic_subtext">Verstuurt het actieve Wifi-ADB-eindpunt volgens een schema opnieuw zolang Keep-Alive en Webhook-synchronisatie aan staan. Handig voor doelen waar berichten na enkele uren verlopen.</string>
+    <string name="settings_webhook_periodic_interval_15m">Elke 15 minuten</string>
+    <string name="settings_webhook_periodic_interval_30m">Elke 30 minuten</string>
+    <string name="settings_webhook_periodic_interval_1h">Elke 59 minuten</string>
+    <string name="settings_webhook_periodic_interval_4h">Elke 3 uur en 59 minuten (standaard)</string>
+    <string name="settings_webhook_periodic_interval_12h">Elke 11 uur en 59 minuten</string>
+    <string name="settings_webhook_periodic_interval_24h">Elke 23 uur en 59 minuten</string>
 </resources>

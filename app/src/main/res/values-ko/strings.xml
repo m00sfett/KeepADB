@@ -550,7 +550,7 @@
     <string name="warnings_reset">모든 숨김 설정 해제</string>
     <string name="warnings_none">활성 보안 경고 없음</string>
     <string name="onboarding_upgrade_notice">업데이트로 이전 Wi-Fi 관찰 기록이 삭제되었으며 복원할 수 없습니다. 보호 및 신뢰 설정, Keep-Alive와 웹훅 설정은 유지되었습니다. 처음 열 때 KeepADB는 활성 보안 문제나 충족되지 않은 요구 사항에 대한 경고 카드를 표시하며, 닫은 카드는 같은 원인이 활성 상태인 동안 숨겨집니다. “보안 경고”에서 활성 보안 원인을 계속 확인할 수 있으며, 경고 카드는 설정을 변경하지 않습니다.</string>
-    <string name="settings_webhook_retry_subtext">보고가 실패하면 KeepADB는 5초, 15초, 30초, 60초 간격으로 다시 시도한 뒤 중단합니다. 이후 네트워크가 바뀌면 새 시도가 시작될 수 있습니다. KeepADB는 계속 폴링하지 않습니다.</string>
+    <string name="settings_webhook_retry_subtext">보고가 실패하면 KeepADB는 5초, 15초, 30초, 60초 간격으로 다시 시도한 뒤 중단합니다. 이후 네트워크가 바뀌면 새 시도가 시작될 수 있습니다. 예약된 새로 고침은 위에서 켠 경우에만 실행됩니다.</string>
     <string name="webhook_alert_channel_name">Webhook 경고</string>
     <string name="webhook_alert_channel_desc">Webhook 보고가 계속 실패하면 경고합니다</string>
     <string name="webhook_alert_title">현재 ADB 포트가 보고되지 않음</string>
@@ -656,4 +656,12 @@
     <string name="network_action_decide">차단 또는 결정…</string>
     <string name="status_on_network_untrusted">Keep-Alive가 여기서 다시 켜지 않습니다: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
     <string name="status_on_network_blocked">Keep-Alive가 여기서 다시 켜지 않습니다: 이 Wi-Fi 네트워크는 차단되었습니다</string>
+    <string name="settings_webhook_periodic_toggle">주기적 새로 고침</string>
+    <string name="settings_webhook_periodic_subtext">Keep-Alive와 웹훅 동기화가 켜져 있는 동안 예약된 간격으로 활성 Wifi-ADB 엔드포인트를 다시 전송합니다. 몇 시간 뒤 메시지가 만료되는 대상에 유용합니다.</string>
+    <string name="settings_webhook_periodic_interval_15m">15분마다</string>
+    <string name="settings_webhook_periodic_interval_30m">30분마다</string>
+    <string name="settings_webhook_periodic_interval_1h">59분마다</string>
+    <string name="settings_webhook_periodic_interval_4h">3시간 59분마다(기본값)</string>
+    <string name="settings_webhook_periodic_interval_12h">11시간 59분마다</string>
+    <string name="settings_webhook_periodic_interval_24h">23시간 59분마다</string>
 </resources>

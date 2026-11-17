@@ -143,6 +143,10 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isRegisterWebhookEnabled(c)),
             new Setting("register_webhook_url", Kind.SECURITY, null, "https://example.com/hook",
                     c -> KeepADBPreferences.getRegisterWebhookUrl(c)),
+            new Setting("register_webhook_periodic_enabled", Kind.SECURITY, false, true,
+                    c -> KeepADBPreferences.isPeriodicWebhookReportEnabled(c)),
+            new Setting("register_webhook_periodic_interval", Kind.CONVENIENCE, "4h", "15m",
+                    c -> KeepADBPreferences.getPeriodicWebhookInterval(c).id),
             // Presentation and convenience
             // #904: the three privacy switches, all opt-in. The notification one replaces the
             // former "notification details" opt-in (#592) and starts off, so details show.
@@ -231,6 +235,7 @@ public class KeepADBDefaultsAuditTest {
         assertEquals(ProtectionLevel.MAXIMUM_SECURITY, KeepADBTrustedNetwork.getProtectionLevel(app));
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(app));
         assertNull(KeepADBPreferences.getRegisterWebhookUrl(app));
+        assertFalse(KeepADBPreferences.isPeriodicWebhookReportEnabled(app));
         // #904 (deliberate, user decision of 2026-11-07): connection details in notifications are
         // shown on a new installation; the notification privacy switch is an opt-in.
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));

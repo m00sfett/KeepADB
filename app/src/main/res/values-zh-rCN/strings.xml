@@ -550,7 +550,7 @@
     <string name="warnings_reset">取消所有隐藏设置</string>
     <string name="warnings_none">没有有效的安全警告</string>
     <string name="onboarding_upgrade_notice">更新已删除旧的 Wi-Fi 观察历史记录，且无法恢复。你的保护与信任设置、Keep-Alive 和 Webhook 设置已保留。首次打开时，KeepADB 会针对当前的安全问题或未满足的条件显示警告卡片；关闭后，只要同一原因仍然存在，卡片就会保持隐藏。你仍可在“安全警告”中查看当前的安全原因；警告卡片不会更改你的设置。</string>
-    <string name="settings_webhook_retry_subtext">如果报告失败，KeepADB 会在 5、15、30 和 60 秒后重试，然后停止。之后的网络变化可能会开始新的尝试。KeepADB 不会持续轮询。</string>
+    <string name="settings_webhook_retry_subtext">如果报告失败，KeepADB 会在 5、15、30 和 60 秒后重试，然后停止。之后的网络变化可能会开始新的尝试。仅在上方开启后才会运行定时刷新。</string>
     <string name="webhook_alert_channel_name">Webhook 警告</string>
     <string name="webhook_alert_channel_desc">Webhook 报告持续失败时发出警告</string>
     <string name="webhook_alert_title">当前 ADB 端口未报告</string>
@@ -656,4 +656,12 @@
     <string name="network_action_decide">拦截或做出决定…</string>
     <string name="status_on_network_untrusted">Keep-Alive 不会在此重新开启：此 Wi-Fi 网络未信任</string>
     <string name="status_on_network_blocked">Keep-Alive 不会在此重新开启：此 Wi-Fi 网络已被拦截</string>
+    <string name="settings_webhook_periodic_toggle">定期刷新</string>
+    <string name="settings_webhook_periodic_subtext">在 Keep-Alive 和 Webhook 同步开启期间按计划重新发送活动的 Wifi-ADB 端点。适用于消息会在数小时后过期的接收端。</string>
+    <string name="settings_webhook_periodic_interval_15m">每 15 分钟</string>
+    <string name="settings_webhook_periodic_interval_30m">每 30 分钟</string>
+    <string name="settings_webhook_periodic_interval_1h">每 59 分钟</string>
+    <string name="settings_webhook_periodic_interval_4h">每 3 小时 59 分钟（默认）</string>
+    <string name="settings_webhook_periodic_interval_12h">每 11 小时 59 分钟</string>
+    <string name="settings_webhook_periodic_interval_24h">每 23 小时 59 分钟</string>
 </resources>
