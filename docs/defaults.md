@@ -154,8 +154,10 @@ app, after three minutes, and after a reboot. Bookkeeping, not a setting.
 The same file holds `found_off_elapsed` and `found_off_boot` (#982): when a run started, Wifi-ADB
 was off, so the user switched it on for this setup. A run that finds Wifi-ADB already on records no
 claim and leaves it on after the grant, unless such a note from the same boot is younger than 30
-minutes (a cancelled or killed first try). The note is removed once the permission is there, when
-the user changes Wifi-ADB or Keep-Alive in the app, and it is ignored after a reboot.
+minutes (a cancelled or killed first try), or an earlier run's claim is still pending. Only a run
+that actually found Wifi-ADB off writes the note; a retry that inherits it does not renew it. The
+note is removed once the permission is there, when the user changes Wifi-ADB or Keep-Alive in the
+app, and it is ignored after a reboot.
 
 ### Permissions and system state
 
