@@ -121,8 +121,8 @@ public final class KeepADBSelfPairService extends Service {
     private static final String EXTRA_CODE = "code";
     private static final String CHANNEL_ID = "keepadb_selfpair";
     private static final String TOKEN_SCHEME = "keepadb-selfpair:";
+    private static final String GROUP = "keepadb_selfpair";
     private static final int NOTIFICATION_ID = 962;
-    private static final int MAX_REMEMBERED_FINGERPRINTS = 8;
     /** Nobody leaves a pairing dialog open this long; do not hold a foreground service for it. */
     private static final long IDLE_TIMEOUT_MS = 10 * 60 * 1000;
     /** adbd may run the grant after the connection broke; look once more after this pause. */
@@ -247,11 +247,10 @@ public final class KeepADBSelfPairService extends Service {
     private static void rememberPaired(String fingerprint) {
         if (fingerprint == null) return;
         synchronized (PAIRED) {
+            // No limit: each needs the user to open a pairing dialog and type a code, and each
+            // left an entry that has to stay nameable.
             PAIRED.remove(fingerprint);
             PAIRED.add(fingerprint);
-            while (PAIRED.size() > MAX_REMEMBERED_FINGERPRINTS) {
-                PAIRED.remove(PAIRED.iterator().next());
-            }
         }
     }
 
@@ -301,6 +300,7 @@ public final class KeepADBSelfPairService extends Service {
         }
         owner = this;
         runId = UUID.randomUUID().toString();
+        KeepADBSelfPairCleanup.authorize(runId);
         cancelRequested = false;
         startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
@@ -357,7 +357,11 @@ public final class KeepADBSelfPairService extends Service {
             result = running.run(code, fingerprint -> {
                 rememberPaired(fingerprint);
                 // From here on the grant may be sent: the cleanup needs an owner on disk first.
-                KeepADBSelfPairCleanup.claim(app, run);
+                // No owner on disk, or a run that is no longer current: no grant. A user who
+                // decided otherwise meanwhile still gets the permission, just no cleanup.
+                KeepADBSelfPairCleanup.Claim claim = KeepADBSelfPairCleanup.claim(app, run);
+                return claim == KeepADBSelfPairCleanup.Claim.HELD
+                        || claim == KeepADBSelfPairCleanup.Claim.SUPERSEDED;
             });
         } catch (InterruptedException e) {
             // The service is going away; the check below still runs.
@@ -408,13 +412,33 @@ public final class KeepADBSelfPairService extends Service {
         }
     }
 
-    /** Runs only while this run is alive and idle; a new attempt or the end of the run removes it. */
+    /**
+     * Runs only while this run is alive and idle; a new attempt or the end of the run removes
+     * it. The check itself reads preferences and may write a setting, so it goes to the worker
+     * and comes back under the id of its run.
+     */
     private void checkForLateGrant() {
         if (destroyed || working || runner == null) {
             return;
         }
-        KeepADBSelfPairCleanup.Outcome outcome =
-                KeepADBSelfPairCleanup.settle(getApplicationContext(), runId);
+        final String run = runId;
+        final Context app = getApplicationContext();
+        try {
+            worker.execute(() -> {
+                final KeepADBSelfPairCleanup.Outcome outcome =
+                        KeepADBSelfPairCleanup.settle(app, run);
+                MAIN.post(() -> onLateOutcome(run, outcome));
+            });
+        } catch (RejectedExecutionException e) {
+            // The service is going away; the claim stays for the next start.
+        }
+    }
+
+    private void onLateOutcome(String run, KeepADBSelfPairCleanup.Outcome outcome) {
+        if (destroyed || working || runner == null || !run.equals(runId)) {
+            // The run ended or moved on meanwhile; whatever was settled stays settled.
+            return;
+        }
         if (isGranted(outcome)) {
             complete(outcome);
         }
@@ -571,6 +595,9 @@ public final class KeepADBSelfPairService extends Service {
                 .setContentTitle(context.getString(R.string.selfpair_notification_title))
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
+                // A group of its own: left ungrouped, Android bundles it with KeepADB's other
+                // notifications and the reply action ends up two taps deep (seen on Android 16).
+                .setGroup(GROUP)
                 .setContentIntent(open);
     }
 
@@ -638,7 +665,11 @@ public final class KeepADBSelfPairService extends Service {
             working = false;
         }
         if (!working) {
-            publishOwned(Phase.IDLE, Cleanup.LEFT_ON);
+            if (status.isActive()) {
+                // A finished run keeps its closing state (DONE and what became of Wifi-ADB);
+                // only a run that was still open is closed here.
+                publishOwned(Phase.IDLE, Cleanup.LEFT_ON);
+            }
             runner = null;
             runId = null;
             if (owner == this) {

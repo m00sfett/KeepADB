@@ -149,6 +149,8 @@ final class OnboardingActionSteps {
                 }
             }
             if (built) render();
+            // #962: a grant that landed after its run had ended is settled when the user is back.
+            KeepADBSelfPairCleanup.reconcileAtStart(context);
             // Like MainActivity.onResume: the service follows the preference, and a Keep-Alive
             // service started from the background is promoted again (#628).
             KeepADBService.sync(context);

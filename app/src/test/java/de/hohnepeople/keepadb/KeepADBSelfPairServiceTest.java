@@ -165,6 +165,8 @@ public class KeepADBSelfPairServiceTest {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
         grant(false);
+        android.provider.Settings.Global.putInt(context.getContentResolver(),
+                android.provider.Settings.Global.BOOT_COUNT, 7);
         executor = new ManualExecutor();
         KeepADBSelfPairService.resetForTesting();
         KeepADBSelfPairService.setSeamsForTesting((ctx, dialog) -> {
@@ -221,7 +223,10 @@ public class KeepADBSelfPairServiceTest {
     /** A scripted attempt that pairs (so it claims the cleanup) and then ends as told. */
     private Script pairsThen(String fingerprint, SelfPairSession.Failure failure, boolean grants) {
         return (runner, onPaired) -> {
-            onPaired.onPaired(fingerprint);
+            if (!onPaired.onPaired(fingerprint)) {
+                // Like the real session: told not to go on, it sends no grant.
+                return new SelfPairSession.Result(SelfPairSession.Failure.CANCELLED, fingerprint);
+            }
             if (grants) grant(true);
             return new SelfPairSession.Result(failure, fingerprint);
         };
@@ -378,6 +383,10 @@ public class KeepADBSelfPairServiceTest {
         grant(true);
         shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS));
+        assertEquals("the check runs on the worker, not on the main thread", 1,
+                executor.queued.size());
+        executor.runAll();
+        idle();
         assertEquals(Phase.DONE, phase());
         assertFalse(gateway.isEnabled(context));
         assertTrue(shadowOf(controller.get()).isStoppedBySelf());
@@ -399,6 +408,8 @@ public class KeepADBSelfPairServiceTest {
         gateway.writes.clear();
         shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS * 2));
+        executor.runAll();
+        idle();
 
         assertEquals("the ended run says nothing any more", Phase.IDLE, phase());
         assertTrue(gateway.isEnabled(context));
@@ -423,6 +434,8 @@ public class KeepADBSelfPairServiceTest {
         shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS * 2));
 
+        assertEquals("only the second attempt is queued, no check of the first", 1,
+                executor.queued.size());
         assertEquals("the check of the first attempt does not end the second", Phase.WORKING,
                 phase());
         assertTrue("nor does it settle the claim behind its back",
@@ -438,7 +451,105 @@ public class KeepADBSelfPairServiceTest {
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
     }
 
+    // ---- The claim belongs to the current run ---------------------------------------------------
+
+    @Test
+    public void aLatePairingOfADestroyedRunSendsNoGrantAndLeavesTheNewRunItsCleanup() {
+        // Run A: its pairing answer is still on the way when the service is destroyed.
+        ServiceController<KeepADBSelfPairService> first = start();
+        first.get().onCode("123456");
+        executor.begin();
+        Runnable oldAttempt = executor.started;
+        executor.started = null;
+        first.destroy();
+
+        // Run B starts, pairs and grants.
+        executor = new ManualExecutor();
+        KeepADBSelfPairService.setSeamsForTesting((ctx, dialog) -> {
+            FakeRunner runner = new FakeRunner(dialog);
+            runners.add(runner);
+            return runner;
+        }, executor);
+        ServiceController<KeepADBSelfPairService> second = start();
+        final boolean[] oldMayGrant = {true};
+        script = (runner, onPaired) -> {
+            if (runner == runners.get(0)) {
+                oldMayGrant[0] = onPaired.onPaired("AA:old");
+                return new SelfPairSession.Result(SelfPairSession.Failure.CANCELLED, "AA:old");
+            }
+            onPaired.onPaired("AA:new");
+            grant(true);
+            return new SelfPairSession.Result(null, "AA:new");
+        };
+        second.get().onCode("123456");
+        executor.begin();
+
+        // A's answer arrives in the middle of B's attempt.
+        oldAttempt.run();
+        idle();
+        assertFalse("the obsolete run is told not to send its grant", oldMayGrant[0]);
+
+        executor.finishStarted();
+        idle();
+        assertEquals(Phase.DONE, phase());
+        assertEquals("B still owned the cleanup", Cleanup.SWITCHED_OFF,
+                KeepADBSelfPairService.status().cleanup);
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aUserDecisionDuringTheAttemptStillGrantsButSwitchesNothingOff() {
+        script = (runner, onPaired) -> {
+            // While the pairing is under way the user switches Keep-Alive on and off again.
+            KeepADBPreferences.setKeepAliveEnabled(context, true);
+            KeepADBPreferences.setKeepAliveEnabled(context, false);
+            assertTrue("the grant goes on", onPaired.onPaired("AA:11"));
+            grant(true);
+            return new SelfPairSession.Result(null, "AA:11");
+        };
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.LEFT_ON, KeepADBSelfPairService.status().cleanup);
+        assertTrue("Wifi-ADB is left as the user decided", gateway.isEnabled(context));
+    }
+
     // ---- What stays visible ---------------------------------------------------------------------
+
+    @Test
+    public void theClosingStateSurvivesTheServiceItBelongedTo() {
+        script = pairsThen("AA:12", null, true);
+        gateway.setWriteSuccess(false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Cleanup.STILL_ON, KeepADBSelfPairService.status().cleanup);
+
+        // The service asked to be stopped; the system destroys it.
+        controller.destroy();
+        idle();
+        assertEquals("the assistant must still be able to say it", Phase.DONE, phase());
+        assertEquals(Cleanup.STILL_ON, KeepADBSelfPairService.status().cleanup);
+    }
+
+    @Test
+    public void noPairedKeyIsForgottenHoweverManyThereAre() {
+        ServiceController<KeepADBSelfPairService> controller = start();
+        List<String> expected = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            String fingerprint = "AA:" + (20 + i);
+            expected.add(fingerprint);
+            script = pairsThen(fingerprint, SelfPairSession.Failure.GRANT_REFUSED, false);
+            controller.get().onCode("123456");
+            executor.runAll();
+            idle();
+        }
+        assertEquals(expected, KeepADBSelfPairService.status().fingerprints);
+    }
 
     @Test
     public void thePairedKeyStaysNamedAfterAFailedRunIsCancelled() {
@@ -514,6 +625,8 @@ public class KeepADBSelfPairServiceTest {
 
         Notification shown = shadowOf(controller.get()).getLastForegroundNotification();
         assertNotNull(shown);
+        assertEquals("a group of its own keeps it out of Android's automatic bundle",
+                "keepadb_selfpair", shown.getGroup());
         assertEquals(1, shown.actions.length);
         assertNotNull(shown.actions[0].getRemoteInputs());
         assertEquals("no second session", 1, runners.size());

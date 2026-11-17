@@ -47,6 +47,7 @@ public class KeepADBSelfPairCleanupTest {
         KeepADB.setGatewayForTesting(gateway);
         Settings.Global.putInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, 7);
         grant(false);
+        KeepADBSelfPairCleanup.authorize("run-a");
     }
 
     @After
@@ -82,7 +83,7 @@ public class KeepADBSelfPairCleanupTest {
         grant(true);
 
         assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-a"));
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertTrue("Wifi-ADB stays as the user left it", gateway.isEnabled(context));
         assertTrue("no write was attempted", gateway.writes.isEmpty());
     }
@@ -107,7 +108,7 @@ public class KeepADBSelfPairCleanupTest {
 
         // adbd ran the command after all; the process died meanwhile and starts again.
         grant(true);
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
     }
@@ -123,7 +124,7 @@ public class KeepADBSelfPairCleanupTest {
         assertTrue(KeepADBSelfPairCleanup.hasClaim(context));
 
         gateway.setWriteSuccess(true);
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
     }
@@ -148,7 +149,7 @@ public class KeepADBSelfPairCleanupTest {
         grant(true);
         ShadowSystemClock.advanceBy(Duration.ofMillis(KeepADBSelfPairCleanup.WINDOW_MS + 1));
 
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertTrue("too late to switch anything off", gateway.isEnabled(context));
         assertFalse("an expired claim is dropped", KeepADBSelfPairCleanup.hasClaim(context));
     }
@@ -159,7 +160,7 @@ public class KeepADBSelfPairCleanupTest {
         grant(true);
         Settings.Global.putInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, 8);
 
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertTrue(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
     }
@@ -173,7 +174,7 @@ public class KeepADBSelfPairCleanupTest {
         KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
 
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-a"));
         assertTrue("nothing is switched off behind the user's back", gateway.isEnabled(context));
     }
@@ -187,7 +188,7 @@ public class KeepADBSelfPairCleanupTest {
         KeepADBPreferences.setKeepAliveEnabled(context, false);
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
 
-        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        KeepADBSelfPairCleanup.reconcile(context);
         assertTrue(gateway.isEnabled(context));
     }
 
@@ -200,6 +201,57 @@ public class KeepADBSelfPairCleanupTest {
         KeepADBSelfPairCleanup.settle(context, "run-a");
         assertTrue("the self-pairing source is not a user decision",
                 KeepADBSelfPairCleanup.hasClaim(context));
+    }
+
+    @Test
+    public void onlyTheCurrentRunMayRecordAClaim() {
+        // Run A is still finishing its pairing when run B begins and pairs.
+        KeepADBSelfPairCleanup.authorize("run-b");
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+
+        // Now A's pairing answer arrives. It must not take the cleanup away from B.
+        assertEquals(KeepADBSelfPairCleanup.Claim.OBSOLETE,
+                KeepADBSelfPairCleanup.claim(context, "run-a"));
+        grant(true);
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-a"));
+        assertEquals("B still owns the cleanup and does it", Outcome.SWITCHED_OFF,
+                KeepADBSelfPairCleanup.settle(context, "run-b"));
+    }
+
+    @Test
+    public void aUserDecisionDuringPairingKeepsTheRunFromClaimingAfterwards() {
+        // Pairing is under way; the user switches Keep-Alive on and off again in the app.
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+
+        assertEquals("the grant may go on, the cleanup is no longer this run's",
+                KeepADBSelfPairCleanup.Claim.SUPERSEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-a"));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        grant(true);
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-a"));
+        assertTrue(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void withoutAKnownBootNoClaimIsRecorded() {
+        Settings.Global.putString(context.getContentResolver(), Settings.Global.BOOT_COUNT, null);
+
+        assertEquals("no claim that a reboot could not invalidate",
+                KeepADBSelfPairCleanup.Claim.FAILED,
+                KeepADBSelfPairCleanup.claim(context, "run-a"));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+    }
+
+    @Test
+    public void aClaimWhoseBootBecameUnreadableIsVoid() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        grant(true);
+        Settings.Global.putString(context.getContentResolver(), Settings.Global.BOOT_COUNT, null);
+
+        KeepADBSelfPairCleanup.reconcile(context);
+        assertTrue(gateway.isEnabled(context));
     }
 
     @Test
@@ -218,7 +270,7 @@ public class KeepADBSelfPairCleanupTest {
         };
 
         assertEquals(Outcome.UNKNOWN, KeepADBSelfPairCleanup.settle(broken, "run-a"));
-        KeepADBSelfPairCleanup.reconcileAtStart(broken);
+        KeepADBSelfPairCleanup.reconcile(broken);
         assertTrue(gateway.isEnabled(context));
         assertTrue("an unresolved claim is kept", KeepADBSelfPairCleanup.hasClaim(context));
     }

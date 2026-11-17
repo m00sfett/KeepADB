@@ -61,10 +61,11 @@ public final class SelfPairSession {
     /**
      * Called on the thread of {@link #run} the moment the key is registered with the device,
      * before the grant command can be sent. Whatever the caller needs in place before a grant
-     * may happen belongs here.
+     * may happen belongs here, and it can still call the grant off.
      */
     public interface PairedListener {
-        void onPaired(String fingerprint);
+        /** Returns whether the grant may go ahead; {@code false} ends the attempt as cancelled. */
+        boolean onPaired(String fingerprint);
     }
 
     private static final String TAG = "KeepADBSelfPair";
@@ -151,8 +152,8 @@ public final class SelfPairSession {
             return new Result(pairFailure, null);
         }
         pairedFingerprint = fingerprint;
-        if (onPaired != null) {
-            onPaired.onPaired(fingerprint);
+        if (onPaired != null && !onPaired.onPaired(fingerprint)) {
+            return new Result(Failure.CANCELLED, fingerprint);
         }
         if (cancelled) {
             return new Result(Failure.CANCELLED, fingerprint);

@@ -21,12 +21,13 @@ import android.util.Log;
  * <ul>
  *   <li>It is written only once pairing has succeeded, right before the grant command can be
  *       sent, and synchronously. An attempt that never paired cannot have granted anything and
- *       never holds a claim.</li>
- *   <li>It belongs to one run of the service. A run settles only its own claim; the next process
- *       start may settle whatever claim it finds.</li>
- *   <li>It is valid for a short time within the same boot, measured on the monotonic clock.
- *       Wireless debugging does not survive a reboot, so there is nothing to clean up after
- *       one.</li>
+ *       never holds a claim. If it cannot be written, the grant is not sent.</li>
+ *   <li>It belongs to one run of the service, and only the run that is current may record it.
+ *       A run settles only its own claim; the next process start may settle whatever claim it
+ *       finds.</li>
+ *   <li>It is valid for a short time within the same boot, measured on the monotonic clock,
+ *       and only if the boot can be identified. Wireless debugging does not survive a reboot,
+ *       so there is nothing to clean up after one.</li>
  *   <li>Anything the user does afterwards about Wifi-ADB or Keep-Alive in KeepADB supersedes it:
  *       the claim is dropped and nothing is switched off behind their back.</li>
  *   <li>It is released only when the cleanup is confirmed, superseded, expired or not needed
@@ -34,8 +35,12 @@ import android.util.Log;
  * </ul>
  *
  * <p>What this cannot do: clean up at the moment a process is killed. That waits for the next
- * start, and only inside the window. A change the user makes in Android's own settings is
- * invisible here; the short window is what bounds that case.
+ * start, and only inside the window; after it, a Wifi-ADB that is still on stays on until the
+ * user switches it off. A change the user makes in Android's own settings is invisible here; the
+ * short window is what bounds that case. Pairing is evidence that a grant may follow, not that
+ * this attempt caused the permission: one that arrives from elsewhere inside the window is
+ * treated as its own. And a user decision is void in this process at once, but reaches the disk
+ * a moment later; a process killed in that moment may find the old claim again.
  *
  * <p>Nothing secret is stored: a random run id and two clock values.
  */
@@ -54,6 +59,18 @@ final class KeepADBSelfPairCleanup {
         UNKNOWN
     }
 
+    /** What became of an attempt to record the claim. */
+    enum Claim {
+        /** Recorded on disk: the run owns the cleanup and may send the grant. */
+        HELD,
+        /** The user decided about Wifi-ADB or Keep-Alive since the run began: grant, no cleanup. */
+        SUPERSEDED,
+        /** The run is no longer the current one; its attempt must not go on. */
+        OBSOLETE,
+        /** The record could not be written; without it a grant could not be cleaned up. */
+        FAILED
+    }
+
     /** Long enough to come back to the app after pairing, short enough not to surprise later. */
     static final long WINDOW_MS = 3 * 60 * 1000L;
 
@@ -62,32 +79,71 @@ final class KeepADBSelfPairCleanup {
     private static final String KEY_RUN = "claim_run";
     private static final String KEY_ELAPSED = "claim_elapsed";
     private static final String KEY_BOOT = "claim_boot";
+    private static final int UNKNOWN_BOOT = -1;
     private static final Object LOCK = new Object();
+    /** The run that may record a claim; guarded by LOCK. */
+    private static String authorizedRun;
+    /** The run during which the user decided otherwise; guarded by LOCK. */
+    private static String supersededRun;
 
     private KeepADBSelfPairCleanup() {}
+
+    /**
+     * A new run begins: only it may record a claim from now on. An attempt of an earlier run
+     * that is still finishing its pairing gets {@link Claim#OBSOLETE} and cannot take the
+     * cleanup away from this one.
+     */
+    static void authorize(String runId) {
+        synchronized (LOCK) {
+            authorizedRun = runId;
+            supersededRun = null;
+        }
+    }
 
     /**
      * Records that {@code runId} is about to send the grant command. Blocks until the record is
      * on disk; call it off the main thread.
      */
-    static void claim(Context context, String runId) {
+    static Claim claim(Context context, String runId) {
         synchronized (LOCK) {
+            if (runId.equals(supersededRun)) {
+                return Claim.SUPERSEDED;
+            }
+            if (!runId.equals(authorizedRun)) {
+                return Claim.OBSOLETE;
+            }
             try {
-                prefs(context).edit()
+                int boot = bootCount(context);
+                boolean stored = boot != UNKNOWN_BOOT && prefs(context).edit()
                         .putString(KEY_RUN, runId)
                         .putLong(KEY_ELAPSED, SystemClock.elapsedRealtime())
-                        .putInt(KEY_BOOT, bootCount(context))
+                        .putInt(KEY_BOOT, boot)
                         .commit();
+                return stored ? Claim.HELD : Claim.FAILED;
             } catch (RuntimeException e) {
                 Log.w(TAG, "cannot record the cleanup claim", e);
+                return Claim.FAILED;
             }
         }
     }
 
-    /** The user decided something about Wifi-ADB or Keep-Alive: any claim is void. */
+    /**
+     * The user decided something about Wifi-ADB or Keep-Alive: any claim is void, and the run
+     * under way may not record one any more.
+     *
+     * <p>Takes the lock on purpose, although it is called from the main thread: a cleanup that
+     * is switching off right now has to finish before the user's own switch is written, or it
+     * would undo it. What it can wait for is local (a permission check, preferences, one
+     * settings write), never the network. The removal is written asynchronously; within this
+     * process the claim is void at once.
+     */
     static void supersede(Context context) {
         if (context == null) return;
         synchronized (LOCK) {
+            if (authorizedRun != null) {
+                supersededRun = authorizedRun;
+                authorizedRun = null;
+            }
             try {
                 SharedPreferences prefs = prefs(context);
                 if (prefs.contains(KEY_RUN)) {
@@ -99,9 +155,21 @@ final class KeepADBSelfPairCleanup {
         }
     }
 
-    /** At process start: finish what an earlier process may have left undone. Never throws. */
+    /**
+     * At process start, and when the assistant comes to the front: finish what an earlier
+     * process or an ended run may have left undone. Returns at once; the work happens on a
+     * thread of its own, because it reads preferences and may write a setting.
+     */
     static void reconcileAtStart(Context context) {
-        settle(context, null);
+        final Context app = context.getApplicationContext();
+        Thread thread = new Thread(() -> reconcile(app), "selfpair-reconcile");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    /** The reconciliation itself, on the calling thread. Never throws. */
+    static Outcome reconcile(Context context) {
+        return settle(context, null);
     }
 
     /**
@@ -157,16 +225,20 @@ final class KeepADBSelfPairCleanup {
 
     private static boolean isValid(Context context, SharedPreferences prefs) {
         long age = SystemClock.elapsedRealtime() - prefs.getLong(KEY_ELAPSED, Long.MIN_VALUE / 2);
-        return prefs.getInt(KEY_BOOT, -1) == bootCount(context) && age >= 0 && age < WINDOW_MS;
+        int recorded = prefs.getInt(KEY_BOOT, UNKNOWN_BOOT);
+        // An unknown boot proves nothing: after a reboot the monotonic clock starts over and
+        // could land inside the window by chance.
+        return recorded != UNKNOWN_BOOT && recorded == bootCount(context)
+                && age >= 0 && age < WINDOW_MS;
     }
 
-    /** Distinguishes boots where the monotonic clock alone could not. -1 if unreadable. */
+    /** Distinguishes boots where the monotonic clock alone could not. */
     private static int bootCount(Context context) {
         try {
             return Settings.Global.getInt(context.getContentResolver(),
-                    Settings.Global.BOOT_COUNT, -1);
+                    Settings.Global.BOOT_COUNT, UNKNOWN_BOOT);
         } catch (RuntimeException e) {
-            return -1;
+            return UNKNOWN_BOOT;
         }
     }
 
