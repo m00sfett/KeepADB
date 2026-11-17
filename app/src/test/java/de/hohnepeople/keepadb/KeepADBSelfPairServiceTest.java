@@ -163,7 +163,8 @@ public class KeepADBSelfPairServiceTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
-        gateway = new KeepADBFakeSettingsGateway(true);
+        // Wifi-ADB starts off; start() switches it on like the user following the steps (#982).
+        gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);
         grant(false);
         android.provider.Settings.Global.putInt(context.getContentResolver(),
@@ -211,6 +212,8 @@ public class KeepADBSelfPairServiceTest {
         ServiceController<KeepADBSelfPairService> controller = Robolectric.buildService(
                 KeepADBSelfPairService.class, intent(START)).create().startCommand(0, 0);
         controllers.add(controller);
+        // Step 1 of the assistant: the user switches Wireless debugging on after the start.
+        gateway.setEnabledByUser(true);
         return controller;
     }
 
@@ -239,6 +242,40 @@ public class KeepADBSelfPairServiceTest {
     }
 
     // ---- The plain ways through -----------------------------------------------------------------
+
+    @Test
+    public void aRunThatFindsWifiAdbAlreadyOnLeavesItOnAfterTheGrant() {
+        // #982: a computer is connected over Wireless debugging before the setup starts.
+        gateway.setEnabledByUser(true);
+        script = pairsThen("AA:09", null, true);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        KeepADBSelfPairService.Status status = KeepADBSelfPairService.status();
+        assertEquals(Phase.DONE, status.phase);
+        assertEquals(Cleanup.LEFT_ON, status.cleanup);
+        assertTrue("the computer session survives", gateway.isEnabled(context));
+        assertTrue("no write was attempted", gateway.writes.isEmpty());
+        assertFalse("nothing left to clean up later", KeepADBSelfPairCleanup.hasClaim(context));
+        assertTrue(shadowOf(controller.get()).isStoppedBySelf());
+    }
+
+    @Test
+    public void aRunThatFindsWifiAdbOffStillSwitchesItOffAfterTheGrant() {
+        // #982, the other side: switched on only for the setup, so it goes off again.
+        assertFalse(gateway.isEnabled(context));
+        script = pairsThen("AA:10", null, true);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        assertTrue(gateway.isEnabled(context));
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+        assertFalse(gateway.isEnabled(context));
+    }
 
     @Test
     public void aGrantEndsTheRunSwitchesWifiAdbOffAndNamesTheKey() {

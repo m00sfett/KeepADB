@@ -353,7 +353,12 @@ public final class KeepADBSelfPairService extends Service {
         }
         owner = this;
         runId = UUID.randomUUID().toString();
-        KeepADBSelfPairCleanup.authorize(runId);
+        // #982: the steps ask the user to switch Wifi-ADB on after this point. If it is on
+        // already (or unreadable), it was not switched on for this setup and stays on.
+        Boolean foundOn = KeepADB.isEnabledOrNull(getApplicationContext(),
+                KeepADB.SOURCE_SELF_PAIRING);
+        KeepADBSelfPairCleanup.authorize(getApplicationContext(), runId,
+                !Boolean.FALSE.equals(foundOn));
         cancelRequested = false;
         startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
@@ -413,10 +418,12 @@ public final class KeepADBSelfPairService extends Service {
                 rememberPaired(fingerprint);
                 // From here on the grant may be sent: the cleanup needs an owner on disk first.
                 // No owner on disk, or a run that is no longer current: no grant. A user who
-                // decided otherwise meanwhile still gets the permission, just no cleanup.
+                // decided otherwise meanwhile still gets the permission, just no cleanup; so does
+                // a run that found Wifi-ADB already on (#982).
                 KeepADBSelfPairCleanup.Claim claim = KeepADBSelfPairCleanup.claim(app, run);
                 return claim == KeepADBSelfPairCleanup.Claim.HELD
-                        || claim == KeepADBSelfPairCleanup.Claim.SUPERSEDED;
+                        || claim == KeepADBSelfPairCleanup.Claim.SUPERSEDED
+                        || claim == KeepADBSelfPairCleanup.Claim.NOT_NEEDED;
             });
         } catch (InterruptedException e) {
             // The service is going away; the check below still runs.

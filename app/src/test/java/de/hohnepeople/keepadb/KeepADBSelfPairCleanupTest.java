@@ -109,6 +109,84 @@ public class KeepADBSelfPairCleanupTest {
     }
 
     @Test
+    public void aRunThatFoundWifiAdbOnRecordsNoClaimAndSwitchesNothing() {
+        // #982: Wifi-ADB was on before the run (a computer may be connected over it).
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+
+        assertEquals(KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        grant(true);
+
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-b"));
+        // A later process start or the watcher finds nothing to act on either.
+        KeepADBSelfPairCleanup.reconcile(context);
+        deferrer.tick();
+        assertTrue(gateway.isEnabled(context));
+        assertTrue("no write was attempted", gateway.writes.isEmpty());
+    }
+
+    @Test
+    public void aRunThatFoundWifiAdbOnTakesOverAPendingClaimOfAnEarlierRun() {
+        // Run A switched Wifi-ADB on for setup and paired, but saw no grant yet. Run B starts
+        // inside A's window and finds it on because of A: B still owns the cleanup.
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-a"));
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+        grant(true);
+
+        assertEquals(Outcome.SWITCHED_OFF, KeepADBSelfPairCleanup.settle(context, "run-b"));
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void anExpiredEarlierClaimDoesNotMakeAFoundOnRunClean() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        ShadowSystemClock.advanceBy(Duration.ofMillis(KeepADBSelfPairCleanup.WINDOW_MS + 1));
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+
+        assertEquals(KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+        grant(true);
+        assertEquals(Outcome.LEFT_ON, KeepADBSelfPairCleanup.settle(context, "run-b"));
+        assertTrue(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aRunThatFoundWifiAdbOffPassesTheCleanupToARetryThatFindsItOn() {
+        // Run A finds Wifi-ADB off, the user switches it on, A is cancelled before pairing. Run B
+        // finds it on, but only because of A's setup: B switches it off after its grant.
+        KeepADBSelfPairCleanup.authorize(context, "run-a", false);
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+
+        assertEquals(KeepADBSelfPairCleanup.Claim.HELD,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+        grant(true);
+        assertEquals(Outcome.SWITCHED_OFF, KeepADBSelfPairCleanup.settle(context, "run-b"));
+    }
+
+    @Test
+    public void foundOffIsForgottenAfterItsWindowAndAfterAGrant() {
+        KeepADBSelfPairCleanup.authorize(context, "run-a", false);
+        ShadowSystemClock.advanceBy(
+                Duration.ofMillis(KeepADBSelfPairCleanup.FOUND_OFF_WINDOW_MS + 1));
+        KeepADBSelfPairCleanup.authorize(context, "run-b", true);
+        assertEquals("too long ago", KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-b"));
+
+        // Inside the window, but a grant has ended the setup meanwhile.
+        KeepADBSelfPairCleanup.authorize(context, "run-c", false);
+        grant(true);
+        KeepADBSelfPairCleanup.reconcile(context);
+        KeepADBSelfPairCleanup.authorize(context, "run-d", true);
+        assertEquals("the setup is over", KeepADBSelfPairCleanup.Claim.NOT_NEEDED,
+                KeepADBSelfPairCleanup.claim(context, "run-d"));
+    }
+
+    @Test
     public void withoutAClaimAGrantedPermissionSwitchesNothing() {
         // The attempt never paired, the permission came from a computer: not ours to clean up.
         grant(true);
