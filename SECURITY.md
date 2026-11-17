@@ -92,7 +92,8 @@ the device via an authenticated self-pairing session with the device's own `adbd
 only to the loopback address; Android 11+: the user intentionally opens Android's pairing-code
 dialog and enters the 6-digit code in KeepADB's notification; KeepADB discards its in-memory pairing
 key afterwards). Cleanup is conditional and best-effort: KeepADB turns Wifi-ADB back off only if it
-was off when the run started and the grant succeeded; it stays on if Keep-Alive is enabled, the
+was off when the run started (or when an earlier, cancelled run of the same boot found it off, whose
+cleanup the new run takes over) and the grant succeeded; it stays on if Keep-Alive is enabled, the
 claim expired, or switching off fails, in which case the user switches it off manually. The pairing entry stays
 in Android's list of paired devices until the user removes it; without the discarded key it cannot
 be used. KeepADB does not check network trust for this run: the user switches Wifi-ADB on
