@@ -347,7 +347,8 @@ public final class KeepADBSelfPairService extends Service {
         if (runner != null) {
             // Already running: a second tap on the button changes nothing, and the notification
             // keeps what the current phase offers.
-            startForeground(NOTIFICATION_ID, notificationForPhase(status.phase),
+            KeepADBLockScreen.startForeground(this, NOTIFICATION_ID,
+                    notificationForPhase(status.phase),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
             return;
         }
@@ -360,7 +361,8 @@ public final class KeepADBSelfPairService extends Service {
         KeepADBSelfPairCleanup.authorize(getApplicationContext(), runId,
                 !Boolean.FALSE.equals(foundOn));
         cancelRequested = false;
-        startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
+        KeepADBLockScreen.startForeground(this, NOTIFICATION_ID,
+                notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
         final String run = runId;
         runner = runnerFactory.create(this,
@@ -548,7 +550,7 @@ public final class KeepADBSelfPairService extends Service {
             relinquish();
             NotificationManager manager = app.getSystemService(NotificationManager.class);
             if (manager != null) {
-                manager.notify(NOTIFICATION_ID, last);
+                KeepADBLockScreen.post(app, manager, NOTIFICATION_ID, last);
             }
         } else {
             finish(last);
@@ -573,8 +575,8 @@ public final class KeepADBSelfPairService extends Service {
     private void show(Phase phase) {
         publishOwned(phase, Cleanup.LEFT_ON);
         if (!destroyed) {
-            getSystemService(NotificationManager.class)
-                    .notify(NOTIFICATION_ID, notificationForPhase(phase));
+            KeepADBLockScreen.post(this, getSystemService(NotificationManager.class),
+                    NOTIFICATION_ID, notificationForPhase(phase));
         }
     }
 
@@ -705,13 +707,14 @@ public final class KeepADBSelfPairService extends Service {
             // 16's ActiveServices); a notify() right after it can lose that race and leave the
             // progress text behind. Hand the final notification to the service first.
             try {
-                startForeground(NOTIFICATION_ID, last,
+                KeepADBLockScreen.startForeground(this, NOTIFICATION_ID, last,
                         ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
             } catch (RuntimeException e) {
                 Log.w(TAG, "cannot update the foreground notification before detaching", e);
             }
             stopForeground(STOP_FOREGROUND_DETACH);
-            getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, last);
+            KeepADBLockScreen.post(this, getSystemService(NotificationManager.class),
+                    NOTIFICATION_ID, last);
         }
         stopSelf();
     }

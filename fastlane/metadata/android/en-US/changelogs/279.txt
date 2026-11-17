@@ -1,0 +1,1 @@
+Fix: the notifications of the on-phone permission setup now stay off the lock screen when you chose to hide KeepADB notifications there.
