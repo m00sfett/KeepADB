@@ -57,6 +57,7 @@ public class KeepADBSelfPairServiceTest {
     private Context context;
     private KeepADBFakeSettingsGateway gateway;
     private ManualExecutor executor;
+    private KeepADBSelfPairCleanupTest.ManualDeferrer deferrer;
     private final List<FakeRunner> runners = new ArrayList<>();
     private final List<ServiceController<KeepADBSelfPairService>> controllers = new ArrayList<>();
     /** What the next scripted attempt does; replaced per test. */
@@ -168,6 +169,9 @@ public class KeepADBSelfPairServiceTest {
         android.provider.Settings.Global.putInt(context.getContentResolver(),
                 android.provider.Settings.Global.BOOT_COUNT, 7);
         executor = new ManualExecutor();
+        deferrer = new KeepADBSelfPairCleanupTest.ManualDeferrer();
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        KeepADBSelfPairCleanup.setObserver(KeepADBSelfPairService::onBackgroundCleanup);
         KeepADBSelfPairService.resetForTesting();
         KeepADBSelfPairService.setSeamsForTesting((ctx, dialog) -> {
             FakeRunner runner = new FakeRunner(dialog);
@@ -186,6 +190,8 @@ public class KeepADBSelfPairServiceTest {
             }
         }
         KeepADBSelfPairService.resetForTesting();
+        KeepADBSelfPairCleanup.setDeferrerForTesting(null);
+        KeepADBSelfPairCleanup.setObserver(null);
         context.getSharedPreferences("keepadb_selfpair", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
@@ -409,6 +415,8 @@ public class KeepADBSelfPairServiceTest {
         shadowOf(Looper.getMainLooper())
                 .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS * 2));
         executor.runAll();
+        deferrer.tick();
+        deferrer.tick();
         idle();
 
         assertEquals("the ended run says nothing any more", Phase.IDLE, phase());
@@ -449,6 +457,86 @@ public class KeepADBSelfPairServiceTest {
         assertEquals(Phase.DONE, phase());
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+    }
+
+    // ---- After the run: late grants and who reports the cleanup ---------------------------------
+
+    @Test
+    public void aGrantThatLandsAfterCancelIsStillCleanedUpAndShown() {
+        script = pairsThen("AA:13", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        controller.get().onStartCommand(intent(CANCEL), 0, 1);
+        controller.destroy();
+        idle();
+        assertEquals(Phase.IDLE, phase());
+
+        // Nobody returns to the assistant; adbd runs the command a little later.
+        deferrer.tick();
+        assertTrue(gateway.isEnabled(context));
+        grant(true);
+        deferrer.tick();
+        idle();
+
+        assertFalse("Wifi-ADB is switched off although the run is long gone",
+                gateway.isEnabled(context));
+        assertEquals(Phase.DONE, phase());
+        assertEquals(Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
+        assertEquals("AA:13", KeepADBSelfPairService.status().fingerprint);
+    }
+
+    @Test
+    public void theAssistantComingToTheFrontDoesNotSettleBehindARunningAttempt() {
+        final boolean[] stillOnDuringTheAttempt = {false};
+        script = (runner, onPaired) -> {
+            onPaired.onPaired("AA:14");
+            grant(true);
+            // The attempt has paired and granted but not reported yet, and right now the
+            // assistant comes to the front and reconciles.
+            KeepADBSelfPairCleanup.reconcileAtStart(context);
+            deferrer.tick();
+            stillOnDuringTheAttempt[0] = gateway.isEnabled(context);
+            return new SelfPairSession.Result(null, "AA:14");
+        };
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        assertTrue("the claim was left to the run", stillOnDuringTheAttempt[0]);
+        assertEquals(Phase.DONE, phase());
+        assertEquals("so the run reports its own cleanup", Cleanup.SWITCHED_OFF,
+                KeepADBSelfPairService.status().cleanup);
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void whatTheDelayedCheckSettledIsReportedByTheRetryThatFollows() {
+        script = pairsThen("AA:15", SelfPairSession.Failure.GRANT_UNCONFIRMED, false);
+        ServiceController<KeepADBSelfPairService> controller = start();
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+        assertEquals(Phase.FAILED, phase());
+
+        // The delayed check is queued on the worker; before it runs, the grant lands and the
+        // user enters the code again. The retry itself does not pair (the dialog is gone).
+        shadowOf(Looper.getMainLooper())
+                .idleFor(Duration.ofMillis(KeepADBSelfPairService.LATE_CHECK_MS));
+        assertEquals(1, executor.queued.size());
+        grant(true);
+        script = (runner, onPaired) -> new SelfPairSession.Result(
+                SelfPairSession.Failure.NO_PAIRING_DIALOG, null);
+        controller.get().onCode("123456");
+        executor.runAll();
+        idle();
+
+        assertEquals(Phase.DONE, phase());
+        assertFalse(gateway.isEnabled(context));
+        assertEquals("not 'left as it is': the check of this run switched it off",
+                Cleanup.SWITCHED_OFF, KeepADBSelfPairService.status().cleanup);
     }
 
     // ---- The claim belongs to the current run ---------------------------------------------------

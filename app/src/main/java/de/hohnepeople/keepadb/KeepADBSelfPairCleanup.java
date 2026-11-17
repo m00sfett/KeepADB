@@ -8,6 +8,11 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Who may switch Wifi-ADB off after the app granted itself the system permission (#962), and
  * the one place that does it.
@@ -85,6 +90,66 @@ final class KeepADBSelfPairCleanup {
     private static String authorizedRun;
     /** The run during which the user decided otherwise; guarded by LOCK. */
     private static String supersededRun;
+    /**
+     * The run that is alive and looks after its own claim; guarded by LOCK. While it is, nobody
+     * else settles that claim: the run would otherwise report "left as it is" for a cleanup
+     * that someone did behind its back.
+     */
+    private static String managedRun;
+
+    /** How often an unresolved claim is looked at again after its run has ended. */
+    static final long WATCH_INTERVAL_MS = 5_000L;
+
+    /** Runs work off the caller's thread; a seam for tests. */
+    interface Deferrer {
+        void run(Runnable task);
+
+        void later(long delayMs, Runnable task);
+    }
+
+    /** Told when a cleanup happened outside a run, so the assistant can still say so. */
+    interface Observer {
+        void onBackgroundCleanup(Context context, Outcome outcome);
+    }
+
+    private static final Deferrer REAL_DEFERRER = new Deferrer() {
+        private final ScheduledExecutorService executor =
+                Executors.newSingleThreadScheduledExecutor(task -> {
+                    Thread thread = new Thread(task, "selfpair-cleanup");
+                    thread.setDaemon(true);
+                    return thread;
+                });
+
+        @Override
+        public void run(Runnable task) {
+            executor.execute(task);
+        }
+
+        @Override
+        public void later(long delayMs, Runnable task) {
+            executor.schedule(task, delayMs, TimeUnit.MILLISECONDS);
+        }
+    };
+
+    private static volatile Deferrer deferrer = REAL_DEFERRER;
+    private static volatile Observer observer;
+    private static final AtomicBoolean RECONCILE_PENDING = new AtomicBoolean();
+    private static final AtomicBoolean WATCHING = new AtomicBoolean();
+
+    static void setObserver(Observer next) {
+        observer = next;
+    }
+
+    static void setDeferrerForTesting(Deferrer next) {
+        deferrer = next == null ? REAL_DEFERRER : next;
+        RECONCILE_PENDING.set(false);
+        WATCHING.set(false);
+        synchronized (LOCK) {
+            authorizedRun = null;
+            supersededRun = null;
+            managedRun = null;
+        }
+    }
 
     private KeepADBSelfPairCleanup() {}
 
@@ -97,7 +162,23 @@ final class KeepADBSelfPairCleanup {
         synchronized (LOCK) {
             authorizedRun = runId;
             supersededRun = null;
+            managedRun = runId;
         }
+    }
+
+    /**
+     * The run has ended and no longer looks after its claim. If one is still unresolved (paired,
+     * no permission seen yet), it is looked at again every few seconds until it is settled,
+     * superseded or expired: {@code adbd} may run the grant after the connection broke, and
+     * nobody else would notice while the process lives.
+     */
+    static void release(Context context, String runId) {
+        synchronized (LOCK) {
+            if (runId != null && runId.equals(managedRun)) {
+                managedRun = null;
+            }
+        }
+        watch(context.getApplicationContext());
     }
 
     /**
@@ -134,8 +215,10 @@ final class KeepADBSelfPairCleanup {
      * <p>Takes the lock on purpose, although it is called from the main thread: a cleanup that
      * is switching off right now has to finish before the user's own switch is written, or it
      * would undo it. What it can wait for is local (a permission check, preferences, one
-     * settings write), never the network. The removal is written asynchronously; within this
-     * process the claim is void at once.
+     * settings write), never the network. There is no time limit on that wait; making the user's
+     * switch part of an asynchronous queue instead would mean rebuilding the app's central
+     * toggle path for it, and that was judged the larger risk (maintainer decision, #962). The
+     * removal is written asynchronously; within this process the claim is void at once.
      */
     static void supersede(Context context) {
         if (context == null) return;
@@ -162,14 +245,55 @@ final class KeepADBSelfPairCleanup {
      */
     static void reconcileAtStart(Context context) {
         final Context app = context.getApplicationContext();
-        Thread thread = new Thread(() -> reconcile(app), "selfpair-reconcile");
-        thread.setDaemon(true);
-        thread.start();
+        if (RECONCILE_PENDING.compareAndSet(false, true)) {
+            // One at a time: repeated returns to the assistant do not pile up work.
+            deferrer.run(() -> {
+                RECONCILE_PENDING.set(false);
+                background(app);
+            });
+        }
     }
 
     /** The reconciliation itself, on the calling thread. Never throws. */
     static Outcome reconcile(Context context) {
         return settle(context, null);
+    }
+
+    private static void watch(Context app) {
+        if (hasWatchableClaim(app) && WATCHING.compareAndSet(false, true)) {
+            deferrer.later(WATCH_INTERVAL_MS, () -> {
+                WATCHING.set(false);
+                background(app);
+            });
+        }
+    }
+
+    /** One look outside any run: settle what can be settled, say so, and keep watching if needed. */
+    private static void background(Context app) {
+        Outcome outcome = settle(app, null);
+        Observer current = observer;
+        if (current != null
+                && (outcome == Outcome.SWITCHED_OFF || outcome == Outcome.STILL_ON)) {
+            try {
+                current.onBackgroundCleanup(app, outcome);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot report the background cleanup", e);
+            }
+        }
+        watch(app);
+    }
+
+    /** A claim that is valid and that no live run looks after. */
+    private static boolean hasWatchableClaim(Context app) {
+        synchronized (LOCK) {
+            try {
+                SharedPreferences prefs = prefs(app);
+                String owner = prefs.getString(KEY_RUN, null);
+                return owner != null && !owner.equals(managedRun) && isValid(app, prefs);
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
     }
 
     /**
@@ -195,6 +319,10 @@ final class KeepADBSelfPairCleanup {
                 }
                 if (owner == null || (runId != null && !runId.equals(owner))) {
                     // No claim, or another run's: the permission is there, the switch is not ours.
+                    return Outcome.LEFT_ON;
+                }
+                if (runId == null && owner.equals(managedRun)) {
+                    // A live run looks after this claim and will report what it did with it.
                     return Outcome.LEFT_ON;
                 }
                 if (KeepADBPreferences.isKeepAliveEnabled(app)) {

@@ -41,6 +41,7 @@ public class KeepADBApplication extends Application {
         KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);
         KeepADBPreferences.removeObsoleteAdviceBannerKey(this);
         KeepADBNotification.removeObsoleteUsbNotification(this);
+        KeepADBSelfPairCleanup.setObserver(KeepADBSelfPairService::onBackgroundCleanup);
         KeepADBSelfPairCleanup.reconcileAtStart(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);
         KeepADBWidgetRefreshJob.scheduleIfWidgetPlaced(this);

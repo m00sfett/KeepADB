@@ -34,6 +34,32 @@ import java.time.Duration;
 public class KeepADBSelfPairCleanupTest {
     private Context context;
     private KeepADBFakeSettingsGateway gateway;
+    private ManualDeferrer deferrer;
+    private final java.util.List<Outcome> reported = new java.util.ArrayList<>();
+
+    /** Collects deferred work so the test decides when it runs. */
+    static final class ManualDeferrer implements KeepADBSelfPairCleanup.Deferrer {
+        final java.util.ArrayDeque<Runnable> now = new java.util.ArrayDeque<>();
+        final java.util.ArrayDeque<Runnable> later = new java.util.ArrayDeque<>();
+
+        @Override
+        public void run(Runnable task) {
+            now.add(task);
+        }
+
+        @Override
+        public void later(long delayMs, Runnable task) {
+            later.add(task);
+        }
+
+        /** Runs what is due now, then one round of what was scheduled for later. */
+        void tick() {
+            while (!now.isEmpty()) now.poll().run();
+            java.util.List<Runnable> round = new java.util.ArrayList<>(later);
+            later.clear();
+            for (Runnable task : round) task.run();
+        }
+    }
 
     @Before
     public void setUp() {
@@ -47,6 +73,9 @@ public class KeepADBSelfPairCleanupTest {
         KeepADB.setGatewayForTesting(gateway);
         Settings.Global.putInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, 7);
         grant(false);
+        deferrer = new ManualDeferrer();
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
+        KeepADBSelfPairCleanup.setObserver((ctx, outcome) -> reported.add(outcome));
         KeepADBSelfPairCleanup.authorize("run-a");
     }
 
@@ -55,6 +84,8 @@ public class KeepADBSelfPairCleanupTest {
         context.getSharedPreferences("keepadb_selfpair", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
+        KeepADBSelfPairCleanup.setDeferrerForTesting(null);
+        KeepADBSelfPairCleanup.setObserver(null);
     }
 
     private void grant(boolean granted) {
@@ -108,6 +139,7 @@ public class KeepADBSelfPairCleanupTest {
 
         // adbd ran the command after all; the process died meanwhile and starts again.
         grant(true);
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
         KeepADBSelfPairCleanup.reconcile(context);
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
@@ -124,6 +156,7 @@ public class KeepADBSelfPairCleanupTest {
         assertTrue(KeepADBSelfPairCleanup.hasClaim(context));
 
         gateway.setWriteSuccess(true);
+        KeepADBSelfPairCleanup.setDeferrerForTesting(deferrer);
         KeepADBSelfPairCleanup.reconcile(context);
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
@@ -252,6 +285,78 @@ public class KeepADBSelfPairCleanupTest {
 
         KeepADBSelfPairCleanup.reconcile(context);
         assertTrue(gateway.isEnabled(context));
+    }
+
+    // ---- After the run: the watcher, and whose claim it is ----------------------------------------
+
+    @Test
+    public void aLateGrantAfterTheRunEndedIsSettledByTheWatcher() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        // The run is cancelled; no permission yet.
+        KeepADBSelfPairCleanup.release(context, "run-a");
+        deferrer.tick();
+        assertTrue("nothing yet", gateway.isEnabled(context));
+        assertEquals("the watcher keeps looking", 1, deferrer.later.size());
+
+        // adbd runs the command after all.
+        grant(true);
+        deferrer.tick();
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+        assertEquals(java.util.Collections.singletonList(Outcome.SWITCHED_OFF), reported);
+        assertTrue("and stops once nothing is left to watch", deferrer.later.isEmpty());
+    }
+
+    @Test
+    public void theWatcherGivesUpWhenTheWindowIsOver() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        KeepADBSelfPairCleanup.release(context, "run-a");
+        ShadowSystemClock.advanceBy(Duration.ofMillis(KeepADBSelfPairCleanup.WINDOW_MS + 1));
+        grant(true);
+
+        deferrer.tick();
+        assertTrue(gateway.isEnabled(context));
+        assertTrue(reported.isEmpty());
+        assertTrue(deferrer.later.isEmpty());
+        assertFalse(KeepADBSelfPairCleanup.hasClaim(context));
+    }
+
+    @Test
+    public void theWatcherStopsWhenTheUserDecides() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        KeepADBSelfPairCleanup.release(context, "run-a");
+        grant(true);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        gateway.writes.clear();
+
+        deferrer.tick();
+        assertTrue(gateway.isEnabled(context));
+        assertTrue("no write behind the user's back", gateway.writes.isEmpty());
+        assertTrue(deferrer.later.isEmpty());
+    }
+
+    @Test
+    public void aClaimALiveRunLooksAfterIsLeftToThatRun() {
+        KeepADBSelfPairCleanup.claim(context, "run-a");
+        grant(true);
+
+        // The assistant comes to the front while the attempt is still under way.
+        KeepADBSelfPairCleanup.reconcileAtStart(context);
+        deferrer.tick();
+        assertTrue("not switched off behind the run's back", gateway.isEnabled(context));
+        assertTrue(KeepADBSelfPairCleanup.hasClaim(context));
+        assertTrue(reported.isEmpty());
+
+        assertEquals("the run settles it itself and knows what it did", Outcome.SWITCHED_OFF,
+                KeepADBSelfPairCleanup.settle(context, "run-a"));
+    }
+
+    @Test
+    public void repeatedReturnsToTheAssistantQueueOneReconciliation() {
+        for (int i = 0; i < 5; i++) {
+            KeepADBSelfPairCleanup.reconcileAtStart(context);
+        }
+        assertEquals(1, deferrer.now.size());
     }
 
     @Test

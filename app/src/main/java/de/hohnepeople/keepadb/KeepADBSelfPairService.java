@@ -173,6 +173,8 @@ public final class KeepADBSelfPairService extends Service {
     private String runId;
     private PendingIntent replyPendingIntent;
     private boolean working;
+    /** What the delayed check of this run did with the claim, if it was the one to settle it. */
+    private KeepADBSelfPairCleanup.Outcome settledEarlier;
     private boolean cancelRequested;
     private boolean destroyed;
 
@@ -228,6 +230,30 @@ public final class KeepADBSelfPairService extends Service {
             PAIRED.clear();
         }
         status = new Status(Phase.IDLE, null, Cleanup.LEFT_ON);
+    }
+
+    /**
+     * A cleanup happened outside any run (the watcher or the reconciliation settled a claim
+     * whose run had ended). Called on a background thread. The assistant shows what became of
+     * Wifi-ADB from the status, so it is brought up to date, unless a run is under way.
+     */
+    static void onBackgroundCleanup(Context context, KeepADBSelfPairCleanup.Outcome outcome) {
+        final Cleanup cleanup = outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF
+                ? Cleanup.SWITCHED_OFF : Cleanup.STILL_ON;
+        final Context app = context.getApplicationContext();
+        MAIN.post(() -> {
+            if (owner != null || status.isActive()) {
+                return;
+            }
+            publish(new Status(Phase.DONE, cleanup, pairedFingerprints()));
+            try {
+                KeepADBWidget.refreshAll(app);
+                KeepADBEndpointCoordinator.refresh(app);
+                KeepADBService.sync(app);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "cannot refresh after the background cleanup", e);
+            }
+        });
     }
 
     private static void publish(Status next) {
@@ -302,6 +328,7 @@ public final class KeepADBSelfPairService extends Service {
         runId = UUID.randomUUID().toString();
         KeepADBSelfPairCleanup.authorize(runId);
         cancelRequested = false;
+        settledEarlier = null;
         startForeground(NOTIFICATION_ID, notificationForPhase(Phase.WAITING),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
         final String run = runId;
@@ -435,7 +462,16 @@ public final class KeepADBSelfPairService extends Service {
     }
 
     private void onLateOutcome(String run, KeepADBSelfPairCleanup.Outcome outcome) {
-        if (destroyed || working || runner == null || !run.equals(runId)) {
+        if (!run.equals(runId)) {
+            return;
+        }
+        if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF
+                || outcome == KeepADBSelfPairCleanup.Outcome.STILL_ON) {
+            // This check settled the run's claim. If a retry is under way, its own settle will
+            // find nothing left to do; what was done must still be reported.
+            settledEarlier = outcome;
+        }
+        if (destroyed || working || runner == null) {
             // The run ended or moved on meanwhile; whatever was settled stays settled.
             return;
         }
@@ -458,6 +494,9 @@ public final class KeepADBSelfPairService extends Service {
 
     /** The permission is there: say so, bring the other surfaces up to date, end the run. */
     private void complete(KeepADBSelfPairCleanup.Outcome outcome) {
+        if (outcome == KeepADBSelfPairCleanup.Outcome.LEFT_ON && settledEarlier != null) {
+            outcome = settledEarlier;
+        }
         Cleanup cleanup;
         if (outcome == KeepADBSelfPairCleanup.Outcome.SWITCHED_OFF) {
             cleanup = Cleanup.SWITCHED_OFF;
@@ -623,12 +662,15 @@ public final class KeepADBSelfPairService extends Service {
             replyPendingIntent.cancel();
             replyPendingIntent = null;
         }
+        final String run = runId;
         runId = null;
         if (runner != null) {
             runner.cancel();
             runner.stop();
             runner = null;
         }
+        // From here on the process-wide watcher looks after a claim this run left unresolved.
+        KeepADBSelfPairCleanup.release(getApplicationContext(), run);
     }
 
     /** Ends the run and the service; {@code last} stays in the shade, or nothing does. */
@@ -675,6 +717,7 @@ public final class KeepADBSelfPairService extends Service {
             if (owner == this) {
                 owner = null;
             }
+            KeepADBSelfPairCleanup.release(getApplicationContext(), run);
         } else {
             // Keep the id: the attempt reports under it, and onFinished closes the run.
             runId = run;
