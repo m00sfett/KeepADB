@@ -1,0 +1,1 @@
+Fix: setting up the system permission on the phone no longer switches Wifi-ADB off afterwards if it was already on before you started, so a computer connected over Wireless debugging stays connected.

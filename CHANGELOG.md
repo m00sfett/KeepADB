@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.14.0` (versionCode 273), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
+`1.11.0` is the stable release that follows `v1.8.38` (tag `v1.11.0`, GitHub release 2026-11-02). `1.12.0` is the prepared stable baseline and is not released yet; it bundles the unreleased `1.11.1` through `1.11.9` candidates below, one section each. `1.12.1` and later are unreleased candidates after the 1.12.0 preparation; a release takes the newest of them, currently `1.14.1` (versionCode 274), which is not released yet. `1.11.0` combines the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.18` candidates below, one section each (`1.9.1` was never published on its own); of these, only `v1.10.5-beta.1` and `v1.10.15-beta.2` were published, as GitHub prereleases. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.14.1] - Unreleased
+
+### Fixed
+- Self-pairing no longer switches Wifi-ADB off after the grant when it was already on before the run started (#982), for example while a computer is connected over Wireless debugging. The run notes the state when it starts; if it was on (or unreadable), no cleanup claim is recorded and Wifi-ADB stays on. Exceptions keep the cleanup: an earlier run of the same boot found it off within the last 30 minutes and nothing was granted since (a cancelled or killed first try), or that run's cleanup claim is still pending.
 
 ## [1.14.0] - Unreleased
 
