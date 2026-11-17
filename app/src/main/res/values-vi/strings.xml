@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">chưa có</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="webhook_status_failed">thất bại</string>
+    <string name="webhook_status_unconfigured">Chưa thiết lập. Đồng bộ hóa Webhook có thể báo điểm cuối Wifi-ADB của điện thoại này tới URL bạn chọn.</string>
+    <string name="webhook_status_disabled">Đồng bộ hóa Webhook đang tắt. URL đã lưu không được dùng.</string>
+    <string name="webhook_status_action_setup">Thiết lập đồng bộ hóa Webhook</string>
+    <string name="webhook_status_action_open">Mở đồng bộ hóa Webhook</string>
     <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Wifi-ADB cho đến khi được cấp quyền.</string>
     <string name="settings_language_menu_label">Ngôn ngữ</string>
     <string name="settings_language_accessibility">Ngôn ngữ ứng dụng: %1$s</string>

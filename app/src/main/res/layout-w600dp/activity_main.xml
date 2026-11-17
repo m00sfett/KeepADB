@@ -298,6 +298,25 @@
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
                         tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
+
+                    <!-- #981: shown while Webhook Sync is not set up or off; opens its settings card. -->
+                    <Button
+                        android:id="@+id/webhook_status_action"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="16dp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="@string/webhook_status_action_setup"
+                        tools:visibility="visible" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

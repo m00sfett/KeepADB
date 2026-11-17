@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">尚无</string>
     <string name="webhook_status_deregistered">已取消注册</string>
     <string name="webhook_status_failed">失败</string>
+    <string name="webhook_status_unconfigured">尚未设置。Webhook 同步可以将此手机的 Wifi-ADB 端点报告到你选择的 URL。</string>
+    <string name="webhook_status_disabled">Webhook 同步已关闭，不会使用已保存的 URL。</string>
+    <string name="webhook_status_action_setup">设置 Webhook 同步</string>
+    <string name="webhook_status_action_open">打开 Webhook 同步</string>
     <string name="settings_permission_warning">缺少系统权限 WRITE_SECURE_SETTINGS。在授予权限之前，KeepADB 无法切换 Wifi-ADB。</string>
     <string name="settings_language_menu_label">语言</string>
     <string name="settings_language_accessibility">应用语言：%1$s</string>

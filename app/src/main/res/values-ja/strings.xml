@@ -129,6 +129,10 @@
     <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="webhook_status_deregistered">登録解除済み</string>
     <string name="webhook_status_failed">失敗</string>
+    <string name="webhook_status_unconfigured">未設定です。Webhook 同期は、このスマートフォンの Wifi-ADB エンドポイントを任意の URL に通知できます。</string>
+    <string name="webhook_status_disabled">Webhook 同期はオフです。保存された URL は使われません。</string>
+    <string name="webhook_status_action_setup">Webhook 同期を設定</string>
+    <string name="webhook_status_action_open">Webhook 同期を開く</string>
     <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB は Wifi-ADB を切り替えられません。</string>
     <string name="settings_language_menu_label">言語</string>
     <string name="settings_language_accessibility">アプリの言語: %1$s</string>
