@@ -18,7 +18,7 @@ identity remains blocked. Existing installations retain their previous setting u
 including “In all Wi-Fi networks”; **Settings → Protection** still shows that setting until the user chooses one of the two
 protection levels (“Maximum security” or “Balanced”).
 
-The data model also supports blocks for individual BSSIDs and Wi-Fi names. In every mode, a block
+The data model also supports blocks for individual BSSIDs and Wi-Fi names. Outside Force mode (below), a block
 takes precedence over trust, does not prompt the user, and never enables Wifi-ADB
 automatically. Only an explicit unblock action removes it; adding trust does not. Blocking occurs
 through the unknown-network notice and the “Trust this network?” dialog; the Wi-Fi networks list provides
@@ -88,18 +88,29 @@ least 24 hours.
 ## Security-relevant interaction rules
 
 KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission. Users can grant it directly on
-the device via an authenticated loopback self-pairing session (Android 11+: the user intentionally
-opens Android's pairing-code dialog and enters the 6-digit code in KeepADB's notification;
-KeepADB discards its in-memory pairing key afterwards and turns Wifi-ADB back off if it enabled it
-only for setup), from Chrome or Edge over WebUSB at `https://keepadb.roteson.de/setup` (client-side
-in the browser), or manually from a computer over USB ADB. Automatic recovery requires a Wi-Fi
+the device via an authenticated self-pairing session with the device's own `adbd` (loopback or the
+phone's own interface addresses; Android 11+: the user intentionally opens Android's pairing-code
+dialog and enters the 6-digit code in KeepADB's notification; KeepADB discards its in-memory pairing
+key afterwards and turns Wifi-ADB back off if it enabled it only for setup). The pairing entry stays
+in Android's list of paired devices until the user removes it; without the discarded key it cannot
+be used. KeepADB does not check network trust for this run: the user switches Wifi-ADB on
+themselves, as with any manual control. The self-pairing notifications are not covered by the
+lock-screen switch below (#993).
+
+Alternatively, users can grant it from Chrome or Edge over WebUSB at
+`https://keepadb.roteson.de/setup`, or manually from a computer over USB ADB. Both need USB debugging
+on the phone and the user's confirmation of the computer's key on the phone, so that computer holds
+an ADB authorization for as long as USB debugging and the connection last. The setup page runs
+exactly one command (`pm grant`), makes no network requests and loads no third-party code; it works
+client-side in the browser. Automatic recovery requires a Wi-Fi
 connection, Keep-Alive, and the user's most recently saved explicit intent. Android may also
 require its own confirmation; if the state is not confirmed, KeepADB waits instead of repeatedly
 trying to enable it.
 
 A locked device must be unlocked before enabling Wifi-ADB through the Quick Settings
-tile. Turning it off through the tile remains possible from the lock
-screen. Approving an unknown network through a notice also requires unlocking and shows the access
+tile or the launcher shortcut. Turning it off through the tile remains possible from the lock
+screen. The home-screen widgets have no lock check of their own; they exist only on the home
+screen, not on the lock screen. Approving an unknown network through a notice also requires unlocking and shows the access
 point name in KeepADB when the notification privacy switch is on.
 
 ## Notifications, webhook, and local data
@@ -144,7 +155,7 @@ non-exported receiver, which reads the endpoint when it is tapped (the intent ca
 and is left out while the force mode uses the card's three action slots.
 
 **Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
-every KeepADB notification is posted with `VISIBILITY_SECRET`, so none of them (main, network
+every KeepADB notification except the self-pairing ones (#993) is posted with `VISIBILITY_SECRET`, so none of them (main, network
 trust notice with its Allow/Block buttons, webhook warning, Force Mode and network shutdown notices)
 appears on the lock screen, whether or not Android shows sensitive content there. The option is
 read and each notification posted under one lock, so a post cannot slip past a change. A change
@@ -160,7 +171,8 @@ Webhook traffic is off by default and goes only to the URL entered by the user. 
 [webhook contract](docs/webhook-register.md) describes the payload created by the app code and
 distinguishes it from unverified claims about an external server. HTTPS is recommended; HTTP is
 available for self-hosted LAN or VPN endpoints, but is unencrypted and identified in the app.
-KeepADB sends no analytics or crash reports.
+KeepADB sends no analytics or crash reports. The feedback link in Settings opens the website with the
+app version, device model and Android version as URL parameters; nothing else is added.
 
 Android cloud backup and device transfer are disabled. This includes the webhook URL, saved
 network trusts, and diagnostics data. These data are lost when the app is uninstalled
@@ -173,11 +185,9 @@ Security fixes apply to the latest published version. There is no separate long-
 
 ## Report a vulnerability
 
-Please do not report a vulnerability through a public GitHub issue. Use
-[GitHub's private vulnerability reporting](https://github.com/m00sfett/KeepADB/security/advisories/new).
-If you cannot use GitHub, use the feedback form in Settings or
-[keepadb.roteson.de/feedback](https://keepadb.roteson.de/feedback) and mark the report as
-security-sensitive.
+Please do not report a vulnerability through a public GitHub issue. Use the feedback form in
+Settings or [keepadb.roteson.de/feedback](https://keepadb.roteson.de/feedback), choose "Other", and
+start the message with "SECURITY". Do not post details publicly.
 
 Include the KeepADB version, Android version/API level, reproduction steps, and relevant network
 conditions. Do not include a webhook URL, pairing key, or other credentials.

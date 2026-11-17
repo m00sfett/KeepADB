@@ -23,9 +23,10 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
-## [Unreleased]
+## [1.14.2] - Unreleased
 
 ### Documentation
+- `SECURITY.md` brought in line with 1.14.x (versionCode 278): self-pairing is described as running against the device's own `adbd` (loopback or own interface addresses), leaving a paired-device entry behind and not checking network trust; the WebUSB and USB `adb` routes name their USB-debugging prerequisite and the resulting ADB authorization of the computer; the lock-screen section names the self-pairing notifications as an exception (#993) and the launcher shortcut and widgets; the block rule is limited to "outside Force mode"; the feedback link's URL parameters are listed. The reporting section no longer points to GitHub private vulnerability reporting, which is disabled for the repository, and describes the feedback form instead.
 - New store screenshots (#991): the ten images in `fastlane/metadata/android/en-US/images/phoneScreenshots/` were retaken with the signed 1.14.1 release on Android 17 (API 37, 1080×2400) in one consistent system look (roteson.de wallpaper, red Material You palette, dark mode, demo status bar at 12:00). New in the set: the home screen with both widgets and the self-pairing code entry in the notification; demo leftovers such as `AndroidWifi` and the `10.0.2.2` webhook URL are gone. Metadata only, no version change; F-Droid shows them with the next stable release.
 
 ## [1.14.1] - 2026-11-17
