@@ -88,10 +88,12 @@ least 24 hours.
 ## Security-relevant interaction rules
 
 KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission. Users can grant it directly on
-the device via an authenticated self-pairing session with the device's own `adbd` (loopback or the
-phone's own interface addresses; Android 11+: the user intentionally opens Android's pairing-code
+the device via an authenticated self-pairing session with the device's own `adbd` (KeepADB connects
+only to the loopback address; Android 11+: the user intentionally opens Android's pairing-code
 dialog and enters the 6-digit code in KeepADB's notification; KeepADB discards its in-memory pairing
-key afterwards and turns Wifi-ADB back off if it enabled it only for setup). The pairing entry stays
+key afterwards). Cleanup is conditional and best-effort: KeepADB turns Wifi-ADB back off only if it
+was off when the run started and the grant succeeded; it stays on if Keep-Alive is enabled, the
+claim expired, or switching off fails, in which case the user switches it off manually. The pairing entry stays
 in Android's list of paired devices until the user removes it; without the discarded key it cannot
 be used. KeepADB does not check network trust for this run: the user switches Wifi-ADB on
 themselves, as with any manual control. The self-pairing notifications are not covered by the
@@ -99,18 +101,20 @@ lock-screen switch below (#993).
 
 Alternatively, users can grant it from Chrome or Edge over WebUSB at
 `https://keepadb.roteson.de/setup`, or manually from a computer over USB ADB. Both need USB debugging
-on the phone and the user's confirmation of the computer's key on the phone, so that computer holds
-an ADB authorization for as long as USB debugging and the connection last. The setup page runs
-exactly one command (`pm grant`), makes no network requests and loads no third-party code; it works
-client-side in the browser. Automatic recovery requires a Wi-Fi
+on the phone and the user's confirmation of the computer's key on the phone. While connected, that
+computer holds an ADB authorization; if the user chose "Always allow", Android keeps the key after
+disconnecting until it is revoked (Developer options → Revoke USB debugging authorizations). The
+setup page runs exactly one command (`pm grant`) and uploads no device data or command output; its
+WebADB library is served from the same site, not from a third party, and it works client-side in the
+browser. Automatic recovery requires a Wi-Fi
 connection, Keep-Alive, and the user's most recently saved explicit intent. Android may also
 require its own confirmation; if the state is not confirmed, KeepADB waits instead of repeatedly
 trying to enable it.
 
 A locked device must be unlocked before enabling Wifi-ADB through the Quick Settings
 tile or the launcher shortcut. Turning it off through the tile remains possible from the lock
-screen. The home-screen widgets have no lock check of their own; they exist only on the home
-screen, not on the lock screen. Approving an unknown network through a notice also requires unlocking and shows the access
+screen. The widgets have no lock check of their own and declare only the home-screen category, so
+whether a launcher or Android version shows them on the lock screen is not guaranteed. Approving an unknown network through a notice also requires unlocking and shows the access
 point name in KeepADB when the notification privacy switch is on.
 
 ## Notifications, webhook, and local data
@@ -172,7 +176,8 @@ Webhook traffic is off by default and goes only to the URL entered by the user. 
 distinguishes it from unverified claims about an external server. HTTPS is recommended; HTTP is
 available for self-hosted LAN or VPN endpoints, but is unencrypted and identified in the app.
 KeepADB sends no analytics or crash reports. The feedback link in Settings opens the website with the
-app version, device model and Android version as URL parameters; nothing else is added.
+app version, device model, Android version and the selected report type as URL parameters; nothing
+else is added.
 
 Android cloud backup and device transfer are disabled. This includes the webhook URL, saved
 network trusts, and diagnostics data. These data are lost when the app is uninstalled
