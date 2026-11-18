@@ -216,7 +216,10 @@ final class KeepADBWidgetContent {
         String state;
         Style style;
         int icon = R.drawable.ic_widget_keep_alive;
-        switch (p.keepAlive) {
+        // #1007: the tile shows what a tap changes, the stored setting; a timer alone reads "Off".
+        KeepADBWidgetState.KeepAlive shown = p.keepAliveSetting
+                ? p.keepAlive : KeepADBWidgetState.KeepAlive.DISABLED;
+        switch (shown) {
             case ACTIVE:
                 state = ctx.getString(R.string.widget_state_on);
                 style = Style.ON;

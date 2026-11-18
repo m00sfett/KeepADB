@@ -335,4 +335,31 @@ public class KeepADBTimerSurfacesTest {
         assertEquals("1 h 0 min", KeepADBTimerText.remaining(context, HOUR));
         assertEquals("24 h 0 min", KeepADBTimerText.remaining(context, 24 * HOUR));
     }
+
+    // ---- Follow-ups #1007-#1014 ------------------------------------------------------------------
+
+    private KeepADBWidgetContent.Tile keepAliveTile() {
+        return KeepADBWidgetContent.tile(context, KeepADBWidgetConfig.Action.KEEP_ALIVE,
+                KeepADBWidgetState.project(context));
+    }
+
+    @Test
+    public void theWidgetKeepAliveTileShowsWhatATapChangesWhileATimerRuns() {
+        // #1007: the setting is off and only a timer keeps Wifi-ADB alive.
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        assertTrue(KeepADBPreferences.isKeepAliveEffective(context));
+        assertEquals("The status still knows the overlay", KeepADBWidgetState.KeepAlive.ACTIVE,
+                KeepADBWidgetState.project(context).keepAlive);
+
+        KeepADBWidgetContent.Tile before = keepAliveTile();
+        assertEquals(context.getString(R.string.tile_state_off), before.state);
+        assertEquals(KeepADBWidgetContent.Style.OFF, before.style);
+
+        KeepADBReceiver.handleToggleKeepAliveAction(context);
+
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(context));
+        KeepADBWidgetContent.Tile after = keepAliveTile();
+        assertEquals("A tap visibly changes the tile", context.getString(R.string.widget_state_on), after.state);
+        assertEquals(KeepADBWidgetContent.Style.ON, after.style);
+    }
 }
