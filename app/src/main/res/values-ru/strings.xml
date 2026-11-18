@@ -707,4 +707,30 @@
     <string name="onboarding_perm_browser_toggle">Через браузер на компьютере</string>
     <string name="onboarding_perm_browser_body">Откройте этот адрес на компьютере в Chrome или Edge и выполните три шага:</string>
     <string name="onboarding_perm_browser_prereq">Включите отладку по USB на этом телефоне и подключите его USB-кабелем.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Резервная копия настроек</string>
+    <string name="settings_backup_subtext">Сохраняет настройки в файл и восстанавливает их после переустановки: уровень защиты, доверенные и заблокированные сети, сетевые правила, параметры конфиденциальности, уведомлений и Webhook. Системное разрешение в копию не входит, а импорт никогда не включает Wifi-ADB или Keep-Alive.</string>
+    <string name="settings_backup_export">Экспортировать настройки</string>
+    <string name="settings_backup_import">Импортировать настройки</string>
+    <string name="settings_backup_export_message">Файл содержит имена и адреса (BSSID) ваших доверенных и заблокированных сетей, а также, если вы его включите, URL Webhook. Не передавайте его другим.</string>
+    <string name="settings_backup_export_message_no_webhook">Файл содержит имена и адреса (BSSID) ваших доверенных и заблокированных сетей. Не передавайте его другим.</string>
+    <string name="settings_backup_export_with_webhook">С URL Webhook</string>
+    <string name="settings_backup_export_without_webhook">Без URL Webhook</string>
+    <string name="settings_backup_export_done">Настройки экспортированы</string>
+    <string name="settings_backup_export_failed">Не удалось записать файл настроек</string>
+    <string name="settings_backup_import_title">Импортировать настройки?</string>
+    <string name="settings_backup_import_message">Текущие настройки будут заменены настройками из файла (доверенные точки доступа: %1$d, заблокированные сети: %2$d). Keep-Alive, системное разрешение и Wifi-ADB не меняются.</string>
+    <string name="settings_backup_import_webhook_included">Если синхронизация Webhook выключена, URL Webhook из файла заменит ваш, а синхронизация останется выключенной, пока вы её не включите. Если она включена, текущий URL Webhook сохраняется.</string>
+    <string name="settings_backup_import_webhook_absent">В файле нет URL Webhook; ваша текущая настройка Webhook сохраняется.</string>
+    <string name="settings_backup_import_confirm">Импортировать</string>
+    <string name="settings_backup_import_done">Настройки импортированы</string>
+    <string name="settings_backup_import_done_webhook_off">Настройки импортированы. Синхронизация Webhook выключена, пока вы её не включите.</string>
+    <string name="settings_backup_import_done_webhook_kept">Настройки импортированы. Ваш URL Webhook сохраняется, так как синхронизация Webhook включена; измените его в настройках Webhook.</string>
+    <string name="settings_backup_error_title">Не удалось импортировать</string>
+    <string name="settings_backup_error_not_settings">Это не файл настроек KeepADB. Ничего не изменено.</string>
+    <string name="settings_backup_error_version">Этот файл настроек создан более новой версией KeepADB. Обновите KeepADB и попробуйте снова. Ничего не изменено.</string>
+    <string name="settings_backup_error_invalid">Файл повреждён или был изменён: как минимум одно значение недопустимо. Ничего не изменено.</string>
+    <string name="settings_backup_error_unreadable">Не удалось прочитать файл. Ничего не изменено.</string>
+    <string name="settings_backup_error_write_failed">Не удалось сохранить настройки. Попробуйте импортировать ещё раз.</string>
+    <string name="settings_backup_no_picker">На этом устройстве нет средства выбора файлов</string>
 </resources>

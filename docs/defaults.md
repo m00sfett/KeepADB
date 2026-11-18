@@ -166,7 +166,10 @@ Android permissions are not app settings and are all ungranted on a new installa
 location, “Allow all the time,” notifications, and exemption from battery optimization.
 `WRITE_SECURE_SETTINGS` is granted only through the one-time `adb shell pm grant`. `allowBackup`
 is off and `data_extraction_rules.xml` excludes every domain, so neither defaults nor existing
-data are transferred through backup or when changing devices.
+data are transferred through backup or when changing devices. The only way settings leave the
+device is a file the user exports under Settings → Settings backup (#1001,
+[settings backup](settings-backup.md)); importing it restores settings but no permission and does
+not turn Wifi-ADB, Keep-Alive or webhook reporting on.
 
 ## New installation and existing data
 

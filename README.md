@@ -138,6 +138,17 @@ appears on the home screen and in the notification, and one tap ends Force mode.
 [trusted-networks guide](docs/trusted-networks.md) explains BSSID, the legacy Wi-Fi name list,
 location permissions, Force mode, background starts, and measurement limits.
 
+## Settings backup
+
+Under **Settings → Settings backup** you can export your settings to a file you pick and import
+them again, for example after a reinstall, which otherwise loses every setting. The file holds the
+protection level, trusted and blocked networks, the network rules, the privacy, notification and
+webhook options, and the webhook URL unless you leave it out. KeepADB never uploads it; keep it
+private, since it names your networks. An import checks the whole file first and applies it
+completely or not at all. It never grants the system permission and never turns Wifi-ADB,
+Keep-Alive or webhook reporting on. The [settings backup guide](docs/settings-backup.md) lists
+what is and is not included.
+
 ## Webhook
 
 Webhook synchronization is off by default. After you configure it, KeepADB sends verified Wifi-ADB

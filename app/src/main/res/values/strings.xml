@@ -723,4 +723,30 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_perm_browser_body">On a computer, open this address in Chrome or Edge and follow the three steps:</string>
     <string name="onboarding_perm_browser_prereq">Turn on USB debugging on this phone and connect it with a USB cable.</string>
     <string name="onboarding_perm_browser_url" translatable="false">keepadb.roteson.de/setup</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Settings backup</string>
+    <string name="settings_backup_subtext">Save your settings to a file and restore them after a reinstall: protection level, trusted and blocked networks, network rules, privacy, notification and webhook options. The system permission is not part of it, and an import never turns Wifi-ADB or Keep-Alive on.</string>
+    <string name="settings_backup_export">Export settings</string>
+    <string name="settings_backup_import">Import settings</string>
+    <string name="settings_backup_export_message">The file contains the names and addresses (BSSIDs) of your trusted and blocked networks and, if you include it, your webhook URL. Keep it private.</string>
+    <string name="settings_backup_export_message_no_webhook">The file contains the names and addresses (BSSIDs) of your trusted and blocked networks. Keep it private.</string>
+    <string name="settings_backup_export_with_webhook">With webhook URL</string>
+    <string name="settings_backup_export_without_webhook">Without webhook URL</string>
+    <string name="settings_backup_export_done">Settings exported</string>
+    <string name="settings_backup_export_failed">Could not write the settings file</string>
+    <string name="settings_backup_import_title">Import settings?</string>
+    <string name="settings_backup_import_message">Your current settings will be replaced by the ones in the file (trusted access points: %1$d, blocked networks: %2$d). Keep-Alive, the system permission and Wifi-ADB stay as they are.</string>
+    <string name="settings_backup_import_webhook_included">If webhook sync is off, the file\'s webhook URL replaces yours and sync stays off until you turn it on. While sync is on, your current webhook URL stays.</string>
+    <string name="settings_backup_import_webhook_absent">The file has no webhook URL; your current webhook setting stays.</string>
+    <string name="settings_backup_import_confirm">Import</string>
+    <string name="settings_backup_import_done">Settings imported</string>
+    <string name="settings_backup_import_done_webhook_off">Settings imported. Webhook sync is off until you turn it on.</string>
+    <string name="settings_backup_import_done_webhook_kept">Settings imported. Your webhook URL stays because webhook sync is on; change it in the webhook settings.</string>
+    <string name="settings_backup_error_title">Import failed</string>
+    <string name="settings_backup_error_not_settings">This is not a KeepADB settings file. Nothing was changed.</string>
+    <string name="settings_backup_error_version">This settings file comes from a newer KeepADB version. Update KeepADB and try again. Nothing was changed.</string>
+    <string name="settings_backup_error_invalid">The file is damaged or was edited: at least one value is invalid. Nothing was changed.</string>
+    <string name="settings_backup_error_unreadable">The file could not be read. Nothing was changed.</string>
+    <string name="settings_backup_error_write_failed">Your settings could not be saved. Try the import again.</string>
+    <string name="settings_backup_no_picker">No file picker is available on this device</string>
 </resources>

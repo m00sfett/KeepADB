@@ -704,4 +704,30 @@
     <string name="onboarding_perm_browser_toggle">컴퓨터 브라우저에서 설정</string>
     <string name="onboarding_perm_browser_body">컴퓨터의 Chrome 또는 Edge에서 아래 주소를 열고 세 단계를 따라 진행하세요:</string>
     <string name="onboarding_perm_browser_prereq">이 휴대전화에서 USB 디버깅을 켜고 USB 케이블로 연결하세요.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">설정 백업</string>
+    <string name="settings_backup_subtext">설정을 파일로 저장하고 재설치 후 복원합니다: 보호 수준, 신뢰하는 네트워크와 차단한 네트워크, 네트워크 규칙, 개인정보 보호, 알림 및 Webhook 옵션. 시스템 권한은 포함되지 않으며, 가져오기로 Wifi-ADB나 Keep-Alive가 켜지지 않습니다.</string>
+    <string name="settings_backup_export">설정 내보내기</string>
+    <string name="settings_backup_import">설정 가져오기</string>
+    <string name="settings_backup_export_message">파일에는 신뢰하는 네트워크와 차단한 네트워크의 이름과 주소(BSSID), 그리고 포함하도록 선택하면 Webhook URL이 들어 있습니다. 다른 사람과 공유하지 마세요.</string>
+    <string name="settings_backup_export_message_no_webhook">파일에는 신뢰하는 네트워크와 차단한 네트워크의 이름과 주소(BSSID)가 들어 있습니다. 다른 사람과 공유하지 마세요.</string>
+    <string name="settings_backup_export_with_webhook">Webhook URL 포함</string>
+    <string name="settings_backup_export_without_webhook">Webhook URL 제외</string>
+    <string name="settings_backup_export_done">설정을 내보냈습니다</string>
+    <string name="settings_backup_export_failed">설정 파일을 쓸 수 없습니다</string>
+    <string name="settings_backup_import_title">설정을 가져올까요?</string>
+    <string name="settings_backup_import_message">현재 설정이 파일의 설정으로 바뀝니다(신뢰하는 액세스 포인트: %1$d, 차단한 네트워크: %2$d). Keep-Alive, 시스템 권한, Wifi-ADB는 그대로 유지됩니다.</string>
+    <string name="settings_backup_import_webhook_included">Webhook 동기화가 꺼져 있으면 파일의 Webhook URL이 현재 URL을 대체하고, 직접 켤 때까지 동기화는 꺼진 상태로 유지됩니다. 동기화가 켜져 있으면 현재 Webhook URL이 유지됩니다.</string>
+    <string name="settings_backup_import_webhook_absent">파일에 Webhook URL이 없습니다. 현재 Webhook 설정은 그대로 유지됩니다.</string>
+    <string name="settings_backup_import_confirm">가져오기</string>
+    <string name="settings_backup_import_done">설정을 가져왔습니다</string>
+    <string name="settings_backup_import_done_webhook_off">설정을 가져왔습니다. 직접 켤 때까지 Webhook 동기화는 꺼져 있습니다.</string>
+    <string name="settings_backup_import_done_webhook_kept">설정을 가져왔습니다. Webhook 동기화가 켜져 있어 Webhook URL은 그대로입니다. Webhook 설정에서 변경하세요.</string>
+    <string name="settings_backup_error_title">가져오기 실패</string>
+    <string name="settings_backup_error_not_settings">KeepADB 설정 파일이 아닙니다. 아무것도 변경되지 않았습니다.</string>
+    <string name="settings_backup_error_version">이 설정 파일은 더 새로운 KeepADB 버전에서 만들어졌습니다. KeepADB를 업데이트한 후 다시 시도하세요. 아무것도 변경되지 않았습니다.</string>
+    <string name="settings_backup_error_invalid">파일이 손상되었거나 편집되었습니다. 하나 이상의 값이 올바르지 않습니다. 아무것도 변경되지 않았습니다.</string>
+    <string name="settings_backup_error_unreadable">파일을 읽을 수 없습니다. 아무것도 변경되지 않았습니다.</string>
+    <string name="settings_backup_error_write_failed">설정을 저장할 수 없습니다. 다시 가져오세요.</string>
+    <string name="settings_backup_no_picker">이 기기에서 사용할 수 있는 파일 선택기가 없습니다</string>
 </resources>

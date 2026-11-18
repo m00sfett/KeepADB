@@ -14,6 +14,8 @@
   the per-widget settings and the privacy rules.
 - [Diagnostics export](diagnostics.md): local event buffer, debug journal, redaction, and manual
   sharing.
+- [Settings backup](settings-backup.md): exporting and importing settings to a user-chosen file,
+  what the file contains, and how the import validates it.
 - [Application ID](package-id.md): why `de.hohnepeople.keepadb` remains after the website move.
 - [Security policy](../SECURITY.md): threat model and private vulnerability reporting.
 
@@ -46,6 +48,10 @@
   owns diagnostics export and the issue-report dialog and draft. The activity delegates restore,
   state saving, and destruction; the app-reset dialog remains in the activity. The controller opens
   the feedback page through the shared `openWebLink` method.
+- [KeepADBSettingsBackupController](../app/src/main/java/de/hohnepeople/keepadb/KeepADBSettingsBackupController.java):
+  owns the settings backup card (#1001): the export and import dialogs and the document-picker
+  results. The activity delegates restore, state saving, destruction and `onActivityResult`; the
+  file format and validation live in `KeepADBSettingsBackup`.
 - [Build configuration](../app/build.gradle), [local gate](../bin/verify),
   [CI](../.github/workflows/ci.yml), and
   [release workflow](../.github/workflows/release.yml): versions, tools, and verification paths.

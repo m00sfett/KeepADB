@@ -705,4 +705,30 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_perm_browser_toggle">Via de browser op een computer</string>
     <string name="onboarding_perm_browser_body">Open op een computer dit adres in Chrome of Edge en volg de drie stappen:</string>
     <string name="onboarding_perm_browser_prereq">Schakel USB-foutopsporing in op deze telefoon en sluit hem met een USB-kabel aan.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Back-up van instellingen</string>
+    <string name="settings_backup_subtext">Slaat je instellingen op in een bestand en zet ze na een herinstallatie terug: beschermingsniveau, vertrouwde en geblokkeerde netwerken, netwerkregels, privacy-, meldings- en Webhook-opties. De systeemmachtiging hoort er niet bij, en een import zet Wifi-ADB of Keep-Alive nooit aan.</string>
+    <string name="settings_backup_export">Instellingen exporteren</string>
+    <string name="settings_backup_import">Instellingen importeren</string>
+    <string name="settings_backup_export_message">Het bestand bevat de namen en adressen (BSSID’s) van je vertrouwde en geblokkeerde netwerken en, als je die meeneemt, je Webhook-URL. Houd het privé.</string>
+    <string name="settings_backup_export_message_no_webhook">Het bestand bevat de namen en adressen (BSSID’s) van je vertrouwde en geblokkeerde netwerken. Houd het privé.</string>
+    <string name="settings_backup_export_with_webhook">Met Webhook-URL</string>
+    <string name="settings_backup_export_without_webhook">Zonder Webhook-URL</string>
+    <string name="settings_backup_export_done">Instellingen geëxporteerd</string>
+    <string name="settings_backup_export_failed">Het instellingenbestand kon niet worden geschreven</string>
+    <string name="settings_backup_import_title">Instellingen importeren?</string>
+    <string name="settings_backup_import_message">Je huidige instellingen worden vervangen door die uit het bestand (vertrouwde access points: %1$d, geblokkeerde netwerken: %2$d). Keep-Alive, de systeemmachtiging en Wifi-ADB blijven zoals ze zijn.</string>
+    <string name="settings_backup_import_webhook_included">Staat Webhook-synchronisatie uit, dan vervangt de Webhook-URL uit het bestand de jouwe en blijft synchronisatie uit tot je die aanzet. Staat ze aan, dan blijft je huidige Webhook-URL.</string>
+    <string name="settings_backup_import_webhook_absent">Het bestand bevat geen Webhook-URL; je huidige Webhook-instelling blijft.</string>
+    <string name="settings_backup_import_confirm">Importeren</string>
+    <string name="settings_backup_import_done">Instellingen geïmporteerd</string>
+    <string name="settings_backup_import_done_webhook_off">Instellingen geïmporteerd. Webhook-synchronisatie staat uit tot je die aanzet.</string>
+    <string name="settings_backup_import_done_webhook_kept">Instellingen geïmporteerd. Je Webhook-URL blijft omdat Webhook-synchronisatie aan staat; wijzig die in de Webhook-instellingen.</string>
+    <string name="settings_backup_error_title">Importeren mislukt</string>
+    <string name="settings_backup_error_not_settings">Dit is geen KeepADB-instellingenbestand. Er is niets gewijzigd.</string>
+    <string name="settings_backup_error_version">Dit instellingenbestand komt van een nieuwere KeepADB-versie. Werk KeepADB bij en probeer het opnieuw. Er is niets gewijzigd.</string>
+    <string name="settings_backup_error_invalid">Het bestand is beschadigd of bewerkt: minstens één waarde is ongeldig. Er is niets gewijzigd.</string>
+    <string name="settings_backup_error_unreadable">Het bestand kon niet worden gelezen. Er is niets gewijzigd.</string>
+    <string name="settings_backup_error_write_failed">Je instellingen konden niet worden opgeslagen. Probeer de import opnieuw.</string>
+    <string name="settings_backup_no_picker">Er is geen bestandskiezer beschikbaar op dit apparaat</string>
 </resources>

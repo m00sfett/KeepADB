@@ -705,4 +705,30 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_perm_browser_toggle">Bilgisayar tarayıcısından</string>
     <string name="onboarding_perm_browser_body">Bilgisayarda bu adresi Chrome veya Edge ile açın ve üç adımı izleyin:</string>
     <string name="onboarding_perm_browser_prereq">Bu telefonda USB hata ayıklamayı açın ve USB kablosuyla bağlayın.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Ayar yedeği</string>
+    <string name="settings_backup_subtext">Ayarlarını bir dosyaya kaydeder ve yeniden kurulumdan sonra geri yükler: koruma düzeyi, güvenilen ve engellenen ağlar, ağ kuralları, gizlilik, bildirim ve Webhook seçenekleri. Sistem izni buna dahil değildir ve içe aktarma Wifi-ADB veya Keep-Alive özelliğini asla açmaz.</string>
+    <string name="settings_backup_export">Ayarları dışa aktar</string>
+    <string name="settings_backup_import">Ayarları içe aktar</string>
+    <string name="settings_backup_export_message">Dosya, güvenilen ve engellenen ağlarının adlarını ve adreslerini (BSSID) ve eklersen Webhook URL’ni içerir. Gizli tut.</string>
+    <string name="settings_backup_export_message_no_webhook">Dosya, güvenilen ve engellenen ağlarının adlarını ve adreslerini (BSSID) içerir. Gizli tut.</string>
+    <string name="settings_backup_export_with_webhook">Webhook URL ile</string>
+    <string name="settings_backup_export_without_webhook">Webhook URL olmadan</string>
+    <string name="settings_backup_export_done">Ayarlar dışa aktarıldı</string>
+    <string name="settings_backup_export_failed">Ayar dosyası yazılamadı</string>
+    <string name="settings_backup_import_title">Ayarlar içe aktarılsın mı?</string>
+    <string name="settings_backup_import_message">Mevcut ayarların dosyadakilerle değiştirilecek (güvenilen erişim noktaları: %1$d, engellenen ağlar: %2$d). Keep-Alive, sistem izni ve Wifi-ADB olduğu gibi kalır.</string>
+    <string name="settings_backup_import_webhook_included">Webhook senkronizasyonu kapalıysa dosyadaki Webhook URL’si seninkinin yerini alır ve sen açana kadar senkronizasyon kapalı kalır. Açıksa mevcut Webhook URL’n korunur.</string>
+    <string name="settings_backup_import_webhook_absent">Dosyada Webhook URL’si yok; mevcut Webhook ayarın korunur.</string>
+    <string name="settings_backup_import_confirm">İçe aktar</string>
+    <string name="settings_backup_import_done">Ayarlar içe aktarıldı</string>
+    <string name="settings_backup_import_done_webhook_off">Ayarlar içe aktarıldı. Sen açana kadar Webhook senkronizasyonu kapalı.</string>
+    <string name="settings_backup_import_done_webhook_kept">Ayarlar içe aktarıldı. Webhook senkronizasyonu açık olduğu için Webhook URL’n korunuyor; Webhook ayarlarından değiştir.</string>
+    <string name="settings_backup_error_title">İçe aktarma başarısız</string>
+    <string name="settings_backup_error_not_settings">Bu bir KeepADB ayar dosyası değil. Hiçbir şey değiştirilmedi.</string>
+    <string name="settings_backup_error_version">Bu ayar dosyası daha yeni bir KeepADB sürümünden geliyor. KeepADB’yi güncelleyip tekrar dene. Hiçbir şey değiştirilmedi.</string>
+    <string name="settings_backup_error_invalid">Dosya bozuk ya da düzenlenmiş: en az bir değer geçersiz. Hiçbir şey değiştirilmedi.</string>
+    <string name="settings_backup_error_unreadable">Dosya okunamadı. Hiçbir şey değiştirilmedi.</string>
+    <string name="settings_backup_error_write_failed">Ayarların kaydedilemedi. İçe aktarmayı tekrar dene.</string>
+    <string name="settings_backup_no_picker">Bu cihazda dosya seçici yok</string>
 </resources>

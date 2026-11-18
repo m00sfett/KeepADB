@@ -184,6 +184,18 @@ final class KeepADBWebhookForm {
         }
     }
 
+    /**
+     * #1001: after a settings import the saved URL may have changed underneath the field; drop any
+     * unsaved input and show the saved URL, so a later "enable" never re-saves the old one.
+     */
+    void reloadFromPreferences() {
+        setFieldText(SettingsActivity.resolveWebhookDraft(
+                KeepADBPreferences.getRegisterWebhookUrl(activity), null, false));
+        draftInitialized = true;
+        error.setVisibility(View.GONE);
+        refreshVisual();
+    }
+
     private void setFieldText(CharSequence text) {
         programmatic = true;
         try {

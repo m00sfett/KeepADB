@@ -706,4 +706,30 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_perm_browser_toggle">Dal browser di un computer</string>
     <string name="onboarding_perm_browser_body">Su un computer, apri questo indirizzo in Chrome o Edge e segui i tre passaggi:</string>
     <string name="onboarding_perm_browser_prereq">Attiva il debug USB su questo telefono e collegalo con un cavo USB.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Backup delle impostazioni</string>
+    <string name="settings_backup_subtext">Salva le impostazioni in un file e le ripristina dopo una reinstallazione: livello di protezione, reti affidabili e bloccate, regole di rete, opzioni di privacy, notifiche e Webhook. L’autorizzazione di sistema non è inclusa e un’importazione non attiva mai Wifi-ADB né Keep-Alive.</string>
+    <string name="settings_backup_export">Esporta impostazioni</string>
+    <string name="settings_backup_import">Importa impostazioni</string>
+    <string name="settings_backup_export_message">Il file contiene nomi e indirizzi (BSSID) delle reti affidabili e bloccate e, se lo includi, il tuo URL Webhook. Tienilo privato.</string>
+    <string name="settings_backup_export_message_no_webhook">Il file contiene nomi e indirizzi (BSSID) delle reti affidabili e bloccate. Tienilo privato.</string>
+    <string name="settings_backup_export_with_webhook">Con URL Webhook</string>
+    <string name="settings_backup_export_without_webhook">Senza URL Webhook</string>
+    <string name="settings_backup_export_done">Impostazioni esportate</string>
+    <string name="settings_backup_export_failed">Impossibile scrivere il file delle impostazioni</string>
+    <string name="settings_backup_import_title">Importare le impostazioni?</string>
+    <string name="settings_backup_import_message">Le impostazioni attuali verranno sostituite da quelle del file (punti di accesso affidabili: %1$d, reti bloccate: %2$d). Keep-Alive, l’autorizzazione di sistema e Wifi-ADB restano invariati.</string>
+    <string name="settings_backup_import_webhook_included">Se la sincronizzazione Webhook è disattivata, l’URL Webhook del file sostituisce il tuo e la sincronizzazione resta disattivata finché non la attivi. Se è attiva, l’URL Webhook attuale resta.</string>
+    <string name="settings_backup_import_webhook_absent">Il file non contiene un URL Webhook; l’impostazione Webhook attuale resta.</string>
+    <string name="settings_backup_import_confirm">Importa</string>
+    <string name="settings_backup_import_done">Impostazioni importate</string>
+    <string name="settings_backup_import_done_webhook_off">Impostazioni importate. La sincronizzazione Webhook è disattivata finché non la attivi.</string>
+    <string name="settings_backup_import_done_webhook_kept">Impostazioni importate. L’URL Webhook resta perché la sincronizzazione Webhook è attiva; modificalo nelle impostazioni Webhook.</string>
+    <string name="settings_backup_error_title">Importazione non riuscita</string>
+    <string name="settings_backup_error_not_settings">Questo non è un file di impostazioni di KeepADB. Non è stato modificato nulla.</string>
+    <string name="settings_backup_error_version">Questo file di impostazioni proviene da una versione più recente di KeepADB. Aggiorna KeepADB e riprova. Non è stato modificato nulla.</string>
+    <string name="settings_backup_error_invalid">Il file è danneggiato o è stato modificato: almeno un valore non è valido. Non è stato modificato nulla.</string>
+    <string name="settings_backup_error_unreadable">Impossibile leggere il file. Non è stato modificato nulla.</string>
+    <string name="settings_backup_error_write_failed">Impossibile salvare le impostazioni. Riprova l’importazione.</string>
+    <string name="settings_backup_no_picker">Nessun selettore di file disponibile su questo dispositivo</string>
 </resources>
