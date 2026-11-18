@@ -457,9 +457,9 @@ final class KeepADB {
             // #962: the user decided about Wifi-ADB; a pending self-pairing cleanup is void.
             // Before any lock of this class is taken: the cleanup holds its own while it calls in.
             KeepADBSelfPairCleanup.supersede(appContext);
-            // #1000: a manual on or off ends a running timer (the timer's own start excepted).
-            // Same place and reason as above: the timer refreshes surfaces, never under our lock.
-            KeepADBTimer.onManualToggle(appContext, on, source);
+            // #1000: a manual on or off ends a running timer, a manual off also the force mode.
+            // Same place and reason as above: both refresh surfaces, never under our lock.
+            KeepADBManualToggle.onManualToggle(appContext, on, source);
         }
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing

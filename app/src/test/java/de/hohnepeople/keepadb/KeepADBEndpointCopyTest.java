@@ -35,7 +35,7 @@ import org.robolectric.shadows.ShadowToast;
 /**
  * #951: tapping the endpoint copies exactly {@code adb connect <host>:<port>}; with "Hide in the
  * app" on the row shows the masked address, the clip holds the real one and is flagged sensitive;
- * the status notification has a "Copy" action while an address is known and its details are shown.
+ * the status notification had a "Copy" action until #1000 removed it; the tests below keep it gone.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -209,107 +209,41 @@ public class KeepADBEndpointCopyTest {
     // ---- The notification ----------------------------------------------------------------------------
 
     @Test
-    public void theCardOffersCopyLastWhileAnAddressIsKnownAndDetailsAreShown() throws Exception {
-        setEndpoint("192.0.2.10", 40123);
-        KeepADBNotification.renderEndpoint(context, "192.0.2.10", 40123);
-
-        Notification card = KeepADBForceTestSupport.posted(context, KeepADBNotification.NOTIFICATION_ID);
-        assertEquals(3, card.actions.length);
-        assertEquals("Turn off Wifi-ADB", card.actions[0].title.toString());
-        assertEquals(KeepADBNotification.keepAliveAction(context).title.toString(),
-                card.actions[1].title.toString());
-        assertEquals(context.getString(R.string.notification_action_copy),
-                card.actions[2].title.toString());
-        Intent copy = shadowOf(card.actions[2].actionIntent).getSavedIntent();
-        assertEquals(KeepADBReceiver.ACTION_COPY_ENDPOINT, copy.getAction());
-        assertEquals("explicit, to the non-exported receiver", KeepADBReceiver.class.getName(),
-                copy.getComponent().getClassName());
-        assertTrue(shadowOf(card.actions[2].actionIntent).isBroadcastIntent());
-        assertTrue("the intent carries no address", copy.getExtras() == null || copy.getExtras().isEmpty());
-        assertNull("nothing of it on the lock screen", card.publicVersion.actions);
-    }
-
-    @Test
-    public void noCopyActionWhileTheNotificationHidesItsDetails() throws Exception {
-        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
+    public void theCardOffersNoCopyActionAnyMore() throws Exception {
+        // #1000: the notification's "Copy" (#951) is gone; the app copies the endpoint.
         setEndpoint("192.0.2.10", 40123);
         KeepADBNotification.renderEndpoint(context, "192.0.2.10", 40123);
 
         Notification card = KeepADBForceTestSupport.posted(context, KeepADBNotification.NOTIFICATION_ID);
         assertEquals(2, card.actions.length);
+        assertEquals("Turn off Wifi-ADB", card.actions[0].title.toString());
+        assertEquals(KeepADBNotification.keepAliveAction(context).title.toString(),
+                card.actions[1].title.toString());
         for (Notification.Action action : card.actions) {
-            assertFalse(action.title.toString(), action.title.toString().equals(
-                    context.getString(R.string.notification_action_copy)));
+            assertFalse(shadowOf(action.actionIntent).getSavedIntent().getAction().contains("COPY"));
         }
     }
 
     @Test
-    public void noCopyActionOnThePlaceholdersWithoutAnAddress() {
+    public void noCopyActionOnThePlaceholdersEither() {
         KeepADBNotification.renderSearching(context);
 
         Notification card = KeepADBForceTestSupport.posted(context, KeepADBNotification.NOTIFICATION_ID);
         assertNotNull(card);
         if (card.actions != null) {
             for (Notification.Action action : card.actions) {
-                assertFalse(action.title.toString().equals(
-                        context.getString(R.string.notification_action_copy)));
+                assertFalse(shadowOf(action.actionIntent).getSavedIntent().getAction().contains("COPY"));
             }
         }
     }
 
     @Test
-    public void theCardKeepsAtMostThreeActionsAlsoWhileTheForceModeIsOn() throws Exception {
-        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+    public void aCopyTapFromACardPostedBeforeTheUpdateCopiesNothing() throws Exception {
         setEndpoint("192.0.2.10", 40123);
-        KeepADBNotification.renderEndpoint(context, "192.0.2.10", 40123);
+        new KeepADBReceiver().onReceive(context, new Intent(context, KeepADBReceiver.class)
+                .setAction("de.hohnepeople.keepadb.ACTION_COPY_ENDPOINT"));
 
-        Notification card = KeepADBForceTestSupport.posted(context, KeepADBNotification.NOTIFICATION_ID);
-        assertEquals(3, card.actions.length);
-        assertEquals("End force mode", card.actions[0].title.toString());
-        assertEquals("Turn off Wifi-ADB", card.actions[1].title.toString());
-        assertEquals(KeepADBNotification.keepAliveAction(context).title.toString(),
-                card.actions[2].title.toString());
-    }
-
-    @Test
-    public void theCopyActionPutsTheCommandOfTheKnownEndpointOnTheClipboard() throws Exception {
-        setEndpoint("192.0.2.10", 40123);
-
-        assertTrue(KeepADBReceiver.handleCopyEndpointAction(context));
-
-        ClipData clip = clip();
-        assertEquals("adb connect 192.0.2.10:40123", clip.getItemAt(0).getText().toString());
-        assertFalse(isSensitive(clip));
-    }
-
-    @Test
-    public void theCopyActionIsFlaggedSensitiveWhileHideInTheAppIsOn() throws Exception {
-        KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        setEndpoint("192.0.2.10", 40123);
-
-        assertTrue(KeepADBReceiver.handleCopyEndpointAction(context));
-
-        assertTrue(isSensitive(clip()));
-    }
-
-    @Test
-    public void theCopyActionDoesNothingWithoutAnEndpointOrWithHiddenDetails() throws Exception {
-        assertFalse("no endpoint known", KeepADBReceiver.handleCopyEndpointAction(context));
         assertNull(clipTextOrNull());
-
-        setEndpoint("192.0.2.10", 40123);
-        KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
-        assertFalse("details hidden since the card was posted", KeepADBReceiver.handleCopyEndpointAction(context));
-        assertNull(clipTextOrNull());
-    }
-
-    @Test
-    public void theReceiverDispatchesTheCopyActionAndStaysNonExported() throws Exception {
-        setEndpoint("192.0.2.10", 40123);
-        new KeepADBReceiver().onReceive(context,
-                new Intent(context, KeepADBReceiver.class).setAction(KeepADBReceiver.ACTION_COPY_ENDPOINT));
-
-        assertEquals("adb connect 192.0.2.10:40123", clip().getItemAt(0).getText().toString());
         String manifest = new String(java.nio.file.Files.readAllBytes(
                 projectFile("app/src/main/AndroidManifest.xml")), java.nio.charset.StandardCharsets.UTF_8);
         int start = manifest.indexOf("android:name=\".KeepADBReceiver\"");

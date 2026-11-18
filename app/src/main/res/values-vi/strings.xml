@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Cần quyền truy cập vị trí để nhận diện mạng Wi-Fi hiện tại và các điểm truy cập.</string>
     <string name="location_permission_settings_button">Mở cài đặt</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
-    <string name="notification_action_copy">Sao chép</string>
     <string name="endpoint_copy_action">Sao chép lệnh adb connect</string>
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>
     <string name="tile_state_off">Tắt</string>
@@ -730,4 +729,41 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_backup_error_unreadable">Không thể đọc tệp. Không có gì thay đổi.</string>
     <string name="settings_backup_error_write_failed">Không thể lưu cài đặt. Hãy thử nhập lại.</string>
     <string name="settings_backup_no_picker">Không có trình chọn tệp trên thiết bị này</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Chế độ cưỡng chế đang bật</string>
+    <string name="notification_channel_force_desc">Cảnh báo đỏ khi chế độ cưỡng chế giữ Wifi-ADB bật trên mọi Wi-Fi</string>
+    <string name="notification_channel_timer_name">Hẹn giờ Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Thời gian còn lại của hẹn giờ đang chạy và lúc kết thúc</string>
+    <string name="force_notification_title">Chế độ cưỡng chế bật – tắt bảo vệ</string>
+    <string name="force_notification_text">Wifi-ADB vẫn bật trên mọi Wi-Fi.</string>
+    <string name="notification_action_off_now">Tắt ngay</string>
+    <string name="notification_action_extend">+1 giờ</string>
+    <string name="timer_notification_title_on">Wifi-ADB bật đến %1$s</string>
+    <string name="timer_notification_subtext">Hẹn giờ · tắt lúc %1$s</string>
+    <string name="timer_notification_companion_title">Hẹn giờ Wifi-ADB: tắt lúc %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB đã tắt – hết hẹn giờ</string>
+    <string name="timer_expired_text">Hẹn giờ đã kết thúc và Wifi-ADB đã tắt. Hãy bật lại khi bạn cần.</string>
+    <string name="timer_expired_text_while_off">Hẹn giờ đã kết thúc khi điện thoại tắt. Wifi-ADB vẫn tắt.</string>
+    <string name="timer_expired_text_safety">Hẹn giờ kết thúc sớm vì không thể tin cậy đồng hồ của điện thoại. Wifi-ADB đã tắt.</string>
+    <string name="timer_start_default">Bật trong %1$s</string>
+    <string name="timer_limit_default">Tắt sau %1$s</string>
+    <string name="timer_choose_duration">Chọn thời lượng</string>
+    <string name="timer_dialog_title_start">Bật Wifi-ADB trong</string>
+    <string name="timer_dialog_title_limit">Tắt Wifi-ADB sau</string>
+    <string name="timer_status_running">Tắt lúc %1$s · còn %2$s</string>
+    <string name="timer_status_waiting">Hẹn giờ đang chạy · đang chờ Wi-Fi tin cậy · còn %1$s</string>
+    <string name="timer_action_no_limit">Không giới hạn</string>
+    <string name="timer_started_toast">Wifi-ADB bật trong %1$s</string>
+    <string name="settings_timer_default_title">Thời lượng hẹn giờ mặc định</string>
+    <string name="timer_remaining_minutes">%1$d phút</string>
+    <string name="timer_remaining_hours_minutes">%1$d giờ %2$d phút</string>
+    <string name="timer_duration_15m">15 phút</string>
+    <string name="timer_duration_30m">30 phút</string>
+    <string name="timer_duration_1h">1 giờ</string>
+    <string name="timer_duration_2h">2 giờ</string>
+    <string name="timer_duration_4h">4 giờ</string>
+    <string name="timer_duration_8h">8 giờ</string>
+    <string name="shortcut_timer_short">Hẹn giờ</string>
+    <string name="shortcut_timer_long">Wifi-ADB có hẹn giờ</string>
 </resources>

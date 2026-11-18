@@ -29,8 +29,21 @@ import java.util.List;
  * into a posted (or cancelled) notification.
  */
 final class KeepADBNotification {
-    static final String CHANNEL_ID = "keepadb_endpoint";
+    /**
+     * #1000: the status channel, {@code IMPORTANCE_DEFAULT} without sound or vibration, so the
+     * notification sits among the alerting ones near the top instead of in the silent section at
+     * the bottom. A new id: Android does not let an app raise the importance of an existing channel.
+     */
+    static final String CHANNEL_ID = "keepadb_status";
+    /** #1000: the red force-mode card; {@code IMPORTANCE_HIGH}, silent, one heads-up at the start. */
+    static final String FORCE_CHANNEL_ID = "keepadb_force_active";
+    /** #1000: the running timer; {@code IMPORTANCE_DEFAULT}, silent. Also its end notice. */
+    static final String TIMER_CHANNEL_ID = "keepadb_timer";
+    /** #1000: the former {@code IMPORTANCE_LOW} endpoint channel, deleted once it is unused. */
+    static final String OBSOLETE_ENDPOINT_CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
+    /** #1000: the timer's own card while the force card holds the service notification. */
+    static final int TIMER_NOTIFICATION_ID = 7;
     /** #956: the channel and notification id of the removed USB-ADB notification. */
     private static final String OBSOLETE_USB_CHANNEL_ID = "keepadb_usb";
     private static final int OBSOLETE_USB_NOTIFICATION_ID = 2;
@@ -156,6 +169,7 @@ final class KeepADBNotification {
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         manager.cancel(NOTIFICATION_ID);
+        manager.cancel(TIMER_NOTIFICATION_ID);
     }
 
     /**
@@ -182,10 +196,43 @@ final class KeepADBNotification {
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                context.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription(context.getString(R.string.notification_channel_desc));
-        manager.createNotificationChannel(channel);
+        manager.createNotificationChannel(silentChannel(CHANNEL_ID,
+                context.getString(R.string.notification_channel_name),
+                context.getString(R.string.notification_channel_desc),
+                NotificationManager.IMPORTANCE_DEFAULT));
+        manager.createNotificationChannel(silentChannel(FORCE_CHANNEL_ID,
+                context.getString(R.string.notification_channel_force_name),
+                context.getString(R.string.notification_channel_force_desc),
+                NotificationManager.IMPORTANCE_HIGH));
+        manager.createNotificationChannel(silentChannel(TIMER_CHANNEL_ID,
+                context.getString(R.string.notification_channel_timer_name),
+                context.getString(R.string.notification_channel_timer_desc),
+                NotificationManager.IMPORTANCE_DEFAULT));
+        removeObsoleteEndpointChannel(manager);
+    }
+
+    private static NotificationChannel silentChannel(String id, String name, String description,
+                                                     int importance) {
+        NotificationChannel channel = new NotificationChannel(id, name, importance);
+        channel.setDescription(description);
+        channel.setSound(null, null);
+        channel.enableVibration(false);
+        return channel;
+    }
+
+    /**
+     * #1000: deletes the former endpoint channel. Android refuses to delete a channel that still
+     * carries the foreground service's notification; the next render moves the notification to
+     * the new channel, and the deletion succeeds on the render after that. User changes to the old
+     * channel do not carry over (documented in the changelog).
+     */
+    static void removeObsoleteEndpointChannel(NotificationManager manager) {
+        if (manager.getNotificationChannel(OBSOLETE_ENDPOINT_CHANNEL_ID) == null) return;
+        try {
+            manager.deleteNotificationChannel(OBSOLETE_ENDPOINT_CHANNEL_ID);
+        } catch (RuntimeException stillInUse) {
+            // The foreground service notification still sits on it; retried at the next render.
+        }
     }
 
     private static boolean hasNotificationPermission(Context context) {
@@ -199,7 +246,8 @@ final class KeepADBNotification {
             KeepADBDiagnostics.event(context, "notification_removed", "notification", "skipped", "permission_missing");
             return;
         }
-        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)) {
+        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)
+                && !KeepADBTimer.isActive(context)) {
             // #763: a running force mode keeps its warning visible, so the hide preference does
             // not apply while it is on.
             // #445: gate on shouldRun(), not isEnabled() -- the foreground service (and thus
@@ -218,6 +266,7 @@ final class KeepADBNotification {
         }
         Notification notification = buildNotification(context, host, port);
         KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
+        syncTimerCompanion(context, manager);
     }
 
     private static void showPlaceholder(Context context, NotificationManager manager, String title,
@@ -225,7 +274,8 @@ final class KeepADBNotification {
         if (!hasNotificationPermission(context)) {
             return;
         }
-        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)) {
+        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)
+                && !KeepADBTimer.isActive(context)) {
             // #445: see the matching comment in show() -- shouldRun() is the correct gate here
             // too, for the same reason. #763: and so is the force mode exception.
             if (KeepADBService.shouldRun(context)) {
@@ -240,6 +290,7 @@ final class KeepADBNotification {
         Notification notification = buildPlaceholderNotification(context, title, text, target,
                 requestCode);
         KeepADBLockScreen.post(context, manager, NOTIFICATION_ID, notification);
+        syncTimerCompanion(context, manager);
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
@@ -258,27 +309,17 @@ final class KeepADBNotification {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Bundle marker = new Bundle();
         marker.putBoolean(EXTRA_ENDPOINT_CARD, true);
-        // #763: while the force mode is on, its warning leads the long text and the header line and
-        // "End force mode" is the first action (One UI cuts off the last one, #593). Private
-        // content only: publicVersion below stays neutral (F4).
-        String forceLine = KeepADBForceNotice.activeLine(context);
-        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
+        // #1000: the mode decides channel, colour, title and actions (see decorate()). Private
+        // content only: publicVersion below stays neutral (F4). #1000: no "Copy" action any more;
+        // the app copies the endpoint.
+        Notification.Builder builder = new Notification.Builder(context, channelFor(context))
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(content)
-                .setStyle(new Notification.BigTextStyle()
-                        .bigText(withForceLine(forceLine, expandedText(context, content))))
                 .setContentIntent(pendingIntent);
-        if (forceLine != null) {
-            builder.setSubText(forceLine).addAction(KeepADBForceNotice.endAction(context));
-        }
-        builder.addAction(disableAction(context)).addAction(keepAliveAction(context));
-        // #951: "Copy" comes last, so the existing actions keep their order, and only while there is
-        // room: Android shows three actions at most (One UI cuts off the last one, #593), and
-        // "End force mode", "Turn off" and Keep-Alive already fill them while the force mode is on.
-        // The details switch decided above whether the card names the address at all.
-        if (forceLine == null && !KeepADBPreferences.isNotificationPrivacyEnabled(context)) {
-            builder.addAction(copyAction(context));
+        if (!decorate(context, builder, expandedText(context, content), true)) {
+            builder.setStyle(new Notification.BigTextStyle().bigText(expandedText(context, content)))
+                    .addAction(disableAction(context)).addAction(keepAliveAction(context));
         }
         return builder
                 .addExtras(marker)
@@ -293,9 +334,90 @@ final class KeepADBNotification {
                 .build();
     }
 
-    /** #763: the force warning as first line of {@code text}, or {@code text} itself without one. */
-    private static CharSequence withForceLine(String forceLine, CharSequence text) {
-        return forceLine == null ? text : TextUtils.concat(forceLine, "\n", text);
+    /** The channel of the service notification in the current mode (#1000). */
+    static String channelFor(Context context) {
+        if (KeepADBForceMode.isActive(context)) return FORCE_CHANNEL_ID;
+        if (KeepADBTimer.isActive(context)) return TIMER_CHANNEL_ID;
+        return CHANNEL_ID;
+    }
+
+    /**
+     * #1000: turns the service notification into the force card or the timer card while one of
+     * them runs. Reads only the pure states (this runs under the coordinator's monitor).
+     *
+     * <ul>
+     *   <li><b>Force mode</b> (takes precedence): coloured red, "Force mode on – protection off",
+     *       the warning first in the long text, a countdown to its end, and "Off now", "End Force
+     *       mode" and "+1 h" (limited and below the cap; last, so One UI cuts it off first). A timer that runs as well gets its own
+     *       card ({@link #syncTimerCompanion}).</li>
+     *   <li><b>Timer</b>: neutral, the end time as header line and a countdown, "Off now" and
+     *       "+1 h" (below the cap). On the endpoint card the title names the end.</li>
+     * </ul>
+     *
+     * @return false in neither mode: the caller adds its normal style and actions.
+     */
+    private static boolean decorate(Context context, Notification.Builder builder,
+                                    CharSequence body, boolean endpointCard) {
+        KeepADBForceMode.Status force = KeepADBForceMode.status(context);
+        KeepADBTimer.Status timer = KeepADBTimer.status(context);
+        if (force == null && timer == null) return false;
+        builder.setOnlyAlertOnce(true);
+        if (force != null) {
+            String forceLine = KeepADBForceNotice.activeLine(context);
+            builder.setColorized(true)
+                    .setColor(context.getColor(R.color.banner_red))
+                    .setContentTitle(context.getString(R.string.force_notification_title))
+                    .setSubText(forceLine)
+                    .setStyle(new Notification.BigTextStyle().bigText(TextUtils.concat(
+                            context.getString(R.string.force_notification_text), "\n",
+                            forceLine, "\n", body)));
+            if (!force.isUnlimited()) countdown(builder, force.endsAtWallMs);
+            // One UI cuts off the last of three actions (#593): the convenience comes last.
+            builder.addAction(offNowAction(context));
+            builder.addAction(KeepADBForceNotice.endAction(context));
+            if (force.canExtend()) builder.addAction(extendAction(context, true));
+            return true;
+        }
+        String end = KeepADBForceMode.formatEnd(context, timer.endsAtWallMs);
+        if (endpointCard) {
+            builder.setContentTitle(context.getString(R.string.timer_notification_title_on, end));
+        }
+        builder.setSubText(context.getString(R.string.timer_notification_subtext, end))
+                .setStyle(new Notification.BigTextStyle().bigText(body));
+        countdown(builder, timer.endsAtWallMs);
+        builder.addAction(offNowAction(context));
+        if (timer.canExtend()) builder.addAction(extendAction(context, false));
+        return true;
+    }
+
+    private static void countdown(Notification.Builder builder, long endsAtWallMs) {
+        builder.setWhen(endsAtWallMs).setShowWhen(true).setUsesChronometer(true)
+                .setChronometerCountDown(true);
+    }
+
+    /**
+     * #1000: the timer's own card while the force card holds the service notification, cancelled
+     * otherwise. Not the foreground notification, so it carries its own channel and ongoing flag.
+     */
+    private static void syncTimerCompanion(Context context, NotificationManager manager) {
+        KeepADBTimer.Status timer = KeepADBTimer.status(context);
+        if (timer == null || !KeepADBForceMode.isActive(context)) {
+            manager.cancel(TIMER_NOTIFICATION_ID);
+            return;
+        }
+        String end = KeepADBForceMode.formatEnd(context, timer.endsAtWallMs);
+        Notification.Builder builder = new Notification.Builder(context, TIMER_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_keepadb)
+                .setContentTitle(context.getString(R.string.timer_notification_companion_title, end))
+                .setContentIntent(PendingIntent.getActivity(context, 0, homeIntent(context),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setCategory(Notification.CATEGORY_STATUS)
+                .addAction(offNowAction(context));
+        countdown(builder, timer.endsAtWallMs);
+        if (timer.canExtend()) builder.addAction(extendAction(context, false));
+        KeepADBLockScreen.post(context, manager, TIMER_NOTIFICATION_ID, builder.build());
     }
 
     /**
@@ -401,45 +523,57 @@ final class KeepADBNotification {
                 requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        // #763: same force warning as on the endpoint card, so it is there whatever the state.
-        String forceLine = KeepADBForceNotice.activeLine(context);
-        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
+        boolean permissionCard = context.getString(R.string.notification_permission_missing_title,
+                context.getString(R.string.app_name)).equals(title);
+        // #763/#1000: the same force or timer card as on the endpoint card, so it is there whatever
+        // the state.
+        Notification.Builder builder = new Notification.Builder(context, channelFor(context))
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setStyle(new Notification.BigTextStyle().bigText(withForceLine(forceLine, text)))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setShowWhen(false);
-        if (forceLine != null) {
-            builder.setSubText(forceLine).addAction(KeepADBForceNotice.endAction(context));
-        }
-        // #582: an unreadable value omits the disable action, same as a confirmed "off" would --
-        // never offer to disable a state that isn't positively known to be "on".
-        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "notification");
-        if (adbEnabledOrNull != null && adbEnabledOrNull
-                && !context.getString(R.string.notification_permission_missing_title, context.getString(R.string.app_name)).equals(title)) {
-            builder.addAction(disableAction(context));
+        if (!decorate(context, builder, text, false)) {
+            builder.setStyle(new Notification.BigTextStyle().bigText(text));
+            // #582: an unreadable value omits the disable action, same as a confirmed "off" would
+            // -- never offer to disable a state that isn't positively known to be "on".
+            Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "notification");
+            if (adbEnabledOrNull != null && adbEnabledOrNull && !permissionCard) {
+                builder.addAction(disableAction(context));
+            }
         }
         return builder.build();
     }
 
     /**
-     * #951: copies {@code adb connect <host>:<port>}. Goes through the non-exported receiver, which
-     * reads the endpoint when the action is tapped, so the intent carries no address.
+     * #1000: "Off now" on the force and timer cards: the same manual off as "Turn off" (which also
+     * ends a running timer and the force mode), labelled for the moment it is offered in.
      */
-    static Notification.Action copyAction(Context context) {
+    static Notification.Action offNowAction(Context context) {
         Intent intent = new Intent(context, KeepADBReceiver.class)
-                .setAction(KeepADBReceiver.ACTION_COPY_ENDPOINT);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                2,
-                intent,
+                .setAction(KeepADBReceiver.ACTION_DISABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                KeepADBTimer.REQUEST_CODE_OFF_NOW, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Action.Builder(
-                null,
-                context.getString(R.string.notification_action_copy),
-                pendingIntent).build();
+        return new Notification.Action.Builder(null,
+                context.getString(R.string.notification_action_off_now), pendingIntent).build();
+    }
+
+    /**
+     * #1000: "+1 h" of the timer or the force mode. It lengthens the time Wifi-ADB stays on, so it
+     * asks for an unlocked device (API 31+; the receiver checks again on every API level).
+     */
+    static Notification.Action extendAction(Context context, boolean force) {
+        Intent intent = new Intent(context, KeepADBReceiver.class).setAction(force
+                ? KeepADBReceiver.ACTION_FORCE_EXTEND : KeepADBReceiver.ACTION_TIMER_EXTEND);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                force ? KeepADBForceMode.REQUEST_CODE_EXTEND : KeepADBTimer.REQUEST_CODE_EXTEND, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Notification.Action.Builder action = new Notification.Action.Builder(null,
+                context.getString(R.string.notification_action_extend), pendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) action.setAuthenticationRequired(true);
+        return action.build();
     }
 
     /** #734: toggles Keep-Alive; labelled with what it will do, the status line states what is. */

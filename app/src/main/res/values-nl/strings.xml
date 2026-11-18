@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Locatietoegang is vereist om het huidige wifi-netwerk en de access points te herkennen.</string>
     <string name="location_permission_settings_button">Instellingen openen</string>
     <string name="notification_action_disable">Wifi-ADB uitschakelen</string>
-    <string name="notification_action_copy">Kopiëren</string>
     <string name="endpoint_copy_action">adb connect-opdracht kopiëren</string>
     <string name="status_permission_missing">Systeemtoestemming ontbreekt</string>
     <string name="tile_state_off">Uit</string>
@@ -731,4 +730,41 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_backup_error_unreadable">Het bestand kon niet worden gelezen. Er is niets gewijzigd.</string>
     <string name="settings_backup_error_write_failed">Je instellingen konden niet worden opgeslagen. Probeer de import opnieuw.</string>
     <string name="settings_backup_no_picker">Er is geen bestandskiezer beschikbaar op dit apparaat</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Geforceerde modus actief</string>
+    <string name="notification_channel_force_desc">Rode waarschuwing zolang de geforceerde modus Wifi-ADB op elke wifi aan houdt</string>
+    <string name="notification_channel_timer_name">Wifi-ADB-timer</string>
+    <string name="notification_channel_timer_desc">Resterende tijd van een lopende timer en het einde ervan</string>
+    <string name="force_notification_title">Geforceerde modus aan – bescherming uit</string>
+    <string name="force_notification_text">Wifi-ADB blijft op elke wifi aan.</string>
+    <string name="notification_action_off_now">Nu uit</string>
+    <string name="notification_action_extend">+1 u</string>
+    <string name="timer_notification_title_on">Wifi-ADB aan tot %1$s</string>
+    <string name="timer_notification_subtext">Timer · uit om %1$s</string>
+    <string name="timer_notification_companion_title">Wifi-ADB-timer: uit om %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB uit – timer afgelopen</string>
+    <string name="timer_expired_text">De timer is afgelopen en Wifi-ADB is uit. Zet het weer aan wanneer je het nodig hebt.</string>
+    <string name="timer_expired_text_while_off">De timer is afgelopen terwijl de telefoon uit stond. Wifi-ADB blijft uit.</string>
+    <string name="timer_expired_text_safety">De timer stopte eerder omdat de klok van de telefoon niet betrouwbaar was. Wifi-ADB is uit.</string>
+    <string name="timer_start_default">Aan voor %1$s</string>
+    <string name="timer_limit_default">Uit over %1$s</string>
+    <string name="timer_choose_duration">Duur kiezen</string>
+    <string name="timer_dialog_title_start">Wifi-ADB aanzetten voor</string>
+    <string name="timer_dialog_title_limit">Wifi-ADB uitzetten over</string>
+    <string name="timer_status_running">Uit om %1$s · nog %2$s</string>
+    <string name="timer_status_waiting">Timer loopt · wacht op een vertrouwde wifi · nog %1$s</string>
+    <string name="timer_action_no_limit">Geen limiet</string>
+    <string name="timer_started_toast">Wifi-ADB aan voor %1$s</string>
+    <string name="settings_timer_default_title">Standaardduur van de timer</string>
+    <string name="timer_remaining_minutes">%1$d min</string>
+    <string name="timer_remaining_hours_minutes">%1$d u %2$d min</string>
+    <string name="timer_duration_15m">15 min</string>
+    <string name="timer_duration_30m">30 min</string>
+    <string name="timer_duration_1h">1 u</string>
+    <string name="timer_duration_2h">2 u</string>
+    <string name="timer_duration_4h">4 u</string>
+    <string name="timer_duration_8h">8 u</string>
+    <string name="shortcut_timer_short">Timer</string>
+    <string name="shortcut_timer_long">Wifi-ADB met timer</string>
 </resources>

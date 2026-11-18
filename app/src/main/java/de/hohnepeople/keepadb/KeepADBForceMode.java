@@ -28,10 +28,17 @@ import java.util.Locale;
  * <ul>
  *   <li><b>Start:</b> only {@link #activate}, and the only caller is {@link KeepADBForceDialog}
  *       (asserted by a static test). No intent extra, no notification action, no receiver and no
- *       migration can start or extend it; changing the duration is a new activation through the
- *       same dialog with its warnings. There is no silent extension.</li>
+ *       migration can start it; choosing another span is a new activation through the same dialog
+ *       with its warnings.</li>
+ *   <li><b>Extend (#1000, deliberate change of the #763 rule):</b> {@link #extend}, one hour per
+ *       call, only from the red notification's "+1 h" behind an unlocked device, only for a limited
+ *       mode that is running, the budget capped at {@link #MAX_BUDGET_MS} (the longest span of the
+ *       dialog). It never starts the mode, never turns a limited mode into an unlimited one, and is
+ *       always visible: the user taps it on a notice that says "protection off".</li>
  *   <li><b>End by the user:</b> {@link #endNow}, from the home card, the settings row or the
- *       notification action. It needs no confirmation: the safe direction.</li>
+ *       notification action. It needs no confirmation: the safe direction. Since #1000 also every
+ *       manual "off" of Wifi-ADB ends it ({@link KeepADBManualToggle}): whoever switches off wants
+ *       it off, and a dangerous mode must not linger and take hold again at the next "on".</li>
  *   <li><b>End by time:</b> the deadline itself. {@link #isActive} is a pure read that is false
  *       from the first instant the deadline has passed, so the trust gate (which consults it on
  *       every automatic path, also under the {@code KeepADB} lock right before a write) never
@@ -138,6 +145,13 @@ final class KeepADBForceMode {
     static final int REQUEST_CODE_EXPIRY_ALARM = 21;
     static final int REQUEST_CODE_EXPIRED_CONTENT = 22;
     static final int REQUEST_CODE_EXPIRED_TURN_OFF = 23;
+    /** #1000: "+1 h" on the red notification; a code of the force block, after the timer's 24..27. */
+    static final int REQUEST_CODE_EXTEND = 28;
+
+    /** #1000: one tap on "+1 h". */
+    static final long EXTENSION_MS = 60L * 60L * 1000L;
+    /** #1000: no extension leaves more than the longest span the dialog offers. */
+    static final long MAX_BUDGET_MS = 30L * 24L * 60L * 60L * 1000L;
 
     /** The selectable time limits. A time limit is mandatory; "unlimited" needs an acknowledgment. */
     enum Span {
@@ -241,6 +255,11 @@ final class KeepADBForceMode {
         boolean isUnlimited() {
             return span.isUnlimited();
         }
+
+        /** #1000: whether "+1 h" can still add anything (limited and below the cap). */
+        boolean canExtend() {
+            return !span.isUnlimited() && remainingMs < MAX_BUDGET_MS;
+        }
     }
 
     private static final Object LOCK = KeepADBWarningState.LOCK;
@@ -296,15 +315,20 @@ final class KeepADBForceMode {
 
     /** The end as text for the surfaces: a time of day within today, otherwise weekday, date and time. */
     static String formatEnd(Context context, Status status) {
+        return formatEnd(context, status.endsAtWallMs);
+    }
+
+    /** {@link #formatEnd(Context, Status)} for any end instant; the timer (#1000) uses it too. */
+    static String formatEnd(Context context, long endsAtWallMs) {
         Locale locale = context.getResources().getConfiguration().getLocales().get(0);
         Calendar end = Calendar.getInstance();
-        end.setTimeInMillis(status.endsAtWallMs);
+        end.setTimeInMillis(endsAtWallMs);
         Calendar now = Calendar.getInstance();
         now.setTimeInMillis(clock.wallMs());
         boolean sameDay = end.get(Calendar.YEAR) == now.get(Calendar.YEAR)
                 && end.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
         String pattern = DateFormat.getBestDateTimePattern(locale, sameDay ? "jm" : "EEEdMMMjm");
-        return new SimpleDateFormat(pattern, locale).format(new Date(status.endsAtWallMs));
+        return new SimpleDateFormat(pattern, locale).format(new Date(endsAtWallMs));
     }
 
     // ---- Transitions --------------------------------------------------------------------------------
@@ -367,6 +391,14 @@ final class KeepADBForceMode {
      * @return true if a running force mode was ended by this call.
      */
     static boolean endNow(Context context) {
+        return endNow(context, "by_user");
+    }
+
+    /**
+     * {@link #endNow} with the reason the journal records: {@code by_user} for the end buttons,
+     * {@code manual_off} when a manual "off" of Wifi-ADB ended it (#1000).
+     */
+    static boolean endNow(Context context, String reason) {
         if (context == null) return false;
         Context app = context.getApplicationContext();
         if (finishIfExpired(app)) return false;
@@ -382,7 +414,48 @@ final class KeepADBForceMode {
         if (!ended) return false;
         cancelExpiryAlarm(app);
         KeepADBForceNotice.cancelExpired(app);
-        KeepADBDiagnostics.event(app, "force_mode", "user", "ended", "by_user");
+        KeepADBDiagnostics.event(app, "force_mode", "user", "ended", reason);
+        refreshSurfaces(app, false);
+        return true;
+    }
+
+    /**
+     * #1000: adds {@link #EXTENSION_MS} to the remaining time of a running limited mode, capped at
+     * {@link #MAX_BUDGET_MS}; the result becomes a new base now. An unlimited mode, an ended one or
+     * one at the cap is left as it is (an expired one is finished instead: time decides, not the
+     * tap). Only the notification receiver calls this, after the unlock check.
+     *
+     * @return true if a running mode was extended.
+     */
+    static boolean extend(Context context) {
+        if (context == null) return false;
+        Context app = context.getApplicationContext();
+        boolean extended = false;
+        long newBudget = 0L;
+        synchronized (LOCK) {
+            State state = readState(app);
+            if (state != null && !state.span.isUnlimited()) {
+                Clock now = clock;
+                long wall = now.wallMs();
+                long elapsed = now.elapsedMs();
+                int boot = now.bootCount(app);
+                long remaining = remainingMs(state, wall, elapsed, boot);
+                if (remaining > 0 && remaining < MAX_BUDGET_MS) {
+                    newBudget = Math.min(remaining + EXTENSION_MS, MAX_BUDGET_MS);
+                    State bound = new State(state.span, newBudget, wall, elapsed, boot);
+                    extended = KeepADBWarningState.forceWrite(prefs(app), prefs(app).edit(),
+                            prefs(app).getString(KEY_STATE, null), encode(bound), false)
+                            .putString(KEY_STATE, encode(bound)).commit();
+                }
+            }
+        }
+        if (!extended) {
+            finishIfExpired(app);
+            return false;
+        }
+        scheduleExpiryAlarm(app);
+        KeepADBDiagnostics.event(app, "force_mode", "user", "extended",
+                "remainingMin=" + (newBudget / 60_000L));
         refreshSurfaces(app, false);
         return true;
     }
@@ -550,7 +623,8 @@ final class KeepADBForceMode {
 
     /**
      * Null for anything that is not a complete, plausible state: a damaged value reads as "off".
-     * A budget above its span would be an extension and is damaged too.
+     * A budget above {@link #MAX_BUDGET_MS} would be an extension nobody granted and is damaged
+     * too (#1000: "+1 h" may take a budget above its own span, never above the longest one).
      */
     static State decode(String raw) {
         if (raw == null) return null;
@@ -567,7 +641,7 @@ final class KeepADBForceMode {
             long elapsed = Long.parseLong(parts[at + 1]);
             int boot = Integer.parseInt(parts[at + 2]);
             if (wall <= 0 || elapsed < 0) return null;
-            boolean plausibleBudget = span.isUnlimited() ? budget == 0 : budget > 0 && budget <= span.millis;
+            boolean plausibleBudget = span.isUnlimited() ? budget == 0 : budget > 0 && budget <= MAX_BUDGET_MS;
             if (!plausibleBudget) return null;
             return new State(span, budget, wall, elapsed, boot);
         } catch (NumberFormatException damaged) {

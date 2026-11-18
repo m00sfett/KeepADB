@@ -46,6 +46,8 @@ public class KeepADBApplication extends Application {
         KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);
         KeepADBPreferences.removeObsoleteAdviceBannerKey(this);
         KeepADBNotification.removeObsoleteUsbNotification(this);
+        // #1000: the timer posts its end notice through this sink (a seam for tests).
+        KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);
         KeepADBSelfPairCleanup.setObserver(KeepADBSelfPairService::onBackgroundCleanup);
         KeepADBSelfPairCleanup.reconcileAtStart(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);

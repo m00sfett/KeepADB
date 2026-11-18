@@ -89,33 +89,60 @@ public class KeepADBForceNotificationTest {
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
 
         Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
-        // #951: "Copy" joins the two actions, last, so those keep their order.
-        assertEquals(3, card.actions.length);
+        // #1000: "Copy" (#951) is gone again; the two actions keep their order.
+        assertEquals(2, card.actions.length);
         assertEquals("Turn off Wifi-ADB", card.actions[0].title.toString());
-        assertEquals("Copy", card.actions[2].title.toString());
+        assertEquals(KeepADBNotification.CHANNEL_ID, card.getChannelId());
+        assertFalse(card.extras.getBoolean(Notification.EXTRA_COLORIZED));
         assertNull(card.extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
         assertFalse(card.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString().contains("Force"));
     }
 
     @Test
-    public void whileForceIsOnTheCardLeadsWithTheWarningAndEndForceIsTheFirstAction() {
+    public void whileForceIsOnTheCardIsRedWithOffNowEndAndExtend() {
         startForce(KeepADBForceMode.Span.HOURS_24);
 
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
 
         Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
+        // #1000: the red card on its own high-importance channel.
+        assertEquals(KeepADBNotification.FORCE_CHANNEL_ID, card.getChannelId());
+        assertTrue(card.extras.getBoolean(Notification.EXTRA_COLORIZED));
+        assertEquals(context.getColor(R.color.banner_red), card.color);
+        assertEquals("Force mode on – protection off",
+                card.extras.getCharSequence(Notification.EXTRA_TITLE).toString());
         String line = card.extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString();
         assertTrue(line, line.startsWith("Force mode on until "));
-        assertTrue("The long text leads with the same line", card.extras
-                .getCharSequence(Notification.EXTRA_BIG_TEXT).toString().startsWith(line + "\n"));
+        assertTrue("The long text leads with the warning and the line", card.extras
+                .getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
+                .startsWith("Wifi-ADB stays on in every Wi-Fi.\n" + line + "\n"));
+        assertTrue("A countdown to the end", card.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER));
         assertEquals(3, card.actions.length);
-        assertEquals("One UI cuts off the last action (#593): End force mode comes first",
-                "End force mode", card.actions[0].title.toString());
-        assertEquals("Turn off Wifi-ADB", card.actions[1].title.toString());
-        Intent end = shadowOf(card.actions[0].actionIntent).getSavedIntent();
+        assertEquals("Off now", card.actions[0].title.toString());
+        assertEquals(KeepADBReceiver.ACTION_DISABLE,
+                shadowOf(card.actions[0].actionIntent).getSavedIntent().getAction());
+        assertEquals("End force mode", card.actions[1].title.toString());
+        Intent end = shadowOf(card.actions[1].actionIntent).getSavedIntent();
         assertEquals(KeepADBReceiver.ACTION_FORCE_END, end.getAction());
-        assertEquals(KeepADBForceMode.REQUEST_CODE_END, shadowOf(card.actions[0].actionIntent).getRequestCode());
-        assertTrue(shadowOf(card.actions[0].actionIntent).isBroadcastIntent());
+        assertEquals(KeepADBForceMode.REQUEST_CODE_END, shadowOf(card.actions[1].actionIntent).getRequestCode());
+        assertTrue(shadowOf(card.actions[1].actionIntent).isBroadcastIntent());
+        assertEquals("One UI cuts off the last action (#593): the convenience comes last",
+                "+1 h", card.actions[2].title.toString());
+        assertEquals(KeepADBReceiver.ACTION_FORCE_EXTEND,
+                shadowOf(card.actions[2].actionIntent).getSavedIntent().getAction());
+        assertTrue("+1 h needs an unlocked device", card.actions[2].isAuthenticationRequired());
+    }
+
+    @Test
+    public void anUnlimitedModeOffersNoExtensionAndNoCountdown() {
+        startForce(KeepADBForceMode.Span.UNLIMITED);
+
+        KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
+
+        Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
+        assertEquals(2, card.actions.length);
+        for (Notification.Action action : card.actions) assertFalse(action.title.toString().contains("+1"));
+        assertFalse(card.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER));
     }
 
     @Test
@@ -186,7 +213,7 @@ public class KeepADBForceNotificationTest {
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
         Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
 
-        Intent tapped = shadowOf(card.actions[0].actionIntent).getSavedIntent();
+        Intent tapped = shadowOf(card.actions[1].actionIntent).getSavedIntent();
         new KeepADBReceiver().onReceive(context, tapped);
 
         assertFalse(KeepADBForceMode.isActive(context));
@@ -254,9 +281,16 @@ public class KeepADBForceNotificationTest {
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
         Notification card = posted(context, KeepADBNotification.NOTIFICATION_ID);
         others.add(new NamedIntent("card content", card.contentIntent));
-        force.add(new NamedIntent("card end force", card.actions[0].actionIntent));
-        others.add(new NamedIntent("card disable", card.actions[1].actionIntent));
-        others.add(new NamedIntent("card keep-alive", card.actions[2].actionIntent));
+        others.add(new NamedIntent("card off now", card.actions[0].actionIntent));
+        force.add(new NamedIntent("card end force", card.actions[1].actionIntent));
+        force.add(new NamedIntent("card extend", card.actions[2].actionIntent));
+        // The plain card's disable and Keep-Alive actions, without the mode.
+        KeepADBForceMode.endNow(context);
+        KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
+        Notification plain = posted(context, KeepADBNotification.NOTIFICATION_ID);
+        others.add(new NamedIntent("card disable", plain.actions[0].actionIntent));
+        others.add(new NamedIntent("card keep-alive", plain.actions[1].actionIntent));
+        startForce(KeepADBForceMode.Span.DAYS_7);
 
         // The expiry notice with its offer.
         gateway = new KeepADBFakeSettingsGateway(true);
@@ -279,7 +313,7 @@ public class KeepADBForceNotificationTest {
         }
 
         assertTrue("The scenario must produce the pending intents it claims to compare",
-                force.size() == 4 && others.size() >= 6);
+                force.size() == 5 && others.size() >= 7);
         for (NamedIntent mine : force) {
             for (NamedIntent other : others) {
                 assertFalse(mine.name + " collides with " + other.name
@@ -314,8 +348,10 @@ public class KeepADBForceNotificationTest {
         assertNotNull("force line missing", line);
         assertTrue(line.toString(), line.toString().startsWith("Force mode on"));
         assertTrue(card.extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
-                .startsWith(line + "\n"));
-        assertEquals("End force mode", card.actions[0].title.toString());
+                .startsWith("Wifi-ADB stays on in every Wi-Fi.\n" + line + "\n"));
+        assertEquals("Off now", card.actions[0].title.toString());
+        assertEquals("End force mode", card.actions[1].title.toString());
+        assertTrue(card.extras.getBoolean(Notification.EXTRA_COLORIZED));
     }
 
     private void assertNoForce(Notification card) {

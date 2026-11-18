@@ -690,6 +690,17 @@ public class KeepADBResourceContractTest {
         result.put("force_card_text_until", new Object[] {stringWitness});
         result.put("force_ended_toast", new Object[] {stringWitness});
         result.put("force_notification_until", new Object[] {stringWitness});
+        // #1000: the Wifi-ADB timer
+        result.put("timer_notification_title_on", new Object[] {stringWitness});
+        result.put("timer_notification_subtext", new Object[] {stringWitness});
+        result.put("timer_notification_companion_title", new Object[] {stringWitness});
+        result.put("timer_start_default", new Object[] {stringWitness});
+        result.put("timer_limit_default", new Object[] {stringWitness});
+        result.put("timer_status_running", new Object[] {stringWitness, stringWitness});
+        result.put("timer_status_waiting", new Object[] {stringWitness});
+        result.put("timer_started_toast", new Object[] {stringWitness});
+        result.put("timer_remaining_minutes", new Object[] {integerWitness});
+        result.put("timer_remaining_hours_minutes", new Object[] {integerWitness, integerWitness});
         result.put("force_expired_text", new Object[] {stringWitness});
         result.put("force_expired_text_safety", new Object[] {stringWitness});
         return result;

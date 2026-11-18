@@ -209,6 +209,7 @@ final class KeepADBTimer {
             KeepADBDiagnostics.event(app, "timer", origin, "failed", "state_not_stored");
             return null;
         }
+        KeepADBTimerNotice.cancelExpired(app);
         KeepADBDiagnostics.event(app, "timer", origin, "started", "duration=" + duration.token);
         KeepADB.ToggleResult result = KeepADB.setEnabled(app, true, KeepADB.SOURCE_TIMER);
         if (result.isPermissionFailure()) {
@@ -257,6 +258,23 @@ final class KeepADBTimer {
         KeepADBDiagnostics.event(app, "timer", origin, "extended",
                 "remainingMin=" + (newBudget / 60_000L));
         scheduleExpiryAlarm(app);
+        refreshSurfaces(app, false);
+        return true;
+    }
+
+    /**
+     * "No limit" on the home screen: the running timer ends, Wifi-ADB stays as it is, and from now
+     * on only the stored Keep-Alive setting decides. Nothing is written to Wifi-ADB.
+     *
+     * @return true if a running timer was removed.
+     */
+    static boolean removeLimit(Context context, String origin) {
+        if (context == null) return false;
+        Context app = context.getApplicationContext();
+        if (finishIfExpired(app)) return false;
+        if (!clear(app)) return false;
+        cancelExpiryAlarm(app);
+        KeepADBDiagnostics.event(app, "timer", origin, "ended", "no_limit");
         refreshSurfaces(app, false);
         return true;
     }
