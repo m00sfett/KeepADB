@@ -232,7 +232,7 @@ final class KeepADBWidgetState {
 
         KeepAlive keepAlive;
         Reason keepAliveReason = Reason.NONE;
-        if (!KeepADBPreferences.isKeepAliveEnabled(app)) {
+        if (!KeepADBPreferences.isKeepAliveEffective(app)) {
             keepAlive = KeepAlive.DISABLED;
         } else if (adb == Adb.PERMISSION_FAILURE) {
             keepAlive = KeepAlive.BLOCKED;

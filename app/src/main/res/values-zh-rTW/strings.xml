@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">需要位置權限來識別目前的 Wi-Fi 網路和存取點。</string>
     <string name="location_permission_settings_button">開啟設定</string>
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
-    <string name="notification_action_copy">複製</string>
     <string name="endpoint_copy_action">複製 adb connect 指令</string>
     <string name="status_permission_missing">缺少系統權限</string>
     <string name="tile_state_off">關閉</string>
@@ -730,4 +729,41 @@
     <string name="settings_backup_error_unreadable">無法讀取檔案。未做任何變更。</string>
     <string name="settings_backup_error_write_failed">無法儲存你的設定。請重新匯入。</string>
     <string name="settings_backup_no_picker">此裝置上沒有可用的檔案選擇器</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">強制模式已啟用</string>
+    <string name="notification_channel_force_desc">強制模式在任何 Wi-Fi 下保持 Wifi-ADB 開啟期間顯示的紅色警告</string>
+    <string name="notification_channel_timer_name">Wifi-ADB 計時器</string>
+    <string name="notification_channel_timer_desc">執行中計時器的剩餘時間及其結束</string>
+    <string name="force_notification_title">強制模式開啟 – 保護關閉</string>
+    <string name="force_notification_text">Wifi-ADB 在任何 Wi-Fi 下都保持開啟。</string>
+    <string name="notification_action_off_now">立即關閉</string>
+    <string name="notification_action_extend">+1 小時</string>
+    <string name="timer_notification_title_on">Wifi-ADB 開啟至 %1$s</string>
+    <string name="timer_notification_subtext">計時器 · %1$s 關閉</string>
+    <string name="timer_notification_companion_title">Wifi-ADB 計時器：%1$s 關閉</string>
+    <string name="timer_expired_title">Wifi-ADB 已關閉 – 計時器已結束</string>
+    <string name="timer_expired_text">計時器已結束，Wifi-ADB 已關閉。需要時請重新開啟。</string>
+    <string name="timer_expired_text_while_off">計時器在手機關機期間結束。Wifi-ADB 保持關閉。</string>
+    <string name="timer_expired_text_safety">由於手機時鐘不可信，計時器提前結束。Wifi-ADB 已關閉。</string>
+    <string name="timer_start_default">開啟 %1$s</string>
+    <string name="timer_limit_default">%1$s後關閉</string>
+    <string name="timer_choose_duration">選擇時長</string>
+    <string name="timer_dialog_title_start">Wifi-ADB 開啟時長</string>
+    <string name="timer_dialog_title_limit">Wifi-ADB 關閉倒數</string>
+    <string name="timer_status_running">%1$s 關閉 · 剩餘 %2$s</string>
+    <string name="timer_status_waiting">計時器執行中 · 正在等待已信任的 Wi-Fi · 剩餘 %1$s</string>
+    <string name="timer_action_no_limit">無限制</string>
+    <string name="timer_started_toast">Wifi-ADB 已開啟 %1$s</string>
+    <string name="settings_timer_default_title">計時器預設時長</string>
+    <string name="timer_remaining_minutes">%1$d 分鐘</string>
+    <string name="timer_remaining_hours_minutes">%1$d 小時 %2$d 分鐘</string>
+    <string name="timer_duration_15m">15 分鐘</string>
+    <string name="timer_duration_30m">30 分鐘</string>
+    <string name="timer_duration_1h">1 小時</string>
+    <string name="timer_duration_2h">2 小時</string>
+    <string name="timer_duration_4h">4 小時</string>
+    <string name="timer_duration_8h">8 小時</string>
+    <string name="shortcut_timer_short">計時器</string>
+    <string name="shortcut_timer_long">附計時器的 Wifi-ADB</string>
 </resources>

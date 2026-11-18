@@ -468,7 +468,7 @@ final class KeepADBSelfPairCleanup {
                     // A working attempt looks after this claim and will report what it did with it.
                     return new Settlement(Outcome.LEFT_ON, null, decisionEpoch);
                 }
-                if (KeepADBPreferences.isKeepAliveEnabled(app)) {
+                if (KeepADBPreferences.isKeepAliveEffective(app)) {
                     prefs.edit().clear().apply();
                     return new Settlement(Outcome.LEFT_ON, owner, decisionEpoch);
                 }

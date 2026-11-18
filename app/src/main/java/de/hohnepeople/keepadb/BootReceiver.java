@@ -19,6 +19,7 @@ public class BootReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (Intent.ACTION_TIME_CHANGED.equals(action)) {
             KeepADBForceMode.restore(context);
+            KeepADBTimer.restore(context);
             return;
         }
         boolean bootCompleted = Intent.ACTION_BOOT_COMPLETED.equals(action);
@@ -30,7 +31,12 @@ public class BootReceiver extends BroadcastReceiver {
         // #763: independent of Keep-Alive and before it, so an expiry that happened while the
         // device was off is reported even when nothing else starts.
         KeepADBForceMode.restore(context);
-        boolean keepAlive = KeepADBPreferences.isKeepAliveEnabled(context);
+        // #1000: before Keep-Alive is looked at. A timer whose time ran out while the device was
+        // off (or before this broadcast arrived) is finished here, which records "off" as the
+        // last intent, so Keep-Alive below finds nothing to restore. A running timer makes
+        // Keep-Alive effective, so the service below restores Wifi-ADB for the time left.
+        KeepADBTimer.restore(context);
+        boolean keepAlive = KeepADBPreferences.isKeepAliveEffective(context);
         String event = packageReplaced ? "package_replaced" : "boot_completed";
         String recoveryEvent = packageReplaced ? "package_recovery" : "boot_recovery";
         KeepADBDiagnostics.event(context, event, "system", "received", "keepAlive=" + keepAlive);

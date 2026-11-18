@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Dostęp do lokalizacji jest wymagany do identyfikacji bieżącej sieci Wi-Fi i punktów dostępowych.</string>
     <string name="location_permission_settings_button">Otwórz ustawienia</string>
     <string name="notification_action_disable">Wyłącz Wifi-ADB</string>
-    <string name="notification_action_copy">Kopiuj</string>
     <string name="endpoint_copy_action">Skopiuj polecenie adb connect</string>
     <string name="status_permission_missing">Brak uprawnienia systemowego</string>
     <string name="tile_state_off">Wyłączone</string>
@@ -733,4 +732,41 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_backup_error_unreadable">Nie udało się odczytać pliku. Nic nie zostało zmienione.</string>
     <string name="settings_backup_error_write_failed">Nie udało się zapisać ustawień. Spróbuj zaimportować ponownie.</string>
     <string name="settings_backup_no_picker">Na tym urządzeniu nie ma dostępnego wyboru plików</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Tryb wymuszony aktywny</string>
+    <string name="notification_channel_force_desc">Czerwone ostrzeżenie, gdy tryb wymuszony utrzymuje Wifi-ADB w każdej sieci Wi-Fi</string>
+    <string name="notification_channel_timer_name">Minutnik Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Pozostały czas działającego minutnika i jego koniec</string>
+    <string name="force_notification_title">Tryb wymuszony włączony – ochrona wyłączona</string>
+    <string name="force_notification_text">Wifi-ADB pozostaje włączone w każdej sieci Wi-Fi.</string>
+    <string name="notification_action_off_now">Wyłącz teraz</string>
+    <string name="notification_action_extend">+1 godz.</string>
+    <string name="timer_notification_title_on">Wifi-ADB włączone do %1$s</string>
+    <string name="timer_notification_subtext">Minutnik · wyłączenie o %1$s</string>
+    <string name="timer_notification_companion_title">Minutnik Wifi-ADB: wyłączenie o %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB wyłączone – minutnik zakończony</string>
+    <string name="timer_expired_text">Minutnik się zakończył i Wifi-ADB jest wyłączone. Włącz je ponownie, gdy będzie potrzebne.</string>
+    <string name="timer_expired_text_while_off">Minutnik zakończył się, gdy telefon był wyłączony. Wifi-ADB pozostaje wyłączone.</string>
+    <string name="timer_expired_text_safety">Minutnik zakończył się wcześniej, bo zegarowi telefonu nie można było ufać. Wifi-ADB jest wyłączone.</string>
+    <string name="timer_start_default">Włącz na %1$s</string>
+    <string name="timer_limit_default">Wyłącz za %1$s</string>
+    <string name="timer_choose_duration">Wybierz czas</string>
+    <string name="timer_dialog_title_start">Włącz Wifi-ADB na</string>
+    <string name="timer_dialog_title_limit">Wyłącz Wifi-ADB za</string>
+    <string name="timer_status_running">Wyłączenie o %1$s · zostało %2$s</string>
+    <string name="timer_status_waiting">Minutnik działa · czeka na zaufaną sieć Wi-Fi · zostało %1$s</string>
+    <string name="timer_action_no_limit">Bez limitu</string>
+    <string name="timer_started_toast">Wifi-ADB włączone na %1$s</string>
+    <string name="settings_timer_default_title">Domyślny czas minutnika</string>
+    <string name="timer_remaining_minutes">%1$d min</string>
+    <string name="timer_remaining_hours_minutes">%1$d godz. %2$d min</string>
+    <string name="timer_duration_15m">15 min</string>
+    <string name="timer_duration_30m">30 min</string>
+    <string name="timer_duration_1h">1 godz.</string>
+    <string name="timer_duration_2h">2 godz.</string>
+    <string name="timer_duration_4h">4 godz.</string>
+    <string name="timer_duration_8h">8 godz.</string>
+    <string name="shortcut_timer_short">Minutnik</string>
+    <string name="shortcut_timer_long">Wifi-ADB z minutnikiem</string>
 </resources>

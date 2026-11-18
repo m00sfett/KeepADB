@@ -38,8 +38,28 @@ public class KeepADBForceContractTest {
                 if (source.contains("KeepADBForceMode.activate(")) callers.add(file.getFileName().toString());
             }
         }
-        assertEquals("No intent, receiver, migration or assistant step may start or extend the mode"
+        assertEquals("No intent, receiver, migration or assistant step may start the mode"
                 + " behind the warnings: " + callers, Arrays.asList("KeepADBForceDialog.java"), callers);
+    }
+
+    @Test
+    public void onlyTheNotificationReceiverExtendsTheForceMode() throws IOException {
+        // #1000: "+1 h" is the one extension path; it lives behind the unlock check of the receiver.
+        List<String> callers = new ArrayList<>();
+        try (Stream<Path> files = Files.list(projectPath(MAIN))) {
+            for (Path file : files.filter(p -> p.toString().endsWith(".java")).collect(Collectors.toList())) {
+                String source = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+                if (source.contains("KeepADBForceMode.extend(")) callers.add(file.getFileName().toString());
+            }
+        }
+        assertEquals(Arrays.asList("KeepADBReceiver.java"), callers);
+    }
+
+    @Test
+    public void aManualOffEndsTheForceModeOnlyThroughTheManualToggleHook() throws IOException {
+        // #1000: the facade calls the hook; the hook, not the facade, knows the force mode.
+        assertTrue(read(MAIN + "KeepADB.java").contains("KeepADBManualToggle.onManualToggle("));
+        assertTrue(read(MAIN + "KeepADBManualToggle.java").contains("KeepADBForceMode.endNow(appContext, \"manual_off\")"));
     }
 
     @Test
@@ -57,13 +77,21 @@ public class KeepADBForceContractTest {
         // These run under the KeepADB / coordinator monitors (the write-time guard, the notification
         // rendering). A transition refreshes surfaces and would take those monitors in the other
         // order, so they may only read.
-        String[] transitions = {"finishIfExpired(", "endNow(", "activate(", "restore(", "setStateListener("};
+        String[] transitions = {"finishIfExpired(", "endNow(", "activate(", "restore(", "setStateListener(",
+                "extend("};
+        // #1000: the same holds for the Wifi-ADB timer, whose transitions write Wifi-ADB as well.
+        String[] timerTransitions = {"finishIfExpired(", "start(", "extend(", "restore(", "onManualToggle(",
+                "setStateListener("};
         for (String file : new String[] {"KeepADBTrustedNetwork.java", "KeepADBNotification.java",
-                "KeepADBNetworkCardState.java", "KeepADBEndpointCoordinator.java"}) {
+                "KeepADBNetworkCardState.java", "KeepADBEndpointCoordinator.java", "KeepADBPreferences.java"}) {
             String source = read(MAIN + file);
             for (String transition : transitions) {
                 assertFalse(file + " must not call KeepADBForceMode." + transition,
                         source.contains("KeepADBForceMode." + transition));
+            }
+            for (String transition : timerTransitions) {
+                assertFalse(file + " must not call KeepADBTimer." + transition,
+                        source.contains("KeepADBTimer." + transition));
             }
         }
         String notice = read(MAIN + "KeepADBForceNotice.java");
@@ -97,10 +125,18 @@ public class KeepADBForceContractTest {
     @Test
     public void theRequestCodesOfTheForceModeAreDistinctAndInTheirOwnBlock() {
         int[] codes = {KeepADBForceMode.REQUEST_CODE_END, KeepADBForceMode.REQUEST_CODE_EXPIRY_ALARM,
-                KeepADBForceMode.REQUEST_CODE_EXPIRED_CONTENT, KeepADBForceMode.REQUEST_CODE_EXPIRED_TURN_OFF};
+                KeepADBForceMode.REQUEST_CODE_EXPIRED_CONTENT, KeepADBForceMode.REQUEST_CODE_EXPIRED_TURN_OFF,
+                KeepADBForceMode.REQUEST_CODE_EXTEND};
+        // #1000: the timer took 24..27, so the force mode's "+1 h" continues at 28.
+        int[] timerCodes = {KeepADBTimer.REQUEST_CODE_EXPIRY_ALARM, KeepADBTimer.REQUEST_CODE_OFF_NOW,
+                KeepADBTimer.REQUEST_CODE_EXTEND, KeepADBTimer.REQUEST_CODE_EXPIRED_CONTENT};
         Set<Integer> distinct = new HashSet<>();
         for (int code : codes) {
-            assertTrue("In the reserved block 20..23: " + code, code >= 20 && code <= 23);
+            assertTrue("In the reserved block 20..23 or 28: " + code, (code >= 20 && code <= 23) || code == 28);
+            assertTrue("Distinct: " + code, distinct.add(code));
+        }
+        for (int code : timerCodes) {
+            assertTrue("In the timer block 24..27: " + code, code >= 24 && code <= 27);
             assertTrue("Distinct: " + code, distinct.add(code));
         }
     }

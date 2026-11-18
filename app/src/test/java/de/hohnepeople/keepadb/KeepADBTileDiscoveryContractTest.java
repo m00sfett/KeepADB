@@ -56,7 +56,8 @@ public class KeepADBTileDiscoveryContractTest {
         int enabledGuard = body.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)");
         int cacheBranch = body.indexOf("if (currentHost != null && currentPort > 0)");
         int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, discoveryOwner);");
-        int keepAlivePlaceholder = body.indexOf("if (KeepADBPreferences.isKeepAliveEnabled(appContext))");
+        // #1000: the effective Keep-Alive (setting or running timer) decides the placeholder.
+        int keepAlivePlaceholder = body.indexOf("if (KeepADBPreferences.isKeepAliveEffective(appContext))");
         int placeholderBlockEnd = body.indexOf(
                 "\n        }\n\n        cancelRetryLocked();", keepAlivePlaceholder);
 

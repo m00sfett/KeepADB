@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">L’accès à la localisation est nécessaire pour identifier le réseau Wi-Fi actuel et les points d’accès.</string>
     <string name="location_permission_settings_button">Ouvrir les paramètres</string>
     <string name="notification_action_disable">Désactiver Wifi-ADB</string>
-    <string name="notification_action_copy">Copier</string>
     <string name="endpoint_copy_action">Copier la commande adb connect</string>
     <string name="status_permission_missing">Autorisation système manquante</string>
     <string name="tile_state_off">Désactivé</string>
@@ -732,4 +731,41 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_backup_error_unreadable">Impossible de lire le fichier. Rien n’a été modifié.</string>
     <string name="settings_backup_error_write_failed">Vos réglages n’ont pas pu être enregistrés. Relancez l’importation.</string>
     <string name="settings_backup_no_picker">Aucun sélecteur de fichiers n’est disponible sur cet appareil</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Mode forcé actif</string>
+    <string name="notification_channel_force_desc">Avertissement rouge tant que le mode forcé garde Wifi-ADB activé sur tous les Wi-Fi</string>
+    <string name="notification_channel_timer_name">Minuteur Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Temps restant d\'un minuteur en cours et sa fin</string>
+    <string name="force_notification_title">Mode forcé activé – protection désactivée</string>
+    <string name="force_notification_text">Wifi-ADB reste activé sur tous les Wi-Fi.</string>
+    <string name="notification_action_off_now">Désactiver</string>
+    <string name="notification_action_extend">+1 h</string>
+    <string name="timer_notification_title_on">Wifi-ADB activé jusqu\'à %1$s</string>
+    <string name="timer_notification_subtext">Minuteur · arrêt à %1$s</string>
+    <string name="timer_notification_companion_title">Minuteur Wifi-ADB : arrêt à %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB désactivé – minuteur terminé</string>
+    <string name="timer_expired_text">Le minuteur est terminé et Wifi-ADB est désactivé. Réactivez-le quand vous en avez besoin.</string>
+    <string name="timer_expired_text_while_off">Le minuteur s\'est terminé pendant que le téléphone était éteint. Wifi-ADB reste désactivé.</string>
+    <string name="timer_expired_text_safety">Le minuteur s\'est arrêté plus tôt car l\'horloge du téléphone n\'était pas fiable. Wifi-ADB est désactivé.</string>
+    <string name="timer_start_default">Activer pour %1$s</string>
+    <string name="timer_limit_default">Arrêt dans %1$s</string>
+    <string name="timer_choose_duration">Choisir la durée</string>
+    <string name="timer_dialog_title_start">Activer Wifi-ADB pendant</string>
+    <string name="timer_dialog_title_limit">Désactiver Wifi-ADB dans</string>
+    <string name="timer_status_running">Arrêt à %1$s · encore %2$s</string>
+    <string name="timer_status_waiting">Minuteur actif · en attente d\'un Wi-Fi approuvé · encore %1$s</string>
+    <string name="timer_action_no_limit">Sans limite</string>
+    <string name="timer_started_toast">Wifi-ADB activé pour %1$s</string>
+    <string name="settings_timer_default_title">Durée par défaut du minuteur</string>
+    <string name="timer_remaining_minutes">%1$d min</string>
+    <string name="timer_remaining_hours_minutes">%1$d h %2$d min</string>
+    <string name="timer_duration_15m">15 min</string>
+    <string name="timer_duration_30m">30 min</string>
+    <string name="timer_duration_1h">1 h</string>
+    <string name="timer_duration_2h">2 h</string>
+    <string name="timer_duration_4h">4 h</string>
+    <string name="timer_duration_8h">8 h</string>
+    <string name="shortcut_timer_short">Minuteur</string>
+    <string name="shortcut_timer_long">Wifi-ADB avec minuteur</string>
 </resources>

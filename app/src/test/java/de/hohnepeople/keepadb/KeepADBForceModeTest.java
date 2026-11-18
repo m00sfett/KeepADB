@@ -859,10 +859,11 @@ public class KeepADBForceModeTest {
     }
 
     @Test
-    public void aStoredBudgetThatIsNotPositiveOrExceedsItsSpanReadsAsOffAndNeverAsExtended() {
+    public void aStoredBudgetThatIsNotPositiveOrExceedsTheLongestSpanReadsAsOffAndNeverAsExtended() {
         String base = ";" + clock.wall + ";" + clock.elapsed + ";" + clock.boot;
         String[] damaged = {
-                "2;1h;3600001" + base,      // more than the span: an extension
+                // #1000: "+1 h" may lift a budget above its own span, never above the longest one
+                "2;1h;" + (KeepADBForceMode.MAX_BUDGET_MS + 1) + base,
                 "2;1h;0" + base, "2;1h;-5" + base, "2;1h;x" + base,
                 "2;unlimited;1" + base,     // an unlimited mode has no budget
                 "2;1h;1800000;0;5;7", "2;1h;1800000;1800000000000;-1;7",
@@ -878,6 +879,67 @@ public class KeepADBForceModeTest {
         prefs().edit().putString(KeepADBForceMode.KEY_STATE, "2;1h;3600000" + base).commit();
         assertEquals("... and a budget equal to the span is the whole span",
                 HOUR, KeepADBForceMode.status(context).remainingMs);
+        prefs().edit().putString(KeepADBForceMode.KEY_STATE, "2;1h;" + (2 * HOUR) + base).commit();
+        assertEquals("#1000: an extended budget above its span is read as stored",
+                2 * HOUR, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    // --- #1000: "+1 h" and the manual off ----------------------------------------------------------------------------
+
+    @Test
+    public void extendAddsAnHourToWhatIsLeftAndRebindsItNow() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        clock.advance(20 * MINUTE);
+
+        assertTrue(KeepADBForceMode.extend(context));
+
+        assertEquals(40 * MINUTE + HOUR, KeepADBForceMode.status(context).remainingMs);
+        clock.setWallClock(clock.wall - 5 * HOUR); // a clock set back cannot stretch the new base
+        assertEquals(40 * MINUTE + HOUR, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void extendStopsAtThirtyDaysAndNeverTouchesAnUnlimitedOrEndedMode() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_30, false));
+        assertFalse("At the cap a tap adds nothing", KeepADBForceMode.extend(context));
+        assertFalse(KeepADBForceMode.status(context).canExtend());
+        clock.advance(30 * MINUTE);
+        assertTrue(KeepADBForceMode.extend(context));
+        assertEquals(KeepADBForceMode.MAX_BUDGET_MS, KeepADBForceMode.status(context).remainingMs);
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.UNLIMITED, true));
+        assertFalse(KeepADBForceMode.extend(context));
+        assertFalse(KeepADBForceMode.status(context).canExtend());
+
+        assertTrue(KeepADBForceMode.endNow(context));
+        assertFalse("Extending never starts it", KeepADBForceMode.extend(context));
+        assertFalse(KeepADBForceMode.isActive(context));
+    }
+
+    @Test
+    public void anExpiredModeIsFinishedNotExtended() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        clock.advance(HOUR);
+
+        assertFalse(KeepADBForceMode.extend(context));
+        assertFalse(prefs().contains(KeepADBForceMode.KEY_STATE));
+    }
+
+    @Test
+    public void aManualOffOnAnySurfaceEndsTheModeButAnAutomaticOneDoesNot() {
+        for (String source : new String[] {KeepADB.SOURCE_APP, KeepADB.SOURCE_TILE, KeepADB.SOURCE_WIDGET,
+                KeepADB.SOURCE_NOTIFICATION, KeepADB.SOURCE_SHORTCUT}) {
+            assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+            KeepADB.setEnabled(context, false, source);
+            assertFalse(source + " off ends it", KeepADBForceMode.isActive(context));
+        }
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertTrue("A manual on keeps it", KeepADBForceMode.isActive(context));
+        KeepADB.setEnabled(context, false, "keep_alive_check");
+        assertTrue("An automatic off keeps it", KeepADBForceMode.isActive(context));
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_SELF_PAIRING);
+        assertTrue("The self-pairing cleanup is not the user's off", KeepADBForceMode.isActive(context));
     }
 
     // --- Ending it by hand -------------------------------------------------------------------------------------------

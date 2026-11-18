@@ -100,10 +100,22 @@ final class KeepADB {
      * it writes at once, so the result can be read back and reported.
      */
     static final String SOURCE_SELF_PAIRING = "self_pairing";
+    /**
+     * #1000: the switch-on of a Wifi-ADB timer start. Manual (the user started it, it writes at
+     * once) and the one manual source that does not end a running timer.
+     */
+    static final String SOURCE_TIMER = "timer";
+    /**
+     * #1000: the switch-off when a timer's time is up. Automatic (debounced like every automatic
+     * path), but it records "off" as the last explicit intent like every write does, so Keep-Alive
+     * does not bring Wifi-ADB back afterwards.
+     */
+    static final String SOURCE_TIMER_EXPIRY = "timer_expiry";
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING)));
+                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING,
+                    SOURCE_TIMER)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {
@@ -307,6 +319,18 @@ final class KeepADB {
     }
 
     /**
+     * #1000: the timer's "off" intent, recorded only while its switch-off is still owed, checked
+     * under this monitor: a manual "on" settles the obligation before it takes the monitor, so it
+     * can never be overwritten by a timer driver that looked a moment earlier.
+     */
+    static synchronized void recordTimerOffIntent(Context ctx) {
+        if (ctx == null) return;
+        Context appContext = ctx.getApplicationContext();
+        if (!KeepADBManualToggle.isTimerOffOwed(appContext)) return;
+        recordExplicitIntent(appContext, false);
+    }
+
+    /**
      * The four operational states plus the one that #318 split out of {@code ENABLED_DISCONNECTED}.
      *
      * <p>Invariant introduced by #318: the {@code ENABLED_*} values mean, and only ever mean, that
@@ -397,7 +421,7 @@ final class KeepADB {
             // #318: this used to return ENABLED_DISCONNECTED, which claimed wireless debugging was
             // on while the setting read 0. Keep-Alive waiting is a separate dimension, not an
             // on-state; it gets its own value so no surface can render it as "switched on".
-            if (KeepADBPreferences.isKeepAliveEnabled(appContext) && !wasLastExplicitIntentOff(appContext)) {
+            if (KeepADBPreferences.isKeepAliveEffective(appContext) && !wasLastExplicitIntentOff(appContext)) {
                 return State.OFF_KEEP_ALIVE_WAITING;
             }
             return State.OFF;
@@ -445,6 +469,9 @@ final class KeepADB {
             // #962: the user decided about Wifi-ADB; a pending self-pairing cleanup is void.
             // Before any lock of this class is taken: the cleanup holds its own while it calls in.
             KeepADBSelfPairCleanup.supersede(appContext);
+            // #1000: a manual on or off ends a running timer, a manual off also the force mode.
+            // Same place and reason as above: both refresh surfaces, never under our lock.
+            KeepADBManualToggle.onManualToggle(appContext, on, source);
         }
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
@@ -463,6 +490,12 @@ final class KeepADB {
         final long networkGeneration;
         final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
+            if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
+                // #1000 (review): the timer's off is no longer owed (a manual "on" settled it).
+                KeepADBDiagnostics.event(appContext, eventName, source, "skipped",
+                        "desired=" + on + " observed=" + observed + " reason=timer_off_settled");
+                return ToggleResult.SUPERSEDED;
+            }
             if (!isManualSource(source) && isManualIntentPending()) {
                 // #780: a pending user tap (the re-enable inside its 100 ms teardown gap) must
                 // not be displaced by an automatic intent. Taking the intent token would make the
@@ -545,6 +578,16 @@ final class KeepADB {
             return ToggleResult.SUPERSEDED; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
+        if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
+            // #1000 (review): a debounced timer off whose obligation a manual "on" settled while it
+            // waited is dropped, with the intent it replaced.
+            KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
+                    "intentId=" + token + " reason=timer_off_settled");
+            state.rollbackIntent(previousLastDesiredOn);
+            KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
+            surfaces.refreshAll(appContext);
+            return ToggleResult.SUPERSEDED;
+        }
         // #310: an automatic enable was authorized under conditions read at planning time, up to
         // TOGGLE_COOLDOWN_MS ago. Re-check them here, inside the same lock as the write they
         // authorize, so a network change or a withdrawn Keep-Alive during the delay cancels the
@@ -620,6 +663,12 @@ final class KeepADB {
                 // unreadable readback is not a confirmed off and keeps the exemption.
                 boolean confirmedOff = actualConfirmed && !actual;
                 KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on && !confirmedOff);
+            }
+            if (isManualSource(source) || SOURCE_TIMER_EXPIRY.equals(source)) {
+                // #1000: a manual "on", or an "off" the readback shows (manual or the timer's own,
+                // also when it was debounced), settles a timer's outstanding switch-off. A
+                // preference write only, safe under this lock.
+                KeepADBManualToggle.onWriteApplied(appContext, source, on, actualConfirmed && !actual);
             }
             surfaces.refreshAll(appContext);
             return ToggleResult.APPLIED;

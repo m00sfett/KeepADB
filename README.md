@@ -85,6 +85,11 @@ background and guides you through all three options in the setup assistant while
 - **Widget:** toggle the state from the home screen.
 - **Quick Settings:** add the KeepADB tile to the active tiles and toggle from the Quick Settings
   panel.
+- **Wifi-ADB timer:** "On for 1 h" below the home switch (or the chevron for 15 min to 8 h, or the
+  "Wifi-ADB with timer" launcher shortcut) turns Wifi-ADB on and off again when the time is up.
+  While it runs, the notification counts down and offers "Off now" and "+1 h"; on the home screen
+  "+1 h" and "No limit". The timer keeps Wifi-ADB alive like Keep-Alive within the network rules,
+  continues after a reboot and ends as a manual off. See [docs/timed-wifi-adb.md](docs/timed-wifi-adb.md).
 - **Connect a computer:** tap the endpoint (for example “Port 5555 @ 192.168.0.5”) on the home screen to copy the
   `adb connect` command. The
   link “Connect a computer…” below it, and the last page of the setup assistant, explain the one-time
@@ -134,7 +139,8 @@ whether a Wi-Fi has a password; there only captive portals count.
 For convenience, you can enable **Force mode** under **Settings → Protection** for 1 hour, 24 hours,
 7 days, 30 days, or indefinitely. Keep-Alive will then turn Wifi-ADB back on in every
 Wi-Fi network, including blocked networks and networks whose identity cannot be read. A warning
-appears on the home screen and in the notification, and one tap ends Force mode. The
+appears on the home screen and in a red notification with "Off now", "End force mode" and "+1 h";
+any manual switch-off ends Force mode too. The
 [trusted-networks guide](docs/trusted-networks.md) explains BSSID, the legacy Wi-Fi name list,
 location permissions, Force mode, background starts, and measurement limits.
 

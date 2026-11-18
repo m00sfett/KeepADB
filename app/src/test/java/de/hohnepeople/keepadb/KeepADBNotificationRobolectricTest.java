@@ -89,7 +89,10 @@ public class KeepADBNotificationRobolectricTest {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         NotificationChannel channel = manager.getNotificationChannel(KeepADBNotification.CHANNEL_ID);
         assertNotNull("ensureChannel() must have created the real notification channel", channel);
-        assertEquals(NotificationManager.IMPORTANCE_LOW, channel.getImportance());
+        // #1000: raised from LOW so the card sits among the alerting notifications, but silent.
+        assertEquals(NotificationManager.IMPORTANCE_DEFAULT, channel.getImportance());
+        assertNull(channel.getSound());
+        assertFalse(channel.shouldVibrate());
 
         String title = notification.extras.getString(Notification.EXTRA_TITLE);
         assertEquals(context.getString(R.string.notification_title_searching, context.getString(R.string.app_name)), title);

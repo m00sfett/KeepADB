@@ -72,6 +72,95 @@
         tools:text="Decide…"
         tools:visibility="visible" />
 
+    <!-- #1000: the Wifi-ADB timer, below the action so a reason and its button stay together. Off: "On for 1 h" plus a chevron for other durations. On without
+         a timer: "Off in 1 h". Running: the end and the time left (in the live region's sibling,
+         announced politely on change), then "+1 h" and "No limit". KeepADBTimerSection renders it. -->
+    <LinearLayout
+        android:id="@+id/timer_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/timer_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:accessibilityLiveRegion="polite"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:minHeight="32dp"
+            android:textColor="@color/night_text"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:drawableStart="@drawable/ic_timer"
+            tools:text="Off at 14:35 · 42 min left"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/timer_start"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="4dp"
+                android:textAllCaps="false"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp"
+                tools:text="On for 1 h" />
+
+            <ImageButton
+                android:id="@+id/timer_pick"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/timer_choose_duration"
+                android:src="@drawable/ic_expand_more" />
+
+            <Button
+                android:id="@+id/timer_extend"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="16dp"
+                android:text="@string/notification_action_extend"
+                android:textAllCaps="false"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/timer_no_limit"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="16dp"
+                android:text="@string/timer_action_no_limit"
+                android:textAllCaps="false"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+
     <!-- The endpoint: "Port <port> @ <ip>", the row of the adb connect command (#951). -->
     <LinearLayout
         android:id="@+id/endpoint_row"

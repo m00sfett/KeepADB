@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Доступ к геолокации необходим для распознавания текущей сети Wi-Fi и точек доступа.</string>
     <string name="location_permission_settings_button">Открыть настройки</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
-    <string name="notification_action_copy">Копировать</string>
     <string name="endpoint_copy_action">Скопировать команду adb connect</string>
     <string name="status_permission_missing">Нет системного разрешения</string>
     <string name="tile_state_off">Отключено</string>
@@ -733,4 +732,41 @@
     <string name="settings_backup_error_unreadable">Не удалось прочитать файл. Ничего не изменено.</string>
     <string name="settings_backup_error_write_failed">Не удалось сохранить настройки. Попробуйте импортировать ещё раз.</string>
     <string name="settings_backup_no_picker">На этом устройстве нет средства выбора файлов</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Принудительный режим активен</string>
+    <string name="notification_channel_force_desc">Красное предупреждение, пока принудительный режим держит Wifi-ADB включённым в любой сети Wi-Fi</string>
+    <string name="notification_channel_timer_name">Таймер Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Оставшееся время работающего таймера и его окончание</string>
+    <string name="force_notification_title">Принудительный режим включён – защита выключена</string>
+    <string name="force_notification_text">Wifi-ADB остаётся включённым в любой сети Wi-Fi.</string>
+    <string name="notification_action_off_now">Выключить</string>
+    <string name="notification_action_extend">+1 ч</string>
+    <string name="timer_notification_title_on">Wifi-ADB включён до %1$s</string>
+    <string name="timer_notification_subtext">Таймер · выключение в %1$s</string>
+    <string name="timer_notification_companion_title">Таймер Wifi-ADB: выключение в %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB выключен – таймер истёк</string>
+    <string name="timer_expired_text">Таймер истёк, Wifi-ADB выключен. Включите его снова, когда понадобится.</string>
+    <string name="timer_expired_text_while_off">Таймер истёк, пока телефон был выключен. Wifi-ADB остаётся выключенным.</string>
+    <string name="timer_expired_text_safety">Таймер остановлен досрочно: часам телефона нельзя было доверять. Wifi-ADB выключен.</string>
+    <string name="timer_start_default">Включить на %1$s</string>
+    <string name="timer_limit_default">Выключить через %1$s</string>
+    <string name="timer_choose_duration">Выбрать длительность</string>
+    <string name="timer_dialog_title_start">Включить Wifi-ADB на</string>
+    <string name="timer_dialog_title_limit">Выключить Wifi-ADB через</string>
+    <string name="timer_status_running">Выключение в %1$s · осталось %2$s</string>
+    <string name="timer_status_waiting">Таймер идёт · ожидание доверенной сети Wi-Fi · осталось %1$s</string>
+    <string name="timer_action_no_limit">Без ограничения</string>
+    <string name="timer_started_toast">Wifi-ADB включён на %1$s</string>
+    <string name="settings_timer_default_title">Длительность таймера по умолчанию</string>
+    <string name="timer_remaining_minutes">%1$d мин</string>
+    <string name="timer_remaining_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="timer_duration_15m">15 мин</string>
+    <string name="timer_duration_30m">30 мин</string>
+    <string name="timer_duration_1h">1 ч</string>
+    <string name="timer_duration_2h">2 ч</string>
+    <string name="timer_duration_4h">4 ч</string>
+    <string name="timer_duration_8h">8 ч</string>
+    <string name="shortcut_timer_short">Таймер</string>
+    <string name="shortcut_timer_long">Wifi-ADB с таймером</string>
 </resources>

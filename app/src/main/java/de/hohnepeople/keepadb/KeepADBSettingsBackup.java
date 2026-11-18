@@ -25,10 +25,11 @@ import java.util.regex.Pattern;
  *
  * <p><b>What is in the file.</b> Only the keys of {@link #RULES}: the protection level with the
  * trusted and blocked networks, the network rules, the privacy switches, the notification and
- * display options and the webhook options, plus the webhook URL unless the user leaves it out.
+ * display options, the preselected timer duration and the webhook options, plus the webhook URL
+ * unless the user leaves it out.
  * Everything else is deliberately absent: the Keep-Alive switch itself (an import must never lead
  * to Wifi-ADB being turned on), the webhook on/off state (an import never starts reporting),
- * run-time state such as force mode, histories, diagnostics and bookkeeping, the app language
+ * run-time state such as force mode and a running timer, histories, diagnostics and bookkeeping, the app language
  * (Android keeps it per app) and the widgets (their IDs do not survive a reinstall). A secret such
  * as an automation token can never be exported: no rule matches it, and the export reads the rules,
  * never the whole preference file.
@@ -110,6 +111,13 @@ final class KeepADBSettingsBackup {
         }
         rules.add(new Rule(Pattern.quote("register_webhook_periodic_interval"), Type.STRING,
                 intervals.toArray(new String[0])));
+        // #1000: the preselected timer duration; the running timer is run-time state and absent.
+        List<String> durations = new ArrayList<>();
+        for (KeepADBTimer.Duration duration : KeepADBTimer.Duration.values()) {
+            durations.add(duration.token);
+        }
+        rules.add(new Rule(Pattern.quote(KeepADBPreferences.KEY_TIMER_DEFAULT_DURATION), Type.STRING,
+                durations.toArray(new String[0])));
         rules.add(new Rule(Pattern.quote(KEY_WEBHOOK_URL), Type.STRING));
         rules.add(new Rule(Pattern.quote(KEY_TRUSTED_MODE), Type.STRING,
                 KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.MODE_ALLOWLIST));

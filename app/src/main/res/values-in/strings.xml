@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Akses lokasi diperlukan untuk mengenali jaringan Wi-Fi saat ini dan titik akses.</string>
     <string name="location_permission_settings_button">Buka setelan</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
-    <string name="notification_action_copy">Salin</string>
     <string name="endpoint_copy_action">Salin perintah adb connect</string>
     <string name="status_permission_missing">Izin sistem tidak ada</string>
     <string name="tile_state_off">Nonaktif</string>
@@ -730,4 +729,41 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_backup_error_unreadable">File tidak dapat dibaca. Tidak ada yang diubah.</string>
     <string name="settings_backup_error_write_failed">Pengaturan tidak dapat disimpan. Coba impor lagi.</string>
     <string name="settings_backup_no_picker">Tidak ada pemilih file di perangkat ini</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Mode paksa aktif</string>
+    <string name="notification_channel_force_desc">Peringatan merah selama mode paksa membuat Wifi-ADB tetap aktif di setiap Wi-Fi</string>
+    <string name="notification_channel_timer_name">Timer Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Sisa waktu timer yang berjalan dan akhirnya</string>
+    <string name="force_notification_title">Mode paksa aktif – perlindungan nonaktif</string>
+    <string name="force_notification_text">Wifi-ADB tetap aktif di setiap Wi-Fi.</string>
+    <string name="notification_action_off_now">Matikan sekarang</string>
+    <string name="notification_action_extend">+1 jam</string>
+    <string name="timer_notification_title_on">Wifi-ADB aktif hingga %1$s</string>
+    <string name="timer_notification_subtext">Timer · mati pukul %1$s</string>
+    <string name="timer_notification_companion_title">Timer Wifi-ADB: mati pukul %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB nonaktif – timer berakhir</string>
+    <string name="timer_expired_text">Timer telah berakhir dan Wifi-ADB nonaktif. Aktifkan lagi saat Anda membutuhkannya.</string>
+    <string name="timer_expired_text_while_off">Timer berakhir saat ponsel mati. Wifi-ADB tetap nonaktif.</string>
+    <string name="timer_expired_text_safety">Timer berakhir lebih awal karena jam ponsel tidak dapat dipercaya. Wifi-ADB nonaktif.</string>
+    <string name="timer_start_default">Aktif selama %1$s</string>
+    <string name="timer_limit_default">Mati dalam %1$s</string>
+    <string name="timer_choose_duration">Pilih durasi</string>
+    <string name="timer_dialog_title_start">Aktifkan Wifi-ADB selama</string>
+    <string name="timer_dialog_title_limit">Matikan Wifi-ADB dalam</string>
+    <string name="timer_status_running">Mati pukul %1$s · sisa %2$s</string>
+    <string name="timer_status_waiting">Timer berjalan · menunggu Wi-Fi dipercaya · sisa %1$s</string>
+    <string name="timer_action_no_limit">Tanpa batas</string>
+    <string name="timer_started_toast">Wifi-ADB aktif selama %1$s</string>
+    <string name="settings_timer_default_title">Durasi default timer</string>
+    <string name="timer_remaining_minutes">%1$d mnt</string>
+    <string name="timer_remaining_hours_minutes">%1$d jam %2$d mnt</string>
+    <string name="timer_duration_15m">15 mnt</string>
+    <string name="timer_duration_30m">30 mnt</string>
+    <string name="timer_duration_1h">1 jam</string>
+    <string name="timer_duration_2h">2 jam</string>
+    <string name="timer_duration_4h">4 jam</string>
+    <string name="timer_duration_8h">8 jam</string>
+    <string name="shortcut_timer_short">Timer</string>
+    <string name="shortcut_timer_long">Wifi-ADB dengan timer</string>
 </resources>

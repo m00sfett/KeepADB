@@ -39,3 +39,8 @@ addresses. Review the preview and remove sensitive details before sharing the te
 Typical sequences show a user action or toggle attempt, an observed state, a recovery attempt or
 stop, and then service events. `intentId` links scheduled and completed toggle or recovery writes.
 The process ID and elapsed time help identify a service restart or a gap between events.
+
+Time limits (#1000): `timer` events record a timer's start, extension, end and expiry (see
+[Wifi-ADB timer](timed-wifi-adb.md#diagnostics)); `force_mode` events now also record `extended`
+(with the minutes left) and an end with the reason `manual_off`. A blocked "+1 h" on a locked
+device appears as `user_action ... blocked timer_extend device_locked` (or `force_extend`).

@@ -301,7 +301,7 @@ final class KeepADBEndpointCoordinator {
         }
 
         if (endpointListener != null) endpointListener.onUnavailable();
-        if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
+        if (KeepADBPreferences.isKeepAliveEffective(appContext)) {
             KeepADBNotification.renderSearching(appContext);
         }
 
@@ -378,7 +378,7 @@ final class KeepADBEndpointCoordinator {
                 if (endpointListener != null) {
                     endpointListener.onUnavailable();
                 }
-                if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
+                if (KeepADBPreferences.isKeepAliveEffective(appContext)) {
                     KeepADBNotification.renderSearching(appContext);
                 }
                 cancelRetryLocked();
@@ -563,7 +563,7 @@ final class KeepADBEndpointCoordinator {
                     // #582: an unreadable value picks the "disabled" wording, not "searching" --
                     // "searching" would imply a confirmed "on" the read did not establish.
                     Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
-                    if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
+                    if (KeepADBPreferences.isKeepAliveEffective(appContext)) {
                         if (adbEnabledOrNull != null && adbEnabledOrNull) {
                             KeepADBNotification.renderSearching(appContext);
                         } else {

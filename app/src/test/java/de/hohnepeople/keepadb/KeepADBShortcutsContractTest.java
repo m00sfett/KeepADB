@@ -34,20 +34,23 @@ public class KeepADBShortcutsContractTest {
     private static final String NAMESPACE = "de.hohnepeople.keepadb";
 
     private static final List<String> IDS =
-            Arrays.asList("toggle_wifi_adb", "wifi_networks", "settings");
+            Arrays.asList("toggle_wifi_adb", "timer_wifi_adb", "wifi_networks", "settings");
     private static final List<String> TARGETS = Arrays.asList(
             NAMESPACE + ".KeepADBToggleShortcutActivity",
+            NAMESPACE + ".KeepADBTimerShortcutActivity",
             NAMESPACE + ".NetworkListActivity",
             NAMESPACE + ".SettingsActivity");
     private static final List<String> SHORT_LABELS = Arrays.asList(
-            "@string/shortcut_toggle_short", "@string/networks_title", "@string/action_settings");
+            "@string/shortcut_toggle_short", "@string/shortcut_timer_short", "@string/networks_title",
+            "@string/action_settings");
     private static final List<String> LONG_LABELS = Arrays.asList(
-            "@string/shortcut_toggle_long", "@string/networks_title", "@string/action_settings");
+            "@string/shortcut_toggle_long", "@string/shortcut_timer_long", "@string/networks_title",
+            "@string/action_settings");
     private static final List<String> ICONS = Arrays.asList(
-            "@drawable/ic_keepadb", "@drawable/ic_wifi", "@drawable/ic_settings_gear");
+            "@drawable/ic_keepadb", "@drawable/ic_timer", "@drawable/ic_wifi", "@drawable/ic_settings_gear");
 
     @Test
-    public void mainFileListsTheThreeShortcutsInOrderForTheReleasePackage() throws Exception {
+    public void mainFileListsTheFourShortcutsInOrderForTheReleasePackage() throws Exception {
         assertShortcuts("app/src/main/res/xml/shortcuts.xml", applicationId());
     }
 
@@ -71,6 +74,7 @@ public class KeepADBShortcutsContractTest {
 
         // The launcher starts a shortcut with the identity of this app: no target is exported.
         for (String activity : Arrays.asList(".KeepADBToggleShortcutActivity",
+                ".KeepADBTimerShortcutActivity",
                 ".NetworkListActivity", ".SettingsActivity")) {
             Matcher m = Pattern.compile("<activity\\b[^>]*android:name=\"" + Pattern.quote(activity)
                     + "\"[^>]*?/?>", Pattern.DOTALL).matcher(manifest);
@@ -90,7 +94,9 @@ public class KeepADBShortcutsContractTest {
                 "-zh-rTW");
         for (String locale : locales) {
             String xml = read("app/src/main/res/values" + locale + "/strings.xml");
-            for (String key : Arrays.asList("shortcut_toggle_short", "shortcut_toggle_long")) {
+            // #1000: the timer shortcut's long label names the product term as well.
+            for (String key : Arrays.asList("shortcut_toggle_short", "shortcut_toggle_long",
+                    "shortcut_timer_long")) {
                 Matcher m = Pattern.compile("<string name=\"" + key + "\">([^<]+)</string>")
                         .matcher(xml);
                 assertTrue("values" + locale + " lacks " + key, m.find());
@@ -123,7 +129,7 @@ public class KeepADBShortcutsContractTest {
                 .parse(Paths.get(root().toString(), file).toFile());
         document.getDocumentElement().normalize();
         NodeList shortcuts = document.getElementsByTagName("shortcut");
-        assertEquals(file + ": three shortcuts", 3, shortcuts.getLength());
+        assertEquals(file + ": four shortcuts (#1000 added the timer)", 4, shortcuts.getLength());
         List<String> ids = new ArrayList<>();
         for (int i = 0; i < shortcuts.getLength(); i++) {
             Element shortcut = (Element) shortcuts.item(i);

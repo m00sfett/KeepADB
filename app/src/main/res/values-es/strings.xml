@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">Se necesita acceso a la ubicación para identificar la red Wi-Fi actual y los puntos de acceso.</string>
     <string name="location_permission_settings_button">Abrir ajustes</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
-    <string name="notification_action_copy">Copiar</string>
     <string name="endpoint_copy_action">Copiar comando adb connect</string>
     <string name="status_permission_missing">Falta el permiso del sistema</string>
     <string name="tile_state_off">Desactivado</string>
@@ -732,4 +731,41 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="settings_backup_error_unreadable">No se pudo leer el archivo. No se ha cambiado nada.</string>
     <string name="settings_backup_error_write_failed">No se pudieron guardar tus ajustes. Vuelve a intentar la importación.</string>
     <string name="settings_backup_no_picker">No hay un selector de archivos disponible en este dispositivo</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">Modo forzado activo</string>
+    <string name="notification_channel_force_desc">Aviso rojo mientras el modo forzado mantiene Wifi-ADB activado en cualquier Wi-Fi</string>
+    <string name="notification_channel_timer_name">Temporizador de Wifi-ADB</string>
+    <string name="notification_channel_timer_desc">Tiempo restante de un temporizador en curso y su final</string>
+    <string name="force_notification_title">Modo forzado activado – protección desactivada</string>
+    <string name="force_notification_text">Wifi-ADB sigue activado en cualquier Wi-Fi.</string>
+    <string name="notification_action_off_now">Desactivar ya</string>
+    <string name="notification_action_extend">+1 h</string>
+    <string name="timer_notification_title_on">Wifi-ADB activado hasta las %1$s</string>
+    <string name="timer_notification_subtext">Temporizador · se apaga a las %1$s</string>
+    <string name="timer_notification_companion_title">Temporizador de Wifi-ADB: se apaga a las %1$s</string>
+    <string name="timer_expired_title">Wifi-ADB desactivado – temporizador terminado</string>
+    <string name="timer_expired_text">El temporizador ha terminado y Wifi-ADB está desactivado. Actívalo de nuevo cuando lo necesites.</string>
+    <string name="timer_expired_text_while_off">El temporizador terminó mientras el teléfono estaba apagado. Wifi-ADB sigue desactivado.</string>
+    <string name="timer_expired_text_safety">El temporizador terminó antes porque el reloj del teléfono no era fiable. Wifi-ADB está desactivado.</string>
+    <string name="timer_start_default">Activar durante %1$s</string>
+    <string name="timer_limit_default">Apagar en %1$s</string>
+    <string name="timer_choose_duration">Elegir duración</string>
+    <string name="timer_dialog_title_start">Activar Wifi-ADB durante</string>
+    <string name="timer_dialog_title_limit">Desactivar Wifi-ADB en</string>
+    <string name="timer_status_running">Se apaga a las %1$s · quedan %2$s</string>
+    <string name="timer_status_waiting">Temporizador activo · esperando una Wi-Fi de confianza · quedan %1$s</string>
+    <string name="timer_action_no_limit">Sin límite</string>
+    <string name="timer_started_toast">Wifi-ADB activado durante %1$s</string>
+    <string name="settings_timer_default_title">Duración predeterminada del temporizador</string>
+    <string name="timer_remaining_minutes">%1$d min</string>
+    <string name="timer_remaining_hours_minutes">%1$d h %2$d min</string>
+    <string name="timer_duration_15m">15 min</string>
+    <string name="timer_duration_30m">30 min</string>
+    <string name="timer_duration_1h">1 h</string>
+    <string name="timer_duration_2h">2 h</string>
+    <string name="timer_duration_4h">4 h</string>
+    <string name="timer_duration_8h">8 h</string>
+    <string name="shortcut_timer_short">Temporizador</string>
+    <string name="shortcut_timer_long">Wifi-ADB con temporizador</string>
 </resources>

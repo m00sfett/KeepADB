@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">वर्तमान Wi-Fi नेटवर्क और ऐक्सेस पॉइंट की पहचान के लिए स्थान एक्सेस की आवश्यकता है।</string>
     <string name="location_permission_settings_button">सेटिंग खोलें</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
-    <string name="notification_action_copy">कॉपी करें</string>
     <string name="endpoint_copy_action">adb connect कमांड कॉपी करें</string>
     <string name="status_permission_missing">सिस्टम अनुमति नहीं है</string>
     <string name="tile_state_off">बंद</string>
@@ -731,4 +730,41 @@
     <string name="settings_backup_error_unreadable">फ़ाइल पढ़ी नहीं जा सकी। कुछ भी नहीं बदला गया।</string>
     <string name="settings_backup_error_write_failed">आपकी सेटिंग्स सहेजी नहीं जा सकीं। इम्पोर्ट फिर से करके देखें।</string>
     <string name="settings_backup_no_picker">इस डिवाइस पर कोई फ़ाइल पिकर उपलब्ध नहीं है</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">फ़ोर्स मोड सक्रिय</string>
+    <string name="notification_channel_force_desc">जब तक फ़ोर्स मोड हर Wi-Fi पर Wifi-ADB चालू रखता है, लाल चेतावनी</string>
+    <string name="notification_channel_timer_name">Wifi-ADB टाइमर</string>
+    <string name="notification_channel_timer_desc">चल रहे टाइमर का बचा समय और उसका अंत</string>
+    <string name="force_notification_title">फ़ोर्स मोड चालू – सुरक्षा बंद</string>
+    <string name="force_notification_text">Wifi-ADB हर Wi-Fi पर चालू रहता है।</string>
+    <string name="notification_action_off_now">अभी बंद करें</string>
+    <string name="notification_action_extend">+1 घंटा</string>
+    <string name="timer_notification_title_on">Wifi-ADB %1$s तक चालू</string>
+    <string name="timer_notification_subtext">टाइमर · %1$s पर बंद</string>
+    <string name="timer_notification_companion_title">Wifi-ADB टाइमर: %1$s पर बंद</string>
+    <string name="timer_expired_title">Wifi-ADB बंद – टाइमर समाप्त</string>
+    <string name="timer_expired_text">टाइमर समाप्त हो गया और Wifi-ADB बंद है। ज़रूरत होने पर इसे फिर से चालू करें।</string>
+    <string name="timer_expired_text_while_off">फ़ोन बंद रहते हुए टाइमर समाप्त हो गया। Wifi-ADB बंद रहता है।</string>
+    <string name="timer_expired_text_safety">फ़ोन की घड़ी पर भरोसा नहीं किया जा सका, इसलिए टाइमर पहले ही समाप्त हो गया। Wifi-ADB बंद है।</string>
+    <string name="timer_start_default">%1$s के लिए चालू करें</string>
+    <string name="timer_limit_default">%1$s में बंद करें</string>
+    <string name="timer_choose_duration">अवधि चुनें</string>
+    <string name="timer_dialog_title_start">Wifi-ADB इतनी देर के लिए चालू करें</string>
+    <string name="timer_dialog_title_limit">Wifi-ADB इतनी देर में बंद करें</string>
+    <string name="timer_status_running">%1$s पर बंद · %2$s बाकी</string>
+    <string name="timer_status_waiting">टाइमर चल रहा है · भरोसेमंद Wi-Fi की प्रतीक्षा · %1$s बाकी</string>
+    <string name="timer_action_no_limit">कोई सीमा नहीं</string>
+    <string name="timer_started_toast">Wifi-ADB %1$s के लिए चालू</string>
+    <string name="settings_timer_default_title">टाइमर की डिफ़ॉल्ट अवधि</string>
+    <string name="timer_remaining_minutes">%1$d मिनट</string>
+    <string name="timer_remaining_hours_minutes">%1$d घंटे %2$d मिनट</string>
+    <string name="timer_duration_15m">15 मिनट</string>
+    <string name="timer_duration_30m">30 मिनट</string>
+    <string name="timer_duration_1h">1 घंटा</string>
+    <string name="timer_duration_2h">2 घंटे</string>
+    <string name="timer_duration_4h">4 घंटे</string>
+    <string name="timer_duration_8h">8 घंटे</string>
+    <string name="shortcut_timer_short">टाइमर</string>
+    <string name="shortcut_timer_long">टाइमर के साथ Wifi-ADB</string>
 </resources>

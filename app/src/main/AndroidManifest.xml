@@ -68,6 +68,14 @@
             android:taskAffinity=""
             android:theme="@style/Theme.KeepADB.Trampoline" />
 
+        <!-- #1000: the "Wifi-ADB with timer" launcher shortcut; same shape as the toggle one. -->
+        <activity
+            android:name=".KeepADBTimerShortcutActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@style/Theme.KeepADB.Trampoline" />
+
         <activity android:name=".WarningsActivity" android:exported="false" />
 
         <activity
@@ -191,7 +199,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <!-- #763: a clock set moves the effective deadline of the force mode. -->
+                <!-- #763/#1000: a clock set moves the deadline of the force mode and the timer. -->
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
@@ -206,6 +214,7 @@
                 <action android:name="de.hohnepeople.keepadb.ACTION_BLOCK_NETWORK" />
                 <action android:name="de.hohnepeople.keepadb.ACTION_FORCE_END" />
                 <action android:name="de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE" />
+                <action android:name="de.hohnepeople.keepadb.ACTION_TIMER_EXPIRE" />
                 <action android:name="de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK" />
             </intent-filter>
         </receiver>

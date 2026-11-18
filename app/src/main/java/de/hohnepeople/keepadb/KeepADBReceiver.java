@@ -17,11 +17,6 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_DISABLE = "de.hohnepeople.keepadb.ACTION_DISABLE";
     /** #734: the notification's Keep-Alive on/off action. */
     static final String ACTION_TOGGLE_KEEP_ALIVE = "de.hohnepeople.keepadb.ACTION_TOGGLE_KEEP_ALIVE";
-    /**
-     * #951: the notification's "Copy" action: {@code adb connect <host>:<port>} of the endpoint the
-     * app knows at the time of the tap. The intent carries no address.
-     */
-    static final String ACTION_COPY_ENDPOINT = "de.hohnepeople.keepadb.ACTION_COPY_ENDPOINT";
     /** #446: the user allowed the access point the trust prompt named. */
     static final String ACTION_TRUST_NETWORK = "de.hohnepeople.keepadb.ACTION_TRUST_NETWORK";
     /**
@@ -33,6 +28,12 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_FORCE_END = "de.hohnepeople.keepadb.ACTION_FORCE_END";
     /** #763: the expiry alarm. Only re-evaluates; it cannot start or extend the force mode. */
     static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
+    /** #1000: the inexact alarm at the end of a Wifi-ADB timer. */
+    static final String ACTION_TIMER_EXPIRE = "de.hohnepeople.keepadb.ACTION_TIMER_EXPIRE";
+    /** #1000: "+1 h" on the timer notification; needs an unlocked device. */
+    static final String ACTION_TIMER_EXTEND = "de.hohnepeople.keepadb.ACTION_TIMER_EXTEND";
+    /** #1000: "+1 h" on the red force notification; needs an unlocked device. */
+    static final String ACTION_FORCE_EXTEND = "de.hohnepeople.keepadb.ACTION_FORCE_EXTEND";
     /** #870: the webhook alert's next check. Only re-reads the persisted failure episode. */
     static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
     /** #893: "Report now" on the webhook alert: one user-triggered report, no polling. */
@@ -59,8 +60,6 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleDisableAction(context);
         } else if (ACTION_TOGGLE_KEEP_ALIVE.equals(action)) {
             handleToggleKeepAliveAction(context);
-        } else if (ACTION_COPY_ENDPOINT.equals(action)) {
-            handleCopyEndpointAction(context);
         } else if (ACTION_TRUST_NETWORK.equals(action)) {
             handleTrustNetworkAction(context,
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
@@ -72,6 +71,12 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleForceEndAction(context);
         } else if (ACTION_FORCE_EXPIRE.equals(action)) {
             KeepADBForceMode.restore(context);
+        } else if (ACTION_TIMER_EXPIRE.equals(action)) {
+            KeepADBTimer.restore(context);
+        } else if (ACTION_TIMER_EXTEND.equals(action)) {
+            handleExtendAction(context, false);
+        } else if (ACTION_FORCE_EXTEND.equals(action)) {
+            handleExtendAction(context, true);
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
         } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {
@@ -212,20 +217,26 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         return ended;
     }
 
+
     /**
-     * #951: copies the endpoint the card shows. Nothing happens without a known endpoint, and none
-     * while the notification hides its details (the action is gone from the card then, and a tap on
-     * one posted before the switch was turned on must not copy what the card no longer shows).
+     * #1000: "+1 h" of the timer or the force notification. Both lengthen the time Wifi-ADB stays
+     * on, so a locked device extends nothing, for the same reason and with the same check as the
+     * trust prompt below: the action asks for authentication on API 31+, but this receiver cannot
+     * rely on every lock screen honoring it, and API 30 has no such flag at all. The tap is not
+     * lost: the notification still offers it after the unlock.
      *
-     * @return whether the command is on the clipboard
+     * @return whether the running timer or force mode was extended
      */
-    static boolean handleCopyEndpointAction(Context context) {
-        KeepADBEndpointCoordinator.Snapshot snapshot = KeepADBEndpointCoordinator.snapshot();
-        if (!snapshot.hasEndpoint() || KeepADBPreferences.isNotificationPrivacyEnabled(context)) {
+    static boolean handleExtendAction(Context context, boolean force) {
+        String what = force ? "force_extend" : "timer_extend";
+        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        if (keyguardManager != null && keyguardManager.isDeviceLocked()) {
+            KeepADBDiagnostics.event(context, "user_action", "notification", "blocked",
+                    what + " device_locked");
             return false;
         }
-        return KeepADBEndpointText.copyAdbConnect(KeepADBLocaleHelper.wrapContext(context),
-                snapshot.host, snapshot.port, "notification");
+        KeepADBDiagnostics.event(context, "user_action", "notification", what, "action_button");
+        return force ? KeepADBForceMode.extend(context) : KeepADBTimer.extend(context, "notification");
     }
 
     static boolean handleDisableAction(Context context) {

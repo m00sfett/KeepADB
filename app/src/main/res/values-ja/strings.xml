@@ -175,7 +175,6 @@
     <string name="location_permission_panel_body_discovery">現在のWi-Fiネットワークとアクセスポイントを識別するには位置情報へのアクセスが必要です。</string>
     <string name="location_permission_settings_button">設定を開く</string>
     <string name="notification_action_disable">Wifi-ADBを無効化</string>
-    <string name="notification_action_copy">コピー</string>
     <string name="endpoint_copy_action">adb connect コマンドをコピー</string>
     <string name="status_permission_missing">システム権限がありません</string>
     <string name="tile_state_off">オフ</string>
@@ -730,4 +729,41 @@
     <string name="settings_backup_error_unreadable">ファイルを読み取れませんでした。何も変更されていません。</string>
     <string name="settings_backup_error_write_failed">設定を保存できませんでした。もう一度インポートしてください。</string>
     <string name="settings_backup_no_picker">このデバイスで使えるファイル選択アプリがありません</string>
+
+    <!-- #1000: Wifi-ADB timer, red force notification, notification channels -->
+    <string name="notification_channel_force_name">強制モード有効</string>
+    <string name="notification_channel_force_desc">強制モードがすべての Wi-Fi で Wifi-ADB をオンに保っている間の赤い警告</string>
+    <string name="notification_channel_timer_name">Wifi-ADB タイマー</string>
+    <string name="notification_channel_timer_desc">実行中のタイマーの残り時間と終了</string>
+    <string name="force_notification_title">強制モードオン – 保護オフ</string>
+    <string name="force_notification_text">Wifi-ADB はすべての Wi-Fi でオンのままです。</string>
+    <string name="notification_action_off_now">今すぐオフ</string>
+    <string name="notification_action_extend">+1時間</string>
+    <string name="timer_notification_title_on">Wifi-ADB は%1$sまでオン</string>
+    <string name="timer_notification_subtext">タイマー · %1$sにオフ</string>
+    <string name="timer_notification_companion_title">Wifi-ADB タイマー: %1$sにオフ</string>
+    <string name="timer_expired_title">Wifi-ADB オフ – タイマー終了</string>
+    <string name="timer_expired_text">タイマーが終了し、Wifi-ADB はオフになりました。必要なときに再びオンにしてください。</string>
+    <string name="timer_expired_text_while_off">電話の電源が切れている間にタイマーが終了しました。Wifi-ADB はオフのままです。</string>
+    <string name="timer_expired_text_safety">電話の時計が信頼できなかったため、タイマーは早めに終了しました。Wifi-ADB はオフです。</string>
+    <string name="timer_start_default">%1$sオン</string>
+    <string name="timer_limit_default">%1$s後にオフ</string>
+    <string name="timer_choose_duration">時間を選択</string>
+    <string name="timer_dialog_title_start">Wifi-ADB をオンにする時間</string>
+    <string name="timer_dialog_title_limit">Wifi-ADB をオフにするまでの時間</string>
+    <string name="timer_status_running">%1$sにオフ · 残り%2$s</string>
+    <string name="timer_status_waiting">タイマー実行中 · 信頼済み Wi-Fi を待機中 · 残り%1$s</string>
+    <string name="timer_action_no_limit">制限なし</string>
+    <string name="timer_started_toast">Wifi-ADB を%1$sオンにしました</string>
+    <string name="settings_timer_default_title">タイマーの既定の時間</string>
+    <string name="timer_remaining_minutes">%1$d分</string>
+    <string name="timer_remaining_hours_minutes">%1$d時間%2$d分</string>
+    <string name="timer_duration_15m">15分</string>
+    <string name="timer_duration_30m">30分</string>
+    <string name="timer_duration_1h">1時間</string>
+    <string name="timer_duration_2h">2時間</string>
+    <string name="timer_duration_4h">4時間</string>
+    <string name="timer_duration_8h">8時間</string>
+    <string name="shortcut_timer_short">タイマー</string>
+    <string name="shortcut_timer_long">タイマー付き Wifi-ADB</string>
 </resources>

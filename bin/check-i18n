@@ -80,6 +80,20 @@ ALLOWLIST = {
         "ar", "de", "es", "fr", "in", "it", "ja", "nl",
         "pl", "pt", "ru", "tr", "uk", "vi", "zh-rCN", "zh-rTW",
     },
+    # #1000: time units of the Wifi-ADB timer. "min" and "h" are the standard abbreviations in
+    # these languages (SI symbols in French, Spanish, Italian and Portuguese; "min" also in Dutch
+    # and Polish), so the values are the same words, not untranslated copies.
+    "notification_action_extend": {"es", "fr", "it", "pt"},       # "+1 h"
+    "timer_remaining_minutes": {"es", "fr", "it", "nl", "pl", "pt"},  # "%1$d min"
+    "timer_remaining_hours_minutes": {"es", "fr", "it", "pt"},    # "%1$d h %2$d min"
+    "timer_duration_15m": {"es", "fr", "it", "nl", "pl", "pt"},   # "15 min"
+    "timer_duration_30m": {"es", "fr", "it", "nl", "pl", "pt"},   # "30 min"
+    "timer_duration_1h": {"es", "fr", "it", "pt"},                # "1 h"
+    "timer_duration_2h": {"es", "fr", "it", "pt"},                # "2 h"
+    "timer_duration_4h": {"es", "fr", "it", "pt"},                # "4 h"
+    "timer_duration_8h": {"es", "fr", "it", "pt"},                # "8 h"
+    # "Timer" is the native word in German, Indonesian, Italian and Dutch.
+    "shortcut_timer_short": {"de", "in", "it", "nl"},
     # Product terms (#965): "Wifi-ADB" names KeepADB's own switch and "Keep-Alive" the automatic
     # re-enabling, spelled exactly the same in every language (maintainer decision 2026-11-15).
     # Android's own "Wireless debugging" setting keeps its localized Android name and is not one

@@ -118,6 +118,21 @@ public class KeepADBSettingsBackupTest {
     }
 
     @Test
+    public void theTimerDefaultTravelsButARunningTimerDoesNot() throws Exception {
+        // #1000: the preselected duration is a setting; the running timer is run-time state.
+        KeepADBPreferences.setTimerDefaultDuration(context, KeepADBTimer.Duration.HOURS_4);
+        prefs.edit().putString(KeepADBTimer.KEY_STATE, "1;3600000;1800000000000;5;41").commit();
+        String file = exportNow(false);
+        assertTrue(file.contains("timer_default_duration"));
+        assertFalse(file.contains(KeepADBTimer.KEY_STATE));
+
+        prefs.edit().clear().commit();
+        KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        assertEquals(KeepADBTimer.Duration.HOURS_4, KeepADBPreferences.getTimerDefaultDuration(context));
+        assertFalse(prefs.contains(KeepADBTimer.KEY_STATE));
+    }
+
+    @Test
     public void exportCanLeaveTheWebhookUrlOut() throws Exception {
         configureDevice();
         String file = exportNow(false);
@@ -268,6 +283,7 @@ public class KeepADBSettingsBackupTest {
         assertInvalid("\"untrusted_shutdown_enabled\":\"yes\"");
         assertInvalid("\"trusted_network_mode\":\"everything\"");
         assertInvalid("\"register_webhook_periodic_interval\":\"7m\"");
+        assertInvalid("\"timer_default_duration\":\"99d\"");
         assertInvalid("\"register_webhook_url\":\"ftp://example.test\"");
         assertInvalid("\"register_webhook_url\":\"not a url\"");
         assertInvalid("\"trusted_network_ids\":\"1,x\"");

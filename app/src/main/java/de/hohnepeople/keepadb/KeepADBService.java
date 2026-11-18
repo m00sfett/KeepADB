@@ -60,7 +60,7 @@ public class KeepADBService extends Service {
         // wasLastExplicitIntentOff(), which needs no Settings.Global read at all, instead of a
         // guessed true/false deciding whether the foreground service keeps running.
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "service_should_run");
-        return KeepADBPreferences.isKeepAliveEnabled(context)
+        return KeepADBPreferences.isKeepAliveEffective(context)
                 && (Boolean.TRUE.equals(adbEnabledOrNull) || !KeepADB.wasLastExplicitIntentOff(context));
     }
 
@@ -70,7 +70,7 @@ public class KeepADBService extends Service {
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "service_sync");
         KeepADBDiagnostics.event(context, "service_sync", "state_change",
                 shouldRun ? "start_requested" : "stop_requested",
-                "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
+                "keepAlive=" + KeepADBPreferences.isKeepAliveEffective(context)
                         + " adbWifi=" + adbEnabledOrNull
                         + " lastIntentOff=" + KeepADB.wasLastExplicitIntentOff(context));
         if (shouldRun) {
@@ -136,7 +136,7 @@ public class KeepADBService extends Service {
      * source anyway, while the Keep-Alive, Wi-Fi and trust conditions must still hold.
      */
     static boolean isAutoEnableStillPermittedIgnoringBackoff(Context context) {
-        return KeepADBPreferences.isKeepAliveEnabled(context)
+        return KeepADBPreferences.isKeepAliveEffective(context)
                 && isWifiConnected(context)
                 && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
     }
@@ -340,6 +340,8 @@ public class KeepADBService extends Service {
         // #763: the minute tick finishes an expired force mode (state cleared, notice delivered).
         // The trust gate never waits for this: it reads the pure deadline itself.
         KeepADBForceMode.finishIfExpired(this);
+        // #1000: same for the Wifi-ADB timer; the Keep-Alive gate reads its deadline itself.
+        KeepADBTimer.finishIfExpired(this);
         // #566: read-only, debug-build-only minute snapshot; a no-op in release builds.
         KeepADBDiagnostics.snapshot(this);
         // #881: a sparse webhook re-attempt while a failure episode lasts (at most every 15 min).
@@ -427,7 +429,7 @@ public class KeepADBService extends Service {
                         Log.d(TAG, "Ignoring state change before foreground promotion");
                         return;
                     }
-                    if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
+                    if (KeepADBPreferences.isKeepAliveEffective(KeepADBService.this)) {
                         if (isWifiConnected(KeepADBService.this) && Boolean.FALSE.equals(adbEnabledOrNull)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging manually disabled by user; stopping service");
@@ -714,7 +716,7 @@ public class KeepADBService extends Service {
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(this, "keep_alive_check");
         KeepADBDiagnostics.heartbeatEvent(this, "recheck_started", "keep_alive_check", "service",
                 "started", "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + adbEnabledOrNull);
-        if (KeepADBPreferences.isKeepAliveEnabled(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
+        if (KeepADBPreferences.isKeepAliveEffective(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
                 if (Boolean.FALSE.equals(adbEnabledOrNull)) {
                     if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
