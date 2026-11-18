@@ -17,6 +17,7 @@ the user chooses the file, KeepADB needs no storage permission and never uploads
 | Network rules | `trust_by_name`, `trusted_network_security_check`, `untrusted_shutdown_enabled`, `open_network_shutdown_enabled` |
 | Privacy | `privacy_mode_enabled`, `notification_privacy_enabled`, `widget_privacy_enabled`, `lockscreen_privacy_enabled` |
 | Notification and display | `hide_notification_enabled`, `keep_display_on_enabled` |
+| Wifi-ADB timer | `timer_default_duration` (the preselected duration, #1000) |
 | Webhook options | `register_webhook_periodic_enabled`, `register_webhook_periodic_interval` |
 | Webhook URL (optional) | `register_webhook_url`, left out when the user picks "Without webhook URL" |
 
@@ -30,7 +31,7 @@ up in the file.
   `adb shell pm grant`; no file can grant it.
 - **The Keep-Alive switch** and the **webhook on/off state**: an import must not lead to Wifi-ADB
   being turned on or to reports being sent. The user switches both on again.
-- **Run-time state**: Force mode, the last on/off intent, manual exemptions, prompt and report
+- **Run-time state**: Force mode, a running Wifi-ADB timer, the last on/off intent, manual exemptions, prompt and report
   histories, diagnostics, webhook bookkeeping and the setup assistant's progress.
 - **The app language**: Android keeps it per app.
 - **Widget settings**: they are keyed by widget ID, and a reinstall gives every widget a new ID,
