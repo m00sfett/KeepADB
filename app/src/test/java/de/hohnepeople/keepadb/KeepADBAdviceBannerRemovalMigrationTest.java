@@ -68,6 +68,7 @@ public class KeepADBAdviceBannerRemovalMigrationTest {
         expected.put("notification_privacy_enabled", true);
         expected.put("widget_privacy_enabled", false);
         expected.put("onboarding_existing_install", true);
+        expected.put("open_network_shutdown_enabled", false); // #997: existing installation
         assertEquals("only the advice flag was removed", expected, new TreeMap<>(prefs().getAll()));
     }
 
@@ -97,6 +98,7 @@ public class KeepADBAdviceBannerRemovalMigrationTest {
         // Same as for the other cleanups: a new installation keeps exactly the privacy marker, and
         // the assistant's existing/new decision stays open for the first real question.
         prefs().edit().clear().commit();
+        KeepADBPreferences.migrateOpenNetworkShutdown(app);
         KeepADBPreferences.migratePrivacySplit(app);
         Map<String, ?> before = prefs().getAll();
 

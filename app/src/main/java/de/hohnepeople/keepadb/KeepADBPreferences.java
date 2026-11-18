@@ -29,6 +29,8 @@ final class KeepADBPreferences {
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID = "untrusted_shutdown_manual_bssid";
     /** #864: elapsed-realtime millis when that manual exemption was recorded. */
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT = "untrusted_shutdown_manual_at";
+    /** #997: on for new installations, off for existing ones; see migrateOpenNetworkShutdown. */
+    static final String KEY_OPEN_NETWORK_SHUTDOWN = "open_network_shutdown_enabled";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
     private static final String KEY_WEBHOOK_ALERTS_SHOWN = "register_webhook_alerts_shown";
     private static final String KEY_APP_LANGUAGE = "app_language";
@@ -207,7 +209,11 @@ final class KeepADBPreferences {
     private static void ensurePrivacySplit(SharedPreferences prefs) {
         if (prefs.getBoolean(KEY_PRIVACY_SPLIT_INITIALIZED, false)) return;
         SharedPreferences.Editor editor = prefs.edit();
-        if (!prefs.getAll().isEmpty()) {
+        // #997: the open-network default is stored just before this and is no sign of an
+        // existing installation.
+        java.util.Map<String, ?> stored = new java.util.HashMap<>(prefs.getAll());
+        stored.remove(KEY_OPEN_NETWORK_SHUTDOWN);
+        if (!stored.isEmpty()) {
             boolean detailsShown = prefs.getBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, false);
             editor.putBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, !detailsShown);
             editor.putBoolean(KEY_WIDGET_PRIVACY_ENABLED,
@@ -508,6 +514,35 @@ final class KeepADBPreferences {
     static void setUntrustedShutdownEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_UNTRUSTED_SHUTDOWN, enabled).apply();
+    }
+
+    /**
+     * #997: whether Wifi-ADB is turned off (and not recovered) in an open Wi-Fi or behind a
+     * captive portal, trusted access points included. An absent key reads as off; the stored
+     * default comes from {@link #migrateOpenNetworkShutdown}.
+     */
+    static boolean isOpenNetworkShutdownEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_OPEN_NETWORK_SHUTDOWN, false);
+    }
+
+    static void setOpenNetworkShutdownEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_OPEN_NETWORK_SHUTDOWN, enabled).apply();
+    }
+
+    /**
+     * #997: stores the default of the open-network rule once. A new installation (nothing stored
+     * yet) gets it on; an existing installation gets it off, so an update changes nothing until
+     * its user decides. Must run in {@link KeepADBApplication#onCreate} before anything else
+     * writes a preference, which is the only moment "nothing stored" identifies a new
+     * installation. Idempotent: keyed on the setting itself.
+     */
+    static void migrateOpenNetworkShutdown(Context context) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (prefs.contains(KEY_OPEN_NETWORK_SHUTDOWN)) return;
+        prefs.edit().putBoolean(KEY_OPEN_NETWORK_SHUTDOWN, prefs.getAll().isEmpty()).apply();
     }
 
     /**

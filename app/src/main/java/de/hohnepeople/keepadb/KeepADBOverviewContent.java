@@ -205,6 +205,8 @@ final class KeepADBOverviewContent {
                 return R.string.overview_reason_untrusted;
             case NETWORK_IDENTITY_UNAVAILABLE:
                 return R.string.overview_reason_identity;
+            case OPEN_NETWORK:
+                return R.string.overview_reason_open_network;
             case RECOVERY_BACKOFF:
                 return R.string.overview_reason_backoff;
             case NONE:

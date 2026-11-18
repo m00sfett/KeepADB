@@ -94,6 +94,15 @@ public class KeepADBHomeStatusTest {
                 R.string.status_off_keep_alive_blocked_identity_unavailable, Action.FIX);
     }
 
+    /** #997: an open Wi-Fi or a captive portal; nothing on Home can lift it, so no button. */
+    @Test
+    public void pausedBecauseTheWifiIsOpenOffersNoAction() {
+        assertModel(KeepADBHomeStatus.of(KeepADB.State.OFF_KEEP_ALIVE_WAITING, false,
+                        KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK, Network.NONE),
+                R.string.home_state_off, R.string.home_reason_open_network,
+                R.string.status_off_keep_alive_blocked_open_network, Action.NONE);
+    }
+
     @Test
     public void pausedBecauseAndroidsDialogWasNotConfirmedOffersRetry() {
         assertModel(KeepADBHomeStatus.of(KeepADB.State.OFF_KEEP_ALIVE_WAITING, false,

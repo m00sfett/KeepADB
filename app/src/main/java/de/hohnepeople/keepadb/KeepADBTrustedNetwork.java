@@ -52,6 +52,13 @@ import java.util.List;
  * answered as if the block were gone. The read is pure (no lock, no write), so it is safe where the
  * callers hold {@code KeepADB}'s monitor and expires exactly at the deadline without any timer.
  *
+ * <h2>The open-network rule (#997)</h2>
+ * Below the force mode and above every list, {@link #evaluateCurrent} answers {@link
+ * Decision#OPEN_NETWORK} or {@link Decision#CAPTIVE_PORTAL} while {@link KeepADBOpenNetwork}
+ * reports the current Wi-Fi as open or behind a captive portal and the rule is on. Like the force
+ * mode it lives only in {@link #evaluateCurrent}: it is a property of the live connection, not of
+ * an access point, so the lists, prompts and the Networks list ({@link #evaluate}) do not see it.
+ *
  * <h2>Persistence and migration</h2>
  * The model reads the pre-#760 keys in place and never rewrites them: the migration of an existing
  * installation is "interpret what is stored" ({@link #getProtectionLevel} names the result), so it
@@ -91,7 +98,8 @@ final class KeepADBTrustedNetwork {
     static final String MODE_ALLOWLIST = "allowlist";
 
     /** Why the UI reports automatic re-enable as blocked; a blocked network reads as untrusted. */
-    enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE }
+    /** #997: OPEN_NETWORK covers an open Wi-Fi and a captive portal alike. */
+    enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE, OPEN_NETWORK }
 
     /**
      * The outcome of the unified trust evaluation for one network identity (#760). Only the
@@ -117,7 +125,14 @@ final class KeepADBTrustedNetwork {
          * trusted, or unreadable, while the opt-in security check is on. Trusting it again
          * records the current tier.
          */
-        SECURITY_MISMATCH(false);
+        SECURITY_MISMATCH(false),
+        /**
+         * #997: the Wi-Fi is open (no password) while the open-network rule is on. Holds for
+         * trusted access points too; only the force mode overrides it.
+         */
+        OPEN_NETWORK(false),
+        /** #997: the Wi-Fi reports a captive portal while the open-network rule is on. */
+        CAPTIVE_PORTAL(false);
 
         final boolean allowsAutomaticEnable;
 
@@ -127,6 +142,11 @@ final class KeepADBTrustedNetwork {
 
         boolean isBlocked() {
             return this == BLOCKED_ACCESS_POINT || this == BLOCKED_NAME;
+        }
+
+        /** #997: a decision of the open-network rule rather than of the trust lists. */
+        boolean isOpenNetwork() {
+            return this == OPEN_NETWORK || this == CAPTIVE_PORTAL;
         }
     }
 
@@ -647,6 +667,7 @@ final class KeepADBTrustedNetwork {
     static BlockReason getBlockReason(Context context) {
         Decision decision = evaluateCurrent(context);
         if (decision.allowsAutomaticEnable) return BlockReason.NONE;
+        if (decision.isOpenNetwork()) return BlockReason.OPEN_NETWORK;
         // Not allowed: distinguish "readable but not trusted (or blocked)" from "identity unknown".
         return decision == Decision.IDENTITY_UNAVAILABLE
                 ? BlockReason.IDENTITY_UNAVAILABLE : BlockReason.UNTRUSTED_NETWORK;
@@ -661,6 +682,16 @@ final class KeepADBTrustedNetwork {
     static Decision evaluateCurrent(Context context) {
         if (KeepADBForceMode.isActive(context)) {
             return Decision.FORCE_MODE;
+        }
+        // #997: an open Wi-Fi or a captive portal ends the evaluation before any list or policy,
+        // so neither a trusted entry nor the legacy "all networks" setting can allow it.
+        switch (KeepADBOpenNetwork.current(context)) {
+            case OPEN:
+                return Decision.OPEN_NETWORK;
+            case CAPTIVE_PORTAL:
+                return Decision.CAPTIVE_PORTAL;
+            default:
+                break;
         }
         // #860: with the security check on, the identity is read here too (Codex review).
         if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)

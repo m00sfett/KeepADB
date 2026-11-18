@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Bu bağlantıyı açacak uygulama bulunamadı.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB KAPALI – Keep-Alive ağı bekliyor</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi\'nin şifresi yok veya giriş istiyor</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı engellendi</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB KAPALI – Keep-Alive duraklatıldı: Android’in Wifi-ADB ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Sistem izni verilmedi</string>
     <string name="home_reason_waiting">Keep-Alive Wi-Fi\'yi bekliyor</string>
     <string name="home_reason_untrusted">Keep-Alive duraklatıldı: Wi-Fi güvenilir değil</string>
+    <string name="home_reason_open_network">Keep-Alive duraklatıldı: açık Wi-Fi</string>
     <string name="home_reason_blocked">Keep-Alive duraklatıldı: Wi-Fi engellendi</string>
     <string name="home_reason_identity">Keep-Alive duraklatıldı: ağ okunamıyor</string>
     <string name="home_reason_backoff">Keep-Alive duraklatıldı: Android’in Wifi-ADB iletişim kutusu onaylanmadı</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Koruma</string>
     <string name="protection_automatic_title">Otomatik davranış</string>
     <string name="untrusted_shutdown_hint_short">Güvenilmeyen bir Wi-Fi\'de Wifi-ADB\'yi kapatır.</string>
+    <string name="open_network_shutdown_hint_short">Şifresiz veya giriş sayfası olan bir Wi-Fi\'de Wifi-ADB\'yi kapatır.</string>
     <string name="security_check_hint_short">Güvenilen bir Wi-Fi noktasının güvenliği zayıflarsa otomatik açmayı duraklatır.</string>
     <string name="hint_more">Daha fazla ▾</string>
     <string name="hint_less">Daha az ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Erişim noktası (BSSID): bir yönlendirici, tekrarlayıcı veya mesh düğümü gibi tek bir verici. Donanım adresi, örneğin AA:BB:CC:11:22:33, addan daha belirleyicidir ama o da bir kanıt değildir.</string>
     <string name="untrusted_shutdown_title">Güvenilmeyen Wi-Fi\'de kapat</string>
     <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Wifi-ADB\'yi kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
+    <string name="open_network_shutdown_title">Açık Wi-Fi\'de kapat</string>
+    <string name="open_network_shutdown_hint">Keep-Alive açıkken KeepADB, şifresiz bir Wi-Fi\'de (açık, WEP veya Enhanced Open) ve bir Wi-Fi giriş sayfası istediği sürece, güvenilir Wi-Fi noktalarında bile Wifi-ADB\'yi kapatır ve orada tekrar açmaz. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır. Android 11 bir Wi-Fi\'nin şifresi olup olmadığını bilemez; orada yalnızca giriş sayfaları sayılır.</string>
     <string name="untrusted_shutdown_channel_name">Güvenilmeyen Wi-Fi\'de kapatma</string>
     <string name="untrusted_shutdown_channel_desc">KeepADB güvenilmeyen bir Wi-Fi\'de Wifi-ADB\'yi kapattığında bildirir.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB kapatıldı</string>
     <string name="untrusted_shutdown_off_text">Geçerli Wi-Fi güvenilir değil veya tanımlanamıyor. Keep-Alive güvenilir bir Wi-Fi\'de tekrar açar.</string>
+    <string name="open_network_off_text">Bu Wi-Fi\'nin şifresi yok veya giriş sayfası istiyor. Keep-Alive korumalı bir Wi-Fi\'de tekrar açar.</string>
     <string name="untrusted_shutdown_failed_title">Wifi-ADB kapatılamadı</string>
     <string name="untrusted_shutdown_failed_text">Geçerli Wi-Fi güvenilir değil ancak Wifi-ADB kapatılamadı. Elle kapat.</string>
     <string name="security_check_title">Güvenilen Wi-Fi noktalarının Wi-Fi güvenliğini denetle</string>
@@ -632,6 +638,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="overview_reason_manual_off">elle kapatıldı</string>
     <string name="overview_reason_no_wifi">Wi-Fi yok</string>
     <string name="overview_reason_untrusted">ağ güvenilir değil</string>
+    <string name="overview_reason_open_network">ağ açık</string>
     <string name="overview_reason_identity">ağ bilinmiyor</string>
     <string name="overview_reason_backoff">yeniden denemeler duraklatıldı</string>
     <string name="overview_delivery_unconfigured">Kurulmadı</string>

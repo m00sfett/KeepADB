@@ -21,7 +21,7 @@ KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Re
 - **Setup without a PC (Android 11+ self-pairing):** Grant the one-time `WRITE_SECURE_SETTINGS` permission directly on your phone — no computer and no USB cable required. KeepADB pairs locally over loopback TLS 1.3 + SPAKE2 using Android's pairing dialog code and discards its ephemeral key afterwards.
 - **Browser WebUSB & classic USB `adb` fallbacks:** If self-pairing cannot be used, open [`https://keepadb.roteson.de/setup`](https://keepadb.roteson.de/setup) in Chrome or Edge to grant the permission over USB right from your browser (nothing leaves the browser), or use the proven manual `adb` command (with a one-tap **Share command** action in the setup assistant).
 - **Control from anywhere:** Main screen switch, Quick Settings tile, **launcher shortcuts** (long-press the app icon for Toggle Wifi-ADB, Wi-Fi networks, and Settings), and two adaptive home-screen widgets (**KeepADB controls** and **KeepADB overview**).
-- **Network Protection & Force mode:** Keep-Alive recovers Wifi-ADB only where your protection level permits (**Maximum security** by BSSID or **Balanced** by Wi-Fi name), optionally turns off on untrusted Wi-Fi, checks for security-tier downgrades on Android 12+, and offers timed or unlimited **Force mode**.
+- **Network Protection & Force mode:** Keep-Alive recovers Wifi-ADB only where your protection level permits (**Maximum security** by BSSID or **Balanced** by Wi-Fi name), optionally turns off on untrusted Wi-Fi, turns off on open Wi-Fi and behind captive portals (on by default for new installations), checks for security-tier downgrades on Android 12+, and offers timed or unlimited **Force mode**.
 - **Webhook Sync with opt-in periodic refresh:** Send verified endpoints via HTTP(S) and optionally re-send active endpoints on a configurable schedule (`15 min` to `23 h 59 min`, based on work by `@inaciopestana`) so external registers that expire idle entries stay current.
 - **Zero bloat & four privacy switches:** No runtime dependencies, no ads, no analytics, and independent switches to mask names and addresses in the app, notifications, lock screen, and widgets/tile.
 
@@ -46,7 +46,8 @@ What sets KeepADB apart:
   network interruption, honors the user's last saved intent, and backs off when Android does not
   confirm the change.
 - **Network protection:** automatic recovery runs only where the selected rule allows it (trusted
-  access points by default on new installations), with an optional switch-off on untrusted Wi-Fi.
+  access points by default on new installations), with an optional switch-off on untrusted Wi-Fi
+  and, by default on new installations, on open Wi-Fi and behind captive portals.
 - **Setup without a PC:** on Android 11+ the permission can be granted on the phone itself; a
   computer is only a fallback.
 
@@ -117,6 +118,12 @@ On a new installation, the network rule initially allows automatic recovery only
 points. Existing installations keep their previous setting, including “In all Wi-Fi networks.” Change
 the rule under **Settings → Protection**. It controls automatic actions; manually turning Wifi-ADB
 on remains a separate user action.
+
+**Turn off on open Wi-Fi** (Settings → Protection, on for new installations, off for existing ones
+until you switch it on) turns Wifi-ADB off while Keep-Alive runs and keeps it off in a Wi-Fi without
+a password or behind a captive portal, even at a trusted access point. A session you switch on
+yourself in KeepADB stays on there, and Force mode overrides the rule. Android 11 cannot tell
+whether a Wi-Fi has a password; there only captive portals count.
 
 For convenience, you can enable **Force mode** under **Settings → Protection** for 1 hour, 24 hours,
 7 days, 30 days, or indefinitely. Keep-Alive will then turn Wifi-ADB back on in every

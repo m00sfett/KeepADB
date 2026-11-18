@@ -338,6 +338,10 @@ final class KeepADBWidgetContent {
                     click[0] = Click.OPEN_APP;
                     return ctx.getString(R.string.status_off_keep_alive_blocked_identity_unavailable);
                 }
+                if (p.keepAliveReason == KeepADBWidgetState.Reason.OPEN_NETWORK) {
+                    click[0] = Click.OPEN_APP;
+                    return ctx.getString(R.string.status_off_keep_alive_blocked_open_network);
+                }
                 // The last explicit intent was off: nothing to solve, the plain state is the answer.
                 return ctx.getString(R.string.home_state_off);
             case WAITING:

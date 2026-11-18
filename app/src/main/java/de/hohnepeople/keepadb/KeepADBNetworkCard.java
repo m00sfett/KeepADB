@@ -90,9 +90,11 @@ final class KeepADBNetworkCard {
     private final TextView networkPrivacyHint;
 
     private final Switch untrustedShutdownToggle;
+    private final Switch openNetworkShutdownToggle;
     private final Switch securityCheckToggle;
     /** #959: one line each with "More"; the full texts are the unchanged long hints. */
     private final KeepADBHelpHint untrustedShutdownHint;
+    private final KeepADBHelpHint openNetworkShutdownHint;
     private final KeepADBHelpHint securityCheckHint;
     private final KeepADBHelpHint backgroundHint;
     private final TextView backgroundLocationStatus;
@@ -137,9 +139,12 @@ final class KeepADBNetworkCard {
         networkStatusAction = activity.findViewById(R.id.network_status_action);
         networkPrivacyHint = activity.findViewById(R.id.network_privacy_hint);
         untrustedShutdownToggle = activity.findViewById(R.id.settings_untrusted_shutdown_toggle);
+        openNetworkShutdownToggle = activity.findViewById(R.id.settings_open_network_shutdown_toggle);
         securityCheckToggle = activity.findViewById(R.id.settings_security_check_toggle);
         untrustedShutdownHint = new KeepADBHelpHint(
                 activity.findViewById(R.id.protection_untrusted_shutdown_hint), null);
+        openNetworkShutdownHint = new KeepADBHelpHint(
+                activity.findViewById(R.id.protection_open_network_shutdown_hint), null);
         securityCheckHint = new KeepADBHelpHint(
                 activity.findViewById(R.id.settings_security_check_hint), null);
         backgroundLocationStatus = activity.findViewById(R.id.settings_background_location_status);
@@ -179,6 +184,16 @@ final class KeepADBNetworkCard {
             KeepADBPreferences.setUntrustedShutdownEnabled(activity, enabled);
             KeepADBDiagnostics.event(activity, "user_action", "settings_network",
                     enabled ? "enable" : "disable", "untrusted_shutdown");
+            if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
+            onChange.run();
+        });
+
+        // #997: the open-network rule; applied at once like the untrusted-Wi-Fi switch above.
+        openNetworkShutdownToggle.setOnClickListener(v -> {
+            boolean enabled = openNetworkShutdownToggle.isChecked();
+            KeepADBPreferences.setOpenNetworkShutdownEnabled(activity, enabled);
+            KeepADBDiagnostics.event(activity, "user_action", "settings_network",
+                    enabled ? "enable" : "disable", "open_network_shutdown");
             if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
             onChange.run();
         });
@@ -373,12 +388,16 @@ final class KeepADBNetworkCard {
         networkPrivacyHint.setVisibility(
                 KeepADBNetworkDisplay.hidden(activity) ? View.VISIBLE : View.GONE);
 
-        // The two automatic-behavior switches, rendered from the stored policy. The protection
+        // The three automatic-behavior switches, rendered from the stored policy. The protection
         // level is rendered by KeepADBProtectionLevelSection.
         untrustedShutdownToggle.setChecked(KeepADBPreferences.isUntrustedShutdownEnabled(activity));
+        openNetworkShutdownToggle.setChecked(
+                KeepADBPreferences.isOpenNetworkShutdownEnabled(activity));
         securityCheckToggle.setChecked(KeepADBTrustedNetwork.isSecurityCheckEnabled(activity));
         untrustedShutdownHint.set(activity.getString(R.string.untrusted_shutdown_hint_short),
                 activity.getString(R.string.untrusted_shutdown_hint));
+        openNetworkShutdownHint.set(activity.getString(R.string.open_network_shutdown_hint_short),
+                activity.getString(R.string.open_network_shutdown_hint));
         securityCheckHint.set(activity.getString(R.string.security_check_hint_short),
                 activity.getString(R.string.security_check_hint));
 

@@ -113,6 +113,7 @@ public class KeepADBUsbRemovalMigrationTest {
         expected.put("notification_privacy_enabled", true);
         expected.put("widget_privacy_enabled", false);
         expected.put("onboarding_existing_install", true);
+        expected.put("open_network_shutdown_enabled", false); // #997: existing installation
         assertEquals("only the USB keys were removed", expected, new TreeMap<>(prefs().getAll()));
         for (String key : prefs().getAll().keySet()) {
             assertFalse("a USB key is left: " + key, key.startsWith("usb_"));
@@ -180,6 +181,7 @@ public class KeepADBUsbRemovalMigrationTest {
         // exactly the privacy marker, and a later start adds nothing (in particular not the
         // assistant's existing/new decision, which must stay open for the first real question).
         prefs().edit().clear().commit();
+        KeepADBPreferences.migrateOpenNetworkShutdown(app);
         KeepADBPreferences.migratePrivacySplit(app);
         Map<String, ?> before = prefs().getAll();
 

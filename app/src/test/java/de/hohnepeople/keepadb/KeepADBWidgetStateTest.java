@@ -185,6 +185,38 @@ public class KeepADBWidgetStateTest {
                 KeepADB.State.OFF, state.systemState);
     }
 
+    /** #997: an open Wi-Fi names its own cause, also at a trusted access point. */
+    @Test
+    public void keepAliveBlockedByAnOpenWifiNamesTheCause() {
+        wifi(true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
+        connectedTo(SSID, BSSID);
+        KeepADBPreferences.setOpenNetworkShutdownEnabled(context, true);
+        KeepADBOpenNetwork.setProbeForTesting(new KeepADBOpenNetwork.Probe() {
+            @Override
+            public Integer securityTier(Context c) {
+                return KeepADBNetworkSecurity.TIER_OPEN;
+            }
+
+            @Override
+            public boolean captivePortal(Context c) {
+                return false;
+            }
+        });
+        try {
+            KeepADBWidgetState state = project();
+            assertEquals(KeepADBWidgetState.KeepAlive.BLOCKED, state.keepAlive);
+            assertEquals(KeepADBWidgetState.Reason.OPEN_NETWORK, state.keepAliveReason);
+            assertEquals(R.string.overview_reason_open_network,
+                    KeepADBOverviewContent.reasonText(state.keepAliveReason));
+        } finally {
+            KeepADBOpenNetwork.setProbeForTesting(null);
+        }
+    }
+
     @Test
     public void keepAliveBlockedByTheNetworkNamesTheCause() {
         wifi(true);

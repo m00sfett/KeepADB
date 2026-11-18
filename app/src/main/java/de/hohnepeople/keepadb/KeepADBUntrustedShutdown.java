@@ -40,11 +40,22 @@ import java.util.Locale;
  *       the toggle lock immediately before the write.</li>
  * </ul>
  * This is defense in depth, not access-point authentication; see docs/trusted-networks.md.
+ *
+ * <p>#997: the same observer enforces the open-network rule ({@link KeepADBOpenNetwork}): while
+ * {@link KeepADBPreferences#isOpenNetworkShutdownEnabled} is on, an open Wi-Fi or a captive portal
+ * ({@link KeepADBTrustedNetwork.Decision#isOpenNetwork}) switches off even when the untrusted-Wi-Fi
+ * switch above is off and even at a trusted access point. Force mode suspends it, a manual session
+ * keeps its exemption, and Keep-Alive must be on, exactly as above. Because the rule needs no
+ * readable identity, a manual enable on an unreadable identity records {@link
+ * #MANUAL_UNREADABLE}: it exempts the session from the open-network rule only, never from the
+ * untrusted-Wi-Fi rule, and ends like any exemption.
  */
 final class KeepADBUntrustedShutdown {
     static final String CHANNEL_ID = "keepadb_untrusted_shutdown";
     static final int NOTIFICATION_ID = 6;
     static final String SOURCE = "untrusted_shutdown";
+    /** #997: the recorded exemption of a manual enable whose access point could not be read. */
+    static final String MANUAL_UNREADABLE = "?";
 
     private static volatile KeepADBScheduler scheduler = new KeepADBAndroidScheduler();
     /** The scheduled recheck of an unreadable identity, or null; guarded by the class lock. */
@@ -75,7 +86,7 @@ final class KeepADBUntrustedShutdown {
             return;
         }
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
-        if (decision.allowsAutomaticEnable || isManuallyExempt(app)) {
+        if (!covers(app, decision) || isManuallyExempt(app, decision)) {
             cancelRecheck();
             return;
         }
@@ -97,8 +108,12 @@ final class KeepADBUntrustedShutdown {
         Context app = context.getApplicationContext();
         // Only a readable access point can carry an exemption (see the class javadoc).
         String bssid = on ? currentBssidOrNull(app) : null;
-        if (bssid == null) {
+        if (!on) {
             KeepADBPreferences.clearUntrustedShutdownManualBssid(app);
+        } else if (bssid == null) {
+            // #997: exempts from the open-network rule only, see the class javadoc.
+            KeepADBPreferences.setUntrustedShutdownManualBssid(app, MANUAL_UNREADABLE,
+                    scheduler.elapsedRealtimeMs());
         } else {
             KeepADBPreferences.setUntrustedShutdownManualBssid(app, bssid, scheduler.elapsedRealtimeMs());
         }
@@ -154,7 +169,8 @@ final class KeepADBUntrustedShutdown {
 
     /** The conditions every decision and the final write depend on, apart from the network. */
     private static boolean preconditionsHold(Context app) {
-        return KeepADBPreferences.isUntrustedShutdownEnabled(app)
+        return (KeepADBPreferences.isUntrustedShutdownEnabled(app)
+                        || KeepADBPreferences.isOpenNetworkShutdownEnabled(app))
                 && KeepADBPreferences.isKeepAliveEnabled(app)
                 && KeepADBService.isWifiConnected(app)
                 && Boolean.TRUE.equals(KeepADB.isEnabledOrNull(app, SOURCE));
@@ -166,16 +182,37 @@ final class KeepADBUntrustedShutdown {
      * unreadableConfirmed} false): it gets its own confirmation first, see {@link #shutDown}.
      */
     private static boolean stillApplies(Context app, boolean unreadableConfirmed) {
-        if (!preconditionsHold(app) || isManuallyExempt(app)) return false;
+        if (!preconditionsHold(app)) return false;
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
-        if (decision.allowsAutomaticEnable) return false;
+        if (!covers(app, decision) || isManuallyExempt(app, decision)) return false;
         return unreadableConfirmed || decision != KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE;
     }
 
+    /**
+     * #997: whether a switched-on rule turns Wifi-ADB off for {@code decision}: the open-network
+     * rule for its own decisions (they only exist while it is on), the untrusted-Wi-Fi rule for
+     * every other decision that allows no automatic enable.
+     */
+    static boolean covers(Context app, KeepADBTrustedNetwork.Decision decision) {
+        if (decision.allowsAutomaticEnable) return false;
+        return decision.isOpenNetwork() || KeepADBPreferences.isUntrustedShutdownEnabled(app);
+    }
+
+    /** The manual exemption from the untrusted-Wi-Fi rule (any decision other than #997's). */
     static boolean isManuallyExempt(Context app) {
+        return isManuallyExempt(app, KeepADBTrustedNetwork.Decision.UNKNOWN_NETWORK);
+    }
+
+    /**
+     * The manual exemption for {@code decision}: the recorded access point is the current,
+     * readable one, or (#997) an exemption recorded on an unreadable identity meets the
+     * open-network rule.
+     */
+    static boolean isManuallyExempt(Context app, KeepADBTrustedNetwork.Decision decision) {
         String recorded = KeepADBPreferences.getUntrustedShutdownManualBssid(app);
-        String current = currentBssidOrNull(app);
-        return recorded != null && !recorded.isEmpty() && recorded.equals(current);
+        if (recorded == null || recorded.isEmpty()) return false;
+        if (MANUAL_UNREADABLE.equals(recorded)) return decision.isOpenNetwork();
+        return recorded.equals(currentBssidOrNull(app));
     }
 
     /**
@@ -221,13 +258,14 @@ final class KeepADBUntrustedShutdown {
             pendingRecheck = null;
         }
         endExemptionOnOtherAccessPoint(app);
-        if (!preconditionsHold(app) || isManuallyExempt(app)) return;
+        if (!preconditionsHold(app)) return;
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
         if (decision.allowsAutomaticEnable) {
             KeepADBDiagnostics.event(app, "untrusted_shutdown", "recheck", "resolved",
                     "attempt=" + (attempt + 2));
             return;
         }
+        if (!covers(app, decision) || isManuallyExempt(app, decision)) return;
         if (decision == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE
                 && attempt + 1 < KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS.length) {
             synchronized (KeepADBUntrustedShutdown.class) {
@@ -259,7 +297,8 @@ final class KeepADBUntrustedShutdown {
                 "decision=" + decision.name().toLowerCase(Locale.ROOT));
         switch (result) {
             case APPLIED:
-                notify(app, R.string.untrusted_shutdown_off_title, R.string.untrusted_shutdown_off_text);
+                notify(app, R.string.untrusted_shutdown_off_title, decision.isOpenNetwork()
+                        ? R.string.open_network_off_text : R.string.untrusted_shutdown_off_text);
                 break;
             case PERMISSION_MISSING:
             case SECURITY_EXCEPTION:
@@ -270,9 +309,10 @@ final class KeepADBUntrustedShutdown {
             case GUARD_ABORTED:
                 // The identity may have turned unreadable since the readable decision: that is a
                 // possible roam, so it gets the same confirmation as any unreadable identity.
-                if (!unreadableConfirmed && preconditionsHold(app) && !isManuallyExempt(app)
-                        && KeepADBTrustedNetwork.evaluateCurrent(app)
-                        == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE) {
+                KeepADBTrustedNetwork.Decision now = KeepADBTrustedNetwork.evaluateCurrent(app);
+                if (!unreadableConfirmed && preconditionsHold(app)
+                        && now == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE
+                        && covers(app, now) && !isManuallyExempt(app, now)) {
                     synchronized (KeepADBUntrustedShutdown.class) {
                         if (pendingRecheck == null) scheduleRecheckLocked(app, 0);
                     }

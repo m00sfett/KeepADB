@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Không tìm thấy ứng dụng để mở liên kết này.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB đang TẮT – Keep-Alive đang chờ mạng</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không tin cậy</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: Wi-Fi này không có mật khẩu hoặc yêu cầu đăng nhập</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này đã bị chặn</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Wifi-ADB của Android, sau đó nhấn vào công tắc để thử lại</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Chưa cấp quyền hệ thống</string>
     <string name="home_reason_waiting">Keep-Alive đang chờ Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive đã tạm dừng: Wi-Fi không tin cậy</string>
+    <string name="home_reason_open_network">Keep-Alive đã tạm dừng: Wi-Fi mở</string>
     <string name="home_reason_blocked">Keep-Alive đã tạm dừng: Wi-Fi bị chặn</string>
     <string name="home_reason_identity">Keep-Alive đã tạm dừng: không đọc được mạng</string>
     <string name="home_reason_backoff">Keep-Alive đã tạm dừng: hộp thoại Wifi-ADB của Android chưa được xác nhận</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Bảo vệ</string>
     <string name="protection_automatic_title">Hành vi tự động</string>
     <string name="untrusted_shutdown_hint_short">Tắt Wifi-ADB trên Wi-Fi không được tin cậy.</string>
+    <string name="open_network_shutdown_hint_short">Tắt Wifi-ADB trên Wi-Fi không có mật khẩu hoặc có trang đăng nhập.</string>
     <string name="security_check_hint_short">Tạm dừng tự động bật nếu điểm Wi-Fi được tin cậy có mức bảo mật yếu hơn.</string>
     <string name="hint_more">Thêm ▾</string>
     <string name="hint_less">Ít hơn ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Điểm truy cập (BSSID): một bộ phát riêng lẻ, như bộ định tuyến, bộ lặp hoặc nút mesh. Địa chỉ phần cứng của nó, ví dụ AA:BB:CC:11:22:33, cụ thể hơn tên, nhưng cũng không phải bằng chứng.</string>
     <string name="untrusted_shutdown_title">Tắt trên Wi-Fi không tin cậy</string>
     <string name="untrusted_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Wifi-ADB trên Wi-Fi không được tin cậy, bị chặn hoặc không xác định được, thay vì chỉ thông báo. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này.</string>
+    <string name="open_network_shutdown_title">Tắt trên Wi-Fi mở</string>
+    <string name="open_network_shutdown_hint">Khi Keep-Alive đang bật, KeepADB tắt Wifi-ADB trên Wi-Fi không có mật khẩu (mở, WEP hoặc Enhanced Open) và khi Wi-Fi yêu cầu trang đăng nhập, kể cả tại điểm Wi-Fi tin cậy, và không bật lại ở đó. Phiên do bạn tự bật trong KeepADB vẫn được giữ tại điểm Wi-Fi đó. Chế độ cưỡng chế tạm dừng việc này. Android 11 không biết được Wi-Fi có mật khẩu hay không; ở đó chỉ tính trang đăng nhập.</string>
     <string name="untrusted_shutdown_channel_name">Tắt trên Wi-Fi không tin cậy</string>
     <string name="untrusted_shutdown_channel_desc">Thông báo khi KeepADB đã tắt Wifi-ADB trên Wi-Fi không tin cậy.</string>
     <string name="untrusted_shutdown_off_title">Đã tắt Wifi-ADB</string>
     <string name="untrusted_shutdown_off_text">Wi-Fi hiện tại không được tin cậy hoặc không xác định được. Keep-Alive sẽ bật lại trên Wi-Fi tin cậy.</string>
+    <string name="open_network_off_text">Wi-Fi này không có mật khẩu hoặc yêu cầu trang đăng nhập. Keep-Alive sẽ bật lại trên Wi-Fi được bảo vệ.</string>
     <string name="untrusted_shutdown_failed_title">Không thể tắt Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">Wi-Fi hiện tại không được tin cậy nhưng không thể tắt Wifi-ADB. Hãy tự tắt.</string>
     <string name="security_check_title">Kiểm tra bảo mật Wi-Fi của các điểm Wi-Fi được tin cậy</string>
@@ -631,6 +637,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="overview_reason_manual_off">đã tắt thủ công</string>
     <string name="overview_reason_no_wifi">không có Wi-Fi</string>
     <string name="overview_reason_untrusted">mạng không tin cậy</string>
+    <string name="overview_reason_open_network">mạng mở</string>
     <string name="overview_reason_identity">mạng không xác định</string>
     <string name="overview_reason_backoff">tạm dừng thử lại</string>
     <string name="overview_delivery_unconfigured">Chưa thiết lập</string>

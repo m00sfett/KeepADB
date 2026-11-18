@@ -267,15 +267,19 @@ public class ProtectionLevelSectionTest {
 
     // --- the switch is gone ------------------------------------------------------------------------------
 
-    /** Of the switches of the former card only the two automatic-behavior ones are left. */
+    /**
+     * Of the switches of the former card only the automatic-behavior ones are left: the two of
+     * then, and the open-network rule added since (#997).
+     */
     @Test
-    public void theByNameSwitchExistsNowhereOnThePageAndOnlyTheTwoAutomaticSwitchesRemain() {
+    public void theByNameSwitchExistsNowhereOnThePageAndOnlyTheAutomaticSwitchesRemain() {
         ProtectionActivity page = open();
         List<Integer> switches = new ArrayList<>();
         collectSwitches(page.getWindow().getDecorView(), switches);
 
-        assertEquals(2, switches.size());
+        assertEquals(3, switches.size());
         assertTrue(switches.contains(R.id.settings_untrusted_shutdown_toggle));
+        assertTrue(switches.contains(R.id.settings_open_network_shutdown_toggle));
         assertTrue(switches.contains(R.id.settings_security_check_toggle));
         assertEquals(0, page.getResources().getIdentifier("settings_trust_by_name_toggle", "id",
                 page.getPackageName()));

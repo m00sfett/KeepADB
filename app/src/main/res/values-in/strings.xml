@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Tidak ada aplikasi untuk membuka tautan ini.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB NONAKTIF – Keep-Alive menunggu jaringan</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak dipercaya</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB NONAKTIF – Keep-Alive dijeda: Wi-Fi ini tanpa kata sandi atau meminta halaman masuk</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini diblokir</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Android untuk Wifi-ADB, lalu ketuk sakelar untuk mencoba lagi</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Izin sistem belum diberikan</string>
     <string name="home_reason_waiting">Keep-Alive menunggu Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive dijeda: Wi-Fi tidak dipercaya</string>
+    <string name="home_reason_open_network">Keep-Alive dijeda: Wi-Fi terbuka</string>
     <string name="home_reason_blocked">Keep-Alive dijeda: Wi-Fi diblokir</string>
     <string name="home_reason_identity">Keep-Alive dijeda: jaringan tidak terbaca</string>
     <string name="home_reason_backoff">Keep-Alive dijeda: dialog Android untuk Wifi-ADB belum dikonfirmasi</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Perlindungan</string>
     <string name="protection_automatic_title">Perilaku otomatis</string>
     <string name="untrusted_shutdown_hint_short">Mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya.</string>
+    <string name="open_network_shutdown_hint_short">Mematikan Wifi-ADB di Wi-Fi tanpa kata sandi atau dengan halaman masuk.</string>
     <string name="security_check_hint_short">Menjeda penyalaan otomatis jika titik Wi-Fi yang dipercaya menunjukkan keamanan lebih lemah.</string>
     <string name="hint_more">Selengkapnya ▾</string>
     <string name="hint_less">Lebih sedikit ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Titik akses (BSSID): satu pemancar, misalnya router, repeater, atau node mesh. Alamat perangkat kerasnya, misalnya AA:BB:CC:11:22:33, lebih spesifik daripada nama, tetapi juga bukan bukti.</string>
     <string name="untrusted_shutdown_title">Matikan di Wi-Fi yang tidak dipercaya</string>
     <string name="untrusted_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya, diblokir, atau tidak dapat dikenali, bukan hanya memberi tahu. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini.</string>
+    <string name="open_network_shutdown_title">Matikan di Wi-Fi terbuka</string>
+    <string name="open_network_shutdown_hint">Selama Keep-Alive aktif, KeepADB mematikan Wifi-ADB di Wi-Fi tanpa kata sandi (terbuka, WEP, atau Enhanced Open) dan selama Wi-Fi meminta halaman masuk, bahkan di titik Wi-Fi yang dipercaya, dan tidak menyalakannya lagi di sana. Sesi yang kamu aktifkan sendiri di KeepADB tetap aktif di titik Wi-Fi tersebut. Mode paksa menangguhkan ini. Android 11 tidak dapat mengetahui apakah Wi-Fi memiliki kata sandi; di sana hanya halaman masuk yang dihitung.</string>
     <string name="untrusted_shutdown_channel_name">Pematian di Wi-Fi tidak dipercaya</string>
     <string name="untrusted_shutdown_channel_desc">Memberi tahu saat KeepADB mematikan Wifi-ADB di Wi-Fi yang tidak dipercaya.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB dimatikan</string>
     <string name="untrusted_shutdown_off_text">Wi-Fi saat ini tidak dipercaya atau tidak dapat dikenali. Keep-Alive menyalakannya lagi di Wi-Fi yang dipercaya.</string>
+    <string name="open_network_off_text">Wi-Fi ini tidak memiliki kata sandi atau meminta halaman masuk. Keep-Alive menyalakannya lagi di Wi-Fi yang terlindungi.</string>
     <string name="untrusted_shutdown_failed_title">Tidak dapat mematikan Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">Wi-Fi saat ini tidak dipercaya, tetapi gagal mematikan Wifi-ADB. Matikan secara manual.</string>
     <string name="security_check_title">Periksa keamanan Wi-Fi titik Wi-Fi yang dipercaya</string>
@@ -631,6 +637,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="overview_reason_manual_off">dimatikan manual</string>
     <string name="overview_reason_no_wifi">tidak ada Wi-Fi</string>
     <string name="overview_reason_untrusted">jaringan tidak dipercaya</string>
+    <string name="overview_reason_open_network">jaringan terbuka</string>
     <string name="overview_reason_identity">jaringan tidak dikenal</string>
     <string name="overview_reason_backoff">percobaan ulang dijeda</string>
     <string name="overview_delivery_unconfigured">Belum disiapkan</string>

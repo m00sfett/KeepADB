@@ -36,13 +36,16 @@ public class KeepADBApplicationTest {
     public void theManifestApplicationDerivesThePrivacySwitchesBeforeAnythingElseWrites() {
         assertTrue(RuntimeEnvironment.getApplication() instanceof KeepADBApplication);
 
-        assertEquals("a new installation stores the marker and nothing else after its first start",
-                new TreeSet<>(Arrays.asList("privacy_split_initialized")),
+        assertEquals("a new installation stores the marker and the open-network default (#997)"
+                        + " and nothing else after its first start",
+                new TreeSet<>(Arrays.asList("privacy_split_initialized", "open_network_shutdown_enabled")),
                 new TreeSet<>(context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                         .getAll().keySet()));
         assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(context));
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
+        assertTrue("#997: on for a new installation",
+                KeepADBPreferences.isOpenNetworkShutdownEnabled(context));
     }
 
     private static final String LIST = KeepADBPrivacy.SCOPE_NETWORK_LIST;

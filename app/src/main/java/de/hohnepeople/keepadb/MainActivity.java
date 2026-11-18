@@ -531,6 +531,8 @@ public class MainActivity extends Activity {
         BLOCKED_UNTRUSTED_NETWORK,
         /** Wi-Fi is connected, but its identity can't be read (missing Location permission). */
         BLOCKED_IDENTITY_UNAVAILABLE,
+        /** #997: Wi-Fi is connected, but it is open or behind a captive portal. */
+        BLOCKED_OPEN_NETWORK,
         /**
          * #496: Wi-Fi is connected and trusted, but the last automatic enable's write was
          * accepted while its readback stayed off -- most commonly because Android's own
@@ -557,6 +559,9 @@ public class MainActivity extends Activity {
         }
         if (reason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
             return KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK;
+        }
+        if (reason == KeepADBTrustedNetwork.BlockReason.OPEN_NETWORK) {
+            return KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK;
         }
         // #496: trusted network, but the automatic re-enable backoff is currently blocking
         // further attempts after an accepted-write-ineffective-readback cycle.

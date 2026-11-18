@@ -54,6 +54,8 @@ final class KeepADBWidgetState {
         UNTRUSTED_NETWORK,
         /** The Wi-Fi identity cannot be read (location access), so trust cannot be decided. */
         NETWORK_IDENTITY_UNAVAILABLE,
+        /** #997: the Wi-Fi is open or behind a captive portal while the open-network rule is on. */
+        OPEN_NETWORK,
         /** A write was accepted but never took effect (#496); automatic retries are paused. */
         RECOVERY_BACKOFF
     }
@@ -251,6 +253,9 @@ final class KeepADBWidgetState {
             } else if (trust == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
                 keepAlive = KeepAlive.BLOCKED;
                 keepAliveReason = Reason.NETWORK_IDENTITY_UNAVAILABLE;
+            } else if (trust == KeepADBTrustedNetwork.BlockReason.OPEN_NETWORK) {
+                keepAlive = KeepAlive.BLOCKED;
+                keepAliveReason = Reason.OPEN_NETWORK;
             } else if (KeepADB.isAutomaticEnableBackoffBlocked()) {
                 keepAlive = KeepAlive.WAITING;
                 keepAliveReason = Reason.RECOVERY_BACKOFF;
