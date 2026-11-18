@@ -704,6 +704,25 @@
     <string name="onboarding_perm_browser_body">在電腦上用 Chrome 或 Edge 開啟此網址並依三個步驟操作：</string>
     <string name="onboarding_perm_browser_prereq">在此手機上開啟 USB 偵錯並用 USB 傳輸線連接。</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">自動化</string>
+    <string name="settings_automation_subtext">允許 Tasker、MacroDroid 或 Automate 等自動化應用程式透過廣播 Intent 控制 KeepADB。開啟 Wifi-ADB 或 Keep-Alive 需要下方的存取權杖；未信任的、開放的以及需要登入頁面的 Wi-Fi 網路仍會遭到封鎖。</string>
+    <string name="settings_automation_toggle">允許自動化應用程式</string>
+    <string name="settings_automation_dialog_title">要允許自動化應用程式嗎？</string>
+    <string name="settings_automation_dialog_message">這支手機上的任何應用程式都能向 KeepADB 傳送要求。只有附帶存取權杖的要求才能開啟 Wifi-ADB 或 Keep-Alive，手機鎖定時也一樣。關閉以及查詢 Wifi-ADB 是否開啟不需要權杖。未信任的、開放的以及需要登入頁面的 Wi-Fi 網路仍會遭到封鎖。請只把權杖交給你信任的應用程式。</string>
+    <string name="settings_automation_dialog_confirm">允許</string>
+    <string name="settings_automation_token_label">存取權杖</string>
+    <string name="settings_automation_token_show">顯示</string>
+    <string name="settings_automation_token_hide">隱藏</string>
+    <string name="settings_automation_token_copy">複製</string>
+    <string name="settings_automation_token_copied">已複製權杖</string>
+    <string name="settings_automation_token_regenerate">新權杖</string>
+    <string name="settings_automation_regenerate_title">要建立新權杖嗎？</string>
+    <string name="settings_automation_regenerate_message">目前的權杖會立即失效。所有使用它的自動化都需要新權杖。</string>
+    <string name="settings_automation_regenerate_confirm">建立</string>
+    <string name="settings_automation_rejected_none">沒有遭拒的要求。</string>
+    <string name="settings_automation_rejected">遭拒的要求：%1$d 次（最近：%2$s）</string>
+    <string name="settings_automation_docs">設定指南</string>
     <string name="settings_backup_title">設定備份</string>
     <string name="settings_backup_subtext">將設定儲存到檔案，並在重新安裝後還原：保護等級、已信任與已封鎖的網路、網路規則、隱私、通知和 Webhook 選項。系統權限不包含在內，匯入也絕不會開啟 Wifi-ADB 或 Keep-Alive。</string>
     <string name="settings_backup_export">匯出設定</string>

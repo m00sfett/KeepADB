@@ -156,8 +156,10 @@ public class KeepADBForceContractTest {
         // The force mode adds none. #912 added one deliberately: the widget's configure activity,
         // which the launcher must be able to start (it only accepts the id of an existing widget of
         // this app and changes that widget's own display settings, see KeepADBWidgetConfigActivity).
-        assertEquals("exported components: the launcher activity, the quick settings tile and the"
-                + " widget's configure activity", 3, countOccurrences(manifest, "android:exported=\"true\""));
+        // #998 added the automation receiver deliberately (opt-in, token; KeepADBAutomationTest).
+        assertEquals("exported components: the launcher activity, the quick settings tile, the"
+                + " widget's configure activity and the automation receiver", 4,
+                countOccurrences(manifest, "android:exported=\"true\""));
         int configureStart = manifest.indexOf("android:name=\".KeepADBWidgetConfigActivity\"");
         assertTrue(configureStart >= 0);
         String configure = manifest.substring(configureStart, manifest.indexOf("</activity>", configureStart));

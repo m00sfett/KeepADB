@@ -704,6 +704,25 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_perm_browser_body">Di komputer, buka alamat ini di Chrome atau Edge dan ikuti ketiga langkahnya:</string>
     <string name="onboarding_perm_browser_prereq">Aktifkan debugging USB di ponsel ini dan sambungkan dengan kabel USB.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Otomatisasi</string>
+    <string name="settings_automation_subtext">Mengizinkan aplikasi otomatisasi seperti Tasker, MacroDroid, atau Automate mengendalikan KeepADB dengan intent siaran. Menyalakan Wifi-ADB atau Keep-Alive memerlukan token akses di bawah; jaringan Wi-Fi yang tidak dipercaya, terbuka, atau dengan halaman masuk tetap diblokir.</string>
+    <string name="settings_automation_toggle">Izinkan aplikasi otomatisasi</string>
+    <string name="settings_automation_dialog_title">Izinkan aplikasi otomatisasi?</string>
+    <string name="settings_automation_dialog_message">Setiap aplikasi di ponsel ini dapat mengirim permintaan ke KeepADB. Hanya permintaan dengan token akses yang dapat menyalakan Wifi-ADB atau Keep-Alive, juga saat ponsel terkunci. Mematikan dan memeriksa apakah Wifi-ADB menyala tidak memerlukan token. Jaringan Wi-Fi yang tidak dipercaya, terbuka, atau dengan halaman masuk tetap diblokir. Berikan token hanya kepada aplikasi yang Anda percayai.</string>
+    <string name="settings_automation_dialog_confirm">Izinkan</string>
+    <string name="settings_automation_token_label">Token akses</string>
+    <string name="settings_automation_token_show">Tampilkan</string>
+    <string name="settings_automation_token_hide">Sembunyikan</string>
+    <string name="settings_automation_token_copy">Salin</string>
+    <string name="settings_automation_token_copied">Token disalin</string>
+    <string name="settings_automation_token_regenerate">Token baru</string>
+    <string name="settings_automation_regenerate_title">Buat token baru?</string>
+    <string name="settings_automation_regenerate_message">Token saat ini langsung berhenti berfungsi. Setiap otomatisasi yang menggunakannya memerlukan token baru.</string>
+    <string name="settings_automation_regenerate_confirm">Buat</string>
+    <string name="settings_automation_rejected_none">Tidak ada permintaan yang ditolak.</string>
+    <string name="settings_automation_rejected">Permintaan ditolak: %1$d (terakhir: %2$s)</string>
+    <string name="settings_automation_docs">Panduan penyiapan</string>
     <string name="settings_backup_title">Cadangan pengaturan</string>
     <string name="settings_backup_subtext">Menyimpan pengaturan ke file dan memulihkannya setelah instal ulang: tingkat perlindungan, jaringan yang dipercaya dan diblokir, aturan jaringan, opsi privasi, notifikasi, dan Webhook. Izin sistem tidak termasuk, dan impor tidak pernah menyalakan Wifi-ADB atau Keep-Alive.</string>
     <string name="settings_backup_export">Ekspor pengaturan</string>

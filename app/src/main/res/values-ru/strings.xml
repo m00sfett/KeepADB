@@ -707,6 +707,25 @@
     <string name="onboarding_perm_browser_body">Откройте этот адрес на компьютере в Chrome или Edge и выполните три шага:</string>
     <string name="onboarding_perm_browser_prereq">Включите отладку по USB на этом телефоне и подключите его USB-кабелем.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Автоматизация</string>
+    <string name="settings_automation_subtext">Позволяет приложениям автоматизации, таким как Tasker, MacroDroid или Automate, управлять KeepADB через broadcast-интенты. Для включения Wifi-ADB или Keep-Alive нужен токен доступа ниже; ненадёжные, открытые сети Wi-Fi и сети со страницей входа остаются заблокированными.</string>
+    <string name="settings_automation_toggle">Разрешить приложения автоматизации</string>
+    <string name="settings_automation_dialog_title">Разрешить приложения автоматизации?</string>
+    <string name="settings_automation_dialog_message">Любое приложение на этом телефоне может отправлять запросы в KeepADB. Только запросы с токеном доступа могут включить Wifi-ADB или Keep-Alive, в том числе на заблокированном телефоне. Для выключения и проверки, включён ли Wifi-ADB, токен не нужен. Ненадёжные, открытые сети Wi-Fi и сети со страницей входа остаются заблокированными. Передавайте токен только приложениям, которым доверяете.</string>
+    <string name="settings_automation_dialog_confirm">Разрешить</string>
+    <string name="settings_automation_token_label">Токен доступа</string>
+    <string name="settings_automation_token_show">Показать</string>
+    <string name="settings_automation_token_hide">Скрыть</string>
+    <string name="settings_automation_token_copy">Копировать</string>
+    <string name="settings_automation_token_copied">Токен скопирован</string>
+    <string name="settings_automation_token_regenerate">Новый токен</string>
+    <string name="settings_automation_regenerate_title">Создать новый токен?</string>
+    <string name="settings_automation_regenerate_message">Текущий токен сразу перестанет работать. Всем автоматизациям, которые его используют, понадобится новый.</string>
+    <string name="settings_automation_regenerate_confirm">Создать</string>
+    <string name="settings_automation_rejected_none">Отклонённых запросов нет.</string>
+    <string name="settings_automation_rejected">Отклонённые запросы: %1$d (последний: %2$s)</string>
+    <string name="settings_automation_docs">Инструкция по настройке</string>
     <string name="settings_backup_title">Резервная копия настроек</string>
     <string name="settings_backup_subtext">Сохраняет настройки в файл и восстанавливает их после переустановки: уровень защиты, доверенные и заблокированные сети, сетевые правила, параметры конфиденциальности, уведомлений и Webhook. Системное разрешение в копию не входит, а импорт никогда не включает Wifi-ADB или Keep-Alive.</string>
     <string name="settings_backup_export">Экспортировать настройки</string>

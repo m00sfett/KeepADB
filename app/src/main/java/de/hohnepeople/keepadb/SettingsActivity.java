@@ -72,6 +72,7 @@ public class SettingsActivity extends Activity {
     private TextView protectionSummary;
 
     private KeepADBWebhookForm webhookForm;
+    private KeepADBAutomationSection automationSection;
     private TextView versionNameText;
     private TextView versionCodeText;
     private TextView versionDebugBadge;
@@ -94,6 +95,8 @@ public class SettingsActivity extends Activity {
     // The permission notice remains visible when applicable, while the version entry is static.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
+            {R.id.settings_automation_header, R.id.settings_automation_body,
+                    R.id.settings_automation_arrow},
             {R.id.settings_privacy_header, R.id.settings_privacy_body,
                     R.id.settings_privacy_arrow},
             {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
@@ -192,6 +195,7 @@ public class SettingsActivity extends Activity {
                 () -> webhookForm.reloadFromPreferences());
 
         webhookForm = new KeepADBWebhookForm(this, this::refresh);
+        automationSection = new KeepADBAutomationSection(this, this::openWebLink); // #998
         webhookForm.restoreDraft(savedInstanceState);
         findViewById(R.id.settings_webhook_history).setOnClickListener(
                 v -> startActivity(ReportHistoryActivity.intent(this)));
@@ -278,6 +282,13 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        // #998: the revealed token is hidden again once the screen is left.
+        automationSection.onPause();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (!backupController.onActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
@@ -305,6 +316,7 @@ public class SettingsActivity extends Activity {
     protected void onDestroy() {
         diagnosticsController.destroy();
         backupController.destroy();
+        automationSection.destroy();
 
         if (activeResetAppDialog != null) {
             if (activeResetAppDialog.isShowing()) {
@@ -487,6 +499,7 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();
+        automationSection.refresh();
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
         boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);

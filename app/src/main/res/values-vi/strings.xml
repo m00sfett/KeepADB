@@ -704,6 +704,25 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_perm_browser_body">Trên máy tính, hãy mở địa chỉ này bằng Chrome hoặc Edge và làm theo ba bước:</string>
     <string name="onboarding_perm_browser_prereq">Bật gỡ lỗi USB trên điện thoại này và kết nối bằng cáp USB.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Tự động hóa</string>
+    <string name="settings_automation_subtext">Cho phép các ứng dụng tự động hóa như Tasker, MacroDroid hoặc Automate điều khiển KeepADB bằng intent broadcast. Bật Wifi-ADB hoặc Keep-Alive cần mã truy cập bên dưới; mạng Wi-Fi không tin cậy, mạng mở và mạng có trang đăng nhập vẫn bị chặn.</string>
+    <string name="settings_automation_toggle">Cho phép ứng dụng tự động hóa</string>
+    <string name="settings_automation_dialog_title">Cho phép ứng dụng tự động hóa?</string>
+    <string name="settings_automation_dialog_message">Mọi ứng dụng trên điện thoại này đều có thể gửi yêu cầu tới KeepADB. Chỉ yêu cầu có mã truy cập mới bật được Wifi-ADB hoặc Keep-Alive, kể cả khi điện thoại đang khóa. Tắt và kiểm tra Wifi-ADB có đang bật hay không thì không cần mã. Mạng Wi-Fi không tin cậy, mạng mở và mạng có trang đăng nhập vẫn bị chặn. Chỉ chia sẻ mã với ứng dụng bạn tin tưởng.</string>
+    <string name="settings_automation_dialog_confirm">Cho phép</string>
+    <string name="settings_automation_token_label">Mã truy cập</string>
+    <string name="settings_automation_token_show">Hiện</string>
+    <string name="settings_automation_token_hide">Ẩn</string>
+    <string name="settings_automation_token_copy">Sao chép</string>
+    <string name="settings_automation_token_copied">Đã sao chép mã</string>
+    <string name="settings_automation_token_regenerate">Mã mới</string>
+    <string name="settings_automation_regenerate_title">Tạo mã mới?</string>
+    <string name="settings_automation_regenerate_message">Mã hiện tại ngừng hoạt động ngay lập tức. Mọi tác vụ tự động hóa dùng mã này đều cần mã mới.</string>
+    <string name="settings_automation_regenerate_confirm">Tạo</string>
+    <string name="settings_automation_rejected_none">Không có yêu cầu bị từ chối.</string>
+    <string name="settings_automation_rejected">Yêu cầu bị từ chối: %1$d (gần nhất: %2$s)</string>
+    <string name="settings_automation_docs">Hướng dẫn thiết lập</string>
     <string name="settings_backup_title">Sao lưu cài đặt</string>
     <string name="settings_backup_subtext">Lưu cài đặt vào một tệp và khôi phục sau khi cài lại: mức bảo vệ, mạng tin cậy và bị chặn, quy tắc mạng, tùy chọn quyền riêng tư, thông báo và Webhook. Quyền hệ thống không nằm trong đó, và việc nhập không bao giờ bật Wifi-ADB hoặc Keep-Alive.</string>
     <string name="settings_backup_export">Xuất cài đặt</string>

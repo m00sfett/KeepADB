@@ -113,11 +113,17 @@ final class KeepADB {
      * does not bring Wifi-ADB back afterwards.
      */
     static final String SOURCE_TIMER_EXPIRY = "timer_expiry";
+    /**
+     * #998: a request of the automation interface ({@link KeepADBAutomation}). Manual: an
+     * automation "on" or "off" is the user's intent, written at once, and Keep-Alive respects it.
+     * Unlike a tap it never exempts the current Wi-Fi from the network protection.
+     */
+    static final String SOURCE_AUTOMATION = "automation";
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
                     SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING,
-                    SOURCE_TIMER)));
+                    SOURCE_TIMER, SOURCE_AUTOMATION)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {
@@ -689,7 +695,11 @@ final class KeepADB {
                 // nothing -- a later enable in Android's settings must not inherit it. An
                 // unreadable readback is not a confirmed off and keeps the exemption.
                 boolean confirmedOff = actualConfirmed && !actual;
-                KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on && !confirmedOff);
+                // #998: an automation "on" passed the network protection instead of overriding
+                // it, so it neither records nor touches an exemption; its "off" still ends one.
+                if (!on || !SOURCE_AUTOMATION.equals(source)) {
+                    KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on && !confirmedOff);
+                }
             }
             if (isManualSource(source) || SOURCE_TIMER_EXPIRY.equals(source)) {
                 // #1000: a manual "on", or an "off" the readback shows (manual or the timer's own,

@@ -705,6 +705,25 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_perm_browser_body">Open op een computer dit adres in Chrome of Edge en volg de drie stappen:</string>
     <string name="onboarding_perm_browser_prereq">Schakel USB-foutopsporing in op deze telefoon en sluit hem met een USB-kabel aan.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Automatisering</string>
+    <string name="settings_automation_subtext">Laat automatiseringsapps zoals Tasker, MacroDroid of Automate KeepADB bedienen met broadcast-intents. Voor het inschakelen van Wifi-ADB of Keep-Alive is het toegangstoken hieronder nodig; niet-vertrouwde, open wifi-netwerken en netwerken met een aanmeldpagina blijven geblokkeerd.</string>
+    <string name="settings_automation_toggle">Automatiseringsapps toestaan</string>
+    <string name="settings_automation_dialog_title">Automatiseringsapps toestaan?</string>
+    <string name="settings_automation_dialog_message">Elke app op deze telefoon kan verzoeken naar KeepADB sturen. Alleen verzoeken met het toegangstoken kunnen Wifi-ADB of Keep-Alive inschakelen, ook als de telefoon vergrendeld is. Uitschakelen en opvragen of Wifi-ADB aan staat kan zonder token. Niet-vertrouwde, open wifi-netwerken en netwerken met een aanmeldpagina blijven geblokkeerd. Geef het token alleen aan apps die je vertrouwt.</string>
+    <string name="settings_automation_dialog_confirm">Toestaan</string>
+    <string name="settings_automation_token_label">Toegangstoken</string>
+    <string name="settings_automation_token_show">Tonen</string>
+    <string name="settings_automation_token_hide">Verbergen</string>
+    <string name="settings_automation_token_copy">Kopiëren</string>
+    <string name="settings_automation_token_copied">Token gekopieerd</string>
+    <string name="settings_automation_token_regenerate">Nieuw token</string>
+    <string name="settings_automation_regenerate_title">Nieuw token maken?</string>
+    <string name="settings_automation_regenerate_message">Het huidige token werkt meteen niet meer. Elke automatisering die het gebruikt, heeft het nieuwe nodig.</string>
+    <string name="settings_automation_regenerate_confirm">Maken</string>
+    <string name="settings_automation_rejected_none">Geen geweigerde verzoeken.</string>
+    <string name="settings_automation_rejected">Geweigerde verzoeken: %1$d (laatste: %2$s)</string>
+    <string name="settings_automation_docs">Installatiegids</string>
     <string name="settings_backup_title">Back-up van instellingen</string>
     <string name="settings_backup_subtext">Slaat je instellingen op in een bestand en zet ze na een herinstallatie terug: beschermingsniveau, vertrouwde en geblokkeerde netwerken, netwerkregels, privacy-, meldings- en Webhook-opties. De systeemmachtiging hoort er niet bij, en een import zet Wifi-ADB of Keep-Alive nooit aan.</string>
     <string name="settings_backup_export">Instellingen exporteren</string>

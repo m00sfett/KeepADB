@@ -218,5 +218,20 @@
                 <action android:name="de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK" />
             </intent-filter>
         </receiver>
+
+        <!-- #998: the automation interface, the only exported receiver. Off by default; while
+             off it ignores everything. Switching on needs the token (KeepADBAutomation). -->
+        <receiver
+            android:name=".KeepADBAutomationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="de.hohnepeople.keepadb.action.WIFI_ADB_ON" />
+                <action android:name="de.hohnepeople.keepadb.action.WIFI_ADB_OFF" />
+                <action android:name="de.hohnepeople.keepadb.action.WIFI_ADB_TOGGLE" />
+                <action android:name="de.hohnepeople.keepadb.action.KEEP_ALIVE_ON" />
+                <action android:name="de.hohnepeople.keepadb.action.KEEP_ALIVE_OFF" />
+                <action android:name="de.hohnepeople.keepadb.action.STATUS" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

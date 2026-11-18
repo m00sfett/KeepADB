@@ -704,6 +704,25 @@
     <string name="onboarding_perm_browser_body">パソコンの Chrome または Edge で次のアドレスを開き、3 つの手順に進んでください:</string>
     <string name="onboarding_perm_browser_prereq">この端末で USB デバッグを有効にし、USB ケーブルで接続してください。</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">自動化</string>
+    <string name="settings_automation_subtext">Tasker、MacroDroid、Automate などの自動化アプリがブロードキャスト インテントで KeepADB を操作できるようにします。Wifi-ADB や Keep-Alive をオンにするには下のアクセストークンが必要です。信頼されていない Wi-Fi、オープンな Wi-Fi、ログインページのある Wi-Fi では引き続きブロックされます。</string>
+    <string name="settings_automation_toggle">自動化アプリを許可</string>
+    <string name="settings_automation_dialog_title">自動化アプリを許可しますか？</string>
+    <string name="settings_automation_dialog_message">このスマートフォンのどのアプリも KeepADB にリクエストを送信できます。Wifi-ADB や Keep-Alive をオンにできるのは、アクセストークン付きのリクエストだけです（スマートフォンがロック中でも可能）。オフにすることと Wifi-ADB がオンかどうかの確認にはトークンは不要です。信頼されていない Wi-Fi、オープンな Wi-Fi、ログインページのある Wi-Fi では引き続きブロックされます。トークンは信頼できるアプリにだけ渡してください。</string>
+    <string name="settings_automation_dialog_confirm">許可</string>
+    <string name="settings_automation_token_label">アクセストークン</string>
+    <string name="settings_automation_token_show">表示</string>
+    <string name="settings_automation_token_hide">非表示</string>
+    <string name="settings_automation_token_copy">コピー</string>
+    <string name="settings_automation_token_copied">トークンをコピーしました</string>
+    <string name="settings_automation_token_regenerate">新しいトークン</string>
+    <string name="settings_automation_regenerate_title">新しいトークンを作成しますか？</string>
+    <string name="settings_automation_regenerate_message">現在のトークンはすぐに使えなくなります。それを使っている自動化には新しいトークンが必要です。</string>
+    <string name="settings_automation_regenerate_confirm">作成</string>
+    <string name="settings_automation_rejected_none">拒否されたリクエストはありません。</string>
+    <string name="settings_automation_rejected">拒否されたリクエスト: %1$d 件（最終: %2$s）</string>
+    <string name="settings_automation_docs">設定ガイド</string>
     <string name="settings_backup_title">設定のバックアップ</string>
     <string name="settings_backup_subtext">設定をファイルに保存し、再インストール後に復元します：保護レベル、信頼済み・ブロック済みのネットワーク、ネットワークのルール、プライバシー、通知、Webhook のオプション。システム権限は含まれず、インポートで Wifi-ADB や Keep-Alive がオンになることはありません。</string>
     <string name="settings_backup_export">設定をエクスポート</string>

@@ -723,6 +723,25 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_perm_browser_prereq">Turn on USB debugging on this phone and connect it with a USB cable.</string>
     <string name="onboarding_perm_browser_url" translatable="false">keepadb.roteson.de/setup</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Automation</string>
+    <string name="settings_automation_subtext">Lets automation apps such as Tasker, MacroDroid or Automate control KeepADB with broadcast intents. Turning Wifi-ADB or Keep-Alive on needs the access token below; untrusted, open and sign-in Wi-Fi networks stay blocked.</string>
+    <string name="settings_automation_toggle">Allow automation apps</string>
+    <string name="settings_automation_dialog_title">Allow automation apps?</string>
+    <string name="settings_automation_dialog_message">Every app on this phone can send requests to KeepADB. Only requests with the access token can turn Wifi-ADB or Keep-Alive on, also while the phone is locked. Turning off and reading whether Wifi-ADB is on need no token. Untrusted, open and sign-in Wi-Fi networks stay blocked. Give the token only to apps you trust.</string>
+    <string name="settings_automation_dialog_confirm">Allow</string>
+    <string name="settings_automation_token_label">Access token</string>
+    <string name="settings_automation_token_show">Show</string>
+    <string name="settings_automation_token_hide">Hide</string>
+    <string name="settings_automation_token_copy">Copy</string>
+    <string name="settings_automation_token_copied">Token copied</string>
+    <string name="settings_automation_token_regenerate">New token</string>
+    <string name="settings_automation_regenerate_title">Create a new token?</string>
+    <string name="settings_automation_regenerate_message">The current token stops working at once. Every automation that uses it needs the new one.</string>
+    <string name="settings_automation_regenerate_confirm">Create</string>
+    <string name="settings_automation_rejected_none">No rejected requests.</string>
+    <string name="settings_automation_rejected">Rejected requests: %1$d (last: %2$s)</string>
+    <string name="settings_automation_docs">Setup guide</string>
     <string name="settings_backup_title">Settings backup</string>
     <string name="settings_backup_subtext">Save your settings to a file and restore them after a reinstall: protection level, trusted and blocked networks, network rules, privacy, notification and webhook options. The system permission is not part of it, and an import never turns Wifi-ADB or Keep-Alive on.</string>
     <string name="settings_backup_export">Export settings</string>

@@ -704,6 +704,25 @@
     <string name="onboarding_perm_browser_body">在电脑上用 Chrome 或 Edge 打开此网址，按三个步骤操作：</string>
     <string name="onboarding_perm_browser_prereq">在此手机上开启 USB 调试并用 USB 数据线连接。</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">自动化</string>
+    <string name="settings_automation_subtext">允许 Tasker、MacroDroid 或 Automate 等自动化应用通过广播 Intent 控制 KeepADB。开启 Wifi-ADB 或 Keep-Alive 需要下方的访问令牌；未信任的、开放的以及需要登录页面的 Wi-Fi 网络仍会被阻止。</string>
+    <string name="settings_automation_toggle">允许自动化应用</string>
+    <string name="settings_automation_dialog_title">允许自动化应用？</string>
+    <string name="settings_automation_dialog_message">这部手机上的任何应用都可以向 KeepADB 发送请求。只有带访问令牌的请求才能开启 Wifi-ADB 或 Keep-Alive，手机锁定时也一样。关闭以及查询 Wifi-ADB 是否开启不需要令牌。未信任的、开放的以及需要登录页面的 Wi-Fi 网络仍会被阻止。请只把令牌交给你信任的应用。</string>
+    <string name="settings_automation_dialog_confirm">允许</string>
+    <string name="settings_automation_token_label">访问令牌</string>
+    <string name="settings_automation_token_show">显示</string>
+    <string name="settings_automation_token_hide">隐藏</string>
+    <string name="settings_automation_token_copy">复制</string>
+    <string name="settings_automation_token_copied">令牌已复制</string>
+    <string name="settings_automation_token_regenerate">新令牌</string>
+    <string name="settings_automation_regenerate_title">创建新令牌？</string>
+    <string name="settings_automation_regenerate_message">当前令牌会立即失效。所有使用它的自动化都需要新令牌。</string>
+    <string name="settings_automation_regenerate_confirm">创建</string>
+    <string name="settings_automation_rejected_none">没有被拒绝的请求。</string>
+    <string name="settings_automation_rejected">被拒绝的请求：%1$d 次（最近：%2$s）</string>
+    <string name="settings_automation_docs">设置指南</string>
     <string name="settings_backup_title">设置备份</string>
     <string name="settings_backup_subtext">将设置保存到文件，并在重新安装后恢复：保护级别、已信任和已屏蔽的网络、网络规则、隐私、通知和 Webhook 选项。系统权限不包含在内，导入也绝不会开启 Wifi-ADB 或 Keep-Alive。</string>
     <string name="settings_backup_export">导出设置</string>

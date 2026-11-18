@@ -39,6 +39,15 @@ final class KeepADBPreferences {
     /** Package-visible for the timer's end commit (#1000), which writes the "off" intent with it. */
     static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
+    /**
+     * #998: the automation interface. None of these keys is in the settings backup
+     * ({@link KeepADBSettingsBackup} exports only the keys it has a rule for): an import must never
+     * silently open the exported entry point, and the token must never leave the device.
+     */
+    static final String KEY_AUTOMATION_ENABLED = "automation_enabled";
+    static final String KEY_AUTOMATION_TOKEN = "automation_token";
+    static final String KEY_AUTOMATION_REJECTED_COUNT = "automation_rejected_count";
+    static final String KEY_AUTOMATION_LAST_REJECTED_AT = "automation_last_rejected_at";
     /** #1000: the preselected Wifi-ADB timer duration, a {@link KeepADBTimer.Duration} token. */
     static final String KEY_TIMER_DEFAULT_DURATION = "timer_default_duration";
     // #764: keys of the home cards that moved into the assistant. Never read or written any more;
@@ -303,6 +312,61 @@ final class KeepADBPreferences {
         prefs.edit().putBoolean(KEY_WEBHOOK_ENABLED, enabled).apply();
         KeepADBWarningState.observe(context);
         refreshWidgetState(context);
+    }
+
+    private static SharedPreferences prefs(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+
+    /** #998: whether the automation interface accepts requests; off by default. */
+    static boolean isAutomationEnabled(Context context) {
+        if (context == null) return false;
+        return prefs(context).getBoolean(KEY_AUTOMATION_ENABLED, false);
+    }
+
+    static void setAutomationEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        prefs(context).edit().putBoolean(KEY_AUTOMATION_ENABLED, enabled).apply();
+    }
+
+    /** #998: the automation token, or {@code null} before the interface was first enabled. */
+    static String getAutomationToken(Context context) {
+        if (context == null) return null;
+        String token = prefs(context).getString(KEY_AUTOMATION_TOKEN, null);
+        return token == null || token.isEmpty() ? null : token;
+    }
+
+    static void setAutomationToken(Context context, String token) {
+        if (context == null) return;
+        prefs(context).edit().putString(KEY_AUTOMATION_TOKEN, token).apply();
+    }
+
+    static int getAutomationRejectedCount(Context context) {
+        if (context == null) return 0;
+        return prefs(context).getInt(KEY_AUTOMATION_REJECTED_COUNT, 0);
+    }
+
+    static long getAutomationLastRejectedAt(Context context) {
+        if (context == null) return 0L;
+        return prefs(context).getLong(KEY_AUTOMATION_LAST_REJECTED_AT, 0L);
+    }
+
+    static synchronized void recordAutomationRejection(Context context, long nowMillis) {
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
+        int count = prefs.getInt(KEY_AUTOMATION_REJECTED_COUNT, 0);
+        prefs.edit()
+                .putInt(KEY_AUTOMATION_REJECTED_COUNT, count == Integer.MAX_VALUE ? count : count + 1)
+                .putLong(KEY_AUTOMATION_LAST_REJECTED_AT, nowMillis)
+                .apply();
+    }
+
+    static void resetAutomationRejections(Context context) {
+        if (context == null) return;
+        prefs(context).edit()
+                .remove(KEY_AUTOMATION_REJECTED_COUNT)
+                .remove(KEY_AUTOMATION_LAST_REJECTED_AT)
+                .apply();
     }
 
     /** #976: opt-in periodic webhook refresh while Keep-Alive and Webhook Sync are active; default off. */

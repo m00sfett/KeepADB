@@ -705,6 +705,25 @@
     <string name="onboarding_perm_browser_body">कंप्यूटर पर Chrome या Edge में यह पता खोलें और तीनों चरण पूरे करें:</string>
     <string name="onboarding_perm_browser_prereq">इस फ़ोन पर USB डीबगिंग चालू करें और USB केबल से जोड़ें।</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">ऑटोमेशन</string>
+    <string name="settings_automation_subtext">Tasker, MacroDroid या Automate जैसे ऑटोमेशन ऐप को ब्रॉडकास्ट इंटेंट से KeepADB नियंत्रित करने देता है। Wifi-ADB या Keep-Alive चालू करने के लिए नीचे दिया गया एक्सेस टोकन चाहिए; गैर-भरोसेमंद, खुले और साइन-इन पेज वाले Wi-Fi नेटवर्क ब्लॉक रहते हैं।</string>
+    <string name="settings_automation_toggle">ऑटोमेशन ऐप को अनुमति दें</string>
+    <string name="settings_automation_dialog_title">ऑटोमेशन ऐप को अनुमति दें?</string>
+    <string name="settings_automation_dialog_message">इस फ़ोन का कोई भी ऐप KeepADB को अनुरोध भेज सकता है। केवल एक्सेस टोकन वाले अनुरोध ही Wifi-ADB या Keep-Alive चालू कर सकते हैं, फ़ोन लॉक होने पर भी। बंद करने और यह पता करने के लिए कि Wifi-ADB चालू है या नहीं, टोकन की ज़रूरत नहीं है। गैर-भरोसेमंद, खुले और साइन-इन पेज वाले Wi-Fi नेटवर्क ब्लॉक रहते हैं। टोकन केवल भरोसेमंद ऐप के साथ साझा करें।</string>
+    <string name="settings_automation_dialog_confirm">अनुमति दें</string>
+    <string name="settings_automation_token_label">एक्सेस टोकन</string>
+    <string name="settings_automation_token_show">दिखाएँ</string>
+    <string name="settings_automation_token_hide">छिपाएँ</string>
+    <string name="settings_automation_token_copy">कॉपी करें</string>
+    <string name="settings_automation_token_copied">टोकन कॉपी हुआ</string>
+    <string name="settings_automation_token_regenerate">नया टोकन</string>
+    <string name="settings_automation_regenerate_title">नया टोकन बनाएँ?</string>
+    <string name="settings_automation_regenerate_message">मौजूदा टोकन तुरंत काम करना बंद कर देगा। इसका उपयोग करने वाले हर ऑटोमेशन को नया टोकन चाहिए होगा।</string>
+    <string name="settings_automation_regenerate_confirm">बनाएँ</string>
+    <string name="settings_automation_rejected_none">कोई अस्वीकृत अनुरोध नहीं।</string>
+    <string name="settings_automation_rejected">अस्वीकृत अनुरोध: %1$d (अंतिम: %2$s)</string>
+    <string name="settings_automation_docs">सेटअप गाइड</string>
     <string name="settings_backup_title">सेटिंग्स बैकअप</string>
     <string name="settings_backup_subtext">आपकी सेटिंग्स को एक फ़ाइल में सहेजता है और दोबारा इंस्टॉल करने के बाद वापस लाता है: सुरक्षा स्तर, भरोसेमंद और ब्लॉक किए गए नेटवर्क, नेटवर्क नियम, गोपनीयता, सूचना और Webhook विकल्प। सिस्टम अनुमति इसमें शामिल नहीं है, और इम्पोर्ट कभी Wifi-ADB या Keep-Alive चालू नहीं करता।</string>
     <string name="settings_backup_export">सेटिंग्स एक्सपोर्ट करें</string>
