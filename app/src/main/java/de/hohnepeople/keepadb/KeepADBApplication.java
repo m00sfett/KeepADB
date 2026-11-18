@@ -48,6 +48,8 @@ public class KeepADBApplication extends Application {
         KeepADBNotification.removeObsoleteUsbNotification(this);
         // #1000: the timer posts its end notice through this sink (a seam for tests).
         KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);
+        // #1000 (Codex review): a timer's switch-off that a process death interrupted.
+        KeepADBTimer.settleShutdown(this);
         KeepADBSelfPairCleanup.setObserver(KeepADBSelfPairService::onBackgroundCleanup);
         KeepADBSelfPairCleanup.reconcileAtStart(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);

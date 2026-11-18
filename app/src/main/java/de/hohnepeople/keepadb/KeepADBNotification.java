@@ -44,6 +44,13 @@ final class KeepADBNotification {
     static final int NOTIFICATION_ID = 1;
     /** #1000: the timer's own card while the force card holds the service notification. */
     static final int TIMER_NOTIFICATION_ID = 7;
+    /**
+     * #1000 (Codex review): the force episode ({@link KeepADBWarningState#FORCE_EPISODE}, new per
+     * activation, kept by an extension) whose red card has already alerted. Every render sets
+     * "only alert once"; the first render of a new episode lifts it so a second activation on the
+     * same notification id gets its heads-up again. In memory: a new process alerts once more.
+     */
+    private static volatile String alertedForceEpisode;
     /** #956: the channel and notification id of the removed USB-ADB notification. */
     private static final String OBSOLETE_USB_CHANNEL_ID = "keepadb_usb";
     private static final int OBSOLETE_USB_NOTIFICATION_ID = 2;
@@ -363,6 +370,12 @@ final class KeepADBNotification {
         if (force == null && timer == null) return false;
         builder.setOnlyAlertOnce(true);
         if (force != null) {
+            String episode = context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                    .getString(KeepADBWarningState.FORCE_EPISODE, "");
+            if (!episode.equals(alertedForceEpisode)) {
+                alertedForceEpisode = episode;
+                builder.setOnlyAlertOnce(false);
+            }
             String forceLine = KeepADBForceNotice.activeLine(context);
             builder.setColorized(true)
                     .setColor(context.getColor(R.color.banner_red))
@@ -429,8 +442,12 @@ final class KeepADBNotification {
     private static CharSequence expandedText(Context context, CharSequence compact) {
         List<CharSequence> lines = new ArrayList<>();
         lines.add(compact);
-        lines.add(context.getString(KeepADBPreferences.isKeepAliveEnabled(context)
-                ? R.string.notification_text_keepalive_on : R.string.notification_text_keepalive_off));
+        // #1000: while a timer holds Wifi-ADB, "Keep-Alive: off" (the stored setting) would read as
+        // if nothing kept it alive; the timer's own lines say what holds it.
+        if (!KeepADBTimer.isActive(context)) {
+            lines.add(context.getString(KeepADBPreferences.isKeepAliveEnabled(context)
+                    ? R.string.notification_text_keepalive_on : R.string.notification_text_keepalive_off));
+        }
         lines.addAll(webhookLines(context));
         CharSequence result = lines.get(0);
         for (int i = 1; i < lines.size(); i++) {

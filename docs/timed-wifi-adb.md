@@ -22,6 +22,10 @@ occasional "I need ADB for this one tool" case without leaving Wifi-ADB on for g
 
 ## What the timer does while it runs
 
+Starting a timer is a manual "on", exactly like the switch: it switches Wifi-ADB on wherever the
+switch would, and the current Wi-Fi gets the same manual-session exemption from "Turn off on
+untrusted / open Wi-Fi" (#864) until the network changes. From then on the network rules decide.
+
 The timer is a temporary Keep-Alive: it keeps Wifi-ADB alive whether or not Keep-Alive is switched
 on in the app, and it never changes the stored Keep-Alive setting. It does not override the network
 rules: on an untrusted Wi-Fi it holds nothing ("Timer running · waiting for a trusted Wi-Fi") and the
@@ -37,9 +41,17 @@ does not bring Wifi-ADB back. A silent notice "Wifi-ADB off – timer ended" app
 itself after an hour.
 
 **Timing.** From the first moment after the deadline nothing re-enables Wifi-ADB automatically, even
-before the end has been processed. The switch-off itself is triggered by an inexact alarm (no exact
-alarm permission is requested), the service's minute check, and opening the app. Usually it follows
-within seconds; under Android's Doze it can be a few minutes late.
+before the end has been processed. The switch-off itself is best effort without a fixed upper bound:
+it is triggered by an inexact alarm (no exact alarm permission is requested), the service's minute
+check and opening the app. Usually it follows within seconds; deep sleep and Doze can delay it, and
+Android may batch idle alarms by many minutes.
+
+**The switch-off is an obligation.** The end is stored in one commit together with the "off" intent
+and an outstanding switch-off (`timer_shutdown_pending`). Until a readback shows Wifi-ADB off,
+Keep-Alive stays suppressed and every driver (and the next process start, retried every minute by
+the alarm) asserts the "off" intent again and writes the off. A process death before the write, or a
+write Android rejects, therefore cannot leave Wifi-ADB on with Keep-Alive allowed. A manual off that
+fails while a timer runs leaves the same obligation; a deliberate manual "on" clears it.
 
 ## Reboot, process death, clock changes
 
@@ -66,6 +78,7 @@ names or addresses are recorded.
 
 ## Rollback
 
-Three additive keys (`timer_state`, `timer_expired_notice_pending`, `timer_expired_reason`) plus the
+Four additive keys (`timer_state`, `timer_expired_notice_pending`, `timer_expired_reason`,
+`timer_shutdown_pending`) plus the
 exported `timer_default_duration`. An older app version ignores them: the limit is gone, and
 Wifi-ADB behaves as Keep-Alive and the last intent say.

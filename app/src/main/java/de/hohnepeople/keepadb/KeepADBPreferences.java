@@ -36,7 +36,8 @@ final class KeepADBPreferences {
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
-    private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
+    /** Package-visible for the timer's end commit (#1000), which writes the "off" intent with it. */
+    static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     /** #1000: the preselected Wifi-ADB timer duration, a {@link KeepADBTimer.Duration} token. */
     static final String KEY_TIMER_DEFAULT_DURATION = "timer_default_duration";
@@ -273,7 +274,7 @@ final class KeepADBPreferences {
      */
     static boolean isKeepAliveEffective(Context context) {
         if (context == null) return false;
-        if (KeepADBTimer.isExpiryPending(context)) return false;
+        if (KeepADBTimer.isExpiryPending(context) || KeepADBTimer.isShutdownPending(context)) return false;
         return isKeepAliveEnabled(context) || KeepADBTimer.isActive(context);
     }
 

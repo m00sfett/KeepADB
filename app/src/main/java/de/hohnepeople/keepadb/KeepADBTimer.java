@@ -68,6 +68,16 @@ final class KeepADBTimer {
     static final String KEY_NOTICE_PENDING = "timer_expired_notice_pending";
     /** Why: {@link #REASON_SAFETY}, {@link #REASON_WHILE_OFF}, or absent for an ordinary expiry. */
     static final String KEY_NOTICE_REASON = "timer_expired_reason";
+    /**
+     * Codex review #1000: the timer ended (by time or by a manual off) and Wifi-ADB has not been
+     * seen off since. Written in the same commit that ends the timer, together with the "off"
+     * intent, so a process death before the off write cannot leave Wifi-ADB on with an "on" intent.
+     * While set, Keep-Alive is suppressed ({@link KeepADBPreferences#isKeepAliveEffective}) and
+     * every driver retries the off ({@link #settleShutdown}) until a readback shows it off.
+     */
+    static final String KEY_SHUTDOWN_PENDING = "timer_shutdown_pending";
+    /** Retry of a pending off when no other driver runs (the service stops after an end). */
+    static final long SHUTDOWN_RETRY_MS = 60_000L;
     static final String REASON_SAFETY = "safety";
     static final String REASON_WHILE_OFF = "while_off";
     private static final String STATE_VERSION = "1";
@@ -183,6 +193,11 @@ final class KeepADBTimer {
         return readState(context) != null && status(context) == null;
     }
 
+    /** Whether an end's switch-off is still outstanding ({@link #KEY_SHUTDOWN_PENDING}). Pure. */
+    static boolean isShutdownPending(Context context) {
+        return context != null && prefs(context).getBoolean(KEY_SHUTDOWN_PENDING, false);
+    }
+
     // ---- Transitions --------------------------------------------------------------------------------
 
     /**
@@ -275,6 +290,9 @@ final class KeepADBTimer {
         if (!clear(app)) return false;
         cancelExpiryAlarm(app);
         KeepADBDiagnostics.event(app, "timer", origin, "ended", "no_limit");
+        // Codex review: without the overlay a Keep-Alive that is off in Settings no longer needs
+        // the service, and no write follows that would stop it.
+        KeepADBService.sync(app);
         refreshSurfaces(app, false);
         return true;
     }
@@ -285,12 +303,25 @@ final class KeepADBTimer {
      * lock. Nothing is written here; the caller's write is the off or on.
      */
     static void onManualToggle(Context context, boolean on, String source) {
-        if (context == null || KeepADB.SOURCE_TIMER.equals(source)) return;
+        if (context == null) return;
         Context app = context.getApplicationContext();
-        if (readState(app) == null) return;
+        if (on) {
+            // A deliberate "on" (the timer's own start included) supersedes an outstanding off.
+            clearShutdownPending(app);
+        }
+        if (KeepADB.SOURCE_TIMER.equals(source) || readState(app) == null) return;
         if (finishIfExpired(app)) return;
-        if (!clear(app)) return;
-        cancelExpiryAlarm(app);
+        boolean cleared;
+        synchronized (LOCK) {
+            if (readState(app) == null) return;
+            SharedPreferences.Editor editor = prefs(app).edit().remove(KEY_STATE);
+            // Codex review: a manual off that then fails must not leave Wifi-ADB on without the
+            // timer that would have ended it; the off stays an obligation until it is seen.
+            if (!on) editor.putBoolean(KEY_SHUTDOWN_PENDING, true);
+            cleared = editor.commit();
+        }
+        if (!cleared) return;
+        scheduleExpiryAlarm(app);
         KeepADBDiagnostics.event(app, "timer", source, "ended",
                 on ? "manual_on_without_timer" : "manual_off");
         refreshSurfaces(app, false);
@@ -325,9 +356,13 @@ final class KeepADBTimer {
                     } else if (!KeepADBDeadline.isSameBoot(state.base, elapsed, boot)) {
                         reason = REASON_WHILE_OFF;
                     }
+                    // One commit: the end, the notice, the outstanding off and the "off" intent, so
+                    // no crash between them can leave Wifi-ADB on with an "on" intent.
                     SharedPreferences.Editor ended = prefs(app).edit()
                             .remove(KEY_STATE)
-                            .putBoolean(KEY_NOTICE_PENDING, true);
+                            .putBoolean(KEY_NOTICE_PENDING, true)
+                            .putBoolean(KEY_SHUTDOWN_PENDING, true)
+                            .putBoolean(KeepADBPreferences.KEY_LAST_DESIRED_ON, false);
                     if (reason != null) {
                         ended.putString(KEY_NOTICE_REASON, reason);
                     } else {
@@ -348,11 +383,12 @@ final class KeepADBTimer {
                     reboundFailed ? "rebound_not_stored" : reboundReason);
         }
         if (transitioned) {
-            cancelExpiryAlarm(app);
             KeepADBDiagnostics.event(app, "timer", "timer", "expired",
                     reason == null ? "deadline_passed" : reason);
-            turnOffAsExplicitIntent(app);
+            settleShutdown(app);
             refreshSurfaces(app, false);
+        } else if (isShutdownPending(app)) {
+            settleShutdown(app);
         }
         deliverPendingNotice(app);
         return transitioned;
@@ -370,13 +406,47 @@ final class KeepADBTimer {
     }
 
     /**
-     * The end is a "manual off" that time performs: the last explicit intent becomes "off" even
-     * when the write cannot happen (no permission), so Keep-Alive never brings Wifi-ADB back.
+     * Works off an outstanding switch-off ({@link #KEY_SHUTDOWN_PENDING}): done once a readback
+     * shows Wifi-ADB off; otherwise the "off" intent is asserted again (a rejected delayed write
+     * rolls it back) and the off is written, and a retry alarm stays armed until it is seen.
+     * Called by every driver and at process start; never under a monitor.
      */
-    private static void turnOffAsExplicitIntent(Context app) {
+    static void settleShutdown(Context context) {
+        if (context == null) return;
+        Context app = context.getApplicationContext();
+        if (!isShutdownPending(app)) return;
+        if (Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
+            clearShutdownPending(app);
+            scheduleExpiryAlarm(app);
+            return;
+        }
+        KeepADB.recordExplicitIntent(app, false);
         KeepADB.ToggleResult result = KeepADB.setEnabled(app, false, KeepADB.SOURCE_TIMER_EXPIRY);
-        if (!result.isSuccess()) {
-            KeepADB.recordExplicitIntent(app, false);
+        if (result == KeepADB.ToggleResult.APPLIED
+                && Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
+            clearShutdownPending(app);
+        } else {
+            KeepADBDiagnostics.event(app, "timer", "timer", "shutdown_pending",
+                    "result=" + result);
+        }
+        scheduleExpiryAlarm(app);
+    }
+
+    /**
+     * A manual write went through ({@link KeepADB} calls this after applying a manual source, under
+     * its lock: only a preference write here). A manual "on", or an "off" the readback shows,
+     * settles an outstanding switch-off.
+     */
+    static void onManualWriteApplied(Context context, boolean on, boolean confirmedOff) {
+        if (context == null || !(on || confirmedOff)) return;
+        clearShutdownPending(context.getApplicationContext());
+    }
+
+    private static void clearShutdownPending(Context app) {
+        synchronized (LOCK) {
+            if (prefs(app).getBoolean(KEY_SHUTDOWN_PENDING, false)) {
+                prefs(app).edit().remove(KEY_SHUTDOWN_PENDING).commit();
+            }
         }
     }
 
@@ -406,7 +476,13 @@ final class KeepADBTimer {
         if (alarms == null) return;
         State state = readState(app);
         if (state == null) {
-            alarms.cancel(expiryAlarmIntent(app));
+            if (isShutdownPending(app)) {
+                // No timer left, but its off is outstanding: try again in a minute.
+                alarms.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        clock.elapsedMs() + SHUTDOWN_RETRY_MS, expiryAlarmIntent(app));
+            } else {
+                alarms.cancel(expiryAlarmIntent(app));
+            }
             return;
         }
         KeepADBDeadline.Clock now = clock;

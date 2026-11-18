@@ -20,6 +20,11 @@ import android.content.Context;
 final class KeepADBManualToggle {
     private KeepADBManualToggle() {}
 
+    /** After a manual write went through; see {@link KeepADBTimer#onManualWriteApplied}. */
+    static void onManualWriteApplied(Context appContext, boolean on, boolean confirmedOff) {
+        KeepADBTimer.onManualWriteApplied(appContext, on, confirmedOff);
+    }
+
     static void onManualToggle(Context appContext, boolean on, String source) {
         if (appContext == null || KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
         KeepADBTimer.onManualToggle(appContext, on, source);

@@ -635,6 +635,9 @@ final class KeepADB {
                 // unreadable readback is not a confirmed off and keeps the exemption.
                 boolean confirmedOff = actualConfirmed && !actual;
                 KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on && !confirmedOff);
+                // #1000: a manual "on", or an "off" the readback shows, settles a timer's
+                // outstanding switch-off (a preference write only, safe under this lock).
+                KeepADBManualToggle.onManualWriteApplied(appContext, on, confirmedOff);
             }
             surfaces.refreshAll(appContext);
             return ToggleResult.APPLIED;

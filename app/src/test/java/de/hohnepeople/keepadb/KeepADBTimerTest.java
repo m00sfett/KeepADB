@@ -272,10 +272,16 @@ public class KeepADBTimerTest {
     }
 
     @Test
-    public void betweenExpiryAndEndNothingKeepsWifiAdbAliveNotEvenTheStoredSetting() {
-        KeepADBPreferences.setKeepAliveEnabled(context, true);
+    public void betweenExpiryAndEndNothingKeepsWifiAdbAliveNotEvenTheStoredSettingOrForce() {
+        // Codex review: every other guard condition holds (Wi-Fi up, Force makes it trusted, the
+        // stored Keep-Alive is on), so only the timer's deadline can flip the guard.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBForceTestSupport.connectTo(context, KeepADBForceTestSupport.SSID, KeepADBForceTestSupport.BSSID);
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
         KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
-        assertTrue(KeepADBPreferences.isKeepAliveEffective(context));
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(context));
+        assertTrue("Control: permitted before the deadline",
+                KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
 
         clock.advance(15 * MINUTE); // no driver has run yet
 
@@ -283,6 +289,96 @@ public class KeepADBTimerTest {
         assertFalse(KeepADBPreferences.isKeepAliveEffective(context));
         assertFalse("The auto-enable guard refuses",
                 KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context));
+    }
+
+    // ---- Codex review: the switch-off is an obligation until it is seen ---------------------------
+
+    @Test
+    public void aCrashBetweenTheEndAndTheOffWriteIsRepairedByTheNextDriver() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        // What the end's single commit leaves behind when the process dies before the write.
+        prefs().edit().remove(KeepADBTimer.KEY_STATE)
+                .putBoolean(KeepADBTimer.KEY_SHUTDOWN_PENDING, true)
+                .putBoolean(KeepADBPreferences.KEY_LAST_DESIRED_ON, false).commit();
+        assertTrue(gateway.isEnabled(context));
+        assertFalse("Keep-Alive stays suppressed", KeepADBPreferences.isKeepAliveEffective(context));
+
+        KeepADBTimer.restore(context);
+        drainToggles();
+
+        assertFalse(gateway.isEnabled(context));
+        KeepADBTimer.restore(context);
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+        assertTrue("Settled: the stored setting decides again", KeepADBPreferences.isKeepAliveEffective(context)
+                || !KeepADBPreferences.getLastDesiredOn(context));
+    }
+
+    @Test
+    public void aRejectedOffKeepsTheObligationAndTheOffIntentUntilItSticks() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        clock.advance(15 * MINUTE);
+        gateway.setWriteSuccess(false);
+
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        drainToggles();
+
+        assertTrue(gateway.isEnabled(context));
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+        KeepADBTimer.restore(context);
+        drainToggles();
+        assertFalse("A rolled-back intent is asserted again", KeepADBPreferences.getLastDesiredOn(context));
+        assertFalse(KeepADBPreferences.isKeepAliveEffective(context));
+
+        gateway.setWriteSuccess(true);
+        KeepADBTimer.restore(context);
+        drainToggles();
+        KeepADBTimer.restore(context);
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
+
+    @Test
+    public void aFailedManualOffLeavesTheOffAsAnObligation() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setWriteSuccess(false);
+
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+
+        assertFalse(KeepADBTimer.isActive(context));
+        assertTrue(gateway.isEnabled(context));
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+        gateway.setWriteSuccess(true);
+        KeepADBTimer.restore(context);
+        drainToggles();
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aManualOnSettlesAnOutstandingOff() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setWriteSuccess(false);
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+        gateway.setWriteSuccess(true);
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+        KeepADBTimer.restore(context);
+        drainToggles();
+        assertTrue("Nothing switches the user's on off again", gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aSuccessfulManualOffSettlesAtOnce() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+
+        assertFalse(KeepADBTimer.isShutdownPending(context));
     }
 
     @Test
@@ -340,11 +436,16 @@ public class KeepADBTimerTest {
         clock.reboot(5 * MINUTE, 2 * MINUTE);
         gateway.setEnabledByUser(false); // Android resets Wireless Debugging on boot
 
+        shadowOf((Application) context).clearStartedServices();
         new BootReceiver().onReceive(context, new Intent(Intent.ACTION_BOOT_COMPLETED));
 
         KeepADBTimer.Status status = KeepADBTimer.status(context);
         assertNotNull(status);
         assertEquals(53 * MINUTE, status.remainingMs);
+        // Codex review: the boot path really starts the service that restores Wifi-ADB.
+        Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("The boot path starts the Keep-Alive service", started);
+        assertEquals(KeepADBService.class.getName(), started.getComponent().getClassName());
         assertTrue(KeepADBPreferences.isKeepAliveEffective(context));
         assertTrue("The intent is still on, so Keep-Alive restores", KeepADBPreferences.getLastDesiredOn(context));
         assertTrue(notices.isEmpty());

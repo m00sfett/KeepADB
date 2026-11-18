@@ -189,6 +189,30 @@ public class KeepADBTimerSurfacesTest {
     }
 
     @Test
+    public void aSecondForceActivationAlertsAgain() {
+        // Codex review: every render is "only alert once"; a new episode must lift it once.
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        // The activation renders the card itself: that first post of the episode alerts.
+        Notification first = posted(context, KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull(first);
+        assertEquals(0, first.flags & Notification.FLAG_ONLY_ALERT_ONCE);
+        Notification refresh = card();
+        assertTrue((refresh.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0);
+
+        KeepADBForceMode.endNow(context);
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        Notification second = posted(context, KeepADBNotification.NOTIFICATION_ID);
+        assertEquals("A new episode alerts again", 0, second.flags & Notification.FLAG_ONLY_ALERT_ONCE);
+    }
+
+    @Test
+    public void theTimerCardDoesNotClaimKeepAliveIsOff() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        assertFalse(card().extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString()
+                .contains(context.getString(R.string.notification_text_keepalive_off)));
+    }
+
+    @Test
     public void aHiddenNotificationStaysVisibleWhileATimerRuns() {
         KeepADBPreferences.setNotificationHidden(context, true);
         KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
@@ -292,8 +316,11 @@ public class KeepADBTimerSurfacesTest {
         activity.findViewById(R.id.timer_extend).performClick();
         assertEquals(2 * HOUR, KeepADBTimer.status(context).remainingMs);
 
+        shadowOf((Application) context).clearStartedServices();
         activity.findViewById(R.id.timer_no_limit).performClick();
         ShadowLooper.idleMainLooper();
+        Intent stopped = shadowOf((Application) context).getNextStoppedService();
+        assertNotNull("Codex review: without the overlay the service stops", stopped);
         assertFalse(KeepADBTimer.isActive(context));
         assertTrue("No limit leaves Wifi-ADB on", gateway.isEnabled(context));
         assertEquals("Off in 1 h", start.getText().toString());
