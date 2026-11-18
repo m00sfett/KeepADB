@@ -38,7 +38,7 @@ Follow-ups from the reviews of #1000 (versionCode 284). The Fastlane note repeat
 - Diagnostics (#1014): `settleShutdown` no longer logs `shutdown_pending result=SUPERSEDED` for an obligation that is already settled; `docs/diagnostics.md` lists the `timer_off_settled` and `timer_off_owed` events.
 
 ### Testing
-- `KeepADBTimerContractTest` (#1011) pins the `isKeepAliveEffective` reads of every Keep-Alive decision site and that the write hook under the `KeepADB` monitor stays a pure preference write. The debounced timer-off drop branch in `KeepADB.applyNow` is pinned by a test (#1014), and its dependency on `recordTimerOffIntent` running first is documented. Every new test was checked red without its fix.
+- `KeepADBTimerContractTest` (#1011) pins the `isKeepAliveEffective` reads of every Keep-Alive decision site and that the write hook under the `KeepADB` monitor stays a pure preference write. The debounced timer-off drop branch in `KeepADB.applyNow` is pinned by a test (#1014), and its dependency on `recordTimerOffIntent` running first is documented. Each regression test was checked red without its fix; the tests that pin the other side of a rule (a manual off, a pending timer off, a self-pairing off, the `SECURITY_EXCEPTION` start, which the permission rollback already covered) stay green by design.
 
 ## [1.15.2] - Unreleased
 
