@@ -121,7 +121,7 @@ on remains a separate user action.
 
 **Turn off on open Wi-Fi** (Settings → Protection, on for new installations, off for existing ones
 until you switch it on) turns Wifi-ADB off while Keep-Alive runs and keeps it off in a Wi-Fi without
-a password or behind a captive portal, even at a trusted access point. A session you switch on
+secure password protection (open, Enhanced Open, WEP) or behind a captive portal, even at a trusted access point. A session you switch on
 yourself in KeepADB stays on there, and Force mode overrides the rule. Android 11 cannot tell
 whether a Wi-Fi has a password; there only captive portals count.
 

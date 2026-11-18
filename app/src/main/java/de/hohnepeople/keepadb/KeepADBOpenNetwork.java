@@ -12,7 +12,8 @@ import android.net.NetworkCapabilities;
  * ({@link KeepADBUntrustedShutdown}). A running force mode overrides it, as it overrides every
  * other network rule ({@link KeepADBTrustedNetwork#evaluateCurrent}).
  *
- * <p>"Open" is {@link KeepADBNetworkSecurity#TIER_OPEN}: no password (open, WEP, Enhanced Open).
+ * <p>"Open" is {@link KeepADBNetworkSecurity#TIER_OPEN}: no secure password protection (open and
+ * Enhanced Open have no password, WEP's key is broken).
  * Android 12 and later report the security type; Android 11 does not, so there only the captive
  * portal part applies. An unreadable or unknown type is not treated as open: the rule acts only
  * on positive evidence and leaves everything else to the trusted-network rules. A captive portal
