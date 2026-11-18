@@ -127,8 +127,8 @@ final class KeepADBTrustedNetwork {
          */
         SECURITY_MISMATCH(false),
         /**
-         * #997: the Wi-Fi is open (no password) while the open-network rule is on. Holds for
-         * trusted access points too; only the force mode overrides it.
+         * #997: the Wi-Fi has no secure password protection while the open-network rule is on.
+         * Holds for trusted access points too; only the force mode overrides it.
          */
         OPEN_NETWORK(false),
         /** #997: the Wi-Fi reports a captive portal while the open-network rule is on. */
