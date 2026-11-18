@@ -203,8 +203,10 @@ final class KeepADBTimer {
     /**
      * Starts the timer for {@code duration}, replacing a running one, and switches Wifi-ADB on.
      * The state is stored first, so the manual switch-on below finds the timer and does not end
-     * it, and Keep-Alive is effective from the first instant. If the switch-on fails for lack of
-     * the permission, the state is removed again: no timer without the means to end it.
+     * it, and Keep-Alive is effective from the first instant. If the switch-on does not go through
+     * (permission missing, refused, rejected; #1009), the state is put back as it was: no timer
+     * for a switch-on that never happened, and a timer that was already running keeps its own
+     * deadline. A superseded start leaves the state to the newer intent, which handles it.
      *
      * @return the result of the switch-on, or null when the state could not be stored.
      */
@@ -220,6 +222,7 @@ final class KeepADBTimer {
         }
         State state = new State(new KeepADBDeadline.Base(duration.millis, now.wallMs(),
                 now.elapsedMs(), boot));
+        State previous = readState(app);
         if (!store(app, state, true)) {
             KeepADBDiagnostics.event(app, "timer", origin, "failed", "state_not_stored");
             return null;
@@ -227,15 +230,32 @@ final class KeepADBTimer {
         KeepADBTimerNotice.cancelExpired(app);
         KeepADBDiagnostics.event(app, "timer", origin, "started", "duration=" + duration.token);
         KeepADB.ToggleResult result = KeepADB.setEnabled(app, true, KeepADB.SOURCE_TIMER);
-        if (result.isPermissionFailure()) {
-            clear(app);
-            KeepADBDiagnostics.event(app, "timer", origin, "cancelled", "permission_missing");
+        if (!result.isSuccess() && result != KeepADB.ToggleResult.SUPERSEDED) {
+            restoreAfterFailedStart(app, state, previous);
+            KeepADBDiagnostics.event(app, "timer", origin, "cancelled",
+                    "result=" + result + (previous != null ? " previous_kept" : ""));
+            scheduleExpiryAlarm(app);
             refreshSurfaces(app, false);
             return result;
         }
         scheduleExpiryAlarm(app);
         refreshSurfaces(app, true);
         return result;
+    }
+
+    /** Undoes a start whose switch-on failed, unless something replaced its state meanwhile. */
+    private static void restoreAfterFailedStart(Context app, State started, State previous) {
+        synchronized (LOCK) {
+            String stored = prefs(app).getString(KEY_STATE, null);
+            if (stored == null || !stored.equals(encode(started))) return;
+            SharedPreferences.Editor editor = prefs(app).edit();
+            if (previous != null) {
+                editor.putString(KEY_STATE, encode(previous));
+            } else {
+                editor.remove(KEY_STATE);
+            }
+            editor.commit();
+        }
     }
 
     /**

@@ -759,4 +759,44 @@ public class KeepADBTimerTest {
         drainToggles();
         assertTrue("Only a deliberate on supersedes it", endNoticePosted());
     }
+
+    @Test
+    public void aStartWhoseWriteIsRejectedLeavesNoTimer() {
+        // #1009: the UI says the start failed, so nothing may wait and end with an "off" notice.
+        gateway.setWriteSuccess(false);
+
+        KeepADB.ToggleResult result = KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+
+        assertEquals(KeepADB.ToggleResult.WRITE_REJECTED, result);
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
+        assertFalse(KeepADBPreferences.isKeepAliveEffective(context));
+        clock.advance(2 * HOUR);
+        assertFalse(KeepADBTimer.finishIfExpired(context));
+        assertTrue("No end for a start that never switched on", notices.isEmpty());
+    }
+
+    @Test
+    public void aStartRefusedWithASecurityExceptionLeavesNoTimer() {
+        gateway.setWriteThrowsSecurityException(true);
+
+        KeepADB.ToggleResult result = KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+
+        assertEquals(KeepADB.ToggleResult.SECURITY_EXCEPTION, result);
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
+    }
+
+    @Test
+    public void aFailedRestartKeepsTheTimerThatWasRunning() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_30, "test");
+        clock.advance(10 * MINUTE);
+        gateway.setWriteSuccess(false);
+
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_8, "test");
+
+        KeepADBTimer.Status status = KeepADBTimer.status(context);
+        assertNotNull("Wifi-ADB is still on: its limit must stay", status);
+        assertEquals(20 * MINUTE, status.remainingMs);
+    }
 }

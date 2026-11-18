@@ -75,7 +75,9 @@ timer early, never extend it.
 
 The journal records `timer` events: `started` (with the duration), `extended`, `ended`
 (`manual_off`, `manual_on_without_timer`, `no_limit`), `expired` (`deadline_passed`, `while_off`,
-`safety`), `rebound` after a reboot or clock change, and whether the notice was posted. No network
+`safety`), `cancelled` when a start's switch-on did not go through (`result=<outcome>`, plus
+`previous_kept` when a timer that was already running keeps its deadline), `rebound` after a
+reboot or clock change, and whether the notice was posted. No network
 names or addresses are recorded.
 
 ## Rollback
