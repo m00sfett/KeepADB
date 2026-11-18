@@ -1,0 +1,3 @@
+Fix: the notifications of the on-phone permission setup now stay off the lock screen when you chose to hide KeepADB notifications there.
+
+Documentation: SECURITY.md matches self-pairing, browser setup and the reporting channel. The README explains how KeepADB differs from similar apps, how a paired computer finds the phone without typing the changing port (adb mdns), and asks forks to use their own name and icon.

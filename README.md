@@ -25,6 +25,34 @@ KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Re
 - **Webhook Sync with opt-in periodic refresh:** Send verified endpoints via HTTP(S) and optionally re-send active endpoints on a configurable schedule (`15 min` to `23 h 59 min`, based on work by `@inaciopestana`) so external registers that expire idle entries stay current.
 - **Zero bloat & four privacy switches:** No runtime dependencies, no ads, no analytics, and independent switches to mask names and addresses in the app, notifications, lock screen, and widgets/tile.
 
+## Why KeepADB?
+
+Several open-source apps help with Android's “Wireless debugging”. They solve different problems
+and use different privileges, so the right choice depends on what you need:
+
+| App | What it is for | Privilege it needs (per its own README) |
+|---|---|---|
+| **KeepADB** | Switch Wifi-ADB and, optionally, turn it back on after reboots and network changes, limited by a network rule | One-time `WRITE_SECURE_SETTINGS` grant: on the phone via self-pairing, in a computer browser over WebUSB, or with `adb`; no root, no Shizuku |
+| [WADBS](https://github.com/Smooth-E/wireless-adb-switch) (`wireless-adb-switch`) | Quick on/off switch with home-screen widgets and a Quick Settings tile | Root or Shizuku |
+| [WADB](https://github.com/RikkaApps/WADB) | Switch for ADB over network, Quick Settings tile, option to start on boot | Root |
+| [LADB](https://github.com/tytydraco/LADB) | Local ADB shell on the device itself, with a bundled ADB server (not a switch) | “Wireless debugging” pairing with the app; the README notes it is incompatible with Shizuku |
+
+What sets KeepADB apart:
+
+- **Privilege model:** switching Wifi-ADB needs only the one-time `WRITE_SECURE_SETTINGS` grant,
+  which survives reboots. KeepADB needs neither root nor a running Shizuku service; other Android
+  permissions serve individual features, such as precise location for recognizing trusted networks.
+- **Keep-Alive and recovery:** the optional service turns Wifi-ADB back on after a reboot or a
+  network interruption, honors the user's last saved intent, and backs off when Android does not
+  confirm the change.
+- **Network protection:** automatic recovery runs only where the selected rule allows it (trusted
+  access points by default on new installations), with an optional switch-off on untrusted Wi-Fi.
+- **Setup without a PC:** on Android 11+ the permission can be granted on the phone itself; a
+  computer is only a fallback.
+
+The table describes each project as its own documentation does; it is not a review. If a statement
+about another project is out of date, please open an issue.
+
 ## Install and first start
 
 Install KeepADB from the [official F-Droid catalog](https://f-droid.org/packages/de.hohnepeople.keepadb/)
@@ -54,6 +82,15 @@ background and guides you through all three options in the setup assistant while
   `adb connect` command. The
   link “Connect a computer…” below it, and the last page of the setup assistant, explain the one-time
   pairing Android requires for each new computer and open Android's developer options.
+- **Reconnect without typing the port:** Android picks a new random Wifi-ADB port each time
+  “Wireless debugging” starts. A computer that is already paired can find the phone over mDNS
+  instead: `adb mdns check` shows whether discovery works, and `adb mdns services` lists the phone
+  as `_adb-tls-connect._tcp` with its current address and port. Current platform-tools (checked
+  with 37.0.0) connect to paired phones found this way on their own, because
+  `ADB_MDNS_AUTO_CONNECT` defaults to `adb-tls-connect`; `adb devices` then lists the phone under
+  its mDNS name. If your adb does not, set `ADB_MDNS_AUTO_CONNECT=adb-tls-connect` and restart the
+  server with `adb kill-server`. Both devices must be on the same network, and mDNS must not be
+  blocked by the router or firewall.
 - **Keep-Alive:** enable it in the app if KeepADB should observe state changes and try to recover.
   Android may show its own confirmation the first time Wifi-ADB is enabled on a
   Wi-Fi network. If Android does not confirm the change, KeepADB waits instead of repeatedly trying.
@@ -126,3 +163,7 @@ privately; [SECURITY.md](SECURITY.md) lists the reporting channels.
 KeepADB is licensed under the **GNU Affero General Public License v3.0 or, at your option, any
 later version**. See [LICENSE](LICENSE). Unless a file says otherwise, the license also covers the
 included application images and icons.
+
+Forks are welcome under the license. Please publish a fork under a different app name and icon so
+users can tell it apart from KeepADB; the license covers the code and images, not the right to
+present a fork as KeepADB.
