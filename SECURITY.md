@@ -28,8 +28,12 @@ the interface for unblocking. Precedence, migration, and recovery behavior are d
 Optional **Force mode** (Settings → Protection) deliberately overrides this protection. For a chosen
 duration (1 hour, 24 hours, 7 days, 30 days, or indefinitely), Keep-Alive re-enables Wifi-ADB
 on every Wi-Fi network and overrides blocks and trust rules. It requires confirmation
-with staged warnings, remains visible on the home screen and in the notification, and can be ended
-there with one tap. When it expires, the exact saved setting applies again. The duration survives
+with staged warnings, remains visible on the home screen and in a red notification, and can be ended
+there with one tap; since #1000 every manual "off" of Wifi-ADB ends it too, and the notification's
+"Off now" ends it and switches Wifi-ADB off at once. "+1 h" on that notification extends a running
+time-limited mode by one hour per tap, up to 30 days in total; it needs an unlocked device, never
+starts the mode and never turns it into an unlimited one. When it expires, the exact saved setting
+applies again. The duration survives
 reboots, app updates, and clock or time-zone changes (a changed clock can shorten it or extend it
 only within the short windows described in the guide). A one-time notice reports its end. Force
 mode is never a default and cannot be enabled by an assistant, update, or import without the
@@ -154,16 +158,31 @@ on. The privacy switches are display settings; they do not change what an enable
 which network may enable Wifi-ADB.
 
 **Copying the endpoint (#951):** a tap on the endpoint row of the home screen (and on a verified
-transport row) and the notification's "Copy" action put `adb connect <host>:<port>` on the
-clipboard. A tap is an explicit action, so the real address is copied even while the app switch
+transport row) puts `adb connect <host>:<port>` on the clipboard. The notification's "Copy" action
+was removed in #1000, so nothing reaches the clipboard from the notification shade or the lock
+screen any more. A tap is an explicit action, so the real address is copied even while the app switch
 masks the row; the clip is then flagged sensitive (`ClipDescription.EXTRA_IS_SENSITIVE`; the flag
 is always set, but only Android 13 and later read it, so the system's clipboard preview does not
 print the address there, while Android 11 and 12 ignore the flag). Without the switch the clip is
 a plain one. Android 13 and later confirm a copy themselves; the clipboard is
-readable by the app in the foreground and by the keyboard, as for any copied text. The "Copy" action
-exists only while an address is known and the notification switch is off, goes through the
-non-exported receiver, which reads the endpoint when it is tapped (the intent carries no address),
-and is left out while the force mode uses the card's three action slots.
+readable by the app in the foreground and by the keyboard, as for any copied text.
+
+**Wifi-ADB timer (#1000):** a timer switches Wifi-ADB on for 15 minutes to 8 hours (extendable to at
+most 24 hours left) and then off. It is a limit, not a loosening: while it runs it keeps Wifi-ADB
+alive like Keep-Alive, but only where the network rules allow it (Force mode is what overrides them),
+and its end counts as a manual "off", so Keep-Alive does not bring Wifi-ADB back afterwards. From the
+first moment after the deadline nothing re-enables Wifi-ADB automatically, even if the end has not
+been processed yet; the switch-off itself follows within the inexact alarm's tolerance (usually
+seconds, under Doze a few minutes) or at the latest with the service's minute check. After a reboot
+the remaining time continues; if it ran out while the phone was off, Wifi-ADB stays off. A clock that
+cannot be trusted (unreadable boot count, wall clock before the timer's start after a reboot) ends
+the timer at once. "+1 h" on its notification needs an unlocked device. Details:
+[docs/timed-wifi-adb.md](docs/timed-wifi-adb.md).
+
+**Notification channels (#1000):** the status notification moved from a low-importance channel to
+one with default importance, and Force mode and the timer have their own channels (Force mode with
+high importance); all three are silent. Settings a user had changed on the old status channel do not
+carry over.
 
 **Hide on the lock screen (#920, opt-in, default off):** under the notification switch. When on,
 every KeepADB notification, the self-pairing ones included (#993), is posted with `VISIBILITY_SECRET`, so none of them (main, network

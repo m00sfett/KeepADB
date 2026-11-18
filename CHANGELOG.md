@@ -23,6 +23,24 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.2] - Unreleased
+
+### Added
+- Wifi-ADB timer (#1000, versionCode 283): Wifi-ADB on for 15 min, 30 min, 1 h, 2 h, 4 h or 8 h, then off. Entry points: "On for 1 h" with a duration chevron below the home switch ("Off in 1 h" while Wifi-ADB is already on without a timer), the new launcher shortcut "Wifi-ADB with timer" (`KeepADBTimerShortcutActivity`, unlock required on a secured locked device, like the toggle shortcut) and the default duration under Settings → Other (`timer_default_duration`, default 1 h, part of the settings backup). While it runs, the home row shows "Off at … · … left" (or "waiting for a trusted Wi-Fi") with "+1 h" and "No limit"; the notification counts down and offers "Off now" and "+1 h" (unlock required). "+1 h" adds an hour to the time left, capped at 24 h left.
+- `KeepADBTimer` is a temporary Keep-Alive overlay: `KeepADBPreferences.isKeepAliveEffective` (stored setting or running timer) now decides every keep-alive path (service, boot, endpoint coordinator, untrusted shutdown, trust prompt, self-pairing cleanup, widget state); the stored setting is never written. Network rules are unchanged; the timer holds only where Keep-Alive would. The end is an explicit "off" (`SOURCE_TIMER_EXPIRY`), so a Keep-Alive that is on waits for the next deliberate "on"; between the deadline and the processed end the effective Keep-Alive is off, so a late alarm cannot lead to a re-enable. Any other manual on/off ends the timer (`KeepADBManualToggle`). Reboot with time left continues the timer; an end while the phone was off is finished by the boot receiver before Keep-Alive is evaluated (Wifi-ADB stays off); an untrustworthy clock ends it (fail closed). One-time silent end notice (`KeepADBTimerNotice`, auto-removed after 1 h). Diagnostics journal events `timer`.
+- `KeepADBDeadline`: the wall/monotonic clock rules, fail-closed cases and rebind detection extracted from `KeepADBForceMode`, shared by Force mode and the timer; Force mode behaviour unchanged by the extraction.
+
+### Changed
+- Force mode (#1000, deliberate change of the #763 rules): while it runs, the status notification is coloured red on its own high-importance channel ("Force mode on – protection off", countdown) with "Off now", "End force mode" and "+1 h" (last, so One UI cuts it off first). "+1 h" (`KeepADBForceMode.extend`, only from the notification receiver, unlock required) adds an hour to a running limited mode, capped at 30 days; it never starts the mode or makes it unlimited, and a stored budget above 30 days reads as damaged. Every manual "off" of Wifi-ADB now ends Force mode as well (journal reason `manual_off`); the self-pairing cleanup's off does not.
+- Notification channels: the status channel moves from `keepadb_endpoint` (low importance) to `keepadb_status` (default importance, silent), plus `keepadb_force_active` (high, silent) and `keepadb_timer` (default, silent), so KeepADB's notifications sit among the alerting ones instead of at the bottom. The old channel is deleted once unused; changes users made to it do not carry over.
+- A hidden status notification stays visible while a timer runs, as it already did for Force mode.
+
+### Removed
+- The notification's "Copy" action (#951) and its receiver path `ACTION_COPY_ENDPOINT`; copying stays on the home screen's endpoint row. A tap on a card posted before the update does nothing.
+
+### Documentation
+- New `docs/timed-wifi-adb.md` and `PRODUCT.md`; README, `SECURITY.md`, `docs/trusted-networks.md`, `docs/defaults.md`, `docs/diagnostics.md`, `docs/settings-backup.md`, the docs index and the F-Droid description cover the timer, the Force mode notification and extension, the channels and the removed Copy action. 35 new strings in all 19 locales; `notification_action_copy` removed.
+
 ## [1.15.1] - Unreleased
 
 ### Added

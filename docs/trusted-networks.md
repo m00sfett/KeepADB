@@ -420,7 +420,8 @@ switch, or the previous setting). “Protection level back to: …” therefore 
 that the overlay is removed. The overlay acts at the one decision point used by every automatic
 path (`KeepADBTrustedNetwork.evaluateCurrent`): the service (observer and minute interval),
 recovery pulse, and protection checks immediately before writing. It does not replace
-Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wifi-ADB remains in effect.
+Keep-Alive or a Wi-Fi connection, and a manual switch-off of Wifi-ADB remains in effect; since
+#1000 a manual switch-off also ends Force mode.
 Adding trust to a blocked network remains impossible even in Force mode; Force mode changes neither
 blocks nor trust.
 
@@ -430,9 +431,19 @@ blocks nor trust.
 additional warning about using it while away from trusted networks for 7 days or longer; and, with
 no expiry, an additional warning that it persists through reboots and updates). “No end time” can
 be confirmed only after checking its box. Keep-Alive is also enabled if it was off (the dialog
-says so). Choosing another duration is a new full start through the same dialog; there is no silent
-extension. The user can end Force mode at any time without confirmation: the card on the home
-screen, the row in Settings, or the first notification action.
+says so). Choosing another duration is a new full start through the same dialog. The user can end
+Force mode at any time without confirmation: the card on the home screen, the row in Settings, the
+notification's "End force mode", or any manual switch-off of Wifi-ADB (#1000: whoever switches off
+wants it off; the self-pairing cleanup's switch-off does not count).
+
+**Notification and extension (#1000, a deliberate change of the original "no extension" rule).**
+While Force mode runs, the status notification is coloured red on its own high-importance channel
+("Force mode on – protection off", a countdown to the end) and offers "Off now" (ends Force mode and
+switches Wifi-ADB off), "End force mode" and, last so that One UI cuts it off first, "+1 h". "+1 h"
+adds one hour to the remaining time per tap, capped at 30 days, the longest duration of the dialog;
+it requires an unlocked device (authentication on the action from Android 12, and the receiver
+refuses while `KeyguardManager.isDeviceLocked()` on every version), it never starts Force mode and
+it is not offered for "No end time". A stored budget above 30 days is read as damaged, i.e. off.
 
 **Expiry.** The duration ends at the deadline itself: a read-only check returns “off” from the
 first moment after the deadline, even if no timer has run. The visible transition (clear state,
@@ -490,7 +501,7 @@ reset in exactly such a window; time-zone and daylight-saving changes do not cau
 been checked on all devices that `Settings.Global.boot_count` is readable; where it is not, a
 time-limited mode cannot be started.
 
-**Lock screen.** The warning row and end action are available only in the private notification.
+**Lock screen.** The warning row and the actions are available only in the private notification.
 Its public version remains neutral, and the expiry notice shows only the channel name there. As
 with all private notification content, anyone who allows sensitive content on Android's lock
 screen will see the private version.

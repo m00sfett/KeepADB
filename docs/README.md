@@ -14,6 +14,8 @@
   the per-widget settings and the privacy rules.
 - [Diagnostics export](diagnostics.md): local event buffer, debug journal, redaction, and manual
   sharing.
+- [Wifi-ADB timer](timed-wifi-adb.md): switching Wifi-ADB on for a limited time, the end as a
+  manual off, reboots and clock changes.
 - [Settings backup](settings-backup.md): exporting and importing settings to a user-chosen file,
   what the file contains, and how the import validates it.
 - [Application ID](package-id.md): why `de.hohnepeople.keepadb` remains after the website move.
