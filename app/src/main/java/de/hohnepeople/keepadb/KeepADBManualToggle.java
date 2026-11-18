@@ -22,8 +22,17 @@ import android.content.Context;
 final class KeepADBManualToggle {
     private KeepADBManualToggle() {}
 
-    /** After a manual or timer-expiry write went through; see {@link KeepADBTimer#onWriteApplied}. */
+    /**
+     * After a manual or timer-expiry write went through; see {@link KeepADBTimer#onWriteApplied}.
+     * Called under the {@link KeepADB} monitor: a preference write only, nothing else (#1011).
+     *
+     * <p>#1010: the self-pairing setup is not the user's decision about Wifi-ADB, so its "on"
+     * settles no outstanding timer switch-off, exactly as {@link #onManualToggle} ends nothing for
+     * it. An "off" the readback confirms still settles one: the obligation is a fact about Wifi-ADB
+     * (it must be off), and it is.
+     */
     static void onWriteApplied(Context appContext, String source, boolean on, boolean confirmedOff) {
+        if (on && KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
         KeepADBTimer.onWriteApplied(appContext, source, on, confirmedOff);
     }
 

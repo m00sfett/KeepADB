@@ -799,4 +799,35 @@ public class KeepADBTimerTest {
         assertNotNull("Wifi-ADB is still on: its limit must stay", status);
         assertEquals(20 * MINUTE, status.remainingMs);
     }
+
+    private void leaveAnOutstandingOff() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setWriteSuccess(false);
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+        gateway.setWriteSuccess(true);
+    }
+
+    @Test
+    public void aSelfPairingOnSettlesNoOutstandingTimerOff() {
+        // #1010: the self-pairing setup ends nothing and settles nothing.
+        leaveAnOutstandingOff();
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_SELF_PAIRING);
+
+        assertTrue("The timer's off is still owed", KeepADBTimer.isShutdownPending(context));
+        KeepADBTimer.restore(context);
+        drainToggles();
+        assertFalse("The owed off is carried out", gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aSelfPairingOffThatTheReadbackConfirmsSettlesTheOutstandingOff() {
+        leaveAnOutstandingOff();
+
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_SELF_PAIRING);
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse("Wifi-ADB is off: nothing is owed any more", KeepADBTimer.isShutdownPending(context));
+    }
 }
