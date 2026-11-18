@@ -23,6 +23,23 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.3] - Unreleased
+
+Follow-ups from the reviews of #1000 (versionCode 284). The Fastlane note repeats the summary since
+1.14.1; these are fixes to the still unreleased timer.
+
+### Fixed
+- Widget (#1007): the Keep-Alive tile shows the stored setting that a tap flips (`KeepADBWidgetState.keepAliveSetting`); with only a timer running it reads "Off" instead of "On" before and after the tap. The status line and the overview row keep the effective state (maintainer decision: no new string).
+- Timer end notice (#1008): any manual on, the trust prompt's "Allow" included, now cancels a posted "Wifi-ADB off – timer ended" (`KeepADBTimer.onManualOn`, called by `KeepADBManualToggle` before `KeepADB` takes its lock).
+- Timer start (#1009): a start whose switch-on was rejected or refused (`WRITE_REJECTED`, `SECURITY_EXCEPTION`, not only a missing permission) restores the previous state, so no timer waits and ends with an "off" notice for something that never came on; a timer that was already running keeps its deadline. A superseded start is left to the newer intent. Journal: `timer ... cancelled result=<outcome> [previous_kept]`.
+- Self-pairing (#1010): a self-pairing "on" settles no outstanding timer switch-off in the write hook, consistent with `onManualToggle`; a self-pairing "off" the readback confirms still settles it (Wifi-ADB is off). The setup currently writes only "off".
+- Timer deadline (#1013): with Wifi-ADB already off at the deadline, a debounced automatic enable still pending from KeepADB's own recent write could switch it back on (stored Keep-Alive on) or roll the intent back to "on" (guard abort). `KeepADB.recordTimerOffIntent` now drops a pending automatic "on" and issues a fresh intent token (`KeepADBToggleState.supersedeIntents`) while the off is owed; pending manual intents and pending "off" intents stay. Journal: `toggle_attempt timer_expiry superseded ... reason=timer_off_owed`.
+- Timer home row (#1012): the waiting text names the reason the home status resolves (no Wi-Fi, untrusted, open or unreadable network, paused retries, or "switching on"); `timer_status_waiting_reason` and `timer_waiting_reason_switching` in all 19 locales replace `timer_status_waiting`.
+- Diagnostics (#1014): `settleShutdown` no longer logs `shutdown_pending result=SUPERSEDED` for an obligation that is already settled; `docs/diagnostics.md` lists the `timer_off_settled` and `timer_off_owed` events.
+
+### Testing
+- `KeepADBTimerContractTest` (#1011) pins the `isKeepAliveEffective` reads of every Keep-Alive decision site and that the write hook under the `KeepADB` monitor stays a pure preference write. The debounced timer-off drop branch in `KeepADB.applyNow` is pinned by a test (#1014), and its dependency on `recordTimerOffIntent` running first is documented. Every new test was checked red without its fix.
+
 ## [1.15.2] - Unreleased
 
 ### Added
