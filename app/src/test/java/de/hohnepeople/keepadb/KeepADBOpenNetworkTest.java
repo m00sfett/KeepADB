@@ -286,6 +286,60 @@ public class KeepADBOpenNetworkTest {
                 Collections.singletonList(false), gateway.writes);
     }
 
+    /**
+     * Codex review of #1004: with both switches on, a manual enable on an unreadable identity is
+     * exempt from the open-network rule only; "Turn off on untrusted Wi-Fi" still confirms the
+     * unreadable identity and switches off, exactly as before #997.
+     */
+    @Test
+    public void withBothSwitchesTheUnreadableExemptionStillMeetsTheUntrustedRule() {
+        KeepADBPreferences.setUntrustedShutdownEnabled(context, true);
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        KeepADBForceTestSupport.connectTo(context, "", null);
+        probe.tier = KeepADBNetworkSecurity.TIER_OPEN;
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        assertEquals("the confirmation runs first", Collections.singletonList(true), gateway.writes);
+
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals(Arrays.asList(true, false), gateway.writes);
+    }
+
+    /** Only the open-network rule: the same manual session stays on (the decided exemption). */
+    @Test
+    public void withOnlyTheOpenRuleTheUnreadableExemptionHolds() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        KeepADBForceTestSupport.connectTo(context, "", null);
+        probe.tier = KeepADBNetworkSecurity.TIER_OPEN;
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals(Collections.singletonList(true), gateway.writes);
+    }
+
+    /** Codex review of #1004: trusting cannot lift the rule, so the trust prompt stays silent. */
+    @Test
+    public void anOpenNetworkBlockRaisesNoTrustPrompt() {
+        probe.tier = KeepADBNetworkSecurity.TIER_OPEN;
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertEquals("neither the trust prompt nor the identity notice",
+                0, shadowOf(manager).getAllNotifications().size());
+    }
+
+    @Test
+    public void anUntrustedProtectedNetworkStillRaisesTheTrustPrompt() {
+        KeepADBForceTestSupport.connectTo(context, "Cafe", "aa:bb:cc:00:00:09");
+
+        assertTrue("control: the prompt path itself still works",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+    }
+
     // --- The default ---------------------------------------------------------------------------------
 
     @Test

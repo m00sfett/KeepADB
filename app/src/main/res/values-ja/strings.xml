@@ -256,7 +256,7 @@
     <string name="settings_no_browser_found">このリンクを開けるアプリが見つかりません。</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB は OFF です – Keep-Alive がネットワークを待機中</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
-    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiにはパスワードがないか、ログインページを求めています</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiには安全なパスワード保護がないか、ログインページを求めています</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB は OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB は OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB は OFF です – Keep-Alive は一時停止中:AndroidのWifi-ADBネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
@@ -267,7 +267,7 @@
     <string name="home_reason_permission">システム権限が未許可</string>
     <string name="home_reason_waiting">Keep-Alive は Wi-Fi を待機中</string>
     <string name="home_reason_untrusted">Keep-Alive は一時停止中:Wi-Fi は信頼されていません</string>
-    <string name="home_reason_open_network">Keep-Alive は一時停止中:オープンなWi-Fi</string>
+    <string name="home_reason_open_network">Keep-Alive は一時停止中:安全でないWi-Fiまたはログインページ</string>
     <string name="home_reason_blocked">Keep-Alive は一時停止中:Wi-Fi はブロックされています</string>
     <string name="home_reason_identity">Keep-Alive は一時停止中:ネットワークを読み取れません</string>
     <string name="home_reason_backoff">Keep-Alive は一時停止中:AndroidのWifi-ADBダイアログが未確認</string>
@@ -283,7 +283,7 @@
     <string name="protection_title">保護</string>
     <string name="protection_automatic_title">自動動作</string>
     <string name="untrusted_shutdown_hint_short">信頼していないWi-Fiで Wifi-ADB をオフにします。</string>
-    <string name="open_network_shutdown_hint_short">パスワードのないWi-Fiやログインページのある Wi-Fiで Wifi-ADB をオフにします。</string>
+    <string name="open_network_shutdown_hint_short">安全なパスワード保護のないWi-Fiやログインページのある Wi-Fiで Wifi-ADB をオフにします。</string>
     <string name="security_check_hint_short">信頼済みWi-Fiアクセス先のセキュリティが弱くなった場合、自動オンを一時停止します。</string>
     <string name="hint_more">もっと見る ▾</string>
     <string name="hint_less">閉じる ▴</string>
@@ -308,12 +308,12 @@
     <string name="untrusted_shutdown_title">信頼していないWi-Fiでオフにする</string>
     <string name="untrusted_shutdown_hint">Keep-Aliveがオンの間、信頼していない、ブロックされている、または識別できないWi-Fiでは、通知するだけでなく Wifi-ADB をオフにします。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。</string>
     <string name="open_network_shutdown_title">オープンなWi-Fiでオフにする</string>
-    <string name="open_network_shutdown_hint">Keep-Aliveがオンの間、パスワードのないWi-Fi(オープン、WEP、Enhanced Open)や、ログインページを求めているWi-Fiでは、信頼済みのアクセス先でも Wifi-ADB をオフにし、そこでは再びオンにしません。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。Android 11 ではWi-Fiにパスワードがあるかを判別できないため、ログインページのみが対象です。</string>
+    <string name="open_network_shutdown_hint">Keep-Aliveがオンの間、安全なパスワード保護のないWi-Fi(オープン、Enhanced Open、WEP)や、ログインページを求めているWi-Fiでは、信頼済みのアクセス先でも Wifi-ADB をオフにし、そこでは再びオンにしません。KeepADBで自分でオンにしたセッションは、そのWi-Fiアクセス先ではオンのままです。強制モード中は停止します。Android 11 ではWi-Fiの保護方式を判別できないため、ログインページのみが対象です。</string>
     <string name="untrusted_shutdown_channel_name">信頼していないWi-Fiでのオフ</string>
     <string name="untrusted_shutdown_channel_desc">信頼していないWi-FiでKeepADBが Wifi-ADB をオフにしたときに通知します。</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB をオフにしました</string>
     <string name="untrusted_shutdown_off_text">現在のWi-Fiは信頼されていないか、識別できません。信頼済みのWi-FiではKeep-Aliveが再びオンにします。</string>
-    <string name="open_network_off_text">このWi-Fiにはパスワードがないか、ログインページを求めています。保護されたWi-FiではKeep-Aliveが再びオンにします。</string>
+    <string name="open_network_off_text">このWi-Fiには安全なパスワード保護がないか、ログインページを求めています。保護されたWi-FiではKeep-Aliveが再びオンにします。</string>
     <string name="untrusted_shutdown_failed_title">Wifi-ADB をオフにできませんでした</string>
     <string name="untrusted_shutdown_failed_text">現在のWi-Fiは信頼されていませんが、Wifi-ADB をオフにできませんでした。手動でオフにしてください。</string>
     <string name="security_check_title">信頼済みWi-Fiアクセス先のセキュリティを確認</string>
@@ -637,7 +637,7 @@
     <string name="overview_reason_manual_off">手動でオフ</string>
     <string name="overview_reason_no_wifi">Wi-Fi なし</string>
     <string name="overview_reason_untrusted">信頼されていないネットワーク</string>
-    <string name="overview_reason_open_network">オープンなネットワーク</string>
+    <string name="overview_reason_open_network">安全でないネットワーク/ログイン</string>
     <string name="overview_reason_identity">不明なネットワーク</string>
     <string name="overview_reason_backoff">再試行を一時停止中</string>
     <string name="overview_delivery_unconfigured">未設定</string>

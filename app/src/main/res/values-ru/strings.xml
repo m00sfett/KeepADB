@@ -256,7 +256,7 @@
     <string name="settings_no_browser_found">Не найдено приложение для открытия этой ссылки.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive ждёт сеть</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: эта сеть Wi-Fi не является доверенной</string>
-    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: у этой сети Wi-Fi нет пароля или она требует вход</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: у этой сети Wi-Fi нет надёжной защиты или она требует вход</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: эта сеть Wi-Fi заблокирована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: сеть не читается, проверьте разрешение на геолокацию («Разрешить в любом режиме») или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ВЫКЛЮЧЕН — Keep-Alive приостановлен: подтвердите системный диалог Android для Wifi-ADB, затем нажмите переключатель, чтобы повторить попытку</string>
@@ -267,7 +267,7 @@
     <string name="home_reason_permission">Системное разрешение не выдано</string>
     <string name="home_reason_waiting">Keep-Alive ждёт Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive приостановлен: сеть Wi-Fi не доверенная</string>
-    <string name="home_reason_open_network">Keep-Alive приостановлен: открытая сеть Wi-Fi</string>
+    <string name="home_reason_open_network">Keep-Alive приостановлен: небезопасная сеть Wi-Fi или вход</string>
     <string name="home_reason_blocked">Keep-Alive приостановлен: сеть Wi-Fi заблокирована</string>
     <string name="home_reason_identity">Keep-Alive приостановлен: сеть не читается</string>
     <string name="home_reason_backoff">Keep-Alive приостановлен: диалог Android для Wifi-ADB не подтверждён</string>
@@ -283,7 +283,7 @@
     <string name="protection_title">Защита</string>
     <string name="protection_automatic_title">Автоматическое поведение</string>
     <string name="untrusted_shutdown_hint_short">Отключает Wifi-ADB в недоверенной сети Wi-Fi.</string>
-    <string name="open_network_shutdown_hint_short">Отключает Wifi-ADB в сети Wi-Fi без пароля или со страницей входа.</string>
+    <string name="open_network_shutdown_hint_short">Отключает Wifi-ADB в сети Wi-Fi без надёжной защиты паролем или со страницей входа.</string>
     <string name="security_check_hint_short">Приостанавливает автоматическое включение, если у доверенного роутера защита стала слабее.</string>
     <string name="hint_more">Ещё ▾</string>
     <string name="hint_less">Меньше ▴</string>
@@ -308,12 +308,12 @@
     <string name="untrusted_shutdown_title">Отключать в недоверенных сетях Wi-Fi</string>
     <string name="untrusted_shutdown_hint">Пока Keep-Alive включён, KeepADB отключает Wifi-ADB в сети Wi-Fi, которая не является доверенной, заблокирована или не может быть определена, а не только уведомляет вас. Сеанс, который вы включили сами в KeepADB, остаётся включённым у этого роутера Wi-Fi. Принудительный режим приостанавливает это.</string>
     <string name="open_network_shutdown_title">Отключать в открытых сетях Wi-Fi</string>
-    <string name="open_network_shutdown_hint">Пока Keep-Alive включён, KeepADB отключает Wifi-ADB в сети Wi-Fi без пароля (открытой, WEP или Enhanced Open) и пока сеть Wi-Fi требует страницу входа, даже у доверенных роутеров Wi-Fi, и не включает его там снова. Сеанс, который вы включили сами в KeepADB, остаётся включённым у этого роутера Wi-Fi. Принудительный режим приостанавливает это. Android 11 не может определить, есть ли у сети Wi-Fi пароль; там учитываются только страницы входа.</string>
+    <string name="open_network_shutdown_hint">Пока Keep-Alive включён, KeepADB отключает Wifi-ADB в сети Wi-Fi без надёжной защиты паролем (открытой, Enhanced Open или WEP) и пока сеть Wi-Fi требует страницу входа, даже у доверенных роутеров Wi-Fi, и не включает его там снова. Сеанс, который вы включили сами в KeepADB, остаётся включённым у этого роутера Wi-Fi. Принудительный режим приостанавливает это. Android 11 не может определить, как защищена сеть Wi-Fi; там учитываются только страницы входа.</string>
     <string name="untrusted_shutdown_channel_name">Отключение в недоверенных сетях Wi-Fi</string>
     <string name="untrusted_shutdown_channel_desc">Сообщает, когда KeepADB отключил Wifi-ADB в недоверенной сети Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB отключён</string>
     <string name="untrusted_shutdown_off_text">Текущая сеть Wi-Fi не является доверенной или не может быть определена. Keep-Alive снова включит её в доверенной сети Wi-Fi.</string>
-    <string name="open_network_off_text">У этой сети Wi-Fi нет пароля или она требует страницу входа. Keep-Alive снова включит его в защищённой сети Wi-Fi.</string>
+    <string name="open_network_off_text">У этой сети Wi-Fi нет надёжной защиты паролем или она требует страницу входа. Keep-Alive снова включит его в защищённой сети Wi-Fi.</string>
     <string name="untrusted_shutdown_failed_title">Не удалось отключить Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">Текущая сеть Wi-Fi не является доверенной, но отключить Wifi-ADB не удалось. Отключите его вручную.</string>
     <string name="security_check_title">Проверять защиту Wi-Fi доверенных роутеров</string>
@@ -640,7 +640,7 @@
     <string name="overview_reason_manual_off">выключено вручную</string>
     <string name="overview_reason_no_wifi">нет Wi-Fi</string>
     <string name="overview_reason_untrusted">сеть не доверенная</string>
-    <string name="overview_reason_open_network">открытая сеть</string>
+    <string name="overview_reason_open_network">небезопасная сеть или вход</string>
     <string name="overview_reason_identity">сеть неизвестна</string>
     <string name="overview_reason_backoff">повторы приостановлены</string>
     <string name="overview_delivery_unconfigured">Не настроено</string>

@@ -256,7 +256,7 @@
     <string name="settings_no_browser_found">لم يتم العثور على تطبيق لفتح هذا الرابط.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB مُعَطَّل — ينتظر Keep-Alive الشبكة</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة غير موثوقة</string>
-    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi هذه بلا كلمة مرور أو تطلب تسجيل الدخول</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi هذه بلا حماية آمنة أو تطلب تسجيل الدخول</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة محظورة</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة، تحقق من إذن الموقع («السماح طوال الوقت») أو أعد فتح التطبيق</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار الشبكة Wifi-ADB من Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
@@ -267,7 +267,7 @@
     <string name="home_reason_permission">إذن النظام غير ممنوح</string>
     <string name="home_reason_waiting">ينتظر Keep-Alive شبكة Wi-Fi</string>
     <string name="home_reason_untrusted">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi غير موثوقة</string>
-    <string name="home_reason_open_network">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi مفتوحة</string>
+    <string name="home_reason_open_network">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi غير آمنة أو تسجيل دخول</string>
     <string name="home_reason_blocked">تم إيقاف Keep-Alive مؤقتًا: شبكة Wi-Fi محظورة</string>
     <string name="home_reason_identity">تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة</string>
     <string name="home_reason_backoff">تم إيقاف Keep-Alive مؤقتًا: لم يتم تأكيد مربع حوار Wifi-ADB من Android</string>
@@ -283,7 +283,7 @@
     <string name="protection_title">الحماية</string>
     <string name="protection_automatic_title">السلوك التلقائي</string>
     <string name="untrusted_shutdown_hint_short">يوقف Wifi-ADB في شبكة Wi-Fi غير موثوقة.</string>
-    <string name="open_network_shutdown_hint_short">يوقف Wifi-ADB في شبكة Wi-Fi بلا كلمة مرور أو تطلب صفحة تسجيل دخول.</string>
+    <string name="open_network_shutdown_hint_short">يوقف Wifi-ADB في شبكة Wi-Fi بلا حماية آمنة بكلمة مرور أو تطلب صفحة تسجيل دخول.</string>
     <string name="security_check_hint_short">يوقف التشغيل التلقائي مؤقتًا إذا أصبح أمان نقطة اتصال موثوقة أضعف.</string>
     <string name="hint_more">المزيد ▾</string>
     <string name="hint_less">أقل ▴</string>
@@ -308,12 +308,12 @@
     <string name="untrusted_shutdown_title">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
     <string name="untrusted_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB Wifi-ADB في شبكة Wi-Fi غير موثوقة أو محظورة أو لا يمكن التعرف عليها، بدلًا من الاكتفاء بإشعارك. الجلسة التي شغّلتها بنفسك في KeepADB تبقى مفعّلة عند نقطة الاتصال تلك. الوضع الإجباري يعلّق ذلك.</string>
     <string name="open_network_shutdown_title">الإيقاف في شبكات Wi-Fi المفتوحة</string>
-    <string name="open_network_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB Wifi-ADB في شبكة Wi-Fi بلا كلمة مرور (مفتوحة أو WEP أو Enhanced Open) وطالما تطلب شبكة Wi-Fi صفحة تسجيل دخول، حتى عند نقاط الاتصال الموثوقة، ولا يعيد تشغيله هناك. الجلسة التي شغّلتها بنفسك في KeepADB تبقى مفعّلة عند نقطة الاتصال تلك. الوضع الإجباري يعلّق ذلك. لا يستطيع Android 11 معرفة ما إذا كانت شبكة Wi-Fi محمية بكلمة مرور؛ لذلك لا تُحتسب هناك إلا صفحات تسجيل الدخول.</string>
+    <string name="open_network_shutdown_hint">عندما يكون Keep-Alive مفعّلًا، يوقف KeepADB Wifi-ADB في شبكة Wi-Fi بلا حماية آمنة بكلمة مرور (مفتوحة أو Enhanced Open أو WEP) وطالما تطلب شبكة Wi-Fi صفحة تسجيل دخول، حتى عند نقاط الاتصال الموثوقة، ولا يعيد تشغيله هناك. الجلسة التي شغّلتها بنفسك في KeepADB تبقى مفعّلة عند نقطة الاتصال تلك. الوضع الإجباري يعلّق ذلك. لا يستطيع Android 11 معرفة كيفية حماية شبكة Wi-Fi؛ لذلك لا تُحتسب هناك إلا صفحات تسجيل الدخول.</string>
     <string name="untrusted_shutdown_channel_name">الإيقاف في شبكات Wi-Fi غير الموثوقة</string>
     <string name="untrusted_shutdown_channel_desc">يُعلمك عندما يوقف KeepADB Wifi-ADB في شبكة Wi-Fi غير موثوقة.</string>
     <string name="untrusted_shutdown_off_title">تم إيقاف Wifi-ADB</string>
     <string name="untrusted_shutdown_off_text">شبكة Wi-Fi الحالية غير موثوقة أو لا يمكن التعرف عليها. يعيد Keep-Alive تشغيله في شبكة Wi-Fi موثوقة.</string>
-    <string name="open_network_off_text">شبكة Wi-Fi هذه بلا كلمة مرور أو تطلب صفحة تسجيل دخول. يعيد Keep-Alive تشغيله في شبكة Wi-Fi محمية.</string>
+    <string name="open_network_off_text">شبكة Wi-Fi هذه بلا حماية آمنة بكلمة مرور أو تطلب صفحة تسجيل دخول. يعيد Keep-Alive تشغيله في شبكة Wi-Fi محمية.</string>
     <string name="untrusted_shutdown_failed_title">تعذّر إيقاف Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">شبكة Wi-Fi الحالية غير موثوقة، لكن فشل إيقاف Wifi-ADB. أوقفه يدويًا.</string>
     <string name="security_check_title">التحقق من أمان Wi-Fi لنقاط الاتصال الموثوقة</string>
@@ -642,7 +642,7 @@
     <string name="overview_reason_manual_off">أُوقف يدويًا</string>
     <string name="overview_reason_no_wifi">لا يوجد Wi-Fi</string>
     <string name="overview_reason_untrusted">شبكة غير موثوقة</string>
-    <string name="overview_reason_open_network">شبكة مفتوحة</string>
+    <string name="overview_reason_open_network">شبكة غير آمنة أو تسجيل دخول</string>
     <string name="overview_reason_identity">شبكة غير معروفة</string>
     <string name="overview_reason_backoff">إعادة المحاولة متوقفة</string>
     <string name="overview_delivery_unconfigured">غير مُعَد</string>

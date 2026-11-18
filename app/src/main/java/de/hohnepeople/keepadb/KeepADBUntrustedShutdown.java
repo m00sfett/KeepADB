@@ -85,7 +85,7 @@ final class KeepADBUntrustedShutdown {
             cancelRecheck();
             return;
         }
-        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
+        KeepADBTrustedNetwork.Decision decision = actionableDecision(app);
         if (!covers(app, decision) || isManuallyExempt(app, decision)) {
             cancelRecheck();
             return;
@@ -183,9 +183,23 @@ final class KeepADBUntrustedShutdown {
      */
     private static boolean stillApplies(Context app, boolean unreadableConfirmed) {
         if (!preconditionsHold(app)) return false;
-        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
+        KeepADBTrustedNetwork.Decision decision = actionableDecision(app);
         if (!covers(app, decision) || isManuallyExempt(app, decision)) return false;
         return unreadableConfirmed || decision != KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE;
+    }
+
+    /**
+     * #997: the decision the shutdown acts on. An open-network decision a manual session is
+     * exempt from falls back to the trust lists, so "Turn off on untrusted Wi-Fi" (#864) still
+     * judges that session exactly as before (Codex review of #1004): with both switches on, a
+     * manual enable on an unreadable identity is confirmed and switched off by #864.
+     */
+    static KeepADBTrustedNetwork.Decision actionableDecision(Context app) {
+        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
+        if (decision.isOpenNetwork() && isManuallyExempt(app, decision)) {
+            return KeepADBTrustedNetwork.evaluateCurrentWithoutOpenRule(app);
+        }
+        return decision;
     }
 
     /**
@@ -259,7 +273,7 @@ final class KeepADBUntrustedShutdown {
         }
         endExemptionOnOtherAccessPoint(app);
         if (!preconditionsHold(app)) return;
-        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
+        KeepADBTrustedNetwork.Decision decision = actionableDecision(app);
         if (decision.allowsAutomaticEnable) {
             KeepADBDiagnostics.event(app, "untrusted_shutdown", "recheck", "resolved",
                     "attempt=" + (attempt + 2));
@@ -309,7 +323,7 @@ final class KeepADBUntrustedShutdown {
             case GUARD_ABORTED:
                 // The identity may have turned unreadable since the readable decision: that is a
                 // possible roam, so it gets the same confirmation as any unreadable identity.
-                KeepADBTrustedNetwork.Decision now = KeepADBTrustedNetwork.evaluateCurrent(app);
+                KeepADBTrustedNetwork.Decision now = actionableDecision(app);
                 if (!unreadableConfirmed && preconditionsHold(app)
                         && now == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE
                         && covers(app, now) && !isManuallyExempt(app, now)) {

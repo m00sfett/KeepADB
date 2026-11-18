@@ -256,7 +256,7 @@
     <string name="settings_no_browser_found">이 링크를 열 수 있는 앱을 찾을 수 없습니다.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
-    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi는 비밀번호가 없거나 로그인 페이지를 요구합니다</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi는 안전한 비밀번호 보호가 없거나 로그인 페이지를 요구합니다</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 차단되었습니다</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없습니다. 위치 권한(‘항상 허용’)을 확인하거나 앱을 다시 여세요</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 꺼짐 – Keep-Alive 일시 중지됨: Android의 Wifi-ADB 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
@@ -267,7 +267,7 @@
     <string name="home_reason_permission">시스템 권한이 부여되지 않음</string>
     <string name="home_reason_waiting">Keep-Alive가 Wi-Fi를 기다리는 중</string>
     <string name="home_reason_untrusted">Keep-Alive 일시 중지됨: Wi-Fi를 신뢰할 수 없음</string>
-    <string name="home_reason_open_network">Keep-Alive 일시 중지됨: 개방형 Wi-Fi</string>
+    <string name="home_reason_open_network">Keep-Alive 일시 중지됨: 안전하지 않은 Wi-Fi 또는 로그인 페이지</string>
     <string name="home_reason_blocked">Keep-Alive 일시 중지됨: Wi-Fi 차단됨</string>
     <string name="home_reason_identity">Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없음</string>
     <string name="home_reason_backoff">Keep-Alive 일시 중지됨: Android의 Wifi-ADB 대화상자 미확인</string>
@@ -283,7 +283,7 @@
     <string name="protection_title">보호</string>
     <string name="protection_automatic_title">자동 동작</string>
     <string name="untrusted_shutdown_hint_short">신뢰하지 않는 Wi-Fi에서 Wifi-ADB를 끕니다.</string>
-    <string name="open_network_shutdown_hint_short">비밀번호가 없거나 로그인 페이지가 있는 Wi-Fi에서 Wifi-ADB를 끕니다.</string>
+    <string name="open_network_shutdown_hint_short">안전한 비밀번호 보호가 없거나 로그인 페이지가 있는 Wi-Fi에서 Wifi-ADB를 끕니다.</string>
     <string name="security_check_hint_short">신뢰하는 Wi-Fi 공유기의 보안이 약해지면 자동 켜기를 멈춥니다.</string>
     <string name="hint_more">더보기 ▾</string>
     <string name="hint_less">접기 ▴</string>
@@ -308,12 +308,12 @@
     <string name="untrusted_shutdown_title">신뢰하지 않는 Wi-Fi에서 끄기</string>
     <string name="untrusted_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 신뢰하지 않거나 차단되었거나 식별할 수 없는 Wi-Fi에서 알림만 보내는 대신 Wifi-ADB를 끕니다. KeepADB에서 직접 켠 세션은 해당 Wi-Fi 공유기에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다.</string>
     <string name="open_network_shutdown_title">개방형 Wi-Fi에서 끄기</string>
-    <string name="open_network_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 비밀번호가 없는 Wi-Fi(개방형, WEP 또는 Enhanced Open)와 로그인 페이지를 요구하는 Wi-Fi에서 신뢰하는 공유기라도 Wifi-ADB를 끄고, 그곳에서는 다시 켜지 않습니다. KeepADB에서 직접 켠 세션은 해당 Wi-Fi 공유기에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다. Android 11은 Wi-Fi에 비밀번호가 있는지 알 수 없으므로 로그인 페이지만 적용됩니다.</string>
+    <string name="open_network_shutdown_hint">Keep-Alive가 켜져 있는 동안, KeepADB는 안전한 비밀번호 보호가 없는 Wi-Fi(개방형, Enhanced Open 또는 WEP)와 로그인 페이지를 요구하는 Wi-Fi에서 신뢰하는 공유기라도 Wifi-ADB를 끄고, 그곳에서는 다시 켜지 않습니다. KeepADB에서 직접 켠 세션은 해당 Wi-Fi 공유기에서 계속 켜져 있습니다. 강제 모드에서는 적용되지 않습니다. Android 11은 Wi-Fi가 어떻게 보호되는지 알 수 없으므로 로그인 페이지만 적용됩니다.</string>
     <string name="untrusted_shutdown_channel_name">신뢰하지 않는 Wi-Fi에서 끄기</string>
     <string name="untrusted_shutdown_channel_desc">KeepADB가 신뢰하지 않는 Wi-Fi에서 Wifi-ADB를 껐을 때 알립니다.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB가 꺼졌습니다</string>
     <string name="untrusted_shutdown_off_text">현재 Wi-Fi는 신뢰하지 않거나 식별할 수 없습니다. 신뢰하는 Wi-Fi에서는 Keep-Alive가 다시 켭니다.</string>
-    <string name="open_network_off_text">이 Wi-Fi는 비밀번호가 없거나 로그인 페이지를 요구합니다. 보호된 Wi-Fi에서는 Keep-Alive가 다시 켭니다.</string>
+    <string name="open_network_off_text">이 Wi-Fi는 안전한 비밀번호 보호가 없거나 로그인 페이지를 요구합니다. 보호된 Wi-Fi에서는 Keep-Alive가 다시 켭니다.</string>
     <string name="untrusted_shutdown_failed_title">Wifi-ADB를 끌 수 없습니다</string>
     <string name="untrusted_shutdown_failed_text">현재 Wi-Fi는 신뢰하지 않지만 Wifi-ADB를 끄지 못했습니다. 직접 끄세요.</string>
     <string name="security_check_title">신뢰하는 Wi-Fi 공유기의 Wi-Fi 보안 확인</string>
@@ -637,7 +637,7 @@
     <string name="overview_reason_manual_off">수동으로 끔</string>
     <string name="overview_reason_no_wifi">Wi-Fi 없음</string>
     <string name="overview_reason_untrusted">신뢰하지 않는 네트워크</string>
-    <string name="overview_reason_open_network">개방형 네트워크</string>
+    <string name="overview_reason_open_network">안전하지 않은 네트워크/로그인</string>
     <string name="overview_reason_identity">알 수 없는 네트워크</string>
     <string name="overview_reason_backoff">재시도 일시 중지</string>
     <string name="overview_delivery_unconfigured">설정 안 됨</string>

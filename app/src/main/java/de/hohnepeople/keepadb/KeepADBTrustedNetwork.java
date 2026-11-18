@@ -693,6 +693,22 @@ final class KeepADBTrustedNetwork {
             default:
                 break;
         }
+        return evaluateTrustLists(context);
+    }
+
+    /**
+     * #997: {@link #evaluateCurrent} without the open-network rule, for a session the user
+     * switched on manually that is exempt from that rule only: the untrusted-Wi-Fi shutdown (#864)
+     * still judges it by the lists (Codex review of #1004).
+     */
+    static Decision evaluateCurrentWithoutOpenRule(Context context) {
+        if (KeepADBForceMode.isActive(context)) {
+            return Decision.FORCE_MODE;
+        }
+        return evaluateTrustLists(context);
+    }
+
+    private static Decision evaluateTrustLists(Context context) {
         // #860: with the security check on, the identity is read here too (Codex review).
         if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)
                 && !isSecurityCheckEnabled(context)) {

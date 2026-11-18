@@ -167,6 +167,13 @@ final class KeepADBNetworkTrustPrompt {
     static boolean onBlockedByUntrustedNetwork(Context context) {
         if (context == null) return false;
         Context appContext = context.getApplicationContext();
+        // #997: the open-network rule blocks a connection, not an access point. Trusting the
+        // network (or fixing location access) cannot lift it, so nothing is asked.
+        if (KeepADBTrustedNetwork.evaluateCurrent(appContext).isOpenNetwork()) {
+            KeepADBDiagnostics.event(appContext, "network_trust_prompt", "trusted_network",
+                    "skipped", "open_network");
+            return false;
+        }
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(appContext);
         // #760: a blocked network is the user's answer already -- never ask, never record it as
         // "recently prevented". Checked before the unreadable-identity branch because a block on
