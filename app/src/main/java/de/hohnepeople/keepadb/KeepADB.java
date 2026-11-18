@@ -600,8 +600,10 @@ final class KeepADB {
         }
         pendingToggleRunnable = null;
         if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
-            // #1000 (review): a debounced timer off whose obligation a manual "on" settled while it
-            // waited is dropped, with the intent it replaced.
+            // #1000 (review): a debounced timer off whose obligation a manual "on" or a readback
+            // settled while it waited is dropped, with the intent it replaced. #1014: rolling back
+            // to the baseline is safe only because recordTimerOffIntent() runs before the timer's
+            // setEnabled(), so that baseline is already "off".
             KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                     "intentId=" + token + " reason=timer_off_settled");
             state.rollbackIntent(previousLastDesiredOn);

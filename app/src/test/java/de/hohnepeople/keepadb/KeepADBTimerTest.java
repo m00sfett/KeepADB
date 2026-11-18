@@ -885,4 +885,29 @@ public class KeepADBTimerTest {
         assertFalse(gateway.isEnabled(context));
         assertFalse(KeepADBTimer.isShutdownPending(context));
     }
+
+    @Test
+    public void aDebouncedTimerOffSettledByAReadbackBeforeItFiresWritesNothing() {
+        // #1014: the off waits in the debounce window; the user switches Wifi-ADB off in Android's
+        // settings, a driver's readback settles the obligation (no newer token), and the user
+        // switches it on again. The waiting off must not switch it off once more.
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        clock.advance(15 * MINUTE);
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        assertTrue(KeepADB.isTogglePending());
+        int writesBefore = gateway.writes.size();
+
+        gateway.setEnabledByUser(false);
+        KeepADBTimer.settleShutdown(context);
+        assertFalse("Settled by the readback", KeepADBTimer.isShutdownPending(context));
+        assertTrue("Same intent, no newer token", KeepADB.isTogglePending());
+        gateway.setEnabledByUser(true);
+        drainToggles();
+
+        assertEquals("The settled off is dropped, not written", writesBefore, gateway.writes.size());
+        assertTrue(gateway.isEnabled(context));
+        assertFalse("The off intent stays", KeepADBPreferences.getLastDesiredOn(context));
+    }
 }

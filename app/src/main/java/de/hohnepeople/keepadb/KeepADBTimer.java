@@ -450,7 +450,8 @@ final class KeepADBTimer {
         if (result == KeepADB.ToggleResult.APPLIED
                 && Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
             clearShutdownPending(app);
-        } else {
+        } else if (isShutdownPending(app)) {
+            // #1014: a SUPERSEDED off whose obligation was settled meanwhile is not "pending".
             KeepADBDiagnostics.event(app, "timer", "timer", "shutdown_pending",
                     "result=" + result);
             if (result == KeepADB.ToggleResult.SCHEDULED) {
