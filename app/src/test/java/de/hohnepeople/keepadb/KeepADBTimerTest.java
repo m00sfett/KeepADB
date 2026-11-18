@@ -471,6 +471,25 @@ public class KeepADBTimerTest {
     }
 
     @Test
+    public void aManualOnAfterAnOutstandingEndDropsTheOffNotice() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        clock.advance(15 * MINUTE);
+        gateway.setWriteSuccess(false);
+        KeepADBTimer.finishIfExpired(context);
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+        gateway.setWriteSuccess(true);
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        fireTimerAlarm();
+        KeepADBTimer.restore(context);
+        drainToggles();
+
+        assertTrue(gateway.isEnabled(context));
+        assertTrue("No 'Wifi-ADB off' notice after the user switched it on", notices.isEmpty());
+    }
+
+    @Test
     public void aSuccessfulManualOffSettlesAtOnce() {
         KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
 

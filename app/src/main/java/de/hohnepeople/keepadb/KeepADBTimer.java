@@ -306,8 +306,9 @@ final class KeepADBTimer {
         if (context == null) return;
         Context app = context.getApplicationContext();
         if (on) {
-            // A deliberate "on" (the timer's own start included) supersedes an outstanding off.
-            clearShutdownPending(app);
+            // A deliberate "on" (the timer's own start included) supersedes an outstanding off,
+            // and a waiting "Wifi-ADB off" notice with it.
+            supersedeEnd(app);
         }
         if (KeepADB.SOURCE_TIMER.equals(source) || readState(app) == null) return;
         if (finishIfExpired(app)) return;
@@ -450,8 +451,23 @@ final class KeepADBTimer {
     static void onWriteApplied(Context context, String source, boolean on, boolean confirmedOff) {
         if (context == null) return;
         boolean manualOn = on && KeepADB.isManualSource(source);
-        if (!manualOn && !confirmedOff) return;
-        clearShutdownPending(context.getApplicationContext());
+        if (manualOn) {
+            supersedeEnd(context.getApplicationContext());
+        } else if (confirmedOff) {
+            clearShutdownPending(context.getApplicationContext());
+        }
+    }
+
+    /** A manual "on" after an end: no outstanding off, and no notice that would claim "off". */
+    private static void supersedeEnd(Context app) {
+        synchronized (LOCK) {
+            SharedPreferences preferences = prefs(app);
+            if (preferences.getBoolean(KEY_SHUTDOWN_PENDING, false)
+                    || preferences.getBoolean(KEY_NOTICE_PENDING, false)) {
+                preferences.edit().remove(KEY_SHUTDOWN_PENDING).remove(KEY_NOTICE_PENDING)
+                        .remove(KEY_NOTICE_REASON).commit();
+            }
+        }
     }
 
     private static void clearShutdownPending(Context app) {
