@@ -122,6 +122,11 @@ final class KeepADBHomeStatus {
                     : new Model(R.string.home_state_off, R.string.home_reason_untrusted,
                             R.string.status_off_keep_alive_blocked_untrusted, Action.DECIDE);
         }
+        if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK) {
+            // #997: neither trust nor a block can change this; only another Wi-Fi or Force mode.
+            return new Model(R.string.home_state_off, R.string.home_reason_open_network,
+                    R.string.status_off_keep_alive_blocked_open_network, Action.NONE);
+        }
         if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
             return new Model(R.string.home_state_off, R.string.home_reason_identity,
                     R.string.status_off_keep_alive_blocked_identity_unavailable, Action.FIX);

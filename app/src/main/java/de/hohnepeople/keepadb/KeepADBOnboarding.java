@@ -111,7 +111,9 @@ final class KeepADBOnboarding {
                     && !KeepADBBssidHistory.KEY_LEGACY_DISCARDED.equals(key)
                     && !KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN.equals(key)
                     // #904: bookkeeping written on every installation at the first start.
-                    && !KeepADBPreferences.KEY_PRIVACY_SPLIT_INITIALIZED.equals(key)) {
+                    && !KeepADBPreferences.KEY_PRIVACY_SPLIT_INITIALIZED.equals(key)
+                    // #997: its default is stored on every installation at the first start.
+                    && !KeepADBPreferences.KEY_OPEN_NETWORK_SHUTDOWN.equals(key)) {
                 existing = true;
                 break;
             }

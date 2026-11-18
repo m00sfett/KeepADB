@@ -249,6 +249,29 @@
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
 
+                <!-- #997: on for new installations, off for existing ones; effective while
+                     Keep-Alive runs, trusted access points included. -->
+                <Switch
+                    android:id="@+id/settings_open_network_shutdown_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/open_network_shutdown_title"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/protection_open_network_shutdown_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="sans-serif"
+                    android:minHeight="48dp"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
                 <!-- #860: opt-in, off by default; hidden before Android 12. -->
                 <Switch
                     android:id="@+id/settings_security_check_toggle"

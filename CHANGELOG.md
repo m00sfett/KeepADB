@@ -23,6 +23,17 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.0] - Unreleased
+
+### Added
+- "Turn off on open Wi-Fi" (#997, versionCode 281), a new switch in the "Automatic behavior" section of the Protection page. While Keep-Alive runs, KeepADB turns Wifi-ADB off, and does not recover it, while the phone is on a Wi-Fi without secure password protection (security tier open: open, Enhanced Open, WEP; Android 12+) or Android reports a captive portal (`NET_CAPABILITY_CAPTIVE_PORTAL`), trusted access points and the legacy "all networks" setting included. `KeepADBOpenNetwork` reads both; `KeepADBTrustedNetwork.evaluateCurrent` answers the new decisions `OPEN_NETWORK` and `CAPTIVE_PORTAL` below Force mode and above every list, so automatic recovery stops there, and `KeepADBUntrustedShutdown` enforces the rule even while "Turn off on untrusted Wi-Fi" is off. Force mode overrides it; a session switched on manually in KeepADB keeps its exemption, which (because the rule needs no readable identity) is also recorded on an unreadable access point as `?` and then covers this rule only: an exempt session falls back to the list decision (`KeepADBTrustedNetwork.evaluateCurrentWithoutOpenRule`), so "Turn off on untrusted Wi-Fi" still applies to it. No trust prompt is raised for an open-network block (`KeepADBNetworkTrustPrompt`), since trusting cannot lift it. An unreadable or unknown security type is not treated as open; Android 11 detects captive portals only. Home and both widgets name the reason ("Keep-Alive paused: insecure Wi-Fi or sign-in page"); the shutdown notice has its own text; the diagnostics journal records `decision=open_network` or `decision=captive_portal` without network names. Seven new strings in all 19 locales.
+
+### Changed
+- Default of the new rule: on for new installations, off for existing ones. `KeepADBPreferences.migrateOpenNetworkShutdown` stores it once in `KeepADBApplication.onCreate` before anything else writes (nothing stored yet = new installation); the privacy-split migration ignores the new key when it detects a new installation.
+
+### Documentation
+- README, `SECURITY.md`, `docs/defaults.md` and `docs/trusted-networks.md` describe the rule, its default, precedence, manual exemption, Force mode and the Android 11 limit.
+
 ## [1.14.3] - Unreleased
 
 ### Documentation

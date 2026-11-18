@@ -138,6 +138,9 @@ public class KeepADBDefaultsAuditTest {
             // #864: opt-in hardening, off by user decision so no installation changes silently
             new Setting("untrusted_shutdown_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isUntrustedShutdownEnabled(c)),
+            // #997: protection default, on for new installations (existing ones are migrated to off)
+            new Setting("open_network_shutdown_enabled", Kind.SECURITY, true, false,
+                    c -> KeepADBPreferences.isOpenNetworkShutdownEnabled(c)),
             // Data leaving the device or the lock screen
             new Setting("register_webhook_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isRegisterWebhookEnabled(c)),
@@ -195,9 +198,9 @@ public class KeepADBDefaultsAuditTest {
             // by that migration, never written any more)
             "privacy_split_initialized", "notification_details_enabled")));
 
-    /** What {@link KeepADBApplication#onCreate} leaves behind on a new installation (#904). */
+    /** What {@link KeepADBApplication#onCreate} leaves behind on a new installation (#904, #997). */
     private static final Set<String> FIRST_START_KEYS = new TreeSet<>(Arrays.asList(
-            "privacy_split_initialized"));
+            "privacy_split_initialized", "open_network_shutdown_enabled"));
 
     @Before
     public void setUp() {
@@ -205,9 +208,10 @@ public class KeepADBDefaultsAuditTest {
         KeepADB.resetForTesting();
     }
 
-    /** Nothing stored but the marker the application writes at the first start. */
+    /** Nothing stored but what the application writes at the first start, in its order. */
     private void freshInstallation() {
         prefs().edit().clear().commit();
+        KeepADBPreferences.migrateOpenNetworkShutdown(app);
         KeepADBPreferences.migratePrivacySplit(app);
     }
 
@@ -243,6 +247,8 @@ public class KeepADBDefaultsAuditTest {
         // #904 (deliberate, user decision of 2026-11-07): connection details in notifications are
         // shown on a new installation; the notification privacy switch is an opt-in.
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));
+        // #997: the open-network rule protects a new installation from the start.
+        assertTrue(KeepADBPreferences.isOpenNetworkShutdownEnabled(app));
         // ...and the lists a trust decision reads start empty.
         assertTrue(KeepADBTrustedNetwork.getEntries(app).isEmpty());
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(app).isEmpty());

@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Nessuna app trovata per aprire questo link.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB DISATTIVO – Keep-Alive attende la rete</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è protetta in modo sicuro o richiede l’accesso</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete di Android per Wifi-ADB, poi tocca l’interruttore per riprovare</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Autorizzazione di sistema non concessa</string>
     <string name="home_reason_waiting">Keep-Alive attende il Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive in pausa: Wi-Fi non affidabile</string>
+    <string name="home_reason_open_network">Keep-Alive in pausa: Wi-Fi non sicuro o pagina di accesso</string>
     <string name="home_reason_blocked">Keep-Alive in pausa: Wi-Fi bloccato</string>
     <string name="home_reason_identity">Keep-Alive in pausa: rete non leggibile</string>
     <string name="home_reason_backoff">Keep-Alive in pausa: finestra di Android per Wifi-ADB non confermata</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Protezione</string>
     <string name="protection_automatic_title">Comportamento automatico</string>
     <string name="untrusted_shutdown_hint_short">Disattiva Wifi-ADB su un Wi-Fi non affidabile.</string>
+    <string name="open_network_shutdown_hint_short">Disattiva Wifi-ADB su Wi-Fi senza una protezione sicura con password o con pagina di accesso.</string>
     <string name="security_check_hint_short">Sospende l’attivazione automatica se un punto Wi-Fi affidabile mostra una sicurezza più debole.</string>
     <string name="hint_more">Altro ▾</string>
     <string name="hint_less">Meno ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Punto di accesso (BSSID): un singolo trasmettitore, ad esempio router, ripetitore o nodo mesh. Il suo indirizzo hardware, per esempio AA:BB:CC:11:22:33, è più preciso del nome, ma non è una prova.</string>
     <string name="untrusted_shutdown_title">Disattiva su Wi-Fi non affidabili</string>
     <string name="untrusted_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva Wifi-ADB su una rete Wi-Fi non affidabile, bloccata o non identificabile, invece di limitarsi ad avvisarti. Una sessione che hai attivato tu in KeepADB resta attiva su quel punto Wi-Fi. La modalità forzata sospende questo comportamento.</string>
+    <string name="open_network_shutdown_title">Disattiva su Wi-Fi aperti</string>
+    <string name="open_network_shutdown_hint">Finché Keep-Alive è attivo, KeepADB disattiva Wifi-ADB su una rete Wi-Fi senza una protezione sicura con password (aperta, Enhanced Open o WEP) e finché una rete Wi-Fi richiede una pagina di accesso, anche su punti Wi-Fi affidabili, e non lo riattiva lì. Una sessione che hai attivato tu in KeepADB resta attiva su quel punto Wi-Fi. La modalità forzata sospende questo comportamento. Android 11 non può sapere come è protetta una rete Wi-Fi; lì contano solo le pagine di accesso.</string>
     <string name="untrusted_shutdown_channel_name">Disattivazione su Wi-Fi non affidabili</string>
     <string name="untrusted_shutdown_channel_desc">Ti avvisa quando KeepADB ha disattivato Wifi-ADB su una rete Wi-Fi non affidabile.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB disattivato</string>
     <string name="untrusted_shutdown_off_text">La rete Wi-Fi attuale non è affidabile o non è identificabile. Keep-Alive lo riattiva su una rete Wi-Fi affidabile.</string>
+    <string name="open_network_off_text">Questa rete Wi-Fi non ha una protezione sicura con password o richiede una pagina di accesso. Keep-Alive lo riattiva su una rete Wi-Fi protetta.</string>
     <string name="untrusted_shutdown_failed_title">Impossibile disattivare Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">La rete Wi-Fi attuale non è affidabile, ma la disattivazione di Wifi-ADB non è riuscita. Disattivalo manualmente.</string>
     <string name="security_check_title">Controlla la sicurezza Wi-Fi dei punti Wi-Fi affidabili</string>
@@ -633,6 +639,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="overview_reason_manual_off">disattivato manualmente</string>
     <string name="overview_reason_no_wifi">nessun Wi-Fi</string>
     <string name="overview_reason_untrusted">rete non affidabile</string>
+    <string name="overview_reason_open_network">rete non sicura o accesso</string>
     <string name="overview_reason_identity">rete sconosciuta</string>
     <string name="overview_reason_backoff">tentativi in pausa</string>
     <string name="overview_delivery_unconfigured">Non configurato</string>

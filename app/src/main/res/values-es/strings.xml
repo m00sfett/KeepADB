@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">No se encontró ninguna aplicación para abrir este enlace.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB DESACTIVADO: Keep-Alive espera a la red</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: esta red Wi-Fi no es de confianza</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: esta red Wi-Fi no tiene protección segura o pide iniciar sesión</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: esta red Wi-Fi está bloqueada</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: red no legible, revisa el permiso de ubicación («Permitir todo el tiempo») o vuelve a abrir la app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB DESACTIVADO – Keep-Alive en pausa: confirma el diálogo de red de Android para Wifi-ADB y luego toca el interruptor para reintentar</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Permiso del sistema no concedido</string>
     <string name="home_reason_waiting">Keep-Alive espera al Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive en pausa: Wi-Fi no es de confianza</string>
+    <string name="home_reason_open_network">Keep-Alive en pausa: Wi-Fi insegura o inicio de sesión</string>
     <string name="home_reason_blocked">Keep-Alive en pausa: Wi-Fi bloqueado</string>
     <string name="home_reason_identity">Keep-Alive en pausa: red no legible</string>
     <string name="home_reason_backoff">Keep-Alive en pausa: diálogo de Android para Wifi-ADB sin confirmar</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Protección</string>
     <string name="protection_automatic_title">Comportamiento automático</string>
     <string name="untrusted_shutdown_hint_short">Desactiva Wifi-ADB en una red Wi-Fi que no es de confianza.</string>
+    <string name="open_network_shutdown_hint_short">Desactiva Wifi-ADB en redes Wi-Fi sin protección segura por contraseña o con página de inicio de sesión.</string>
     <string name="security_check_hint_short">Pausa el encendido automático si un punto de acceso de confianza muestra menor seguridad.</string>
     <string name="hint_more">Más ▾</string>
     <string name="hint_less">Menos ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Punto de acceso (BSSID): un único emisor, como un router, un repetidor o un nodo mesh. Su dirección de hardware, por ejemplo AA:BB:CC:11:22:33, es más precisa que el nombre, pero tampoco es una prueba.</string>
     <string name="untrusted_shutdown_title">Desactivar en redes Wi-Fi no fiables</string>
     <string name="untrusted_shutdown_hint">Mientras Keep-Alive está activo, KeepADB desactiva Wifi-ADB en una red Wi-Fi que no es de confianza, está bloqueada o no se puede identificar, en lugar de solo avisarte. Una sesión que activaste tú mismo en KeepADB sigue activa en ese punto de acceso. El modo forzado lo suspende.</string>
+    <string name="open_network_shutdown_title">Desactivar en redes Wi-Fi abiertas</string>
+    <string name="open_network_shutdown_hint">Mientras Keep-Alive está activo, KeepADB desactiva Wifi-ADB en una red Wi-Fi sin protección segura por contraseña (abierta, Enhanced Open o WEP) y mientras una red Wi-Fi pide una página de inicio de sesión, incluso en puntos de acceso de confianza, y no lo vuelve a activar allí. Una sesión que activaste tú mismo en KeepADB sigue activa en ese punto de acceso. El modo forzado lo suspende. Android 11 no puede saber cómo está protegida una red Wi-Fi; allí solo cuentan las páginas de inicio de sesión.</string>
     <string name="untrusted_shutdown_channel_name">Desactivación en redes Wi-Fi no fiables</string>
     <string name="untrusted_shutdown_channel_desc">Te avisa cuando KeepADB desactivó Wifi-ADB en una red Wi-Fi no fiable.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB desactivado</string>
     <string name="untrusted_shutdown_off_text">La red Wi-Fi actual no es de confianza o no se puede identificar. Keep-Alive la vuelve a activar en una red Wi-Fi de confianza.</string>
+    <string name="open_network_off_text">Esta red Wi-Fi no tiene protección segura por contraseña o pide una página de inicio de sesión. Keep-Alive lo vuelve a activar en una red Wi-Fi protegida.</string>
     <string name="untrusted_shutdown_failed_title">No se pudo desactivar Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">La red Wi-Fi actual no es de confianza, pero no se pudo desactivar Wifi-ADB. Desactívalo manualmente.</string>
     <string name="security_check_title">Comprobar la seguridad Wi-Fi de los puntos de acceso de confianza</string>
@@ -633,6 +639,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="overview_reason_manual_off">desactivado manualmente</string>
     <string name="overview_reason_no_wifi">sin Wi-Fi</string>
     <string name="overview_reason_untrusted">red no es de confianza</string>
+    <string name="overview_reason_open_network">red insegura o inicio de sesión</string>
     <string name="overview_reason_identity">red desconocida</string>
     <string name="overview_reason_backoff">reintentos en pausa</string>
     <string name="overview_delivery_unconfigured">Sin configurar</string>

@@ -6,6 +6,9 @@ import android.content.res.Configuration;
 /**
  * The application object. It exists for these reasons and holds nothing else:
  * <ul>
+ *   <li>It stores the default of the open-network rule once ({@link
+ *       KeepADBPreferences#migrateOpenNetworkShutdown}, #997): on for a new installation, off for
+ *       an existing one.</li>
  *   <li>It derives the three privacy switches once ({@link
  *       KeepADBPreferences#migratePrivacySplit}) before any component of this process writes a
  *       preference, which is the only moment "nothing stored yet" identifies a new installation.</li>
@@ -36,6 +39,8 @@ public class KeepADBApplication extends Application {
     public void onCreate() {
         super.onCreate();
         remember(getResources().getConfiguration());
+        // #997 before the privacy split: both need "nothing stored yet" to see a new installation.
+        KeepADBPreferences.migrateOpenNetworkShutdown(this);
         KeepADBPreferences.migratePrivacySplit(this);
         KeepADBPreferences.removeObsoleteUsbKeys(this);
         KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);

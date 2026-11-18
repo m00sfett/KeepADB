@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">找不到可開啟此連結的應用程式。</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB 已關閉 – Keep-Alive 正在等待網路</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB 已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路未信任</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB 已關閉 – Keep-Alive 已暫停:此 Wi-Fi 沒有安全保護或要求登入</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB 已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路已被封鎖</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB 已關閉 – Keep-Alive 已暫停:網路無法讀取,請檢查位置權限（「一律允許」）或重新開啟應用程式</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB 已關閉 – Keep-Alive 已暫停:請確認Android 的 Wifi-ADB 網路對話方塊,然後點選開關重試</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">未授予系統權限</string>
     <string name="home_reason_waiting">Keep-Alive 正在等待 Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive 已暫停：Wi-Fi 未信任</string>
+    <string name="home_reason_open_network">Keep-Alive 已暫停：不安全的 Wi-Fi 或登入頁面</string>
     <string name="home_reason_blocked">Keep-Alive 已暫停：Wi-Fi 已被封鎖</string>
     <string name="home_reason_identity">Keep-Alive 已暫停：無法讀取網路</string>
     <string name="home_reason_backoff">Keep-Alive 已暫停：Android 的 Wifi-ADB 對話方塊尚未確認</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">保護</string>
     <string name="protection_automatic_title">自動行為</string>
     <string name="untrusted_shutdown_hint_short">在未信任的 Wi-Fi 上關閉 Wifi-ADB。</string>
+    <string name="open_network_shutdown_hint_short">在沒有安全密碼保護或需要登入頁面的 Wi-Fi 上關閉 Wifi-ADB。</string>
     <string name="security_check_hint_short">如果已信任的 Wi-Fi 基地台安全性變弱，則暫停自動開啟。</string>
     <string name="hint_more">更多 ▾</string>
     <string name="hint_less">收起 ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">存取點（BSSID）：單一發射裝置，例如路由器、中繼器或 Mesh 節點。它的硬體位址（例如 AA:BB:CC:11:22:33）比名稱更精確，但同樣不能作為證明。</string>
     <string name="untrusted_shutdown_title">在未信任的 Wi-Fi 上關閉</string>
     <string name="untrusted_shutdown_hint">Keep-Alive 開啟時，如果 Wi-Fi 未信任、已封鎖或無法識別，KeepADB 會關閉 Wifi-ADB，而不只是通知你。你在 KeepADB 中自己開啟的工作階段在該 Wi-Fi 基地台上保持開啟。強制模式下暫停此功能。</string>
+    <string name="open_network_shutdown_title">在開放 Wi-Fi 上關閉</string>
+    <string name="open_network_shutdown_hint">Keep-Alive 開啟時，在沒有安全密碼保護的 Wi-Fi（開放、Enhanced Open 或 WEP）上，以及 Wi-Fi 要求登入頁面期間，即使是已信任的基地台，KeepADB 也會關閉 Wifi-ADB，並且不會在那裡重新開啟。你在 KeepADB 中自己開啟的工作階段在該 Wi-Fi 基地台上保持開啟。強制模式下暫停此功能。Android 11 無法判斷 Wi-Fi 的保護方式；在該版本上只考慮登入頁面。</string>
     <string name="untrusted_shutdown_channel_name">在未信任的 Wi-Fi 上關閉</string>
     <string name="untrusted_shutdown_channel_desc">當 KeepADB 在未信任的 Wi-Fi 上關閉 Wifi-ADB 時通知你。</string>
     <string name="untrusted_shutdown_off_title">已關閉 Wifi-ADB</string>
     <string name="untrusted_shutdown_off_text">目前的 Wi-Fi 未信任或無法識別。在已信任的 Wi-Fi 上，Keep-Alive 會重新開啟它。</string>
+    <string name="open_network_off_text">此 Wi-Fi 沒有安全的密碼保護或要求登入頁面。在受保護的 Wi-Fi 上，Keep-Alive 會重新開啟它。</string>
     <string name="untrusted_shutdown_failed_title">無法關閉 Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">目前的 Wi-Fi 未信任，但關閉 Wifi-ADB 失敗。請手動關閉。</string>
     <string name="security_check_title">檢查已信任 Wi-Fi 基地台的安全性</string>
@@ -631,6 +637,7 @@
     <string name="overview_reason_manual_off">已手動關閉</string>
     <string name="overview_reason_no_wifi">沒有 Wi-Fi</string>
     <string name="overview_reason_untrusted">網路未信任</string>
+    <string name="overview_reason_open_network">不安全網路或需登入</string>
     <string name="overview_reason_identity">網路不明</string>
     <string name="overview_reason_backoff">重試已暫停</string>
     <string name="overview_delivery_unconfigured">未設定</string>

@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Не знайдено застосунок для відкриття цього посилання.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB ВИМКНЕНО — Keep-Alive чекає на мережу</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не є довіреною</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не має надійного захисту або вимагає вхід</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi заблокована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: мережа не читається, перевірте дозвіл на геолокацію («Дозволити завжди») або відкрийте застосунок знову</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог Android для Wifi-ADB, потім торкніться перемикача, щоб повторити спробу</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Системний дозвіл не надано</string>
     <string name="home_reason_waiting">Keep-Alive чекає на Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive призупинено: мережа Wi-Fi не довірена</string>
+    <string name="home_reason_open_network">Keep-Alive призупинено: небезпечна мережа Wi-Fi або вхід</string>
     <string name="home_reason_blocked">Keep-Alive призупинено: мережа Wi-Fi заблокована</string>
     <string name="home_reason_identity">Keep-Alive призупинено: мережа не читається</string>
     <string name="home_reason_backoff">Keep-Alive призупинено: діалог Android для Wifi-ADB не підтверджено</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Захист</string>
     <string name="protection_automatic_title">Автоматична поведінка</string>
     <string name="untrusted_shutdown_hint_short">Вимикає Wifi-ADB в недовіреній мережі Wi-Fi.</string>
+    <string name="open_network_shutdown_hint_short">Вимикає Wifi-ADB у мережі Wi-Fi без надійного захисту паролем або зі сторінкою входу.</string>
     <string name="security_check_hint_short">Призупиняє автоматичне вмикання, якщо захист довіреного роутера став слабшим.</string>
     <string name="hint_more">Ще ▾</string>
     <string name="hint_less">Менше ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Точка доступу (BSSID): один передавач, наприклад роутер, репітер або вузол mesh. Її апаратна адреса, наприклад AA:BB:CC:11:22:33, точніша за назву, але теж не є доказом.</string>
     <string name="untrusted_shutdown_title">Вимикати в недовірених мережах Wi-Fi</string>
     <string name="untrusted_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає Wifi-ADB в мережі Wi-Fi, яка не є довіреною, заблокована або не може бути визначена, а не лише сповіщає вас. Сеанс, який ви ввімкнули самі в KeepADB, залишається ввімкненим біля цього роутера Wi-Fi. Примусовий режим призупиняє це.</string>
+    <string name="open_network_shutdown_title">Вимикати у відкритих мережах Wi-Fi</string>
+    <string name="open_network_shutdown_hint">Поки Keep-Alive увімкнено, KeepADB вимикає Wifi-ADB у мережі Wi-Fi без надійного захисту паролем (відкритій, Enhanced Open або WEP) і поки мережа Wi-Fi вимагає сторінку входу, навіть біля довірених роутерів Wi-Fi, і не вмикає його там знову. Сеанс, який ви ввімкнули самі в KeepADB, залишається ввімкненим біля цього роутера Wi-Fi. Примусовий режим призупиняє це. Android 11 не може визначити, як захищена мережа Wi-Fi; там враховуються лише сторінки входу.</string>
     <string name="untrusted_shutdown_channel_name">Вимкнення в недовірених мережах Wi-Fi</string>
     <string name="untrusted_shutdown_channel_desc">Повідомляє, коли KeepADB вимкнув Wifi-ADB в недовіреній мережі Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB вимкнено</string>
     <string name="untrusted_shutdown_off_text">Поточна мережа Wi-Fi не є довіреною або не може бути визначена. Keep-Alive знову ввімкне його в довіреній мережі Wi-Fi.</string>
+    <string name="open_network_off_text">Ця мережа Wi-Fi не має надійного захисту паролем або вимагає сторінку входу. Keep-Alive знову ввімкне його в захищеній мережі Wi-Fi.</string>
     <string name="untrusted_shutdown_failed_title">Не вдалося вимкнути Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">Поточна мережа Wi-Fi не є довіреною, але вимкнути Wifi-ADB не вдалося. Вимкніть його вручну.</string>
     <string name="security_check_title">Перевіряти захист Wi-Fi довірених роутерів</string>
@@ -634,6 +640,7 @@
     <string name="overview_reason_manual_off">вимкнено вручну</string>
     <string name="overview_reason_no_wifi">немає Wi-Fi</string>
     <string name="overview_reason_untrusted">мережа не довірена</string>
+    <string name="overview_reason_open_network">небезпечна мережа або вхід</string>
     <string name="overview_reason_identity">мережа невідома</string>
     <string name="overview_reason_backoff">повтори призупинено</string>
     <string name="overview_delivery_unconfigured">Не налаштовано</string>

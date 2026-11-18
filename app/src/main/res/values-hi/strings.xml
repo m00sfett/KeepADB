@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">इस लिंक को खोलने के लिए कोई ऐप नहीं मिला।</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB बंद है – Keep-Alive रोका गया: इस Wi-Fi में सुरक्षित पासवर्ड सुरक्षा नहीं है या यह साइन-इन पेज माँगता है</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क रोका गया है</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB बंद है – Keep-Alive रोका गया: Android के Wifi-ADB नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">सिस्टम अनुमति नहीं दी गई</string>
     <string name="home_reason_waiting">Keep-Alive Wi-Fi की प्रतीक्षा कर रहा है</string>
     <string name="home_reason_untrusted">Keep-Alive रोका गया: Wi-Fi भरोसेमंद नहीं है</string>
+    <string name="home_reason_open_network">Keep-Alive रोका गया: असुरक्षित Wi-Fi या साइन-इन पेज</string>
     <string name="home_reason_blocked">Keep-Alive रोका गया: Wi-Fi ब्लॉक है</string>
     <string name="home_reason_identity">Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता</string>
     <string name="home_reason_backoff">Keep-Alive रोका गया: Android के Wifi-ADB संवाद की पुष्टि नहीं हुई</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">सुरक्षा</string>
     <string name="protection_automatic_title">स्वचालित व्यवहार</string>
     <string name="untrusted_shutdown_hint_short">गैर-भरोसेमंद Wi-Fi पर Wifi-ADB बंद कर देता है।</string>
+    <string name="open_network_shutdown_hint_short">बिना सुरक्षित पासवर्ड सुरक्षा वाले या साइन-इन पेज वाले Wi-Fi पर Wifi-ADB बंद कर देता है।</string>
     <string name="security_check_hint_short">अगर भरोसेमंद Wi-Fi राउटर की सुरक्षा कमज़ोर दिखे, तो अपने-आप चालू होना रोक देता है।</string>
     <string name="hint_more">और ▾</string>
     <string name="hint_less">कम ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">ऐक्सेस पॉइंट (BSSID): एक अकेला ट्रांसमीटर, जैसे राउटर, रिपीटर या मेश नोड। इसका हार्डवेयर पता, जैसे AA:BB:CC:11:22:33, नाम से ज़्यादा सटीक है, पर यह भी कोई प्रमाण नहीं है।</string>
     <string name="untrusted_shutdown_title">गैर-भरोसेमंद Wi-Fi पर बंद करें</string>
     <string name="untrusted_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB ऐसे Wi-Fi पर Wifi-ADB बंद कर देता है जो भरोसेमंद नहीं है, ब्लॉक है या पहचाना नहीं जा सकता, केवल सूचना देने के बजाय। जो सत्र आपने KeepADB में स्वयं चालू किया है, वह उसी Wi-Fi राउटर पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है।</string>
+    <string name="open_network_shutdown_title">खुले Wi-Fi पर बंद करें</string>
+    <string name="open_network_shutdown_hint">जब Keep-Alive चालू हो, तो KeepADB बिना सुरक्षित पासवर्ड सुरक्षा वाले Wi-Fi (खुला, Enhanced Open या WEP) पर और जब तक कोई Wi-Fi साइन-इन पेज माँगता है, Wifi-ADB बंद कर देता है, भरोसेमंद Wi-Fi राउटर पर भी, और वहाँ इसे फिर से चालू नहीं करता। जो सत्र आपने KeepADB में स्वयं चालू किया है, वह उसी Wi-Fi राउटर पर चालू रहता है। फ़ोर्स मोड इसे रोक देता है। Android 11 यह नहीं बता सकता कि Wi-Fi कैसे सुरक्षित है; वहाँ केवल साइन-इन पेज गिने जाते हैं।</string>
     <string name="untrusted_shutdown_channel_name">गैर-भरोसेमंद Wi-Fi पर बंद करना</string>
     <string name="untrusted_shutdown_channel_desc">बताता है जब KeepADB ने गैर-भरोसेमंद Wi-Fi पर Wifi-ADB बंद किया।</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB बंद किया गया</string>
     <string name="untrusted_shutdown_off_text">मौजूदा Wi-Fi भरोसेमंद नहीं है या पहचाना नहीं जा सकता। Keep-Alive भरोसेमंद Wi-Fi पर इसे फिर से चालू करता है।</string>
+    <string name="open_network_off_text">इस Wi-Fi में सुरक्षित पासवर्ड सुरक्षा नहीं है या यह साइन-इन पेज माँगता है। Keep-Alive सुरक्षित Wi-Fi पर इसे फिर से चालू करता है।</string>
     <string name="untrusted_shutdown_failed_title">Wifi-ADB बंद नहीं किया जा सका</string>
     <string name="untrusted_shutdown_failed_text">मौजूदा Wi-Fi भरोसेमंद नहीं है, लेकिन Wifi-ADB बंद करना विफल रहा। इसे स्वयं बंद करें।</string>
     <string name="security_check_title">भरोसेमंद Wi-Fi राउटरों की Wi-Fi सुरक्षा जाँचें</string>
@@ -632,6 +638,7 @@
     <string name="overview_reason_manual_off">हाथ से बंद किया</string>
     <string name="overview_reason_no_wifi">वाई-फ़ाई नहीं</string>
     <string name="overview_reason_untrusted">नेटवर्क भरोसेमंद नहीं</string>
+    <string name="overview_reason_open_network">असुरक्षित नेटवर्क या साइन-इन</string>
     <string name="overview_reason_identity">नेटवर्क अज्ञात</string>
     <string name="overview_reason_backoff">दोबारा कोशिश रुकी</string>
     <string name="overview_delivery_unconfigured">सेट नहीं</string>

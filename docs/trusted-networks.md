@@ -110,6 +110,43 @@ identified, instead of only notifying:
   Wifi-ADB back on once the phone is on a trusted network again.
 - **Notices:** "Wifi-ADB turned off" after a shutdown, or "Could not turn off Wifi-ADB" when the write failed. The trust prompt for the network appears as before.
 
+## Turn off on open Wi-Fi (#997)
+
+A setting in the “Automatic behavior” section of the Protection page. It is **on for new
+installations** and **off for installations that existed before 1.15.0**, so an update changes
+nothing until you switch it on. While Keep-Alive runs, KeepADB turns Wifi-ADB off, and does not
+turn it back on, while the phone is on a Wi-Fi without secure password protection or behind a captive portal,
+**trusted access points included**:
+
+- **Open:** the security tier Android reports for the connection is the open one (open, WEP or
+  Enhanced Open/OWE, see the tiers below). Android 12 and later report it
+  (`WifiInfo.getCurrentSecurityType`). Android 11 cannot, so there only the captive-portal part
+  applies. An unreadable or unknown type does not count as open: the rule acts only on positive
+  evidence and leaves everything else to the trusted-network rules.
+- **Captive portal:** Android reports `NET_CAPABILITY_CAPTIVE_PORTAL` for the Wi-Fi, that is, a
+  sign-in page is still pending. After you sign in, Android drops it and only the security type
+  counts.
+- **Precedence:** below Force mode and above every list. Neither a trusted access point, a trusted
+  name nor the legacy “all networks” setting allows such a network; a running **Force mode**
+  overrides the rule (with its usual warning on the home screen and in the notification). The
+  Wi-Fi networks list and the trust prompts judge the access point, not the connection, so they do
+  not show the rule.
+- **Independent of “Turn off on untrusted Wi-Fi”:** the rule switches off even while that setting
+  is off, and it uses the same observer: network callbacks, the one-minute heartbeat and switching
+  the setting on, a recheck right before the OFF write, no recorded user “off”, and the same
+  notices (“Wifi-ADB turned off”, with its own text).
+- **Your own session:** as above, a session you switched on yourself in KeepADB stays on at that
+  access point. Because the rule needs no readable identity, switching on while the access point
+  cannot be read also counts here. That exemption covers only this rule, never “Turn off on
+  untrusted Wi-Fi”: with both settings on, the session is still judged by the lists and, on an
+  unreadable identity, switched off after the usual confirmation. It ends when Wi-Fi is lost, Wifi-ADB goes off, an access point becomes
+  readable or the Keep-Alive service restarts.
+- **Status:** while Keep-Alive waits because of the rule, the home screen and the widgets name it
+  as the reason (“Keep-Alive paused: insecure Wi-Fi or sign-in page”). No trust prompt appears for
+  it: trusting the access point or fixing location access cannot lift a rule about the connection.
+- **Diagnostics:** the journal records the shutdown with `decision=open_network` or
+  `decision=captive_portal`; it never records network names for it.
+
 ## Check Wi-Fi security of trusted access points (#860)
 
 An optional setting in the “Automatic behavior” section of the Protection page, off by default and shown on Android 12 and later only.
@@ -212,7 +249,8 @@ and the trusted/blocked count as its summary); it opens its own page, which hold
 collapsible “Network” card held before 1.14.1, in this order: the current connection with its
 action, the **protection level** (chosen right there: “Maximum security” or “Balanced”; a previous
 setting stays visible while it is active), the **automatic behavior** (“Turn off on untrusted
-Wi-Fi”, “Check Wi-Fi security of trusted access points”; one help line each, “More” shows the
+Wi-Fi”, “Turn off on open Wi-Fi” since 1.15.0, “Check Wi-Fi security of trusted access points”;
+one help line each, “More” shows the
 full text), Force mode, the entry to the “Wi-Fi networks” list with its count, and the detection in
 the background (one line, “More” shows the full status and the current reading). Choosing a level
 writes through the same rule as the setup assistant (`KeepADBOnboarding.commitProtection`): the

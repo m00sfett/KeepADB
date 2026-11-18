@@ -67,6 +67,13 @@ on and the phone moves to a network that is not trusted, KeepADB shows a notice;
 not switch Wifi-ADB off. The opt-in setting "Turn off on untrusted Wi-Fi" (#864) does, while
 Keep-Alive runs: it is a best-effort reaction to network callbacks and the one-minute heartbeat, not
 an instantaneous guarantee, and a failed write is reported rather than hidden.
+The setting "Turn off on open Wi-Fi" (#997, on for new installations since 1.15.0, off for
+existing ones until switched on) turns Wifi-ADB off, and keeps Keep-Alive from turning it back on,
+in a Wi-Fi without secure password protection (open, Enhanced Open, WEP) or behind a captive portal, trusted access
+points included. It reacts on the same best-effort basis while Keep-Alive runs; Force mode and a
+session switched on manually in KeepADB override it. Android 11 cannot report whether a Wi-Fi has a
+password, so there only captive portals are detected, and an unreadable security type is not
+treated as open.
 The opt-in setting "Check Wi-Fi security of trusted access points" (#860, Android 12 and later)
 compares the connection's security tier with the one recorded when the access point was trusted and
 blocks automatic enabling after a downgrade (for example from WPA2/WPA3-Personal to an open network)

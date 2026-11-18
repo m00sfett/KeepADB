@@ -256,6 +256,7 @@
     <string name="settings_no_browser_found">Keine App zum Öffnen dieses Links gefunden.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB ist AUS – Keep-Alive wartet auf das Netzwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN hat keinen sicheren Passwortschutz oder verlangt eine Anmeldeseite</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB ist AUS – Keep-Alive pausiert: Android-Dialog für Wifi-ADB bestätigen, dann zum erneuten Versuch antippen</string>
@@ -266,6 +267,7 @@
     <string name="home_reason_permission">Systemberechtigung nicht erteilt</string>
     <string name="home_reason_waiting">Keep-Alive wartet auf WLAN</string>
     <string name="home_reason_untrusted">Keep-Alive pausiert: WLAN nicht vertraut</string>
+    <string name="home_reason_open_network">Keep-Alive pausiert: unsicheres WLAN oder Anmeldeseite</string>
     <string name="home_reason_blocked">Keep-Alive pausiert: WLAN blockiert</string>
     <string name="home_reason_identity">Keep-Alive pausiert: Netzwerk nicht lesbar</string>
     <string name="home_reason_backoff">Keep-Alive pausiert: Android-Dialog für Wifi-ADB nicht bestätigt</string>
@@ -281,6 +283,7 @@
     <string name="protection_title">Schutz</string>
     <string name="protection_automatic_title">Automatisches Verhalten</string>
     <string name="untrusted_shutdown_hint_short">Schaltet Wifi-ADB in einem nicht vertrauten WLAN aus.</string>
+    <string name="open_network_shutdown_hint_short">Schaltet Wifi-ADB in WLANs ohne sicheren Passwortschutz oder mit Anmeldeseite aus.</string>
     <string name="security_check_hint_short">Pausiert das automatische Einschalten, wenn ein vertrauter Access Point schwächere Sicherheit zeigt.</string>
     <string name="hint_more">Mehr ▾</string>
     <string name="hint_less">Weniger ▴</string>
@@ -304,10 +307,13 @@
     <string name="networks_glossary_bssid">Access Point (BSSID): ein einzelner Sender, etwa Router, Repeater oder Mesh-Knoten. Seine Hardware-Kennung, z. B. AA:BB:CC:11:22:33, ist eindeutiger als der Name, aber ebenfalls kein Beweis.</string>
     <string name="untrusted_shutdown_title">In nicht vertrauten WLANs ausschalten</string>
     <string name="untrusted_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Wifi-ADB in einem WLAN aus, das nicht vertraut, gesperrt oder nicht erkennbar ist, statt dich nur zu benachrichtigen. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus.</string>
+    <string name="open_network_shutdown_title">In offenen WLANs ausschalten</string>
+    <string name="open_network_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Wifi-ADB in einem WLAN ohne sicheren Passwortschutz (offen, Enhanced Open oder WEP) und solange ein WLAN eine Anmeldeseite verlangt aus, auch an vertrauten Access Points, und schaltet es dort nicht wieder ein. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus. Android 11 kann nicht erkennen, wie ein WLAN geschützt ist; dort zählen nur Anmeldeseiten.</string>
     <string name="untrusted_shutdown_channel_name">Abschaltung in nicht vertrauten WLANs</string>
     <string name="untrusted_shutdown_channel_desc">Meldet, wenn KeepADB Wifi-ADB in einem nicht vertrauten WLAN ausgeschaltet hat.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB ausgeschaltet</string>
     <string name="untrusted_shutdown_off_text">Das aktuelle WLAN ist nicht vertraut oder nicht erkennbar. Keep-Alive schaltet es in einem vertrauten WLAN wieder ein.</string>
+    <string name="open_network_off_text">Dieses WLAN hat keinen sicheren Passwortschutz oder verlangt eine Anmeldeseite. Keep-Alive schaltet es in einem geschützten WLAN wieder ein.</string>
     <string name="untrusted_shutdown_failed_title">Wifi-ADB konnte nicht ausgeschaltet werden</string>
     <string name="untrusted_shutdown_failed_text">Das aktuelle WLAN ist nicht vertraut, aber das Ausschalten von Wifi-ADB ist fehlgeschlagen. Schalte es selbst aus.</string>
     <string name="security_check_title">WLAN-Sicherheit vertrauter Access Points prüfen</string>
@@ -632,6 +638,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="overview_reason_manual_off">manuell ausgeschaltet</string>
     <string name="overview_reason_no_wifi">kein WLAN</string>
     <string name="overview_reason_untrusted">Netz nicht vertraut</string>
+    <string name="overview_reason_open_network">unsicheres Netz/Anmeldung</string>
     <string name="overview_reason_identity">Netz unbekannt</string>
     <string name="overview_reason_backoff">Wiederholung pausiert</string>
     <string name="overview_delivery_unconfigured">Nicht eingerichtet</string>

@@ -192,6 +192,7 @@
     <string name="protection_title">Protection</string>
     <string name="protection_automatic_title">Automatic behavior</string>
     <string name="untrusted_shutdown_hint_short">Turns Wifi-ADB off in a Wi-Fi that is not trusted.</string>
+    <string name="open_network_shutdown_hint_short">Turns Wifi-ADB off in Wi-Fi without secure password protection or with a sign-in page.</string>
     <string name="security_check_hint_short">Pauses automatic turn-on at a trusted access point whose security gets weaker.</string>
     <string name="hint_more">More ▾</string>
     <string name="hint_less">Less ▴</string>
@@ -274,6 +275,7 @@
     <string name="settings_no_browser_found">No app found to open this link.</string>
     <string name="status_off_keep_alive_waiting">Wifi-ADB is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wifi-ADB is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
+    <string name="status_off_keep_alive_blocked_open_network">Wifi-ADB is OFF – Keep-Alive is paused: this Wi-Fi has no secure password protection or asks for a sign-in page</string>
     <string name="status_off_keep_alive_blocked_by_user">Wifi-ADB is OFF – Keep-Alive is paused: this Wi-Fi network is blocked</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wifi-ADB is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wifi-ADB is OFF – Keep-Alive is paused: confirm Android’s Wifi-ADB network dialog, then tap the switch to retry</string>
@@ -285,6 +287,7 @@
     <string name="home_reason_permission">System permission not granted</string>
     <string name="home_reason_waiting">Keep-Alive waits for Wi-Fi</string>
     <string name="home_reason_untrusted">Keep-Alive paused: Wi-Fi not trusted</string>
+    <string name="home_reason_open_network">Keep-Alive paused: insecure Wi-Fi or sign-in page</string>
     <string name="home_reason_blocked">Keep-Alive paused: Wi-Fi blocked</string>
     <string name="home_reason_identity">Keep-Alive paused: network unreadable</string>
     <string name="home_reason_backoff">Keep-Alive paused: Android’s Wifi-ADB dialog not confirmed</string>
@@ -316,10 +319,13 @@
     <string name="networks_glossary_bssid">Access point (BSSID): a single transmitter, such as a router, repeater or mesh node. Its hardware address, for example AA:BB:CC:11:22:33, is more specific than the name, but no proof either.</string>
     <string name="untrusted_shutdown_title">Turn off on untrusted Wi-Fi</string>
     <string name="untrusted_shutdown_hint">While Keep-Alive is on, KeepADB turns Wifi-ADB off in a Wi-Fi that is not trusted, is blocked or cannot be identified, instead of only notifying you. A session you turned on yourself in KeepADB stays on at that access point. Force mode suspends this.</string>
+    <string name="open_network_shutdown_title">Turn off on open Wi-Fi</string>
+    <string name="open_network_shutdown_hint">While Keep-Alive is on, KeepADB turns Wifi-ADB off in a Wi-Fi without secure password protection (open, Enhanced Open or WEP) and while a Wi-Fi asks for a sign-in page, even at trusted access points, and does not turn it back on there. A session you turned on yourself in KeepADB stays on at that access point. Force mode suspends this. Android 11 cannot tell how a Wi-Fi is protected; there only sign-in pages count.</string>
     <string name="untrusted_shutdown_channel_name">Untrusted Wi-Fi shutdown</string>
     <string name="untrusted_shutdown_channel_desc">Tells you when KeepADB turned Wifi-ADB off on an untrusted Wi-Fi.</string>
     <string name="untrusted_shutdown_off_title">Wifi-ADB turned off</string>
     <string name="untrusted_shutdown_off_text">The current Wi-Fi is not trusted or cannot be identified. Keep-Alive turns it back on in a trusted Wi-Fi.</string>
+    <string name="open_network_off_text">This Wi-Fi has no secure password protection or asks for a sign-in page. Keep-Alive turns it back on in a protected Wi-Fi.</string>
     <string name="untrusted_shutdown_failed_title">Could not turn off Wifi-ADB</string>
     <string name="untrusted_shutdown_failed_text">The current Wi-Fi is not trusted, but turning Wifi-ADB off failed. Turn it off manually.</string>
     <string name="security_check_title">Check Wi-Fi security of trusted access points</string>
@@ -647,6 +653,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="overview_reason_manual_off">turned off manually</string>
     <string name="overview_reason_no_wifi">no Wi-Fi</string>
     <string name="overview_reason_untrusted">network not trusted</string>
+    <string name="overview_reason_open_network">insecure Wi-Fi or sign-in</string>
     <string name="overview_reason_identity">network unknown</string>
     <string name="overview_reason_backoff">retries paused</string>
     <string name="overview_delivery_unconfigured">Not set up</string>
