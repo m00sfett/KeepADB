@@ -754,7 +754,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="timer_dialog_title_start">Attiva Wifi-ADB per</string>
     <string name="timer_dialog_title_limit">Disattiva Wifi-ADB tra</string>
     <string name="timer_status_running">Si spegne alle %1$s · mancano %2$s</string>
-    <string name="timer_status_waiting">Timer attivo · in attesa di una Wi-Fi affidabile · mancano %1$s</string>
+    <string name="timer_status_waiting_reason">Timer attivo · %1$s · mancano %2$s</string>
+    <string name="timer_waiting_reason_switching">in attivazione</string>
     <string name="timer_action_no_limit">Senza limite</string>
     <string name="timer_started_toast">Wifi-ADB attivo per %1$s</string>
     <string name="settings_timer_default_title">Durata predefinita del timer</string>

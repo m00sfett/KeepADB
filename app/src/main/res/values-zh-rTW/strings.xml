@@ -752,7 +752,8 @@
     <string name="timer_dialog_title_start">Wifi-ADB 開啟時長</string>
     <string name="timer_dialog_title_limit">Wifi-ADB 關閉倒數</string>
     <string name="timer_status_running">%1$s 關閉 · 剩餘 %2$s</string>
-    <string name="timer_status_waiting">計時器執行中 · 正在等待已信任的 Wi-Fi · 剩餘 %1$s</string>
+    <string name="timer_status_waiting_reason">計時器執行中 · %1$s · 剩餘 %2$s</string>
+    <string name="timer_waiting_reason_switching">正在開啟</string>
     <string name="timer_action_no_limit">無限制</string>
     <string name="timer_started_toast">Wifi-ADB 已開啟 %1$s</string>
     <string name="settings_timer_default_title">計時器預設時長</string>

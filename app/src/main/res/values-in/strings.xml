@@ -752,7 +752,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="timer_dialog_title_start">Aktifkan Wifi-ADB selama</string>
     <string name="timer_dialog_title_limit">Matikan Wifi-ADB dalam</string>
     <string name="timer_status_running">Mati pukul %1$s · sisa %2$s</string>
-    <string name="timer_status_waiting">Timer berjalan · menunggu Wi-Fi dipercaya · sisa %1$s</string>
+    <string name="timer_status_waiting_reason">Timer berjalan · %1$s · sisa %2$s</string>
+    <string name="timer_waiting_reason_switching">sedang dinyalakan</string>
     <string name="timer_action_no_limit">Tanpa batas</string>
     <string name="timer_started_toast">Wifi-ADB aktif selama %1$s</string>
     <string name="settings_timer_default_title">Durasi default timer</string>

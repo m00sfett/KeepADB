@@ -754,7 +754,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="timer_dialog_title_start">Activer Wifi-ADB pendant</string>
     <string name="timer_dialog_title_limit">Désactiver Wifi-ADB dans</string>
     <string name="timer_status_running">Arrêt à %1$s · encore %2$s</string>
-    <string name="timer_status_waiting">Minuteur actif · en attente d\'un Wi-Fi approuvé · encore %1$s</string>
+    <string name="timer_status_waiting_reason">Minuteur actif · %1$s · encore %2$s</string>
+    <string name="timer_waiting_reason_switching">activation en cours</string>
     <string name="timer_action_no_limit">Sans limite</string>
     <string name="timer_started_toast">Wifi-ADB activé pour %1$s</string>
     <string name="settings_timer_default_title">Durée par défaut du minuteur</string>

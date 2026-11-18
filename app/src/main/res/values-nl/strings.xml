@@ -753,7 +753,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="timer_dialog_title_start">Wifi-ADB aanzetten voor</string>
     <string name="timer_dialog_title_limit">Wifi-ADB uitzetten over</string>
     <string name="timer_status_running">Uit om %1$s · nog %2$s</string>
-    <string name="timer_status_waiting">Timer loopt · wacht op een vertrouwde wifi · nog %1$s</string>
+    <string name="timer_status_waiting_reason">Timer loopt · %1$s · nog %2$s</string>
+    <string name="timer_waiting_reason_switching">wordt ingeschakeld</string>
     <string name="timer_action_no_limit">Geen limiet</string>
     <string name="timer_started_toast">Wifi-ADB aan voor %1$s</string>
     <string name="settings_timer_default_title">Standaardduur van de timer</string>
