@@ -868,6 +868,38 @@ public class KeepADBTimerTest {
     }
 
     @Test
+    public void aPendingAutomaticOnThatTheLooperAlreadyDispatchedFindsItselfSupersededAtTheDeadline() {
+        // #1013: dropping the posted callback is not enough. The debounce runnable may already be
+        // dispatched and waiting for the KeepADB monitor while the deadline's off intent is
+        // recorded; it must find its intent token out of date instead of writing "on".
+        List<Runnable> posted = new ArrayList<>();
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler() {
+            @Override
+            public void postDelayed(Runnable runnable, long delayMs) {
+                posted.add(runnable);
+                super.postDelayed(runnable, delayMs);
+            }
+        };
+        scheduler.setClockMs(100_000L);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        gateway.setEnabledByUser(false);
+        assertEquals(KeepADB.ToggleResult.SCHEDULED, KeepADB.setEnabled(context, true, "keep_alive_check"));
+        assertEquals(1, posted.size());
+        int writesBefore = gateway.writes.size();
+        clock.advance(15 * MINUTE);
+
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        posted.get(0).run();
+
+        assertEquals("The superseded runnable writes nothing", writesBefore, gateway.writes.size());
+        assertFalse(gateway.isEnabled(context));
+        assertFalse("The off intent stands", KeepADBPreferences.getLastDesiredOn(context));
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
     public void thePendingTimerOffItselfIsNotSupersededByARepeatedDriver() {
         // The other side of #1013: only a pending automatic "on" gives way, not the timer's own
         // debounced "off" that a later driver finds still waiting.
