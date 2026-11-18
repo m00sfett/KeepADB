@@ -730,5 +730,6 @@
     <string name="settings_backup_error_version">Цей файл налаштувань створено новішою версією KeepADB. Оновіть KeepADB і спробуйте ще раз. Нічого не змінено.</string>
     <string name="settings_backup_error_invalid">Файл пошкоджено або змінено: принаймні одне значення недійсне. Нічого не змінено.</string>
     <string name="settings_backup_error_unreadable">Не вдалося прочитати файл. Нічого не змінено.</string>
+    <string name="settings_backup_error_write_failed">Не вдалося зберегти налаштування. Спробуйте імпортувати ще раз.</string>
     <string name="settings_backup_no_picker">На цьому пристрої немає засобу вибору файлів</string>
 </resources>

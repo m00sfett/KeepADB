@@ -727,5 +727,6 @@
     <string name="settings_backup_error_version">この設定ファイルは新しいバージョンの KeepADB で作成されています。KeepADB を更新してからもう一度お試しください。何も変更されていません。</string>
     <string name="settings_backup_error_invalid">ファイルが破損しているか編集されています。少なくとも 1 つの値が無効です。何も変更されていません。</string>
     <string name="settings_backup_error_unreadable">ファイルを読み取れませんでした。何も変更されていません。</string>
+    <string name="settings_backup_error_write_failed">設定を保存できませんでした。もう一度インポートしてください。</string>
     <string name="settings_backup_no_picker">このデバイスで使えるファイル選択アプリがありません</string>
 </resources>

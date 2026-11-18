@@ -728,5 +728,6 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_backup_error_version">Diese Einstellungsdatei stammt aus einer neueren KeepADB-Version. Aktualisiere KeepADB und versuche es erneut. Es wurde nichts geändert.</string>
     <string name="settings_backup_error_invalid">Die Datei ist beschädigt oder wurde bearbeitet: Mindestens ein Wert ist ungültig. Es wurde nichts geändert.</string>
     <string name="settings_backup_error_unreadable">Die Datei konnte nicht gelesen werden. Es wurde nichts geändert.</string>
+    <string name="settings_backup_error_write_failed">Deine Einstellungen konnten nicht gespeichert werden. Versuche den Import erneut.</string>
     <string name="settings_backup_no_picker">Auf diesem Gerät ist keine Dateiauswahl verfügbar</string>
 </resources>

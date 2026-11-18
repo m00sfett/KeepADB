@@ -151,6 +151,31 @@ public class KeepADBSettingsBackupTest {
     }
 
     @Test
+    public void networkNamesWithControlCharactersSurviveTheRoundTrip() throws Exception {
+        // The app accepts such a name, so it must neither block the export nor the import.
+        KeepADBNetworkBlocklist.blockSsid(context, "Cafe\nGuest");
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:03", "Tab\tName", "Tab\tName");
+        String file = exportNow(false);
+        prefs.edit().clear().commit();
+        assertTrue(KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file)).saved);
+        assertTrue(KeepADBNetworkBlocklist.isSsidBlocked(context, "Cafe\nGuest"));
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+    }
+
+    @Test
+    public void replacedUrlKeepsTheOldRegistrationsWithdrawalQueued() throws Exception {
+        configureDevice();
+        String file = exportNow(true);
+        String old = "https://other.example.test/register/s20";
+        KeepADBPreferences.setRegisterWebhookUrl(context, old);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, old);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(old));
+    }
+
+    @Test
     public void fileWithoutUrlKeepsTheStoredWebhook() throws Exception {
         configureDevice();
         String file = exportNow(false);
@@ -229,7 +254,8 @@ public class KeepADBSettingsBackupTest {
         assertInvalid("\"blocked_ssids\":\"Airport\"");
         assertInvalid("\"blocked_ssids\":[1]");
         assertInvalid("\"blocked_ssids\":[\"\"]");
-        assertInvalid("\"trusted_ssid_ids\":\"\",\"trusted_ssid_1_ssid\":\"Bad\\nName\"");
+        // The blocklist looks addresses up in lower case; another form would never match.
+        assertInvalid("\"blocked_bssids\":[\"AA:BB:CC:DD:EE:FF\"]");
     }
 
     @Test

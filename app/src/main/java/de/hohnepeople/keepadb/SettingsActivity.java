@@ -185,7 +185,8 @@ public class SettingsActivity extends Activity {
         diagnosticsController = new KeepADBDiagnosticsController(this, this::openWebLink);
         findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
 
-        backupController = new KeepADBSettingsBackupController(this, this::refresh);
+        backupController = new KeepADBSettingsBackupController(this, this::refresh,
+                () -> webhookForm.reloadFromPreferences());
 
         webhookForm = new KeepADBWebhookForm(this, this::refresh);
         webhookForm.restoreDraft(savedInstanceState);

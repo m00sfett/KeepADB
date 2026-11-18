@@ -727,5 +727,6 @@
     <string name="settings_backup_error_version">此设置文件来自更新版本的 KeepADB。请更新 KeepADB 后重试。未做任何更改。</string>
     <string name="settings_backup_error_invalid">文件已损坏或被编辑过：至少有一个值无效。未做任何更改。</string>
     <string name="settings_backup_error_unreadable">无法读取文件。未做任何更改。</string>
+    <string name="settings_backup_error_write_failed">无法保存你的设置。请重新导入。</string>
     <string name="settings_backup_no_picker">此设备上没有可用的文件选择器</string>
 </resources>

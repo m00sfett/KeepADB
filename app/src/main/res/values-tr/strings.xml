@@ -728,5 +728,6 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_backup_error_version">Bu ayar dosyası daha yeni bir KeepADB sürümünden geliyor. KeepADB’yi güncelleyip tekrar dene. Hiçbir şey değiştirilmedi.</string>
     <string name="settings_backup_error_invalid">Dosya bozuk ya da düzenlenmiş: en az bir değer geçersiz. Hiçbir şey değiştirilmedi.</string>
     <string name="settings_backup_error_unreadable">Dosya okunamadı. Hiçbir şey değiştirilmedi.</string>
+    <string name="settings_backup_error_write_failed">Ayarların kaydedilemedi. İçe aktarmayı tekrar dene.</string>
     <string name="settings_backup_no_picker">Bu cihazda dosya seçici yok</string>
 </resources>

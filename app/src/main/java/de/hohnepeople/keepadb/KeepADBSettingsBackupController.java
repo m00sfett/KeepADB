@@ -33,14 +33,17 @@ final class KeepADBSettingsBackupController {
 
     private final Activity activity;
     private final Runnable onChange;
+    /** Re-seeds what the screen holds as unsaved input (the webhook URL field) from the imported values. */
+    private final Runnable onImported;
     private boolean includeWebhookUrl;
     /** The picked file while its confirmation dialog is open; re-read after a recreation. */
     private Uri pendingImport;
     private AlertDialog activeDialog;
 
-    KeepADBSettingsBackupController(Activity activity, Runnable onChange) {
+    KeepADBSettingsBackupController(Activity activity, Runnable onChange, Runnable onImported) {
         this.activity = activity;
         this.onChange = onChange;
+        this.onImported = onImported;
         activity.findViewById(R.id.settings_backup_export).setOnClickListener(v -> showExportDialog());
         activity.findViewById(R.id.settings_backup_import).setOnClickListener(v -> pickImportFile());
     }
@@ -156,6 +159,9 @@ final class KeepADBSettingsBackupController {
     }
 
     private void readImport(Uri uri) {
+        // Recorded before the read, so a recreation while a slow provider serves the file
+        // re-reads it instead of losing the import.
+        pendingImport = uri;
         Context app = activity.getApplicationContext();
         new Thread(() -> {
             KeepADBSettingsBackup.Snapshot snapshot = null;
@@ -226,6 +232,12 @@ final class KeepADBSettingsBackupController {
         pendingImport = null;
         Context app = activity.getApplicationContext();
         KeepADBSettingsBackup.ApplyResult result = KeepADBSettingsBackup.apply(app, snapshot);
+        if (!result.saved) {
+            KeepADBDiagnostics.event(app, "user_action", "settings_backup", "import", "write_failed");
+            showError(KeepADBSettingsBackup.Error.WRITE_FAILED);
+            onChange.run();
+            return;
+        }
         KeepADBDiagnostics.event(app, "user_action", "settings_backup", "import",
                 result.webhookUrlChanged ? "applied_webhook_changed" : "applied");
         // Let every surface and rule pick up the new values. The shutdown rules only ever turn
@@ -235,6 +247,15 @@ final class KeepADBSettingsBackupController {
         KeepADBPeriodicReport.sync(app);
         KeepADBEndpointCoordinator.refresh(app);
         KeepADBUntrustedShutdown.evaluate(app, "settings_import");
+        // The privacy switches may have changed: mask this screen, and take back a posted
+        // "new Wi-Fi" notice that shows the network, as the switches themselves do.
+        KeepADBPrivacy.concealAll(activity);
+        KeepADBPrivacyToggle.update(activity);
+        if (KeepADBPreferences.isNotificationPrivacyEnabled(app)
+                || KeepADBPreferences.isLockScreenPrivacyEnabled(app)) {
+            KeepADBNetworkTrustPrompt.applyNotificationPrivacy(app);
+        }
+        onImported.run();
         toast(result.webhookUrlChanged ? R.string.settings_backup_import_done_webhook_off
                 : R.string.settings_backup_import_done);
         onChange.run();
@@ -251,6 +272,9 @@ final class KeepADBSettingsBackupController {
                 break;
             case UNREADABLE:
                 message = R.string.settings_backup_error_unreadable;
+                break;
+            case WRITE_FAILED:
+                message = R.string.settings_backup_error_write_failed;
                 break;
             case NOT_A_SETTINGS_FILE:
             case TOO_LARGE:

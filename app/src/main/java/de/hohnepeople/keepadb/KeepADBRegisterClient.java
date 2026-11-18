@@ -857,10 +857,21 @@ final class KeepADBRegisterClient {
             KeepADBPreferences.setWebhookDispatchedUrl(context, url);
             return;
         }
+        queuePendingCleanup(context, url);
+        KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+    }
+
+    /**
+     * Queues a withdrawal of {@code url} as a pending cleanup: for a possible registration (#923)
+     * and (#1001) for a settings import that replaces the saved URL while a registration may
+     * still exist there. The queue's
+     * own rules apply: a full backlog evicts its oldest entry together with its retry record, and
+     * a later successful DELETE at the same resource drops the entry.
+     */
+    static void queuePendingCleanup(Context context, String url) {
         String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
         // #707: an evicted entry's retry record goes with it.
         if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
-        KeepADBPreferences.setWebhookDispatchedUrl(context, null);
     }
 
     /**

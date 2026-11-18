@@ -728,5 +728,6 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_backup_error_version">Dit instellingenbestand komt van een nieuwere KeepADB-versie. Werk KeepADB bij en probeer het opnieuw. Er is niets gewijzigd.</string>
     <string name="settings_backup_error_invalid">Het bestand is beschadigd of bewerkt: minstens één waarde is ongeldig. Er is niets gewijzigd.</string>
     <string name="settings_backup_error_unreadable">Het bestand kon niet worden gelezen. Er is niets gewijzigd.</string>
+    <string name="settings_backup_error_write_failed">Je instellingen konden niet worden opgeslagen. Probeer de import opnieuw.</string>
     <string name="settings_backup_no_picker">Er is geen bestandskiezer beschikbaar op dit apparaat</string>
 </resources>

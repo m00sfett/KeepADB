@@ -727,5 +727,6 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_backup_error_version">File pengaturan ini berasal dari versi KeepADB yang lebih baru. Perbarui KeepADB lalu coba lagi. Tidak ada yang diubah.</string>
     <string name="settings_backup_error_invalid">File rusak atau telah diedit: setidaknya satu nilai tidak valid. Tidak ada yang diubah.</string>
     <string name="settings_backup_error_unreadable">File tidak dapat dibaca. Tidak ada yang diubah.</string>
+    <string name="settings_backup_error_write_failed">Pengaturan tidak dapat disimpan. Coba impor lagi.</string>
     <string name="settings_backup_no_picker">Tidak ada pemilih file di perangkat ini</string>
 </resources>

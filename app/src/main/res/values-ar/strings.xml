@@ -732,5 +732,6 @@
     <string name="settings_backup_error_version">ملف الإعدادات هذا من إصدار أحدث من KeepADB. حدّث KeepADB وحاول مرة أخرى. لم يتغيّر شيء.</string>
     <string name="settings_backup_error_invalid">الملف تالف أو تم تعديله: قيمة واحدة على الأقل غير صالحة. لم يتغيّر شيء.</string>
     <string name="settings_backup_error_unreadable">تعذّرت قراءة الملف. لم يتغيّر شيء.</string>
+    <string name="settings_backup_error_write_failed">تعذّر حفظ إعداداتك. حاول الاستيراد مرة أخرى.</string>
     <string name="settings_backup_no_picker">لا يتوفر منتقي ملفات على هذا الجهاز</string>
 </resources>

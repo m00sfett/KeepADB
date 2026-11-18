@@ -729,5 +729,6 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_backup_error_version">Questo file di impostazioni proviene da una versione più recente di KeepADB. Aggiorna KeepADB e riprova. Non è stato modificato nulla.</string>
     <string name="settings_backup_error_invalid">Il file è danneggiato o è stato modificato: almeno un valore non è valido. Non è stato modificato nulla.</string>
     <string name="settings_backup_error_unreadable">Impossibile leggere il file. Non è stato modificato nulla.</string>
+    <string name="settings_backup_error_write_failed">Impossibile salvare le impostazioni. Riprova l’importazione.</string>
     <string name="settings_backup_no_picker">Nessun selettore di file disponibile su questo dispositivo</string>
 </resources>

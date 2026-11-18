@@ -729,5 +729,6 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_backup_error_version">Ce fichier de réglages provient d’une version plus récente de KeepADB. Mettez KeepADB à jour et réessayez. Rien n’a été modifié.</string>
     <string name="settings_backup_error_invalid">Le fichier est endommagé ou a été modifié : au moins une valeur n’est pas valide. Rien n’a été modifié.</string>
     <string name="settings_backup_error_unreadable">Impossible de lire le fichier. Rien n’a été modifié.</string>
+    <string name="settings_backup_error_write_failed">Vos réglages n’ont pas pu être enregistrés. Relancez l’importation.</string>
     <string name="settings_backup_no_picker">Aucun sélecteur de fichiers n’est disponible sur cet appareil</string>
 </resources>

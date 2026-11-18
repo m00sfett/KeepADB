@@ -746,5 +746,6 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_backup_error_version">This settings file comes from a newer KeepADB version. Update KeepADB and try again. Nothing was changed.</string>
     <string name="settings_backup_error_invalid">The file is damaged or was edited: at least one value is invalid. Nothing was changed.</string>
     <string name="settings_backup_error_unreadable">The file could not be read. Nothing was changed.</string>
+    <string name="settings_backup_error_write_failed">Your settings could not be saved. Try the import again.</string>
     <string name="settings_backup_no_picker">No file picker is available on this device</string>
 </resources>

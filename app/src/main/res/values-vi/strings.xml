@@ -727,5 +727,6 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_backup_error_version">Tệp cài đặt này đến từ phiên bản KeepADB mới hơn. Hãy cập nhật KeepADB rồi thử lại. Không có gì thay đổi.</string>
     <string name="settings_backup_error_invalid">Tệp bị hỏng hoặc đã bị chỉnh sửa: có ít nhất một giá trị không hợp lệ. Không có gì thay đổi.</string>
     <string name="settings_backup_error_unreadable">Không thể đọc tệp. Không có gì thay đổi.</string>
+    <string name="settings_backup_error_write_failed">Không thể lưu cài đặt. Hãy thử nhập lại.</string>
     <string name="settings_backup_no_picker">Không có trình chọn tệp trên thiết bị này</string>
 </resources>

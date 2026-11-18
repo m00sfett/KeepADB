@@ -727,5 +727,6 @@
     <string name="settings_backup_error_version">此設定檔來自較新版本的 KeepADB。請更新 KeepADB 後再試一次。未做任何變更。</string>
     <string name="settings_backup_error_invalid">檔案已損壞或被編輯過：至少有一個值無效。未做任何變更。</string>
     <string name="settings_backup_error_unreadable">無法讀取檔案。未做任何變更。</string>
+    <string name="settings_backup_error_write_failed">無法儲存你的設定。請重新匯入。</string>
     <string name="settings_backup_no_picker">此裝置上沒有可用的檔案選擇器</string>
 </resources>

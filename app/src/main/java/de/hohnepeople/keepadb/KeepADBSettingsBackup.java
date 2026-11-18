@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -127,7 +128,7 @@ final class KeepADBSettingsBackup {
     }
 
     /** Why a file was rejected; the UI maps each to one message. */
-    enum Error { NOT_A_SETTINGS_FILE, UNSUPPORTED_VERSION, INVALID_VALUE, TOO_LARGE, UNREADABLE }
+    enum Error { NOT_A_SETTINGS_FILE, UNSUPPORTED_VERSION, INVALID_VALUE, TOO_LARGE, UNREADABLE, WRITE_FAILED }
 
     /** Thrown by {@link #parse}; nothing has been written when it is thrown. */
     static final class ImportException extends Exception {
@@ -168,10 +169,13 @@ final class KeepADBSettingsBackup {
 
     /** What {@link #apply} did beyond writing the values, for the result message. */
     static final class ApplyResult {
+        /** False when the preference file could not be written; then nothing was reported as applied. */
+        final boolean saved;
         /** The file had a webhook URL other than the stored one; reporting stays off until the user turns it on. */
         final boolean webhookUrlChanged;
 
-        ApplyResult(boolean webhookUrlChanged) {
+        ApplyResult(boolean saved, boolean webhookUrlChanged) {
+            this.saved = saved;
             this.webhookUrlChanged = webhookUrlChanged;
         }
     }
@@ -345,7 +349,9 @@ final class KeepADBSettingsBackup {
     }
 
     private static boolean isAcceptableString(String key, Rule rule, String value) {
-        if (value.length() > MAX_STRING_LENGTH || containsControl(value)) return false;
+        // Control characters are fine in a network name the app itself accepted (JSON escapes
+        // them); the fixed values, the URL and the ID lists exclude them by their own rules.
+        if (value.length() > MAX_STRING_LENGTH) return false;
         if (rule.allowed != null) return rule.allowed.contains(value);
         if (KEY_WEBHOOK_URL.equals(key)) {
             if (!KeepADBPreferences.isValidWebhookUrl(value)) return false;
@@ -365,19 +371,17 @@ final class KeepADBSettingsBackup {
             Object element = array.opt(i);
             if (!(element instanceof String)) throw new ImportException(Error.INVALID_VALUE, key);
             String value = (String) element;
-            if (value.isEmpty() || value.length() > MAX_STRING_LENGTH || containsControl(value)) {
+            if (value.isEmpty() || value.length() > MAX_STRING_LENGTH) {
+                throw new ImportException(Error.INVALID_VALUE, key);
+            }
+            // The blocklist stores and looks up addresses in lower case; an address in any
+            // other form would be accepted here and then never match.
+            if (KEY_BLOCKED_BSSIDS.equals(key) && !value.equals(value.toLowerCase(Locale.ROOT))) {
                 throw new ImportException(Error.INVALID_VALUE, key);
             }
             set.add(value);
         }
         return set;
-    }
-
-    private static boolean containsControl(String value) {
-        for (int i = 0; i < value.length(); i++) {
-            if (Character.isISOControl(value.charAt(i))) return true;
-        }
-        return false;
     }
 
     /**
@@ -447,12 +451,27 @@ final class KeepADBSettingsBackup {
     static ApplyResult apply(Context context, Snapshot snapshot) {
         SharedPreferences prefs = prefs(context);
         boolean urlChanged = webhookUrlChanges(prefs, snapshot);
-        if (urlChanged && prefs.getBoolean(KEY_WEBHOOK_ENABLED, false)) {
-            // Reads the stored (old) URL right away, before the commit below replaces it.
-            KeepADBWebhookSync.disable(context);
+        if (urlChanged) withdrawOldRegistration(context, prefs);
+        boolean saved = commit(prefs, snapshot);
+        return new ApplyResult(saved, urlChanged);
+    }
+
+    /**
+     * Before a different URL replaces the stored one: a registration that may exist at the old URL
+     * (synchronization on, or the last report went there) is queued as a pending cleanup, so its
+     * withdrawal stays discoverable and retried after the old URL is no longer the saved one, and
+     * a running synchronization is switched off, which sends the DELETE now. A successful DELETE
+     * drops the queued entry again.
+     */
+    private static void withdrawOldRegistration(Context context, SharedPreferences prefs) {
+        String oldUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
+        boolean enabled = prefs.getBoolean(KEY_WEBHOOK_ENABLED, false);
+        if (oldUrl == null || oldUrl.trim().isEmpty()) return;
+        String lastReported = KeepADBPreferences.getWebhookLastReportedUrl(context);
+        if (enabled || oldUrl.equals(lastReported)) {
+            KeepADBRegisterClient.queuePendingCleanup(context, oldUrl);
         }
-        commit(prefs, snapshot);
-        return new ApplyResult(urlChanged);
+        if (enabled) KeepADBWebhookSync.disable(context);
     }
 
     private static boolean webhookUrlChanges(SharedPreferences prefs, Snapshot snapshot) {
