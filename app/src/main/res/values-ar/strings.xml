@@ -709,4 +709,28 @@
     <string name="onboarding_perm_browser_toggle">من جهاز كمبيوتر عبر المتصفح</string>
     <string name="onboarding_perm_browser_body">افتح هذا العنوان على جهاز كمبيوتر في Chrome أو Edge واتبع الخطوات الثلاث:</string>
     <string name="onboarding_perm_browser_prereq">شغّل تصحيح أخطاء USB على هذا الهاتف ووصّله بكابل USB.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">نسخة احتياطية للإعدادات</string>
+    <string name="settings_backup_subtext">يحفظ إعداداتك في ملف ويستعيدها بعد إعادة التثبيت: مستوى الحماية، الشبكات الموثوقة والمحظورة، قواعد الشبكة، وخيارات الخصوصية والإشعارات وWebhook. إذن النظام ليس جزءًا منها، والاستيراد لا يشغّل Wifi-ADB أو Keep-Alive أبدًا.</string>
+    <string name="settings_backup_export">تصدير الإعدادات</string>
+    <string name="settings_backup_import">استيراد الإعدادات</string>
+    <string name="settings_backup_export_message">يحتوي الملف على أسماء وعناوين (BSSID) شبكاتك الموثوقة والمحظورة، وكذلك عنوان URL الخاص بـ Webhook إذا أدرجته. احتفظ به لنفسك.</string>
+    <string name="settings_backup_export_message_no_webhook">يحتوي الملف على أسماء وعناوين (BSSID) شبكاتك الموثوقة والمحظورة. احتفظ به لنفسك.</string>
+    <string name="settings_backup_export_with_webhook">مع عنوان Webhook</string>
+    <string name="settings_backup_export_without_webhook">بدون عنوان Webhook</string>
+    <string name="settings_backup_export_done">تم تصدير الإعدادات</string>
+    <string name="settings_backup_export_failed">تعذّرت كتابة ملف الإعدادات</string>
+    <string name="settings_backup_import_title">استيراد الإعدادات؟</string>
+    <string name="settings_backup_import_message">سيتم استبدال إعداداتك الحالية بالإعدادات الموجودة في الملف (نقاط الوصول الموثوقة: %1$d، الشبكات المحظورة: %2$d). يبقى Keep-Alive وإذن النظام وWifi-ADB كما هي.</string>
+    <string name="settings_backup_import_webhook_included">يحل عنوان Webhook الموجود في الملف محل عنوانك. إذا كان مختلفًا، تبقى مزامنة Webhook متوقفة حتى تشغّلها.</string>
+    <string name="settings_backup_import_webhook_absent">لا يحتوي الملف على عنوان Webhook؛ يبقى إعداد Webhook الحالي كما هو.</string>
+    <string name="settings_backup_import_confirm">استيراد</string>
+    <string name="settings_backup_import_done">تم استيراد الإعدادات</string>
+    <string name="settings_backup_import_done_webhook_off">تم استيراد الإعدادات. مزامنة Webhook متوقفة حتى تشغّلها.</string>
+    <string name="settings_backup_error_title">فشل الاستيراد</string>
+    <string name="settings_backup_error_not_settings">هذا ليس ملف إعدادات KeepADB. لم يتغيّر شيء.</string>
+    <string name="settings_backup_error_version">ملف الإعدادات هذا من إصدار أحدث من KeepADB. حدّث KeepADB وحاول مرة أخرى. لم يتغيّر شيء.</string>
+    <string name="settings_backup_error_invalid">الملف تالف أو تم تعديله: قيمة واحدة على الأقل غير صالحة. لم يتغيّر شيء.</string>
+    <string name="settings_backup_error_unreadable">تعذّرت قراءة الملف. لم يتغيّر شيء.</string>
+    <string name="settings_backup_no_picker">لا يتوفر منتقي ملفات على هذا الجهاز</string>
 </resources>

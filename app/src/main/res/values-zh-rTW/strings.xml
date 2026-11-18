@@ -704,4 +704,28 @@
     <string name="onboarding_perm_browser_toggle">透過電腦瀏覽器設定</string>
     <string name="onboarding_perm_browser_body">在電腦上用 Chrome 或 Edge 開啟此網址並依三個步驟操作：</string>
     <string name="onboarding_perm_browser_prereq">在此手機上開啟 USB 偵錯並用 USB 傳輸線連接。</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">設定備份</string>
+    <string name="settings_backup_subtext">將設定儲存到檔案，並在重新安裝後還原：保護等級、已信任與已封鎖的網路、網路規則、隱私、通知和 Webhook 選項。系統權限不包含在內，匯入也絕不會開啟 Wifi-ADB 或 Keep-Alive。</string>
+    <string name="settings_backup_export">匯出設定</string>
+    <string name="settings_backup_import">匯入設定</string>
+    <string name="settings_backup_export_message">此檔案包含已信任與已封鎖網路的名稱和位址（BSSID），如果你選擇包含，還有你的 Webhook URL。請妥善保管。</string>
+    <string name="settings_backup_export_message_no_webhook">此檔案包含已信任與已封鎖網路的名稱和位址（BSSID）。請妥善保管。</string>
+    <string name="settings_backup_export_with_webhook">包含 Webhook URL</string>
+    <string name="settings_backup_export_without_webhook">不含 Webhook URL</string>
+    <string name="settings_backup_export_done">設定已匯出</string>
+    <string name="settings_backup_export_failed">無法寫入設定檔</string>
+    <string name="settings_backup_import_title">匯入設定？</string>
+    <string name="settings_backup_import_message">目前的設定將被檔案中的設定取代（已信任的存取點：%1$d，已封鎖的網路：%2$d）。Keep-Alive、系統權限和 Wifi-ADB 維持不變。</string>
+    <string name="settings_backup_import_webhook_included">檔案中的 Webhook URL 將取代你的 URL。如果兩者不同，Webhook 同步會保持關閉，直到你手動開啟。</string>
+    <string name="settings_backup_import_webhook_absent">檔案中沒有 Webhook URL；你目前的 Webhook 設定維持不變。</string>
+    <string name="settings_backup_import_confirm">匯入</string>
+    <string name="settings_backup_import_done">設定已匯入</string>
+    <string name="settings_backup_import_done_webhook_off">設定已匯入。Webhook 同步已關閉，需要你手動開啟。</string>
+    <string name="settings_backup_error_title">匯入失敗</string>
+    <string name="settings_backup_error_not_settings">這不是 KeepADB 設定檔。未做任何變更。</string>
+    <string name="settings_backup_error_version">此設定檔來自較新版本的 KeepADB。請更新 KeepADB 後再試一次。未做任何變更。</string>
+    <string name="settings_backup_error_invalid">檔案已損壞或被編輯過：至少有一個值無效。未做任何變更。</string>
+    <string name="settings_backup_error_unreadable">無法讀取檔案。未做任何變更。</string>
+    <string name="settings_backup_no_picker">此裝置上沒有可用的檔案選擇器</string>
 </resources>

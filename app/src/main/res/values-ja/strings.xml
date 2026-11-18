@@ -704,4 +704,28 @@
     <string name="onboarding_perm_browser_toggle">パソコンのブラウザーから</string>
     <string name="onboarding_perm_browser_body">パソコンの Chrome または Edge で次のアドレスを開き、3 つの手順に進んでください:</string>
     <string name="onboarding_perm_browser_prereq">この端末で USB デバッグを有効にし、USB ケーブルで接続してください。</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">設定のバックアップ</string>
+    <string name="settings_backup_subtext">設定をファイルに保存し、再インストール後に復元します：保護レベル、信頼済み・ブロック済みのネットワーク、ネットワークのルール、プライバシー、通知、Webhook のオプション。システム権限は含まれず、インポートで Wifi-ADB や Keep-Alive がオンになることはありません。</string>
+    <string name="settings_backup_export">設定をエクスポート</string>
+    <string name="settings_backup_import">設定をインポート</string>
+    <string name="settings_backup_export_message">ファイルには、信頼済み・ブロック済みネットワークの名前とアドレス（BSSID）、および含める場合は Webhook URL が入ります。他人に渡さないでください。</string>
+    <string name="settings_backup_export_message_no_webhook">ファイルには、信頼済み・ブロック済みネットワークの名前とアドレス（BSSID）が入ります。他人に渡さないでください。</string>
+    <string name="settings_backup_export_with_webhook">Webhook URL を含める</string>
+    <string name="settings_backup_export_without_webhook">Webhook URL を含めない</string>
+    <string name="settings_backup_export_done">設定をエクスポートしました</string>
+    <string name="settings_backup_export_failed">設定ファイルを書き込めませんでした</string>
+    <string name="settings_backup_import_title">設定をインポートしますか？</string>
+    <string name="settings_backup_import_message">現在の設定はファイルの設定に置き換えられます（信頼済みアクセスポイント：%1$d、ブロック済みネットワーク：%2$d）。Keep-Alive、システム権限、Wifi-ADB はそのままです。</string>
+    <string name="settings_backup_import_webhook_included">ファイルの Webhook URL が現在の URL に置き換わります。異なる URL の場合、オンにするまで Webhook 同期はオフのままです。</string>
+    <string name="settings_backup_import_webhook_absent">ファイルに Webhook URL はありません。現在の Webhook 設定はそのままです。</string>
+    <string name="settings_backup_import_confirm">インポート</string>
+    <string name="settings_backup_import_done">設定をインポートしました</string>
+    <string name="settings_backup_import_done_webhook_off">設定をインポートしました。オンにするまで Webhook 同期はオフです。</string>
+    <string name="settings_backup_error_title">インポートできませんでした</string>
+    <string name="settings_backup_error_not_settings">KeepADB の設定ファイルではありません。何も変更されていません。</string>
+    <string name="settings_backup_error_version">この設定ファイルは新しいバージョンの KeepADB で作成されています。KeepADB を更新してからもう一度お試しください。何も変更されていません。</string>
+    <string name="settings_backup_error_invalid">ファイルが破損しているか編集されています。少なくとも 1 つの値が無効です。何も変更されていません。</string>
+    <string name="settings_backup_error_unreadable">ファイルを読み取れませんでした。何も変更されていません。</string>
+    <string name="settings_backup_no_picker">このデバイスで使えるファイル選択アプリがありません</string>
 </resources>

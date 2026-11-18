@@ -79,6 +79,7 @@ public class SettingsActivity extends Activity {
 
     // #698: the diagnostics export and the feedback report dialog (draft, preview, opt-in).
     private KeepADBDiagnosticsController diagnosticsController;
+    private KeepADBSettingsBackupController backupController;
 
     private AlertDialog activeResetAppDialog;
     /** #672: the language selection dialog, if showing. */
@@ -96,6 +97,7 @@ public class SettingsActivity extends Activity {
             {R.id.settings_privacy_header, R.id.settings_privacy_body,
                     R.id.settings_privacy_arrow},
             {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
+            {R.id.settings_backup_header, R.id.settings_backup_body, R.id.settings_backup_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
     };
 
@@ -183,6 +185,8 @@ public class SettingsActivity extends Activity {
         diagnosticsController = new KeepADBDiagnosticsController(this, this::openWebLink);
         findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
 
+        backupController = new KeepADBSettingsBackupController(this, this::refresh);
+
         webhookForm = new KeepADBWebhookForm(this, this::refresh);
         webhookForm.restoreDraft(savedInstanceState);
         findViewById(R.id.settings_webhook_history).setOnClickListener(
@@ -193,6 +197,7 @@ public class SettingsActivity extends Activity {
                     savedInstanceState.getStringArrayList(STATE_CONSUMED_FOCUS);
             if (restoredFocus != null) consumedFocus.addAll(restoredFocus);
             diagnosticsController.restore(savedInstanceState);
+            backupController.restore(savedInstanceState);
             // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
             // its destructive action still runs solely from the user's own confirm tap.
             if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
@@ -268,12 +273,20 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!backupController.onActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putStringArrayList(STATE_CONSUMED_FOCUS, new java.util.ArrayList<>(consumedFocus));
         outState.putBoolean(STATE_STARTED_ONLY_TO_FORWARD, startedOnlyToForward);
         webhookForm.saveState(outState);
         diagnosticsController.saveState(outState);
+        backupController.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
         outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
                 isShowing(activeLanguageSelectionDialog));
@@ -286,6 +299,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onDestroy() {
         diagnosticsController.destroy();
+        backupController.destroy();
 
         if (activeResetAppDialog != null) {
             if (activeResetAppDialog.isShowing()) {
@@ -446,6 +460,10 @@ public class SettingsActivity extends Activity {
 
     AlertDialog getActiveResetAppDialog() {
         return activeResetAppDialog;
+    }
+
+    AlertDialog getActiveBackupDialog() {
+        return backupController.getActiveDialog();
     }
 
     AlertDialog getActiveIssueReportDialog() {

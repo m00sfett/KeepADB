@@ -704,4 +704,28 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_perm_browser_toggle">Qua trình duyệt trên máy tính</string>
     <string name="onboarding_perm_browser_body">Trên máy tính, hãy mở địa chỉ này bằng Chrome hoặc Edge và làm theo ba bước:</string>
     <string name="onboarding_perm_browser_prereq">Bật gỡ lỗi USB trên điện thoại này và kết nối bằng cáp USB.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Sao lưu cài đặt</string>
+    <string name="settings_backup_subtext">Lưu cài đặt vào một tệp và khôi phục sau khi cài lại: mức bảo vệ, mạng tin cậy và bị chặn, quy tắc mạng, tùy chọn quyền riêng tư, thông báo và Webhook. Quyền hệ thống không nằm trong đó, và việc nhập không bao giờ bật Wifi-ADB hoặc Keep-Alive.</string>
+    <string name="settings_backup_export">Xuất cài đặt</string>
+    <string name="settings_backup_import">Nhập cài đặt</string>
+    <string name="settings_backup_export_message">Tệp chứa tên và địa chỉ (BSSID) của các mạng tin cậy và bị chặn, và URL Webhook nếu bạn chọn đưa vào. Hãy giữ kín tệp này.</string>
+    <string name="settings_backup_export_message_no_webhook">Tệp chứa tên và địa chỉ (BSSID) của các mạng tin cậy và bị chặn. Hãy giữ kín tệp này.</string>
+    <string name="settings_backup_export_with_webhook">Kèm URL Webhook</string>
+    <string name="settings_backup_export_without_webhook">Không kèm URL Webhook</string>
+    <string name="settings_backup_export_done">Đã xuất cài đặt</string>
+    <string name="settings_backup_export_failed">Không thể ghi tệp cài đặt</string>
+    <string name="settings_backup_import_title">Nhập cài đặt?</string>
+    <string name="settings_backup_import_message">Cài đặt hiện tại sẽ được thay bằng cài đặt trong tệp (điểm truy cập tin cậy: %1$d, mạng bị chặn: %2$d). Keep-Alive, quyền hệ thống và Wifi-ADB giữ nguyên.</string>
+    <string name="settings_backup_import_webhook_included">URL Webhook trong tệp sẽ thay thế URL của bạn. Nếu khác, đồng bộ Webhook vẫn tắt cho đến khi bạn bật lại.</string>
+    <string name="settings_backup_import_webhook_absent">Tệp không có URL Webhook; cài đặt Webhook hiện tại được giữ nguyên.</string>
+    <string name="settings_backup_import_confirm">Nhập</string>
+    <string name="settings_backup_import_done">Đã nhập cài đặt</string>
+    <string name="settings_backup_import_done_webhook_off">Đã nhập cài đặt. Đồng bộ Webhook đang tắt cho đến khi bạn bật.</string>
+    <string name="settings_backup_error_title">Nhập thất bại</string>
+    <string name="settings_backup_error_not_settings">Đây không phải tệp cài đặt KeepADB. Không có gì thay đổi.</string>
+    <string name="settings_backup_error_version">Tệp cài đặt này đến từ phiên bản KeepADB mới hơn. Hãy cập nhật KeepADB rồi thử lại. Không có gì thay đổi.</string>
+    <string name="settings_backup_error_invalid">Tệp bị hỏng hoặc đã bị chỉnh sửa: có ít nhất một giá trị không hợp lệ. Không có gì thay đổi.</string>
+    <string name="settings_backup_error_unreadable">Không thể đọc tệp. Không có gì thay đổi.</string>
+    <string name="settings_backup_no_picker">Không có trình chọn tệp trên thiết bị này</string>
 </resources>

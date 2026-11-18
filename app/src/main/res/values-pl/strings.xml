@@ -707,4 +707,28 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_perm_browser_toggle">W przeglądarce na komputerze</string>
     <string name="onboarding_perm_browser_body">Otwórz na komputerze ten adres w Chrome lub Edge i wykonaj trzy kroki:</string>
     <string name="onboarding_perm_browser_prereq">Włącz debugowanie USB na tym telefonie i podłącz go kablem USB.</string>
+    <!-- #1001: settings backup -->
+    <string name="settings_backup_title">Kopia zapasowa ustawień</string>
+    <string name="settings_backup_subtext">Zapisuje ustawienia w pliku i przywraca je po ponownej instalacji: poziom ochrony, zaufane i zablokowane sieci, reguły sieci, opcje prywatności, powiadomień i Webhook. Uprawnienie systemowe nie jest częścią kopii, a import nigdy nie włącza Wifi-ADB ani Keep-Alive.</string>
+    <string name="settings_backup_export">Eksportuj ustawienia</string>
+    <string name="settings_backup_import">Importuj ustawienia</string>
+    <string name="settings_backup_export_message">Plik zawiera nazwy i adresy (BSSID) zaufanych i zablokowanych sieci oraz, jeśli go dołączysz, adres URL Webhook. Nie udostępniaj go.</string>
+    <string name="settings_backup_export_message_no_webhook">Plik zawiera nazwy i adresy (BSSID) zaufanych i zablokowanych sieci. Nie udostępniaj go.</string>
+    <string name="settings_backup_export_with_webhook">Z adresem URL Webhook</string>
+    <string name="settings_backup_export_without_webhook">Bez adresu URL Webhook</string>
+    <string name="settings_backup_export_done">Ustawienia wyeksportowane</string>
+    <string name="settings_backup_export_failed">Nie udało się zapisać pliku ustawień</string>
+    <string name="settings_backup_import_title">Zaimportować ustawienia?</string>
+    <string name="settings_backup_import_message">Bieżące ustawienia zostaną zastąpione ustawieniami z pliku (zaufane punkty dostępowe: %1$d, zablokowane sieci: %2$d). Keep-Alive, uprawnienie systemowe i Wifi-ADB pozostają bez zmian.</string>
+    <string name="settings_backup_import_webhook_included">Adres URL Webhook z pliku zastąpi Twój. Jeśli jest inny, synchronizacja Webhook pozostanie wyłączona, dopóki jej nie włączysz.</string>
+    <string name="settings_backup_import_webhook_absent">Plik nie zawiera adresu URL Webhook; obecne ustawienie Webhook pozostaje.</string>
+    <string name="settings_backup_import_confirm">Importuj</string>
+    <string name="settings_backup_import_done">Ustawienia zaimportowane</string>
+    <string name="settings_backup_import_done_webhook_off">Ustawienia zaimportowane. Synchronizacja Webhook jest wyłączona, dopóki jej nie włączysz.</string>
+    <string name="settings_backup_error_title">Import nie powiódł się</string>
+    <string name="settings_backup_error_not_settings">To nie jest plik ustawień KeepADB. Nic nie zostało zmienione.</string>
+    <string name="settings_backup_error_version">Ten plik ustawień pochodzi z nowszej wersji KeepADB. Zaktualizuj KeepADB i spróbuj ponownie. Nic nie zostało zmienione.</string>
+    <string name="settings_backup_error_invalid">Plik jest uszkodzony lub był edytowany: co najmniej jedna wartość jest nieprawidłowa. Nic nie zostało zmienione.</string>
+    <string name="settings_backup_error_unreadable">Nie udało się odczytać pliku. Nic nie zostało zmienione.</string>
+    <string name="settings_backup_no_picker">Na tym urządzeniu nie ma dostępnego wyboru plików</string>
 </resources>
