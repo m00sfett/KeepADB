@@ -319,6 +319,18 @@ final class KeepADB {
     }
 
     /**
+     * #1000: the timer's "off" intent, recorded only while its switch-off is still owed, checked
+     * under this monitor: a manual "on" settles the obligation before it takes the monitor, so it
+     * can never be overwritten by a timer driver that looked a moment earlier.
+     */
+    static synchronized void recordTimerOffIntent(Context ctx) {
+        if (ctx == null) return;
+        Context appContext = ctx.getApplicationContext();
+        if (!KeepADBManualToggle.isTimerOffOwed(appContext)) return;
+        recordExplicitIntent(appContext, false);
+    }
+
+    /**
      * The four operational states plus the one that #318 split out of {@code ENABLED_DISCONNECTED}.
      *
      * <p>Invariant introduced by #318: the {@code ENABLED_*} values mean, and only ever mean, that
@@ -478,6 +490,12 @@ final class KeepADB {
         final long networkGeneration;
         final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
+            if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
+                // #1000 (review): the timer's off is no longer owed (a manual "on" settled it).
+                KeepADBDiagnostics.event(appContext, eventName, source, "skipped",
+                        "desired=" + on + " observed=" + observed + " reason=timer_off_settled");
+                return ToggleResult.SUPERSEDED;
+            }
             if (!isManualSource(source) && isManualIntentPending()) {
                 // #780: a pending user tap (the re-enable inside its 100 ms teardown gap) must
                 // not be displaced by an automatic intent. Taking the intent token would make the
@@ -560,6 +578,16 @@ final class KeepADB {
             return ToggleResult.SUPERSEDED; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
+        if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
+            // #1000 (review): a debounced timer off whose obligation a manual "on" settled while it
+            // waited is dropped, with the intent it replaced.
+            KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
+                    "intentId=" + token + " reason=timer_off_settled");
+            state.rollbackIntent(previousLastDesiredOn);
+            KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
+            surfaces.refreshAll(appContext);
+            return ToggleResult.SUPERSEDED;
+        }
         // #310: an automatic enable was authorized under conditions read at planning time, up to
         // TOGGLE_COOLDOWN_MS ago. Re-check them here, inside the same lock as the write they
         // authorize, so a network change or a withdrawn Keep-Alive during the delay cancels the

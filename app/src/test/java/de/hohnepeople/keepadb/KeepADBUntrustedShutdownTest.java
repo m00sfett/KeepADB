@@ -108,6 +108,23 @@ public class KeepADBUntrustedShutdownTest {
     }
 
     @Test
+    public void aTimerOnlySessionIsSwitchedOffOnAnUntrustedNetworkToo() {
+        // #1000 review: the timer is a Keep-Alive overlay, so the network rules apply to it while
+        // the stored Keep-Alive setting is off.
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADBTimer.setClockForTesting(new KeepADBForceTestSupport.TestClock());
+        connectTo("Home", HOME);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        connectTo("Cafe", CAFE);
+
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        assertEquals(Boolean.FALSE, gateway.writes.get(gateway.writes.size() - 1));
+        assertFalse(gateway.isEnabled(context));
+        KeepADBTimer.resetForTesting();
+    }
+
+    @Test
     public void blockedAccessPoint_switchesOff() {
         connectTo("Home", HOME);
         KeepADBNetworkBlocklist.blockBssid(context, HOME);

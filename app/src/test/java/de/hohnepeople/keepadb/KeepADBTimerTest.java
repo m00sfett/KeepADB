@@ -489,6 +489,78 @@ public class KeepADBTimerTest {
         assertTrue("No 'Wifi-ADB off' notice after the user switched it on", notices.isEmpty());
     }
 
+    // ---- Review #1000 (Claude S4) ------------------------------------------------------------------
+
+    @Test
+    public void anExpiryWhileWifiAdbIsAlreadyOffStopsTheService() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        gateway.setEnabledByUser(false); // left the trusted Wi-Fi: Android dropped it, the timer waits
+        clock.advance(16 * MINUTE);
+        shadowOf((Application) context).clearStartedServices();
+
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+
+        Intent stopped = shadowOf((Application) context).getNextStoppedService();
+        assertNotNull("Nothing was written, yet the timer's service must stop", stopped);
+        assertEquals(KeepADBService.class.getName(), stopped.getComponent().getClassName());
+    }
+
+    @Test
+    public void allowingANetworkFromTheTrustPromptKeepsTheTimer() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setEnabledByUser(false);
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
+
+        assertTrue("The prompt answers a network question, not the limit", KeepADBTimer.isActive(context));
+        assertTrue(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aTimerOffThatIsNoLongerOwedIsNeitherRecordedNorWritten() {
+        // The race the review found: a driver looked while the off was owed, then a manual "on"
+        // settled it. Under the KeepADB monitor the timer's off and its intent are dropped.
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+
+        KeepADB.recordTimerOffIntent(context);
+        KeepADB.ToggleResult result = KeepADB.setEnabled(context, false, KeepADB.SOURCE_TIMER_EXPIRY);
+        drainToggles();
+
+        assertEquals(KeepADB.ToggleResult.SUPERSEDED, result);
+        assertTrue(gateway.isEnabled(context));
+        assertTrue("The user's on stays the intent", KeepADBPreferences.getLastDesiredOn(context));
+    }
+
+    @Test
+    public void aClockSetBroadcastFinishesATimerTheClockEnded() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_30, "test");
+        clock.setWallClock(clock.wall + 2 * HOUR);
+
+        new BootReceiver().onReceive(context, new Intent(Intent.ACTION_TIME_CHANGED));
+        drainToggles();
+
+        assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    @Test
+    public void theApplicationRegistersTheNoticeSinkAndSettlesAnInterruptedOff() {
+        KeepADBTimer.resetForTesting();
+        KeepADBTimer.setClockForTesting(clock);
+        prefs().edit().putBoolean(KeepADBTimer.KEY_SHUTDOWN_PENDING, true)
+                .putBoolean(KeepADBTimer.KEY_NOTICE_PENDING, true).commit();
+        gateway.setEnabledByUser(true);
+
+        ((KeepADBApplication) context).onCreate();
+        drainToggles();
+
+        assertTrue("The production sink is registered", KeepADBTimer.hasNoticeSinkForTesting());
+        assertFalse(gateway.isEnabled(context));
+        KeepADBTimer.restore(context);
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
+
     @Test
     public void aSuccessfulManualOffSettlesAtOnce() {
         KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");

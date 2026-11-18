@@ -3,7 +3,7 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 
 /**
- * #1000: what a manual on/off of Wifi-ADB ends. {@link KeepADB#setEnabled} calls this for every
+ * #1000: what a manual on/off of Wifi-ADB ends (the trust prompt's "Allow" ends no timer). {@link KeepADB#setEnabled} calls this for every
  * manual source before it takes its lock; the toggle facade itself stays ignorant of the force
  * mode (#245: manual controls are never gated, only followed).
  *
@@ -25,9 +25,22 @@ final class KeepADBManualToggle {
         KeepADBTimer.onWriteApplied(appContext, source, on, confirmedOff);
     }
 
+    /**
+     * Whether a timer's switch-off is still owed. A pure preference read: {@link KeepADB} checks it
+     * under its own monitor before it writes or records the timer's "off", so a manual "on" that
+     * settled the obligation in between is never switched off again (review #1000).
+     */
+    static boolean isTimerOffOwed(Context appContext) {
+        return KeepADBTimer.isShutdownPending(appContext);
+    }
+
     static void onManualToggle(Context appContext, boolean on, String source) {
         if (appContext == null || KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
-        KeepADBTimer.onManualToggle(appContext, on, source);
+        // Review #1000 (maintainer decision): "Allow" on the trust prompt answers a question about
+        // the network, not about the limit; a running timer keeps running.
+        if (!KeepADB.SOURCE_NETWORK_TRUST_PROMPT.equals(source)) {
+            KeepADBTimer.onManualToggle(appContext, on, source);
+        }
         if (!on && !KeepADB.SOURCE_TIMER.equals(source)) {
             KeepADBForceMode.endNow(appContext, "manual_off");
         }

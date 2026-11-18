@@ -387,6 +387,10 @@ final class KeepADBTimer {
             KeepADBDiagnostics.event(app, "timer", "timer", "expired",
                     reason == null ? "deadline_passed" : reason);
             settleShutdown(app);
+            // Review: when Wifi-ADB was already off at the deadline nothing is written, so no write
+            // refresh would stop a service only the timer needed. After an end shouldRun() is
+            // false (Keep-Alive suppressed or intent off), so this only ever stops.
+            KeepADBService.sync(app);
             refreshSurfaces(app, false);
         } else if (isShutdownPending(app)) {
             settleShutdown(app);
@@ -419,7 +423,9 @@ final class KeepADBTimer {
         // The "off" intent first, also when Wifi-ADB is already off (Codex review round 2: a
         // failed manual off rolled it back to "on", and a reboot switched Wifi-ADB off without
         // KeepADB; clearing the obligation alone would let boot recovery switch it on again).
-        KeepADB.recordExplicitIntent(app, false);
+        // Under the KeepADB monitor and only while still owed (review): a manual "on" that
+        // settled the obligation in between keeps its "on".
+        KeepADB.recordTimerOffIntent(app);
         if (Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
             clearShutdownPending(app);
             scheduleExpiryAlarm(app);
@@ -614,6 +620,10 @@ final class KeepADBTimer {
 
     static void setClockForTesting(KeepADBDeadline.Clock testClock) {
         clock = testClock == null ? KeepADBDeadline.SYSTEM_CLOCK : testClock;
+    }
+
+    static boolean hasNoticeSinkForTesting() {
+        return noticeSink != null;
     }
 
     static void resetForTesting() {

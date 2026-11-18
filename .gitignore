@@ -15,3 +15,7 @@ captures/
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+# Impeccable design context: local steering file like the ones above (#1000 review)
+PRODUCT.md
+DESIGN.md
+.impeccable/
