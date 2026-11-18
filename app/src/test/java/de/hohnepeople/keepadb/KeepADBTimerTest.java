@@ -962,4 +962,100 @@ public class KeepADBTimerTest {
         assertTrue(gateway.isEnabled(context));
         assertFalse("The off intent stays", KeepADBPreferences.getLastDesiredOn(context));
     }
+
+    // ---- #1016: a debounced start --------------------------------------------------------------
+
+    /** A manual off right before: the start's switch-on waits out the manual re-enable gap. */
+    private KeepADB.ToggleResult startInsideTheReenableGap(KeepADBTimer.Duration duration) {
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        KeepADB.ToggleResult result = KeepADBTimer.start(context, duration, "test");
+        assertEquals("Precondition: the switch-on is debounced", KeepADB.ToggleResult.SCHEDULED, result);
+        return result;
+    }
+
+    @Test
+    public void aDebouncedStartWhoseDelayedWriteIsRejectedLeavesNoTimer() {
+        gateway.setEnabledByUser(true);
+        startInsideTheReenableGap(KeepADBTimer.Duration.HOUR_1);
+        assertTrue("Effective from the first instant, as before", KeepADBTimer.isActive(context));
+        gateway.setWriteSuccess(false);
+
+        drainToggles();
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse("No timer for a switch-on that never happened", KeepADBTimer.isActive(context));
+        assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
+        assertFalse(KeepADBPreferences.isKeepAliveEffective(context));
+        clock.advance(2 * HOUR);
+        assertFalse(KeepADBTimer.finishIfExpired(context));
+        assertTrue("No 'off' notice for it either", notices.isEmpty());
+    }
+
+    @Test
+    public void aDebouncedStartRefusedWithASecurityExceptionLeavesNoTimer() {
+        gateway.setEnabledByUser(true);
+        startInsideTheReenableGap(KeepADBTimer.Duration.HOUR_1);
+        gateway.setWriteThrowsSecurityException(true);
+
+        drainToggles();
+
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
+    }
+
+    @Test
+    public void aDebouncedStartThatGoesThroughKeepsItsTimer() {
+        // The other side: the hook must not undo a start whose delayed write succeeded.
+        gateway.setEnabledByUser(true);
+        startInsideTheReenableGap(KeepADBTimer.Duration.MINUTES_30);
+
+        drainToggles();
+
+        assertTrue(gateway.isEnabled(context));
+        assertEquals(30 * MINUTE, KeepADBTimer.status(context).remainingMs);
+        gateway.setWriteSuccess(false);
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        drainToggles();
+        assertTrue("A later failed timer-unrelated write leaves it", KeepADBTimer.isActive(context));
+    }
+
+    @Test
+    public void aDebouncedStartSupersededByAManualOffEndsWithWifiAdbOff() {
+        // A superseded start is left to the newer intent: a manual off ends the timer.
+        gateway.setEnabledByUser(true);
+        startInsideTheReenableGap(KeepADBTimer.Duration.HOUR_1);
+
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        drainToggles();
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(context));
+    }
+
+    @Test
+    public void anImmediateFailedStartIsUndoneOnceAndLoggedOnce() {
+        gateway.setWriteSuccess(false);
+
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        drainToggles();
+
+        assertFalse(KeepADBTimer.isActive(context));
+        String journal = KeepADBDiagnostics.export(context);
+        assertTrue(journal, journal.contains("outcome=cancelled detail=result=WRITE_REJECTED"));
+        assertFalse("The delayed hook stands aside for an immediate failure",
+                journal.contains("detail=result=WRITE_REJECTED delayed"));
+    }
+
+    @Test
+    public void aDelayedFailureLeavesAStateThatReplacedTheStartAlone() {
+        gateway.setEnabledByUser(true);
+        startInsideTheReenableGap(KeepADBTimer.Duration.HOUR_1);
+        assertTrue("+1 h inside the gap gives the timer a new state", KeepADBTimer.extend(context, "test"));
+        gateway.setWriteSuccess(false);
+
+        drainToggles();
+
+        assertNotNull("Only the start's own state is undone", KeepADBTimer.status(context));
+    }
 }

@@ -650,6 +650,10 @@ final class KeepADB {
                 KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 // #318: clear the pending indicator the surfaces are showing; a rejected write
                 // must end in the real state, not in a pending state that never resolves.
+                if (SOURCE_TIMER.equals(source)) {
+                    // #1016: a debounced timer start that never came on leaves no timer.
+                    KeepADBManualToggle.onTimerStartFailed(appContext, "WRITE_REJECTED");
+                }
                 surfaces.refreshAll(appContext);
                 return ToggleResult.WRITE_REJECTED;
             }
@@ -701,6 +705,9 @@ final class KeepADB {
                     "intentId=" + token + " reason=security_exception");
             state.rollbackIntent(previousLastDesiredOn);
             KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
+            if (SOURCE_TIMER.equals(source)) {
+                KeepADBManualToggle.onTimerStartFailed(appContext, "SECURITY_EXCEPTION"); // #1016
+            }
             surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
             return ToggleResult.SECURITY_EXCEPTION;
         }

@@ -37,6 +37,14 @@ final class KeepADBManualToggle {
     }
 
     /**
+     * #1016: the debounced switch-on of a timer start failed (rejected or refused). Called by
+     * {@link KeepADB} under its monitor; see {@link KeepADBTimer#onDelayedStartFailed}.
+     */
+    static void onTimerStartFailed(Context appContext, String result) {
+        KeepADBTimer.onDelayedStartFailed(appContext, result);
+    }
+
+    /**
      * Whether a timer's switch-off is still owed. A pure preference read: {@link KeepADB} checks it
      * under its own monitor before it writes or records the timer's "off", so a manual "on" that
      * settled the obligation in between is never switched off again (review #1000).
