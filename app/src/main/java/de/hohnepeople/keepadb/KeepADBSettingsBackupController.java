@@ -39,6 +39,8 @@ final class KeepADBSettingsBackupController {
     /** The picked file while its confirmation dialog is open; re-read after a recreation. */
     private Uri pendingImport;
     private AlertDialog activeDialog;
+    /** Counts file reads; a read that a later pick superseded publishes nothing. */
+    private int readGeneration;
 
     KeepADBSettingsBackupController(Activity activity, Runnable onChange, Runnable onImported) {
         this.activity = activity;
@@ -162,6 +164,7 @@ final class KeepADBSettingsBackupController {
         // Recorded before the read, so a recreation while a slow provider serves the file
         // re-reads it instead of losing the import.
         pendingImport = uri;
+        final int generation = ++readGeneration;
         Context app = activity.getApplicationContext();
         new Thread(() -> {
             KeepADBSettingsBackup.Snapshot snapshot = null;
@@ -175,6 +178,7 @@ final class KeepADBSettingsBackupController {
             final KeepADBSettingsBackup.Error failure = error;
             activity.runOnUiThread(() -> {
                 if (activity.isFinishing() || activity.isDestroyed()) return;
+                if (generation != readGeneration) return; // superseded by a later pick
                 if (parsed != null) {
                     confirmImport(uri, parsed);
                 } else {
@@ -232,14 +236,12 @@ final class KeepADBSettingsBackupController {
         pendingImport = null;
         Context app = activity.getApplicationContext();
         KeepADBSettingsBackup.ApplyResult result = KeepADBSettingsBackup.apply(app, snapshot);
-        if (!result.saved) {
-            KeepADBDiagnostics.event(app, "user_action", "settings_backup", "import", "write_failed");
-            showError(KeepADBSettingsBackup.Error.WRITE_FAILED);
-            onChange.run();
-            return;
-        }
         KeepADBDiagnostics.event(app, "user_action", "settings_backup", "import",
-                result.webhookUrlChanged ? "applied_webhook_changed" : "applied");
+                !result.saved ? "write_failed"
+                        : result.webhookUrlKept ? "applied_webhook_kept"
+                        : result.webhookUrlChanged ? "applied_webhook_changed" : "applied");
+        // Even when the write to storage failed, Android already applied the values in memory:
+        // reconcile everything with them, then say that they may not survive.
         // Let every surface and rule pick up the new values. The shutdown rules only ever turn
         // Wifi-ADB off; nothing here turns it or Keep-Alive on.
         KeepADBWarningState.observe(app);
@@ -256,8 +258,15 @@ final class KeepADBSettingsBackupController {
             KeepADBNetworkTrustPrompt.applyNotificationPrivacy(app);
         }
         onImported.run();
-        toast(result.webhookUrlChanged ? R.string.settings_backup_import_done_webhook_off
-                : R.string.settings_backup_import_done);
+        if (!result.saved) {
+            showError(KeepADBSettingsBackup.Error.WRITE_FAILED);
+        } else if (result.webhookUrlKept) {
+            toast(R.string.settings_backup_import_done_webhook_kept);
+        } else if (result.webhookUrlChanged) {
+            toast(R.string.settings_backup_import_done_webhook_off);
+        } else {
+            toast(R.string.settings_backup_import_done);
+        }
         onChange.run();
     }
 

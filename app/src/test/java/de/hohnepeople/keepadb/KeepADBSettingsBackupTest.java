@@ -138,19 +138,6 @@ public class KeepADBSettingsBackupTest {
     }
 
     @Test
-    public void differentUrlSwitchesRunningWebhookSyncOff() throws Exception {
-        configureDevice();
-        String file = exportNow(true);
-        KeepADBPreferences.setRegisterWebhookUrl(context, "https://other.example.test/register/s20");
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBSettingsBackup.Snapshot snapshot = KeepADBSettingsBackup.parse(file);
-        // The single write alone already keeps a new destination from reporting.
-        assertTrue(KeepADBSettingsBackup.commit(prefs, snapshot));
-        assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
-        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
-    }
-
-    @Test
     public void networkNamesWithControlCharactersSurviveTheRoundTrip() throws Exception {
         // The app accepts such a name, so it must neither block the export nor the import.
         KeepADBNetworkBlocklist.blockSsid(context, "Cafe\nGuest");
@@ -163,16 +150,50 @@ public class KeepADBSettingsBackupTest {
     }
 
     @Test
-    public void replacedUrlKeepsTheOldRegistrationsWithdrawalQueued() throws Exception {
+    public void differentUrlIsKeptOutWhileWebhookSyncIsOn() throws Exception {
+        configureDevice();
+        String file = exportNow(true);
+        String other = "https://other.example.test/register/s20";
+        KeepADBPreferences.setRegisterWebhookUrl(context, other);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBSettingsBackup.ApplyResult result =
+                KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        assertTrue(result.saved);
+        assertTrue(result.webhookUrlKept);
+        assertFalse(result.webhookUrlChanged);
+        assertEquals(other, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
+        // Everything else from the file still applies.
+        assertEquals(2, KeepADBTrustedNetwork.getEntries(context).size());
+    }
+
+    @Test
+    public void differentUrlIsKeptOutWhileAWithdrawalIsOutstanding() throws Exception {
         configureDevice();
         String file = exportNow(true);
         String old = "https://other.example.test/register/s20";
         KeepADBPreferences.setRegisterWebhookUrl(context, old);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, old);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        // The last report went to the stored URL and was never withdrawn.
+        KeepADBPreferences.setWebhookLastReportedUrl(context, old);
+        KeepADBSettingsBackup.ApplyResult result =
+                KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        assertTrue(result.webhookUrlKept);
+        assertEquals(old, KeepADBPreferences.getRegisterWebhookUrl(context));
+    }
+
+    @Test
+    public void differentUrlReplacesAnIdleOneAndStaysOff() throws Exception {
+        configureDevice();
+        String file = exportNow(true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "https://other.example.test/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBSettingsBackup.ApplyResult result =
+                KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
+        assertTrue(result.webhookUrlChanged);
+        assertFalse(result.webhookUrlKept);
         assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(old));
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
     }
 
     @Test
@@ -256,6 +277,8 @@ public class KeepADBSettingsBackupTest {
         assertInvalid("\"blocked_ssids\":[\"\"]");
         // The blocklist looks addresses up in lower case; another form would never match.
         assertInvalid("\"blocked_bssids\":[\"AA:BB:CC:DD:EE:FF\"]");
+        assertInvalid("\"blocked_bssids\":[\" aa:bb:cc:dd:ee:ff \"]");
+        assertInvalid("\"blocked_ssids\":[\"<unknown ssid>\"]");
     }
 
     @Test

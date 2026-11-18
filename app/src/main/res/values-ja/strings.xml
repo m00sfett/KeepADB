@@ -717,11 +717,12 @@
     <string name="settings_backup_export_failed">設定ファイルを書き込めませんでした</string>
     <string name="settings_backup_import_title">設定をインポートしますか？</string>
     <string name="settings_backup_import_message">現在の設定はファイルの設定に置き換えられます（信頼済みアクセスポイント：%1$d、ブロック済みネットワーク：%2$d）。Keep-Alive、システム権限、Wifi-ADB はそのままです。</string>
-    <string name="settings_backup_import_webhook_included">ファイルの Webhook URL が現在の URL に置き換わります。異なる URL の場合、オンにするまで Webhook 同期はオフのままです。</string>
+    <string name="settings_backup_import_webhook_included">Webhook 同期がオフの場合、ファイルの Webhook URL が現在の URL に置き換わり、オンにするまで同期はオフのままです。同期がオンの場合、現在の Webhook URL はそのままです。</string>
     <string name="settings_backup_import_webhook_absent">ファイルに Webhook URL はありません。現在の Webhook 設定はそのままです。</string>
     <string name="settings_backup_import_confirm">インポート</string>
     <string name="settings_backup_import_done">設定をインポートしました</string>
     <string name="settings_backup_import_done_webhook_off">設定をインポートしました。オンにするまで Webhook 同期はオフです。</string>
+    <string name="settings_backup_import_done_webhook_kept">設定をインポートしました。Webhook 同期がオンのため、Webhook URL はそのままです。Webhook の設定で変更してください。</string>
     <string name="settings_backup_error_title">インポートできませんでした</string>
     <string name="settings_backup_error_not_settings">KeepADB の設定ファイルではありません。何も変更されていません。</string>
     <string name="settings_backup_error_version">この設定ファイルは新しいバージョンの KeepADB で作成されています。KeepADB を更新してからもう一度お試しください。何も変更されていません。</string>

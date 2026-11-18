@@ -736,11 +736,12 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_backup_export_failed">Could not write the settings file</string>
     <string name="settings_backup_import_title">Import settings?</string>
     <string name="settings_backup_import_message">Your current settings will be replaced by the ones in the file (trusted access points: %1$d, blocked networks: %2$d). Keep-Alive, the system permission and Wifi-ADB stay as they are.</string>
-    <string name="settings_backup_import_webhook_included">The webhook URL in the file replaces yours. If it is a different one, webhook sync stays off until you turn it on.</string>
+    <string name="settings_backup_import_webhook_included">If webhook sync is off, the file\'s webhook URL replaces yours and sync stays off until you turn it on. While sync is on, your current webhook URL stays.</string>
     <string name="settings_backup_import_webhook_absent">The file has no webhook URL; your current webhook setting stays.</string>
     <string name="settings_backup_import_confirm">Import</string>
     <string name="settings_backup_import_done">Settings imported</string>
     <string name="settings_backup_import_done_webhook_off">Settings imported. Webhook sync is off until you turn it on.</string>
+    <string name="settings_backup_import_done_webhook_kept">Settings imported. Your webhook URL stays because webhook sync is on; change it in the webhook settings.</string>
     <string name="settings_backup_error_title">Import failed</string>
     <string name="settings_backup_error_not_settings">This is not a KeepADB settings file. Nothing was changed.</string>
     <string name="settings_backup_error_version">This settings file comes from a newer KeepADB version. Update KeepADB and try again. Nothing was changed.</string>

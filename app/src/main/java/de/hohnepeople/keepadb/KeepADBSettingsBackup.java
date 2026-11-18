@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -153,6 +152,12 @@ final class KeepADBSettingsBackup {
             return values.containsKey(KEY_WEBHOOK_URL);
         }
 
+        Snapshot withoutWebhookUrl() {
+            Map<String, Object> copy = new TreeMap<>(values);
+            copy.remove(KEY_WEBHOOK_URL);
+            return new Snapshot(copy);
+        }
+
         int trustedAccessPointCount() {
             return idCount((String) values.get(KEY_TRUSTED_IDS));
         }
@@ -169,14 +174,23 @@ final class KeepADBSettingsBackup {
 
     /** What {@link #apply} did beyond writing the values, for the result message. */
     static final class ApplyResult {
-        /** False when the preference file could not be written; then nothing was reported as applied. */
+        /**
+         * False when the preference file could not be written to storage. The values are then in
+         * effect for this process (Android applies a commit in memory first) but may be lost.
+         */
         final boolean saved;
-        /** The file had a webhook URL other than the stored one; reporting stays off until the user turns it on. */
+        /** The file's different webhook URL was stored; reporting stays off until the user turns it on. */
         final boolean webhookUrlChanged;
+        /**
+         * The file's different webhook URL was NOT applied, because synchronization is on or a
+         * withdrawal at the stored URL is still outstanding; the stored webhook stays as it is.
+         */
+        final boolean webhookUrlKept;
 
-        ApplyResult(boolean saved, boolean webhookUrlChanged) {
+        ApplyResult(boolean saved, boolean webhookUrlChanged, boolean webhookUrlKept) {
             this.saved = saved;
             this.webhookUrlChanged = webhookUrlChanged;
+            this.webhookUrlKept = webhookUrlKept;
         }
     }
 
@@ -374,9 +388,14 @@ final class KeepADBSettingsBackup {
             if (value.isEmpty() || value.length() > MAX_STRING_LENGTH) {
                 throw new ImportException(Error.INVALID_VALUE, key);
             }
-            // The blocklist stores and looks up addresses in lower case; an address in any
-            // other form would be accepted here and then never match.
-            if (KEY_BLOCKED_BSSIDS.equals(key) && !value.equals(value.toLowerCase(Locale.ROOT))) {
+            // The blocklist stores and looks up its canonical forms only; any other form would be
+            // accepted here and then never match.
+            if (KEY_BLOCKED_BSSIDS.equals(key)
+                    && !value.equals(KeepADBNetworkBlocklist.normalizeBssid(value))) {
+                throw new ImportException(Error.INVALID_VALUE, key);
+            }
+            if (KeepADBNetworkBlocklist.KEY_SSIDS.equals(key)
+                    && !KeepADBNetworkBlocklist.isUsableSsid(value)) {
                 throw new ImportException(Error.INVALID_VALUE, key);
             }
             set.add(value);
@@ -445,33 +464,23 @@ final class KeepADBSettingsBackup {
     /**
      * Replaces the managed settings with {@code snapshot} in one commit. A key the file does not
      * name returns to its default, with one exception: without a webhook URL in the file the stored
-     * URL and its on/off state stay as they are. A different URL never starts reporting: if
-     * reporting is on, it is withdrawn from the old URL first and stays off.
+     * URL and its on/off state stay as they are.
+     *
+     * <p>A different URL replaces the stored one only while nothing may be registered at the stored
+     * one: synchronization off and no withdrawal outstanding ({@link
+     * KeepADBRegisterClient#hasOutstandingWithdrawal}). Then synchronization stays off until the
+     * user turns it on. Otherwise the file's URL is left out and the stored webhook stays as it is,
+     * so the withdrawal and retry rules of the webhook settings keep owning a URL change; the user
+     * changes it there. After a reinstall nothing is stored, so the file's URL applies.
      */
     static ApplyResult apply(Context context, Snapshot snapshot) {
         SharedPreferences prefs = prefs(context);
         boolean urlChanged = webhookUrlChanges(prefs, snapshot);
-        if (urlChanged) withdrawOldRegistration(context, prefs);
-        boolean saved = commit(prefs, snapshot);
-        return new ApplyResult(saved, urlChanged);
-    }
-
-    /**
-     * Before a different URL replaces the stored one: a registration that may exist at the old URL
-     * (synchronization on, or the last report went there) is queued as a pending cleanup, so its
-     * withdrawal stays discoverable and retried after the old URL is no longer the saved one, and
-     * a running synchronization is switched off, which sends the DELETE now. A successful DELETE
-     * drops the queued entry again.
-     */
-    private static void withdrawOldRegistration(Context context, SharedPreferences prefs) {
-        String oldUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
-        boolean enabled = prefs.getBoolean(KEY_WEBHOOK_ENABLED, false);
-        if (oldUrl == null || oldUrl.trim().isEmpty()) return;
-        String lastReported = KeepADBPreferences.getWebhookLastReportedUrl(context);
-        if (enabled || oldUrl.equals(lastReported)) {
-            KeepADBRegisterClient.queuePendingCleanup(context, oldUrl);
-        }
-        if (enabled) KeepADBWebhookSync.disable(context);
+        boolean keepUrl = urlChanged && (prefs.getBoolean(KEY_WEBHOOK_ENABLED, false)
+                || KeepADBRegisterClient.hasOutstandingWithdrawal(context));
+        Snapshot effective = keepUrl ? snapshot.withoutWebhookUrl() : snapshot;
+        boolean saved = commit(prefs, effective);
+        return new ApplyResult(saved, urlChanged && !keepUrl, keepUrl);
     }
 
     private static boolean webhookUrlChanges(SharedPreferences prefs, Snapshot snapshot) {

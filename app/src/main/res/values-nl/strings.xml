@@ -718,11 +718,12 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_backup_export_failed">Het instellingenbestand kon niet worden geschreven</string>
     <string name="settings_backup_import_title">Instellingen importeren?</string>
     <string name="settings_backup_import_message">Je huidige instellingen worden vervangen door die uit het bestand (vertrouwde access points: %1$d, geblokkeerde netwerken: %2$d). Keep-Alive, de systeemmachtiging en Wifi-ADB blijven zoals ze zijn.</string>
-    <string name="settings_backup_import_webhook_included">De Webhook-URL uit het bestand vervangt de jouwe. Is het een andere, dan blijft Webhook-synchronisatie uit tot je die aanzet.</string>
+    <string name="settings_backup_import_webhook_included">Staat Webhook-synchronisatie uit, dan vervangt de Webhook-URL uit het bestand de jouwe en blijft synchronisatie uit tot je die aanzet. Staat ze aan, dan blijft je huidige Webhook-URL.</string>
     <string name="settings_backup_import_webhook_absent">Het bestand bevat geen Webhook-URL; je huidige Webhook-instelling blijft.</string>
     <string name="settings_backup_import_confirm">Importeren</string>
     <string name="settings_backup_import_done">Instellingen geïmporteerd</string>
     <string name="settings_backup_import_done_webhook_off">Instellingen geïmporteerd. Webhook-synchronisatie staat uit tot je die aanzet.</string>
+    <string name="settings_backup_import_done_webhook_kept">Instellingen geïmporteerd. Je Webhook-URL blijft omdat Webhook-synchronisatie aan staat; wijzig die in de Webhook-instellingen.</string>
     <string name="settings_backup_error_title">Importeren mislukt</string>
     <string name="settings_backup_error_not_settings">Dit is geen KeepADB-instellingenbestand. Er is niets gewijzigd.</string>
     <string name="settings_backup_error_version">Dit instellingenbestand komt van een nieuwere KeepADB-versie. Werk KeepADB bij en probeer het opnieuw. Er is niets gewijzigd.</string>

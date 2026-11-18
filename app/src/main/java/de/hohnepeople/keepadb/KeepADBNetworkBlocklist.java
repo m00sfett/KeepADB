@@ -220,7 +220,7 @@ final class KeepADBNetworkBlocklist {
     }
 
     /** Lower-case address, or null for blank input and for the masked/unset placeholders. */
-    private static String normalizeBssid(String bssid) {
+    static String normalizeBssid(String bssid) {
         if (bssid == null) return null;
         String clean = bssid.trim();
         if (clean.isEmpty()

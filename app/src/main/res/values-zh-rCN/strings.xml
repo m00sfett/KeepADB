@@ -717,11 +717,12 @@
     <string name="settings_backup_export_failed">无法写入设置文件</string>
     <string name="settings_backup_import_title">导入设置？</string>
     <string name="settings_backup_import_message">当前设置将被文件中的设置替换（已信任的接入点：%1$d，已屏蔽的网络：%2$d）。Keep-Alive、系统权限和 Wifi-ADB 保持不变。</string>
-    <string name="settings_backup_import_webhook_included">文件中的 Webhook URL 将替换你的 URL。如果两者不同，Webhook 同步会保持关闭，直到你手动开启。</string>
+    <string name="settings_backup_import_webhook_included">如果 Webhook 同步已关闭，文件中的 Webhook URL 将替换你的 URL，同步会保持关闭，直到你手动开启。如果同步已开启，你当前的 Webhook URL 保持不变。</string>
     <string name="settings_backup_import_webhook_absent">文件中没有 Webhook URL；你当前的 Webhook 设置保持不变。</string>
     <string name="settings_backup_import_confirm">导入</string>
     <string name="settings_backup_import_done">设置已导入</string>
     <string name="settings_backup_import_done_webhook_off">设置已导入。Webhook 同步已关闭，需要你手动开启。</string>
+    <string name="settings_backup_import_done_webhook_kept">设置已导入。由于 Webhook 同步已开启，你的 Webhook URL 保持不变；请在 Webhook 设置中更改。</string>
     <string name="settings_backup_error_title">导入失败</string>
     <string name="settings_backup_error_not_settings">这不是 KeepADB 设置文件。未做任何更改。</string>
     <string name="settings_backup_error_version">此设置文件来自更新版本的 KeepADB。请更新 KeepADB 后重试。未做任何更改。</string>

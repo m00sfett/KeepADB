@@ -720,11 +720,12 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_backup_export_failed">Nie udało się zapisać pliku ustawień</string>
     <string name="settings_backup_import_title">Zaimportować ustawienia?</string>
     <string name="settings_backup_import_message">Bieżące ustawienia zostaną zastąpione ustawieniami z pliku (zaufane punkty dostępowe: %1$d, zablokowane sieci: %2$d). Keep-Alive, uprawnienie systemowe i Wifi-ADB pozostają bez zmian.</string>
-    <string name="settings_backup_import_webhook_included">Adres URL Webhook z pliku zastąpi Twój. Jeśli jest inny, synchronizacja Webhook pozostanie wyłączona, dopóki jej nie włączysz.</string>
+    <string name="settings_backup_import_webhook_included">Jeśli synchronizacja Webhook jest wyłączona, adres URL Webhook z pliku zastąpi Twój, a synchronizacja pozostanie wyłączona, dopóki jej nie włączysz. Gdy jest włączona, obecny adres URL Webhook pozostaje.</string>
     <string name="settings_backup_import_webhook_absent">Plik nie zawiera adresu URL Webhook; obecne ustawienie Webhook pozostaje.</string>
     <string name="settings_backup_import_confirm">Importuj</string>
     <string name="settings_backup_import_done">Ustawienia zaimportowane</string>
     <string name="settings_backup_import_done_webhook_off">Ustawienia zaimportowane. Synchronizacja Webhook jest wyłączona, dopóki jej nie włączysz.</string>
+    <string name="settings_backup_import_done_webhook_kept">Ustawienia zaimportowane. Adres URL Webhook pozostaje, bo synchronizacja Webhook jest włączona; zmień go w ustawieniach Webhook.</string>
     <string name="settings_backup_error_title">Import nie powiódł się</string>
     <string name="settings_backup_error_not_settings">To nie jest plik ustawień KeepADB. Nic nie zostało zmienione.</string>
     <string name="settings_backup_error_version">Ten plik ustawień pochodzi z nowszej wersji KeepADB. Zaktualizuj KeepADB i spróbuj ponownie. Nic nie zostało zmienione.</string>

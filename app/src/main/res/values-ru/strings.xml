@@ -720,11 +720,12 @@
     <string name="settings_backup_export_failed">Не удалось записать файл настроек</string>
     <string name="settings_backup_import_title">Импортировать настройки?</string>
     <string name="settings_backup_import_message">Текущие настройки будут заменены настройками из файла (доверенные точки доступа: %1$d, заблокированные сети: %2$d). Keep-Alive, системное разрешение и Wifi-ADB не меняются.</string>
-    <string name="settings_backup_import_webhook_included">URL Webhook из файла заменит ваш. Если он другой, синхронизация Webhook останется выключенной, пока вы её не включите.</string>
+    <string name="settings_backup_import_webhook_included">Если синхронизация Webhook выключена, URL Webhook из файла заменит ваш, а синхронизация останется выключенной, пока вы её не включите. Если она включена, текущий URL Webhook сохраняется.</string>
     <string name="settings_backup_import_webhook_absent">В файле нет URL Webhook; ваша текущая настройка Webhook сохраняется.</string>
     <string name="settings_backup_import_confirm">Импортировать</string>
     <string name="settings_backup_import_done">Настройки импортированы</string>
     <string name="settings_backup_import_done_webhook_off">Настройки импортированы. Синхронизация Webhook выключена, пока вы её не включите.</string>
+    <string name="settings_backup_import_done_webhook_kept">Настройки импортированы. Ваш URL Webhook сохраняется, так как синхронизация Webhook включена; измените его в настройках Webhook.</string>
     <string name="settings_backup_error_title">Не удалось импортировать</string>
     <string name="settings_backup_error_not_settings">Это не файл настроек KeepADB. Ничего не изменено.</string>
     <string name="settings_backup_error_version">Этот файл настроек создан более новой версией KeepADB. Обновите KeepADB и попробуйте снова. Ничего не изменено.</string>

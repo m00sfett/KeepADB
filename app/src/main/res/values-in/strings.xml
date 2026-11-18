@@ -717,11 +717,12 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_backup_export_failed">File pengaturan tidak dapat ditulis</string>
     <string name="settings_backup_import_title">Impor pengaturan?</string>
     <string name="settings_backup_import_message">Pengaturan saat ini akan diganti dengan yang ada di file (titik akses yang dipercaya: %1$d, jaringan diblokir: %2$d). Keep-Alive, izin sistem, dan Wifi-ADB tetap seperti semula.</string>
-    <string name="settings_backup_import_webhook_included">URL Webhook di file menggantikan milikmu. Jika berbeda, sinkronisasi Webhook tetap mati sampai kamu menyalakannya.</string>
+    <string name="settings_backup_import_webhook_included">Jika sinkronisasi Webhook mati, URL Webhook di file menggantikan milikmu dan sinkronisasi tetap mati sampai kamu menyalakannya. Jika menyala, URL Webhook saat ini tetap.</string>
     <string name="settings_backup_import_webhook_absent">File tidak berisi URL Webhook; pengaturan Webhook saat ini tetap.</string>
     <string name="settings_backup_import_confirm">Impor</string>
     <string name="settings_backup_import_done">Pengaturan diimpor</string>
     <string name="settings_backup_import_done_webhook_off">Pengaturan diimpor. Sinkronisasi Webhook mati sampai kamu menyalakannya.</string>
+    <string name="settings_backup_import_done_webhook_kept">Pengaturan diimpor. URL Webhook tetap karena sinkronisasi Webhook menyala; ubah di pengaturan Webhook.</string>
     <string name="settings_backup_error_title">Impor gagal</string>
     <string name="settings_backup_error_not_settings">Ini bukan file pengaturan KeepADB. Tidak ada yang diubah.</string>
     <string name="settings_backup_error_version">File pengaturan ini berasal dari versi KeepADB yang lebih baru. Perbarui KeepADB lalu coba lagi. Tidak ada yang diubah.</string>

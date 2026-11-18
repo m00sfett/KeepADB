@@ -719,11 +719,12 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="settings_backup_export_failed">No se pudo escribir el archivo de ajustes</string>
     <string name="settings_backup_import_title">¿Importar ajustes?</string>
     <string name="settings_backup_import_message">Tus ajustes actuales se sustituirán por los del archivo (puntos de acceso de confianza: %1$d, redes bloqueadas: %2$d). Keep-Alive, el permiso del sistema y Wifi-ADB no cambian.</string>
-    <string name="settings_backup_import_webhook_included">La URL de Webhook del archivo sustituye a la tuya. Si es distinta, la sincronización Webhook queda desactivada hasta que la actives.</string>
+    <string name="settings_backup_import_webhook_included">Si la sincronización Webhook está desactivada, la URL de Webhook del archivo sustituye a la tuya y la sincronización sigue desactivada hasta que la actives. Si está activada, se mantiene tu URL de Webhook actual.</string>
     <string name="settings_backup_import_webhook_absent">El archivo no tiene URL de Webhook; tu configuración de Webhook actual se mantiene.</string>
     <string name="settings_backup_import_confirm">Importar</string>
     <string name="settings_backup_import_done">Ajustes importados</string>
     <string name="settings_backup_import_done_webhook_off">Ajustes importados. La sincronización Webhook está desactivada hasta que la actives.</string>
+    <string name="settings_backup_import_done_webhook_kept">Ajustes importados. Tu URL de Webhook se mantiene porque la sincronización Webhook está activada; cámbiala en los ajustes de Webhook.</string>
     <string name="settings_backup_error_title">Error al importar</string>
     <string name="settings_backup_error_not_settings">Este no es un archivo de ajustes de KeepADB. No se ha cambiado nada.</string>
     <string name="settings_backup_error_version">Este archivo de ajustes procede de una versión más reciente de KeepADB. Actualiza KeepADB e inténtalo de nuevo. No se ha cambiado nada.</string>

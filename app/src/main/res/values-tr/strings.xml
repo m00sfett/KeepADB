@@ -718,11 +718,12 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_backup_export_failed">Ayar dosyası yazılamadı</string>
     <string name="settings_backup_import_title">Ayarlar içe aktarılsın mı?</string>
     <string name="settings_backup_import_message">Mevcut ayarların dosyadakilerle değiştirilecek (güvenilen erişim noktaları: %1$d, engellenen ağlar: %2$d). Keep-Alive, sistem izni ve Wifi-ADB olduğu gibi kalır.</string>
-    <string name="settings_backup_import_webhook_included">Dosyadaki Webhook URL’si seninkinin yerini alır. Farklıysa, sen açana kadar Webhook senkronizasyonu kapalı kalır.</string>
+    <string name="settings_backup_import_webhook_included">Webhook senkronizasyonu kapalıysa dosyadaki Webhook URL’si seninkinin yerini alır ve sen açana kadar senkronizasyon kapalı kalır. Açıksa mevcut Webhook URL’n korunur.</string>
     <string name="settings_backup_import_webhook_absent">Dosyada Webhook URL’si yok; mevcut Webhook ayarın korunur.</string>
     <string name="settings_backup_import_confirm">İçe aktar</string>
     <string name="settings_backup_import_done">Ayarlar içe aktarıldı</string>
     <string name="settings_backup_import_done_webhook_off">Ayarlar içe aktarıldı. Sen açana kadar Webhook senkronizasyonu kapalı.</string>
+    <string name="settings_backup_import_done_webhook_kept">Ayarlar içe aktarıldı. Webhook senkronizasyonu açık olduğu için Webhook URL’n korunuyor; Webhook ayarlarından değiştir.</string>
     <string name="settings_backup_error_title">İçe aktarma başarısız</string>
     <string name="settings_backup_error_not_settings">Bu bir KeepADB ayar dosyası değil. Hiçbir şey değiştirilmedi.</string>
     <string name="settings_backup_error_version">Bu ayar dosyası daha yeni bir KeepADB sürümünden geliyor. KeepADB’yi güncelleyip tekrar dene. Hiçbir şey değiştirilmedi.</string>

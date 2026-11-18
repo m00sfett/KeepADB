@@ -67,7 +67,8 @@ The import reads at most 256 KiB and validates the whole file before it writes a
 - Unknown keys are ignored, so a file from a newer version with extra settings still imports.
 - Every known key must have the right type and an allowed value: the protection level and the
   refresh interval must be one of their fixed values, the webhook URL must be a valid `http(s)` URL,
-  blocked addresses must be in lower case (the form the blocklist looks up), and strings must be
+  blocked addresses and names must be in the blocklist's canonical form (trimmed, lower-case
+  addresses; no empty or unknown-network name), and strings must be
   non-empty and at most 1024 characters. Network names may contain any character the app itself
   accepted; JSON escapes them.
 - The trusted and blocked entries must be consistent: every listed entry has its address or name, no field
@@ -78,22 +79,25 @@ trusted access points and blocked networks, the file replaces every managed key 
 `SharedPreferences` commit: keys the file does not name return to their defaults. Two exceptions:
 
 - Without a webhook URL in the file, the stored URL and its on/off state stay as they are.
-- With a webhook URL that differs from the stored one, synchronization is switched off. A
-  registration that may exist at the old URL (synchronization on, or the last report went there)
-  is first queued as a pending cleanup, so its withdrawal is still retried once the old URL is no
-  longer the saved one; if synchronization was on, it is switched off, which sends the DELETE now
-  (`KeepADBWebhookSync.disable`), and a successful DELETE drops the queued entry. The user switches
-  synchronization on again for the new URL; the URL field on the Settings screen shows the
-  imported URL, not an older unsaved input.
+- A webhook URL that differs from the stored one replaces it only while nothing may be
+  registered at the stored URL: synchronization is off and no withdrawal is outstanding
+  (`KeepADBRegisterClient.hasOutstandingWithdrawal`). Synchronization then stays off until the user
+  turns it on, and the URL field on the Settings screen shows the imported URL. Otherwise the
+  file's URL is left out, the stored webhook stays as it is, and the import says so; changing the
+  URL in the webhook settings keeps the existing withdrawal and retry rules in charge. After a
+  reinstall nothing is stored, so the file's URL applies.
 
-If the preference file cannot be written, the import reports that instead of success.
+If the preference file cannot be written to storage, Android has still applied the values in
+memory; KeepADB reconciles everything with them as below and then reports that they may not
+survive, instead of reporting success.
 
 The import also marks the protection level and the privacy switches as initialized, so the
 one-time migrations do not rewrite the imported values. Afterwards KeepADB refreshes the
 notification, widgets and warnings, masks the Settings screen and takes back a posted "new Wi-Fi"
 notice with network details if a notification or lock-screen privacy switch is now on, and
 re-evaluates the shutdown rules, which can only turn Wifi-ADB off. A picked file whose read is
-still running when the screen is recreated (rotation) is read again by the new screen. The diagnostics journal records export and import outcomes without file contents.
+still running when the screen is recreated (rotation) is read again by the new screen; a read that
+a later pick superseded shows nothing. The diagnostics journal records export and import outcomes without file contents.
 
 Code evidence: `KeepADBSettingsBackupTest` (round trip, secrets absent, webhook handling,
 replace-not-merge, unknown keys, foreign/old/malformed/inconsistent/oversized files, nothing

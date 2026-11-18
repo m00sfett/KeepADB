@@ -722,11 +722,12 @@
     <string name="settings_backup_export_failed">تعذّرت كتابة ملف الإعدادات</string>
     <string name="settings_backup_import_title">استيراد الإعدادات؟</string>
     <string name="settings_backup_import_message">سيتم استبدال إعداداتك الحالية بالإعدادات الموجودة في الملف (نقاط الوصول الموثوقة: %1$d، الشبكات المحظورة: %2$d). يبقى Keep-Alive وإذن النظام وWifi-ADB كما هي.</string>
-    <string name="settings_backup_import_webhook_included">يحل عنوان Webhook الموجود في الملف محل عنوانك. إذا كان مختلفًا، تبقى مزامنة Webhook متوقفة حتى تشغّلها.</string>
+    <string name="settings_backup_import_webhook_included">إذا كانت مزامنة Webhook متوقفة، يحل عنوان Webhook الموجود في الملف محل عنوانك وتبقى المزامنة متوقفة حتى تشغّلها. إذا كانت قيد التشغيل، يبقى عنوان Webhook الحالي.</string>
     <string name="settings_backup_import_webhook_absent">لا يحتوي الملف على عنوان Webhook؛ يبقى إعداد Webhook الحالي كما هو.</string>
     <string name="settings_backup_import_confirm">استيراد</string>
     <string name="settings_backup_import_done">تم استيراد الإعدادات</string>
     <string name="settings_backup_import_done_webhook_off">تم استيراد الإعدادات. مزامنة Webhook متوقفة حتى تشغّلها.</string>
+    <string name="settings_backup_import_done_webhook_kept">تم استيراد الإعدادات. يبقى عنوان Webhook الخاص بك لأن مزامنة Webhook قيد التشغيل؛ غيّره في إعدادات Webhook.</string>
     <string name="settings_backup_error_title">فشل الاستيراد</string>
     <string name="settings_backup_error_not_settings">هذا ليس ملف إعدادات KeepADB. لم يتغيّر شيء.</string>
     <string name="settings_backup_error_version">ملف الإعدادات هذا من إصدار أحدث من KeepADB. حدّث KeepADB وحاول مرة أخرى. لم يتغيّر شيء.</string>
