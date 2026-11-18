@@ -131,7 +131,7 @@ final class KeepADBForceMode {
      * five seconds, so ordinary operation writes nothing; what stays unwritten can credit at most
      * this much.
      */
-    static final long CLOCK_SET_BACK_TOLERANCE_MS = 5_000L;
+    static final long CLOCK_SET_BACK_TOLERANCE_MS = KeepADBDeadline.CLOCK_SET_BACK_TOLERANCE_MS;
 
     /** Request codes of the PendingIntents of the force mode (N6): one block, no overlap. */
     static final int REQUEST_CODE_END = 20;
@@ -176,35 +176,23 @@ final class KeepADBForceMode {
         }
     }
 
-    /** The three clocks the rules need. Test seam; production reads the real ones. */
-    interface Clock {
-        long wallMs();
-
-        long elapsedMs();
-
-        /** The boot counter of the device, or a negative number if unreadable. */
-        int bootCount(Context context);
-    }
+    /** The three clocks the rules need (see {@link KeepADBDeadline.Clock}). Test seam. */
+    interface Clock extends KeepADBDeadline.Clock {}
 
     private static final Clock SYSTEM_CLOCK = new Clock() {
         @Override
         public long wallMs() {
-            return System.currentTimeMillis();
+            return KeepADBDeadline.SYSTEM_CLOCK.wallMs();
         }
 
         @Override
         public long elapsedMs() {
-            return SystemClock.elapsedRealtime();
+            return KeepADBDeadline.SYSTEM_CLOCK.elapsedMs();
         }
 
         @Override
         public int bootCount(Context context) {
-            try {
-                return Settings.Global.getInt(context.getContentResolver(),
-                        Settings.Global.BOOT_COUNT, -1);
-            } catch (RuntimeException unreadable) {
-                return -1;
-            }
+            return KeepADBDeadline.SYSTEM_CLOCK.bootCount(context);
         }
     };
 
@@ -228,6 +216,11 @@ final class KeepADBForceMode {
             this.startedWallMs = startedWallMs;
             this.startedElapsedMs = startedElapsedMs;
             this.bootCount = bootCount;
+        }
+
+        /** The budget and its base in the shape of the shared time rules. */
+        KeepADBDeadline.Base base() {
+            return new KeepADBDeadline.Base(budgetMs, startedWallMs, startedElapsedMs, bootCount);
         }
     }
 
@@ -287,18 +280,7 @@ final class KeepADBForceMode {
      */
     static long remainingMs(State state, long wallNow, long elapsedNow, int bootNow) {
         if (state.span.isUnlimited()) return Long.MAX_VALUE;
-        if (bootNow < 0) return 0L;
-        long total = state.budgetMs;
-        long remaining = state.startedWallMs + total - wallNow;
-        boolean sameBoot = isSameBoot(state, elapsedNow, bootNow);
-        if (sameBoot) {
-            return Math.min(remaining, state.startedElapsedMs + total - elapsedNow);
-        }
-        // Another boot: only the wall clock is left, and a wall clock before the base (reset RTC,
-        // clock set back) cannot be measured -- fail closed. Counted from the base it can only
-        // shrink the budget, never credit more than was left.
-        if (wallNow < state.startedWallMs) return 0L;
-        return remaining;
+        return KeepADBDeadline.remainingMs(state.base(), wallNow, elapsedNow, bootNow);
     }
 
     /**
@@ -309,25 +291,7 @@ final class KeepADBForceMode {
      */
     static boolean endedForSafety(State state, long wallNow, long elapsedNow, int bootNow) {
         if (state.span.isUnlimited()) return false;
-        if (bootNow < 0) return true;
-        return !isSameBoot(state, elapsedNow, bootNow) && wallNow < state.startedWallMs;
-    }
-
-    /** Whether the monotonic clock of the state's base is the one running now. */
-    private static boolean isSameBoot(State state, long elapsedNow, int bootNow) {
-        return bootNow >= 0 && bootNow == state.bootCount && elapsedNow >= state.startedElapsedMs;
-    }
-
-    /**
-     * Whether, in the boot of the state's base, the wall clock has fallen behind the monotonic one
-     * by more than {@link #CLOCK_SET_BACK_TOLERANCE_MS} since the base: it was set backward. Counted
-     * from the base, so a series of small steps adds up. A wall clock ahead of the monotonic one
-     * (set forward) is no reason to write: the smaller measure already ends the mode early.
-     */
-    private static boolean isWallClockSetBack(State state, long wallNow, long elapsedNow) {
-        long realPassed = elapsedNow - state.startedElapsedMs;
-        long wallPassed = wallNow - state.startedWallMs;
-        return realPassed - wallPassed > CLOCK_SET_BACK_TOLERANCE_MS;
+        return KeepADBDeadline.endedForSafety(state.base(), wallNow, elapsedNow, bootNow);
     }
 
     /** The end as text for the surfaces: a time of day within today, otherwise weekday, date and time. */
@@ -466,11 +430,7 @@ final class KeepADBForceMode {
                     // Running, so the boot count is readable. Either the base was measured in
                     // another boot, or the wall clock was set backward in this one: in both cases
                     // what is left becomes the new base.
-                    if (!isSameBoot(state, elapsed, boot)) {
-                        reboundReason = "new_boot";
-                    } else if (isWallClockSetBack(state, wall, elapsed)) {
-                        reboundReason = "clock_set_back";
-                    }
+                    reboundReason = KeepADBDeadline.rebindReason(state.base(), wall, elapsed, boot);
                     if (reboundReason != null) {
                         State bound = new State(state.span, remaining, wall, elapsed, boot);
                         rebound = KeepADBWarningState.forceWrite(prefs(app), prefs(app).edit(),
