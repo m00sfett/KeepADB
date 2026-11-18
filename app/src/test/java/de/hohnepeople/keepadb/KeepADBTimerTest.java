@@ -16,6 +16,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import android.os.Looper;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ServiceController;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlarmManager;
@@ -83,6 +88,19 @@ public class KeepADBTimerTest {
 
     private SharedPreferences prefs() {
         return context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE);
+    }
+
+    /** Delivers the armed timer alarm the way the platform would, instead of calling restore(). */
+    private boolean fireTimerAlarm() {
+        ShadowAlarmManager alarms = shadowOf(context.getSystemService(AlarmManager.class));
+        for (ShadowAlarmManager.ScheduledAlarm alarm : alarms.getScheduledAlarms()) {
+            Intent fired = shadowOf(alarm.operation).getSavedIntent();
+            if (KeepADBReceiver.ACTION_TIMER_EXPIRE.equals(fired.getAction())) {
+                new KeepADBReceiver().onReceive(context, fired);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void drainToggles() {
@@ -198,6 +216,7 @@ public class KeepADBTimerTest {
         clock.advance(16 * MINUTE);
 
         assertFalse(KeepADBTimer.extend(context, "test"));
+        drainToggles();
         assertFalse(KeepADBTimer.isActive(context));
         assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
         assertEquals(1, notices.size());
@@ -267,6 +286,7 @@ public class KeepADBTimerTest {
         assertTrue(KeepADBTimer.finishIfExpired(context));
         assertFalse(KeepADBTimer.finishIfExpired(context));
         KeepADBTimer.restore(context);
+        drainToggles();
 
         assertEquals(1, notices.size());
     }
@@ -308,7 +328,6 @@ public class KeepADBTimerTest {
         drainToggles();
 
         assertFalse(gateway.isEnabled(context));
-        KeepADBTimer.restore(context);
         assertFalse(KeepADBTimer.isShutdownPending(context));
         assertTrue("Settled: the stored setting decides again", KeepADBPreferences.isKeepAliveEffective(context)
                 || !KeepADBPreferences.getLastDesiredOn(context));
@@ -326,18 +345,67 @@ public class KeepADBTimerTest {
 
         assertTrue(gateway.isEnabled(context));
         assertTrue(KeepADBTimer.isShutdownPending(context));
-        KeepADBTimer.restore(context);
+        assertTrue("No 'Wifi-ADB off' notice while it is on", notices.isEmpty());
+        assertTrue("A retry alarm is armed", fireTimerAlarm());
         drainToggles();
         assertFalse("A rolled-back intent is asserted again", KeepADBPreferences.getLastDesiredOn(context));
         assertFalse(KeepADBPreferences.isKeepAliveEffective(context));
+        assertTrue(notices.isEmpty());
 
         gateway.setWriteSuccess(true);
-        KeepADBTimer.restore(context);
+        assertTrue("Still armed while the off is outstanding", fireTimerAlarm());
         drainToggles();
-        KeepADBTimer.restore(context);
 
         assertFalse(gateway.isEnabled(context));
+        assertFalse("Settled by the write itself, no extra call", KeepADBTimer.isShutdownPending(context));
+        assertEquals("The notice follows the real off, once", 1, notices.size());
+    }
+
+    @Test
+    public void aDelayedOffThatSucceedsSettlesSoALaterExternalEnableStays() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        clock.advance(15 * MINUTE);
+        // A recent automatic write puts the expiry's off into the debounce window.
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+
+        KeepADBTimer.finishIfExpired(context);
+        assertTrue("Debounced: still outstanding", KeepADBTimer.isShutdownPending(context));
+        // Past the debounce window, before the timer's own re-check at window + 500 ms.
+        ShadowLooper.idleMainLooper(KeepADB.TOGGLE_COOLDOWN_MS + 100L, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertFalse(gateway.isEnabled(context));
+        assertFalse("The delayed off itself settled the obligation", KeepADBTimer.isShutdownPending(context));
+        drainToggles();
+
+        gateway.setEnabledByUser(true); // the user enables it in Android's settings
+        fireTimerAlarm();
+        KeepADBTimer.restore(context);
+        drainToggles();
+        assertTrue("A settled end never switches it off again", gateway.isEnabled(context));
+    }
+
+    @Test
+    public void aFailedManualOffSurvivesARebootAsAnOff() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setWriteSuccess(false);
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        assertTrue(KeepADBTimer.isShutdownPending(context));
+
+        // Reboot: Android switches Wifi-ADB off itself; the process starts fresh.
+        clock.reboot(MINUTE, MINUTE);
+        gateway.setWriteSuccess(true);
+        gateway.setEnabledByUser(false);
+        KeepADB.resetForTesting();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBTimer.settleShutdown(context); // what KeepADBApplication.onCreate does
+        shadowOf((Application) context).clearStartedServices();
+        new BootReceiver().onReceive(context, new Intent(Intent.ACTION_BOOT_COMPLETED));
+
         assertFalse(KeepADBTimer.isShutdownPending(context));
+        assertFalse("The user's off survives", KeepADBPreferences.getLastDesiredOn(context));
+        assertFalse(KeepADBService.shouldRun(context));
+        assertNull("Boot recovery does not start", shadowOf((Application) context).getNextStartedService());
     }
 
     @Test
@@ -351,9 +419,39 @@ public class KeepADBTimerTest {
         assertTrue(gateway.isEnabled(context));
         assertTrue(KeepADBTimer.isShutdownPending(context));
         gateway.setWriteSuccess(true);
-        KeepADBTimer.restore(context);
+        assertTrue(fireTimerAlarm());
         drainToggles();
         assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
+
+    @Test
+    public void afterARebootTheServiceRestoresWifiAdbForTheTimeLeft() {
+        // Codex review: run the service the boot path starts, through the real enable attempt.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBForceTestSupport.connectTo(context, KeepADBForceTestSupport.SSID, KeepADBForceTestSupport.BSSID);
+        KeepADBTrustedNetwork.addBssid(context, KeepADBForceTestSupport.BSSID, KeepADBForceTestSupport.SSID);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        clock.reboot(MINUTE, MINUTE);
+        gateway.setEnabledByUser(false);
+        KeepADB.resetForTesting();
+        KeepADB.setGatewayForTesting(gateway);
+        new BootReceiver().onReceive(context, new Intent(Intent.ACTION_BOOT_COMPLETED));
+        assertFalse(KeepADBPreferences.isKeepAliveEnabled(context));
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            android.os.SystemClock.sleep(1600);
+            controller.get().recheckAndEnable();
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1600));
+        } finally {
+            controller.destroy();
+        }
+
+        assertTrue("The timer, not the stored setting, kept it alive", gateway.isEnabled(context));
     }
 
     @Test
@@ -411,6 +509,7 @@ public class KeepADBTimerTest {
 
         new KeepADBReceiver().onReceive(context,
                 new Intent(context, KeepADBReceiver.class).setAction(KeepADBReceiver.ACTION_TIMER_EXPIRE));
+        drainToggles();
 
         assertFalse(prefs().contains(KeepADBTimer.KEY_STATE));
         assertEquals(1, notices.size());
@@ -488,6 +587,7 @@ public class KeepADBTimerTest {
 
         assertFalse(KeepADBTimer.isActive(context));
         assertTrue(KeepADBTimer.finishIfExpired(context));
+        drainToggles();
         assertEquals(KeepADBTimer.REASON_SAFETY, notices.get(0));
     }
 
@@ -498,6 +598,7 @@ public class KeepADBTimerTest {
 
         assertFalse(KeepADBTimer.isActive(context));
         assertTrue(KeepADBTimer.finishIfExpired(context));
+        drainToggles();
         assertEquals(KeepADBTimer.REASON_SAFETY, notices.get(0));
     }
 

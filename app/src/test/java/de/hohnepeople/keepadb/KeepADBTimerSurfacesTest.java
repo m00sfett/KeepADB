@@ -252,6 +252,7 @@ public class KeepADBTimerSurfacesTest {
         clock.advance(15 * MINUTE);
 
         assertTrue(KeepADBTimer.finishIfExpired(context));
+        ShadowLooper.idleMainLooper(5_000L, java.util.concurrent.TimeUnit.MILLISECONDS);
 
         Notification notice = posted(context, KeepADBTimerNotice.NOTIFICATION_ID);
         assertNotNull(notice);
@@ -271,6 +272,7 @@ public class KeepADBTimerSurfacesTest {
         clock.reboot(HOUR, MINUTE);
 
         assertTrue(KeepADBTimer.finishIfExpired(context));
+        ShadowLooper.idleMainLooper(5_000L, java.util.concurrent.TimeUnit.MILLISECONDS);
 
         assertEquals(context.getString(R.string.timer_expired_text_while_off),
                 posted(context, KeepADBTimerNotice.NOTIFICATION_ID).extras

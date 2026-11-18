@@ -415,12 +415,15 @@ final class KeepADBTimer {
         if (context == null) return;
         Context app = context.getApplicationContext();
         if (!isShutdownPending(app)) return;
+        // The "off" intent first, also when Wifi-ADB is already off (Codex review round 2: a
+        // failed manual off rolled it back to "on", and a reboot switched Wifi-ADB off without
+        // KeepADB; clearing the obligation alone would let boot recovery switch it on again).
+        KeepADB.recordExplicitIntent(app, false);
         if (Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
             clearShutdownPending(app);
             scheduleExpiryAlarm(app);
             return;
         }
-        KeepADB.recordExplicitIntent(app, false);
         KeepADB.ToggleResult result = KeepADB.setEnabled(app, false, KeepADB.SOURCE_TIMER_EXPIRY);
         if (result == KeepADB.ToggleResult.APPLIED
                 && Boolean.FALSE.equals(KeepADB.isEnabledOrNull(app, "timer_shutdown"))) {
@@ -428,17 +431,26 @@ final class KeepADBTimer {
         } else {
             KeepADBDiagnostics.event(app, "timer", "timer", "shutdown_pending",
                     "result=" + result);
+            if (result == KeepADB.ToggleResult.SCHEDULED) {
+                // A debounced off: look again right after its window, so the obligation and the
+                // notice settle in seconds rather than at the minute alarm.
+                new Handler(Looper.getMainLooper()).postDelayed(() -> finishIfExpired(app),
+                        KeepADB.TOGGLE_COOLDOWN_MS + 500L);
+            }
         }
         scheduleExpiryAlarm(app);
     }
 
     /**
-     * A manual write went through ({@link KeepADB} calls this after applying a manual source, under
-     * its lock: only a preference write here). A manual "on", or an "off" the readback shows,
-     * settles an outstanding switch-off.
+     * A write went through ({@link KeepADB} calls this after applying a manual source or the
+     * timer's own off, under its lock: only a preference write here). A manual "on", or an "off"
+     * the readback shows (also the timer's delayed off, Codex review round 2), settles an
+     * outstanding switch-off, so a later external enable is not switched off again.
      */
-    static void onManualWriteApplied(Context context, boolean on, boolean confirmedOff) {
-        if (context == null || !(on || confirmedOff)) return;
+    static void onWriteApplied(Context context, String source, boolean on, boolean confirmedOff) {
+        if (context == null) return;
+        boolean manualOn = on && KeepADB.isManualSource(source);
+        if (!manualOn && !confirmedOff) return;
         clearShutdownPending(context.getApplicationContext());
     }
 
@@ -453,6 +465,9 @@ final class KeepADBTimer {
     private static void deliverPendingNotice(Context app) {
         synchronized (NOTICE_LOCK) {
             if (!prefs(app).getBoolean(KEY_NOTICE_PENDING, false)) return;
+            // "Wifi-ADB off" only once it is (Codex review round 2): while the switch-off is
+            // outstanding the notice waits for the driver that sees it done.
+            if (isShutdownPending(app)) return;
             String reason = prefs(app).getString(KEY_NOTICE_REASON, null);
             NoticeSink sink = noticeSink;
             // Posted before the flag is cleared: a crash in between repeats the notice (same id,

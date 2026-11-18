@@ -61,7 +61,18 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- #1000: the Wifi-ADB timer. Off: "On for 1 h" plus a chevron for other durations. On without
+    <Button
+        android:id="@+id/status_action"
+        style="@style/Widget.KeepADB.Button.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        tools:text="Decide…"
+        tools:visibility="visible" />
+
+    <!-- #1000: the Wifi-ADB timer, below the action so a reason and its button stay together. Off: "On for 1 h" plus a chevron for other durations. On without
          a timer: "Off in 1 h". Running: the end and the time left (in the live region's sibling,
          announced politely on change), then "+1 h" and "No limit". KeepADBTimerSection renders it. -->
     <LinearLayout
@@ -149,16 +160,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/status_action"
-        style="@style/Widget.KeepADB.Button.Primary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginTop="4dp"
-        android:visibility="gone"
-        tools:text="Decide…"
-        tools:visibility="visible" />
 
     <!-- The endpoint: "Port <port> @ <ip>", the row of the adb connect command (#951). -->
     <LinearLayout

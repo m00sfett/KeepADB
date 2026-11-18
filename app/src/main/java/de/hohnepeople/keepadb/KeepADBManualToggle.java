@@ -20,9 +20,9 @@ import android.content.Context;
 final class KeepADBManualToggle {
     private KeepADBManualToggle() {}
 
-    /** After a manual write went through; see {@link KeepADBTimer#onManualWriteApplied}. */
-    static void onManualWriteApplied(Context appContext, boolean on, boolean confirmedOff) {
-        KeepADBTimer.onManualWriteApplied(appContext, on, confirmedOff);
+    /** After a manual or timer-expiry write went through; see {@link KeepADBTimer#onWriteApplied}. */
+    static void onWriteApplied(Context appContext, String source, boolean on, boolean confirmedOff) {
+        KeepADBTimer.onWriteApplied(appContext, source, on, confirmedOff);
     }
 
     static void onManualToggle(Context appContext, boolean on, String source) {

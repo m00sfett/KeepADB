@@ -37,8 +37,9 @@ notification and a separate timer notification are shown.
 
 When the time is up, Wifi-ADB is switched off as if the user had switched it off: the last explicit
 intent becomes "off", so a Keep-Alive that is on in the app waits for the next deliberate "on" and
-does not bring Wifi-ADB back. A silent notice "Wifi-ADB off – timer ended" appears and disappears by
-itself after an hour.
+does not bring Wifi-ADB back. A silent notice "Wifi-ADB off – timer ended" appears once Wifi-ADB is
+actually seen off (not while the switch-off is still outstanding) and disappears by itself after an
+hour.
 
 **Timing.** From the first moment after the deadline nothing re-enables Wifi-ADB automatically, even
 before the end has been processed. The switch-off itself is best effort without a fixed upper bound:
