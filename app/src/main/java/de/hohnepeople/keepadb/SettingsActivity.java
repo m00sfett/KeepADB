@@ -168,6 +168,9 @@ public class SettingsActivity extends Activity {
         privacySwitches = findViewById(R.id.privacy_switches);
         KeepADBPrivacySwitches.bind(this, privacySwitches, this::refresh);
 
+        // #1000: the preselected timer duration.
+        findViewById(R.id.settings_timer_default_row).setOnClickListener(v -> showTimerDefaultChoice());
+
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
         keepDisplayOnToggle.setOnClickListener(v ->
                 KeepADBPreferences.setKeepDisplayOnEnabled(this, keepDisplayOnToggle.isChecked()));
@@ -213,6 +216,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        renderTimerDefault();
         findViewById(R.id.settings_muted_warnings).setOnClickListener(v -> startActivity(
                 new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         webhookForm.ensureDraftInitialized();
@@ -528,5 +532,27 @@ public class SettingsActivity extends Activity {
      */
     private boolean isDebugBuild() {
         return getPackageName().endsWith(".debug");
+    }
+
+    /** #1000: the stored default duration as the row's value. */
+    private void renderTimerDefault() {
+        ((TextView) findViewById(R.id.settings_timer_default_value)).setText(
+                KeepADBTimerText.duration(this, KeepADBPreferences.getTimerDefaultDuration(this)));
+    }
+
+    /** #1000: the same durations as on the home screen; here the choice becomes the default. */
+    private void showTimerDefaultChoice() {
+        KeepADBTimer.Duration current = KeepADBPreferences.getTimerDefaultDuration(this);
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.settings_timer_default_title)
+                .setSingleChoiceItems(KeepADBTimerText.durations(this), current.ordinal(), (d, which) -> {
+                    d.dismiss();
+                    KeepADBPreferences.setTimerDefaultDuration(this, KeepADBTimer.Duration.values()[which]);
+                    renderTimerDefault();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        dialog.setOwnerActivity(this);
+        dialog.show();
     }
 }

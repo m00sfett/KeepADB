@@ -14,6 +14,17 @@
             android:targetClass="de.hohnepeople.keepadb.KeepADBToggleShortcutActivity" />
     </shortcut>
     <shortcut
+        android:shortcutId="timer_wifi_adb"
+        android:enabled="true"
+        android:icon="@drawable/ic_timer"
+        android:shortcutShortLabel="@string/shortcut_timer_short"
+        android:shortcutLongLabel="@string/shortcut_timer_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.hohnepeople.keepadb.debug"
+            android:targetClass="de.hohnepeople.keepadb.KeepADBTimerShortcutActivity" />
+    </shortcut>
+    <shortcut
         android:shortcutId="wifi_networks"
         android:enabled="true"
         android:icon="@drawable/ic_wifi"

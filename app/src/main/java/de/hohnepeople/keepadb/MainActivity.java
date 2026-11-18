@@ -33,6 +33,8 @@ public class MainActivity extends Activity {
     private TextView statusReason;
     private View statusReasonInfo;
     private Button statusAction;
+    /** #1000: the timer row below the state. */
+    private KeepADBTimerSection timerSection;
     private AlertDialog activeStatusDetailsDialog;
     private View endpointRow;
     private View endpointCopyIcon;
@@ -119,6 +121,7 @@ public class MainActivity extends Activity {
         endpointCopyIcon = findViewById(R.id.endpoint_copy_icon);
         endpoint = findViewById(R.id.endpoint);
         findViewById(R.id.connect_help).setOnClickListener(v -> showConnectHelp());
+        timerSection = new KeepADBTimerSection(this, this::refresh);
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
@@ -380,6 +383,10 @@ public class MainActivity extends Activity {
         // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
         KeepADBForceMode.finishIfExpired(this);
         KeepADBForceMode.setStateListener(this::refresh);
+        // #1000: the same for the timer, plus the redraw of its time left.
+        KeepADBTimer.finishIfExpired(this);
+        KeepADBTimer.setStateListener(this::refresh);
+        timerSection.resume();
         refresh();
         KeepADBEndpointCoordinator.refresh(this);
     }
@@ -395,6 +402,8 @@ public class MainActivity extends Activity {
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         endpointSurfaceActive = false;
         KeepADBForceMode.clearStateListener();
+        KeepADBTimer.clearStateListener();
+        timerSection.pause();
         endpointListenerGeneration++;
         // #538: invalidates any in-flight renderTransportOverview() async result so a snapshot
         // computed for a now-paused screen never applies after the fact (mirrors the
@@ -510,6 +519,7 @@ public class MainActivity extends Activity {
             renderEndpoint();
         }
         renderHomeStatus(resolveHomeStatus(appState, configured));
+        timerSection.render(configured, on, appState == KeepADB.State.OFF_KEEP_ALIVE_WAITING);
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         renderKeepAliveSubtext();
