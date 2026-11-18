@@ -720,4 +720,43 @@ public class KeepADBTimerTest {
         prefs().edit().putString(KeepADBPreferences.KEY_TIMER_DEFAULT_DURATION, "99d").commit();
         assertEquals(KeepADBTimer.Duration.HOUR_1, KeepADBPreferences.getTimerDefaultDuration(context));
     }
+
+    // ---- Follow-ups #1007-#1014 ------------------------------------------------------------------
+
+    private boolean endNoticePosted() {
+        return shadowOf(context.getSystemService(NotificationManager.class))
+                .getNotification(KeepADBTimerNotice.NOTIFICATION_ID) != null;
+    }
+
+    @Test
+    public void aManualOnCancelsAPostedEndNotice() {
+        // #1008: the notice was posted at the end; an hour later the user switches Wifi-ADB on.
+        assertTrue(KeepADBTimerNotice.postExpired(context, null));
+        assertTrue(endNoticePosted());
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_TILE);
+
+        assertTrue(gateway.isEnabled(context));
+        assertFalse("'Wifi-ADB off' must not stay after a manual on", endNoticePosted());
+    }
+
+    @Test
+    public void allowingFromTheTrustPromptAlsoCancelsAPostedEndNotice() {
+        assertTrue(KeepADBTimerNotice.postExpired(context, null));
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
+
+        assertFalse(endNoticePosted());
+    }
+
+    @Test
+    public void aManualOffOrAnAutomaticOnKeepsThePostedEndNotice() {
+        assertTrue(KeepADBTimerNotice.postExpired(context, null));
+
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_TILE);
+        assertTrue("An off agrees with the notice", endNoticePosted());
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        drainToggles();
+        assertTrue("Only a deliberate on supersedes it", endNoticePosted());
+    }
 }

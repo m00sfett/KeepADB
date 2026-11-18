@@ -305,11 +305,6 @@ final class KeepADBTimer {
     static void onManualToggle(Context context, boolean on, String source) {
         if (context == null) return;
         Context app = context.getApplicationContext();
-        if (on) {
-            // A deliberate "on" (the timer's own start included) supersedes an outstanding off,
-            // and a waiting "Wifi-ADB off" notice with it.
-            supersedeEnd(app);
-        }
         if (KeepADB.SOURCE_TIMER.equals(source) || readState(app) == null) return;
         if (finishIfExpired(app)) return;
         boolean cleared;
@@ -462,6 +457,20 @@ final class KeepADBTimer {
         } else if (confirmedOff) {
             clearShutdownPending(context.getApplicationContext());
         }
+    }
+
+    /**
+     * A deliberate "on" through any manual source (the timer's own start and the trust prompt's
+     * "Allow" included): it supersedes an outstanding off, a waiting "Wifi-ADB off" notice, and
+     * one already posted (#1008), which would otherwise claim "off" for up to an hour. Called by
+     * {@link KeepADBManualToggle} before {@link KeepADB} takes its lock: the cancel is a binder
+     * call, not a preference write.
+     */
+    static void onManualOn(Context context) {
+        if (context == null) return;
+        Context app = context.getApplicationContext();
+        supersedeEnd(app);
+        KeepADBTimerNotice.cancelExpired(app);
     }
 
     /** A manual "on" after an end: no outstanding off, and no notice that would claim "off". */

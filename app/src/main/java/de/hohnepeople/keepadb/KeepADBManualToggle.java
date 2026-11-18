@@ -13,6 +13,8 @@ import android.content.Context;
  *   <li>A running force mode ends on a manual off ({@link KeepADBForceMode#endNow}): whoever
  *       switches off wants it off, so the dangerous mode must not take hold again at the next
  *       "on".</li>
+ *   <li>Any manual on (the trust prompt's included) supersedes a timer's outstanding switch-off and
+ *       its end notice, a posted one too ({@link KeepADBTimer#onManualOn}, #1008).</li>
  * </ul>
  * The self-pairing cleanup's switch-off is not the user's decision about Wifi-ADB and ends
  * nothing.
@@ -36,6 +38,7 @@ final class KeepADBManualToggle {
 
     static void onManualToggle(Context appContext, boolean on, String source) {
         if (appContext == null || KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
+        if (on) KeepADBTimer.onManualOn(appContext);
         // Review #1000 (maintainer decision): "Allow" on the trust prompt answers a question about
         // the network, not about the limit; a running timer keeps running.
         if (!KeepADB.SOURCE_NETWORK_TRUST_PROMPT.equals(source)) {
