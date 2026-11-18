@@ -96,8 +96,9 @@ one-time migrations do not rewrite the imported values. Afterwards KeepADB refre
 notification, widgets and warnings, masks the Settings screen and takes back a posted "new Wi-Fi"
 notice with network details if a notification or lock-screen privacy switch is now on, and
 re-evaluates the shutdown rules, which can only turn Wifi-ADB off. A picked file whose read is
-still running when the screen is recreated (rotation) is read again by the new screen; a read that
-a later pick superseded shows nothing. The diagnostics journal records export and import outcomes without file contents.
+still running when the screen is recreated (rotation) is read again by the new screen; a new pick
+supersedes an earlier one: its read shows nothing and its confirmation closes and can no longer
+apply. A changed refresh interval replaces a pending refresh alarm, as the interval picker does. The diagnostics journal records export and import outcomes without file contents.
 
 Code evidence: `KeepADBSettingsBackupTest` (round trip, secrets absent, webhook handling,
 replace-not-merge, unknown keys, foreign/old/malformed/inconsistent/oversized files, nothing

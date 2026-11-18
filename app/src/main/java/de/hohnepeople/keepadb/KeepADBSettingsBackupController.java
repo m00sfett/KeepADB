@@ -152,6 +152,11 @@ final class KeepADBSettingsBackupController {
     // --- Import ---------------------------------------------------------------------------------
 
     private void pickImportFile() {
+        // A new pick supersedes every earlier attempt: its read publishes nothing, and its
+        // confirmation (possibly still open behind the picker) is closed and can no longer apply.
+        readGeneration++;
+        pendingImport = null;
+        if (activeDialog != null && activeDialog.isShowing()) activeDialog.dismiss();
         // "*/*": file managers label a .json file differently (application/json, text/plain,
         // application/octet-stream); the strict parser decides what is a settings file.
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -215,6 +220,7 @@ final class KeepADBSettingsBackupController {
     }
 
     private void confirmImport(Uri uri, KeepADBSettingsBackup.Snapshot snapshot) {
+        final int generation = readGeneration;
         pendingImport = uri;
         String message = activity.getString(R.string.settings_backup_import_message,
                 snapshot.trustedAccessPointCount(), snapshot.blockedCount())
@@ -225,16 +231,21 @@ final class KeepADBSettingsBackupController {
                 .setTitle(R.string.settings_backup_import_title)
                 .setMessage(message)
                 .setPositiveButton(R.string.settings_backup_import_confirm,
-                        (d, w) -> applyImport(snapshot))
+                        (d, w) -> {
+                            if (generation == readGeneration) applyImport(snapshot);
+                        })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
-        dialog.setOnDismissListener(d -> pendingImport = null);
+        dialog.setOnDismissListener(d -> {
+            if (generation == readGeneration) pendingImport = null;
+        });
         show(dialog);
     }
 
     private void applyImport(KeepADBSettingsBackup.Snapshot snapshot) {
         pendingImport = null;
         Context app = activity.getApplicationContext();
+        KeepADBPeriodicReport.Interval intervalBefore = KeepADBPreferences.getPeriodicWebhookInterval(app);
         KeepADBSettingsBackup.ApplyResult result = KeepADBSettingsBackup.apply(app, snapshot);
         KeepADBDiagnostics.event(app, "user_action", "settings_backup", "import",
                 !result.saved ? "write_failed"
@@ -246,7 +257,13 @@ final class KeepADBSettingsBackupController {
         // Wifi-ADB off; nothing here turns it or Keep-Alive on.
         KeepADBWarningState.observe(app);
         KeepADBWidget.refreshAllState(app);
-        KeepADBPeriodicReport.sync(app);
+        // A changed interval replaces a pending alarm, as the interval picker does; otherwise only
+        // arm or cancel it for the imported switch.
+        if (intervalBefore != KeepADBPreferences.getPeriodicWebhookInterval(app)) {
+            KeepADBPeriodicReport.reschedule(app);
+        } else {
+            KeepADBPeriodicReport.sync(app);
+        }
         KeepADBEndpointCoordinator.refresh(app);
         KeepADBUntrustedShutdown.evaluate(app, "settings_import");
         // The privacy switches may have changed: mask this screen, and take back a posted
