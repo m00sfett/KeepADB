@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.4] - Unreleased
+
+### Fixed
+- Timer start (#1016, versionCode 285): a start inside the manual re-enable gap after an off is debounced (`SCHEDULED`); when that delayed write is then rejected or refused, `KeepADB.applyNow` calls `KeepADBManualToggle.onTimerStartFailed`, and `KeepADBTimer.onDelayedStartFailed` restores the previous state as #1009 does for an immediate failure (a preference write under the monitor; alarm, service and surfaces follow on the main thread). Only the start's own state is undone; a start superseded by a newer intent stays that intent's business (a manual off ends the timer), now pinned by a test. Journal: `timer ... cancelled result=<outcome> delayed [previous_kept]`.
+
 ## [1.15.3] - Unreleased
 
 Follow-ups from the reviews of #1000 (versionCode 284). The Fastlane note repeats the summary since
