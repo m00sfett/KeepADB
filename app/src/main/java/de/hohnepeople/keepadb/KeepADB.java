@@ -72,6 +72,8 @@ final class KeepADB {
     // the MANUAL_REENABLE_GAP_MS window; a manual disable is never pending). Set together with
     // the runnable and the baseline token, read only under the same lock.
     private static boolean pendingToggleManual;
+    // #1013: the direction of the pending runnable, set and read together with it.
+    private static boolean pendingToggleOn;
     // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
     // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
     // the surfaces' "switching…" indicator; this one changes no state a surface renders.
@@ -322,11 +324,29 @@ final class KeepADB {
      * #1000: the timer's "off" intent, recorded only while its switch-off is still owed, checked
      * under this monitor: a manual "on" settles the obligation before it takes the monitor, so it
      * can never be overwritten by a timer driver that looked a moment earlier.
+     *
+     * <p>#1013: a debounced automatic "on" still waiting at the deadline is superseded here too
+     * (fresh token, runnable dropped). Otherwise, with Wifi-ADB already off and so nothing written
+     * by the timer, it would fire with the stored Keep-Alive on and switch Wifi-ADB back on; and a
+     * guard abort would roll the intent back to its baseline "on". A pending manual intent or a
+     * pending "off" (the timer's own included) is left alone.
+     *
+     * <p>{@link #applyNow} drops a debounced timer off whose obligation was settled meanwhile and
+     * rolls back to its baseline intent (#1014). That rollback is only safe because this method
+     * runs before the timer's {@code setEnabled}: the baseline it captures is already "off".
      */
     static synchronized void recordTimerOffIntent(Context ctx) {
         if (ctx == null) return;
         Context appContext = ctx.getApplicationContext();
         if (!KeepADBManualToggle.isTimerOffOwed(appContext)) return;
+        if (pendingToggleRunnable != null && !pendingToggleManual && pendingToggleOn) {
+            scheduler.removeCallbacks(pendingToggleRunnable);
+            pendingToggleRunnable = null;
+            long token = state.supersedeIntents();
+            KeepADBDiagnostics.event(appContext, "toggle_attempt", SOURCE_TIMER_EXPIRY, "superseded",
+                    "intentId=" + token + " reason=timer_off_owed");
+            surfaces.refreshAll(appContext);
+        }
         recordExplicitIntent(appContext, false);
     }
 
@@ -538,6 +558,7 @@ final class KeepADB {
                 pendingToggleBaselineLastDesiredOn = previousLastDesiredOn;
                 pendingToggleBaselineToken = token;
                 pendingToggleManual = isManualSource(source);
+                pendingToggleOn = on;
                 pendingToggleRunnable =
                         () -> applyNow(appContext, on, source, token, networkGeneration, guard,
                                 previousLastDesiredOn);
@@ -982,6 +1003,7 @@ final class KeepADB {
             pendingToggleRunnable = null;
         }
         pendingToggleManual = false;
+        pendingToggleOn = false;
         if (pendingBackoffConfirmationRunnable != null) {
             scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);
             pendingBackoffConfirmationRunnable = null;

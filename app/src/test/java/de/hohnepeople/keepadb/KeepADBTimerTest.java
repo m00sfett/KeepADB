@@ -830,4 +830,59 @@ public class KeepADBTimerTest {
         assertFalse(gateway.isEnabled(context));
         assertFalse("Wifi-ADB is off: nothing is owed any more", KeepADBTimer.isShutdownPending(context));
     }
+
+    @Test
+    public void aPendingAutomaticOnAcrossTheDeadlineDoesNotSwitchWifiAdbBackOn() {
+        // #1013: Wifi-ADB is already off at the deadline, so the timer writes nothing; a debounced
+        // automatic on planned just before must not fire afterwards and record "on" again.
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        gateway.setEnabledByUser(false);
+        KeepADB.ToggleResult planned = KeepADB.setEnabled(context, true, "keep_alive_check");
+        assertEquals("Within the window after the start's own write", KeepADB.ToggleResult.SCHEDULED, planned);
+        clock.advance(15 * MINUTE);
+
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        drainToggles();
+
+        assertFalse("Still off after the pending on's window", gateway.isEnabled(context));
+        assertFalse("The off intent stands", KeepADBPreferences.getLastDesiredOn(context));
+        assertFalse(KeepADB.isTogglePending());
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
+
+    @Test
+    public void aPendingAutomaticOnWithAGuardLeavesNoStaleOnIntentAtTheDeadline() {
+        // #1013: timer-only session; the guard would abort and roll back to the baseline "on".
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        gateway.setEnabledByUser(false);
+        KeepADB.setEnabled(context, true, "keep_alive_check",
+                app -> KeepADBPreferences.isKeepAliveEffective(app));
+        clock.advance(15 * MINUTE);
+
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        drainToggles();
+
+        assertFalse(gateway.isEnabled(context));
+        assertFalse("No stale on intent", KeepADBPreferences.getLastDesiredOn(context));
+    }
+
+    @Test
+    public void thePendingTimerOffItselfIsNotSupersededByARepeatedDriver() {
+        // The other side of #1013: only a pending automatic "on" gives way, not the timer's own
+        // debounced "off" that a later driver finds still waiting.
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        clock.advance(15 * MINUTE);
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        assertTrue(KeepADBTimer.finishIfExpired(context));
+        assertTrue("The timer's off waits in the debounce window", KeepADB.isTogglePending());
+
+        KeepADB.recordTimerOffIntent(context);
+
+        assertTrue("Still pending", KeepADB.isTogglePending());
+        drainToggles();
+        assertFalse(gateway.isEnabled(context));
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
 }

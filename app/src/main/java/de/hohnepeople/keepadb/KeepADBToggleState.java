@@ -167,6 +167,15 @@ final class KeepADBToggleState {
         return ++currentIntentToken;
     }
 
+    /**
+     * #1013: issues a fresh token without a new desired state, so every intent planned before is
+     * superseded (a runnable already waiting for the caller's lock finds itself out of date). The
+     * caller records the intent that replaces them.
+     */
+    synchronized long supersedeIntents() {
+        return ++currentIntentToken;
+    }
+
     synchronized boolean isUserDisabled() {
         return userDisabled;
     }
