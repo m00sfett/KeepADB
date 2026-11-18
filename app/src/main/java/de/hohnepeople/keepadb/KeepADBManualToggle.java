@@ -47,12 +47,13 @@ final class KeepADBManualToggle {
 
     static void onManualToggle(Context appContext, boolean on, String source) {
         if (appContext == null || KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
-        if (on) KeepADBTimer.onManualOn(appContext);
         // Review #1000 (maintainer decision): "Allow" on the trust prompt answers a question about
         // the network, not about the limit; a running timer keeps running.
         if (!KeepADB.SOURCE_NETWORK_TRUST_PROMPT.equals(source)) {
             KeepADBTimer.onManualToggle(appContext, on, source);
         }
+        // #1008: after the timer branch, which may finish an expired timer and post its notice.
+        if (on) KeepADBTimer.onManualOn(appContext);
         if (!on && !KeepADB.SOURCE_TIMER.equals(source)) {
             KeepADBForceMode.endNow(appContext, "manual_off");
         }

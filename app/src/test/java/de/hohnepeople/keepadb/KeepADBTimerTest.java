@@ -750,6 +750,26 @@ public class KeepADBTimerTest {
     }
 
     @Test
+    public void aManualOnThatFinishesAnExpiredTimerLeavesNoEndNoticeBehind() {
+        // #1008: the deadline passed while Wifi-ADB was off and no driver has finished the end yet
+        // (the alarm is inexact). The manual on finishes it, which posts the notice; the notice
+        // must be cancelled afterwards, not before.
+        KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_15, "test");
+        gateway.setEnabledByUser(false);
+        clock.advance(20 * MINUTE);
+        assertTrue(KeepADBTimer.isExpiryPending(context));
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_TILE);
+        drainToggles();
+
+        assertTrue(gateway.isEnabled(context));
+        assertFalse("'Wifi-ADB off' must not claim the state of a switched-on Wifi-ADB",
+                endNoticePosted());
+        assertFalse(KeepADBTimer.isShutdownPending(context));
+    }
+
+    @Test
     public void aManualOffOrAnAutomaticOnKeepsThePostedEndNotice() {
         assertTrue(KeepADBTimerNotice.postExpired(context, null));
 
