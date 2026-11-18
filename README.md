@@ -51,9 +51,9 @@ What sets KeepADB apart:
   computer is only a fallback.
 - **Automation through the webhook:** because Android changes the Wifi-ADB port, scripts and
   tools on other machines need the current endpoint. With Webhook Sync on (off by default),
-  KeepADB sends each verified endpoint to your own HTTP(S) receiver as soon as it changes, and
-  optionally re-sends it on a schedule, so a CI job, a test farm or a home-lab script can connect
-  with `adb connect` without looking up the port by hand. See the
+  KeepADB sends the verified Wifi-ADB endpoint to your own HTTP(S) receiver whenever it changes,
+  and optionally re-sends it on a schedule, so a CI job, a test farm or a home-lab script can
+  connect with `adb connect` without looking up the port by hand. See the
   [webhook contract](docs/webhook-register.md).
 
 The table describes each project as its own documentation does; it is not a review. If a statement
