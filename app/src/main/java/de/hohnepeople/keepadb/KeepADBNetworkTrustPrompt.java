@@ -289,7 +289,7 @@ final class KeepADBNetworkTrustPrompt {
      * or heartbeat, which raises its own prompt.
      */
     private static boolean isIdentityStillUnavailable(Context context) {
-        return KeepADBPreferences.isKeepAliveEnabled(context)
+        return KeepADBPreferences.isKeepAliveEffective(context)
                 && KeepADBService.isWifiConnected(context)
                 && KeepADBTrustedNetwork.getBlockReason(context)
                         == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE;

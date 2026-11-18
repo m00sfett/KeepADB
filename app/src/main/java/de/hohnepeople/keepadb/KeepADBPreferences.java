@@ -38,6 +38,8 @@ final class KeepADBPreferences {
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
+    /** #1000: the preselected Wifi-ADB timer duration, a {@link KeepADBTimer.Duration} token. */
+    static final String KEY_TIMER_DEFAULT_DURATION = "timer_default_duration";
     // #764: keys of the home cards that moved into the assistant. Never read or written any more;
     // kept only to be deleted (removeObsoleteHomeCardKeys). Their meaning, for the record:
     // #528 notification permission, #502 battery optimization, #619 network onboarding and #616
@@ -118,6 +120,19 @@ final class KeepADBPreferences {
         if (context == null) return true;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getBoolean(KEY_LAST_DESIRED_ON, true);
+    }
+
+    /** #1000: the preselected timer duration; {@link KeepADBTimer.Duration#DEFAULT} if unset. */
+    static KeepADBTimer.Duration getTimerDefaultDuration(Context context) {
+        if (context == null) return KeepADBTimer.Duration.DEFAULT;
+        return KeepADBTimer.Duration.fromToken(context.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE).getString(KEY_TIMER_DEFAULT_DURATION, null));
+    }
+
+    static void setTimerDefaultDuration(Context context, KeepADBTimer.Duration duration) {
+        if (context == null || duration == null) return;
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putString(KEY_TIMER_DEFAULT_DURATION, duration.token).apply();
     }
 
     static void setLastDesiredOn(Context context, boolean on) {
@@ -246,6 +261,20 @@ final class KeepADBPreferences {
     static boolean isKeepAliveEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getBoolean(KEY_KEEP_ALIVE, false);
+    }
+
+    /**
+     * #1000: whether Keep-Alive acts right now. The stored setting ({@link #isKeepAliveEnabled},
+     * which every settings surface shows and writes) or a running Wifi-ADB timer, which is a
+     * temporary Keep-Alive overlay. A timer whose time is up but whose end has not been performed
+     * yet suppresses Keep-Alive entirely, the stored setting included: the end is a "manual off"
+     * not written yet, and nothing may re-enable Wifi-ADB in between. Every decision about keeping
+     * Wifi-ADB alive reads this; only the settings surfaces read the stored setting.
+     */
+    static boolean isKeepAliveEffective(Context context) {
+        if (context == null) return false;
+        if (KeepADBTimer.isExpiryPending(context)) return false;
+        return isKeepAliveEnabled(context) || KeepADBTimer.isActive(context);
     }
 
     static void setKeepAliveEnabled(Context context, boolean enabled) {

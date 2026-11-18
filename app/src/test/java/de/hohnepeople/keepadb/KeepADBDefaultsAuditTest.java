@@ -165,6 +165,9 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.isNotificationHidden(c)),
             new Setting("keep_display_on_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isKeepDisplayOnEnabled(c)),
+            // #1000: the preselected timer duration; one hour, the shortest common need.
+            new Setting("timer_default_duration", Kind.CONVENIENCE, "1h", "4h",
+                    c -> KeepADBPreferences.getTimerDefaultDuration(c).token),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
             // Not a setting: the persisted last explicit on/off intent
@@ -192,6 +195,8 @@ public class KeepADBDefaultsAuditTest {
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "entries", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
+            // #1000: the running Wifi-ADB timer and its one-time expiry notice (KeepADBTimer).
+            "timer_state", "timer_expired_notice_pending", "timer_expired_reason",
             "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
             "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at",
             // #904: bookkeeping of the one-time privacy split, and the retired #592 key (read only

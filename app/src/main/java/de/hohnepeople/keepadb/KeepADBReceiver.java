@@ -33,6 +33,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_FORCE_END = "de.hohnepeople.keepadb.ACTION_FORCE_END";
     /** #763: the expiry alarm. Only re-evaluates; it cannot start or extend the force mode. */
     static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
+    /** #1000: the inexact alarm at the end of a Wifi-ADB timer. */
+    static final String ACTION_TIMER_EXPIRE = "de.hohnepeople.keepadb.ACTION_TIMER_EXPIRE";
     /** #870: the webhook alert's next check. Only re-reads the persisted failure episode. */
     static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
     /** #893: "Report now" on the webhook alert: one user-triggered report, no polling. */
@@ -72,6 +74,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleForceEndAction(context);
         } else if (ACTION_FORCE_EXPIRE.equals(action)) {
             KeepADBForceMode.restore(context);
+        } else if (ACTION_TIMER_EXPIRE.equals(action)) {
+            KeepADBTimer.restore(context);
         } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
             KeepADBWebhookAlert.evaluate(context.getApplicationContext());
         } else if (ACTION_WEBHOOK_REPORT_NOW.equals(action)) {

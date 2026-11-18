@@ -126,7 +126,7 @@ final class KeepADBUntrustedShutdown {
         // identity starts (or keeps) the usual confirmation instead of waiting for the heartbeat.
         // Only scheduled here -- this runs inside KeepADB's lock; the recheck decides later.
         if (KeepADBPreferences.isUntrustedShutdownEnabled(app)
-                && KeepADBPreferences.isKeepAliveEnabled(app)) {
+                && KeepADBPreferences.isKeepAliveEffective(app)) {
             synchronized (KeepADBUntrustedShutdown.class) {
                 if (pendingRecheck == null) scheduleRecheckLocked(app, 0);
             }
@@ -171,7 +171,7 @@ final class KeepADBUntrustedShutdown {
     private static boolean preconditionsHold(Context app) {
         return (KeepADBPreferences.isUntrustedShutdownEnabled(app)
                         || KeepADBPreferences.isOpenNetworkShutdownEnabled(app))
-                && KeepADBPreferences.isKeepAliveEnabled(app)
+                && KeepADBPreferences.isKeepAliveEffective(app)
                 && KeepADBService.isWifiConnected(app)
                 && Boolean.TRUE.equals(KeepADB.isEnabledOrNull(app, SOURCE));
     }

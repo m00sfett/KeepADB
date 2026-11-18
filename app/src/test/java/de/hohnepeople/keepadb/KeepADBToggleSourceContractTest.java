@@ -40,6 +40,8 @@ public class KeepADBToggleSourceContractTest {
         EXPECTED_SOURCES.add("content_observer");
         EXPECTED_SOURCES.add("network_trust_prompt");
         EXPECTED_SOURCES.add("self_pairing");
+        EXPECTED_SOURCES.add("timer");
+        EXPECTED_SOURCES.add("timer_expiry");
     }
 
     @Test
@@ -53,6 +55,9 @@ public class KeepADBToggleSourceContractTest {
         // #446: the prompt's allow button is a direct user tap, like every other action button.
         assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_NETWORK_TRUST_PROMPT));
         assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_SELF_PAIRING));
+        // #1000: the timer start is the user's tap; its expiry is time, so automatic.
+        assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_TIMER));
+        assertFalse(KeepADB.isManualSource(KeepADB.SOURCE_TIMER_EXPIRY));
 
         assertFalse(KeepADB.isManualSource("keep_alive_check"));
         assertFalse(KeepADB.isManualSource("content_observer"));
@@ -130,6 +135,12 @@ public class KeepADBToggleSourceContractTest {
         }
         if ("SOURCE_SELF_PAIRING".equals(constantName)) {
             return KeepADB.SOURCE_SELF_PAIRING;
+        }
+        if ("SOURCE_TIMER".equals(constantName)) {
+            return KeepADB.SOURCE_TIMER;
+        }
+        if ("SOURCE_TIMER_EXPIRY".equals(constantName)) {
+            return KeepADB.SOURCE_TIMER_EXPIRY;
         }
         throw new IllegalStateException("Unmapped KeepADB source constant: " + constantName);
     }

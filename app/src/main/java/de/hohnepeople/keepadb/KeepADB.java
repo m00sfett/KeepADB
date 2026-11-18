@@ -100,10 +100,22 @@ final class KeepADB {
      * it writes at once, so the result can be read back and reported.
      */
     static final String SOURCE_SELF_PAIRING = "self_pairing";
+    /**
+     * #1000: the switch-on of a Wifi-ADB timer start. Manual (the user started it, it writes at
+     * once) and the one manual source that does not end a running timer.
+     */
+    static final String SOURCE_TIMER = "timer";
+    /**
+     * #1000: the switch-off when a timer's time is up. Automatic (debounced like every automatic
+     * path), but it records "off" as the last explicit intent like every write does, so Keep-Alive
+     * does not bring Wifi-ADB back afterwards.
+     */
+    static final String SOURCE_TIMER_EXPIRY = "timer_expiry";
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING)));
+                    SOURCE_SHORTCUT, SOURCE_NETWORK_TRUST_PROMPT, SOURCE_SELF_PAIRING,
+                    SOURCE_TIMER)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {
@@ -397,7 +409,7 @@ final class KeepADB {
             // #318: this used to return ENABLED_DISCONNECTED, which claimed wireless debugging was
             // on while the setting read 0. Keep-Alive waiting is a separate dimension, not an
             // on-state; it gets its own value so no surface can render it as "switched on".
-            if (KeepADBPreferences.isKeepAliveEnabled(appContext) && !wasLastExplicitIntentOff(appContext)) {
+            if (KeepADBPreferences.isKeepAliveEffective(appContext) && !wasLastExplicitIntentOff(appContext)) {
                 return State.OFF_KEEP_ALIVE_WAITING;
             }
             return State.OFF;
@@ -445,6 +457,9 @@ final class KeepADB {
             // #962: the user decided about Wifi-ADB; a pending self-pairing cleanup is void.
             // Before any lock of this class is taken: the cleanup holds its own while it calls in.
             KeepADBSelfPairCleanup.supersede(appContext);
+            // #1000: a manual on or off ends a running timer (the timer's own start excepted).
+            // Same place and reason as above: the timer refreshes surfaces, never under our lock.
+            KeepADBTimer.onManualToggle(appContext, on, source);
         }
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
