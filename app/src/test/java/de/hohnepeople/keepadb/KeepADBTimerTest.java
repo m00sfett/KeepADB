@@ -1058,4 +1058,21 @@ public class KeepADBTimerTest {
 
         assertNotNull("Only the start's own state is undone", KeepADBTimer.status(context));
     }
+
+    @Test
+    public void aDelayedFailedRestartKeepsTheTimerThatWasRunning() {
+        // Codex review #1016: the replaced timer comes back with its own deadline.
+        KeepADBTimer.start(context, KeepADBTimer.Duration.MINUTES_30, "test");
+        // An "off" intent right after the start's own write: the next start's on waits out the gap.
+        KeepADB.recordExplicitIntent(context, false);
+        assertEquals(KeepADB.ToggleResult.SCHEDULED,
+                KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_8, "test"));
+        gateway.setWriteSuccess(false);
+
+        drainToggles();
+
+        KeepADBTimer.Status status = KeepADBTimer.status(context);
+        assertNotNull("The running timer is restored", status);
+        assertEquals(30 * MINUTE, status.remainingMs);
+    }
 }
