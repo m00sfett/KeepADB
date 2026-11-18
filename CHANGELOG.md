@@ -28,6 +28,7 @@ are retrospective issue-version records and were never published as separate rel
 ### Documentation
 - README: new "Why KeepADB?" section (#996, versionCode 280). It compares KeepADB with WADBS (`wireless-adb-switch`), WADB and LADB by purpose and required privilege, each taken from the project's own README, and lists KeepADB's privilege model (one-time `WRITE_SECURE_SETTINGS` grant for switching Wifi-ADB, no root, no Shizuku; other permissions only for individual features), Keep-Alive recovery, network protection and setup without a PC. No negative claims about other projects.
 - README: tip for the random Wifi-ADB port. A paired computer can find the phone with `adb mdns services` (`_adb-tls-connect._tcp`); current platform-tools (checked with 37.0.0, `ADB_MDNS_AUTO_CONNECT` defaulting to `adb-tls-connect`) reconnect to it on their own.
+- README: "Why KeepADB?" also names automation through Webhook Sync (current Wifi-ADB endpoint pushed to the user's own receiver, optional periodic refresh). README only, no version change.
 - README: fork notice in the License section. Forks are welcome under the license, under a different app name and icon.
 - Store note `280.txt` also carries the 1.14.2 changes (self-pairing notifications on the lock screen, `SECURITY.md`), since F-Droid shows only the note of the released versionCode.
 

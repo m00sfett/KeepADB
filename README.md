@@ -49,6 +49,12 @@ What sets KeepADB apart:
   access points by default on new installations), with an optional switch-off on untrusted Wi-Fi.
 - **Setup without a PC:** on Android 11+ the permission can be granted on the phone itself; a
   computer is only a fallback.
+- **Automation through the webhook:** because Android changes the Wifi-ADB port, scripts and
+  tools on other machines need the current endpoint. With Webhook Sync on (off by default),
+  KeepADB sends the verified Wifi-ADB endpoint to your own HTTP(S) receiver whenever it changes,
+  and optionally re-sends it on a schedule, so a CI job, a test farm or a home-lab script can
+  connect with `adb connect` without looking up the port by hand. See the
+  [webhook contract](docs/webhook-register.md).
 
 The table describes each project as its own documentation does; it is not a review. If a statement
 about another project is out of date, please open an issue.
