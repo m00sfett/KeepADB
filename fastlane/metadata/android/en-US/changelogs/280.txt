@@ -1,0 +1,1 @@
+Documentation: the README explains how KeepADB differs from similar apps, how a paired computer finds the phone without typing the changing port (adb mdns), and asks forks to use their own name and icon.
