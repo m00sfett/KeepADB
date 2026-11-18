@@ -23,6 +23,15 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.1] - Unreleased
+
+### Added
+- Settings backup (#1001, versionCode 282): a new **Settings → Settings backup** card exports the settings to a file the user picks (`ACTION_CREATE_DOCUMENT`) and imports one (`ACTION_OPEN_DOCUMENT`); no storage permission, nothing uploaded. `KeepADBSettingsBackup.RULES` is the single list of exported keys: protection level, trusted access points and legacy names, blocked networks, the network rules, the privacy switches, notification and display options, the periodic-refresh options and, unless the user picks "Without webhook URL", the webhook URL. Never exported: the Keep-Alive switch, the webhook on/off state, Force mode and other run-time state, histories, diagnostics, the app language and widget settings (keyed by widget IDs that a reinstall changes); the export reads only rule keys, so a secret such as an automation token cannot reach the file. The export dialog says the file names the user's networks and, optionally, the webhook URL. The file is versioned JSON (`format: keepadb-settings`, `version: 1`); the export validates its own output with the import parser and drops leftover name fields of lifted blocks.
+- Strict import: the whole file (at most 256 KiB) is validated before anything is written. Unknown keys are ignored; a wrong format, another version, a wrong type or value, or inconsistent trusted or blocked entries reject the file with its own message and change nothing. After a confirmation with the number of trusted access points and blocked networks, every managed key is replaced in one commit (keys missing from the file return to their defaults). A file without a webhook URL keeps the stored webhook; a different URL withdraws a running registration first (`KeepADBWebhookSync.disable`) and leaves synchronization off until the user turns it on. The import marks the protection level and privacy switches as initialized so the one-time migrations keep the imported values, refreshes notification, widgets and warnings, and re-evaluates the shutdown rules, which can only turn Wifi-ADB off. It never grants a permission and never turns Wifi-ADB or Keep-Alive on. The diagnostics journal records export and import outcomes without file contents. 23 new strings in all 19 locales.
+
+### Documentation
+- New `docs/settings-backup.md`; README, `SECURITY.md`, `docs/defaults.md`, `docs/webhook-register.md` and the docs index describe the backup, what it contains and its limits.
+
 ## [1.15.0] - Unreleased
 
 ### Added

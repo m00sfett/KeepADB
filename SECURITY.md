@@ -188,7 +188,11 @@ else is added.
 
 Android cloud backup and device transfer are disabled. This includes the webhook URL, saved
 network trusts, and diagnostics data. These data are lost when the app is uninstalled
-or the device is changed. Diagnostics are not uploaded automatically; see
+or the device is changed, unless you export them yourself under Settings → Settings backup
+(#1001). That file is written only to a location you pick, is never uploaded by KeepADB, and
+holds the names and addresses of your trusted and blocked networks and, unless you leave it out,
+the webhook URL; treat it like the webhook URL itself. It never contains diagnostics, the
+Keep-Alive or webhook on/off state, or any permission, and an import cannot turn Wifi-ADB on. Diagnostics are not uploaded automatically; see
 [Diagnostics export](docs/diagnostics.md) for sharing and redaction details.
 
 ## Supported versions
