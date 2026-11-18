@@ -154,6 +154,14 @@ final class KeepADBTimer {
     private static volatile KeepADBDeadline.Clock clock = KeepADBDeadline.SYSTEM_CLOCK;
     private static volatile Runnable stateListener;
     private static volatile NoticeSink noticeSink;
+    // #1016: a start whose switch-on is still debounced (KeepADB's manual re-enable gap): its own
+    // state and the one it replaced, so a delayed write that fails can undo it like #1009 does
+    // for an immediate one. Guarded by LOCK; process memory only (the window is 100 ms).
+    private static String pendingStartState;
+    private static State pendingStartPrevious;
+    // #1016: set while start() is inside its own setEnabled(); an immediate failure there is
+    // undone by start() itself, so the delayed-failure hook stands aside on this thread.
+    private static final ThreadLocal<Boolean> IN_START_WRITE = new ThreadLocal<>();
 
     /** Posts the one-time expiry notice; set by the notification code, a seam for tests. */
     interface NoticeSink {
@@ -229,7 +237,26 @@ final class KeepADBTimer {
         }
         KeepADBTimerNotice.cancelExpired(app);
         KeepADBDiagnostics.event(app, "timer", origin, "started", "duration=" + duration.token);
-        KeepADB.ToggleResult result = KeepADB.setEnabled(app, true, KeepADB.SOURCE_TIMER);
+        synchronized (LOCK) {
+            // Before the write: a debounced switch-on may fail before this method returns.
+            pendingStartState = encode(state);
+            pendingStartPrevious = previous;
+        }
+        KeepADB.ToggleResult result;
+        IN_START_WRITE.set(Boolean.TRUE);
+        try {
+            result = KeepADB.setEnabled(app, true, KeepADB.SOURCE_TIMER);
+        } finally {
+            IN_START_WRITE.remove();
+        }
+        if (result != KeepADB.ToggleResult.SCHEDULED) {
+            synchronized (LOCK) {
+                if (encode(state).equals(pendingStartState)) {
+                    pendingStartState = null;
+                    pendingStartPrevious = null;
+                }
+            }
+        }
         if (!result.isSuccess() && result != KeepADB.ToggleResult.SUPERSEDED) {
             restoreAfterFailedStart(app, state, previous);
             KeepADBDiagnostics.event(app, "timer", origin, "cancelled",
@@ -241,6 +268,42 @@ final class KeepADBTimer {
         scheduleExpiryAlarm(app);
         refreshSurfaces(app, true);
         return result;
+    }
+
+    /**
+     * #1016: the debounced switch-on of a start failed ({@link KeepADB} calls this through {@link
+     * KeepADBManualToggle#onTimerStartFailed} from the failure branches of its delayed write, under
+     * its monitor). The state goes back as {@link #start} does for an immediate failure: a
+     * preference write here; the alarm, the service and the surfaces follow on the main thread.
+     * A start whose state was replaced or ended meanwhile is left alone.
+     */
+    static void onDelayedStartFailed(Context context, String result) {
+        if (context == null || Boolean.TRUE.equals(IN_START_WRITE.get())) return;
+        Context app = context.getApplicationContext();
+        String started;
+        State previous;
+        synchronized (LOCK) {
+            started = pendingStartState;
+            previous = pendingStartPrevious;
+            pendingStartState = null;
+            pendingStartPrevious = null;
+            if (started == null || !started.equals(prefs(app).getString(KEY_STATE, null))) return;
+            SharedPreferences.Editor editor = prefs(app).edit();
+            if (previous != null) {
+                editor.putString(KEY_STATE, encode(previous));
+            } else {
+                editor.remove(KEY_STATE);
+            }
+            if (!editor.commit()) return;
+        }
+        boolean previousKept = previous != null;
+        new Handler(Looper.getMainLooper()).post(() -> {
+            KeepADBDiagnostics.event(app, "timer", "timer", "cancelled",
+                    "result=" + result + " delayed" + (previousKept ? " previous_kept" : ""));
+            scheduleExpiryAlarm(app);
+            KeepADBService.sync(app);
+            refreshSurfaces(app, false);
+        });
     }
 
     /** Undoes a start whose switch-on failed, unless something replaced its state meanwhile. */
@@ -660,5 +723,9 @@ final class KeepADBTimer {
         clock = KeepADBDeadline.SYSTEM_CLOCK;
         stateListener = null;
         noticeSink = null;
+        synchronized (LOCK) {
+            pendingStartState = null;
+            pendingStartPrevious = null;
+        }
     }
 }
