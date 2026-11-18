@@ -752,7 +752,8 @@
     <string name="timer_dialog_title_start">Wifi-ADB をオンにする時間</string>
     <string name="timer_dialog_title_limit">Wifi-ADB をオフにするまでの時間</string>
     <string name="timer_status_running">%1$sにオフ · 残り%2$s</string>
-    <string name="timer_status_waiting">タイマー実行中 · 信頼済み Wi-Fi を待機中 · 残り%1$s</string>
+    <string name="timer_status_waiting_reason">タイマー実行中 · %1$s · 残り%2$s</string>
+    <string name="timer_waiting_reason_switching">オンにしています</string>
     <string name="timer_action_no_limit">制限なし</string>
     <string name="timer_started_toast">Wifi-ADB を%1$sオンにしました</string>
     <string name="settings_timer_default_title">タイマーの既定の時間</string>

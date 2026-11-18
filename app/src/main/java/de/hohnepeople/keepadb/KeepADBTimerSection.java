@@ -18,8 +18,9 @@ import android.widget.Toast;
  *   <li>No timer, Wifi-ADB off: "On for 1 h" (the default duration) and a chevron for the
  *       others.</li>
  *   <li>No timer, Wifi-ADB on: "Off in 1 h" and the chevron: sets an end, Wifi-ADB stays on.</li>
- *   <li>Timer running: "Off at 14:35 · 42 min left" (or "waiting for a trusted Wi-Fi" while
- *       Keep-Alive cannot hold), "+1 h" below the cap and "No limit".</li>
+ *   <li>Timer running: "Off at 14:35 · 42 min left" (or "Timer running · no Wi-Fi · 42 min left",
+ *       with the other reasons of {@link #waitingReason}, while Keep-Alive cannot hold; #1012),
+ *       "+1 h" below the cap and "No limit".</li>
  * </ul>
  * Everything is read from the pure timer state, so the row is right at the deadline even before
  * the end has been performed; a tick redraws the time left while the screen is in front.
@@ -67,6 +68,29 @@ final class KeepADBTimerSection {
         });
     }
 
+    /**
+     * #1012: why a running timer waits, in the words the overview widget uses, from the same
+     * resolution as the home status ({@link MainActivity#resolveKeepAliveWaitingDetail}). That
+     * resolver also answers {@code WIFI_DISCONNECTED} for a trusted Wi-Fi with nothing to explain,
+     * so the connection is passed in: connected and nothing blocking means it is switching on.
+     */
+    static int waitingReason(boolean wifiConnected, MainActivity.KeepAliveWaitingDetail detail) {
+        if (!wifiConnected) return R.string.overview_reason_no_wifi;
+        switch (detail) {
+            case BLOCKED_UNTRUSTED_NETWORK:
+                return R.string.overview_reason_untrusted;
+            case BLOCKED_IDENTITY_UNAVAILABLE:
+                return R.string.overview_reason_identity;
+            case BLOCKED_OPEN_NETWORK:
+                return R.string.overview_reason_open_network;
+            case BLOCKED_RECOVERY_BACKOFF:
+                return R.string.overview_reason_backoff;
+            case WIFI_DISCONNECTED:
+            default:
+                return R.string.timer_waiting_reason_switching;
+        }
+    }
+
     /** Starts the minute redraw while the screen is in front. */
     void resume() {
         handler.removeCallbacks(tick);
@@ -93,7 +117,9 @@ final class KeepADBTimerSection {
         if (timer != null) {
             String left = KeepADBTimerText.remaining(activity, timer.remainingMs);
             String text = !on || waiting
-                    ? activity.getString(R.string.timer_status_waiting, left)
+                    ? activity.getString(R.string.timer_status_waiting_reason,
+                            activity.getString(waitingReason(KeepADBService.isWifiConnected(activity),
+                                    MainActivity.resolveKeepAliveWaitingDetail(activity))), left)
                     : activity.getString(R.string.timer_status_running,
                             KeepADBForceMode.formatEnd(activity, timer.endsAtWallMs), left);
             if (!TextUtils.equals(status.getText(), text)) status.setText(text);

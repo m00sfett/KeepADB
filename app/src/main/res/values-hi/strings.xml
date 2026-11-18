@@ -753,7 +753,8 @@
     <string name="timer_dialog_title_start">Wifi-ADB इतनी देर के लिए चालू करें</string>
     <string name="timer_dialog_title_limit">Wifi-ADB इतनी देर में बंद करें</string>
     <string name="timer_status_running">%1$s पर बंद · %2$s बाकी</string>
-    <string name="timer_status_waiting">टाइमर चल रहा है · भरोसेमंद Wi-Fi की प्रतीक्षा · %1$s बाकी</string>
+    <string name="timer_status_waiting_reason">टाइमर चल रहा है · %1$s · %2$s बाकी</string>
+    <string name="timer_waiting_reason_switching">चालू हो रहा है</string>
     <string name="timer_action_no_limit">कोई सीमा नहीं</string>
     <string name="timer_started_toast">Wifi-ADB %1$s के लिए चालू</string>
     <string name="settings_timer_default_title">टाइमर की डिफ़ॉल्ट अवधि</string>

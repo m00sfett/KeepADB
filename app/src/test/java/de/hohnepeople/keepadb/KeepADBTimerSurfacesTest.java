@@ -335,4 +335,61 @@ public class KeepADBTimerSurfacesTest {
         assertEquals("1 h 0 min", KeepADBTimerText.remaining(context, HOUR));
         assertEquals("24 h 0 min", KeepADBTimerText.remaining(context, 24 * HOUR));
     }
+
+    // ---- Follow-ups #1007-#1014 ------------------------------------------------------------------
+
+    private KeepADBWidgetContent.Tile keepAliveTile() {
+        return KeepADBWidgetContent.tile(context, KeepADBWidgetConfig.Action.KEEP_ALIVE,
+                KeepADBWidgetState.project(context));
+    }
+
+    @Test
+    public void theWidgetKeepAliveTileShowsWhatATapChangesWhileATimerRuns() {
+        // #1007: the setting is off and only a timer keeps Wifi-ADB alive.
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        assertTrue(KeepADBPreferences.isKeepAliveEffective(context));
+        assertEquals("The status still knows the overlay", KeepADBWidgetState.KeepAlive.ACTIVE,
+                KeepADBWidgetState.project(context).keepAlive);
+
+        KeepADBWidgetContent.Tile before = keepAliveTile();
+        assertEquals(context.getString(R.string.tile_state_off), before.state);
+        assertEquals(KeepADBWidgetContent.Style.OFF, before.style);
+
+        KeepADBReceiver.handleToggleKeepAliveAction(context);
+
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(context));
+        KeepADBWidgetContent.Tile after = keepAliveTile();
+        assertEquals("A tap visibly changes the tile", context.getString(R.string.widget_state_on), after.state);
+        assertEquals(KeepADBWidgetContent.Style.ON, after.style);
+    }
+
+    @Test
+    public void theTimerWaitingReasonFollowsTheHomeStatusResolution() {
+        // #1012: no longer "waiting for a trusted Wi-Fi" whatever the reason.
+        assertEquals(R.string.overview_reason_no_wifi, KeepADBTimerSection.waitingReason(false,
+                MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
+        assertEquals(R.string.overview_reason_untrusted, KeepADBTimerSection.waitingReason(true,
+                MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
+        assertEquals(R.string.overview_reason_identity, KeepADBTimerSection.waitingReason(true,
+                MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE));
+        assertEquals(R.string.overview_reason_open_network, KeepADBTimerSection.waitingReason(true,
+                MainActivity.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK));
+        assertEquals(R.string.overview_reason_backoff, KeepADBTimerSection.waitingReason(true,
+                MainActivity.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF));
+        assertEquals("Connected, nothing blocks: it is switching on",
+                R.string.timer_waiting_reason_switching, KeepADBTimerSection.waitingReason(true,
+                        MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED));
+    }
+
+    @Test
+    public void theHomeRowNamesMissingWifiWhileATimerWaits() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOUR_1, "test");
+        gateway.setEnabledByUser(false);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+
+        String text = ((TextView) activity.findViewById(R.id.timer_status)).getText().toString();
+        assertTrue(text, text.startsWith("Timer running · no Wi-Fi · "));
+    }
 }

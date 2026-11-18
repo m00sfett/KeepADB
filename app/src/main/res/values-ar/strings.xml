@@ -757,7 +757,8 @@
     <string name="timer_dialog_title_start">تشغيل Wifi-ADB لمدة</string>
     <string name="timer_dialog_title_limit">إيقاف Wifi-ADB بعد</string>
     <string name="timer_status_running">يتوقف عند %1$s · يتبقى %2$s</string>
-    <string name="timer_status_waiting">المؤقّت يعمل · بانتظار شبكة Wi-Fi موثوقة · يتبقى %1$s</string>
+    <string name="timer_status_waiting_reason">المؤقّت يعمل · %1$s · يتبقى %2$s</string>
+    <string name="timer_waiting_reason_switching">جارٍ التشغيل</string>
     <string name="timer_action_no_limit">بلا حد</string>
     <string name="timer_started_toast">Wifi-ADB قيد التشغيل لمدة %1$s</string>
     <string name="settings_timer_default_title">المدة الافتراضية للمؤقّت</string>

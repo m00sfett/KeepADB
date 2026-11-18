@@ -29,8 +29,9 @@ untrusted / open Wi-Fi" (#864) until the network changes. From then on the netwo
 
 The timer is a temporary Keep-Alive: it keeps Wifi-ADB alive whether or not Keep-Alive is switched
 on in the app, and it never changes the stored Keep-Alive setting. It does not override the network
-rules: on an untrusted Wi-Fi it holds nothing ("Timer running · waiting for a trusted Wi-Fi") and the
-time keeps running. Force mode, which may run at the same time, is what lets Wifi-ADB stay on in
+rules: on an untrusted Wi-Fi it holds nothing ("Timer running · network not trusted") and the time
+keeps running. The home row names the same reason as the home status: no Wi-Fi, an untrusted, open
+or unreadable network, paused retries, or "switching on" when nothing blocks it. Force mode, which may run at the same time, is what lets Wifi-ADB stay on in
 every Wi-Fi; the timer then still ends it on time. With both running, the red Force mode
 notification and a separate timer notification are shown.
 
@@ -75,7 +76,9 @@ timer early, never extend it.
 
 The journal records `timer` events: `started` (with the duration), `extended`, `ended`
 (`manual_off`, `manual_on_without_timer`, `no_limit`), `expired` (`deadline_passed`, `while_off`,
-`safety`), `rebound` after a reboot or clock change, and whether the notice was posted. No network
+`safety`), `cancelled` when a start's switch-on did not go through (`result=<outcome>`, plus
+`previous_kept` when a timer that was already running keeps its deadline), `rebound` after a
+reboot or clock change, and whether the notice was posted. No network
 names or addresses are recorded.
 
 ## Rollback

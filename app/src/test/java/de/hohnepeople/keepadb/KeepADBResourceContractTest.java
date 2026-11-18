@@ -697,7 +697,7 @@ public class KeepADBResourceContractTest {
         result.put("timer_start_default", new Object[] {stringWitness});
         result.put("timer_limit_default", new Object[] {stringWitness});
         result.put("timer_status_running", new Object[] {stringWitness, stringWitness});
-        result.put("timer_status_waiting", new Object[] {stringWitness});
+        result.put("timer_status_waiting_reason", new Object[] {stringWitness, stringWitness});
         result.put("timer_started_toast", new Object[] {stringWitness});
         result.put("timer_remaining_minutes", new Object[] {integerWitness});
         result.put("timer_remaining_hours_minutes", new Object[] {integerWitness, integerWitness});

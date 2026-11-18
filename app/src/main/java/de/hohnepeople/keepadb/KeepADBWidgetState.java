@@ -140,8 +140,14 @@ final class KeepADBWidgetState {
     final Adb adb;
     /** {@link Reason#NONE} unless {@link #adb} is {@link Adb#PERMISSION_FAILURE}. */
     final Reason adbFailure;
+    /** The effective Keep-Alive (stored setting or a running timer, #1000) and what it does. */
     final KeepAlive keepAlive;
     final Reason keepAliveReason;
+    /**
+     * #1007: the stored setting alone, which a tap on the Keep-Alive tile flips. The tile shows
+     * this, so it never reads "On" before and after a tap while only a timer keeps Wifi-ADB alive.
+     */
+    final boolean keepAliveSetting;
     final EndpointAvailability endpoint;
     /** Null while details are hidden or there is no endpoint. */
     final String endpointHost;
@@ -161,7 +167,8 @@ final class KeepADBWidgetState {
     final Webhook webhook;
 
     private KeepADBWidgetState(KeepADB.State systemState, Adb adb, Reason adbFailure,
-            KeepAlive keepAlive, Reason keepAliveReason, EndpointAvailability endpoint,
+            KeepAlive keepAlive, Reason keepAliveReason, boolean keepAliveSetting,
+            EndpointAvailability endpoint,
             String endpointHost, int endpointPort, long endpointVerifiedAtMs,
             boolean detailsHidden, boolean wifiConnected, String wifiName, Webhook webhook) {
         this.systemState = systemState;
@@ -169,6 +176,7 @@ final class KeepADBWidgetState {
         this.adbFailure = adbFailure;
         this.keepAlive = keepAlive;
         this.keepAliveReason = keepAliveReason;
+        this.keepAliveSetting = keepAliveSetting;
         this.endpoint = endpoint;
         this.endpointHost = endpointHost;
         this.endpointPort = endpointPort;
@@ -272,7 +280,7 @@ final class KeepADBWidgetState {
                 ? usableName(KeepADBNetworkIdentity.current(app).displaySsid()) : null;
 
         return new KeepADBWidgetState(system, adb, adbFailure, keepAlive, keepAliveReason,
-                availability,
+                KeepADBPreferences.isKeepAliveEnabled(app), availability,
                 endpointKnown && !hidden ? snapshot.host : null,
                 endpointKnown && !hidden ? snapshot.port : 0,
                 endpointKnown ? snapshot.verifiedAtMs : 0L,

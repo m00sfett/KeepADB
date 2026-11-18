@@ -13,6 +13,8 @@ import android.content.Context;
  *   <li>A running force mode ends on a manual off ({@link KeepADBForceMode#endNow}): whoever
  *       switches off wants it off, so the dangerous mode must not take hold again at the next
  *       "on".</li>
+ *   <li>Any manual on (the trust prompt's included) supersedes a timer's outstanding switch-off and
+ *       its end notice, a posted one too ({@link KeepADBTimer#onManualOn}, #1008).</li>
  * </ul>
  * The self-pairing cleanup's switch-off is not the user's decision about Wifi-ADB and ends
  * nothing.
@@ -20,8 +22,17 @@ import android.content.Context;
 final class KeepADBManualToggle {
     private KeepADBManualToggle() {}
 
-    /** After a manual or timer-expiry write went through; see {@link KeepADBTimer#onWriteApplied}. */
+    /**
+     * After a manual or timer-expiry write went through; see {@link KeepADBTimer#onWriteApplied}.
+     * Called under the {@link KeepADB} monitor: a preference write only, nothing else (#1011).
+     *
+     * <p>#1010: the self-pairing setup is not the user's decision about Wifi-ADB, so its "on"
+     * settles no outstanding timer switch-off, exactly as {@link #onManualToggle} ends nothing for
+     * it. An "off" the readback confirms still settles one: the obligation is a fact about Wifi-ADB
+     * (it must be off), and it is.
+     */
     static void onWriteApplied(Context appContext, String source, boolean on, boolean confirmedOff) {
+        if (on && KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
         KeepADBTimer.onWriteApplied(appContext, source, on, confirmedOff);
     }
 
@@ -41,6 +52,8 @@ final class KeepADBManualToggle {
         if (!KeepADB.SOURCE_NETWORK_TRUST_PROMPT.equals(source)) {
             KeepADBTimer.onManualToggle(appContext, on, source);
         }
+        // #1008: after the timer branch, which may finish an expired timer and post its notice.
+        if (on) KeepADBTimer.onManualOn(appContext);
         if (!on && !KeepADB.SOURCE_TIMER.equals(source)) {
             KeepADBForceMode.endNow(appContext, "manual_off");
         }

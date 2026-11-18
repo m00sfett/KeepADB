@@ -755,7 +755,8 @@
     <string name="timer_dialog_title_start">Включить Wifi-ADB на</string>
     <string name="timer_dialog_title_limit">Выключить Wifi-ADB через</string>
     <string name="timer_status_running">Выключение в %1$s · осталось %2$s</string>
-    <string name="timer_status_waiting">Таймер идёт · ожидание доверенной сети Wi-Fi · осталось %1$s</string>
+    <string name="timer_status_waiting_reason">Таймер идёт · %1$s · осталось %2$s</string>
+    <string name="timer_waiting_reason_switching">включается</string>
     <string name="timer_action_no_limit">Без ограничения</string>
     <string name="timer_started_toast">Wifi-ADB включён на %1$s</string>
     <string name="settings_timer_default_title">Длительность таймера по умолчанию</string>

@@ -44,3 +44,9 @@ Time limits (#1000): `timer` events record a timer's start, extension, end and e
 [Wifi-ADB timer](timed-wifi-adb.md#diagnostics)); `force_mode` events now also record `extended`
 (with the minutes left) and an end with the reason `manual_off`. A blocked "+1 h" on a locked
 device appears as `user_action ... blocked timer_extend device_locked` (or `force_extend`).
+A timer's switch-off is written with the source `timer_expiry`. When the off is no longer owed
+(a manual on, or a readback showing Wifi-ADB already off, settled it), the write is dropped as
+`toggle_attempt timer_expiry skipped ... reason=timer_off_settled` (before it was planned) or
+`cancelled ... reason=timer_off_settled` (while it waited in the debounce window). A pending
+automatic switch-on that the owed off replaces appears as `toggle_attempt timer_expiry superseded
+... reason=timer_off_owed`.
