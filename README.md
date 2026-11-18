@@ -35,12 +35,13 @@ and use different privileges, so the right choice depends on what you need:
 | **KeepADB** | Switch Wifi-ADB and, optionally, turn it back on after reboots and network changes, limited by a network rule | One-time `WRITE_SECURE_SETTINGS` grant: on the phone via self-pairing, in a computer browser over WebUSB, or with `adb`; no root, no Shizuku |
 | [WADBS](https://github.com/Smooth-E/wireless-adb-switch) (`wireless-adb-switch`) | Quick on/off switch with home-screen widgets and a Quick Settings tile | Root or Shizuku |
 | [WADB](https://github.com/RikkaApps/WADB) | Switch for ADB over network, Quick Settings tile, option to start on boot | Root |
-| [LADB](https://github.com/tytydraco/LADB) | Local ADB shell on the device itself (an ADB client, not a switch) | “Wireless debugging” pairing with the app; the README notes it is incompatible with Shizuku |
+| [LADB](https://github.com/tytydraco/LADB) | Local ADB shell on the device itself, with a bundled ADB server (not a switch) | “Wireless debugging” pairing with the app; the README notes it is incompatible with Shizuku |
 
 What sets KeepADB apart:
 
-- **Privilege model:** after the one-time grant, KeepADB runs with a single Android permission. It
-  needs neither root nor a running Shizuku service, and the grant survives reboots.
+- **Privilege model:** switching Wifi-ADB needs only the one-time `WRITE_SECURE_SETTINGS` grant,
+  which survives reboots. KeepADB needs neither root nor a running Shizuku service; other Android
+  permissions serve individual features, such as precise location for recognizing trusted networks.
 - **Keep-Alive and recovery:** the optional service turns Wifi-ADB back on after a reboot or a
   network interruption, honors the user's last saved intent, and backs off when Android does not
   confirm the change.
