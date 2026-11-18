@@ -33,6 +33,9 @@ up in the file.
   being turned on or to reports being sent. The user switches both on again.
 - **Run-time state**: Force mode, a running Wifi-ADB timer, the last on/off intent, manual exemptions, prompt and report
   histories, diagnostics, webhook bookkeeping and the setup assistant's progress.
+- **The automation interface** (#998): neither its on/off switch nor the access token. An import
+  must never open the entry point for other apps, and the token never leaves the device; switch it
+  on again on the new device to get a new token.
 - **The app language**: Android keeps it per app.
 - **Widget settings**: they are keyed by widget ID, and a reinstall gives every widget a new ID,
   so they cannot be matched to the new widgets.

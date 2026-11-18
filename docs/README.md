@@ -18,6 +18,8 @@
   manual off, reboots and clock changes.
 - [Settings backup](settings-backup.md): exporting and importing settings to a user-chosen file,
   what the file contains, and how the import validates it.
+- [Automation interface](automation.md): the opt-in broadcast interface for Tasker, MacroDroid
+  and Automate, its token, the request and reply contract and examples.
 - [Application ID](package-id.md): why `de.hohnepeople.keepadb` remains after the website move.
 - [Security policy](../SECURITY.md): threat model and private vulnerability reporting.
 
