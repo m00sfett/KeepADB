@@ -86,7 +86,8 @@ public class KeepADBTileService extends TileService {
         if (want && isDeviceLockedForEnable()) {
             KeepADBDiagnostics.event(this, "user_action", "tile", "unlock_required",
                     "device_locked");
-            requestUnlockAndRun(this::enableAfterUnlock);
+            long intentGenerationAtTap = KeepADB.explicitIntentGeneration();
+            requestUnlockAndRun(() -> enableAfterUnlock(intentGenerationAtTap));
             return;
         }
         KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
@@ -108,10 +109,11 @@ public class KeepADBTileService extends TileService {
      * again instead of reusing the {@code want} from the tap: Keep-Alive, another surface or a
      * second tile tap may have switched wireless debugging on while the unlock prompt was
      * showing, and this callback must never turn into a disable. It only ever enables, and only
-     * while the state still asks for an enable.
+     * while the state still asks for an enable. #1022: and only while no explicit decision was
+     * accepted since the tap.
      */
-    private void enableAfterUnlock() {
-        if (!KeepADBToggleGate.enableStillWanted(this, "tile")) {
+    private void enableAfterUnlock(long intentGenerationAtTap) {
+        if (!KeepADBToggleGate.enableStillWanted(this, "tile", intentGenerationAtTap)) {
             updateTile();
             return;
         }

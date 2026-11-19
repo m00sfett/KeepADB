@@ -58,7 +58,9 @@ public class KeepADBToggleShortcutActivity extends Activity {
         if (want && KeepADBToggleGate.isDeviceLockedForEnable(this)) {
             KeepADBDiagnostics.event(this, "user_action", "shortcut", "unlock_required",
                     "device_locked");
-            requestUnlock(this::enableAfterUnlock, this::unlockNotCompleted);
+            long intentGenerationAtTap = KeepADB.explicitIntentGeneration();
+            requestUnlock(() -> enableAfterUnlock(intentGenerationAtTap),
+                    () -> unlockNotCompleted(intentGenerationAtTap));
             return;
         }
         KeepADBDiagnostics.event(this, "user_action", "shortcut", want ? "enable" : "disable",
@@ -67,9 +69,12 @@ public class KeepADBToggleShortcutActivity extends Activity {
         finish();
     }
 
-    /** Runs only after the system reported a successful unlock; it never disables. */
-    private void enableAfterUnlock() {
-        if (KeepADBToggleGate.enableStillWanted(this, "shortcut")) {
+    /**
+     * Runs only after the system reported a successful unlock; it never disables, and (#1022)
+     * does nothing once an explicit decision newer than the tap was accepted.
+     */
+    private void enableAfterUnlock(long intentGenerationAtTap) {
+        if (KeepADBToggleGate.enableStillWanted(this, "shortcut", intentGenerationAtTap)) {
             KeepADBDiagnostics.event(this, "user_action", "shortcut", "enable", "after_unlock");
             applyToggle(true);
         }
@@ -81,13 +86,13 @@ public class KeepADBToggleShortcutActivity extends Activity {
      * device turns out not to be locked behind a credential any more (the keyguard was already
      * gone), which is the case the tile's {@code unlockAndRun} treats as unlocked too.
      */
-    private void unlockNotCompleted() {
+    private void unlockNotCompleted(long intentGenerationAtTap) {
         if (KeepADBToggleGate.isDeviceLockedForEnable(this)) {
             KeepADBDiagnostics.event(this, "user_action", "shortcut", "skipped", "unlock_failed");
             finish();
             return;
         }
-        enableAfterUnlock();
+        enableAfterUnlock(intentGenerationAtTap);
     }
 
     /** Seam around the real unlock request so tests can answer it. */

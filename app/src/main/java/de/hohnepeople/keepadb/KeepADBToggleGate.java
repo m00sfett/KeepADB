@@ -31,9 +31,15 @@ final class KeepADBToggleGate {
      * must never turn into a disable. True only while the state still asks for an enable; the
      * skip is recorded under {@code surface}. #1019: a manual "on" still waiting in its re-enable
      * gap already asks for the enable, so a second continuation (two taps, two unlock callbacks)
-     * skips instead of requesting "on" again and skipping the gap.
+     * skips instead of requesting "on" again and skipping the gap. #1022: an explicit decision
+     * accepted after the tap ({@code intentGenerationAtTap} from {@link
+     * KeepADB#explicitIntentGeneration()}) is newer than the tap and wins, even when it left the
+     * state reading "off" again.
      */
-    static boolean enableStillWanted(Context context, String surface) {
+    static boolean enableStillWanted(Context context, String surface, long intentGenerationAtTap) {
+        if (newerIntentSince(context, surface, intentGenerationAtTap)) {
+            return false;
+        }
         KeepADB.State state = KeepADB.getState(context);
         if (KeepADB.desiredOnForToggle(state)) {
             return true;
@@ -41,6 +47,21 @@ final class KeepADBToggleGate {
         KeepADBDiagnostics.event(context, "user_action", surface, "skipped",
                 "after_unlock state=" + state);
         return false;
+    }
+
+    /**
+     * #1022: true when an explicit user decision was accepted after the tap that captured
+     * {@code intentGenerationAtTap}; the skip is then recorded under {@code surface}. Only manual
+     * sources count, so a Keep-Alive pulse while the unlock prompt is showing does not cancel the
+     * tap.
+     */
+    static boolean newerIntentSince(Context context, String surface, long intentGenerationAtTap) {
+        if (KeepADB.explicitIntentGeneration() == intentGenerationAtTap) {
+            return false;
+        }
+        KeepADBDiagnostics.event(context, "user_action", surface, "skipped",
+                "after_unlock reason=newer_intent");
+        return true;
     }
 
     /**

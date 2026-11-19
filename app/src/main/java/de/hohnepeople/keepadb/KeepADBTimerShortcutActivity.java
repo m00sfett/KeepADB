@@ -40,15 +40,29 @@ public class KeepADBTimerShortcutActivity extends Activity {
         if (KeepADBToggleGate.isDeviceLockedForEnable(this)) {
             KeepADBDiagnostics.event(this, "user_action", "shortcut", "unlock_required",
                     "timer device_locked");
-            requestUnlock(this::startAndFinish, () -> {
+            long intentGenerationAtTap = KeepADB.explicitIntentGeneration();
+            requestUnlock(() -> startAfterUnlock(intentGenerationAtTap), () -> {
                 if (KeepADBToggleGate.isDeviceLockedForEnable(this)) {
                     KeepADBDiagnostics.event(this, "user_action", "shortcut", "skipped",
                             "timer unlock_failed");
                     finish();
                     return;
                 }
-                startAndFinish();
+                startAfterUnlock(intentGenerationAtTap);
             });
+            return;
+        }
+        startAndFinish();
+    }
+
+    /**
+     * #1022: an explicit decision accepted while the unlock prompt was showing (for example "off"
+     * from the notification) is newer than this tap, so the timer does not start any more.
+     */
+    private void startAfterUnlock(long intentGenerationAtTap) {
+        if (KeepADBToggleGate.newerIntentSince(this, "shortcut", intentGenerationAtTap)) {
+            KeepADBTileService.requestRefresh(this);
+            finish();
             return;
         }
         startAndFinish();

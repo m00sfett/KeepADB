@@ -21,6 +21,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -292,6 +295,58 @@ public class KeepADBTimerSurfacesTest {
         assertEquals(2 * HOUR, status.remainingMs);
         assertTrue(gateway.isEnabled(context));
         assertEquals("Wifi-ADB on for 2 h", ShadowToast.getTextOfLatestToast());
+    }
+
+    /** Holds the unlock callback back instead of answering it at once. */
+    public static class CapturingTimerShortcutActivity extends KeepADBTimerShortcutActivity {
+        final List<Runnable> onUnlocked = new ArrayList<>();
+
+        @Override
+        void requestUnlock(Runnable unlocked, Runnable notUnlocked) {
+            onUnlocked.add(unlocked);
+        }
+    }
+
+    /**
+     * #1022: the timer shortcut waited for an unlock, and meanwhile Wifi-ADB was switched on and
+     * explicitly off from other surfaces. The "off" is newer than the tap: no timer starts.
+     */
+    @Test
+    public void theShortcutStartsNoTimerAfterANewerExplicitOff() {
+        KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
+        shadowOf(keyguard).setIsKeyguardSecure(true);
+        shadowOf(keyguard).setIsDeviceLocked(true);
+        CapturingTimerShortcutActivity activity =
+                Robolectric.buildActivity(CapturingTimerShortcutActivity.class).setup().get();
+        assertEquals(1, activity.onUnlocked.size());
+
+        assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_WIDGET).isSuccess());
+        assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_NOTIFICATION).isSuccess());
+
+        shadowOf(keyguard).setIsDeviceLocked(false);
+        activity.onUnlocked.get(0).run();
+
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(gateway.isEnabled(context));
+        assertTrue(activity.isFinishing());
+        assertTrue(KeepADBDiagnostics.export(context).contains("reason=newer_intent"));
+    }
+
+    /** #1022: without a newer decision the unlocked timer shortcut still starts its timer. */
+    @Test
+    public void theShortcutStartsTheTimerAfterTheUnlock() {
+        KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
+        shadowOf(keyguard).setIsKeyguardSecure(true);
+        shadowOf(keyguard).setIsDeviceLocked(true);
+        CapturingTimerShortcutActivity activity =
+                Robolectric.buildActivity(CapturingTimerShortcutActivity.class).setup().get();
+        assertFalse(KeepADBTimer.isActive(context));
+
+        shadowOf(keyguard).setIsDeviceLocked(false);
+        activity.onUnlocked.get(0).run();
+
+        assertTrue(KeepADBTimer.isActive(context));
+        assertTrue(gateway.isEnabled(context));
     }
 
     // ---- Home screen ------------------------------------------------------------------------------

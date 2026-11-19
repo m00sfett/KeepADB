@@ -281,6 +281,57 @@ public class KeepADBTileUnlockGateTest {
         }
     }
 
+    /**
+     * #1022: while the unlock prompt was showing, Wifi-ADB was switched on and explicitly off again
+     * from other surfaces. The state reads "off" as at the tap, but the "off" is newer than the
+     * tap, so the old continuation must not switch Wifi-ADB on.
+     */
+    @Test
+    public void unlockCallbackSkipsAfterANewerExplicitOffFromAnotherSurface() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        setDeviceLocked(true);
+        CapturingTileService tile = startTile(CapturingTileService.class);
+        try {
+            tile.onClick();
+            assertEquals(1, tile.pendingUnlockCallbacks.size());
+
+            assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_WIDGET).isSuccess());
+            assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_NOTIFICATION).isSuccess());
+            assertFalse(gateway.isEnabled(context));
+            gateway.writes.clear();
+
+            setDeviceLocked(false);
+            tile.pendingUnlockCallbacks.get(0).run();
+
+            assertTrue("the newer explicit off wins over the older tap", gateway.writes.isEmpty());
+            assertFalse(gateway.isEnabled(context));
+            assertTrue(diagnostics().contains("reason=newer_intent"));
+        } finally {
+            tile.onStopListening();
+        }
+    }
+
+    /** #1022: an automatic request is not a user decision and does not cancel the tap. */
+    @Test
+    public void anAutomaticRequestWhileTheUnlockPromptShowsDoesNotCancelTheTap() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        setDeviceLocked(true);
+        CapturingTileService tile = startTile(CapturingTileService.class);
+        try {
+            tile.onClick();
+            KeepADB.setEnabled(context, false, "keep_alive_check");
+
+            setDeviceLocked(false);
+            tile.pendingUnlockCallbacks.get(0).run();
+            afterReenableGap();
+
+            assertEquals(Collections.singletonList(true), gateway.writes);
+            assertTrue(gateway.isEnabled(context));
+        } finally {
+            tile.onStopListening();
+        }
+    }
+
     private KeepADBFakeSettingsGateway offState() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);
