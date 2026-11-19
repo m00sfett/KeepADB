@@ -44,7 +44,6 @@ public class MainActivityWebhookStatusTest {
 
     @After
     public void tearDown() {
-        KeepADBRegisterClient.resetHttpTransport();
         RuntimeEnvironment.getApplication()
                 .getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit()

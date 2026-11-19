@@ -75,7 +75,6 @@ public class SettingsActivityTest {
                 .clear()
                 .commit();
         KeepADB.resetForTesting();
-        KeepADBRegisterClient.resetHttpTransport();
         KeepADBEndpointCoordinator.resetForTesting();
     }
 

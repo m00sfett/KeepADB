@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.7] - Unreleased
+
+### Testing
+- **No real network in register tests (#1020, versionCode 288):** `KeepADBRegisterClientResetRule` now starts every test with `OFFLINE_TRANSPORT`, which refuses each register request at once without a socket or a DNS lookup; a test that needs a transport still sets its own fake. A probe on the default transport showed that `SettingsActivityTest` sent a real DELETE to the webhook URL it saves (`100.111.111.21:50829`): on CI the unreachable address ran the 2000 ms connect timeout into the 2000 ms drain of the rule and failed the drain at random (run 44428326877); on a machine on the tailnet the request reached the real register server and marked the device inactive. `KeepADBNotificationWebhookStatusTest` (`fake.url`) and `KeepADBWidgetApi30Test` (`register.example`) made real DNS lookups the same way. Four test classes also called `resetHttpTransport()` in their `@After`, which runs before the rule drains, so a request still queued went out through the real transport; those calls are gone (the rule resets the transport after the drain). `KeepADBRegisterClientTest` keeps its loopback servers on purpose. The new regression test proves the offline transport by its outcome (`error=OfflineTestTransport`) and waits up to 5 s, so it cannot flake on a slow runner itself (Codex review of #1023). No app change; the Fastlane note for 288 repeats the 287 text.
+
 ## [1.15.6] - Unreleased
 
 ### Fixed

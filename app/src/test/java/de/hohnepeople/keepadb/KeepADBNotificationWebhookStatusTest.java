@@ -49,7 +49,6 @@ public class KeepADBNotificationWebhookStatusTest {
     @Before
     public void setUp() throws Exception {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
-        KeepADBRegisterClient.resetHttpTransport();
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         setStatic("currentHost", HOST);
@@ -59,7 +58,6 @@ public class KeepADBNotificationWebhookStatusTest {
     @After
     public void tearDown() throws Exception {
         KeepADBRegisterClient.clearRegisterStateListener();
-        KeepADBRegisterClient.resetHttpTransport();
         KeepADBEndpointCoordinator.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
