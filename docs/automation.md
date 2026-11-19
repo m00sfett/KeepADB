@@ -199,8 +199,11 @@ examples have not.
 
 The plugin follows the public Locale plugin API with the Tasker extensions for variables and
 synchronous execution. Checked so far: unit tests (bundle validation, token handling, ordered fire
-and query broadcasts with variables, `REQUEST_QUERY` on changes, both edit screens) and an Android 16 emulator, where the system lists
-the edit screen and the fire receiver for the Locale actions, the fire receiver returns an ordered
-result, and the edit screen shows its states. Tests with Tasker, MacroDroid and Automate on a device
-are still open; MacroDroid (*Third-party plugin* action) and Automate (*Plug-in action* block) are
+and query broadcasts with variables, `REQUEST_QUERY` on changes, both edit screens) and an
+Android 16 emulator with a throwaway test host: it opened both edit screens for result (caller
+shown, configuration with the token returned), fired the action (`ok`, then `rejected_network` on
+an untrusted Wi-Fi) and queried the condition (unsatisfied while off, satisfied with `%kadb_ip` and
+`%kadb_port` once the endpoint was known), and it received `REQUEST_QUERY` for each change and none
+without a change. Tests with Tasker, MacroDroid and Automate on a device are still open; MacroDroid
+(*Third-party plugin* action) and Automate (*Plug-in action* and *Plug-in condition* blocks) are
 documented to host Locale plugins.
