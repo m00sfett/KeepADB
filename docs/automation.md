@@ -177,5 +177,9 @@ Automate example has been checked on a device so far (see above); the Tasker and
 examples have not.
 
 The plugin follows the public Locale plugin API with the Tasker extensions for variables and
-synchronous execution. It has been tested with unit tests and on an emulator with a simulated
-host; tests with Tasker, MacroDroid and Automate on a device are still open.
+synchronous execution. Checked so far: unit tests (bundle validation, token handling, an ordered
+fire broadcast with variables, the edit screen) and an Android 16 emulator, where the system lists
+the edit screen and the fire receiver for the Locale actions, the fire receiver returns an ordered
+result, and the edit screen shows its states. Tests with Tasker, MacroDroid and Automate on a device
+are still open; MacroDroid (*Third-party plugin* action) and Automate (*Plug-in action* block) are
+documented to host Locale plugins.
