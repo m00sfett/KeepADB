@@ -248,6 +248,27 @@ public class KeepADBToggleShortcutActivityTest {
         assertTrue(second.isFinishing());
     }
 
+    /** #1022: an explicit "off" from another surface after the tap wins over the old tap. */
+    @Test
+    public void unlockCallbackSkipsAfterANewerExplicitOffFromAnotherSurface() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        setDeviceLocked(true);
+        CapturingShortcutActivity activity = start(CapturingShortcutActivity.class);
+        assertEquals(1, activity.onUnlocked.size());
+
+        assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_WIDGET).isSuccess());
+        assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_NOTIFICATION).isSuccess());
+        gateway.writes.clear();
+
+        setDeviceLocked(false);
+        activity.onUnlocked.get(0).run();
+
+        assertTrue("the newer explicit off wins over the older tap", gateway.writes.isEmpty());
+        assertFalse(gateway.isEnabled(context));
+        assertTrue(activity.isFinishing());
+        assertTrue(diagnostics().contains("reason=newer_intent"));
+    }
+
     private KeepADBFakeSettingsGateway offState() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);

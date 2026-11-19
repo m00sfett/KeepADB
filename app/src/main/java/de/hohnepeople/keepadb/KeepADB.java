@@ -74,6 +74,10 @@ final class KeepADB {
     private static boolean pendingToggleManual;
     // #1013: the direction of the pending runnable, set and read together with it.
     private static boolean pendingToggleOn;
+    // #1022: counts the explicit user decisions setEnabled() accepted (manual sources except the
+    // self-pairing cleanup, so a Keep-Alive pulse, a timer expiry or that cleanup does not count). An unlock continuation captures it at
+    // its tap and acts only while it is unchanged. Read and written under the class lock.
+    private static long explicitIntentGeneration;
     // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
     // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
     // the surfaces' "switching…" indicator; this one changes no state a surface renders.
@@ -413,6 +417,16 @@ final class KeepADB {
         return !isManualEnablePending() && desiredOnForClick(state);
     }
 
+    /**
+     * #1022: the number of explicit user decisions accepted so far. A tile or shortcut tap that has
+     * to wait for an unlock captures it; after the unlock, a changed value means the user decided
+     * something newer on another surface (or a second continuation already acted), so the old
+     * tap must not act any more.
+     */
+    static synchronized long explicitIntentGeneration() {
+        return explicitIntentGeneration;
+    }
+
     /** #1019: a direct user "on" is waiting in its re-enable gap and is still the newest intent. */
     static synchronized boolean isManualEnablePending() {
         return isManualIntentPending() && pendingToggleOn;
@@ -557,6 +571,12 @@ final class KeepADB {
                 // directions -- an explicit off is just as much evidence the user is in control
                 // as an explicit on.
                 recoveryBackoff.reset();
+                // #1022: a newer explicit decision voids every unlock continuation still waiting.
+                // The self-pairing cleanup writes like a manual source but is not the user's
+                // decision about Wifi-ADB (see KeepADBManualToggle), so it voids nothing.
+                if (!SOURCE_SELF_PAIRING.equals(source)) {
+                    ++explicitIntentGeneration;
+                }
             }
             // #776: with a pending predecessor still the newest intent, the persisted/in-memory
             // last intent is that predecessor's (never applied) value -- inherit the baseline it
@@ -1040,6 +1060,7 @@ final class KeepADB {
         }
         pendingToggleManual = false;
         pendingToggleOn = false;
+        explicitIntentGeneration = 0;
         if (pendingBackoffConfirmationRunnable != null) {
             scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);
             pendingBackoffConfirmationRunnable = null;

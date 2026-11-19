@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.8] - Unreleased
+
+### Fixed
+- An unlock continuation of the tile or a launcher shortcut no longer overrides a newer explicit decision (#1022, versionCode 289). A tap that asks for "on" on a locked phone waits for the unlock (#586); `KeepADBToggleGate.enableStillWanted` used to re-read only the state, so after "on" and an explicit "off" from another surface while the unlock prompt was showing, the old tap still switched Wifi-ADB on. `KeepADB` now counts the explicit decisions `setEnabled` accepts from manual sources (`explicitIntentGeneration`); the tile, the "Toggle Wifi-ADB" shortcut and the timer shortcut capture it at the tap and skip the continuation when it changed (`after_unlock reason=newer_intent` in the journal). Keep-Alive and other automatic requests do not count, so they never cancel a tap. The self-pairing cleanup writes like a manual source but is not the user's decision, so it does not count either (Codex review of #1024). A second continuation after a first one that enabled skips the same way. The Fastlane note for 289 shortens "Fixed: quick double toggles." to "Fixed: toggle races.", which covers #1019 and #1022 within the 500-character limit.
+
 ## [1.15.7] - Unreleased
 
 ### Testing
