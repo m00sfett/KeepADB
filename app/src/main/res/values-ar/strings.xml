@@ -709,6 +709,25 @@
     <string name="onboarding_perm_browser_body">افتح هذا العنوان على جهاز كمبيوتر في Chrome أو Edge واتبع الخطوات الثلاث:</string>
     <string name="onboarding_perm_browser_prereq">شغّل تصحيح أخطاء USB على هذا الهاتف ووصّله بكابل USB.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">الأتمتة</string>
+    <string name="settings_automation_subtext">يسمح لتطبيقات الأتمتة مثل Tasker أو MacroDroid أو Automate بالتحكم في KeepADB عبر نوايا البث. يتطلب تشغيل Wifi-ADB أو Keep-Alive رمز الوصول أدناه؛ وتبقى شبكات Wi-Fi التي تحظرها إعدادات «الحماية» محظورة.</string>
+    <string name="settings_automation_toggle">السماح لتطبيقات الأتمتة</string>
+    <string name="settings_automation_dialog_title">هل تريد السماح لتطبيقات الأتمتة؟</string>
+    <string name="settings_automation_dialog_message">يمكن لأي تطبيق على هذا الهاتف إرسال طلبات إلى KeepADB. لا يمكن تشغيل Wifi-ADB أو Keep-Alive إلا بالطلبات التي تحمل رمز الوصول، حتى عندما يكون الهاتف مقفلًا. لا يتطلب الإيقاف ومعرفة ما إذا كان Wifi-ADB قيد التشغيل أي رمز. تبقى شبكات Wi-Fi التي تحظرها إعدادات «الحماية» محظورة. لا تشارك الرمز إلا مع تطبيقات تثق بها.</string>
+    <string name="settings_automation_dialog_confirm">سماح</string>
+    <string name="settings_automation_token_label">رمز الوصول</string>
+    <string name="settings_automation_token_show">إظهار</string>
+    <string name="settings_automation_token_hide">إخفاء</string>
+    <string name="settings_automation_token_copy">نسخ</string>
+    <string name="settings_automation_token_copied">تم نسخ الرمز</string>
+    <string name="settings_automation_token_regenerate">رمز جديد</string>
+    <string name="settings_automation_regenerate_title">هل تريد إنشاء رمز جديد؟</string>
+    <string name="settings_automation_regenerate_message">يتوقف الرمز الحالي عن العمل فورًا. ستحتاج كل أتمتة تستخدمه إلى الرمز الجديد.</string>
+    <string name="settings_automation_regenerate_confirm">إنشاء</string>
+    <string name="settings_automation_rejected_none">لا توجد طلبات مرفوضة.</string>
+    <string name="settings_automation_rejected">الطلبات المرفوضة: %1$d (آخرها: %2$s)</string>
+    <string name="settings_automation_docs">دليل الإعداد</string>
     <string name="settings_backup_title">نسخة احتياطية للإعدادات</string>
     <string name="settings_backup_subtext">يحفظ إعداداتك في ملف ويستعيدها بعد إعادة التثبيت: مستوى الحماية، الشبكات الموثوقة والمحظورة، قواعد الشبكة، وخيارات الخصوصية والإشعارات وWebhook. إذن النظام ليس جزءًا منها، والاستيراد لا يشغّل Wifi-ADB أو Keep-Alive أبدًا.</string>
     <string name="settings_backup_export">تصدير الإعدادات</string>

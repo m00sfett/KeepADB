@@ -273,6 +273,26 @@ public class KeepADBUntrustedShutdownTest {
         assertEquals(Arrays.asList(true, false), gateway.writes);
     }
 
+    /** #998: an automation "on" passed the network protection; it never exempts a network. */
+    @Test
+    public void automationEnableGrantsNoExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_AUTOMATION);
+        assertFalse(KeepADBUntrustedShutdown.isManuallyExempt(context));
+    }
+
+    /** #998: an automation "off" ends an exemption like any manual off. */
+    @Test
+    public void automationDisableEndsAnExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertTrue(KeepADBUntrustedShutdown.isManuallyExempt(context));
+        KeepADB.setEnabled(context, false, KeepADB.SOURCE_AUTOMATION);
+        assertFalse(KeepADBUntrustedShutdown.isManuallyExempt(context));
+    }
+
     /** Codex review: an unreadable identity cannot prove the same access point. */
     @Test
     public void manualEnableOnAnUnreadableIdentityGrantsNoExemption() {

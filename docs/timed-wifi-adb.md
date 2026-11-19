@@ -17,8 +17,8 @@ occasional "I need ADB for this one tool" case without leaving Wifi-ADB on for g
   left; at the cap the button disappears. On the notification it needs an unlocked device.
 - **"No limit"** removes the timer and leaves Wifi-ADB as it is; from then on only the Keep-Alive
   setting decides.
-- **A manual on or off** on any surface (app, tile, widget, notification, shortcut) ends a running
-  timer. Not ending it: "Allow" on the trust prompt (it answers a question about the network, the
+- **A manual on or off** on any surface (app, tile, widget, notification, shortcut, an automation
+  request, #998) ends a running timer. Not ending it: "Allow" on the trust prompt (it answers a question about the network, the
   timer keeps running) and the self-pairing setup. A new timer start replaces the running one with the new duration from now.
 
 ## What the timer does while it runs

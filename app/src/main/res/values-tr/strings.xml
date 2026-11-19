@@ -705,6 +705,25 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_perm_browser_body">Bilgisayarda bu adresi Chrome veya Edge ile açın ve üç adımı izleyin:</string>
     <string name="onboarding_perm_browser_prereq">Bu telefonda USB hata ayıklamayı açın ve USB kablosuyla bağlayın.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Otomasyon</string>
+    <string name="settings_automation_subtext">Tasker, MacroDroid veya Automate gibi otomasyon uygulamalarının KeepADB\'yi yayın intent\'leriyle kontrol etmesine izin verir. Wifi-ADB\'yi veya Keep-Alive\'ı açmak için aşağıdaki erişim belirteci gerekir; Koruma ayarlarının engellediği Wi-Fi ağları engelli kalır.</string>
+    <string name="settings_automation_toggle">Otomasyon uygulamalarına izin ver</string>
+    <string name="settings_automation_dialog_title">Otomasyon uygulamalarına izin verilsin mi?</string>
+    <string name="settings_automation_dialog_message">Bu telefondaki her uygulama KeepADB\'ye istek gönderebilir. Yalnızca erişim belirtecini içeren istekler Wifi-ADB\'yi veya Keep-Alive\'ı açabilir, telefon kilitliyken de. Kapatmak ve Wifi-ADB\'nin açık olup olmadığını sorgulamak için belirteç gerekmez. Koruma ayarlarının engellediği Wi-Fi ağları engelli kalır. Belirteci yalnızca güvendiğiniz uygulamalarla paylaşın.</string>
+    <string name="settings_automation_dialog_confirm">İzin ver</string>
+    <string name="settings_automation_token_label">Erişim belirteci</string>
+    <string name="settings_automation_token_show">Göster</string>
+    <string name="settings_automation_token_hide">Gizle</string>
+    <string name="settings_automation_token_copy">Kopyala</string>
+    <string name="settings_automation_token_copied">Belirteç kopyalandı</string>
+    <string name="settings_automation_token_regenerate">Yeni belirteç</string>
+    <string name="settings_automation_regenerate_title">Yeni belirteç oluşturulsun mu?</string>
+    <string name="settings_automation_regenerate_message">Mevcut belirteç hemen çalışmayı bırakır. Onu kullanan her otomasyonun yenisine ihtiyacı olur.</string>
+    <string name="settings_automation_regenerate_confirm">Oluştur</string>
+    <string name="settings_automation_rejected_none">Reddedilen istek yok.</string>
+    <string name="settings_automation_rejected">Reddedilen istekler: %1$d (son: %2$s)</string>
+    <string name="settings_automation_docs">Kurulum kılavuzu</string>
     <string name="settings_backup_title">Ayar yedeği</string>
     <string name="settings_backup_subtext">Ayarlarını bir dosyaya kaydeder ve yeniden kurulumdan sonra geri yükler: koruma düzeyi, güvenilen ve engellenen ağlar, ağ kuralları, gizlilik, bildirim ve Webhook seçenekleri. Sistem izni buna dahil değildir ve içe aktarma Wifi-ADB veya Keep-Alive özelliğini asla açmaz.</string>
     <string name="settings_backup_export">Ayarları dışa aktar</string>

@@ -141,6 +141,9 @@ public class KeepADBDefaultsAuditTest {
             // #997: protection default, on for new installations (existing ones are migrated to off)
             new Setting("open_network_shutdown_enabled", Kind.SECURITY, true, false,
                     c -> KeepADBPreferences.isOpenNetworkShutdownEnabled(c)),
+            // #998: the automation interface, an exported entry point, is an opt-in
+            new Setting("automation_enabled", Kind.SECURITY, false, true,
+                    c -> KeepADBPreferences.isAutomationEnabled(c)),
             // Data leaving the device or the lock screen
             new Setting("register_webhook_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isRegisterWebhookEnabled(c)),
@@ -201,7 +204,9 @@ public class KeepADBDefaultsAuditTest {
             "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at",
             // #904: bookkeeping of the one-time privacy split, and the retired #592 key (read only
             // by that migration, never written any more)
-            "privacy_split_initialized", "notification_details_enabled")));
+            "privacy_split_initialized", "notification_details_enabled",
+            // #998: the automation token (generated on the first enable) and the rejection counter
+            "automation_token", "automation_rejected_count", "automation_last_rejected_at")));
 
     /** What {@link KeepADBApplication#onCreate} leaves behind on a new installation (#904, #997). */
     private static final Set<String> FIRST_START_KEYS = new TreeSet<>(Arrays.asList(
@@ -254,6 +259,9 @@ public class KeepADBDefaultsAuditTest {
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(app));
         // #997: the open-network rule protects a new installation from the start.
         assertTrue(KeepADBPreferences.isOpenNetworkShutdownEnabled(app));
+        // #998: no other app can control KeepADB, and there is no token yet.
+        assertFalse(KeepADBPreferences.isAutomationEnabled(app));
+        assertNull(KeepADBPreferences.getAutomationToken(app));
         // ...and the lists a trust decision reads start empty.
         assertTrue(KeepADBTrustedNetwork.getEntries(app).isEmpty());
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(app).isEmpty());

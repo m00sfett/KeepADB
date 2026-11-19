@@ -23,6 +23,23 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.5] - Unreleased
+
+### Added
+- Automation interface (#998, versionCode 286): automation apps (Tasker, MacroDroid, Automate, `adb shell am broadcast`) control KeepADB with explicit broadcasts to `KeepADBAutomationReceiver`, the only exported receiver. Actions `de.hohnepeople.keepadb.action.WIFI_ADB_ON`, `WIFI_ADB_OFF`, `WIFI_ADB_TOGGLE`, `KEEP_ALIVE_ON`, `KEEP_ALIVE_OFF`, `STATUS`; extras `token` and `reply_package`; reply `de.hohnepeople.keepadb.action.RESULT` (`request`, `result` = `ok`/`rejected_token`/`rejected_network`/`failed_permission`/`failed`, `wifi_adb`, `keep_alive`, and `ip`/`port` only with a valid token), sent only to the named package. The contract is public and additive-only from here (`docs/automation.md`).
+- Settings → Automation: opt-in switch with a risk dialog, the access token masked until "Show", "Copy" (clipboard marked sensitive), "New token" with confirmation, the number and time of rejected requests, and a link to the setup guide. 18 new strings in all 19 locales.
+- Optional request extra `request_id` (up to 128 characters), echoed unchanged in the reply so a client can match replies to its own requests; never logged (Codex review of #1018).
+
+### Security
+- Decisions of 2026-11-18 (grilling session on #998): the interface is off by default and ignores every request while off (no reply, a journal line only). Everything that can switch something on needs the token (32 bytes from `SecureRandom`, Base64url, generated on the first enable, kept when switched off, compared with `MessageDigest.isEqual`); turning off and the on/off status need none. A rejected token is counted, without lockout. A Wifi-ADB "on" needs a connected Wi-Fi whose network allows an automatic enable, re-checked by an `EnableGuard` inside the toggle lock, and works on a locked phone. Requests use the new manual source `KeepADB.SOURCE_AUTOMATION`: written at once, Keep-Alive respects an automation "off", a running timer ends and an "off" ends Force mode; unlike a tap an automation "on" records no untrusted-network exemption (`KeepADBUntrustedShutdown`), its "off" still ends one. The token and the switch are not in the settings backup (`KeepADBSettingsBackup` exports only ruled keys), the diagnostics journal or webhook payloads; a source contract test pins which classes read the token. SECURITY.md has a new "Automation interface" section.
+- Flood damping (Codex review of #1018): requests without a valid token (any installed app can send them in a loop) write at most one diagnostics line per kind every `FLOOD_WINDOW_MS` (10 s), the next line carrying `suppressed=N`, and the rejection counter is kept in memory and saved at most once per window (the first rejection at once; Settings flushes the rest before showing it; `KeepADBPreferences.recordAutomationRejections`). Token-authorized requests are never throttled.
+
+### Fixed
+- The Settings text and the risk dialog no longer claim that untrusted, open and sign-in Wi-Fi networks are always blocked: an automation "on" follows the Protection settings like Keep-Alive (Force mode, "Turn off on open Wi-Fi" off and the previous "All Wi-Fi networks" setting are exceptions). Reworded in all 19 locales; `docs/automation.md` and SECURITY.md list the exceptions (Codex review of #1018).
+
+### Documentation
+- `docs/automation.md` (contract, examples for Tasker, MacroDroid, Automate and adb), README, `docs/README.md`, `docs/defaults.md` (`automation_enabled` off), `docs/settings-backup.md` (not included), `docs/timed-wifi-adb.md` (an automation request ends a timer). The Fastlane note repeats the summary since 1.14.1 and now names the automation interface.
+
 ## [1.15.4] - Unreleased
 
 ### Fixed

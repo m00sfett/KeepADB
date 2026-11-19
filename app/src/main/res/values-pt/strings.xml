@@ -706,6 +706,25 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_perm_browser_body">Em um computador, abra este endereço no Chrome ou no Edge e siga as três etapas:</string>
     <string name="onboarding_perm_browser_prereq">Ative a depuração USB neste telefone e conecte-o com um cabo USB.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Automação</string>
+    <string name="settings_automation_subtext">Permite que apps de automação como Tasker, MacroDroid ou Automate controlem o KeepADB com intents de broadcast. Para ativar o Wifi-ADB ou o Keep-Alive é necessário o token de acesso abaixo; redes Wi-Fi bloqueadas pelas configurações de Proteção continuam bloqueadas.</string>
+    <string name="settings_automation_toggle">Permitir apps de automação</string>
+    <string name="settings_automation_dialog_title">Permitir apps de automação?</string>
+    <string name="settings_automation_dialog_message">Qualquer app neste telefone pode enviar pedidos ao KeepADB. Só pedidos com o token de acesso podem ativar o Wifi-ADB ou o Keep-Alive, também com o telefone bloqueado. Desativar e consultar se o Wifi-ADB está ativo não precisam de token. Redes Wi-Fi bloqueadas pelas configurações de Proteção continuam bloqueadas. Compartilhe o token apenas com apps em que você confia.</string>
+    <string name="settings_automation_dialog_confirm">Permitir</string>
+    <string name="settings_automation_token_label">Token de acesso</string>
+    <string name="settings_automation_token_show">Mostrar</string>
+    <string name="settings_automation_token_hide">Ocultar</string>
+    <string name="settings_automation_token_copy">Copiar</string>
+    <string name="settings_automation_token_copied">Token copiado</string>
+    <string name="settings_automation_token_regenerate">Novo token</string>
+    <string name="settings_automation_regenerate_title">Criar um novo token?</string>
+    <string name="settings_automation_regenerate_message">O token atual deixa de funcionar imediatamente. Cada automação que o usa precisará do novo.</string>
+    <string name="settings_automation_regenerate_confirm">Criar</string>
+    <string name="settings_automation_rejected_none">Nenhum pedido recusado.</string>
+    <string name="settings_automation_rejected">Pedidos recusados: %1$d (último: %2$s)</string>
+    <string name="settings_automation_docs">Guia de configuração</string>
     <string name="settings_backup_title">Backup das configurações</string>
     <string name="settings_backup_subtext">Salva suas configurações em um arquivo e as restaura após reinstalar: nível de proteção, redes fiáveis e bloqueadas, regras de rede, opções de privacidade, notificação e Webhook. A permissão do sistema não faz parte, e uma importação nunca ativa o Wifi-ADB nem o Keep-Alive.</string>
     <string name="settings_backup_export">Exportar configurações</string>

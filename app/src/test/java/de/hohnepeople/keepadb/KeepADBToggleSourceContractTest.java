@@ -42,6 +42,7 @@ public class KeepADBToggleSourceContractTest {
         EXPECTED_SOURCES.add("self_pairing");
         EXPECTED_SOURCES.add("timer");
         EXPECTED_SOURCES.add("timer_expiry");
+        EXPECTED_SOURCES.add("automation");
     }
 
     @Test
@@ -58,6 +59,8 @@ public class KeepADBToggleSourceContractTest {
         // #1000: the timer start is the user's tap; its expiry is time, so automatic.
         assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_TIMER));
         assertFalse(KeepADB.isManualSource(KeepADB.SOURCE_TIMER_EXPIRY));
+        // #998: an automation request is the user's decision too (token-authorized).
+        assertTrue(KeepADB.isManualSource(KeepADB.SOURCE_AUTOMATION));
 
         assertFalse(KeepADB.isManualSource("keep_alive_check"));
         assertFalse(KeepADB.isManualSource("content_observer"));
@@ -141,6 +144,9 @@ public class KeepADBToggleSourceContractTest {
         }
         if ("SOURCE_TIMER_EXPIRY".equals(constantName)) {
             return KeepADB.SOURCE_TIMER_EXPIRY;
+        }
+        if ("SOURCE_AUTOMATION".equals(constantName)) {
+            return KeepADB.SOURCE_AUTOMATION;
         }
         throw new IllegalStateException("Unmapped KeepADB source constant: " + constantName);
     }

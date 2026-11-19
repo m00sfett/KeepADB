@@ -706,6 +706,25 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_perm_browser_body">Sur un ordinateur, ouvrez cette adresse dans Chrome ou Edge et suivez les trois étapes :</string>
     <string name="onboarding_perm_browser_prereq">Activez le débogage USB sur ce téléphone et branchez-le avec un câble USB.</string>
     <!-- #1001: settings backup -->
+    <!-- #998: automation interface -->
+    <string name="settings_automation_title">Automatisation</string>
+    <string name="settings_automation_subtext">Permet aux applis d\'automatisation comme Tasker, MacroDroid ou Automate de piloter KeepADB par des intents de diffusion. Activer Wifi-ADB ou Keep-Alive nécessite le jeton d\'accès ci-dessous ; les réseaux Wi-Fi bloqués par les réglages de Protection restent bloqués.</string>
+    <string name="settings_automation_toggle">Autoriser les applis d\'automatisation</string>
+    <string name="settings_automation_dialog_title">Autoriser les applis d\'automatisation ?</string>
+    <string name="settings_automation_dialog_message">Toute appli de ce téléphone peut envoyer des requêtes à KeepADB. Seules les requêtes avec le jeton d\'accès peuvent activer Wifi-ADB ou Keep-Alive, même téléphone verrouillé. Désactiver et savoir si Wifi-ADB est actif ne demandent pas de jeton. Les réseaux Wi-Fi bloqués par les réglages de Protection restent bloqués. Ne donnez le jeton qu\'aux applis auxquelles vous faites confiance.</string>
+    <string name="settings_automation_dialog_confirm">Autoriser</string>
+    <string name="settings_automation_token_label">Jeton d\'accès</string>
+    <string name="settings_automation_token_show">Afficher</string>
+    <string name="settings_automation_token_hide">Masquer</string>
+    <string name="settings_automation_token_copy">Copier</string>
+    <string name="settings_automation_token_copied">Jeton copié</string>
+    <string name="settings_automation_token_regenerate">Nouveau jeton</string>
+    <string name="settings_automation_regenerate_title">Créer un nouveau jeton ?</string>
+    <string name="settings_automation_regenerate_message">Le jeton actuel cesse de fonctionner immédiatement. Chaque automatisation qui l\'utilise aura besoin du nouveau.</string>
+    <string name="settings_automation_regenerate_confirm">Créer</string>
+    <string name="settings_automation_rejected_none">Aucune requête refusée.</string>
+    <string name="settings_automation_rejected">Requêtes refusées : %1$d (dernière : %2$s)</string>
+    <string name="settings_automation_docs">Guide de configuration</string>
     <string name="settings_backup_title">Sauvegarde des réglages</string>
     <string name="settings_backup_subtext">Enregistre vos réglages dans un fichier et les restaure après une réinstallation : niveau de protection, réseaux approuvés et bloqués, règles réseau, options de confidentialité, de notification et Webhook. L’autorisation système n’en fait pas partie, et une importation n’active jamais Wifi-ADB ni Keep-Alive.</string>
     <string name="settings_backup_export">Exporter les réglages</string>
