@@ -131,7 +131,7 @@ point name in KeepADB when the notification privacy switch is on.
 ## Automation interface
 
 From 1.15 KeepADB has an opt-in automation interface (#998): automation apps such as Tasker,
-MacroDroid or Automate send explicit broadcasts to `KeepADBAutomationReceiver`, the only exported
+MacroDroid or Automate send explicit broadcasts to `KeepADBAutomationReceiver`, an exported
 receiver of the app. The contract is documented in [Automation interface](docs/automation.md).
 
 **Threat:** any installed app can send a broadcast to an exported receiver; Android names no
@@ -170,8 +170,26 @@ authorizes nothing:
   payload and never in the settings backup; neither is the interface's on/off switch, so an import
   never opens the entry point. Android backup and device transfer are disabled for all app data.
 
-Anyone who can read the token (an app the user gave it to, or someone with access to the unlocked
-Settings page) can switch Wifi-ADB on within these limits. Android's TLS pairing still protects
+**Tasker/Locale plugin (#999).** The plugin adds two exported components:
+`KeepADBPluginFireReceiver` (`FIRE_SETTING`) and `KeepADBPluginEditActivity` (`EDIT_SETTING`). The
+fire receiver decides nothing itself; it passes the request and the token from the saved
+configuration to the same check as a broadcast, so the opt-in, the token and the network protection
+apply unchanged. Two risks are specific to the plugin:
+
+- **The token is stored in the host app.** On, toggle and status actions keep it in the automation
+  app's configuration, and with it in that app's backups, exports and shared tasks. The edit screen
+  says so; the two "off" requests store no token.
+- **The edit screen hands out the token.** It must be exported for the host to find it, so any
+  app can open it for result. It saves only while the interface is on, only when Android names a
+  calling app (`getCallingPackage()`, set by the system), shows that app's label and package name,
+  and asks again before saving for any app other than Tasker, MacroDroid, Automate or Locale. The
+  user still has to tap Save. Residual risk: a known package name is not checked against a
+  signature, so an app installed under the package name of a known host that is not installed
+  would skip the second question.
+
+Anyone who can read the token (an app the user gave it to, someone with access to the unlocked
+Settings page, or anyone with a backup or shared copy of a plugin action) can switch Wifi-ADB on
+within these limits. Android's TLS pairing still protects
 the debugging session itself.
 
 ## Notifications, webhook, and local data

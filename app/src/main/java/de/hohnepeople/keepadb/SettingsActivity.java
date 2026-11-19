@@ -41,6 +41,8 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_PRIVACY = "focus_privacy";
     /** #940: expands and scrolls to the Diagnostics and Maintenance card (home menu). */
     public static final String EXTRA_FOCUS_DIAGNOSTICS = "focus_diagnostics";
+    /** #999: opens the Automation card, the plugin edit screen links here while it is off. */
+    public static final String EXTRA_FOCUS_AUTOMATION = "focus_automation";
     /** Formerly the heading of the Network card; since #959 it opens the Protection page. */
     public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
     private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
@@ -270,6 +272,10 @@ public class SettingsActivity extends Activity {
         }
         if (consumeFocus(EXTRA_FOCUS_PRIVACY)) {
             focusPrivacyCard();
+        }
+        if (consumeFocus(EXTRA_FOCUS_AUTOMATION)) {
+            focusCard(R.id.settings_automation_header, R.id.settings_automation_body,
+                    R.id.settings_automation_arrow);
         }
         if (consumeFocus(EXTRA_FOCUS_DIAGNOSTICS)) {
             focusCard(R.id.settings_diagnostics_header, R.id.settings_diagnostics_body,

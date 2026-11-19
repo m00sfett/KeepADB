@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ground"
+    android:orientation="vertical">
+
+    <!-- #999: the edit screen of the Tasker/Locale action plugin. Opened by the automation app
+         for result; it names that app, offers one request and returns it with the token. -->
+    <LinearLayout
+        android:id="@+id/header_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/banner_red"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_btn_header"
+            android:contentDescription="@string/back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/plugin_action_label"
+            android:textColor="@color/title_yellow"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- The body takes the bottom inset, so the Save button stays on the screen. -->
+    <LinearLayout
+        android:id="@+id/plugin_body"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="32dp"
+        android:fillViewport="true"
+        android:requiresFadingEdge="vertical">
+
+        <de.hohnepeople.keepadb.KeepADBContentColumnLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- Who receives the configuration (and with it the token), set in code. -->
+            <TextView
+                android:id="@+id/plugin_caller"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@color/title_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Shown while the automation interface is off. -->
+            <TextView
+                android:id="@+id/plugin_disabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/plugin_disabled"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/plugin_open_settings"
+                style="@style/Widget.KeepADB.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/plugin_open_settings"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/plugin_config"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:accessibilityHeading="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/plugin_request_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <!-- One radio button per request, built in code. -->
+                <RadioGroup
+                    android:id="@+id/plugin_requests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/plugin_token_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/plugin_token_warning"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </de.hohnepeople.keepadb.KeepADBContentColumnLayout>
+    </ScrollView>
+
+        <de.hohnepeople.keepadb.KeepADBContentColumnLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/plugin_save"
+                style="@style/Widget.KeepADB.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/plugin_save" />
+        </de.hohnepeople.keepadb.KeepADBContentColumnLayout>
+    </LinearLayout>
+</LinearLayout>

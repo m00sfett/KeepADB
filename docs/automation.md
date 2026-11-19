@@ -76,6 +76,45 @@ Action: `de.hohnepeople.keepadb.action.RESULT`
 
 New extras may be added in later versions; existing names and values stay as they are.
 
+## Tasker plugin (#999)
+
+Instead of typing action names and the token, you can add KeepADB as a **plugin action**. In Tasker:
+*Add action → Plugin → KeepADB action*. MacroDroid and Automate list Locale/Tasker plugins as well
+(see the compatibility note below).
+
+The KeepADB screen that opens offers one request per action: Wifi-ADB on, off or toggle, Keep-Alive
+on or off, or only read the status. KeepADB puts the token into the saved action itself.
+
+- **The interface must be on.** While Settings → Automation is off, the screen only says so and
+  links to the Settings, and a saved action does nothing (`%kadb_result` = `disabled`).
+- **The same rules as a broadcast apply.** The plugin hands the request to the same check as the
+  broadcasts above: token, network protection, flood damping and the rejection counter are shared.
+- **The token is stored in the automation app.** On, toggle and status save it in the action's
+  configuration; it is part of that app's backups, exports and shared tasks or projects. Share such
+  a task only without the KeepADB action, or create a new token afterwards. The two "off" requests
+  need no token and do not store one.
+- **A new token** stops saved on, toggle and status actions (`rejected_token`). Open each saved
+  KeepADB action once and save it again; KeepADB then inserts the new token.
+- **The screen names the app it saves for.** Any app can open it, so it shows who receives the
+  configuration. For an app other than Tasker, MacroDroid, Automate or Locale it asks again before
+  saving, and opened without a calling app it saves nothing.
+
+Tasker runs the action synchronously and then sets these local variables:
+
+| Variable | Value |
+|---|---|
+| `%kadb_result` | `ok`, `rejected_token`, `rejected_network`, `failed_permission`, `failed`, `disabled` (interface off) or `invalid_config` |
+| `%kadb_state` | Wifi-ADB `on` or `off` (not set while the interface is off) |
+| `%kadb_keep_alive` | Keep-Alive `on` or `off` (not set while the interface is off) |
+| `%kadb_ip`, `%kadb_port` | Only for an action with a valid token, while Wifi-ADB is on and KeepADB knows the endpoint |
+
+Any result other than `ok` makes the action fail, with the result as error text (`%errmsg`). Use
+Tasker's *Continue Task After Error* to react to it.
+
+The address and port follow the rule of the broadcast reply: only with the token. The privacy
+switches under Settings → Privacy mask what KeepADB shows on its own screens, notifications and
+widgets; they do not apply to the plugin, which only answers the app the user configured.
+
 ## Examples
 
 Replace `TOKEN` with the token you copied from Settings.
@@ -130,9 +169,13 @@ device you control, and use **New token** in Settings afterwards.
 
 ## Not yet included
 
-- A Tasker/Locale plugin with its own settings screen, conditions and variables (#999).
+- Plugin conditions ("Wifi-ADB is on", "endpoint known") (#999, second part).
 - A timer action ("on for N minutes").
 
 Whether each automation app receives a broadcast sent to its package depends on the app. Only the
 Automate example has been checked on a device so far (see above); the Tasker and MacroDroid
 examples have not.
+
+The plugin follows the public Locale plugin API with the Tasker extensions for variables and
+synchronous execution. It has been tested with unit tests and on an emulator with a simulated
+host; tests with Tasker, MacroDroid and Automate on a device are still open.

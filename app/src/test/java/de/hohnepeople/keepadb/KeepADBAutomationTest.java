@@ -467,15 +467,17 @@ public class KeepADBAutomationTest {
             }
         }
         readers.sort(null);
+        // #999: the plugin edit screen hands the token to the automation app on purpose, only
+        // after the user saves (KeepADBTaskerPluginTest covers its caller checks).
         assertEquals("the token must not reach logs, diagnostics, webhooks or exports",
                 List.of("KeepADBAutomation.java", "KeepADBAutomationSection.java",
-                        "KeepADBPreferences.java"), readers);
+                        "KeepADBPluginEditActivity.java", "KeepADBPreferences.java"), readers);
     }
 
     // ---- Manifest contract ------------------------------------------------------------------
 
     @Test
-    public void automationReceiverIsTheOnlyExportedReceiverAndOwnsExactlyTheContractActions()
+    public void automationReceiverIsExportedAndOwnsExactlyTheContractActions()
             throws IOException {
         String manifest = new String(Files.readAllBytes(
                 root().resolve("app/src/main/AndroidManifest.xml")), StandardCharsets.UTF_8);
@@ -487,9 +489,10 @@ public class KeepADBAutomationTest {
             if (receiver.contains("android:exported=\"true\"")) exported.add(receiver);
             if (receiver.contains("android:name=\".KeepADBAutomationReceiver\"")) automation = receiver;
         }
-        assertEquals("exactly one exported receiver", 1, exported.size());
+        // #999 adds the plugin fire receiver; KeepADBTaskerPluginTest checks that one.
+        assertEquals("exactly two exported receivers", 2, exported.size());
         assertNotNull(automation);
-        assertEquals(automation, exported.get(0));
+        assertTrue(exported.contains(automation));
         assertFalse("no permission would make it unreachable for Tasker",
                 automation.contains("android:permission"));
         Matcher actions = Pattern.compile("<action android:name=\"([^\"]+)\"").matcher(automation);

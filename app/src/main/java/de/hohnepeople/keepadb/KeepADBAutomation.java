@@ -439,7 +439,7 @@ final class KeepADBAutomation {
      * can send in a loop) is written at most once per kind and {@link #FLOOD_WINDOW_MS}; the
      * next written line of that kind says how many were left out.
      */
-    private static void journal(Context app, String outcome, String detail, boolean throttled) {
+    static void journal(Context app, String outcome, String detail, boolean throttled) {
         if (throttled) {
             long now = clock.getAsLong();
             String key = outcome + ' ' + detail;

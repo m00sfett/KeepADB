@@ -23,6 +23,19 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.9] - Unreleased
+
+### Added
+- **Tasker/Locale action plugin (#999, first part, versionCode 290):** KeepADB can now be added as a plugin action (Tasker: *Plugin → KeepADB action*) instead of typing intent names and the token. The new `KeepADBPluginEditActivity` (exported, `EDIT_SETTING`) offers Wifi-ADB on, off or toggle, Keep-Alive on or off, and "only read the status"; KeepADB inserts the current token into the saved configuration itself, and the two "off" requests store no token. `KeepADBPluginFireReceiver` (exported, `FIRE_SETTING`) decides nothing: `KeepADBTaskerPlugin.fire` validates the bundle (version, request id, token type and length, foreign host keys ignored) and passes request and token to `KeepADBAutomation.process`, so the opt-in, the token check, the network protection, flood damping and the rejection counter are the B1a ones. Tasker runs the action synchronously and gets `%kadb_result`, `%kadb_state`, `%kadb_keep_alive` and, only with a valid token, `%kadb_ip`/`%kadb_port`; any result other than `ok` fails the action with the result in `%errmsg`. A disabled interface does nothing and returns `disabled`; an invalid bundle returns `invalid_config` and writes a throttled journal line. The protocol constants are copied from the Locale API and `TaskerPlugin.java`; no library.
+- **Edit screen safeguards (maintainer decision Q9, 2026-11-19):** the screen names the calling app (label and package, `getCallingPackage()`), saves nothing without one or while the interface is off (it then links to the Automation card via the new `SettingsActivity.EXTRA_FOCUS_AUTOMATION`), and asks again before saving for any app other than Tasker, MacroDroid, Automate or Locale. A warning explains that the token is stored in the automation app and its backups, exports and shared tasks.
+
+### Changed
+- The "Create a new token?" dialog now says that saved KeepADB plugin actions need to be opened and saved once again (all locales).
+- `KeepADBAutomationTest`: the manifest contract now expects two exported receivers (automation and plugin fire), and the token-reader guard lists `KeepADBPluginEditActivity`, which hands the token to the host on purpose.
+
+### Documentation
+- `docs/automation.md` describes the plugin, its variables and the token storage risk; `SECURITY.md` covers the two new exported components and the residual risk that a known host package name is not checked against a signature; README mentions the plugin. Plugin conditions follow as the second part of #999. Device tests with Tasker, MacroDroid and Automate are still open. The Fastlane note for 290 replaces "automation for Tasker, MacroDroid and Automate" with "automation and a Tasker plugin" within the 500-character limit.
+
 ## [1.15.8] - Unreleased
 
 ### Fixed

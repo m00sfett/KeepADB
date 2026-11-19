@@ -113,6 +113,9 @@ public class PrivacyToggleTitleBarsTest {
                 // #912: the widget settings page lists the four actions and one switch; it shows
                 // no network name or address either.
                 if (file.getFileName().toString().equals("activity_widget_config.xml")) continue;
+                // #999: the plugin edit screen lists the requests and the calling app's name; it
+                // shows no network name or address either.
+                if (file.getFileName().toString().equals("activity_plugin_edit.xml")) continue;
                 if (xml.contains("@color/banner_red") && xml.contains("@+id/header_bar")) {
                     redBars++;
                     assertTrue(file.getFileName() + " has a red header bar and needs the eye",

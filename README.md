@@ -92,7 +92,8 @@ background and guides you through all three options in the setup assistant while
   continues after a reboot and ends as a manual off. See [docs/timed-wifi-adb.md](docs/timed-wifi-adb.md).
 - **Automation:** with Settings → Automation switched on (off by default), apps such as Tasker,
   MacroDroid or Automate can switch Wifi-ADB and Keep-Alive with broadcast intents. Switching on
-  needs the access token shown there and still respects the network protection. See
+  needs the access token shown there and still respects the network protection. A Tasker/Locale
+  plugin action sets this up without typing intents and returns the state as variables. See
   [docs/automation.md](docs/automation.md).
 - **Connect a computer:** tap the endpoint (for example “Port 5555 @ 192.168.0.5”) on the home screen to copy the
   `adb connect` command. The
