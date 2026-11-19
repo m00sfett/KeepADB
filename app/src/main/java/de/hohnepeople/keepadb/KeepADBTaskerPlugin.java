@@ -56,6 +56,8 @@ final class KeepADBTaskerPlugin {
     static final String EXTRA_VARIABLES = "net.dinglisch.android.tasker.extras.VARIABLES";
     static final int RESULT_CODE_OK = Activity.RESULT_OK;
     static final int RESULT_CODE_FAILED = Activity.RESULT_FIRST_USER + 1;
+    /** Ordered reply when the outcome follows through the completion intent (#1026). */
+    static final int RESULT_CODE_PENDING = Activity.RESULT_FIRST_USER + 2;
     /**
      * #1026: on the intent returned by the edit screen, how long the host should wait for the
      * action (ms). Without it Tasker defaults the action's timeout to "none" and neither waits
@@ -501,7 +503,8 @@ final class KeepADBTaskerPlugin {
             return null;
         }
         android.content.ComponentName target = completion.getComponent();
-        if (target == null || app.getPackageName().equals(target.getPackageName())) {
+        if (target == null || app.getPackageName().equals(target.getPackageName())
+                || !isOpenReceiver(app, completion)) {
             return null;
         }
         completion.setPackage(null);
@@ -513,6 +516,33 @@ final class KeepADBTaskerPlugin {
             completion.putExtra(EXTRA_VARIABLES, outcome.variables);
         }
         return completion;
+    }
+
+    /**
+     * #1026 (Codex review): whether {@code completion}'s explicit target is an enabled, exported
+     * receiver that requires no permission. KeepADB holds permissions the sender may not
+     * (WRITE_SECURE_SETTINGS, location, ...), and Android checks the broadcaster's, so a
+     * permission-protected receiver must never be reachable through KeepADB. Android 11 package
+     * visibility limits resolution to the declared hosts as well.
+     */
+    static boolean isOpenReceiver(Context app, Intent completion) {
+        java.util.List<android.content.pm.ResolveInfo> receivers;
+        try {
+            receivers = app.getPackageManager().queryBroadcastReceivers(completion, 0);
+        } catch (RuntimeException e) {
+            return false;
+        }
+        if (receivers == null || receivers.isEmpty()) {
+            return false;
+        }
+        for (android.content.pm.ResolveInfo info : receivers) {
+            android.content.pm.ActivityInfo receiver = info.activityInfo;
+            if (receiver == null || !receiver.exported || !receiver.enabled
+                    || receiver.permission != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static Intent requestQueryIntent() {

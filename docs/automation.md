@@ -99,11 +99,13 @@ on or off, or only read the status. KeepADB puts the token into the saved action
   configuration. For an app other than Tasker, MacroDroid, Automate or Locale it asks again before
   saving, and opened without a calling app it saves nothing.
 
-**How the result gets back (#1026).** KeepADB answers in both ways the plugin API offers, with the
-same content: in the result of the ordered fire broadcast (read by Automate) and through the
-completion intent the host passes along (used by Tasker and MacroDroid). The edit screen asks the
-host to wait up to 15 seconds; KeepADB answers at once, so the action does not actually take that
-long. **Actions saved with KeepADB 1.15.11 or older** have no such request: Tasker then shows the
+**How the result gets back (#1026).** A host that passes a completion intent (Tasker with a
+timeout, MacroDroid) gets the result through it, and the ordered fire broadcast only an
+acknowledgement (`PENDING`), so every action ends exactly once. A host without one (Automate) reads
+the result of the ordered broadcast. KeepADB sends the completion intent only to an exported
+receiver of another app that requires no permission; otherwise it answers through the ordered
+broadcast. The edit screen asks the host to wait up to 15 seconds; KeepADB answers at once.
+**Actions saved with KeepADB 1.15.11 or older** have no such request: Tasker then shows the
 timeout as *None* and neither waits nor sets the variables. Open each saved KeepADB action once and
 save it again, or set the timeout in Tasker yourself.
 
