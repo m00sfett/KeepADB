@@ -14,14 +14,40 @@ import org.junit.rules.ExternalResource;
  * write into this test's preferences) and then resets the static state, both before and after
  * each test method, so a test no longer depends on whether earlier tests cleaned up after
  * themselves.
+ *
+ * <p>#1020: between those resets every test starts with {@link #OFFLINE_TRANSPORT}, which refuses
+ * each request at once without a socket or a DNS lookup. A test that saves a webhook URL without
+ * a fake of its own used to reach the real {@link KeepADBHttpTransport}: on CI the address was
+ * unreachable, the 2000 ms connect timeout ran into the 2000 ms drain below and the drain failed
+ * at random; on a developer machine on the tailnet the request reached the real register server.
+ * A test that needs a transport sets its own fake, which replaces this one. A test must not call
+ * {@code KeepADBRegisterClient.resetHttpTransport()} in its {@code @After}: that runs before this
+ * rule drains, so a request still queued would go out through the real transport.
  */
 final class KeepADBRegisterClientResetRule extends ExternalResource {
 
     private static final long DRAIN_TIMEOUT_MS = 2000;
 
+    /** #1020: refuses every request without touching the network, as an unreachable server would. */
+    static final KeepADBRegisterClient.HttpTransport OFFLINE_TRANSPORT =
+            new KeepADBRegisterClient.HttpTransport() {
+                @Override
+                public boolean postJson(String targetUrl, String payload, String logLabel) {
+                    KeepADBRegisterClient.noteTransportOutcome("error=OfflineTestTransport");
+                    return false;
+                }
+
+                @Override
+                public boolean delete(String targetUrl) {
+                    KeepADBRegisterClient.noteTransportOutcome("error=OfflineTestTransport");
+                    return false;
+                }
+            };
+
     @Override
     protected void before() {
         reset();
+        KeepADBRegisterClient.setHttpTransport(OFFLINE_TRANSPORT);
     }
 
     @Override

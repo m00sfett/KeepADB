@@ -1,23 +1,60 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-/** #806: the reset rule must fail visibly when the register executor does not drain. */
+/**
+ * #806: the reset rule must fail visibly when the register executor does not drain. #1020: a test
+ * under the rule never reaches the real network.
+ */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBRegisterClientResetRuleTest {
+
+    @Rule
+    public final KeepADBRegisterClientResetRule registerClientResetRule =
+            new KeepADBRegisterClientResetRule();
+
+    @Test
+    public void everyTestStartsWithTheOfflineTransport() throws Exception {
+        Field field = KeepADBRegisterClient.class.getDeclaredField("httpTransport");
+        field.setAccessible(true);
+        assertSame(KeepADBRegisterClientResetRule.OFFLINE_TRANSPORT, field.get(null));
+    }
+
+    /**
+     * #1020: a register request of a test without a fake of its own is refused at once. The
+     * address is unroutable, so the real transport would wait for its 2000 ms connect timeout and
+     * the drain would not finish within this test's 500 ms.
+     */
+    @Test
+    public void aRequestWithoutItsOwnFakeIsRefusedWithoutTheNetwork() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://10.255.255.1:9/register/test");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 40000);
+
+        assertTrue("the register executor must drain without a network wait",
+                KeepADBRegisterClient.awaitIdleForTesting(500));
+        assertEquals("error=OfflineTestTransport",
+                KeepADBRegisterClient.lastTransportOutcomeForTesting());
+    }
 
     @Test
     public void resetFailsVisiblyWhenTheExecutorDoesNotDrainInTime() throws Exception {

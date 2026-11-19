@@ -51,7 +51,6 @@ public class MainActivityWebhookSetupHintTest {
 
     @After
     public void tearDown() {
-        KeepADBRegisterClient.resetHttpTransport();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADB.resetForTesting();
         RuntimeEnvironment.setFontScale(1.0f);
