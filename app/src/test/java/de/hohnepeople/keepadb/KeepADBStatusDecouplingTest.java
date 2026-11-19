@@ -130,7 +130,8 @@ public class KeepADBStatusDecouplingTest {
      * Acceptance criterion 2 across the three surfaces. A behavioral test cannot compare a tile
      * tap, a widget broadcast and a switch tap in one process without three framework harnesses,
      * so the invariant is pinned where it can actually diverge again: each surface must ask
-     * {@link KeepADB#desiredOnForClick} instead of computing its own desired value.
+     * {@link KeepADB#desiredOnForToggle} (#1019: {@link KeepADB#desiredOnForClick} plus a pending
+     * manual "on") instead of computing its own desired value.
      *
      * <p>The tile's single sanctioned exception for {@code ENABLED_DISCONNECTED} (#267, upheld by
      * user decision on #318) is pinned separately, including its width and its tile-only scope, by
@@ -143,11 +144,11 @@ public class KeepADBStatusDecouplingTest {
         String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
 
         assertTrue("MainActivity's switch must use the shared click semantics",
-                main.contains("KeepADB.desiredOnForClick(KeepADB.getState(this))"));
+                main.contains("KeepADB.desiredOnForToggle(KeepADB.getState(this))"));
         assertTrue("The tile must use the shared click semantics",
-                tile.contains("KeepADB.desiredOnForClick(state)"));
+                tile.contains("KeepADB.desiredOnForToggle(state)"));
         assertTrue("The widget must use the shared click semantics",
-                widget.contains("KeepADB.desiredOnForClick(state)"));
+                widget.contains("KeepADB.desiredOnForToggle(state)"));
 
         assertFalse("The tile must not recompute a desired value of its own",
                 tile.contains("boolean want = (state == KeepADB.State.OFF);"));

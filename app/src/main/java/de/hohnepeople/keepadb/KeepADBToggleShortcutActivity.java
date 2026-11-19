@@ -54,7 +54,7 @@ public class KeepADBToggleShortcutActivity extends Activity {
     }
 
     private void toggle() {
-        boolean want = KeepADB.desiredOnForClick(KeepADB.getState(this));
+        boolean want = KeepADB.desiredOnForToggle(KeepADB.getState(this));
         if (want && KeepADBToggleGate.isDeviceLockedForEnable(this)) {
             KeepADBDiagnostics.event(this, "user_action", "shortcut", "unlock_required",
                     "device_locked");

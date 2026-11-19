@@ -402,6 +402,23 @@ final class KeepADB {
     }
 
     /**
+     * #1019: what a toggle means right now. Like {@link #desiredOnForClick}, except that a direct
+     * user "on" still waiting in its {@link KeepADBToggleState#MANUAL_REENABLE_GAP_MS} window
+     * counts as on: {@code adb_wifi_enabled} still reads 0 then, and a second toggle reading only
+     * that value would request "on" again instead of cancelling the first one. The surfaces run
+     * on the main thread, so a read here and the following {@code setEnabled} are not
+     * interleaved with another tap.
+     */
+    static boolean desiredOnForToggle(State state) {
+        return !isManualEnablePending() && desiredOnForClick(state);
+    }
+
+    /** #1019: a direct user "on" is waiting in its re-enable gap and is still the newest intent. */
+    static synchronized boolean isManualEnablePending() {
+        return isManualIntentPending() && pendingToggleOn;
+    }
+
+    /**
      * True while a toggle write has been accepted but not yet applied, i.e. during the debounce
      * window of up to {@link #TOGGLE_COOLDOWN_MS}. The surfaces render this as an explicit pending
      * state (#318) instead of showing the stale pre-toggle value with no hint that a write is in

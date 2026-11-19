@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
         // the view's own checked state, so this switch, the tile and the widget request the
         // same thing for the same state. refresh() below re-renders the switch from the real
         // adb_wifi_enabled value either way.
-        applyMainSwitchRequest(KeepADB.desiredOnForClick(KeepADB.getState(this)), "toggle");
+        applyMainSwitchRequest(KeepADB.desiredOnForToggle(KeepADB.getState(this)), "toggle");
     }
 
     /** The write and the follow-up refreshes the main switch and the "Retry" action share. */

@@ -517,6 +517,44 @@ public class KeepADBToggleSchedulingTest {
     // ---------------------------------------------------------------------------------------
 
     /**
+     * #1019: after an "off", a toggle "on" waits in the re-enable gap while adb_wifi_enabled
+     * still reads 0. A second toggle in that window must cancel it, not request "on" again.
+     */
+    @Test
+    public void secondToggleInTheReenableGapCancelsThePendingOn() {
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, "tile").isSuccess());
+        assertFalse(gateway.isEnabled(ctx));
+
+        boolean first = KeepADB.desiredOnForToggle(KeepADB.State.OFF);
+        assertTrue(first);
+        assertTrue(KeepADB.setEnabled(ctx, first, "tile").isSuccess());
+        assertTrue("the on waits in the gap", KeepADB.isManualEnablePending());
+        assertFalse(gateway.isEnabled(ctx));
+
+        boolean second = KeepADB.desiredOnForToggle(KeepADB.State.OFF);
+        assertFalse("a pending on counts as on", second);
+        assertTrue(KeepADB.setEnabled(ctx, second, "widget").isSuccess());
+        assertFalse(KeepADB.isManualEnablePending());
+
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS + 1);
+        assertFalse("two toggles after an off end off: " + gateway.writes,
+                gateway.isEnabled(ctx));
+        assertTrue("without anything pending a toggle is the plain click semantics",
+                KeepADB.desiredOnForToggle(KeepADB.State.OFF));
+    }
+
+    @Test
+    public void aPendingAutomaticOnDoesNotChangeWhatAToggleMeans() {
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(scheduler.hasAnyPending());
+        assertFalse(KeepADB.isManualEnablePending());
+        assertTrue(KeepADB.desiredOnForToggle(KeepADB.State.OFF));
+    }
+
+    /**
      * Acceptance criterion 2: "A user's manual enable remains an explicit override without the
      * long debounce." A rapid manual OFF -> ON pair gets only the
      * short technical teardown gap; other manual toggles still write straight away.

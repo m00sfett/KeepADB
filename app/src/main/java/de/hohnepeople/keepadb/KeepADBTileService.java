@@ -76,7 +76,7 @@ public class KeepADBTileService extends TileService {
             return;
         }
         // Everything below is the shared definition, identical to MainActivity and the widget.
-        boolean want = KeepADB.desiredOnForClick(state);
+        boolean want = KeepADB.desiredOnForToggle(state);
         // #586: Quick Settings tiles are reachable from the lock screen, and the platform leaves
         // the lock check to the TileService itself. Enabling wireless debugging lets an already
         // paired host connect, so an enable request on a locked device goes through

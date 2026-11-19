@@ -116,7 +116,7 @@ public class KeepADBWidget extends AppWidgetProvider {
             KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");
             KeepADB.State state = KeepADB.getState(context);
             // #318: shared click semantics with MainActivity's switch and the tile.
-            boolean want = KeepADB.desiredOnForClick(state);
+            boolean want = KeepADB.desiredOnForToggle(state);
             KeepADB.ToggleResult result = KeepADB.setEnabled(context, want, "widget");
             if (!result.isSuccess()) {
                 // #318: separate a missing permission from a rejected write instead of always
