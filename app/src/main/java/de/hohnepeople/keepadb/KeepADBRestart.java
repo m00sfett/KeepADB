@@ -3,7 +3,6 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 
 /**
  * #1027: Home's "Restart Wifi-ADB" when Wi-Fi is up but Android does not announce the port.
@@ -21,8 +20,9 @@ import android.os.SystemClock;
  * of #1029): if the process dies during the pause, the next process start finishes the restart
  * ({@link #resumeAfterProcessStart}). Every manual decision clears the record, in any process
  * ({@link #onManualDecision}, called for every manual toggle), so a newer decision always wins. A
- * record older than {@link #RESUME_WINDOW_MS}, or from before a reboot, is dropped and Wifi-ADB
- * stays off: a restart that late would surprise the user.
+ * record older than {@link #RESUME_WINDOW_MS}, from another boot (boot counter stored with it,
+ * second Codex review) or with an unreadable boot counter is dropped and Wifi-ADB stays off: a
+ * restart that late, or one the device cannot attribute to this boot, would surprise the user.
  */
 final class KeepADBRestart {
     /** Time between the "off" and the "on", long enough for adbd to stop its listener. */
@@ -30,6 +30,11 @@ final class KeepADBRestart {
     /** How long after the "off" a new process still finishes an interrupted restart. */
     static final long RESUME_WINDOW_MS = 60_000L;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static volatile KeepADBDeadline.Clock clock = KeepADBDeadline.SYSTEM_CLOCK;
+
+    static void setClockForTesting(KeepADBDeadline.Clock testClock) {
+        clock = testClock == null ? KeepADBDeadline.SYSTEM_CLOCK : testClock;
+    }
 
     private KeepADBRestart() {}
 
@@ -43,8 +48,8 @@ final class KeepADBRestart {
             return off;
         }
         // After the off: its own manual-decision hook must not clear the record it precedes.
-        long at = SystemClock.elapsedRealtime();
-        KeepADBPreferences.setRestartOnPendingAt(app, at);
+        long at = clock.elapsedMs();
+        KeepADBPreferences.setRestartOnPending(app, at, clock.bootCount(app));
         final long generation = KeepADB.explicitIntentGeneration();
         MAIN.postDelayed(() -> {
             if (KeepADB.explicitIntentGeneration() != generation
@@ -70,11 +75,17 @@ final class KeepADBRestart {
         Context app = context.getApplicationContext();
         long at = KeepADBPreferences.getRestartOnPendingAt(app);
         if (at < 0) return;
-        long now = SystemClock.elapsedRealtime();
-        if (now < at || now - at > RESUME_WINDOW_MS) {
+        long now = clock.elapsedMs();
+        int boot = clock.bootCount(app);
+        int storedBoot = KeepADBPreferences.getRestartOnPendingBoot(app);
+        String drop = null;
+        if (boot < 0 || storedBoot < 0) drop = "boot_unreadable";
+        else if (boot != storedBoot || now < at) drop = "rebooted";
+        else if (now - at > RESUME_WINDOW_MS) drop = "expired";
+        if (drop != null) {
             KeepADBPreferences.clearRestartOnPending(app);
             KeepADBDiagnostics.event(app, "user_action", "app", "restart",
-                    "stage=on skipped reason=" + (now < at ? "rebooted" : "expired"));
+                    "stage=on skipped reason=" + drop);
             return;
         }
         long delay = Math.max(0L, at + PAUSE_MS - now);

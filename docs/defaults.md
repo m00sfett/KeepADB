@@ -95,7 +95,7 @@ are cleared on first start. The advice stays readable under Settings → Setup a
 
 `untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wifi-ADB is switched on manually in KeepADB; they record that access point (or, since #997, `?` when it could not be read, which exempts the session from the open-network rule only) and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wifi-ADB goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
 
-`restart_on_pending_at` (#1027) is absent unless Home's "Restart Wifi-ADB" switched Wifi-ADB off and its "on" one second later is still owed; it holds the elapsed realtime of that off so a process death during the pause can be finished at the next process start (within 60 seconds, not after a reboot). Any manual decision clears it. Bookkeeping, not a setting.
+`restart_on_pending_at` and `restart_on_pending_boot` (#1027) are absent unless Home's "Restart Wifi-ADB" switched Wifi-ADB off and its "on" one second later is still owed; they hold the elapsed realtime and the boot counter of that off so a process death during the pause can be finished at the next process start (within 60 seconds, same boot only; an unreadable boot counter drops it). Any manual decision clears them. Bookkeeping, not a setting.
 
 The webhook warning has no wording switch any more (#893): it always names when the disruption
 started and when a report last got through. A stored `register_webhook_freshness_warning` from an

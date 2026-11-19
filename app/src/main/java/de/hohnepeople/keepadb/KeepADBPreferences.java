@@ -31,6 +31,8 @@ final class KeepADBPreferences {
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT = "untrusted_shutdown_manual_at";
     /** #1027: elapsed realtime of a Home restart whose "on" is still owed; absent when none. */
     private static final String KEY_RESTART_ON_PENDING_AT = "restart_on_pending_at";
+    /** #1027: the boot counter at {@link #KEY_RESTART_ON_PENDING_AT}; written in the same commit. */
+    private static final String KEY_RESTART_ON_PENDING_BOOT = "restart_on_pending_boot";
     /** #997: on for new installations, off for existing ones; see migrateOpenNetworkShutdown. */
     static final String KEY_OPEN_NETWORK_SHUTDOWN = "open_network_shutdown_enabled";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
@@ -658,15 +660,25 @@ final class KeepADBPreferences {
                 .getLong(KEY_RESTART_ON_PENDING_AT, -1L);
     }
 
-    /** #1027: synchronous, so a process death right after the "off" still finds it. */
-    static void setRestartOnPendingAt(Context context, long atElapsedMs) {
+    /** #1027: the boot counter stored with the pending restart "on", or -1. */
+    static int getRestartOnPendingBoot(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getInt(KEY_RESTART_ON_PENDING_BOOT, -1);
+    }
+
+    /**
+     * #1027: time and boot counter in one synchronous commit, so a process death right after the
+     * "off" still finds both, and a later boot can never adopt the record.
+     */
+    static void setRestartOnPending(Context context, long atElapsedMs, int bootCount) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-                .putLong(KEY_RESTART_ON_PENDING_AT, atElapsedMs).commit();
+                .putLong(KEY_RESTART_ON_PENDING_AT, atElapsedMs)
+                .putInt(KEY_RESTART_ON_PENDING_BOOT, bootCount).commit();
     }
 
     static void clearRestartOnPending(Context context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-                .remove(KEY_RESTART_ON_PENDING_AT).commit();
+                .remove(KEY_RESTART_ON_PENDING_AT).remove(KEY_RESTART_ON_PENDING_BOOT).commit();
     }
 
     /** Clears the manual exemption. */
