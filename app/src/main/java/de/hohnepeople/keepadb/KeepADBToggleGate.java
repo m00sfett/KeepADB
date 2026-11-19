@@ -29,11 +29,13 @@ final class KeepADBToggleGate {
      * reusing the {@code want} from the tap: Keep-Alive, another surface or a second tap may have
      * switched wireless debugging on while the unlock prompt was showing, and the continuation
      * must never turn into a disable. True only while the state still asks for an enable; the
-     * skip is recorded under {@code surface}.
+     * skip is recorded under {@code surface}. #1019: a manual "on" still waiting in its re-enable
+     * gap already asks for the enable, so a second continuation (two taps, two unlock callbacks)
+     * skips instead of requesting "on" again and skipping the gap.
      */
     static boolean enableStillWanted(Context context, String surface) {
         KeepADB.State state = KeepADB.getState(context);
-        if (KeepADB.desiredOnForClick(state)) {
+        if (KeepADB.desiredOnForToggle(state)) {
             return true;
         }
         KeepADBDiagnostics.event(context, "user_action", surface, "skipped",
