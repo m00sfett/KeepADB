@@ -30,5 +30,17 @@ public class KeepADBPluginFireReceiver extends BroadcastReceiver {
                     null);
         }
         KeepADBTaskerPlugin.publish(this, outcome);
+        // #1026: hosts that pass a completion intent (Tasker with a timeout, MacroDroid) wait for
+        // it. The ordered result above stays for hosts that read only that (Automate); both carry
+        // the same outcome, so whichever the host takes first is right.
+        Intent completion = KeepADBTaskerPlugin.completionIntent(
+                context.getApplicationContext(), intent, outcome);
+        if (completion != null) {
+            try {
+                context.sendBroadcast(completion);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Completion broadcast failed: " + e.getClass().getSimpleName());
+            }
+        }
     }
 }

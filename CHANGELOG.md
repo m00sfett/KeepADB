@@ -23,6 +23,15 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.12] - Unreleased
+
+### Fixed
+- **Plugin variables in MacroDroid and Tasker (#1026):** the fire receiver now also answers through the host's completion intent (`net.dinglisch.android.tasker.extras.COMPLETION_INTENT`), which MacroDroid waits for exclusively and Tasker uses as well; the ordered-broadcast result stays for Automate. Both carry the same result code and variables. The completion intent comes from the sender, so `KeepADBTaskerPlugin.completionIntent` accepts only an explicit component of another app, sends it only as a broadcast and strips URI grant flags, selector and clip data.
+- The action edit screen requests a 15 s timeout (`REQUESTED_TIMEOUT`). Without it Tasker set the action's timeout to *None*, sent an unordered broadcast and never read the variables. Actions saved before must be opened and saved once (documented in `docs/automation.md`).
+
+### Documentation
+- `docs/automation.md`: how the result returns, the re-save note, MacroDroid has no plugin conditions, device results with Automate, Tasker 6.7.9 and MacroDroid. `SECURITY.md`: completion-intent handling.
+
 ## [1.15.11] - Unreleased
 
 ### Fixed (second Codex review of PR #1025)

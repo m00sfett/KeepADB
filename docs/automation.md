@@ -99,7 +99,15 @@ on or off, or only read the status. KeepADB puts the token into the saved action
   configuration. For an app other than Tasker, MacroDroid, Automate or Locale it asks again before
   saving, and opened without a calling app it saves nothing.
 
-Tasker runs the action synchronously and then sets these local variables:
+**How the result gets back (#1026).** KeepADB answers in both ways the plugin API offers, with the
+same content: in the result of the ordered fire broadcast (read by Automate) and through the
+completion intent the host passes along (used by Tasker and MacroDroid). The edit screen asks the
+host to wait up to 15 seconds; KeepADB answers at once, so the action does not actually take that
+long. **Actions saved with KeepADB 1.15.11 or older** have no such request: Tasker then shows the
+timeout as *None* and neither waits nor sets the variables. Open each saved KeepADB action once and
+save it again, or set the timeout in Tasker yourself.
+
+After the action the host sets these local variables:
 
 | Variable | Value |
 |---|---|
@@ -132,6 +140,8 @@ KeepADB is also a **plugin condition** for profiles (Tasker: *Add state → Plug
   MacroDroid, Automate and Locale as visible packages; it queries no other apps.
 - A query is a status read: it switches nothing, and repeated queries write at most one journal
   line every 10 seconds.
+- **MacroDroid has no plugin conditions.** It offers Locale/Tasker plugins only as actions; use
+  Tasker or Automate for the condition.
 
 The address and port follow the rule of the broadcast reply: only with the token. The privacy
 switches under Settings → Privacy mask what KeepADB shows on its own screens, notifications and
@@ -197,13 +207,17 @@ Whether each automation app receives a broadcast sent to its package depends on 
 Automate example has been checked on a device so far (see above); the Tasker and MacroDroid
 examples have not.
 
-The plugin follows the public Locale plugin API with the Tasker extensions for variables and
-synchronous execution. Checked so far: unit tests (bundle validation, token handling, ordered fire
-and query broadcasts with variables, `REQUEST_QUERY` on changes, both edit screens) and an
-Android 16 emulator with a throwaway test host: it opened both edit screens for result (caller
-shown, configuration with the token returned), fired the action (`ok`, then `rejected_network` on
-an untrusted Wi-Fi) and queried the condition (unsatisfied while off, satisfied with `%kadb_ip` and
-`%kadb_port` once the endpoint was known), and it received `REQUEST_QUERY` for each change and none
-without a change. Tests with Tasker, MacroDroid and Automate on a device are still open; MacroDroid
-(*Third-party plugin* action) and Automate (*Plug-in action* and *Plug-in condition* blocks) are
-documented to host Locale plugins.
+The plugin follows the public Locale plugin API with the Tasker extensions for variables,
+synchronous execution and the completion intent. Checked on devices on 2026-11-19:
+
+- **Automate** (CUBOT P60, Android 12): *Plug-in action* returns `%kadb_result` and `%kadb_state`
+  as output variables, *Plug-in decision?* answers "Wifi-ADB is on", and after a new token the
+  action fails with result code 2.
+- **Tasker 6.7.9** (Galaxy S20 FE, Android 13): with a timeout above *None* the action returns the
+  variables, and the profile state *KeepADB state* turns active. With timeout *None* (actions
+  saved before #1026) Tasker sends an unordered broadcast and gets nothing back.
+- **MacroDroid** (P60): the action runs, and since #1026 the result variable arrives; before, it
+  stayed empty because MacroDroid waits for the completion intent only.
+
+Unit tests cover bundle validation, token handling, ordered fire and query broadcasts with
+variables, the completion intent, `REQUEST_QUERY` on changes and both edit screens.

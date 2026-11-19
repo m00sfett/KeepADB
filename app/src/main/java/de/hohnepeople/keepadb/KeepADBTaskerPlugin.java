@@ -56,6 +56,22 @@ final class KeepADBTaskerPlugin {
     static final String EXTRA_VARIABLES = "net.dinglisch.android.tasker.extras.VARIABLES";
     static final int RESULT_CODE_OK = Activity.RESULT_OK;
     static final int RESULT_CODE_FAILED = Activity.RESULT_FIRST_USER + 1;
+    /**
+     * #1026: on the intent returned by the edit screen, how long the host should wait for the
+     * action (ms). Without it Tasker defaults the action's timeout to "none" and neither waits
+     * nor reads the variables.
+     */
+    static final String EXTRA_REQUESTED_TIMEOUT =
+            "net.dinglisch.android.tasker.extras.REQUESTED_TIMEOUT";
+    static final int REQUESTED_TIMEOUT_MS = 15_000;
+    /**
+     * #1026: on the fire intent, the host's completion intent as an {@code intent:} URI. Tasker
+     * and MacroDroid wait for it; MacroDroid ignores the ordered-broadcast result entirely.
+     */
+    static final String EXTRA_COMPLETION_INTENT =
+            "net.dinglisch.android.tasker.extras.COMPLETION_INTENT";
+    /** On the completion intent: the result code; the variables go in {@link #EXTRA_VARIABLES}. */
+    static final String EXTRA_RESULT_CODE = "net.dinglisch.android.tasker.extras.RESULT_CODE";
 
     static final String VAR_RESULT = "%kadb_result";
     static final String VAR_STATE = "%kadb_state";
@@ -213,6 +229,7 @@ final class KeepADBTaskerPlugin {
         result.putExtra(EXTRA_BUNDLE, buildBundle(request, token));
         result.putExtra(EXTRA_BLURB, blurb(context, request));
         result.putExtra(EXTRA_RELEVANT_VARIABLES, relevantVariables(context));
+        result.putExtra(EXTRA_REQUESTED_TIMEOUT, REQUESTED_TIMEOUT_MS);
         return result;
     }
 
@@ -458,6 +475,44 @@ final class KeepADBTaskerPlugin {
             fresh.putBundle(EXTRA_VARIABLES, outcome.variables);
             receiver.setResultExtras(fresh);
         }
+    }
+
+    /**
+     * #1026: the host's completion intent for {@code fireIntent}, carrying {@code outcome}, or
+     * null when the host sent none or an unusable one. The URI comes from whoever sent the fire
+     * broadcast, so it is only ever sent as a broadcast, only to an explicit component of another
+     * app (never to KeepADB itself, whose own receivers are not exported), and with every URI
+     * grant, selector and clip data stripped.
+     */
+    static Intent completionIntent(Context app, Intent fireIntent, Outcome outcome) {
+        String uri;
+        try {
+            uri = fireIntent.getStringExtra(EXTRA_COMPLETION_INTENT);
+        } catch (RuntimeException e) {
+            return null;
+        }
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+        Intent completion;
+        try {
+            completion = Intent.parseUri(uri, Intent.URI_INTENT_SCHEME);
+        } catch (java.net.URISyntaxException | RuntimeException e) {
+            return null;
+        }
+        android.content.ComponentName target = completion.getComponent();
+        if (target == null || app.getPackageName().equals(target.getPackageName())) {
+            return null;
+        }
+        completion.setPackage(null);
+        completion.setSelector(null);
+        completion.setClipData(null);
+        completion.setFlags(0);
+        completion.putExtra(EXTRA_RESULT_CODE, outcome.resultCode);
+        if (outcome.variables != null) {
+            completion.putExtra(EXTRA_VARIABLES, outcome.variables);
+        }
+        return completion;
     }
 
     static Intent requestQueryIntent() {
