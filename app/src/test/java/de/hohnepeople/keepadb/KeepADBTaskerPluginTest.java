@@ -361,6 +361,9 @@ public class KeepADBTaskerPluginTest {
         String[] relevant = result.getStringArrayExtra(KeepADBTaskerPlugin.EXTRA_RELEVANT_VARIABLES);
         assertEquals(5, relevant.length);
         assertTrue(relevant[0].startsWith(KeepADBTaskerPlugin.VAR_RESULT + "\n"));
+        // #1026: without a requested timeout Tasker neither waits nor reads the variables.
+        assertEquals(KeepADBTaskerPlugin.REQUESTED_TIMEOUT_MS,
+                result.getIntExtra(KeepADBTaskerPlugin.EXTRA_REQUESTED_TIMEOUT, -1));
         assertTrue(activity.isFinishing());
     }
 
@@ -773,6 +776,207 @@ public class KeepADBTaskerPluginTest {
                 .setComponent(new ComponentName(context, KeepADBPluginConditionReceiver.class));
         Object[] result = orderedWithUnreadableExtras(query, Activity.RESULT_OK);
         assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, result[0]);
+    }
+
+    // ---- #1026: completion intent ------------------------------------------------------------
+
+    private static final String TASKER_COMPLETION = "intent:1#Intent;scheme=actionid;"
+            + "action=net.dinglisch.android.tasker.ACTION_PLUGIN_FINISHED;"
+            + "component=net.dinglisch.android.taskerm/.ReceiverStaticAlwaysOn;end";
+    private static final String MACRODROID_COMPLETION = "intent://www.macrodroid.com#Intent;"
+            + "scheme=http;action=com.arlosoft.macrodroid.SETTING_COMPLETE;component="
+            + "com.arlosoft.macrodroid/.action.receivers.LocaleTaskerSettingCompleteReceiver;"
+            + "l.action_id=42;end";
+
+    private static KeepADBTaskerPlugin.Outcome okOutcome() {
+        Bundle vars = new Bundle();
+        vars.putString(KeepADBTaskerPlugin.VAR_RESULT, "ok");
+        return new KeepADBTaskerPlugin.Outcome(KeepADBTaskerPlugin.RESULT_CODE_OK, vars);
+    }
+
+    /** Registers a receiver of another app, as Android would resolve it. */
+    private void installReceiver(String pkg, String cls, boolean exported, String permission) {
+        android.content.pm.PackageInfo info = new android.content.pm.PackageInfo();
+        info.packageName = pkg;
+        info.applicationInfo = new android.content.pm.ApplicationInfo();
+        info.applicationInfo.packageName = pkg;
+        info.applicationInfo.enabled = true;
+        android.content.pm.ActivityInfo receiver = new android.content.pm.ActivityInfo();
+        receiver.packageName = pkg;
+        receiver.name = cls;
+        receiver.exported = exported;
+        receiver.enabled = true;
+        receiver.permission = permission;
+        receiver.applicationInfo = info.applicationInfo;
+        info.receivers = new android.content.pm.ActivityInfo[] {receiver};
+        shadowOf(context.getPackageManager()).installPackage(info);
+    }
+
+    private void installHosts() {
+        installReceiver("net.dinglisch.android.taskerm",
+                "net.dinglisch.android.taskerm.ReceiverStaticAlwaysOn", true, null);
+        installReceiver("com.arlosoft.macrodroid",
+                "com.arlosoft.macrodroid.action.receivers.LocaleTaskerSettingCompleteReceiver",
+                true, null);
+    }
+
+    private Intent completionFor(String uri) {
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING);
+        if (uri != null) fire.putExtra(KeepADBTaskerPlugin.EXTRA_COMPLETION_INTENT, uri);
+        return KeepADBTaskerPlugin.completionIntent(context, fire, okOutcome());
+    }
+
+    @Test
+    public void completionIntentOfTaskerAndMacroDroidCarriesTheOutcome() {
+        installHosts();
+        for (String uri : new String[] {TASKER_COMPLETION, MACRODROID_COMPLETION}) {
+            Intent completion = completionFor(uri);
+            assertNotNull(uri, completion);
+            assertEquals(KeepADBTaskerPlugin.RESULT_CODE_OK,
+                    completion.getIntExtra(KeepADBTaskerPlugin.EXTRA_RESULT_CODE, -99));
+            assertEquals("ok", completion.getBundleExtra(KeepADBTaskerPlugin.EXTRA_VARIABLES)
+                    .getString(KeepADBTaskerPlugin.VAR_RESULT));
+        }
+        Intent macrodroid = completionFor(MACRODROID_COMPLETION);
+        assertEquals("com.arlosoft.macrodroid", macrodroid.getComponent().getPackageName());
+        assertEquals("com.arlosoft.macrodroid.SETTING_COMPLETE", macrodroid.getAction());
+        assertEquals(42L, macrodroid.getLongExtra("action_id", -1L));
+    }
+
+    @Test
+    public void completionIntentIsRefusedWithoutAForeignExplicitTarget() {
+        assertNull(completionFor(null));
+        assertNull(completionFor(""));
+        assertNull(completionFor("not a uri %%%"));
+        // Implicit: could reach any receiver.
+        assertNull(completionFor("intent:#Intent;action=x.y.DONE;end"));
+        // KeepADB itself: would reach its own non-exported components.
+        assertNull(completionFor("intent:#Intent;action=x.y.DONE;component="
+                + context.getPackageName() + "/de.hohnepeople.keepadb.KeepADBWidget;end"));
+    }
+
+    @Test
+    public void completionIntentNeverReachesAProtectedHiddenOrMissingReceiver() {
+        // Codex review: KeepADB holds WRITE_SECURE_SETTINGS; Android checks the broadcaster's
+        // permissions, so a protected receiver must not be reachable through KeepADB.
+        installReceiver("com.example.victim", "com.example.victim.Protected", true,
+                "android.permission.WRITE_SECURE_SETTINGS");
+        installReceiver("com.example.victim2", "com.example.victim2.Hidden", false, null);
+        assertNull(completionFor("intent:#Intent;action=x.y.DONE;"
+                + "component=com.example.victim/.Protected;end"));
+        assertNull(completionFor("intent:#Intent;action=x.y.DONE;"
+                + "component=com.example.victim2/.Hidden;end"));
+        assertNull("not installed", completionFor("intent:#Intent;action=x.y.DONE;"
+                + "component=com.example.missing/.Done;end"));
+        assertNull("host not installed", completionFor(TASKER_COMPLETION));
+    }
+
+    @Test
+    public void orderedFireWithACompletionIntentEndsOnlyThroughTheCompletion() {
+        installHosts();
+        String token = enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .setComponent(new ComponentName(context, KeepADBPluginFireReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin.buildBundle(
+                        KeepADBTaskerPlugin.Request.STATUS, token))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_COMPLETION_INTENT, TASKER_COMPLETION);
+        AtomicReference<Integer> code = new AtomicReference<>();
+        AtomicReference<Bundle> extras = new AtomicReference<>();
+        context.sendOrderedBroadcast(fire, null, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                code.set(getResultCode());
+                extras.set(getResultExtras(false));
+            }
+        }, null, Activity.RESULT_OK, null, null);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals("ordered reply only acknowledges",
+                Integer.valueOf(KeepADBTaskerPlugin.RESULT_CODE_PENDING), code.get());
+        assertTrue(extras.get() == null
+                || extras.get().getBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES) == null);
+        int completions = 0;
+        for (Intent i : shadowOf((android.app.Application) context).getBroadcastIntents()) {
+            if ("net.dinglisch.android.tasker.ACTION_PLUGIN_FINISHED".equals(i.getAction())) {
+                completions++;
+                assertEquals(KeepADBTaskerPlugin.RESULT_CODE_OK,
+                        i.getIntExtra(KeepADBTaskerPlugin.EXTRA_RESULT_CODE, -99));
+            }
+        }
+        assertEquals("exactly one terminal result", 1, completions);
+    }
+
+    @Test
+    public void orderedFireWithARefusedCompletionIntentAnswersSynchronously() {
+        String token = enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .setComponent(new ComponentName(context, KeepADBPluginFireReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin.buildBundle(
+                        KeepADBTaskerPlugin.Request.STATUS, token))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_COMPLETION_INTENT, TASKER_COMPLETION);
+        AtomicReference<Integer> code = new AtomicReference<>();
+        context.sendOrderedBroadcast(fire, null, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                code.set(getResultCode());
+            }
+        }, null, Activity.RESULT_CANCELED, null, null);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(Integer.valueOf(KeepADBTaskerPlugin.RESULT_CODE_OK), code.get());
+    }
+
+    @Test
+    public void completionIntentDropsGrantsSelectorAndClipData() {
+        installReceiver("com.example.host", "com.example.host.Done", true, null);
+        // launchFlags 0x43 = grant read + write + persistable URI permission.
+        Intent completion = completionFor("intent:#Intent;action=x.y.DONE;launchFlags=0x43;"
+                + "component=com.example.host/.Done;"
+                + "SEL;action=android.intent.action.VIEW;end");
+        assertNotNull(completion);
+        assertEquals(0, completion.getFlags());
+        assertNull(completion.getSelector());
+        assertNull(completion.getClipData());
+    }
+
+    @Test
+    public void fireReceiverSendsTheCompletionIntentToTheHost() {
+        installHosts();
+        String token = enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin.buildBundle(
+                        KeepADBTaskerPlugin.Request.STATUS, token))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_COMPLETION_INTENT, MACRODROID_COMPLETION);
+        new KeepADBPluginFireReceiver().onReceive(context, fire);
+        Intent sent = null;
+        for (Intent i : shadowOf((android.app.Application) context).getBroadcastIntents()) {
+            if ("com.arlosoft.macrodroid.SETTING_COMPLETE".equals(i.getAction())) sent = i;
+        }
+        assertNotNull("completion broadcast", sent);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CODE_OK,
+                sent.getIntExtra(KeepADBTaskerPlugin.EXTRA_RESULT_CODE, -99));
+        assertEquals("ok", sent.getBundleExtra(KeepADBTaskerPlugin.EXTRA_VARIABLES)
+                .getString(KeepADBTaskerPlugin.VAR_RESULT));
+    }
+
+    @Test
+    public void fireReceiverReportsAFailureThroughTheCompletionIntentToo() {
+        installHosts();
+        enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin.buildBundle(
+                        KeepADBTaskerPlugin.Request.STATUS, "wrong-token-wrong-token-wrong"))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_COMPLETION_INTENT, TASKER_COMPLETION);
+        new KeepADBPluginFireReceiver().onReceive(context, fire);
+        Intent sent = null;
+        for (Intent i : shadowOf((android.app.Application) context).getBroadcastIntents()) {
+            if ("net.dinglisch.android.tasker.ACTION_PLUGIN_FINISHED".equals(i.getAction())) {
+                sent = i;
+            }
+        }
+        assertNotNull("completion broadcast", sent);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CODE_FAILED,
+                sent.getIntExtra(KeepADBTaskerPlugin.EXTRA_RESULT_CODE, -99));
+        assertNotNull(sent.getBundleExtra(KeepADBTaskerPlugin.EXTRA_VARIABLES)
+                .getString(KeepADBTaskerPlugin.VAR_ERROR_MESSAGE));
     }
 
     // ---- Condition edit screen --------------------------------------------------------------

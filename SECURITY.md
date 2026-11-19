@@ -191,6 +191,14 @@ Automate and Locale as visible packages for it (`<queries>`). Two risks are spec
   user still has to tap Save. Residual risk: a known package name is not checked against a
   signature, so an app installed under the package name of a known host that is not installed
   would skip the second question.
+- **The completion intent comes from the sender.** Tasker and MacroDroid pass an `intent:` URI
+  that KeepADB sends back with the result (#1026). Whoever sends the fire broadcast chooses that
+  URI, so KeepADB only ever sends it as a broadcast, only to an explicit, enabled, exported
+  receiver of another app that requires no permission (KeepADB holds permissions such as
+  WRITE_SECURE_SETTINGS, and Android checks the broadcaster's, so a protected receiver must not be
+  reachable through KeepADB; never to KeepADB itself), and strips URI grant flags, selector and clip
+  data. It carries the same result and variables as the ordered reply would, so address and port
+  still need a valid token.
 
 Anyone who can read the token (an app the user gave it to, someone with access to the unlocked
 Settings page, or anyone with a backup or shared copy of a plugin action) can switch Wifi-ADB on

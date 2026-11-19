@@ -29,6 +29,27 @@ public class KeepADBPluginFireReceiver extends BroadcastReceiver {
             outcome = new KeepADBTaskerPlugin.Outcome(KeepADBTaskerPlugin.RESULT_CODE_FAILED,
                     null);
         }
-        KeepADBTaskerPlugin.publish(this, outcome);
+        // #1026: hosts that pass a completion intent (Tasker with a timeout, MacroDroid) get the
+        // outcome there, and an ordered broadcast only RESULT_CODE_PENDING, so there is exactly
+        // one terminal result (Tasker's protocol). Hosts without one get the ordered
+        // result as before.
+        Intent completion = KeepADBTaskerPlugin.completionIntent(
+                context.getApplicationContext(), intent, outcome);
+        if (completion == null) {
+            KeepADBTaskerPlugin.publish(this, outcome);
+            return;
+        }
+        if (isOrderedBroadcast()) {
+            // Finish the ordered broadcast first, so the PENDING reply is on its way before the
+            // completion that ends the action.
+            PendingResult pending = goAsync();
+            pending.setResultCode(KeepADBTaskerPlugin.RESULT_CODE_PENDING);
+            pending.finish();
+        }
+        try {
+            context.sendBroadcast(completion);
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Completion broadcast failed: " + e.getClass().getSimpleName());
+        }
     }
 }
