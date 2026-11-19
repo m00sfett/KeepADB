@@ -332,6 +332,31 @@ public class KeepADBTileUnlockGateTest {
         }
     }
 
+    /**
+     * #1022 (Codex review of #1024): the self-pairing cleanup writes like a manual source, but it
+     * is not the user's decision about Wifi-ADB and must not cancel a waiting tap.
+     */
+    @Test
+    public void theSelfPairingCleanupWhileTheUnlockPromptShowsDoesNotCancelTheTap() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        setDeviceLocked(true);
+        CapturingTileService tile = startTile(CapturingTileService.class);
+        try {
+            tile.onClick();
+            assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_SELF_PAIRING).isSuccess());
+            gateway.writes.clear();
+
+            setDeviceLocked(false);
+            tile.pendingUnlockCallbacks.get(0).run();
+            afterReenableGap();
+
+            assertEquals(Collections.singletonList(true), gateway.writes);
+            assertTrue(gateway.isEnabled(context));
+        } finally {
+            tile.onStopListening();
+        }
+    }
+
     private KeepADBFakeSettingsGateway offState() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);

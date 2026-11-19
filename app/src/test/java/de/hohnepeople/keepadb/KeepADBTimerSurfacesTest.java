@@ -300,10 +300,12 @@ public class KeepADBTimerSurfacesTest {
     /** Holds the unlock callback back instead of answering it at once. */
     public static class CapturingTimerShortcutActivity extends KeepADBTimerShortcutActivity {
         final List<Runnable> onUnlocked = new ArrayList<>();
+        final List<Runnable> onNotUnlocked = new ArrayList<>();
 
         @Override
         void requestUnlock(Runnable unlocked, Runnable notUnlocked) {
             onUnlocked.add(unlocked);
+            onNotUnlocked.add(notUnlocked);
         }
     }
 
@@ -325,6 +327,30 @@ public class KeepADBTimerSurfacesTest {
 
         shadowOf(keyguard).setIsDeviceLocked(false);
         activity.onUnlocked.get(0).run();
+
+        assertFalse(KeepADBTimer.isActive(context));
+        assertFalse(gateway.isEnabled(context));
+        assertTrue(activity.isFinishing());
+        assertTrue(KeepADBDiagnostics.export(context).contains("reason=newer_intent"));
+    }
+
+    /**
+     * #1022 (Codex review of #1024): the fallback for an unlock request that failed on a phone
+     * that is open by now checks the newer decision too.
+     */
+    @Test
+    public void theShortcutsUnlockFallbackStartsNoTimerAfterANewerExplicitOff() {
+        KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
+        shadowOf(keyguard).setIsKeyguardSecure(true);
+        shadowOf(keyguard).setIsDeviceLocked(true);
+        CapturingTimerShortcutActivity activity =
+                Robolectric.buildActivity(CapturingTimerShortcutActivity.class).setup().get();
+
+        assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_WIDGET).isSuccess());
+        assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_NOTIFICATION).isSuccess());
+
+        shadowOf(keyguard).setIsDeviceLocked(false);
+        activity.onNotUnlocked.get(0).run();
 
         assertFalse(KeepADBTimer.isActive(context));
         assertFalse(gateway.isEnabled(context));
