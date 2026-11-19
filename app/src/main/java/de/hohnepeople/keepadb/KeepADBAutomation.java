@@ -116,15 +116,26 @@ final class KeepADBAutomation {
         /** Only set for a request with a valid token and a known endpoint. */
         final String host;
         final int port;
+        /**
+         * #999: Wifi-ADB is on and KeepADB knows the endpoint, whatever the token. Only the plugin
+         * condition reads it; the yes/no is no endpoint and not part of the broadcast reply.
+         */
+        final boolean endpointKnown;
 
         Response(String request, Result result, boolean wifiAdb, boolean keepAlive, String host,
                  int port) {
+            this(request, result, wifiAdb, keepAlive, host, port, host != null && port > 0);
+        }
+
+        Response(String request, Result result, boolean wifiAdb, boolean keepAlive, String host,
+                 int port, boolean endpointKnown) {
             this.request = request;
             this.result = result;
             this.wifiAdb = wifiAdb;
             this.keepAlive = keepAlive;
             this.host = host;
             this.port = port;
+            this.endpointKnown = endpointKnown;
         }
 
         boolean hasEndpoint() {
@@ -230,12 +241,15 @@ final class KeepADBAutomation {
         }
         KeepADBPreferences.setAutomationEnabled(context, true);
         KeepADBDiagnostics.event(context, EVENT, "settings", "enabled", "interface");
+        // #999: hosts that got "unknown" while the interface was off query again now.
+        KeepADBTaskerPlugin.onInterfaceSwitched(context);
     }
 
     /** Turns the interface off; the token is kept, so re-enabling keeps automations working. */
     static void disable(Context context) {
         KeepADBPreferences.setAutomationEnabled(context, false);
         KeepADBDiagnostics.event(context, EVENT, "settings", "disabled", "interface");
+        KeepADBTaskerPlugin.onInterfaceSwitched(context);
     }
 
     /** A new token; the old one stops working at once. The rejection counter starts again. */
@@ -311,6 +325,15 @@ final class KeepADBAutomation {
      * interface is off, or the action is unknown); every other outcome is a {@link Response}.
      */
     static Response process(Context app, String action, String presentedToken) {
+        return process(app, action, presentedToken, false);
+    }
+
+    /**
+     * @param polled {@code true} for a status read the automation app repeats on its own (the
+     *     plugin condition, #999): its "accepted" journal line is throttled even with a valid
+     *     token, so polling cannot push useful history out of the bounded journal.
+     */
+    static Response process(Context app, String action, String presentedToken, boolean polled) {
         String request = requestName(action);
         if (!isEnabled(app)) {
             journal(app, "ignored",
@@ -333,7 +356,7 @@ final class KeepADBAutomation {
                 return response(app, act, request, Result.REJECTED_TOKEN, false);
             }
             journal(app, "accepted", "request=" + request + " endpoint=" + tokenValid,
-                    !tokenValid);
+                    !tokenValid || polled);
             return response(app, act, request, Result.OK, tokenValid);
         }
 
@@ -391,15 +414,29 @@ final class KeepADBAutomation {
         boolean wifiAdb = act.isWifiAdbOn(app);
         String host = null;
         int port = 0;
-        if (withEndpoint && wifiAdb) {
+        boolean endpointKnown = false;
+        if (wifiAdb) {
             KeepADBEndpointCoordinator.Snapshot snapshot = act.endpoint();
-            if (snapshot != null && snapshot.hasEndpoint()) {
+            endpointKnown = snapshot != null && snapshot.hasEndpoint();
+            if (withEndpoint && endpointKnown) {
                 host = snapshot.host;
                 port = snapshot.port;
             }
         }
         return new Response(request, result, wifiAdb, KeepADBPreferences.isKeepAliveEnabled(app),
-                host, port);
+                host, port, endpointKnown);
+    }
+
+    /** #999: the (Wifi-ADB on, endpoint known) pair the plugin condition answers, without a request. */
+    static boolean[] conditionState(Context app) {
+        Actions act = actions;
+        boolean wifiAdb = act.isWifiAdbOn(app);
+        boolean endpointKnown = false;
+        if (wifiAdb) {
+            KeepADBEndpointCoordinator.Snapshot snapshot = act.endpoint();
+            endpointKnown = snapshot != null && snapshot.hasEndpoint();
+        }
+        return new boolean[] {wifiAdb, endpointKnown};
     }
 
     private static void recordRejection(Context app, String request, String reason) {
@@ -439,7 +476,7 @@ final class KeepADBAutomation {
      * can send in a loop) is written at most once per kind and {@link #FLOOD_WINDOW_MS}; the
      * next written line of that kind says how many were left out.
      */
-    private static void journal(Context app, String outcome, String detail, boolean throttled) {
+    static void journal(Context app, String outcome, String detail, boolean throttled) {
         if (throttled) {
             long now = clock.getAsLong();
             String key = outcome + ' ' + detail;

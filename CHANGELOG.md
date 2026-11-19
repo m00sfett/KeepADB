@@ -23,6 +23,44 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.11] - Unreleased
+
+### Fixed (second Codex review of PR #1025)
+- The plugin receivers no longer crash when a foreign ordered sender passes initial result extras that fail to unparcel. `KeepADBTaskerPlugin.publish` sets the result code first and, if writing `%kadb_*` into the sender's extras throws, replaces them with fresh extras that carry only the variables, so the outcome still arrives.
+
+### Testing
+- Receiver-level regression tests send real ordered broadcasts with unreadable initial extras (a parcel with an unknown value type) to both receivers, with a valid and with an unreadable plugin bundle; a fixture test proves the extras really fail on first access. Without the fix three of them crashed.
+
+## [1.15.10] - Unreleased
+
+### Added
+- **Tasker/Locale condition plugin (#999, second part, versionCode 291):** "Wifi-ADB is on" and "Wifi-ADB is on and its address is known" as plugin conditions (Tasker: *State → Plugin → KeepADB state*). The exported `KeepADBPluginConditionReceiver` (`QUERY_CONDITION`) answers through `KeepADBTaskerPlugin.query`, which reads the state with a B1a `STATUS` request (`KeepADBAutomation.process`), so no second security path exists: satisfied/unsatisfied, unknown while the interface is off or for an invalid bundle. The conditions need no token (decision Q5); the saved token only adds `%kadb_ip`/`%kadb_port`, and a stale one is counted as a rejection and drops them without breaking the condition. `KeepADBAutomation.Response` gains `endpointKnown` (Wifi-ADB on and an endpoint known, whatever the token), which the broadcast reply does not expose. The exported `KeepADBPluginConditionEditActivity` is the action edit screen in condition mode with the same caller checks.
+- **`REQUEST_QUERY` on changes:** `KeepADBWidget.refreshAllState`, the funnel of every state and endpoint change, now calls `KeepADBTaskerPlugin.requestQueryIfChanged`, which sends the data-free Locale broadcast only while the interface is on and only when (Wifi-ADB on, endpoint known) differs from the last announcement. The manifest declares Tasker, MacroDroid, Automate and Locale in `<queries>` so the broadcast reaches them on Android 11+ and the edit screen can show their names.
+
+### Fixed (Codex review of PR #1025)
+- Switching the automation interface on or off now resets the `REQUEST_QUERY` state (`KeepADBTaskerPlugin.onInterfaceSwitched`); switching on announces the current state at once, so a host that got "unknown" while the interface was off queries again even if nothing else changed.
+- The plugin receivers no longer leave the host's initial result code in place when the intent's bundle fails to unparcel: `fireFromIntent` returns a failure with `invalid_config`, `queryFromIntent` returns unknown, and any other exception still sets a failure/unknown code before the ordered broadcast ends.
+
+### Changed
+- Polled status reads (`KeepADBAutomation.process(..., polled = true)`, the condition) throttle their "accepted" journal line like untokened requests, at most one per 10 s; a B1a `STATUS` with the token is still logged every time.
+- The plugin edit screen keeps the selection as an id string so one screen serves both modes; contract tests now expect three exported receivers and eight exported components.
+
+### Documentation
+- `docs/automation.md` and `SECURITY.md` describe the condition, `REQUEST_QUERY` and the `<queries>` entries. 7 new strings in all locales. The Fastlane note for 291 repeats the 290 text.
+
+## [1.15.9] - Unreleased
+
+### Added
+- **Tasker/Locale action plugin (#999, first part, versionCode 290):** KeepADB can now be added as a plugin action (Tasker: *Plugin → KeepADB action*) instead of typing intent names and the token. The new `KeepADBPluginEditActivity` (exported, `EDIT_SETTING`) offers Wifi-ADB on, off or toggle, Keep-Alive on or off, and "only read the status"; KeepADB inserts the current token into the saved configuration itself, and the two "off" requests store no token. `KeepADBPluginFireReceiver` (exported, `FIRE_SETTING`) decides nothing: `KeepADBTaskerPlugin.fire` validates the bundle (version, request id, token type and length, foreign host keys ignored) and passes request and token to `KeepADBAutomation.process`, so the opt-in, the token check, the network protection, flood damping and the rejection counter are the B1a ones. Tasker runs the action synchronously and gets `%kadb_result`, `%kadb_state`, `%kadb_keep_alive` and, only with a valid token, `%kadb_ip`/`%kadb_port`; any result other than `ok` fails the action with the result in `%errmsg`. A disabled interface does nothing and returns `disabled`; an invalid bundle returns `invalid_config` and writes a throttled journal line. The protocol constants are copied from the Locale API and `TaskerPlugin.java`; no library.
+- **Edit screen safeguards (maintainer decision Q9, 2026-11-19):** the screen names the calling app (label and package, `getCallingPackage()`), saves nothing without one or while the interface is off (it then links to the Automation card via the new `SettingsActivity.EXTRA_FOCUS_AUTOMATION`), and asks again before saving for any app other than Tasker, MacroDroid, Automate or Locale. A warning explains that the token is stored in the automation app and its backups, exports and shared tasks.
+
+### Changed
+- The "Create a new token?" dialog now says that saved KeepADB plugin actions need to be opened and saved once again (all locales).
+- `KeepADBAutomationTest`: the manifest contract now expects two exported receivers (automation and plugin fire), and the token-reader guard lists `KeepADBPluginEditActivity`, which hands the token to the host on purpose.
+
+### Documentation
+- `docs/automation.md` describes the plugin, its variables and the token storage risk; `SECURITY.md` covers the two new exported components and the residual risk that a known host package name is not checked against a signature; README mentions the plugin. Device tests with Tasker, MacroDroid and Automate are still open. The Fastlane note for 290 replaces "automation for Tasker, MacroDroid and Automate" with "automation and a Tasker plugin" within the 500-character limit.
+
 ## [1.15.8] - Unreleased
 
 ### Fixed
