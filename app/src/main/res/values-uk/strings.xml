@@ -273,7 +273,7 @@
     <string name="home_reason_no_wifi">Немає підключення до Wi-Fi</string>
     <string name="home_reason_no_endpoint">Адресу не знайдено</string>
     <string name="home_action_restart_wifi_adb">Перезапустити Wifi-ADB</string>
-    <string name="status_on_no_endpoint">Wifi-ADB увімкнено, але Android не оголошує його порт у цій мережі Wi-Fi, тому KeepADB не може його знайти. Після перезапуску Wifi-ADB Android знову оголосить порт. Підключений комп’ютер ненадовго від’єднається, а порт зміниться.</string>
+    <string name="status_on_no_endpoint">Wifi-ADB увімкнено, але Android не оголошує його порт у цій мережі Wi-Fi, тому KeepADB не може його знайти. Після перезапуску Wifi-ADB Android знову оголосить порт. Підключений комп’ютер ненадовго від’єднається, а порт зміниться. Перезапуск — це звичайне вимкнення й увімкнення: запущений таймер або Примусовий режим завершується.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive тут не ввімкнеться: мережа Wi-Fi не довірена</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive тут не ввімкнеться: мережа Wi-Fi заблокована</string>
     <string name="home_action_networks">Мережі Wi-Fi</string>

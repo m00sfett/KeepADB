@@ -726,9 +726,10 @@ public class MainActivity extends Activity {
                 startActivity(KeepADBHomeWarnings.systemIntent(this));
                 break;
             case RESTART:
-                // #1027: the existing recovery pulse; it refuses on its own when Wifi-ADB is off
-                // or the user switched it off meanwhile.
-                KeepADB.performRecoveryPulse(this);
+                // #1027: a plain manual off and, after a short pause, a manual on.
+                KeepADB.ToggleResult restart = KeepADBRestart.restart(this);
+                if (!restart.isSuccess()) showToggleErrorToast(restart);
+                refreshUiAndComponents();
                 break;
             default:
                 break;

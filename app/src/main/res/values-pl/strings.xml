@@ -273,7 +273,7 @@
     <string name="home_reason_no_wifi">Brak połączenia Wi-Fi</string>
     <string name="home_reason_no_endpoint">Nie znaleziono adresu</string>
     <string name="home_action_restart_wifi_adb">Uruchom ponownie Wifi-ADB</string>
-    <string name="status_on_no_endpoint">Wifi-ADB jest włączone, ale Android nie ogłasza swojego portu w tej sieci Wi-Fi, więc KeepADB go nie znajduje. Ponowne uruchomienie Wifi-ADB sprawia, że Android znów go ogłasza. Podłączony komputer zostanie na chwilę rozłączony, a port się zmieni.</string>
+    <string name="status_on_no_endpoint">Wifi-ADB jest włączone, ale Android nie ogłasza swojego portu w tej sieci Wi-Fi, więc KeepADB go nie znajduje. Ponowne uruchomienie Wifi-ADB sprawia, że Android znów go ogłasza. Podłączony komputer zostanie na chwilę rozłączony, a port się zmieni. Ponowne uruchomienie to zwykłe wyłączenie i włączenie: działający minutnik lub Tryb wymuszony się kończy.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tu nie włączy: sieć Wi-Fi niezaufana</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tu nie włączy: sieć Wi-Fi zablokowana</string>
     <string name="home_action_networks">Sieci Wi-Fi</string>

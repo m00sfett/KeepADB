@@ -273,7 +273,7 @@
     <string name="home_reason_no_wifi">无 Wi-Fi 连接</string>
     <string name="home_reason_no_endpoint">未找到地址</string>
     <string name="home_action_restart_wifi_adb">重新启动 Wifi-ADB</string>
-    <string name="status_on_no_endpoint">Wifi-ADB 已开启，但 Android 没有在此 Wi-Fi 上公布其端口，因此 KeepADB 找不到它。重新启动 Wifi-ADB 会让 Android 再次公布端口。已连接的电脑会短暂断开，端口也会改变。</string>
+    <string name="status_on_no_endpoint">Wifi-ADB 已开启，但 Android 没有在此 Wi-Fi 上公布其端口，因此 KeepADB 找不到它。重新启动 Wifi-ADB 会让 Android 再次公布端口。已连接的电脑会短暂断开，端口也会改变。重新启动就是普通的关闭再开启：正在运行的定时器或强制模式会结束。</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive 在此保持关闭：Wi-Fi 未信任</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive 在此保持关闭：Wi-Fi 已被拦截</string>
     <string name="home_action_networks">Wi-Fi 网络</string>

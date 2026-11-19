@@ -273,7 +273,7 @@
     <string name="home_reason_no_wifi">Pas de connexion Wi-Fi</string>
     <string name="home_reason_no_endpoint">Adresse introuvable</string>
     <string name="home_action_restart_wifi_adb">Redémarrer Wifi-ADB</string>
-    <string name="status_on_no_endpoint">Wifi-ADB est activé, mais Android n’annonce pas son port sur ce Wi-Fi, donc KeepADB ne le trouve pas. Redémarrer Wifi-ADB fait qu’Android l’annonce de nouveau. Un ordinateur connecté est brièvement déconnecté et le port change.</string>
+    <string name="status_on_no_endpoint">Wifi-ADB est activé, mais Android n’annonce pas son port sur ce Wi-Fi, donc KeepADB ne le trouve pas. Redémarrer Wifi-ADB fait qu’Android l’annonce de nouveau. Un ordinateur connecté est brièvement déconnecté et le port change. Le redémarrage est une désactivation puis une activation ordinaires : un minuteur en cours ou le Mode forcé prend fin.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive reste désactivé ici : Wi-Fi non approuvé</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive reste désactivé ici : Wi-Fi bloqué</string>
     <string name="home_action_networks">Réseaux Wi-Fi</string>

@@ -611,6 +611,39 @@ public class MainActivityWarningsTest {
                 ((android.widget.TextView) action(activity)).getText().toString());
     }
 
+    /** #1027: the restart is a manual off now and a manual on after the pause. */
+    @Test
+    public void theRestartActionSwitchesOffAndOnAgain() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        action(activity).performClick();
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+        assertEquals(java.util.Arrays.asList(false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(context));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(context));
+    }
+
+    /** #1027: a newer decision during the pause wins; the restart does not switch back on. */
+    @Test
+    public void aNewerDecisionDuringTheRestartPauseDropsTheOn() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        action(activity).performClick();
+        assertTrue(KeepADB.setEnabled(context, false, "tile").isSuccess());
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+        assertFalse(gateway.writes.contains(true));
+        assertFalse(gateway.isEnabled(context));
+    }
+
     /**
      * #949: an undecided access point the app has no record of (no prompt was raised for it) would
      * only end in "expired" in the dialog; the action leads to the list, whose current card asks.

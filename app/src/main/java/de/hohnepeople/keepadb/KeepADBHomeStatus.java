@@ -29,8 +29,8 @@ final class KeepADBHomeStatus {
         /** Permission missing: where the permission warning leads. */
         INSTRUCTIONS(R.string.home_warning_action_guide),
         /**
-         * #1027: on Wi-Fi, but Android does not announce the port: a recovery pulse makes adbd
-         * announce it again.
+         * #1027: on Wi-Fi, but Android does not announce the port: a manual off and on
+         * ({@link KeepADBRestart}) makes adbd announce it again.
          */
         RESTART(R.string.home_action_restart_wifi_adb);
 

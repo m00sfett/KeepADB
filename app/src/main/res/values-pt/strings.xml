@@ -273,7 +273,7 @@
     <string name="home_reason_no_wifi">Sem conexão Wi-Fi</string>
     <string name="home_reason_no_endpoint">Endereço não encontrado</string>
     <string name="home_action_restart_wifi_adb">Reiniciar Wifi-ADB</string>
-    <string name="status_on_no_endpoint">O Wifi-ADB está ligado, mas o Android não anuncia a porta nesta rede Wi-Fi, então o KeepADB não a encontra. Reiniciar o Wifi-ADB faz o Android anunciá-la de novo. Um computador conectado é desconectado por um instante e a porta muda.</string>
+    <string name="status_on_no_endpoint">O Wifi-ADB está ligado, mas o Android não anuncia a porta nesta rede Wi-Fi, então o KeepADB não a encontra. Reiniciar o Wifi-ADB faz o Android anunciá-la de novo. Um computador conectado é desconectado por um instante e a porta muda. O reinício é um desligar e ligar comuns: um temporizador em andamento ou o Modo forçado termina.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive continua desativado aqui: Wi-Fi não fiável</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive continua desativado aqui: Wi-Fi bloqueado</string>
     <string name="home_action_networks">Redes Wi-Fi</string>
