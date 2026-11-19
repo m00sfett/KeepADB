@@ -709,10 +709,10 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automatyzacja</string>
-    <string name="settings_automation_subtext">Pozwala aplikacjom do automatyzacji, takim jak Tasker, MacroDroid czy Automate, sterować KeepADB za pomocą intencji broadcast. Włączenie Wifi-ADB lub Keep-Alive wymaga poniższego tokenu dostępu; niezaufane, otwarte sieci Wi-Fi i sieci ze stroną logowania pozostają zablokowane.</string>
+    <string name="settings_automation_subtext">Pozwala aplikacjom do automatyzacji, takim jak Tasker, MacroDroid czy Automate, sterować KeepADB za pomocą intencji broadcast. Włączenie Wifi-ADB lub Keep-Alive wymaga poniższego tokenu dostępu; sieci Wi-Fi blokowane przez ustawienia Ochrony pozostają zablokowane.</string>
     <string name="settings_automation_toggle">Zezwalaj aplikacjom do automatyzacji</string>
     <string name="settings_automation_dialog_title">Zezwolić aplikacjom do automatyzacji?</string>
-    <string name="settings_automation_dialog_message">Każda aplikacja na tym telefonie może wysyłać żądania do KeepADB. Tylko żądania z tokenem dostępu mogą włączyć Wifi-ADB lub Keep-Alive, także przy zablokowanym telefonie. Wyłączanie i sprawdzanie, czy Wifi-ADB jest włączone, nie wymagają tokenu. Niezaufane, otwarte sieci Wi-Fi i sieci ze stroną logowania pozostają zablokowane. Przekazuj token tylko zaufanym aplikacjom.</string>
+    <string name="settings_automation_dialog_message">Każda aplikacja na tym telefonie może wysyłać żądania do KeepADB. Tylko żądania z tokenem dostępu mogą włączyć Wifi-ADB lub Keep-Alive, także przy zablokowanym telefonie. Wyłączanie i sprawdzanie, czy Wifi-ADB jest włączone, nie wymagają tokenu. Sieci Wi-Fi blokowane przez ustawienia Ochrony pozostają zablokowane. Przekazuj token tylko zaufanym aplikacjom.</string>
     <string name="settings_automation_dialog_confirm">Zezwól</string>
     <string name="settings_automation_token_label">Token dostępu</string>
     <string name="settings_automation_token_show">Pokaż</string>

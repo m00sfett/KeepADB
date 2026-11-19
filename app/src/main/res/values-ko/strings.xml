@@ -706,10 +706,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">자동화</string>
-    <string name="settings_automation_subtext">Tasker, MacroDroid, Automate 같은 자동화 앱이 브로드캐스트 인텐트로 KeepADB를 제어하도록 허용합니다. Wifi-ADB나 Keep-Alive를 켜려면 아래 액세스 토큰이 필요하며, 신뢰하지 않는 Wi-Fi, 개방형 Wi-Fi, 로그인 페이지가 있는 Wi-Fi에서는 계속 차단됩니다.</string>
+    <string name="settings_automation_subtext">Tasker, MacroDroid, Automate 같은 자동화 앱이 브로드캐스트 인텐트로 KeepADB를 제어하도록 허용합니다. Wifi-ADB나 Keep-Alive를 켜려면 아래 액세스 토큰이 필요하며, ‘보호’ 설정에서 차단한 Wi-Fi에서는 계속 차단됩니다.</string>
     <string name="settings_automation_toggle">자동화 앱 허용</string>
     <string name="settings_automation_dialog_title">자동화 앱을 허용할까요?</string>
-    <string name="settings_automation_dialog_message">이 휴대전화의 모든 앱이 KeepADB에 요청을 보낼 수 있습니다. 액세스 토큰이 포함된 요청만 Wifi-ADB나 Keep-Alive를 켤 수 있으며, 휴대전화가 잠겨 있어도 가능합니다. 끄기와 Wifi-ADB가 켜져 있는지 확인하는 데는 토큰이 필요하지 않습니다. 신뢰하지 않는 Wi-Fi, 개방형 Wi-Fi, 로그인 페이지가 있는 Wi-Fi에서는 계속 차단됩니다. 토큰은 신뢰하는 앱에만 알려 주세요.</string>
+    <string name="settings_automation_dialog_message">이 휴대전화의 모든 앱이 KeepADB에 요청을 보낼 수 있습니다. 액세스 토큰이 포함된 요청만 Wifi-ADB나 Keep-Alive를 켤 수 있으며, 휴대전화가 잠겨 있어도 가능합니다. 끄기와 Wifi-ADB가 켜져 있는지 확인하는 데는 토큰이 필요하지 않습니다. ‘보호’ 설정에서 차단한 Wi-Fi에서는 계속 차단됩니다. 토큰은 신뢰하는 앱에만 알려 주세요.</string>
     <string name="settings_automation_dialog_confirm">허용</string>
     <string name="settings_automation_token_label">액세스 토큰</string>
     <string name="settings_automation_token_show">표시</string>

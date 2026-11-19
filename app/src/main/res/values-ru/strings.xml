@@ -709,10 +709,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Автоматизация</string>
-    <string name="settings_automation_subtext">Позволяет приложениям автоматизации, таким как Tasker, MacroDroid или Automate, управлять KeepADB через broadcast-интенты. Для включения Wifi-ADB или Keep-Alive нужен токен доступа ниже; ненадёжные, открытые сети Wi-Fi и сети со страницей входа остаются заблокированными.</string>
+    <string name="settings_automation_subtext">Позволяет приложениям автоматизации, таким как Tasker, MacroDroid или Automate, управлять KeepADB через broadcast-интенты. Для включения Wifi-ADB или Keep-Alive нужен токен доступа ниже; сети Wi-Fi, заблокированные в настройках «Защита», остаются заблокированными.</string>
     <string name="settings_automation_toggle">Разрешить приложения автоматизации</string>
     <string name="settings_automation_dialog_title">Разрешить приложения автоматизации?</string>
-    <string name="settings_automation_dialog_message">Любое приложение на этом телефоне может отправлять запросы в KeepADB. Только запросы с токеном доступа могут включить Wifi-ADB или Keep-Alive, в том числе на заблокированном телефоне. Для выключения и проверки, включён ли Wifi-ADB, токен не нужен. Ненадёжные, открытые сети Wi-Fi и сети со страницей входа остаются заблокированными. Передавайте токен только приложениям, которым доверяете.</string>
+    <string name="settings_automation_dialog_message">Любое приложение на этом телефоне может отправлять запросы в KeepADB. Только запросы с токеном доступа могут включить Wifi-ADB или Keep-Alive, в том числе на заблокированном телефоне. Для выключения и проверки, включён ли Wifi-ADB, токен не нужен. Сети Wi-Fi, заблокированные в настройках «Защита», остаются заблокированными. Передавайте токен только приложениям, которым доверяете.</string>
     <string name="settings_automation_dialog_confirm">Разрешить</string>
     <string name="settings_automation_token_label">Токен доступа</string>
     <string name="settings_automation_token_show">Показать</string>

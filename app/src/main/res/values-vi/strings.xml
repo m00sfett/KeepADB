@@ -706,10 +706,10 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Tự động hóa</string>
-    <string name="settings_automation_subtext">Cho phép các ứng dụng tự động hóa như Tasker, MacroDroid hoặc Automate điều khiển KeepADB bằng intent broadcast. Bật Wifi-ADB hoặc Keep-Alive cần mã truy cập bên dưới; mạng Wi-Fi không tin cậy, mạng mở và mạng có trang đăng nhập vẫn bị chặn.</string>
+    <string name="settings_automation_subtext">Cho phép các ứng dụng tự động hóa như Tasker, MacroDroid hoặc Automate điều khiển KeepADB bằng intent broadcast. Bật Wifi-ADB hoặc Keep-Alive cần mã truy cập bên dưới; mạng Wi-Fi bị chặn trong cài đặt Bảo vệ vẫn bị chặn.</string>
     <string name="settings_automation_toggle">Cho phép ứng dụng tự động hóa</string>
     <string name="settings_automation_dialog_title">Cho phép ứng dụng tự động hóa?</string>
-    <string name="settings_automation_dialog_message">Mọi ứng dụng trên điện thoại này đều có thể gửi yêu cầu tới KeepADB. Chỉ yêu cầu có mã truy cập mới bật được Wifi-ADB hoặc Keep-Alive, kể cả khi điện thoại đang khóa. Tắt và kiểm tra Wifi-ADB có đang bật hay không thì không cần mã. Mạng Wi-Fi không tin cậy, mạng mở và mạng có trang đăng nhập vẫn bị chặn. Chỉ chia sẻ mã với ứng dụng bạn tin tưởng.</string>
+    <string name="settings_automation_dialog_message">Mọi ứng dụng trên điện thoại này đều có thể gửi yêu cầu tới KeepADB. Chỉ yêu cầu có mã truy cập mới bật được Wifi-ADB hoặc Keep-Alive, kể cả khi điện thoại đang khóa. Tắt và kiểm tra Wifi-ADB có đang bật hay không thì không cần mã. Mạng Wi-Fi bị chặn trong cài đặt Bảo vệ vẫn bị chặn. Chỉ chia sẻ mã với ứng dụng bạn tin tưởng.</string>
     <string name="settings_automation_dialog_confirm">Cho phép</string>
     <string name="settings_automation_token_label">Mã truy cập</string>
     <string name="settings_automation_token_show">Hiện</string>

@@ -706,10 +706,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">自动化</string>
-    <string name="settings_automation_subtext">允许 Tasker、MacroDroid 或 Automate 等自动化应用通过广播 Intent 控制 KeepADB。开启 Wifi-ADB 或 Keep-Alive 需要下方的访问令牌；未信任的、开放的以及需要登录页面的 Wi-Fi 网络仍会被阻止。</string>
+    <string name="settings_automation_subtext">允许 Tasker、MacroDroid 或 Automate 等自动化应用通过广播 Intent 控制 KeepADB。开启 Wifi-ADB 或 Keep-Alive 需要下方的访问令牌；被“保护”设置阻止的 Wi-Fi 网络仍会被阻止。</string>
     <string name="settings_automation_toggle">允许自动化应用</string>
     <string name="settings_automation_dialog_title">允许自动化应用？</string>
-    <string name="settings_automation_dialog_message">这部手机上的任何应用都可以向 KeepADB 发送请求。只有带访问令牌的请求才能开启 Wifi-ADB 或 Keep-Alive，手机锁定时也一样。关闭以及查询 Wifi-ADB 是否开启不需要令牌。未信任的、开放的以及需要登录页面的 Wi-Fi 网络仍会被阻止。请只把令牌交给你信任的应用。</string>
+    <string name="settings_automation_dialog_message">这部手机上的任何应用都可以向 KeepADB 发送请求。只有带访问令牌的请求才能开启 Wifi-ADB 或 Keep-Alive，手机锁定时也一样。关闭以及查询 Wifi-ADB 是否开启不需要令牌。被“保护”设置阻止的 Wi-Fi 网络仍会被阻止。请只把令牌交给你信任的应用。</string>
     <string name="settings_automation_dialog_confirm">允许</string>
     <string name="settings_automation_token_label">访问令牌</string>
     <string name="settings_automation_token_show">显示</string>

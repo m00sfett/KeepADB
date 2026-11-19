@@ -706,10 +706,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">自動化</string>
-    <string name="settings_automation_subtext">允許 Tasker、MacroDroid 或 Automate 等自動化應用程式透過廣播 Intent 控制 KeepADB。開啟 Wifi-ADB 或 Keep-Alive 需要下方的存取權杖；未信任的、開放的以及需要登入頁面的 Wi-Fi 網路仍會遭到封鎖。</string>
+    <string name="settings_automation_subtext">允許 Tasker、MacroDroid 或 Automate 等自動化應用程式透過廣播 Intent 控制 KeepADB。開啟 Wifi-ADB 或 Keep-Alive 需要下方的存取權杖；被「保護」設定封鎖的 Wi-Fi 網路仍會遭到封鎖。</string>
     <string name="settings_automation_toggle">允許自動化應用程式</string>
     <string name="settings_automation_dialog_title">要允許自動化應用程式嗎？</string>
-    <string name="settings_automation_dialog_message">這支手機上的任何應用程式都能向 KeepADB 傳送要求。只有附帶存取權杖的要求才能開啟 Wifi-ADB 或 Keep-Alive，手機鎖定時也一樣。關閉以及查詢 Wifi-ADB 是否開啟不需要權杖。未信任的、開放的以及需要登入頁面的 Wi-Fi 網路仍會遭到封鎖。請只把權杖交給你信任的應用程式。</string>
+    <string name="settings_automation_dialog_message">這支手機上的任何應用程式都能向 KeepADB 傳送要求。只有附帶存取權杖的要求才能開啟 Wifi-ADB 或 Keep-Alive，手機鎖定時也一樣。關閉以及查詢 Wifi-ADB 是否開啟不需要權杖。被「保護」設定封鎖的 Wi-Fi 網路仍會遭到封鎖。請只把權杖交給你信任的應用程式。</string>
     <string name="settings_automation_dialog_confirm">允許</string>
     <string name="settings_automation_token_label">存取權杖</string>
     <string name="settings_automation_token_show">顯示</string>

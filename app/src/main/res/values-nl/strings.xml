@@ -707,10 +707,10 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automatisering</string>
-    <string name="settings_automation_subtext">Laat automatiseringsapps zoals Tasker, MacroDroid of Automate KeepADB bedienen met broadcast-intents. Voor het inschakelen van Wifi-ADB of Keep-Alive is het toegangstoken hieronder nodig; niet-vertrouwde, open wifi-netwerken en netwerken met een aanmeldpagina blijven geblokkeerd.</string>
+    <string name="settings_automation_subtext">Laat automatiseringsapps zoals Tasker, MacroDroid of Automate KeepADB bedienen met broadcast-intents. Voor het inschakelen van Wifi-ADB of Keep-Alive is het toegangstoken hieronder nodig; wifi-netwerken die de Beveiliging-instellingen blokkeren, blijven geblokkeerd.</string>
     <string name="settings_automation_toggle">Automatiseringsapps toestaan</string>
     <string name="settings_automation_dialog_title">Automatiseringsapps toestaan?</string>
-    <string name="settings_automation_dialog_message">Elke app op deze telefoon kan verzoeken naar KeepADB sturen. Alleen verzoeken met het toegangstoken kunnen Wifi-ADB of Keep-Alive inschakelen, ook als de telefoon vergrendeld is. Uitschakelen en opvragen of Wifi-ADB aan staat kan zonder token. Niet-vertrouwde, open wifi-netwerken en netwerken met een aanmeldpagina blijven geblokkeerd. Geef het token alleen aan apps die je vertrouwt.</string>
+    <string name="settings_automation_dialog_message">Elke app op deze telefoon kan verzoeken naar KeepADB sturen. Alleen verzoeken met het toegangstoken kunnen Wifi-ADB of Keep-Alive inschakelen, ook als de telefoon vergrendeld is. Uitschakelen en opvragen of Wifi-ADB aan staat kan zonder token. Wifi-netwerken die de Beveiliging-instellingen blokkeren, blijven geblokkeerd. Geef het token alleen aan apps die je vertrouwt.</string>
     <string name="settings_automation_dialog_confirm">Toestaan</string>
     <string name="settings_automation_token_label">Toegangstoken</string>
     <string name="settings_automation_token_show">Tonen</string>

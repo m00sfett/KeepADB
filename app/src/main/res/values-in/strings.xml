@@ -706,10 +706,10 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Otomatisasi</string>
-    <string name="settings_automation_subtext">Mengizinkan aplikasi otomatisasi seperti Tasker, MacroDroid, atau Automate mengendalikan KeepADB dengan intent siaran. Menyalakan Wifi-ADB atau Keep-Alive memerlukan token akses di bawah; jaringan Wi-Fi yang tidak dipercaya, terbuka, atau dengan halaman masuk tetap diblokir.</string>
+    <string name="settings_automation_subtext">Mengizinkan aplikasi otomatisasi seperti Tasker, MacroDroid, atau Automate mengendalikan KeepADB dengan intent siaran. Menyalakan Wifi-ADB atau Keep-Alive memerlukan token akses di bawah; jaringan Wi-Fi yang diblokir oleh pengaturan Perlindungan tetap diblokir.</string>
     <string name="settings_automation_toggle">Izinkan aplikasi otomatisasi</string>
     <string name="settings_automation_dialog_title">Izinkan aplikasi otomatisasi?</string>
-    <string name="settings_automation_dialog_message">Setiap aplikasi di ponsel ini dapat mengirim permintaan ke KeepADB. Hanya permintaan dengan token akses yang dapat menyalakan Wifi-ADB atau Keep-Alive, juga saat ponsel terkunci. Mematikan dan memeriksa apakah Wifi-ADB menyala tidak memerlukan token. Jaringan Wi-Fi yang tidak dipercaya, terbuka, atau dengan halaman masuk tetap diblokir. Berikan token hanya kepada aplikasi yang Anda percayai.</string>
+    <string name="settings_automation_dialog_message">Setiap aplikasi di ponsel ini dapat mengirim permintaan ke KeepADB. Hanya permintaan dengan token akses yang dapat menyalakan Wifi-ADB atau Keep-Alive, juga saat ponsel terkunci. Mematikan dan memeriksa apakah Wifi-ADB menyala tidak memerlukan token. Jaringan Wi-Fi yang diblokir oleh pengaturan Perlindungan tetap diblokir. Berikan token hanya kepada aplikasi yang Anda percayai.</string>
     <string name="settings_automation_dialog_confirm">Izinkan</string>
     <string name="settings_automation_token_label">Token akses</string>
     <string name="settings_automation_token_show">Tampilkan</string>

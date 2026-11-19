@@ -711,10 +711,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">الأتمتة</string>
-    <string name="settings_automation_subtext">يسمح لتطبيقات الأتمتة مثل Tasker أو MacroDroid أو Automate بالتحكم في KeepADB عبر نوايا البث. يتطلب تشغيل Wifi-ADB أو Keep-Alive رمز الوصول أدناه؛ وتبقى شبكات Wi-Fi غير الموثوقة والمفتوحة وتلك التي تتطلب صفحة تسجيل دخول محظورة.</string>
+    <string name="settings_automation_subtext">يسمح لتطبيقات الأتمتة مثل Tasker أو MacroDroid أو Automate بالتحكم في KeepADB عبر نوايا البث. يتطلب تشغيل Wifi-ADB أو Keep-Alive رمز الوصول أدناه؛ وتبقى شبكات Wi-Fi التي تحظرها إعدادات «الحماية» محظورة.</string>
     <string name="settings_automation_toggle">السماح لتطبيقات الأتمتة</string>
     <string name="settings_automation_dialog_title">هل تريد السماح لتطبيقات الأتمتة؟</string>
-    <string name="settings_automation_dialog_message">يمكن لأي تطبيق على هذا الهاتف إرسال طلبات إلى KeepADB. لا يمكن تشغيل Wifi-ADB أو Keep-Alive إلا بالطلبات التي تحمل رمز الوصول، حتى عندما يكون الهاتف مقفلًا. لا يتطلب الإيقاف ومعرفة ما إذا كان Wifi-ADB قيد التشغيل أي رمز. تبقى شبكات Wi-Fi غير الموثوقة والمفتوحة وتلك التي تتطلب صفحة تسجيل دخول محظورة. لا تشارك الرمز إلا مع تطبيقات تثق بها.</string>
+    <string name="settings_automation_dialog_message">يمكن لأي تطبيق على هذا الهاتف إرسال طلبات إلى KeepADB. لا يمكن تشغيل Wifi-ADB أو Keep-Alive إلا بالطلبات التي تحمل رمز الوصول، حتى عندما يكون الهاتف مقفلًا. لا يتطلب الإيقاف ومعرفة ما إذا كان Wifi-ADB قيد التشغيل أي رمز. تبقى شبكات Wi-Fi التي تحظرها إعدادات «الحماية» محظورة. لا تشارك الرمز إلا مع تطبيقات تثق بها.</string>
     <string name="settings_automation_dialog_confirm">سماح</string>
     <string name="settings_automation_token_label">رمز الوصول</string>
     <string name="settings_automation_token_show">إظهار</string>

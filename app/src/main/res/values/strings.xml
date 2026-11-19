@@ -725,10 +725,10 @@ You can end it at any time from the home screen or the notification.</string>
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automation</string>
-    <string name="settings_automation_subtext">Lets automation apps such as Tasker, MacroDroid or Automate control KeepADB with broadcast intents. Turning Wifi-ADB or Keep-Alive on needs the access token below; untrusted, open and sign-in Wi-Fi networks stay blocked.</string>
+    <string name="settings_automation_subtext">Lets automation apps such as Tasker, MacroDroid or Automate control KeepADB with broadcast intents. Turning Wifi-ADB or Keep-Alive on needs the access token below; Wi-Fi networks that the Protection settings block stay blocked.</string>
     <string name="settings_automation_toggle">Allow automation apps</string>
     <string name="settings_automation_dialog_title">Allow automation apps?</string>
-    <string name="settings_automation_dialog_message">Every app on this phone can send requests to KeepADB. Only requests with the access token can turn Wifi-ADB or Keep-Alive on, also while the phone is locked. Turning off and reading whether Wifi-ADB is on need no token. Untrusted, open and sign-in Wi-Fi networks stay blocked. Give the token only to apps you trust.</string>
+    <string name="settings_automation_dialog_message">Every app on this phone can send requests to KeepADB. Only requests with the access token can turn Wifi-ADB or Keep-Alive on, also while the phone is locked. Turning off and reading whether Wifi-ADB is on need no token. Wi-Fi networks that the Protection settings block stay blocked. Give the token only to apps you trust.</string>
     <string name="settings_automation_dialog_confirm">Allow</string>
     <string name="settings_automation_token_label">Access token</string>
     <string name="settings_automation_token_show">Show</string>

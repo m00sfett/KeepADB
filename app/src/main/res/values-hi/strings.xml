@@ -707,10 +707,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">ऑटोमेशन</string>
-    <string name="settings_automation_subtext">Tasker, MacroDroid या Automate जैसे ऑटोमेशन ऐप को ब्रॉडकास्ट इंटेंट से KeepADB नियंत्रित करने देता है। Wifi-ADB या Keep-Alive चालू करने के लिए नीचे दिया गया एक्सेस टोकन चाहिए; गैर-भरोसेमंद, खुले और साइन-इन पेज वाले Wi-Fi नेटवर्क ब्लॉक रहते हैं।</string>
+    <string name="settings_automation_subtext">Tasker, MacroDroid या Automate जैसे ऑटोमेशन ऐप को ब्रॉडकास्ट इंटेंट से KeepADB नियंत्रित करने देता है। Wifi-ADB या Keep-Alive चालू करने के लिए नीचे दिया गया एक्सेस टोकन चाहिए; सुरक्षा सेटिंग्स जिन Wi-Fi नेटवर्क को ब्लॉक करती हैं, वे ब्लॉक रहते हैं।</string>
     <string name="settings_automation_toggle">ऑटोमेशन ऐप को अनुमति दें</string>
     <string name="settings_automation_dialog_title">ऑटोमेशन ऐप को अनुमति दें?</string>
-    <string name="settings_automation_dialog_message">इस फ़ोन का कोई भी ऐप KeepADB को अनुरोध भेज सकता है। केवल एक्सेस टोकन वाले अनुरोध ही Wifi-ADB या Keep-Alive चालू कर सकते हैं, फ़ोन लॉक होने पर भी। बंद करने और यह पता करने के लिए कि Wifi-ADB चालू है या नहीं, टोकन की ज़रूरत नहीं है। गैर-भरोसेमंद, खुले और साइन-इन पेज वाले Wi-Fi नेटवर्क ब्लॉक रहते हैं। टोकन केवल भरोसेमंद ऐप के साथ साझा करें।</string>
+    <string name="settings_automation_dialog_message">इस फ़ोन का कोई भी ऐप KeepADB को अनुरोध भेज सकता है। केवल एक्सेस टोकन वाले अनुरोध ही Wifi-ADB या Keep-Alive चालू कर सकते हैं, फ़ोन लॉक होने पर भी। बंद करने और यह पता करने के लिए कि Wifi-ADB चालू है या नहीं, टोकन की ज़रूरत नहीं है। सुरक्षा सेटिंग्स जिन Wi-Fi नेटवर्क को ब्लॉक करती हैं, वे ब्लॉक रहते हैं। टोकन केवल भरोसेमंद ऐप के साथ साझा करें।</string>
     <string name="settings_automation_dialog_confirm">अनुमति दें</string>
     <string name="settings_automation_token_label">एक्सेस टोकन</string>
     <string name="settings_automation_token_show">दिखाएँ</string>

@@ -708,10 +708,10 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automatisation</string>
-    <string name="settings_automation_subtext">Permet aux applis d\'automatisation comme Tasker, MacroDroid ou Automate de piloter KeepADB par des intents de diffusion. Activer Wifi-ADB ou Keep-Alive nécessite le jeton d\'accès ci-dessous ; les réseaux Wi-Fi non approuvés, ouverts ou avec page de connexion restent bloqués.</string>
+    <string name="settings_automation_subtext">Permet aux applis d\'automatisation comme Tasker, MacroDroid ou Automate de piloter KeepADB par des intents de diffusion. Activer Wifi-ADB ou Keep-Alive nécessite le jeton d\'accès ci-dessous ; les réseaux Wi-Fi bloqués par les réglages de Protection restent bloqués.</string>
     <string name="settings_automation_toggle">Autoriser les applis d\'automatisation</string>
     <string name="settings_automation_dialog_title">Autoriser les applis d\'automatisation ?</string>
-    <string name="settings_automation_dialog_message">Toute appli de ce téléphone peut envoyer des requêtes à KeepADB. Seules les requêtes avec le jeton d\'accès peuvent activer Wifi-ADB ou Keep-Alive, même téléphone verrouillé. Désactiver et savoir si Wifi-ADB est actif ne demandent pas de jeton. Les réseaux Wi-Fi non approuvés, ouverts ou avec page de connexion restent bloqués. Ne donnez le jeton qu\'aux applis auxquelles vous faites confiance.</string>
+    <string name="settings_automation_dialog_message">Toute appli de ce téléphone peut envoyer des requêtes à KeepADB. Seules les requêtes avec le jeton d\'accès peuvent activer Wifi-ADB ou Keep-Alive, même téléphone verrouillé. Désactiver et savoir si Wifi-ADB est actif ne demandent pas de jeton. Les réseaux Wi-Fi bloqués par les réglages de Protection restent bloqués. Ne donnez le jeton qu\'aux applis auxquelles vous faites confiance.</string>
     <string name="settings_automation_dialog_confirm">Autoriser</string>
     <string name="settings_automation_token_label">Jeton d\'accès</string>
     <string name="settings_automation_token_show">Afficher</string>

@@ -707,10 +707,10 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automatisierung</string>
-    <string name="settings_automation_subtext">Erlaubt Automatisierungs-Apps wie Tasker, MacroDroid oder Automate, KeepADB per Broadcast-Intent zu steuern. Zum Einschalten von Wifi-ADB oder Keep-Alive ist das Zugriffstoken unten nötig; nicht vertraute, offene WLANs und WLANs mit Anmeldeseite bleiben gesperrt.</string>
+    <string name="settings_automation_subtext">Erlaubt Automatisierungs-Apps wie Tasker, MacroDroid oder Automate, KeepADB per Broadcast-Intent zu steuern. Zum Einschalten von Wifi-ADB oder Keep-Alive ist das Zugriffstoken unten nötig; WLANs, die deine Schutz-Einstellungen sperren, bleiben gesperrt.</string>
     <string name="settings_automation_toggle">Automatisierungs-Apps erlauben</string>
     <string name="settings_automation_dialog_title">Automatisierungs-Apps erlauben?</string>
-    <string name="settings_automation_dialog_message">Jede App auf diesem Handy kann Anfragen an KeepADB schicken. Nur Anfragen mit dem Zugriffstoken können Wifi-ADB oder Keep-Alive einschalten, auch bei gesperrtem Handy. Ausschalten und Abfragen, ob Wifi-ADB an ist, gehen ohne Token. Nicht vertraute, offene WLANs und WLANs mit Anmeldeseite bleiben gesperrt. Gib das Token nur an Apps weiter, denen du vertraust.</string>
+    <string name="settings_automation_dialog_message">Jede App auf diesem Handy kann Anfragen an KeepADB schicken. Nur Anfragen mit dem Zugriffstoken können Wifi-ADB oder Keep-Alive einschalten, auch bei gesperrtem Handy. Ausschalten und Abfragen, ob Wifi-ADB an ist, gehen ohne Token. WLANs, die deine Schutz-Einstellungen sperren, bleiben gesperrt. Gib das Token nur an Apps weiter, denen du vertraust.</string>
     <string name="settings_automation_dialog_confirm">Erlauben</string>
     <string name="settings_automation_token_label">Zugriffstoken</string>
     <string name="settings_automation_token_show">Anzeigen</string>

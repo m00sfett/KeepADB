@@ -707,10 +707,10 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Otomasyon</string>
-    <string name="settings_automation_subtext">Tasker, MacroDroid veya Automate gibi otomasyon uygulamalarının KeepADB\'yi yayın intent\'leriyle kontrol etmesine izin verir. Wifi-ADB\'yi veya Keep-Alive\'ı açmak için aşağıdaki erişim belirteci gerekir; güvenilmeyen, açık ve oturum açma sayfalı Wi-Fi ağları engelli kalır.</string>
+    <string name="settings_automation_subtext">Tasker, MacroDroid veya Automate gibi otomasyon uygulamalarının KeepADB\'yi yayın intent\'leriyle kontrol etmesine izin verir. Wifi-ADB\'yi veya Keep-Alive\'ı açmak için aşağıdaki erişim belirteci gerekir; Koruma ayarlarının engellediği Wi-Fi ağları engelli kalır.</string>
     <string name="settings_automation_toggle">Otomasyon uygulamalarına izin ver</string>
     <string name="settings_automation_dialog_title">Otomasyon uygulamalarına izin verilsin mi?</string>
-    <string name="settings_automation_dialog_message">Bu telefondaki her uygulama KeepADB\'ye istek gönderebilir. Yalnızca erişim belirtecini içeren istekler Wifi-ADB\'yi veya Keep-Alive\'ı açabilir, telefon kilitliyken de. Kapatmak ve Wifi-ADB\'nin açık olup olmadığını sorgulamak için belirteç gerekmez. Güvenilmeyen, açık ve oturum açma sayfalı Wi-Fi ağları engelli kalır. Belirteci yalnızca güvendiğiniz uygulamalarla paylaşın.</string>
+    <string name="settings_automation_dialog_message">Bu telefondaki her uygulama KeepADB\'ye istek gönderebilir. Yalnızca erişim belirtecini içeren istekler Wifi-ADB\'yi veya Keep-Alive\'ı açabilir, telefon kilitliyken de. Kapatmak ve Wifi-ADB\'nin açık olup olmadığını sorgulamak için belirteç gerekmez. Koruma ayarlarının engellediği Wi-Fi ağları engelli kalır. Belirteci yalnızca güvendiğiniz uygulamalarla paylaşın.</string>
     <string name="settings_automation_dialog_confirm">İzin ver</string>
     <string name="settings_automation_token_label">Erişim belirteci</string>
     <string name="settings_automation_token_show">Göster</string>

@@ -708,10 +708,10 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">Automação</string>
-    <string name="settings_automation_subtext">Permite que apps de automação como Tasker, MacroDroid ou Automate controlem o KeepADB com intents de broadcast. Para ativar o Wifi-ADB ou o Keep-Alive é necessário o token de acesso abaixo; redes Wi-Fi não fiáveis, abertas ou com página de login continuam bloqueadas.</string>
+    <string name="settings_automation_subtext">Permite que apps de automação como Tasker, MacroDroid ou Automate controlem o KeepADB com intents de broadcast. Para ativar o Wifi-ADB ou o Keep-Alive é necessário o token de acesso abaixo; redes Wi-Fi bloqueadas pelas configurações de Proteção continuam bloqueadas.</string>
     <string name="settings_automation_toggle">Permitir apps de automação</string>
     <string name="settings_automation_dialog_title">Permitir apps de automação?</string>
-    <string name="settings_automation_dialog_message">Qualquer app neste telefone pode enviar pedidos ao KeepADB. Só pedidos com o token de acesso podem ativar o Wifi-ADB ou o Keep-Alive, também com o telefone bloqueado. Desativar e consultar se o Wifi-ADB está ativo não precisam de token. Redes Wi-Fi não fiáveis, abertas ou com página de login continuam bloqueadas. Compartilhe o token apenas com apps em que você confia.</string>
+    <string name="settings_automation_dialog_message">Qualquer app neste telefone pode enviar pedidos ao KeepADB. Só pedidos com o token de acesso podem ativar o Wifi-ADB ou o Keep-Alive, também com o telefone bloqueado. Desativar e consultar se o Wifi-ADB está ativo não precisam de token. Redes Wi-Fi bloqueadas pelas configurações de Proteção continuam bloqueadas. Compartilhe o token apenas com apps em que você confia.</string>
     <string name="settings_automation_dialog_confirm">Permitir</string>
     <string name="settings_automation_token_label">Token de acesso</string>
     <string name="settings_automation_token_show">Mostrar</string>

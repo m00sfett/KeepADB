@@ -706,10 +706,10 @@
     <!-- #1001: settings backup -->
     <!-- #998: automation interface -->
     <string name="settings_automation_title">自動化</string>
-    <string name="settings_automation_subtext">Tasker、MacroDroid、Automate などの自動化アプリがブロードキャスト インテントで KeepADB を操作できるようにします。Wifi-ADB や Keep-Alive をオンにするには下のアクセストークンが必要です。信頼されていない Wi-Fi、オープンな Wi-Fi、ログインページのある Wi-Fi では引き続きブロックされます。</string>
+    <string name="settings_automation_subtext">Tasker、MacroDroid、Automate などの自動化アプリがブロードキャスト インテントで KeepADB を操作できるようにします。Wifi-ADB や Keep-Alive をオンにするには下のアクセストークンが必要です。「保護」の設定でブロックされている Wi-Fi では引き続きブロックされます。</string>
     <string name="settings_automation_toggle">自動化アプリを許可</string>
     <string name="settings_automation_dialog_title">自動化アプリを許可しますか？</string>
-    <string name="settings_automation_dialog_message">このスマートフォンのどのアプリも KeepADB にリクエストを送信できます。Wifi-ADB や Keep-Alive をオンにできるのは、アクセストークン付きのリクエストだけです（スマートフォンがロック中でも可能）。オフにすることと Wifi-ADB がオンかどうかの確認にはトークンは不要です。信頼されていない Wi-Fi、オープンな Wi-Fi、ログインページのある Wi-Fi では引き続きブロックされます。トークンは信頼できるアプリにだけ渡してください。</string>
+    <string name="settings_automation_dialog_message">このスマートフォンのどのアプリも KeepADB にリクエストを送信できます。Wifi-ADB や Keep-Alive をオンにできるのは、アクセストークン付きのリクエストだけです（スマートフォンがロック中でも可能）。オフにすることと Wifi-ADB がオンかどうかの確認にはトークンは不要です。「保護」の設定でブロックされている Wi-Fi では引き続きブロックされます。トークンは信頼できるアプリにだけ渡してください。</string>
     <string name="settings_automation_dialog_confirm">許可</string>
     <string name="settings_automation_token_label">アクセストークン</string>
     <string name="settings_automation_token_show">表示</string>
