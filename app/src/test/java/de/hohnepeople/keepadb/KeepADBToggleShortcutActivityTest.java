@@ -214,6 +214,40 @@ public class KeepADBToggleShortcutActivityTest {
                 KeepADB.isManualSource(KeepADB.SOURCE_SHORTCUT));
     }
 
+    /** #1019: Wifi-ADB was just switched off by hand, so a new "on" waits in the re-enable gap. */
+    private void switchedOffJustNow(KeepADBFakeSettingsGateway gateway) {
+        assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP).isSuccess());
+        assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_APP).isSuccess());
+        assertFalse(gateway.isEnabled(context));
+        gateway.writes.clear();
+    }
+
+    private static void afterReenableGap() {
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADB.MANUAL_REENABLE_GAP_MS + 1));
+    }
+
+    @Test
+    public void secondUnlockedShortcutSkipsAnOnStillWaitingInTheReenableGap() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        switchedOffJustNow(gateway);
+        setDeviceLocked(true);
+        CapturingShortcutActivity first = start(CapturingShortcutActivity.class);
+        CapturingShortcutActivity second = start(CapturingShortcutActivity.class);
+
+        setDeviceLocked(false);
+        first.onUnlocked.get(0).run();
+        assertTrue("the first on waits in the gap", KeepADB.isManualEnablePending());
+        second.onUnlocked.get(0).run();
+        assertTrue("#1019: the second shortcut must not request on again, nor skip the gap",
+                gateway.writes.isEmpty());
+
+        afterReenableGap();
+        assertEquals(Collections.singletonList(true), gateway.writes);
+        assertTrue(first.isFinishing());
+        assertTrue(second.isFinishing());
+    }
+
     private KeepADBFakeSettingsGateway offState() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);

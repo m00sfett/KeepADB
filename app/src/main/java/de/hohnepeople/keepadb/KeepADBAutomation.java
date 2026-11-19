@@ -141,6 +141,9 @@ final class KeepADBAutomation {
 
         boolean isWifiAdbOn(Context app);
 
+        /** #1019: a direct "on" is still waiting in its re-enable gap. */
+        boolean isEnablePending();
+
         void setKeepAlive(Context app, boolean on);
 
         /** The verified endpoint, or {@code null}. */
@@ -166,6 +169,11 @@ final class KeepADBAutomation {
             KeepADB.State state = KeepADB.getState(app);
             return state == KeepADB.State.ENABLED_CONNECTED
                     || state == KeepADB.State.ENABLED_DISCONNECTED;
+        }
+
+        @Override
+        public boolean isEnablePending() {
+            return KeepADB.isManualEnablePending();
         }
 
         @Override
@@ -344,8 +352,11 @@ final class KeepADBAutomation {
             act.setKeepAlive(app, on);
             result = Result.OK;
         } else {
+            // #1019: a toggle flips the newest intent; an "on" still waiting in its re-enable gap
+            // counts as on, or two quick toggles after an "off" would both request "on".
             boolean on = ACTION_WIFI_ADB_ON.equals(action)
-                    || (ACTION_WIFI_ADB_TOGGLE.equals(action) && !act.isWifiAdbOn(app));
+                    || (ACTION_WIFI_ADB_TOGGLE.equals(action) && !act.isWifiAdbOn(app)
+                            && !act.isEnablePending());
             result = switchWifiAdb(app, act, request, on, tokenValid);
         }
         act.refreshSurfaces(app);

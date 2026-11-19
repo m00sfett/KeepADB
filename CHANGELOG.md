@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.6] - Unreleased
+
+### Fixed
+- Two quick toggles right after an "off" no longer leave Wifi-ADB on (#1019, versionCode 287). A direct "on" after an "off" waits `MANUAL_REENABLE_GAP_MS` (100 ms) while `adb_wifi_enabled` still reads 0, so a second toggle in that window used to request "on" again. The new `KeepADB.desiredOnForToggle` (MainActivity switch, tile, widget, "Toggle Wifi-ADB" shortcut) and the automation `WIFI_ADB_TOGGLE` treat a still-pending manual "on" (`KeepADB.isManualEnablePending`) as on, so the second toggle cancels it. A pending automatic intent does not change what a toggle means. The unlock continuation of the tile and the launcher shortcut (`KeepADBToggleGate.enableStillWanted`, #586) uses the same rule, so two taps on a locked phone no longer request "on" twice and skip the re-enable gap (Codex review of #1021); a continuation overriding a newer explicit "off" from another surface is pre-existing and tracked in #1022. The Fastlane note for 287 adds "Fixed: quick double toggles." to the 286 text.
+
+### Documentation
+- `docs/automation.md` after a device test with Automate 1.53.2 on the s20 (Android 13): the Automate example is marked as checked (reply with `request_id` received by a *Broadcast receive* started first); a newly installed or force-stopped KeepADB receives no broadcasts until it is opened once (Android's stopped state); `adb shell am broadcast` puts the token into logcat via the adb daemon, so test only on your own device and replace the token afterwards. Tasker and MacroDroid remain unchecked.
+
 ## [1.15.5] - Unreleased
 
 ### Added

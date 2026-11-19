@@ -339,6 +339,23 @@ public class KeepADBAutomationTest {
                 .hasExtra(KeepADBAutomation.EXTRA_REQUEST_ID));
     }
 
+    @Test
+    public void toggleCancelsAnOnStillWaitingInTheReenableGap() {
+        String token = enable();
+        fake.wifiOn = false;
+        fake.enablePending = true;
+        KeepADBAutomation.Response response =
+                KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_TOGGLE, token);
+        assertEquals(KeepADBAutomation.Result.OK, response.result);
+        assertEquals("#1019: a pending on counts as on", List.of("wifi:false"), wifiCalls());
+    }
+
+    private List<String> wifiCalls() {
+        List<String> wifi = new ArrayList<>();
+        for (String call : fake.calls) if (call.startsWith("wifi:")) wifi.add(call);
+        return wifi;
+    }
+
     // ---- Flood protection -------------------------------------------------------------------
 
     @Test
@@ -503,6 +520,7 @@ public class KeepADBAutomationTest {
         final List<String> calls = new ArrayList<>();
         boolean networkAllowed = true;
         boolean wifiOn;
+        boolean enablePending;
         KeepADB.EnableGuard lastGuard;
 
         @Override
@@ -521,6 +539,11 @@ public class KeepADBAutomationTest {
         @Override
         public boolean isWifiAdbOn(Context app) {
             return wifiOn;
+        }
+
+        @Override
+        public boolean isEnablePending() {
+            return enablePending;
         }
 
         @Override

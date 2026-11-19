@@ -239,6 +239,48 @@ public class KeepADBTileUnlockGateTest {
         }
     }
 
+    /** #1019: Wifi-ADB was just switched off by hand, so a new "on" waits in the re-enable gap. */
+    private void switchedOffJustNow(KeepADBFakeSettingsGateway gateway) {
+        assertTrue(KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP).isSuccess());
+        assertTrue(KeepADB.setEnabled(context, false, KeepADB.SOURCE_APP).isSuccess());
+        assertFalse(gateway.isEnabled(context));
+        gateway.writes.clear();
+    }
+
+    private static void afterReenableGap() {
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADB.MANUAL_REENABLE_GAP_MS + 1));
+    }
+
+    @Test
+    public void secondUnlockCallbackSkipsAnOnStillWaitingInTheReenableGap() {
+        KeepADBFakeSettingsGateway gateway = offState();
+        switchedOffJustNow(gateway);
+        setDeviceLocked(true);
+        CapturingTileService tile = startTile(CapturingTileService.class);
+        try {
+            tile.onClick();
+            tile.onClick();
+            assertEquals(2, tile.pendingUnlockCallbacks.size());
+
+            setDeviceLocked(false);
+            tile.pendingUnlockCallbacks.get(0).run();
+            assertTrue("the first on waits in the gap", KeepADB.isManualEnablePending());
+            assertTrue(gateway.writes.isEmpty());
+
+            tile.pendingUnlockCallbacks.get(1).run();
+            assertTrue("#1019: the second callback must not request on again, nor skip the gap",
+                    gateway.writes.isEmpty());
+            assertTrue(KeepADB.isManualEnablePending());
+
+            afterReenableGap();
+            assertEquals(Collections.singletonList(true), gateway.writes);
+            assertTrue(diagnostics().contains("outcome=skipped"));
+        } finally {
+            tile.onStopListening();
+        }
+    }
+
     private KeepADBFakeSettingsGateway offState() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);

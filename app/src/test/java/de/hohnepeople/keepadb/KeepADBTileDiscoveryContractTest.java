@@ -521,8 +521,11 @@ public class KeepADBTileDiscoveryContractTest {
 
         assertTrue("OFF_KEEP_ALIVE_WAITING must resolve to an enable",
                 clickBody.contains("state == State.OFF_KEEP_ALIVE_WAITING"));
+        assertTrue("#1019: the toggle semantics must build on the shared click definition",
+                methodBody(keepAdb, "static boolean desiredOnForToggle(State state) {")
+                        .contains("desiredOnForClick(state)"));
         assertTrue("The tile must route its tap through the shared click semantics",
-                tileClick.contains("KeepADB.desiredOnForClick(state)"));
+                tileClick.contains("KeepADB.desiredOnForToggle(state)"));
     }
 
     @Test
@@ -539,7 +542,7 @@ public class KeepADBTileDiscoveryContractTest {
         int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
         int reconnectCall = body.indexOf("KeepADBEndpointCoordinator.refreshForTile(this, this);", disconnectedBranch);
         int earlyReturn = body.indexOf("return;", disconnectedBranch);
-        int wantAssignment = body.indexOf("boolean want = KeepADB.desiredOnForClick(state);");
+        int wantAssignment = body.indexOf("boolean want = KeepADB.desiredOnForToggle(state);");
 
         assertTrue("onClick() must keep the documented ENABLED_DISCONNECTED exception",
                 disconnectedBranch >= 0);
@@ -551,7 +554,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertFalse("The exception must never disable wireless debugging",
                 body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled(this, false"));
         assertFalse("It must not fall back to the shared definition for this state either",
-                body.substring(disconnectedBranch, earlyReturn).contains("desiredOnForClick"));
+                body.substring(disconnectedBranch, earlyReturn).contains("desiredOnFor"));
 
         // The exception must be exactly one state wide: no other state may be intercepted before
         // the shared definition is consulted.
