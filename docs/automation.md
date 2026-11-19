@@ -48,6 +48,11 @@ Send an **explicit broadcast** to package `de.hohnepeople.keepadb` (debug builds
 | `reply_package` | String, optional | The package that should receive the reply, e.g. `net.dinglisch.android.taskerm` |
 | `request_id` | String, optional | Up to 128 characters, returned unchanged in the reply so you can match it to your request; never logged |
 
+**Open KeepADB once after installing it or after "Force stop".** Android delivers no broadcasts to
+an app in that "stopped" state, so every request is lost without a reply until KeepADB has been
+opened once. A reboot does not cause this; only a new installation or "Force stop" in Android's app
+info does.
+
 ## Reply
 
 When the request names `reply_package`, KeepADB sends a broadcast to that package only. If the
@@ -101,7 +106,13 @@ trigger *Intent Received* with action `de.hohnepeople.keepadb.action.RESULT`.
 Block *Broadcast send*: package `de.hohnepeople.keepadb`, action
 `de.hohnepeople.keepadb.action.WIFI_ADB_ON`, extras `{"token": "TOKEN"}`. For a reply add
 `"reply_package": "com.llamalab.automate"` and wait with *Broadcast receive* for action
-`de.hohnepeople.keepadb.action.RESULT`.
+`de.hohnepeople.keepadb.action.RESULT`; its output variable *Dictionary with broadcast extras*
+holds the reply.
+
+Checked on 2026-11-19 with Automate 1.53.2 (Android 13): in a second flow, a *Broadcast receive*
+started before the request got the reply (`result`, `wifi_adb`, `keep_alive` and the
+`request_id`). Start the receiving flow first: a reply sent before *Broadcast receive* is waiting is
+not kept.
 
 ### adb (for testing)
 
@@ -112,10 +123,16 @@ adb shell am broadcast -a de.hohnepeople.keepadb.action.STATUS -p de.hohnepeople
 `am broadcast` shows no reply extras. Use the journal under Settings → Diagnostics to see what
 KeepADB did (`automation ... accepted/rejected/ignored`, never the token).
 
+**adb puts the token into the system log.** Android's adb daemon writes every `adb shell` command
+line to logcat, token included. KeepADB itself never logs the token, but anyone who can read logcat
+(a computer connected with adb, a bug report) can then see it. Test with the token only on a
+device you control, and use **New token** in Settings afterwards.
+
 ## Not yet included
 
 - A Tasker/Locale plugin with its own settings screen, conditions and variables (#999).
 - A timer action ("on for N minutes").
 
-Whether each automation app receives a broadcast sent to its package depends on the app; the
-examples above have not been checked in every app yet.
+Whether each automation app receives a broadcast sent to its package depends on the app. Only the
+Automate example has been checked on a device so far (see above); the Tasker and MacroDroid
+examples have not.
