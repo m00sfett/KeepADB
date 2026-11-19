@@ -2,11 +2,15 @@ package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Base64;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.LongSupplier;
 import java.util.regex.Pattern;
 
 /**
@@ -33,7 +37,14 @@ import java.util.regex.Pattern;
  *       automation "off" is the user's intent and Keep-Alive respects it.</li>
  * </ul>
  * A reply is sent only to the package named in {@link #EXTRA_REPLY_PACKAGE}, never as an
- * implicit broadcast.
+ * implicit broadcast. Any app can name any reply package, so a reply is information for the
+ * client, never an authorization; {@link #EXTRA_REQUEST_ID} lets a client match a reply to its
+ * own request.
+ *
+ * <p>Any installed app can also send requests in a loop. Requests without a valid token write at
+ * most one journal line per kind and {@link #FLOOD_WINDOW_MS}, and the rejection counter is
+ * saved at most once per window, so a flood neither churns storage nor pushes useful history out
+ * of the diagnostics journal.
  */
 final class KeepADBAutomation {
     private KeepADBAutomation() {}
@@ -50,6 +61,9 @@ final class KeepADBAutomation {
 
     static final String EXTRA_TOKEN = "token";
     static final String EXTRA_REPLY_PACKAGE = "reply_package";
+    /** Optional, echoed unchanged in the reply so a client can match it; never logged. */
+    static final String EXTRA_REQUEST_ID = "request_id";
+    static final int MAX_REQUEST_ID_LENGTH = 128;
 
     static final String EXTRA_REQUEST = "request";
     static final String EXTRA_RESULT = "result";
@@ -80,6 +94,18 @@ final class KeepADBAutomation {
             Pattern.compile("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+");
 
     private static final String EVENT = "automation";
+
+    /** Journal lines and counter writes caused by untokened requests: at most one per window. */
+    static final long FLOOD_WINDOW_MS = 10_000L;
+    private static volatile LongSupplier clock = SystemClock::elapsedRealtime;
+    private static final Object FLOOD_LOCK = new Object();
+    /** Journal key -> {elapsed time of the last written line, lines suppressed since}. */
+    private static final Map<String, long[]> journalWindows = new HashMap<>();
+    /** Rejections counted but not saved yet, and the wall-clock time of the newest one. */
+    private static int pendingRejections;
+    private static long pendingLastRejectedAt;
+    private static long lastRejectionSaveAt;
+    private static boolean rejectionSavedOnce;
 
     /** What a request ended with; {@code null} from {@link #process} means "ignored, no reply". */
     static final class Response {
@@ -167,6 +193,22 @@ final class KeepADBAutomation {
         actions = testActions == null ? REAL_ACTIONS : testActions;
     }
 
+    /** A fake elapsed-time clock for the flood window; {@code null} restores the real one. */
+    static void setClockForTesting(LongSupplier testClock) {
+        clock = testClock == null ? SystemClock::elapsedRealtime : testClock;
+    }
+
+    /** Forgets the in-memory flood state (tests run in one process). */
+    static void resetFloodStateForTesting() {
+        synchronized (FLOOD_LOCK) {
+            journalWindows.clear();
+            pendingRejections = 0;
+            pendingLastRejectedAt = 0L;
+            lastRejectionSaveAt = 0L;
+            rejectionSavedOnce = false;
+        }
+    }
+
     // ---- Settings -------------------------------------------------------------------------
 
     static boolean isEnabled(Context context) {
@@ -192,7 +234,11 @@ final class KeepADBAutomation {
     static String regenerateToken(Context context) {
         String token = generateToken(new SecureRandom());
         KeepADBPreferences.setAutomationToken(context, token);
-        KeepADBPreferences.resetAutomationRejections(context);
+        synchronized (FLOOD_LOCK) {
+            pendingRejections = 0;
+            pendingLastRejectedAt = 0L;
+            KeepADBPreferences.resetAutomationRejections(context);
+        }
         KeepADBDiagnostics.event(context, EVENT, "settings", "token_regenerated", "interface");
         return token;
     }
@@ -228,15 +274,19 @@ final class KeepADBAutomation {
         String replyPackage = intent.getStringExtra(EXTRA_REPLY_PACKAGE);
         if (replyPackage == null || replyPackage.isEmpty()) return;
         if (!isValidReplyPackage(replyPackage)) {
-            KeepADBDiagnostics.event(app, EVENT, "automation", "reply_skipped",
-                    "reason=invalid_reply_package");
+            journal(app, "reply_skipped", "reason=invalid_reply_package", true);
             return;
         }
-        app.sendBroadcast(replyIntent(response, replyPackage));
+        app.sendBroadcast(replyIntent(response, replyPackage,
+                intent.getStringExtra(EXTRA_REQUEST_ID)));
     }
 
-    static Intent replyIntent(Response response, String replyPackage) {
+    static Intent replyIntent(Response response, String replyPackage, String requestId) {
         Intent reply = new Intent(ACTION_RESULT).setPackage(replyPackage);
+        if (requestId != null && !requestId.isEmpty()
+                && requestId.length() <= MAX_REQUEST_ID_LENGTH) {
+            reply.putExtra(EXTRA_REQUEST_ID, requestId);
+        }
         reply.putExtra(EXTRA_REQUEST, response.request);
         reply.putExtra(EXTRA_RESULT, response.result.value);
         reply.putExtra(EXTRA_WIFI_ADB, response.wifiAdb);
@@ -255,12 +305,13 @@ final class KeepADBAutomation {
     static Response process(Context app, String action, String presentedToken) {
         String request = requestName(action);
         if (!isEnabled(app)) {
-            KeepADBDiagnostics.event(app, EVENT, "automation", "ignored",
-                    "reason=interface_disabled request=" + (request == null ? "unknown" : request));
+            journal(app, "ignored",
+                    "reason=interface_disabled request=" + (request == null ? "unknown" : request),
+                    true);
             return null;
         }
         if (request == null) {
-            KeepADBDiagnostics.event(app, EVENT, "automation", "ignored", "reason=unknown_action");
+            journal(app, "ignored", "reason=unknown_action", true);
             return null;
         }
         Actions act = actions;
@@ -273,8 +324,8 @@ final class KeepADBAutomation {
                 recordRejection(app, request, "token_invalid");
                 return response(app, act, request, Result.REJECTED_TOKEN, false);
             }
-            KeepADBDiagnostics.event(app, EVENT, "automation", "accepted",
-                    "request=" + request + " endpoint=" + tokenValid);
+            journal(app, "accepted", "request=" + request + " endpoint=" + tokenValid,
+                    !tokenValid);
             return response(app, act, request, Result.OK, tokenValid);
         }
 
@@ -289,26 +340,25 @@ final class KeepADBAutomation {
         Result result;
         if (ACTION_KEEP_ALIVE_ON.equals(action) || ACTION_KEEP_ALIVE_OFF.equals(action)) {
             boolean on = ACTION_KEEP_ALIVE_ON.equals(action);
-            KeepADBDiagnostics.event(app, EVENT, "automation", "accepted", "request=" + request);
+            journal(app, "accepted", "request=" + request, !tokenValid);
             act.setKeepAlive(app, on);
             result = Result.OK;
         } else {
             boolean on = ACTION_WIFI_ADB_ON.equals(action)
                     || (ACTION_WIFI_ADB_TOGGLE.equals(action) && !act.isWifiAdbOn(app));
-            result = switchWifiAdb(app, act, request, on);
+            result = switchWifiAdb(app, act, request, on, tokenValid);
         }
         act.refreshSurfaces(app);
         return response(app, act, request, result, tokenValid);
     }
 
-    private static Result switchWifiAdb(Context app, Actions act, String request, boolean on) {
+    private static Result switchWifiAdb(Context app, Actions act, String request, boolean on,
+                                        boolean tokenValid) {
         if (on && !act.networkAllowsEnable(app)) {
-            KeepADBDiagnostics.event(app, EVENT, "automation", "rejected",
-                    "request=" + request + " reason=network");
+            journal(app, "rejected", "request=" + request + " reason=network", false);
             return Result.REJECTED_NETWORK;
         }
-        KeepADBDiagnostics.event(app, EVENT, "automation", "accepted",
-                "request=" + request + " desired=" + on);
+        journal(app, "accepted", "request=" + request + " desired=" + on, !tokenValid);
         // Re-checked inside the toggle lock, immediately before the write: the interface may have
         // been switched off or the network may have changed in between.
         KeepADB.EnableGuard guard = on
@@ -342,9 +392,58 @@ final class KeepADBAutomation {
     }
 
     private static void recordRejection(Context app, String request, String reason) {
-        KeepADBPreferences.recordAutomationRejection(app, System.currentTimeMillis());
-        KeepADBDiagnostics.event(app, EVENT, "automation", "rejected",
-                "request=" + request + " reason=" + reason);
+        long now = clock.getAsLong();
+        synchronized (FLOOD_LOCK) {
+            if (pendingRejections < Integer.MAX_VALUE) pendingRejections++;
+            pendingLastRejectedAt = System.currentTimeMillis();
+            if (!rejectionSavedOnce || now - lastRejectionSaveAt >= FLOOD_WINDOW_MS) {
+                saveRejectionsLocked(app);
+                lastRejectionSaveAt = now;
+                rejectionSavedOnce = true;
+            }
+        }
+        journal(app, "rejected", "request=" + request + " reason=" + reason, true);
+    }
+
+    /**
+     * Saves rejections counted within the current flood window. Settings calls this before it
+     * shows the counter; a process death can lose at most one window of a flood, never the
+     * first rejection, which is always saved at once.
+     */
+    static void flushRejections(Context context) {
+        synchronized (FLOOD_LOCK) {
+            saveRejectionsLocked(context);
+        }
+    }
+
+    private static void saveRejectionsLocked(Context context) {
+        if (pendingRejections <= 0) return;
+        KeepADBPreferences.recordAutomationRejections(context, pendingRejections,
+                pendingLastRejectedAt);
+        pendingRejections = 0;
+    }
+
+    /**
+     * One journal line. A throttled line (from a request without a valid token, which any app
+     * can send in a loop) is written at most once per kind and {@link #FLOOD_WINDOW_MS}; the
+     * next written line of that kind says how many were left out.
+     */
+    private static void journal(Context app, String outcome, String detail, boolean throttled) {
+        if (throttled) {
+            long now = clock.getAsLong();
+            String key = outcome + ' ' + detail;
+            synchronized (FLOOD_LOCK) {
+                long[] window = journalWindows.get(key);
+                if (window != null && now - window[0] < FLOOD_WINDOW_MS) {
+                    window[1]++;
+                    return;
+                }
+                long suppressed = window == null ? 0 : window[1];
+                journalWindows.put(key, new long[] {now, 0});
+                if (suppressed > 0) detail = detail + " suppressed=" + suppressed;
+            }
+        }
+        KeepADBDiagnostics.event(app, EVENT, "automation", outcome, detail);
     }
 
     /** The short request name used in replies and the journal, {@code null} for anything else. */

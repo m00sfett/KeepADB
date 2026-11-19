@@ -351,13 +351,15 @@ final class KeepADBPreferences {
         return prefs(context).getLong(KEY_AUTOMATION_LAST_REJECTED_AT, 0L);
     }
 
-    static synchronized void recordAutomationRejection(Context context, long nowMillis) {
-        if (context == null) return;
+    /** Adds {@code added} rejections; the count saturates at {@link Integer#MAX_VALUE}. */
+    static synchronized void recordAutomationRejections(Context context, int added,
+                                                        long lastAtMillis) {
+        if (context == null || added <= 0) return;
         SharedPreferences prefs = prefs(context);
-        int count = prefs.getInt(KEY_AUTOMATION_REJECTED_COUNT, 0);
+        long count = (long) prefs.getInt(KEY_AUTOMATION_REJECTED_COUNT, 0) + added;
         prefs.edit()
-                .putInt(KEY_AUTOMATION_REJECTED_COUNT, count == Integer.MAX_VALUE ? count : count + 1)
-                .putLong(KEY_AUTOMATION_LAST_REJECTED_AT, nowMillis)
+                .putInt(KEY_AUTOMATION_REJECTED_COUNT, (int) Math.min(count, Integer.MAX_VALUE))
+                .putLong(KEY_AUTOMATION_LAST_REJECTED_AT, lastAtMillis)
                 .apply();
     }
 

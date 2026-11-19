@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -40,6 +41,7 @@ public class KeepADBAutomationTest {
 
     private Context context;
     private FakeActions fake;
+    private final AtomicLong clock = new AtomicLong(1_000_000L);
 
     @Before
     public void setUp() {
@@ -47,11 +49,22 @@ public class KeepADBAutomationTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         fake = new FakeActions();
         KeepADBAutomation.setActionsForTesting(fake);
+        KeepADBAutomation.setClockForTesting(clock::get);
+        KeepADBAutomation.resetFloodStateForTesting();
+        KeepADBDiagnosticJournal.resetForTesting();
     }
 
     @After
     public void tearDown() {
         KeepADBAutomation.setActionsForTesting(null);
+        KeepADBAutomation.setClockForTesting(null);
+        KeepADBAutomation.resetFloodStateForTesting();
+    }
+
+    /** The counter as Settings shows it (Settings saves the pending rejections first). */
+    private int rejectedCount() {
+        KeepADBAutomation.flushRejections(context);
+        return KeepADBPreferences.getAutomationRejectedCount(context);
     }
 
     private String enable() {
@@ -69,7 +82,7 @@ public class KeepADBAutomationTest {
         }
         assertTrue("nothing may be switched while the interface is off", fake.calls.isEmpty());
         assertEquals("ignored requests are no rejections", 0,
-                KeepADBPreferences.getAutomationRejectedCount(context));
+                rejectedCount());
     }
 
     @Test
@@ -101,7 +114,7 @@ public class KeepADBAutomationTest {
         assertEquals(KeepADBAutomation.Result.REJECTED_TOKEN, missing.result);
         assertEquals(KeepADBAutomation.Result.REJECTED_TOKEN, wrong.result);
         assertFalse(fake.calls.contains("wifi:true"));
-        assertEquals(2, KeepADBPreferences.getAutomationRejectedCount(context));
+        assertEquals(2, rejectedCount());
         assertTrue(KeepADBPreferences.getAutomationLastRejectedAt(context) > 0);
     }
 
@@ -129,7 +142,7 @@ public class KeepADBAutomationTest {
         assertTrue(fake.calls.contains("wifi:false"));
         assertTrue(fake.calls.contains("keepalive:false"));
         assertNull("an off without token never carries a guard", fake.lastGuard);
-        assertEquals(0, KeepADBPreferences.getAutomationRejectedCount(context));
+        assertEquals(0, rejectedCount());
     }
 
     @Test
@@ -175,7 +188,7 @@ public class KeepADBAutomationTest {
         KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, "wrong");
         String fresh = KeepADBAutomation.regenerateToken(context);
         assertNotEquals(old, fresh);
-        assertEquals(0, KeepADBPreferences.getAutomationRejectedCount(context));
+        assertEquals(0, rejectedCount());
         assertEquals(KeepADBAutomation.Result.REJECTED_TOKEN, KeepADBAutomation.process(context,
                 KeepADBAutomation.ACTION_WIFI_ADB_ON, old).result);
         assertEquals(KeepADBAutomation.Result.OK, KeepADBAutomation.process(context,
@@ -223,7 +236,7 @@ public class KeepADBAutomationTest {
                 KeepADBAutomation.ACTION_WIFI_ADB_TOGGLE, token).result);
         assertFalse(fake.calls.contains("wifi:true"));
         assertEquals("a network refusal is not a token rejection", 0,
-                KeepADBPreferences.getAutomationRejectedCount(context));
+                rejectedCount());
     }
 
     @Test
@@ -287,14 +300,15 @@ public class KeepADBAutomationTest {
                 KeepADBAutomation.process(context, KeepADBAutomation.ACTION_STATUS, token + "x");
         assertEquals(KeepADBAutomation.Result.REJECTED_TOKEN, response.result);
         assertFalse(response.hasEndpoint());
-        assertEquals(1, KeepADBPreferences.getAutomationRejectedCount(context));
+        assertEquals(1, rejectedCount());
     }
 
     @Test
     public void replyIsExplicitAndCarriesNoToken() {
         KeepADBAutomation.Response withEndpoint = new KeepADBAutomation.Response("STATUS",
                 KeepADBAutomation.Result.OK, true, false, "10.0.0.2", 40000);
-        Intent reply = KeepADBAutomation.replyIntent(withEndpoint, "net.dinglisch.android.taskerm");
+        Intent reply = KeepADBAutomation.replyIntent(withEndpoint, "net.dinglisch.android.taskerm",
+                null);
         assertEquals(KeepADBAutomation.ACTION_RESULT, reply.getAction());
         assertEquals("net.dinglisch.android.taskerm", reply.getPackage());
         assertEquals("STATUS", reply.getStringExtra(KeepADBAutomation.EXTRA_REQUEST));
@@ -305,9 +319,86 @@ public class KeepADBAutomationTest {
         assertFalse(reply.hasExtra(KeepADBAutomation.EXTRA_TOKEN));
 
         Intent plain = KeepADBAutomation.replyIntent(new KeepADBAutomation.Response("STATUS",
-                KeepADBAutomation.Result.OK, false, false, null, 0), "com.example.app");
+                KeepADBAutomation.Result.OK, false, false, null, 0), "com.example.app", null);
         assertFalse(plain.hasExtra(KeepADBAutomation.EXTRA_IP));
         assertFalse(plain.hasExtra(KeepADBAutomation.EXTRA_PORT));
+        assertFalse(plain.hasExtra(KeepADBAutomation.EXTRA_REQUEST_ID));
+    }
+
+    @Test
+    public void requestIdIsEchoedSoAClientCanMatchItsReply() {
+        KeepADBAutomation.Response response = new KeepADBAutomation.Response("STATUS",
+                KeepADBAutomation.Result.OK, false, false, null, 0);
+        Intent reply = KeepADBAutomation.replyIntent(response, "com.example.app", "query-42");
+        assertEquals("query-42", reply.getStringExtra(KeepADBAutomation.EXTRA_REQUEST_ID));
+
+        String tooLong = "x".repeat(KeepADBAutomation.MAX_REQUEST_ID_LENGTH + 1);
+        assertFalse(KeepADBAutomation.replyIntent(response, "com.example.app", tooLong)
+                .hasExtra(KeepADBAutomation.EXTRA_REQUEST_ID));
+        assertFalse(KeepADBAutomation.replyIntent(response, "com.example.app", "")
+                .hasExtra(KeepADBAutomation.EXTRA_REQUEST_ID));
+    }
+
+    // ---- Flood protection -------------------------------------------------------------------
+
+    @Test
+    public void aFloodOfRejectionsIsCountedButSavedAtMostOncePerWindow() {
+        String token = enable();
+        for (int i = 0; i < 50; i++) {
+            KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, token + i);
+        }
+        assertEquals("the first rejection is saved at once", 1,
+                KeepADBPreferences.getAutomationRejectedCount(context));
+        clock.addAndGet(KeepADBAutomation.FLOOD_WINDOW_MS);
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, null);
+        assertEquals("the next window saves everything counted so far", 51,
+                KeepADBPreferences.getAutomationRejectedCount(context));
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, null);
+        assertEquals("Settings flushes the pending rest", 52, rejectedCount());
+    }
+
+    @Test
+    public void aFloodWritesOneJournalLinePerKindAndWindow() {
+        String token = enable();
+        for (int i = 0; i < 200; i++) {
+            KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, token + i);
+            KeepADBAutomation.process(context, KeepADBAutomation.ACTION_STATUS, null);
+        }
+        String journal = KeepADBDiagnostics.export(context);
+        assertEquals(1, occurrences(journal, "request=WIFI_ADB_ON reason=token_invalid"));
+        assertEquals(1, occurrences(journal, "request=STATUS endpoint=false"));
+
+        clock.addAndGet(KeepADBAutomation.FLOOD_WINDOW_MS);
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, token + "y");
+        assertTrue("the next line says how many were left out",
+                KeepADBDiagnostics.export(context).contains("suppressed=199"));
+    }
+
+    @Test
+    public void tokenAuthorizedRequestsAreNeverThrottled() {
+        String token = enable();
+        for (int i = 0; i < 3; i++) {
+            KeepADBAutomation.process(context, KeepADBAutomation.ACTION_STATUS, token);
+        }
+        assertEquals(3, occurrences(KeepADBDiagnostics.export(context),
+                "request=STATUS endpoint=true"));
+    }
+
+    @Test
+    public void aNewTokenAlsoClearsPendingRejections() {
+        String token = enable();
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, token + "a");
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_WIFI_ADB_ON, token + "b");
+        KeepADBAutomation.regenerateToken(context);
+        assertEquals(0, rejectedCount());
+    }
+
+    private static int occurrences(String haystack, String needle) {
+        int count = 0;
+        for (int i = haystack.indexOf(needle); i >= 0; i = haystack.indexOf(needle, i + 1)) {
+            count++;
+        }
+        return count;
     }
 
     @Test
@@ -336,7 +427,7 @@ public class KeepADBAutomationTest {
     @Test
     public void automationStateIsNotPartOfTheSettingsBackup() throws Exception {
         enable();
-        KeepADBPreferences.recordAutomationRejection(context, 1L);
+        KeepADBPreferences.recordAutomationRejections(context, 1, 1L);
         SharedPreferences prefs = context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE);
         Map<String, Object> stored = new HashMap<>(prefs.getAll());
         String export = KeepADBSettingsBackup.export(stored, true, 0L, "test");

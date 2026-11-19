@@ -150,13 +150,22 @@ authorizes nothing:
   whether it is on. The endpoint (address and port) is only in a reply to a request with a valid
   token.
 - A Wifi-ADB "on" **never bypasses the network protection**: it is refused unless Wi-Fi is
-  connected and the current network allows an automatic enable (no untrusted, blocked, open or
-  sign-in Wi-Fi), re-checked inside the toggle lock immediately before the write. Unlike a manual
-  tap, it never exempts the current network from "Turn off on untrusted Wi-Fi".
+  connected and the current network allows an automatic enable, re-checked inside the toggle lock
+  immediately before the write. It applies the Protection settings exactly as Keep-Alive does: by
+  default no untrusted, blocked, open or sign-in Wi-Fi, but a running Force mode allows every
+  network, open and sign-in Wi-Fi are refused only while "Turn off on open Wi-Fi" is on, and the
+  previous "All Wi-Fi networks" setting allows every unblocked network. Unlike a manual tap, it never
+  exempts the current network from "Turn off on untrusted Wi-Fi".
 - It does **not need an unlocked device**: the token is the authorization. Whoever holds the token
   can switch Wifi-ADB on while the phone is locked, on a network the user allowed.
 - Replies go only to the package named in the request (`setPackage`), never as an implicit
-  broadcast.
+  broadcast. Any app can name any package, so a reply is information, never an authorization; an
+  optional `request_id` is echoed unchanged (never logged) so a client can match replies to its
+  own requests.
+- **Floods:** any app can send requests in a loop. Requests without a valid token write at most
+  one diagnostics line per kind every 10 seconds (the next one counts what was left out), and the
+  rejection counter is saved at most every 10 seconds, so a flood neither churns storage nor pushes
+  useful history out of the bounded journal.
 - The token is never logged, never in the diagnostics journal or its export, never in a webhook
   payload and never in the settings backup; neither is the interface's on/off switch, so an import
   never opens the entry point. Android backup and device transfer are disabled for all app data.

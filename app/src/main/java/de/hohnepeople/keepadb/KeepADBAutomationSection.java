@@ -78,6 +78,7 @@ final class KeepADBAutomationSection {
                 : activity.getString(R.string.settings_automation_token_label));
         revealButton.setText(show ? R.string.settings_automation_token_hide
                 : R.string.settings_automation_token_show);
+        KeepADBAutomation.flushRejections(activity);
         int count = KeepADBPreferences.getAutomationRejectedCount(activity);
         long lastAt = KeepADBPreferences.getAutomationLastRejectedAt(activity);
         rejectedText.setText(count <= 0 || lastAt <= 0

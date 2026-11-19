@@ -20,15 +20,22 @@ The security model is described in [SECURITY.md](../SECURITY.md#automation-inter
 
 - **The interface is off:** every request is ignored, with no reply.
 - **The network protection still applies:** Wifi-ADB is switched on only while Wi-Fi is connected
-  and the current network allows an automatic enable. Untrusted, blocked, open and sign-in
-  Wi-Fi networks are refused with `rejected_network`. A request never exempts a network the way a
-  manual tap does.
+  and your settings under **Protection** allow an automatic enable on the current network;
+  otherwise the request is refused with `rejected_network`. With the default settings that refuses
+  untrusted, blocked, open and sign-in Wi-Fi networks. The request follows exactly the same rules as
+  Keep-Alive, including their exceptions: a running **Force mode** allows every network, an open or
+  sign-in Wi-Fi is refused only while **Turn off on open Wi-Fi** is on, and the previous "All Wi-Fi
+  networks" setting allows every network that is not blocked. A request never exempts a network the
+  way a manual tap does.
 - **A locked phone is fine:** the token is the authorization.
 - **Requests count as your own decision**, like a tap: an automation "off" stays off, and
   Keep-Alive does not switch Wifi-ADB back on. Any on or off from automation ends a running
   timer, and an "off" also ends Force mode.
 - **A wrong or missing token** where one is required is rejected and counted. Settings shows the
   number and the time of the last rejected request. A new token resets the count.
+- **Floods are damped:** any app can send requests in a loop. Requests without a valid token write
+  at most one journal line per kind every 10 seconds (the next line says how many were left out),
+  and the rejection count is saved at most every 10 seconds.
 
 ## Request
 
@@ -39,17 +46,24 @@ Send an **explicit broadcast** to package `de.hohnepeople.keepadb` (debug builds
 |---|---|---|
 | `token` | String | The access token from Settings → Automation |
 | `reply_package` | String, optional | The package that should receive the reply, e.g. `net.dinglisch.android.taskerm` |
+| `request_id` | String, optional | Up to 128 characters, returned unchanged in the reply so you can match it to your request; never logged |
 
 ## Reply
 
 When the request names `reply_package`, KeepADB sends a broadcast to that package only. If the
 interface is off, there is no reply.
 
+**A reply is information, not an authorization.** Any app can send a request naming your
+automation app as `reply_package`, so your automation app can receive replies it did not ask for.
+Do not let a reply alone trigger anything that switches something on; send a `request_id` and act
+only on a reply that carries yours.
+
 Action: `de.hohnepeople.keepadb.action.RESULT`
 
 | Extra | Type | Meaning |
 |---|---|---|
 | `request` | String | The action of the request without its prefix, e.g. `WIFI_ADB_ON` |
+| `request_id` | String | The `request_id` of the request, if it had one |
 | `result` | String | `ok`, `rejected_token`, `rejected_network`, `failed_permission` (the one-time permission is missing), `failed` |
 | `wifi_adb` | boolean | Whether Wifi-ADB is on after the request |
 | `keep_alive` | boolean | Whether the Keep-Alive setting is on |
