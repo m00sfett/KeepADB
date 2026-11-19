@@ -29,12 +29,6 @@ public class KeepADBPluginFireReceiver extends BroadcastReceiver {
             outcome = new KeepADBTaskerPlugin.Outcome(KeepADBTaskerPlugin.RESULT_CODE_FAILED,
                     null);
         }
-        if (isOrderedBroadcast()) {
-            setResultCode(outcome.resultCode);
-            if (outcome.variables != null) {
-                getResultExtras(true).putBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES,
-                        outcome.variables);
-            }
-        }
+        KeepADBTaskerPlugin.publish(this, outcome);
     }
 }

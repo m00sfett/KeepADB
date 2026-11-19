@@ -1,9 +1,11 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -430,6 +432,32 @@ final class KeepADBTaskerPlugin {
             return new Outcome(RESULT_CONDITION_UNKNOWN, null);
         }
         return query(app, bundle);
+    }
+
+    /**
+     * Hands {@code outcome} back to the sender of an ordered broadcast. The initial result
+     * extras belong to that sender and may fail to unparcel on first access; they are then
+     * replaced by fresh extras that carry only our variables, so the receiver never crashes and
+     * the outcome still arrives (Codex review of PR #1025).
+     */
+    static void publish(BroadcastReceiver receiver, Outcome outcome) {
+        if (!receiver.isOrderedBroadcast()) {
+            return;
+        }
+        receiver.setResultCode(outcome.resultCode);
+        if (outcome.variables == null) {
+            return;
+        }
+        try {
+            receiver.getResultExtras(true).putBundle(EXTRA_VARIABLES, outcome.variables);
+        } catch (RuntimeException e) {
+            // The message is not logged: it could echo the sender's extras.
+            Log.w("KeepADBPlugin", "Replacing unreadable result extras: "
+                    + e.getClass().getSimpleName());
+            Bundle fresh = new Bundle();
+            fresh.putBundle(EXTRA_VARIABLES, outcome.variables);
+            receiver.setResultExtras(fresh);
+        }
     }
 
     static Intent requestQueryIntent() {

@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.11] - Unreleased
+
+### Fixed (second Codex review of PR #1025)
+- The plugin receivers no longer crash when a foreign ordered sender passes initial result extras that fail to unparcel. `KeepADBTaskerPlugin.publish` sets the result code first and, if writing `%kadb_*` into the sender's extras throws, replaces them with fresh extras that carry only the variables, so the outcome still arrives.
+
+### Testing
+- Receiver-level regression tests send real ordered broadcasts with unreadable initial extras (a parcel with an unknown value type) to both receivers, with a valid and with an unreadable plugin bundle; a fixture test proves the extras really fail on first access. Without the fix three of them crashed.
+
 ## [1.15.10] - Unreleased
 
 ### Added

@@ -676,6 +676,105 @@ public class KeepADBTaskerPluginTest {
         assertEquals(Integer.valueOf(KeepADBTaskerPlugin.RESULT_CODE_FAILED), code.get());
     }
 
+    /**
+     * Initial result extras that fail to unparcel on first access, as a foreign ordered sender
+     * can build them: one entry with a type code no Parcel knows.
+     */
+    private static Bundle unreadableExtras() {
+        android.os.Parcel parcel = android.os.Parcel.obtain();
+        try {
+            parcel.writeInt(0); // payload length, patched below
+            parcel.writeInt(0x4C444E42); // BaseBundle.BUNDLE_MAGIC
+            int payloadStart = parcel.dataPosition();
+            parcel.writeInt(1); // entry count
+            parcel.writeString("key");
+            parcel.writeInt(0x7fff); // unknown value type
+            int payloadEnd = parcel.dataPosition();
+            parcel.setDataPosition(0);
+            parcel.writeInt(payloadEnd - payloadStart);
+            parcel.setDataPosition(0);
+            Bundle bundle = parcel.readBundle(Bundle.class.getClassLoader());
+            assertNotNull(bundle);
+            return bundle;
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void unreadableExtrasReallyFailOnFirstAccess() {
+        Bundle extras = unreadableExtras();
+        try {
+            extras.putBundle("probe", new Bundle());
+        } catch (RuntimeException expected) {
+            return;
+        }
+        throw new AssertionError("the fixture must fail to unparcel, or the tests below prove "
+                + "nothing");
+    }
+
+    /** Sends an ordered broadcast with unreadable initial extras; returns code and extras. */
+    private Object[] orderedWithUnreadableExtras(Intent intent, int initialCode) {
+        Object[] result = new Object[2];
+        context.sendOrderedBroadcast(intent, null, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent i) {
+                result[0] = getResultCode();
+                result[1] = getResultExtras(false);
+            }
+        }, null, initialCode, null, unreadableExtras());
+        shadowOf(Looper.getMainLooper()).idle();
+        return result;
+    }
+
+    @Test
+    public void fireReceiverReplacesUnreadableResultExtrasInsteadOfCrashing() {
+        String token = enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .setComponent(new ComponentName(context, KeepADBPluginFireReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin.buildBundle(
+                        KeepADBTaskerPlugin.Request.WIFI_ADB_ON, token));
+        Object[] result = orderedWithUnreadableExtras(fire, Activity.RESULT_CANCELED);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CODE_OK, result[0]);
+        Bundle vars = ((Bundle) result[1]).getBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES);
+        assertEquals("ok", vars.getString(KeepADBTaskerPlugin.VAR_RESULT));
+        assertEquals(List.of("wifi:true"), fake.calls);
+    }
+
+    @Test
+    public void fireReceiverReportsAFailureForAnUnreadableBundleUnderUnreadableExtras() {
+        enable();
+        Intent fire = brokenIntent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .setComponent(new ComponentName(context, KeepADBPluginFireReceiver.class));
+        Object[] result = orderedWithUnreadableExtras(fire, Activity.RESULT_OK);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CODE_FAILED, result[0]);
+        Bundle vars = ((Bundle) result[1]).getBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES);
+        assertEquals("invalid_config", vars.getString(KeepADBTaskerPlugin.VAR_RESULT));
+        assertTrue(fake.calls.isEmpty());
+    }
+
+    @Test
+    public void conditionReceiverReplacesUnreadableResultExtrasInsteadOfCrashing() {
+        String token = enable();
+        Intent query = new Intent(KeepADBTaskerPlugin.ACTION_QUERY_CONDITION)
+                .setComponent(new ComponentName(context, KeepADBPluginConditionReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, KeepADBTaskerPlugin
+                        .buildConditionBundle(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, token));
+        Object[] result = orderedWithUnreadableExtras(query, Activity.RESULT_OK);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNSATISFIED, result[0]);
+        Bundle vars = ((Bundle) result[1]).getBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES);
+        assertEquals("off", vars.getString(KeepADBTaskerPlugin.VAR_STATE));
+    }
+
+    @Test
+    public void conditionReceiverAnswersUnknownForAnUnreadableBundleUnderUnreadableExtras() {
+        enable();
+        Intent query = brokenIntent(KeepADBTaskerPlugin.ACTION_QUERY_CONDITION)
+                .setComponent(new ComponentName(context, KeepADBPluginConditionReceiver.class));
+        Object[] result = orderedWithUnreadableExtras(query, Activity.RESULT_OK);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, result[0]);
+    }
+
     // ---- Condition edit screen --------------------------------------------------------------
 
     private ActivityController<KeepADBPluginConditionEditActivity> conditionScreen(String caller) {
