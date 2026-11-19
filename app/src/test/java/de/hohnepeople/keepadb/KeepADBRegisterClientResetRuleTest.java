@@ -38,9 +38,10 @@ public class KeepADBRegisterClientResetRuleTest {
     }
 
     /**
-     * #1020: a register request of a test without a fake of its own is refused at once. The
-     * address is unroutable, so the real transport would wait for its 2000 ms connect timeout and
-     * the drain would not finish within this test's 500 ms.
+     * #1020: a register request of a test without a fake of its own is refused by the offline
+     * transport. The outcome proves it: the real transport would report a socket error for the
+     * unroutable address instead. The wait is generous on purpose, so a slow CI runner cannot fail
+     * this test the way the drain used to fail (Codex review of #1023).
      */
     @Test
     public void aRequestWithoutItsOwnFakeIsRefusedWithoutTheNetwork() {
@@ -50,8 +51,8 @@ public class KeepADBRegisterClientResetRuleTest {
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 40000);
 
-        assertTrue("the register executor must drain without a network wait",
-                KeepADBRegisterClient.awaitIdleForTesting(500));
+        assertTrue("the register executor must drain",
+                KeepADBRegisterClient.awaitIdleForTesting(5000));
         assertEquals("error=OfflineTestTransport",
                 KeepADBRegisterClient.lastTransportOutcomeForTesting());
     }
