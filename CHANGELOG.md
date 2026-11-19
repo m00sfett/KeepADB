@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.13] - Unreleased
+
+### Fixed
+- **"No Wi-Fi connection" while on Wi-Fi (#1027):** with Wifi-ADB on and the device on Wi-Fi but no endpoint found, the home screen and the widget said "No Wi-Fi connection". They now say "Address not found", and Home offers **Restart Wifi-ADB** (the existing recovery pulse) with an explanation. Cause on the CUBOT P60 and the S20: adbd stops announcing `_adb-tls-connect._tcp` over mDNS, KeepADB's only discovery path, and the automatic pulse only runs with Keep-Alive. A restart disconnects a connected computer briefly and changes the port, so it is not done automatically without Keep-Alive.
+
 ## [1.15.12] - Unreleased
 
 ### Fixed

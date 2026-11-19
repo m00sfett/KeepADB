@@ -27,7 +27,12 @@ final class KeepADBHomeStatus {
         /** Dialog of Android not confirmed: the switch's own path. */
         RETRY(R.string.home_action_retry),
         /** Permission missing: where the permission warning leads. */
-        INSTRUCTIONS(R.string.home_warning_action_guide);
+        INSTRUCTIONS(R.string.home_warning_action_guide),
+        /**
+         * #1027: on Wi-Fi, but Android does not announce the port: a recovery pulse makes adbd
+         * announce it again.
+         */
+        RESTART(R.string.home_action_restart_wifi_adb);
 
         /** The button label, or 0 for {@link #NONE}. */
         final int labelRes;
@@ -85,6 +90,17 @@ final class KeepADBHomeStatus {
      */
     static Model of(KeepADB.State appState, boolean togglePending,
                     MainActivity.KeepAliveWaitingDetail waiting, Network network) {
+        return of(appState, togglePending, waiting, network, false);
+    }
+
+    /**
+     * @param wifiConnected whether the device is on Wi-Fi; only read while Wifi-ADB is on
+     *        without a known endpoint (#1027), where it separates "no Wi-Fi" from "Android does
+     *        not announce the port"
+     */
+    static Model of(KeepADB.State appState, boolean togglePending,
+                    MainActivity.KeepAliveWaitingDetail waiting, Network network,
+                    boolean wifiConnected) {
         if (appState == KeepADB.State.PERMISSION_MISSING) {
             return new Model(R.string.home_state_setup, R.string.home_reason_permission, 0,
                     Action.INSTRUCTIONS);
@@ -107,6 +123,12 @@ final class KeepADBHomeStatus {
         if (network == Network.UNDECIDED) {
             return new Model(R.string.home_state_on, R.string.home_reason_stays_off_untrusted,
                     R.string.status_on_network_untrusted, Action.DECIDE);
+        }
+        if (!connected && wifiConnected) {
+            // #1027: Wi-Fi is up but discovery found no endpoint. Saying "no Wi-Fi" was wrong;
+            // the restart is the one thing that brings the announcement back.
+            return new Model(R.string.home_state_on, R.string.home_reason_no_endpoint,
+                    R.string.status_on_no_endpoint, Action.RESTART);
         }
         return new Model(R.string.home_state_on,
                 connected ? 0 : R.string.home_reason_no_wifi, 0, Action.NONE);

@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive 일시 중지됨: 네트워크를 읽을 수 없음</string>
     <string name="home_reason_backoff">Keep-Alive 일시 중지됨: Android의 Wifi-ADB 대화상자 미확인</string>
     <string name="home_reason_no_wifi">Wi-Fi 연결 없음</string>
+    <string name="home_reason_no_endpoint">주소를 찾을 수 없음</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB 다시 시작</string>
+    <string name="status_on_no_endpoint">Wifi-ADB가 켜져 있지만 이 Wi-Fi에서 Android가 포트를 알리지 않아 KeepADB가 찾을 수 없습니다. Wifi-ADB를 다시 시작하면 Android가 다시 알립니다. 연결된 컴퓨터는 잠시 연결이 끊기고 포트가 바뀝니다.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi를 신뢰할 수 없음</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive가 여기서는 꺼진 상태 유지: Wi-Fi 차단됨</string>
     <string name="home_action_networks">Wi-Fi 네트워크</string>

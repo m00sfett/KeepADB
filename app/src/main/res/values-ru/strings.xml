@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive приостановлен: сеть не читается</string>
     <string name="home_reason_backoff">Keep-Alive приостановлен: диалог Android для Wifi-ADB не подтверждён</string>
     <string name="home_reason_no_wifi">Нет подключения к Wi-Fi</string>
+    <string name="home_reason_no_endpoint">Адрес не найден</string>
+    <string name="home_action_restart_wifi_adb">Перезапустить Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB включён, но Android не объявляет его порт в этой сети Wi-Fi, поэтому KeepADB не может его найти. После перезапуска Wifi-ADB Android снова объявит порт. Подключённый компьютер ненадолго отключится, а порт изменится.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive здесь не включится: сеть Wi-Fi не доверенная</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive здесь не включится: сеть Wi-Fi заблокирована</string>
     <string name="home_action_networks">Сети Wi-Fi</string>

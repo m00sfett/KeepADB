@@ -617,7 +617,8 @@ public class MainActivity extends Activity {
                         ? KeepADBHomeStatus.Network.BLOCKED : KeepADBHomeStatus.Network.UNDECIDED;
             }
         }
-        return KeepADBHomeStatus.of(appState, pending, waiting, network);
+        return KeepADBHomeStatus.of(appState, pending, waiting, network,
+                KeepADBService.isWifiConnected(this));
     }
 
     /** #790: a network the user blocked is not "not trusted yet". */
@@ -723,6 +724,11 @@ public class MainActivity extends Activity {
                 break;
             case INSTRUCTIONS:
                 startActivity(KeepADBHomeWarnings.systemIntent(this));
+                break;
+            case RESTART:
+                // #1027: the existing recovery pulse; it refuses on its own when Wifi-ADB is off
+                // or the user switched it off meanwhile.
+                KeepADB.performRecoveryPulse(this);
                 break;
             default:
                 break;

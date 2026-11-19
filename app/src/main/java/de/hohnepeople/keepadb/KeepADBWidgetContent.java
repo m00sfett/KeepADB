@@ -328,8 +328,10 @@ final class KeepADBWidgetContent {
         if (p.systemState == KeepADB.State.ENABLED_DISCONNECTED) {
             // #957: "on" and why there is no connection, not "(Disconnected)" as if a computer
             // were meant.
+            // #1027: on Wi-Fi the port is just not announced; "no Wi-Fi" would be wrong.
             return KeepADBOverviewContent.withDetail(ctx.getString(R.string.home_state_on),
-                    ctx.getString(R.string.home_reason_no_wifi));
+                    ctx.getString(p.wifiConnected
+                            ? R.string.home_reason_no_endpoint : R.string.home_reason_no_wifi));
         }
         switch (p.keepAlive) {
             case BLOCKED:

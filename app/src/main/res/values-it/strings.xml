@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive in pausa: rete non leggibile</string>
     <string name="home_reason_backoff">Keep-Alive in pausa: finestra di Android per Wifi-ADB non confermata</string>
     <string name="home_reason_no_wifi">Nessuna connessione Wi-Fi</string>
+    <string name="home_reason_no_endpoint">Indirizzo non trovato</string>
+    <string name="home_action_restart_wifi_adb">Riavvia Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB è attivo, ma Android non annuncia la sua porta su questa rete Wi-Fi, quindi KeepADB non la trova. Riavviando Wifi-ADB, Android la annuncia di nuovo. Un computer collegato viene disconnesso per poco e la porta cambia.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive resta disattivato qui: Wi-Fi non affidabile</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive resta disattivato qui: Wi-Fi bloccato</string>
     <string name="home_action_networks">Reti Wi-Fi</string>

@@ -604,7 +604,11 @@ public class MainActivityWarningsTest {
         assertEquals(context.getString(R.string.home_state_on), stateOf(activity));
         assertFalse(reason(activity).getText().toString().contains(
                 context.getString(R.string.home_reason_stays_off_untrusted)));
-        assertEquals(View.GONE, action(activity).getVisibility());
+        // #1027: on Wi-Fi without a known endpoint the only action is the restart, never the
+        // trust decision.
+        assertEquals(View.VISIBLE, action(activity).getVisibility());
+        assertEquals(context.getString(R.string.home_action_restart_wifi_adb),
+                ((android.widget.TextView) action(activity)).getText().toString());
     }
 
     /**

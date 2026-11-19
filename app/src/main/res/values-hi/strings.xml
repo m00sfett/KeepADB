@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता</string>
     <string name="home_reason_backoff">Keep-Alive रोका गया: Android के Wifi-ADB संवाद की पुष्टि नहीं हुई</string>
     <string name="home_reason_no_wifi">Wi-Fi कनेक्शन नहीं है</string>
+    <string name="home_reason_no_endpoint">पता नहीं मिला</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB फिर से शुरू करें</string>
+    <string name="status_on_no_endpoint">Wifi-ADB चालू है, लेकिन Android इस Wi-Fi पर अपना पोर्ट घोषित नहीं करता, इसलिए KeepADB उसे नहीं ढूँढ पाता। Wifi-ADB को फिर से शुरू करने पर Android उसे फिर से घोषित करता है। जुड़ा हुआ कंप्यूटर थोड़ी देर के लिए डिस्कनेक्ट होता है और पोर्ट बदल जाता है।</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive यहाँ बंद रहेगा: Wi-Fi भरोसेमंद नहीं है</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive यहाँ बंद रहेगा: Wi-Fi ब्लॉक है</string>
     <string name="home_action_networks">Wi-Fi नेटवर्क</string>

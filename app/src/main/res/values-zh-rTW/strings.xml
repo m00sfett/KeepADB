@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive 已暫停：無法讀取網路</string>
     <string name="home_reason_backoff">Keep-Alive 已暫停：Android 的 Wifi-ADB 對話方塊尚未確認</string>
     <string name="home_reason_no_wifi">沒有 Wi-Fi 連線</string>
+    <string name="home_reason_no_endpoint">找不到位址</string>
+    <string name="home_action_restart_wifi_adb">重新啟動 Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB 已開啟，但 Android 沒有在此 Wi-Fi 上公布其連接埠，因此 KeepADB 找不到它。重新啟動 Wifi-ADB 會讓 Android 再次公布連接埠。已連線的電腦會短暫中斷，連接埠也會改變。</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive 在此保持關閉：Wi-Fi 未信任</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive 在此保持關閉：Wi-Fi 已被封鎖</string>
     <string name="home_action_networks">Wi-Fi 網路</string>

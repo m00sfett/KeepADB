@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive đã tạm dừng: không đọc được mạng</string>
     <string name="home_reason_backoff">Keep-Alive đã tạm dừng: hộp thoại Wifi-ADB của Android chưa được xác nhận</string>
     <string name="home_reason_no_wifi">Không có kết nối Wi-Fi</string>
+    <string name="home_reason_no_endpoint">Không tìm thấy địa chỉ</string>
+    <string name="home_action_restart_wifi_adb">Khởi động lại Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB đang bật, nhưng Android không thông báo cổng của nó trên Wi-Fi này, nên KeepADB không tìm thấy. Khởi động lại Wifi-ADB sẽ khiến Android thông báo lại. Máy tính đang kết nối sẽ bị ngắt trong giây lát và cổng sẽ thay đổi.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive sẽ không bật ở đây: Wi-Fi không tin cậy</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive sẽ không bật ở đây: Wi-Fi bị chặn</string>
     <string name="home_action_networks">Mạng Wi-Fi</string>
