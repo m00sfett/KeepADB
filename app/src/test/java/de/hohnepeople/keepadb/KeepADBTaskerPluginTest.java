@@ -590,8 +590,8 @@ public class KeepADBTaskerPluginTest {
         assertTrue("nothing while the interface is off", requestQueries().isEmpty());
 
         enable();
+        assertEquals("switching the interface on announces the state", 1, requestQueries().size());
         KeepADBTaskerPlugin.requestQueryIfChanged(context);
-        assertEquals("the first refresh announces the state", 1, requestQueries().size());
         Intent sent = requestQueries().get(0);
         assertNull("no package: every host that registered may hear it", sent.getPackage());
         assertEquals(1, sent.getExtras().size());
@@ -611,9 +611,69 @@ public class KeepADBTaskerPluginTest {
     @Test
     public void everySurfaceRefreshChecksForAConditionChange() {
         enable();
+        assertEquals(1, requestQueries().size());
+        fake.wifiOn = true;
         KeepADBWidget.refreshAllState(context);
         shadowOf(Looper.getMainLooper()).idle();
-        assertEquals(1, requestQueries().size());
+        assertEquals(2, requestQueries().size());
+    }
+
+    // ---- Codex review of PR #1025 -----------------------------------------------------------
+
+    @Test
+    public void switchingTheInterfaceOnAnnouncesTheStateAgain() {
+        enable();
+        assertEquals("enabling announces the current state", 1, requestQueries().size());
+        KeepADBAutomation.disable(context);
+        assertEquals("disabling sends nothing", 1, requestQueries().size());
+        // Nothing changed meanwhile; a host that got "unknown" while off must still hear about it.
+        KeepADBAutomation.enable(context);
+        assertEquals(2, requestQueries().size());
+    }
+
+    /** An intent whose plugin bundle fails to unparcel, as a foreign sender can build one. */
+    private static Intent brokenIntent(String action) {
+        return new Intent(action) {
+            @Override
+            public Bundle getBundleExtra(String name) {
+                throw new android.os.BadParcelableException("ClassNotFoundException");
+            }
+        };
+    }
+
+    @Test
+    public void anUnreadableFireBundleIsAFailureNotTheHostsInitialCode() {
+        enable();
+        KeepADBTaskerPlugin.Outcome outcome = KeepADBTaskerPlugin.fireFromIntent(context,
+                brokenIntent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING));
+        assertEquals(KeepADBTaskerPlugin.RESULT_CODE_FAILED, outcome.resultCode);
+        assertEquals("invalid_config", outcome.variables.getString(KeepADBTaskerPlugin.VAR_RESULT));
+        assertTrue(fake.calls.isEmpty());
+    }
+
+    @Test
+    public void anUnreadableQueryBundleIsUnknown() {
+        enable();
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, KeepADBTaskerPlugin
+                .queryFromIntent(context, brokenIntent(KeepADBTaskerPlugin.ACTION_QUERY_CONDITION))
+                .resultCode);
+    }
+
+    @Test
+    public void orderedFireWithAnInvalidBundleOverridesAnInitialSuccessCode() {
+        enable();
+        Intent fire = new Intent(KeepADBTaskerPlugin.ACTION_FIRE_SETTING)
+                .setComponent(new ComponentName(context, KeepADBPluginFireReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE, new Bundle());
+        AtomicReference<Integer> code = new AtomicReference<>();
+        context.sendOrderedBroadcast(fire, null, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                code.set(getResultCode());
+            }
+        }, null, Activity.RESULT_OK, null, null);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(Integer.valueOf(KeepADBTaskerPlugin.RESULT_CODE_FAILED), code.get());
     }
 
     // ---- Condition edit screen --------------------------------------------------------------

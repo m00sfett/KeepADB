@@ -3,7 +3,6 @@ package de.hohnepeople.keepadb;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -21,22 +20,21 @@ public class KeepADBPluginConditionReceiver extends BroadcastReceiver {
                 || !KeepADBTaskerPlugin.ACTION_QUERY_CONDITION.equals(intent.getAction())) {
             return;
         }
+        KeepADBTaskerPlugin.Outcome outcome;
         try {
-            Bundle bundle = intent.getBundleExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE);
-            KeepADBTaskerPlugin.Outcome outcome =
-                    KeepADBTaskerPlugin.query(context.getApplicationContext(), bundle);
-            if (isOrderedBroadcast()) {
-                setResultCode(outcome.resultCode);
-                if (outcome.variables != null) {
-                    getResultExtras(true).putBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES,
-                            outcome.variables);
-                }
-            }
+            outcome = KeepADBTaskerPlugin.queryFromIntent(context.getApplicationContext(), intent);
         } catch (RuntimeException e) {
-            // A foreign sender can attach extras that fail to unparcel; never crash. The message
-            // is not logged: it could echo the sender's extras.
+            // Never crash; the message is not logged: it could echo the sender's extras.
             Log.w(TAG, "Plugin query failed: " + e.getClass().getSimpleName());
-            if (isOrderedBroadcast()) setResultCode(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN);
+            outcome = new KeepADBTaskerPlugin.Outcome(
+                    KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, null);
+        }
+        if (isOrderedBroadcast()) {
+            setResultCode(outcome.resultCode);
+            if (outcome.variables != null) {
+                getResultExtras(true).putBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES,
+                        outcome.variables);
+            }
         }
     }
 }

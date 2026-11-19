@@ -241,12 +241,15 @@ final class KeepADBAutomation {
         }
         KeepADBPreferences.setAutomationEnabled(context, true);
         KeepADBDiagnostics.event(context, EVENT, "settings", "enabled", "interface");
+        // #999: hosts that got "unknown" while the interface was off query again now.
+        KeepADBTaskerPlugin.onInterfaceSwitched(context);
     }
 
     /** Turns the interface off; the token is kept, so re-enabling keeps automations working. */
     static void disable(Context context) {
         KeepADBPreferences.setAutomationEnabled(context, false);
         KeepADBDiagnostics.event(context, EVENT, "settings", "disabled", "interface");
+        KeepADBTaskerPlugin.onInterfaceSwitched(context);
     }
 
     /** A new token; the old one stops working at once. The rejection counter starts again. */

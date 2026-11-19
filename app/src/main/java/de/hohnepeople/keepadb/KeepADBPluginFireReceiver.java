@@ -3,7 +3,6 @@ package de.hohnepeople.keepadb;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -20,19 +19,22 @@ public class KeepADBPluginFireReceiver extends BroadcastReceiver {
         if (intent == null || !KeepADBTaskerPlugin.ACTION_FIRE_SETTING.equals(intent.getAction())) {
             return;
         }
+        KeepADBTaskerPlugin.Outcome outcome;
         try {
-            Bundle bundle = intent.getBundleExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE);
-            KeepADBTaskerPlugin.Outcome outcome =
-                    KeepADBTaskerPlugin.fire(context.getApplicationContext(), bundle);
-            if (isOrderedBroadcast()) {
-                setResultCode(outcome.resultCode);
+            outcome = KeepADBTaskerPlugin.fireFromIntent(context.getApplicationContext(), intent);
+        } catch (RuntimeException e) {
+            // Must never crash the app, and never leave the host's initial result code (which
+            // may be RESULT_OK) in place. The message is not logged: it could echo the extras.
+            Log.w(TAG, "Plugin request failed: " + e.getClass().getSimpleName());
+            outcome = new KeepADBTaskerPlugin.Outcome(KeepADBTaskerPlugin.RESULT_CODE_FAILED,
+                    null);
+        }
+        if (isOrderedBroadcast()) {
+            setResultCode(outcome.resultCode);
+            if (outcome.variables != null) {
                 getResultExtras(true).putBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES,
                         outcome.variables);
             }
-        } catch (RuntimeException e) {
-            // A foreign sender can attach extras that fail to unparcel; that must never crash
-            // the app. The message is not logged: it could echo the sender's extras.
-            Log.w(TAG, "Plugin request failed: " + e.getClass().getSimpleName());
         }
     }
 }

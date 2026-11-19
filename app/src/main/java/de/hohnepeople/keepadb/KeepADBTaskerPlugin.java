@@ -389,6 +389,49 @@ final class KeepADBTaskerPlugin {
         app.sendBroadcast(requestQueryIntent());
     }
 
+    /**
+     * The interface was switched on or off (Codex review of PR #1025): forget the last
+     * announcement, so switching on announces the current state at once (a host that got
+     * "unknown" meanwhile queries again) and a later switch-on never compares against a stale
+     * pair. Switching off sends nothing.
+     */
+    static void onInterfaceSwitched(Context context) {
+        synchronized (QUERY_LOCK) {
+            lastAnnounced = null;
+        }
+        requestQueryIfChanged(context);
+    }
+
+    // ---- Receiver entry points ------------------------------------------------------------
+
+    /**
+     * The fire receiver's work, safe against any intent: an extra that fails to unparcel is a
+     * failure with {@link #RESULT_INVALID_CONFIG}, never the host's initial result code (Codex
+     * review of PR #1025: an ordered broadcast started with RESULT_OK reported success).
+     */
+    static Outcome fireFromIntent(Context app, Intent intent) {
+        Bundle bundle;
+        try {
+            bundle = intent.getBundleExtra(EXTRA_BUNDLE);
+        } catch (RuntimeException e) {
+            KeepADBAutomation.journal(app, "ignored", "reason=invalid_plugin_bundle", true);
+            return failure(RESULT_INVALID_CONFIG);
+        }
+        return fire(app, bundle);
+    }
+
+    /** Like {@link #fireFromIntent}: a broken intent is an unknown condition. */
+    static Outcome queryFromIntent(Context app, Intent intent) {
+        Bundle bundle;
+        try {
+            bundle = intent.getBundleExtra(EXTRA_BUNDLE);
+        } catch (RuntimeException e) {
+            KeepADBAutomation.journal(app, "ignored", "reason=invalid_plugin_bundle", true);
+            return new Outcome(RESULT_CONDITION_UNKNOWN, null);
+        }
+        return query(app, bundle);
+    }
+
     static Intent requestQueryIntent() {
         return new Intent(ACTION_REQUEST_QUERY)
                 .putExtra(EXTRA_ACTIVITY, KeepADBPluginConditionEditActivity.class.getName());
