@@ -201,7 +201,7 @@ public class KeepADBDefaultsAuditTest {
             // #1000: the running Wifi-ADB timer and its one-time expiry notice (KeepADBTimer).
             "timer_state", "timer_expired_notice_pending", "timer_expired_reason", "timer_shutdown_pending",
             "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
-            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at",
+            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at", "restart_on_pending_at",
             // #904: bookkeeping of the one-time privacy split, and the retired #592 key (read only
             // by that migration, never written any more)
             "privacy_split_initialized", "notification_details_enabled",

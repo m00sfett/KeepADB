@@ -29,6 +29,8 @@ final class KeepADBPreferences {
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID = "untrusted_shutdown_manual_bssid";
     /** #864: elapsed-realtime millis when that manual exemption was recorded. */
     private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT = "untrusted_shutdown_manual_at";
+    /** #1027: elapsed realtime of a Home restart whose "on" is still owed; absent when none. */
+    private static final String KEY_RESTART_ON_PENDING_AT = "restart_on_pending_at";
     /** #997: on for new installations, off for existing ones; see migrateOpenNetworkShutdown. */
     static final String KEY_OPEN_NETWORK_SHUTDOWN = "open_network_shutdown_enabled";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
@@ -648,6 +650,23 @@ final class KeepADBPreferences {
     static String getUntrustedShutdownManualBssid(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, null);
+    }
+
+    /** #1027: elapsed realtime of a pending restart "on", or -1 when none is owed. */
+    static long getRestartOnPendingAt(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getLong(KEY_RESTART_ON_PENDING_AT, -1L);
+    }
+
+    /** #1027: synchronous, so a process death right after the "off" still finds it. */
+    static void setRestartOnPendingAt(Context context, long atElapsedMs) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putLong(KEY_RESTART_ON_PENDING_AT, atElapsedMs).commit();
+    }
+
+    static void clearRestartOnPending(Context context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .remove(KEY_RESTART_ON_PENDING_AT).commit();
     }
 
     /** Clears the manual exemption. */

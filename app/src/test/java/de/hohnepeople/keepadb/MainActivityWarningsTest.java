@@ -621,9 +621,12 @@ public class MainActivityWarningsTest {
 
         action(activity).performClick();
         assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        assertTrue("the owed on is stored during the pause",
+                KeepADBPreferences.getRestartOnPendingAt(context) >= 0);
         shadowOf(android.os.Looper.getMainLooper()).idleFor(
                 java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
         assertEquals(java.util.Arrays.asList(false, true), gateway.writes);
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
         assertTrue(gateway.isEnabled(context));
         assertFalse(KeepADB.wasLastExplicitIntentOff(context));
     }
@@ -642,6 +645,51 @@ public class MainActivityWarningsTest {
                 java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
         assertFalse(gateway.writes.contains(true));
         assertFalse(gateway.isEnabled(context));
+    }
+
+    /** #1027 (Codex review): a process death during the pause; the next start finishes it. */
+    @Test
+    public void aRestartInterruptedByAProcessDeathIsFinishedAtTheNextStart() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMinutes(1));
+        KeepADBPreferences.setRestartOnPendingAt(context,
+                android.os.SystemClock.elapsedRealtime() - 300);
+
+        KeepADBRestart.resumeAfterProcessStart(context);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+    }
+
+    @Test
+    public void aStaleInterruptedRestartIsDroppedAndLeavesWifiAdbOff() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMinutes(5));
+        KeepADBPreferences.setRestartOnPendingAt(context, android.os.SystemClock.elapsedRealtime()
+                - KeepADBRestart.RESUME_WINDOW_MS - 1);
+
+        KeepADBRestart.resumeAfterProcessStart(context);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(5));
+
+        assertTrue(gateway.writes.isEmpty());
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+    }
+
+    @Test
+    public void aManualDecisionVoidsAnInterruptedRestart() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setRestartOnPendingAt(context, android.os.SystemClock.elapsedRealtime());
+
+        assertTrue(KeepADB.setEnabled(context, false, "tile").isSuccess());
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        KeepADBRestart.resumeAfterProcessStart(context);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(5));
+        assertFalse(gateway.writes.contains(true));
     }
 
     /**

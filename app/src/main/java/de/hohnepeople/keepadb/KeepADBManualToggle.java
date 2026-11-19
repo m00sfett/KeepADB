@@ -55,6 +55,8 @@ final class KeepADBManualToggle {
 
     static void onManualToggle(Context appContext, boolean on, String source) {
         if (appContext == null || KeepADB.SOURCE_SELF_PAIRING.equals(source)) return;
+        // #1027: any newer decision voids an owed restart "on", in every process.
+        KeepADBRestart.onManualDecision(appContext);
         // Review #1000 (maintainer decision): "Allow" on the trust prompt answers a question about
         // the network, not about the limit; a running timer keeps running.
         if (!KeepADB.SOURCE_NETWORK_TRUST_PROMPT.equals(source)) {
