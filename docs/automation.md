@@ -101,10 +101,12 @@ on or off, or only read the status. KeepADB puts the token into the saved action
 
 **How the result gets back (#1026).** A host that passes a completion intent (Tasker with a
 timeout, MacroDroid) gets the result through it, and the ordered fire broadcast only an
-acknowledgement (`PENDING`), so every action ends exactly once. A host without one (Automate) reads
+acknowledgement (`PENDING`), so every action ends exactly once. A host without one reads
 the result of the ordered broadcast. KeepADB sends the completion intent only to an exported
 receiver of another app that requires no permission; otherwise it answers through the ordered
 broadcast. The edit screen asks the host to wait up to 15 seconds; KeepADB answers at once.
+(Android does not guarantee that the acknowledgement reaches the host before the completion; on
+the tested devices it always did.)
 **Actions saved with KeepADB 1.15.11 or older** have no such request: Tasker then shows the
 timeout as *None* and neither waits nor sets the variables. Open each saved KeepADB action once and
 save it again, or set the timeout in Tasker yourself.
@@ -220,6 +222,8 @@ synchronous execution and the completion intent. Checked on devices on 2026-11-1
   saved before #1026) Tasker sends an unordered broadcast and gets nothing back.
 - **MacroDroid** (P60): the action runs, and since #1026 the result variable arrives; before, it
   stayed empty because MacroDroid waits for the completion intent only.
+- With #1026 all three hosts pass a completion intent and receive the result through it, the
+  failure after a new token included; a newly added Tasker action gets the 15 s timeout.
 
 Unit tests cover bundle validation, token handling, ordered fire and query broadcasts with
 variables, the completion intent, `REQUEST_QUERY` on changes and both edit screens.

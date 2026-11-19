@@ -31,7 +31,7 @@ public class KeepADBPluginFireReceiver extends BroadcastReceiver {
         }
         // #1026: hosts that pass a completion intent (Tasker with a timeout, MacroDroid) get the
         // outcome there, and an ordered broadcast only RESULT_CODE_PENDING, so there is exactly
-        // one terminal result (Tasker's protocol). Hosts without one (Automate) get the ordered
+        // one terminal result (Tasker's protocol). Hosts without one get the ordered
         // result as before.
         Intent completion = KeepADBTaskerPlugin.completionIntent(
                 context.getApplicationContext(), intent, outcome);
