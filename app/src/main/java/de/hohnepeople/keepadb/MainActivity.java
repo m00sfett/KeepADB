@@ -617,7 +617,8 @@ public class MainActivity extends Activity {
                         ? KeepADBHomeStatus.Network.BLOCKED : KeepADBHomeStatus.Network.UNDECIDED;
             }
         }
-        return KeepADBHomeStatus.of(appState, pending, waiting, network);
+        return KeepADBHomeStatus.of(appState, pending, waiting, network,
+                KeepADBService.isWifiConnected(this));
     }
 
     /** #790: a network the user blocked is not "not trusted yet". */
@@ -723,6 +724,12 @@ public class MainActivity extends Activity {
                 break;
             case INSTRUCTIONS:
                 startActivity(KeepADBHomeWarnings.systemIntent(this));
+                break;
+            case RESTART:
+                // #1027: a plain manual off and, after a short pause, a manual on.
+                KeepADB.ToggleResult restart = KeepADBRestart.restart(this);
+                if (!restart.isSuccess()) showToggleErrorToast(restart);
+                refreshUiAndComponents();
                 break;
             default:
                 break;

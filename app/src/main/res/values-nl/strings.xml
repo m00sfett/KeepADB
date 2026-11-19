@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive gepauzeerd: netwerk onleesbaar</string>
     <string name="home_reason_backoff">Keep-Alive gepauzeerd: Android-dialoog voor Wifi-ADB niet bevestigd</string>
     <string name="home_reason_no_wifi">Geen wifi-verbinding</string>
+    <string name="home_reason_no_endpoint">Adres niet gevonden</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB herstarten</string>
+    <string name="status_on_no_endpoint">Wifi-ADB staat aan, maar Android kondigt de poort op deze wifi niet aan, dus KeepADB vindt hem niet. Na een herstart van Wifi-ADB kondigt Android hem weer aan. Een verbonden computer wordt kort losgekoppeld en de poort verandert. De herstart is een gewone uit- en aanschakeling: een lopende timer of de Geforceerde modus eindigt.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive blijft hier uit: wifi niet vertrouwd</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive blijft hier uit: wifi geblokkeerd</string>
     <string name="home_action_networks">Wifi-netwerken</string>

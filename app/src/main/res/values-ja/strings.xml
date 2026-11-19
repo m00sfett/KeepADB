@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive は一時停止中:ネットワークを読み取れません</string>
     <string name="home_reason_backoff">Keep-Alive は一時停止中:AndroidのWifi-ADBダイアログが未確認</string>
     <string name="home_reason_no_wifi">Wi-Fi 接続なし</string>
+    <string name="home_reason_no_endpoint">アドレスが見つかりません</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB を再起動</string>
+    <string name="status_on_no_endpoint">Wifi-ADB はオンですが、この Wi-Fi では Android がポートを通知しないため、KeepADB が見つけられません。Wifi-ADB を再起動すると Android が再び通知します。接続中のコンピュータは一時的に切断され、ポートが変わります。再起動は通常のオフとオンです。動作中のタイマーや強制モードは終了します。</string>
     <string name="home_reason_stays_off_untrusted">ここでは Keep-Alive はオフのまま:Wi-Fi は信頼されていません</string>
     <string name="home_reason_stays_off_blocked">ここでは Keep-Alive はオフのまま:Wi-Fi はブロックされています</string>
     <string name="home_action_networks">Wi-Fiネットワーク</string>

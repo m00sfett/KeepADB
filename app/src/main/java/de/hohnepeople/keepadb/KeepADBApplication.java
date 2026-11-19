@@ -50,6 +50,8 @@ public class KeepADBApplication extends Application {
         KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);
         // #1000 (Codex review): a timer's switch-off that a process death interrupted.
         KeepADBTimer.settleShutdown(this);
+        // #1027: a Home restart whose "on" a process death interrupted.
+        KeepADBRestart.resumeAfterProcessStart(this);
         KeepADBSelfPairCleanup.setObserver(KeepADBSelfPairService::onBackgroundCleanup);
         KeepADBSelfPairCleanup.reconcileAtStart(this);
         registerActivityLifecycleCallbacks(KeepADBPrivacy.LIFECYCLE);

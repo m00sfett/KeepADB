@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive duraklatıldı: ağ okunamıyor</string>
     <string name="home_reason_backoff">Keep-Alive duraklatıldı: Android’in Wifi-ADB iletişim kutusu onaylanmadı</string>
     <string name="home_reason_no_wifi">Wi-Fi bağlantısı yok</string>
+    <string name="home_reason_no_endpoint">Adres bulunamadı</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB\'yi yeniden başlat</string>
+    <string name="status_on_no_endpoint">Wifi-ADB açık, ancak Android bu Wi-Fi ağında portunu duyurmuyor, bu yüzden KeepADB onu bulamıyor. Wifi-ADB\'yi yeniden başlatmak Android\'in onu tekrar duyurmasını sağlar. Bağlı bir bilgisayarın bağlantısı kısa süreliğine kesilir ve port değişir. Yeniden başlatma sıradan bir kapatıp açmadır: çalışan bir zamanlayıcı veya Zorunlu mod sona erer.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive burada kapalı kalır: Wi-Fi güvenilir değil</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive burada kapalı kalır: Wi-Fi engellendi</string>
     <string name="home_action_networks">Wi-Fi ağları</string>

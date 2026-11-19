@@ -291,6 +291,9 @@
     <string name="home_reason_identity">Keep-Alive paused: network unreadable</string>
     <string name="home_reason_backoff">Keep-Alive paused: Android’s Wifi-ADB dialog not confirmed</string>
     <string name="home_reason_no_wifi">No Wi-Fi connection</string>
+    <string name="home_reason_no_endpoint">Address not found</string>
+    <string name="home_action_restart_wifi_adb">Restart Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB is on, but Android does not announce its port on this Wi-Fi, so KeepADB cannot find it. Restarting Wifi-ADB makes Android announce it again. A connected computer is disconnected briefly, and the port changes. The restart is an ordinary off and on: a running timer or Force mode ends.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive stays off here: Wi-Fi not trusted</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive stays off here: Wi-Fi blocked</string>
     <string name="home_action_networks">Wi-Fi networks</string>

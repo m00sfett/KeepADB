@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive pausiert: Netzwerk nicht lesbar</string>
     <string name="home_reason_backoff">Keep-Alive pausiert: Android-Dialog für Wifi-ADB nicht bestätigt</string>
     <string name="home_reason_no_wifi">Keine WLAN-Verbindung</string>
+    <string name="home_reason_no_endpoint">Adresse nicht gefunden</string>
+    <string name="home_action_restart_wifi_adb">Wifi-ADB neu starten</string>
+    <string name="status_on_no_endpoint">Wifi-ADB ist an, aber Android kündigt seinen Port in diesem WLAN nicht an, deshalb findet KeepADB ihn nicht. Ein Neustart von Wifi-ADB lässt Android ihn wieder ankündigen. Ein verbundener Computer wird kurz getrennt, und der Port ändert sich. Der Neustart ist ein normales Aus und An: Ein laufender Timer oder der Force-Modus endet.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive bleibt hier aus: WLAN nicht vertraut</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive bleibt hier aus: WLAN blockiert</string>
     <string name="home_action_networks">WLAN-Netze</string>

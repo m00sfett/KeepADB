@@ -118,6 +118,25 @@ public class KeepADBHomeStatusTest {
     }
 
     @Test
+    public void onWithWifiButNoEndpointOffersTheRestart() {
+        // #1027: Wi-Fi is up, Android just does not announce the port.
+        assertModel(KeepADBHomeStatus.of(KeepADB.State.ENABLED_DISCONNECTED, false, null,
+                        Network.NONE, true),
+                R.string.home_state_on, R.string.home_reason_no_endpoint,
+                R.string.status_on_no_endpoint, Action.RESTART);
+        assertEquals(R.string.home_action_restart_wifi_adb, Action.RESTART.labelRes);
+    }
+
+    @Test
+    public void wifiOnlyMattersWhileTheEndpointIsMissing() {
+        assertModel(KeepADBHomeStatus.of(KeepADB.State.ENABLED_CONNECTED, false, null,
+                Network.NONE, true), R.string.home_state_on, 0, 0, Action.NONE);
+        assertModel(KeepADBHomeStatus.of(KeepADB.State.ENABLED_DISCONNECTED, false, null,
+                Network.NONE, false), R.string.home_state_on, R.string.home_reason_no_wifi, 0,
+                Action.NONE);
+    }
+
+    @Test
     public void onAndConnectedIsJustOn() {
         assertModel(of(KeepADB.State.ENABLED_CONNECTED), R.string.home_state_on, 0, 0, Action.NONE);
     }

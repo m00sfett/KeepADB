@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.13] - Unreleased
+
+### Fixed
+- **"No Wi-Fi connection" while on Wi-Fi (#1027):** with Wifi-ADB on and the device on Wi-Fi but no endpoint found, the home screen and the widget said "No Wi-Fi connection". They now say "Address not found", and Home offers **Restart Wifi-ADB** with an explanation. Cause on the CUBOT P60 and the S20: adbd stops announcing `_adb-tls-connect._tcp` over mDNS, KeepADB's only discovery path, and the automatic recovery pulse only runs with Keep-Alive. The restart (`KeepADBRestart`) is an ordinary manual off and, after one second, a manual on through the same path as the main switch, so every usual rule applies (a running timer or Force mode ends, the on is the user's decision); the on is dropped when a newer explicit decision was accepted meanwhile (`KeepADB.explicitIntentGeneration`). An earlier version reused the guarded recovery pulse; four Codex reviews of #1029 kept finding network, timer and exemption edge cases, so the maintainer chose the plain manual toggle. A restart disconnects a connected computer briefly and changes the port, so it is never done automatically without Keep-Alive. The owed on is stored (`restart_on_pending_at`, Codex review): if the process dies during the pause, the next process start finishes the restart within 60 seconds and only in the same boot (boot counter stored with it; an unreadable counter drops it, second Codex review); any manual decision clears the record in every process, so a newer decision always wins. The store note 294 mentions the fix.
+
 ## [1.15.12] - Unreleased
 
 ### Fixed

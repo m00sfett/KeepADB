@@ -271,6 +271,9 @@
     <string name="home_reason_identity">Keep-Alive dijeda: jaringan tidak terbaca</string>
     <string name="home_reason_backoff">Keep-Alive dijeda: dialog Android untuk Wifi-ADB belum dikonfirmasi</string>
     <string name="home_reason_no_wifi">Tidak ada koneksi Wi-Fi</string>
+    <string name="home_reason_no_endpoint">Alamat tidak ditemukan</string>
+    <string name="home_action_restart_wifi_adb">Mulai ulang Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB aktif, tetapi Android tidak mengumumkan port-nya di Wi-Fi ini, sehingga KeepADB tidak dapat menemukannya. Memulai ulang Wifi-ADB membuat Android mengumumkannya lagi. Komputer yang terhubung terputus sebentar, dan port berubah. Mulai ulang adalah mematikan dan menyalakan biasa: timer yang berjalan atau Mode paksa berakhir.</string>
     <string name="home_reason_stays_off_untrusted">Keep-Alive tetap nonaktif di sini: Wi-Fi tidak dipercaya</string>
     <string name="home_reason_stays_off_blocked">Keep-Alive tetap nonaktif di sini: Wi-Fi diblokir</string>
     <string name="home_action_networks">Jaringan Wi-Fi</string>

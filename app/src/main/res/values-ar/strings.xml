@@ -271,6 +271,9 @@
     <string name="home_reason_identity">تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة</string>
     <string name="home_reason_backoff">تم إيقاف Keep-Alive مؤقتًا: لم يتم تأكيد مربع حوار Wifi-ADB من Android</string>
     <string name="home_reason_no_wifi">لا يوجد اتصال Wi-Fi</string>
+    <string name="home_reason_no_endpoint">لم يتم العثور على العنوان</string>
+    <string name="home_action_restart_wifi_adb">إعادة تشغيل Wifi-ADB</string>
+    <string name="status_on_no_endpoint">Wifi-ADB قيد التشغيل، لكن Android لا يعلن عن منفذه على شبكة Wi-Fi هذه، لذلك لا يستطيع KeepADB العثور عليه. تؤدي إعادة تشغيل Wifi-ADB إلى أن يعلن Android عنه مرة أخرى. ينقطع اتصال الكمبيوتر المتصل لفترة قصيرة ويتغير المنفذ. إعادة التشغيل هي إيقاف وتشغيل عاديان: ينتهي أي مؤقت قيد التشغيل أو الوضع الإجباري.</string>
     <string name="home_reason_stays_off_untrusted">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi غير موثوقة</string>
     <string name="home_reason_stays_off_blocked">لن يتم تشغيل Keep-Alive هنا: شبكة Wi-Fi محظورة</string>
     <string name="home_action_networks">شبكات Wi-Fi</string>

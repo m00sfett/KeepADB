@@ -604,7 +604,135 @@ public class MainActivityWarningsTest {
         assertEquals(context.getString(R.string.home_state_on), stateOf(activity));
         assertFalse(reason(activity).getText().toString().contains(
                 context.getString(R.string.home_reason_stays_off_untrusted)));
-        assertEquals(View.GONE, action(activity).getVisibility());
+        // #1027: on Wi-Fi without a known endpoint the only action is the restart, never the
+        // trust decision.
+        assertEquals(View.VISIBLE, action(activity).getVisibility());
+        assertEquals(context.getString(R.string.home_action_restart_wifi_adb),
+                ((android.widget.TextView) action(activity)).getText().toString());
+    }
+
+    /** #1027: the restart is a manual off now and a manual on after the pause. */
+    @Test
+    public void theRestartActionSwitchesOffAndOnAgain() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        action(activity).performClick();
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        assertTrue("the owed on is stored during the pause",
+                KeepADBPreferences.getRestartOnPendingAt(context) >= 0);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+        assertEquals(java.util.Arrays.asList(false, true), gateway.writes);
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        assertTrue(gateway.isEnabled(context));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(context));
+    }
+
+    /** #1027: a newer decision during the pause wins; the restart does not switch back on. */
+    @Test
+    public void aNewerDecisionDuringTheRestartPauseDropsTheOn() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        connectTo(BSSID);
+        MainActivity activity = open();
+
+        action(activity).performClick();
+        assertTrue(KeepADB.setEnabled(context, false, "tile").isSuccess());
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(
+                java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+        assertFalse(gateway.writes.contains(true));
+        assertFalse(gateway.isEnabled(context));
+    }
+
+    /** Runs {@code body} with a test clock for KeepADBRestart and restores the real one. */
+    private void withRestartClock(KeepADBForceTestSupport.TestClock clock, Runnable body) {
+        KeepADBRestart.setClockForTesting(clock);
+        try {
+            body.run();
+        } finally {
+            KeepADBRestart.setClockForTesting(null);
+        }
+    }
+
+    private void idle(java.time.Duration duration) {
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(duration);
+    }
+
+    /** #1027 (Codex review): a process death during the pause; the next start finishes it. */
+    @Test
+    public void aRestartInterruptedByAProcessDeathIsFinishedAtTheNextStart() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
+        withRestartClock(clock, () -> {
+            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
+            KeepADBRestart.resumeAfterProcessStart(context);
+            idle(java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
+        });
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+    }
+
+    @Test
+    public void aStaleInterruptedRestartIsDroppedAndLeavesWifiAdbOff() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
+        withRestartClock(clock, () -> {
+            KeepADBPreferences.setRestartOnPending(context,
+                    clock.elapsed - KeepADBRestart.RESUME_WINDOW_MS - 1, clock.boot);
+            KeepADBRestart.resumeAfterProcessStart(context);
+            idle(java.time.Duration.ofSeconds(5));
+        });
+        assertTrue(gateway.writes.isEmpty());
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+    }
+
+    /** #1027 (second Codex review): a new boot with a higher uptime than the record. */
+    @Test
+    public void anInterruptedRestartFromAnotherBootIsDroppedEvenWithAHigherUptime() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
+        withRestartClock(clock, () -> {
+            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 30_000L, clock.boot - 1);
+            KeepADBRestart.resumeAfterProcessStart(context);
+            idle(java.time.Duration.ofSeconds(5));
+        });
+        assertTrue(gateway.writes.isEmpty());
+        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+    }
+
+    @Test
+    public void anInterruptedRestartIsDroppedWhenTheBootCounterIsUnreadable() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
+        withRestartClock(clock, () -> {
+            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
+            clock.bootCountReadable = false;
+            KeepADBRestart.resumeAfterProcessStart(context);
+            idle(java.time.Duration.ofSeconds(5));
+        });
+        assertTrue(gateway.writes.isEmpty());
+    }
+
+    @Test
+    public void aManualDecisionVoidsAnInterruptedRestart() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
+        withRestartClock(clock, () -> {
+            KeepADBPreferences.setRestartOnPending(context, clock.elapsed, clock.boot);
+            assertTrue(KeepADB.setEnabled(context, false, "tile").isSuccess());
+            assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+            KeepADBRestart.resumeAfterProcessStart(context);
+            idle(java.time.Duration.ofSeconds(5));
+        });
+        assertFalse(gateway.writes.contains(true));
     }
 
     /**
