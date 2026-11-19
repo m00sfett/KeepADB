@@ -748,6 +748,13 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="plugin_var_ip">Endereço do Wifi-ADB</string>
     <string name="plugin_var_port">Porta do Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Somente com o token de acesso, enquanto o Wifi-ADB estiver ativado e seu endereço for conhecido</string>
+    <string name="plugin_condition_label">Estado do KeepADB</string>
+    <string name="plugin_condition_title">Quando a condição é verdadeira?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB está ativado</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB está ativado e seu endereço é conhecido</string>
+    <string name="plugin_condition_token_warning">O token de acesso é salvo na configuração do app de automação para que a condição também possa retornar o endereço e a porta. Qualquer pessoa que obtenha um backup, uma exportação ou uma cópia compartilhada deste perfil pode usá-lo. Depois de um novo token, abra a condição salva uma vez e salve-a novamente.</string>
+    <string name="plugin_condition_disabled">A automação está desativada no KeepADB. Ative primeiro “Permitir apps de automação” nas configurações de Automação; até lá, esta condição fica desconhecida.</string>
+    <string name="plugin_condition_caller_none">Nenhum app de automação abriu esta tela, então nada pode ser salvo. Adicione a condição pela lista de plugins do Tasker, MacroDroid ou outro app de automação.</string>
     <string name="settings_backup_title">Backup das configurações</string>
     <string name="settings_backup_subtext">Salva suas configurações em um arquivo e as restaura após reinstalar: nível de proteção, redes fiáveis e bloqueadas, regras de rede, opções de privacidade, notificação e Webhook. A permissão do sistema não faz parte, e uma importação nunca ativa o Wifi-ADB nem o Keep-Alive.</string>
     <string name="settings_backup_export">Exportar configurações</string>

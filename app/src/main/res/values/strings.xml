@@ -765,6 +765,13 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="plugin_var_ip">Wifi-ADB address</string>
     <string name="plugin_var_port">Wifi-ADB port</string>
     <string name="plugin_var_endpoint_description">Only with the access token, while Wifi-ADB is on and its address is known</string>
+    <string name="plugin_condition_label">KeepADB state</string>
+    <string name="plugin_condition_title">When is the condition true?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB is on</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB is on and its address is known</string>
+    <string name="plugin_condition_token_warning">The access token is saved in the automation app\'s configuration, so the condition can also return the address and port. Anyone who gets a backup, an export or a shared copy of this profile can use it. After a new token, open the saved condition once and save it again.</string>
+    <string name="plugin_condition_disabled">Automation is off in KeepADB. Turn on “Allow automation apps” in the Automation settings first; until then this condition stays unknown.</string>
+    <string name="plugin_condition_caller_none">No automation app opened this screen, so nothing can be saved. Add the condition from the plugin list of Tasker, MacroDroid or another automation app.</string>
     <string name="settings_backup_title">Settings backup</string>
     <string name="settings_backup_subtext">Save your settings to a file and restore them after a reinstall: protection level, trusted and blocked networks, network rules, privacy, notification and webhook options. The system permission is not part of it, and an import never turns Wifi-ADB or Keep-Alive on.</string>
     <string name="settings_backup_export">Export settings</string>

@@ -747,6 +747,13 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="plugin_var_ip">Wifi-ADB-Adresse</string>
     <string name="plugin_var_port">Wifi-ADB-Port</string>
     <string name="plugin_var_endpoint_description">Nur mit Zugriffstoken, solange Wifi-ADB an ist und seine Adresse bekannt ist</string>
+    <string name="plugin_condition_label">KeepADB-Zustand</string>
+    <string name="plugin_condition_title">Wann ist die Bedingung erfüllt?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB ist an</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB ist an und seine Adresse ist bekannt</string>
+    <string name="plugin_condition_token_warning">Das Zugriffstoken wird in der Konfiguration der Automatisierungs-App gespeichert, damit die Bedingung auch Adresse und Port liefern kann. Wer ein Backup, einen Export oder eine geteilte Kopie dieses Profils bekommt, kann es nutzen. Nach einem neuen Token die gespeicherte Bedingung einmal öffnen und erneut speichern.</string>
+    <string name="plugin_condition_disabled">Die Automatisierung ist in KeepADB aus. Schalte zuerst „Automatisierungs-Apps erlauben“ in den Automatisierungs-Einstellungen ein; bis dahin bleibt diese Bedingung unbekannt.</string>
+    <string name="plugin_condition_caller_none">Keine Automatisierungs-App hat diesen Bildschirm geöffnet, deshalb lässt sich nichts speichern. Füge die Bedingung über die Plugin-Liste von Tasker, MacroDroid oder einer anderen Automatisierungs-App hinzu.</string>
     <string name="settings_backup_title">Einstellungen sichern</string>
     <string name="settings_backup_subtext">Speichert deine Einstellungen in einer Datei und stellt sie nach einer Neuinstallation wieder her: Schutzstufe, vertraute und gesperrte Netzwerke, Netzwerkregeln, Privatsphäre-, Benachrichtigungs- und Webhook-Optionen. Die Systemberechtigung gehört nicht dazu, und ein Import schaltet weder Wifi-ADB noch Keep-Alive ein.</string>
     <string name="settings_backup_export">Einstellungen exportieren</string>

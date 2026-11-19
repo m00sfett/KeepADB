@@ -751,6 +751,13 @@
     <string name="plugin_var_ip">عنوان Wifi-ADB</string>
     <string name="plugin_var_port">منفذ Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">فقط مع رمز الوصول، أثناء تشغيل Wifi-ADB ومعرفة عنوانه</string>
+    <string name="plugin_condition_label">حالة KeepADB</string>
+    <string name="plugin_condition_title">متى يتحقق الشرط؟</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB قيد التشغيل</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB قيد التشغيل وعنوانه معروف</string>
+    <string name="plugin_condition_token_warning">يُحفظ رمز الوصول في إعدادات تطبيق الأتمتة حتى يتمكن الشرط أيضًا من إرجاع العنوان والمنفذ. يمكن لأي شخص يحصل على نسخة احتياطية أو ملف تصدير أو نسخة مشتركة من هذا الملف الشخصي استخدامه. بعد إنشاء رمز جديد، افتح الشرط المحفوظ مرة واحدة واحفظه من جديد.</string>
+    <string name="plugin_condition_disabled">الأتمتة متوقفة في KeepADB. شغّل أولًا «السماح لتطبيقات الأتمتة» في إعدادات الأتمتة؛ وحتى ذلك الحين تبقى حالة هذا الشرط غير معروفة.</string>
+    <string name="plugin_condition_caller_none">لم يفتح أي تطبيق أتمتة هذه الشاشة، لذا لا يمكن حفظ شيء. أضف الشرط من قائمة المكونات الإضافية في Tasker أو MacroDroid أو تطبيق أتمتة آخر.</string>
     <string name="settings_backup_title">نسخة احتياطية للإعدادات</string>
     <string name="settings_backup_subtext">يحفظ إعداداتك في ملف ويستعيدها بعد إعادة التثبيت: مستوى الحماية، الشبكات الموثوقة والمحظورة، قواعد الشبكة، وخيارات الخصوصية والإشعارات وWebhook. إذن النظام ليس جزءًا منها، والاستيراد لا يشغّل Wifi-ADB أو Keep-Alive أبدًا.</string>
     <string name="settings_backup_export">تصدير الإعدادات</string>

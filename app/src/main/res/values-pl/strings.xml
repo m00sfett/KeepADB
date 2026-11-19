@@ -749,6 +749,13 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="plugin_var_ip">Adres Wifi-ADB</string>
     <string name="plugin_var_port">Port Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Tylko z tokenem dostępu, gdy Wifi-ADB jest włączone i jego adres jest znany</string>
+    <string name="plugin_condition_label">Stan KeepADB</string>
+    <string name="plugin_condition_title">Kiedy warunek jest spełniony?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB jest włączone</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB jest włączone, a jego adres jest znany</string>
+    <string name="plugin_condition_token_warning">Token dostępu jest zapisywany w konfiguracji aplikacji do automatyzacji, aby warunek mógł też zwracać adres i port. Każdy, kto uzyska kopię zapasową, eksport lub udostępnioną kopię tego profilu, może go użyć. Po utworzeniu nowego tokenu otwórz zapisany warunek raz i zapisz go ponownie.</string>
+    <string name="plugin_condition_disabled">Automatyzacja jest wyłączona w KeepADB. Najpierw włącz „Zezwalaj aplikacjom do automatyzacji” w ustawieniach Automatyzacji; do tego czasu ten warunek pozostaje nieznany.</string>
+    <string name="plugin_condition_caller_none">Żadna aplikacja do automatyzacji nie otworzyła tego ekranu, więc nie można nic zapisać. Dodaj warunek z listy wtyczek Taskera, MacroDroid lub innej aplikacji do automatyzacji.</string>
     <string name="settings_backup_title">Kopia zapasowa ustawień</string>
     <string name="settings_backup_subtext">Zapisuje ustawienia w pliku i przywraca je po ponownej instalacji: poziom ochrony, zaufane i zablokowane sieci, reguły sieci, opcje prywatności, powiadomień i Webhook. Uprawnienie systemowe nie jest częścią kopii, a import nigdy nie włącza Wifi-ADB ani Keep-Alive.</string>
     <string name="settings_backup_export">Eksportuj ustawienia</string>

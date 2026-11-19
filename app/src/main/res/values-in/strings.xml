@@ -746,6 +746,13 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="plugin_var_ip">Alamat Wifi-ADB</string>
     <string name="plugin_var_port">Port Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Hanya dengan token akses, selama Wifi-ADB aktif dan alamatnya diketahui</string>
+    <string name="plugin_condition_label">Status KeepADB</string>
+    <string name="plugin_condition_title">Kapan kondisi ini terpenuhi?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB aktif</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB aktif dan alamatnya diketahui</string>
+    <string name="plugin_condition_token_warning">Token akses disimpan di konfigurasi aplikasi otomatisasi agar kondisi juga dapat mengembalikan alamat dan port. Siapa pun yang mendapatkan cadangan, ekspor, atau salinan bersama dari profil ini dapat menggunakannya. Setelah token baru, buka kondisi yang tersimpan sekali dan simpan lagi.</string>
+    <string name="plugin_condition_disabled">Otomatisasi nonaktif di KeepADB. Aktifkan dulu “Izinkan aplikasi otomatisasi” di setelan Otomatisasi; sampai saat itu kondisi ini tetap tidak diketahui.</string>
+    <string name="plugin_condition_caller_none">Tidak ada aplikasi otomatisasi yang membuka layar ini, jadi tidak ada yang bisa disimpan. Tambahkan kondisi dari daftar plugin Tasker, MacroDroid, atau aplikasi otomatisasi lain.</string>
     <string name="settings_backup_title">Cadangan pengaturan</string>
     <string name="settings_backup_subtext">Menyimpan pengaturan ke file dan memulihkannya setelah instal ulang: tingkat perlindungan, jaringan yang dipercaya dan diblokir, aturan jaringan, opsi privasi, notifikasi, dan Webhook. Izin sistem tidak termasuk, dan impor tidak pernah menyalakan Wifi-ADB atau Keep-Alive.</string>
     <string name="settings_backup_export">Ekspor pengaturan</string>

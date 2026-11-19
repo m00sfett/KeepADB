@@ -747,6 +747,13 @@
     <string name="plugin_var_ip">Wifi-ADB पता</string>
     <string name="plugin_var_port">Wifi-ADB पोर्ट</string>
     <string name="plugin_var_endpoint_description">सिर्फ़ एक्सेस टोकन के साथ, जब Wifi-ADB चालू हो और उसका पता ज्ञात हो</string>
+    <string name="plugin_condition_label">KeepADB स्थिति</string>
+    <string name="plugin_condition_title">शर्त कब सही हो?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB चालू है</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB चालू है और उसका पता ज्ञात है</string>
+    <string name="plugin_condition_token_warning">एक्सेस टोकन ऑटोमेशन ऐप के कॉन्फ़िगरेशन में सहेजा जाता है, ताकि शर्त पता और पोर्ट भी लौटा सके। इस प्रोफ़ाइल का बैकअप, एक्सपोर्ट या साझा कॉपी पाने वाला कोई भी व्यक्ति इसका उपयोग कर सकता है। नया टोकन बनाने के बाद सहेजी गई शर्त को एक बार खोलें और फिर से सहेजें।</string>
+    <string name="plugin_condition_disabled">KeepADB में ऑटोमेशन बंद है। पहले ऑटोमेशन सेटिंग्स में “ऑटोमेशन ऐप को अनुमति दें” चालू करें; तब तक यह शर्त अज्ञात रहती है।</string>
+    <string name="plugin_condition_caller_none">इस स्क्रीन को किसी ऑटोमेशन ऐप ने नहीं खोला, इसलिए कुछ भी सहेजा नहीं जा सकता। शर्त को Tasker, MacroDroid या किसी दूसरे ऑटोमेशन ऐप की प्लगइन सूची से जोड़ें।</string>
     <string name="settings_backup_title">सेटिंग्स बैकअप</string>
     <string name="settings_backup_subtext">आपकी सेटिंग्स को एक फ़ाइल में सहेजता है और दोबारा इंस्टॉल करने के बाद वापस लाता है: सुरक्षा स्तर, भरोसेमंद और ब्लॉक किए गए नेटवर्क, नेटवर्क नियम, गोपनीयता, सूचना और Webhook विकल्प। सिस्टम अनुमति इसमें शामिल नहीं है, और इम्पोर्ट कभी Wifi-ADB या Keep-Alive चालू नहीं करता।</string>
     <string name="settings_backup_export">सेटिंग्स एक्सपोर्ट करें</string>

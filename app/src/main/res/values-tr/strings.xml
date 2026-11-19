@@ -747,6 +747,13 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="plugin_var_ip">Wifi-ADB adresi</string>
     <string name="plugin_var_port">Wifi-ADB bağlantı noktası</string>
     <string name="plugin_var_endpoint_description">Yalnızca erişim belirteciyle, Wifi-ADB açıkken ve adresi biliniyorken</string>
+    <string name="plugin_condition_label">KeepADB durumu</string>
+    <string name="plugin_condition_title">Koşul ne zaman doğru olsun?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB açık</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB açık ve adresi biliniyor</string>
+    <string name="plugin_condition_token_warning">Koşulun adresi ve bağlantı noktasını da döndürebilmesi için erişim belirteci otomasyon uygulamasının yapılandırmasına kaydedilir. Bu profilin yedeğini, dışa aktarımını veya paylaşılan bir kopyasını alan herkes onu kullanabilir. Yeni bir belirteçten sonra kayıtlı koşulu bir kez açıp yeniden kaydedin.</string>
+    <string name="plugin_condition_disabled">KeepADB\'de otomasyon kapalı. Önce Otomasyon ayarlarında “Otomasyon uygulamalarına izin ver” seçeneğini açın; o zamana kadar bu koşul bilinmiyor olarak kalır.</string>
+    <string name="plugin_condition_caller_none">Bu ekranı bir otomasyon uygulaması açmadı, bu yüzden hiçbir şey kaydedilemez. Koşulu Tasker, MacroDroid veya başka bir otomasyon uygulamasının eklenti listesinden ekleyin.</string>
     <string name="settings_backup_title">Ayar yedeği</string>
     <string name="settings_backup_subtext">Ayarlarını bir dosyaya kaydeder ve yeniden kurulumdan sonra geri yükler: koruma düzeyi, güvenilen ve engellenen ağlar, ağ kuralları, gizlilik, bildirim ve Webhook seçenekleri. Sistem izni buna dahil değildir ve içe aktarma Wifi-ADB veya Keep-Alive özelliğini asla açmaz.</string>
     <string name="settings_backup_export">Ayarları dışa aktar</string>

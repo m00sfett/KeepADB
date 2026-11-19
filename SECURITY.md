@@ -170,11 +170,16 @@ authorizes nothing:
   payload and never in the settings backup; neither is the interface's on/off switch, so an import
   never opens the entry point. Android backup and device transfer are disabled for all app data.
 
-**Tasker/Locale plugin (#999).** The plugin adds two exported components:
-`KeepADBPluginFireReceiver` (`FIRE_SETTING`) and `KeepADBPluginEditActivity` (`EDIT_SETTING`). The
-fire receiver decides nothing itself; it passes the request and the token from the saved
-configuration to the same check as a broadcast, so the opt-in, the token and the network protection
-apply unchanged. Two risks are specific to the plugin:
+**Tasker/Locale plugin (#999).** The plugin adds four exported components: for the action
+`KeepADBPluginFireReceiver` (`FIRE_SETTING`) and `KeepADBPluginEditActivity` (`EDIT_SETTING`), for
+the condition `KeepADBPluginConditionReceiver` (`QUERY_CONDITION`) and
+`KeepADBPluginConditionEditActivity` (`EDIT_CONDITION`). The receivers decide nothing themselves;
+they pass the request and the token from the saved configuration to the same check as a broadcast,
+so the opt-in, the token and the network protection apply unchanged. A condition query is a
+`STATUS` read: it switches nothing and reveals only the on/off state and whether an endpoint is
+known, unless the saved token is valid. While the interface is on, KeepADB sends the data-free
+Locale `REQUEST_QUERY` broadcast when that state changes, and it declares Tasker, MacroDroid,
+Automate and Locale as visible packages for it (`<queries>`). Two risks are specific to the plugin:
 
 - **The token is stored in the host app.** On, toggle and status actions keep it in the automation
   app's configuration, and with it in that app's backups, exports and shared tasks. The edit screen

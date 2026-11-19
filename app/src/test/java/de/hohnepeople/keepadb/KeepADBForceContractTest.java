@@ -157,10 +157,10 @@ public class KeepADBForceContractTest {
         // which the launcher must be able to start (it only accepts the id of an existing widget of
         // this app and changes that widget's own display settings, see KeepADBWidgetConfigActivity).
         // #998 added the automation receiver deliberately (opt-in, token; KeepADBAutomationTest).
-        // #999 added the plugin edit activity and fire receiver (KeepADBTaskerPluginTest).
+        // #999 added the plugin edit activities and receivers (KeepADBTaskerPluginTest).
         assertEquals("exported components: the launcher activity, the quick settings tile, the"
-                + " widget's configure activity, the automation receiver and the two plugin"
-                + " components", 6,
+                + " widget's configure activity, the automation receiver and the four plugin"
+                + " components", 8,
                 countOccurrences(manifest, "android:exported=\"true\""));
         int configureStart = manifest.indexOf("android:name=\".KeepADBWidgetConfigActivity\"");
         assertTrue(configureStart >= 0);

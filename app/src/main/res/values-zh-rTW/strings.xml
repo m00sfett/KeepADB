@@ -746,6 +746,13 @@
     <string name="plugin_var_ip">Wifi-ADB 位址</string>
     <string name="plugin_var_port">Wifi-ADB 連接埠</string>
     <string name="plugin_var_endpoint_description">僅在有存取權杖、Wifi-ADB 已開啟且位址已知時提供</string>
+    <string name="plugin_condition_label">KeepADB 狀態</string>
+    <string name="plugin_condition_title">條件何時成立？</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB 已開啟</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB 已開啟且位址已知</string>
+    <string name="plugin_condition_token_warning">存取權杖會儲存在自動化應用程式的設定中，讓條件也能傳回位址和連接埠。任何取得此設定檔備份、匯出檔或共用副本的人都能使用它。建立新權杖後，請開啟已儲存的條件一次並重新儲存。</string>
+    <string name="plugin_condition_disabled">KeepADB 的自動化已關閉。請先在自動化設定中開啟「允許自動化應用程式」；在此之前，這個條件會維持未知。</string>
+    <string name="plugin_condition_caller_none">這個畫面不是由自動化應用程式開啟的，因此無法儲存任何內容。請從 Tasker、MacroDroid 或其他自動化應用程式的外掛程式清單新增條件。</string>
     <string name="settings_backup_title">設定備份</string>
     <string name="settings_backup_subtext">將設定儲存到檔案，並在重新安裝後還原：保護等級、已信任與已封鎖的網路、網路規則、隱私、通知和 Webhook 選項。系統權限不包含在內，匯入也絕不會開啟 Wifi-ADB 或 Keep-Alive。</string>
     <string name="settings_backup_export">匯出設定</string>

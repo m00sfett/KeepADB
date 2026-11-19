@@ -23,6 +23,19 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.10] - Unreleased
+
+### Added
+- **Tasker/Locale condition plugin (#999, second part, versionCode 291):** "Wifi-ADB is on" and "Wifi-ADB is on and its address is known" as plugin conditions (Tasker: *State → Plugin → KeepADB state*). The exported `KeepADBPluginConditionReceiver` (`QUERY_CONDITION`) answers through `KeepADBTaskerPlugin.query`, which reads the state with a B1a `STATUS` request (`KeepADBAutomation.process`), so no second security path exists: satisfied/unsatisfied, unknown while the interface is off or for an invalid bundle. The conditions need no token (decision Q5); the saved token only adds `%kadb_ip`/`%kadb_port`, and a stale one is counted as a rejection and drops them without breaking the condition. `KeepADBAutomation.Response` gains `endpointKnown` (Wifi-ADB on and an endpoint known, whatever the token), which the broadcast reply does not expose. The exported `KeepADBPluginConditionEditActivity` is the action edit screen in condition mode with the same caller checks.
+- **`REQUEST_QUERY` on changes:** `KeepADBWidget.refreshAllState`, the funnel of every state and endpoint change, now calls `KeepADBTaskerPlugin.requestQueryIfChanged`, which sends the data-free Locale broadcast only while the interface is on and only when (Wifi-ADB on, endpoint known) differs from the last announcement. The manifest declares Tasker, MacroDroid, Automate and Locale in `<queries>` so the broadcast reaches them on Android 11+ and the edit screen can show their names.
+
+### Changed
+- Polled status reads (`KeepADBAutomation.process(..., polled = true)`, the condition) throttle their "accepted" journal line like untokened requests, at most one per 10 s; a B1a `STATUS` with the token is still logged every time.
+- The plugin edit screen keeps the selection as an id string so one screen serves both modes; contract tests now expect three exported receivers and eight exported components.
+
+### Documentation
+- `docs/automation.md` and `SECURITY.md` describe the condition, `REQUEST_QUERY` and the `<queries>` entries. 7 new strings in all locales. The Fastlane note for 291 repeats the 290 text.
+
 ## [1.15.9] - Unreleased
 
 ### Added
@@ -34,7 +47,7 @@ are retrospective issue-version records and were never published as separate rel
 - `KeepADBAutomationTest`: the manifest contract now expects two exported receivers (automation and plugin fire), and the token-reader guard lists `KeepADBPluginEditActivity`, which hands the token to the host on purpose.
 
 ### Documentation
-- `docs/automation.md` describes the plugin, its variables and the token storage risk; `SECURITY.md` covers the two new exported components and the residual risk that a known host package name is not checked against a signature; README mentions the plugin. Plugin conditions follow as the second part of #999. Device tests with Tasker, MacroDroid and Automate are still open. The Fastlane note for 290 replaces "automation for Tasker, MacroDroid and Automate" with "automation and a Tasker plugin" within the 500-character limit.
+- `docs/automation.md` describes the plugin, its variables and the token storage risk; `SECURITY.md` covers the two new exported components and the residual risk that a known host package name is not checked against a signature; README mentions the plugin. Device tests with Tasker, MacroDroid and Automate are still open. The Fastlane note for 290 replaces "automation for Tasker, MacroDroid and Automate" with "automation and a Tasker plugin" within the 500-character limit.
 
 ## [1.15.8] - Unreleased
 

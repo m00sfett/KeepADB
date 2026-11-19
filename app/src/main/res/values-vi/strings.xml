@@ -746,6 +746,13 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="plugin_var_ip">Địa chỉ Wifi-ADB</string>
     <string name="plugin_var_port">Cổng Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Chỉ khi có mã truy cập, trong lúc Wifi-ADB đang bật và đã biết địa chỉ</string>
+    <string name="plugin_condition_label">Trạng thái KeepADB</string>
+    <string name="plugin_condition_title">Khi nào điều kiện đúng?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB đang bật</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB đang bật và đã biết địa chỉ</string>
+    <string name="plugin_condition_token_warning">Mã truy cập được lưu trong cấu hình của ứng dụng tự động hóa để điều kiện cũng có thể trả về địa chỉ và cổng. Bất kỳ ai có bản sao lưu, bản xuất hoặc bản sao được chia sẻ của hồ sơ này đều có thể dùng mã đó. Sau khi tạo mã mới, hãy mở điều kiện đã lưu một lần và lưu lại.</string>
+    <string name="plugin_condition_disabled">Tự động hóa đang tắt trong KeepADB. Trước tiên hãy bật “Cho phép ứng dụng tự động hóa” trong cài đặt Tự động hóa; cho đến lúc đó điều kiện này vẫn chưa xác định.</string>
+    <string name="plugin_condition_caller_none">Không có ứng dụng tự động hóa nào mở màn hình này nên không thể lưu gì. Hãy thêm điều kiện từ danh sách plugin của Tasker, MacroDroid hoặc ứng dụng tự động hóa khác.</string>
     <string name="settings_backup_title">Sao lưu cài đặt</string>
     <string name="settings_backup_subtext">Lưu cài đặt vào một tệp và khôi phục sau khi cài lại: mức bảo vệ, mạng tin cậy và bị chặn, quy tắc mạng, tùy chọn quyền riêng tư, thông báo và Webhook. Quyền hệ thống không nằm trong đó, và việc nhập không bao giờ bật Wifi-ADB hoặc Keep-Alive.</string>
     <string name="settings_backup_export">Xuất cài đặt</string>

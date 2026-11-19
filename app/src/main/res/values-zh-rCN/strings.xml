@@ -746,6 +746,13 @@
     <string name="plugin_var_ip">Wifi-ADB 地址</string>
     <string name="plugin_var_port">Wifi-ADB 端口</string>
     <string name="plugin_var_endpoint_description">仅在有访问令牌、Wifi-ADB 已开启且地址已知时提供</string>
+    <string name="plugin_condition_label">KeepADB 状态</string>
+    <string name="plugin_condition_title">条件何时成立？</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB 已开启</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB 已开启且地址已知</string>
+    <string name="plugin_condition_token_warning">访问令牌会保存在自动化应用的配置中，以便条件也能返回地址和端口。任何获得此配置文件的备份、导出文件或共享副本的人都可以使用它。生成新令牌后，请打开已保存的条件一次并重新保存。</string>
+    <string name="plugin_condition_disabled">KeepADB 中的自动化已关闭。请先在自动化设置中开启“允许自动化应用”；在此之前，此条件保持未知。</string>
+    <string name="plugin_condition_caller_none">此界面不是由自动化应用打开的，因此无法保存任何内容。请从 Tasker、MacroDroid 或其他自动化应用的插件列表中添加条件。</string>
     <string name="settings_backup_title">设置备份</string>
     <string name="settings_backup_subtext">将设置保存到文件，并在重新安装后恢复：保护级别、已信任和已屏蔽的网络、网络规则、隐私、通知和 Webhook 选项。系统权限不包含在内，导入也绝不会开启 Wifi-ADB 或 Keep-Alive。</string>
     <string name="settings_backup_export">导出设置</string>

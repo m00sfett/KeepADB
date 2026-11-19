@@ -748,6 +748,13 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="plugin_var_ip">Dirección de Wifi-ADB</string>
     <string name="plugin_var_port">Puerto de Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Solo con el token de acceso, mientras Wifi-ADB esté activado y se conozca su dirección</string>
+    <string name="plugin_condition_label">Estado de KeepADB</string>
+    <string name="plugin_condition_title">¿Cuándo se cumple la condición?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB está activado</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB está activado y se conoce su dirección</string>
+    <string name="plugin_condition_token_warning">El token de acceso se guarda en la configuración de la app de automatización para que la condición también pueda devolver la dirección y el puerto. Cualquiera que obtenga una copia de seguridad, una exportación o una copia compartida de este perfil puede usarlo. Tras un token nuevo, abre la condición guardada una vez y vuelve a guardarla.</string>
+    <string name="plugin_condition_disabled">La automatización está desactivada en KeepADB. Activa primero «Permitir apps de automatización» en los ajustes de Automatización; hasta entonces esta condición queda desconocida.</string>
+    <string name="plugin_condition_caller_none">Ninguna app de automatización abrió esta pantalla, así que no se puede guardar nada. Añade la condición desde la lista de plugins de Tasker, MacroDroid u otra app de automatización.</string>
     <string name="settings_backup_title">Copia de seguridad de ajustes</string>
     <string name="settings_backup_subtext">Guarda tus ajustes en un archivo y restáuralos tras reinstalar: nivel de protección, redes de confianza y bloqueadas, reglas de red, opciones de privacidad, notificaciones y Webhook. El permiso del sistema no se incluye y una importación nunca activa Wifi-ADB ni Keep-Alive.</string>
     <string name="settings_backup_export">Exportar ajustes</string>

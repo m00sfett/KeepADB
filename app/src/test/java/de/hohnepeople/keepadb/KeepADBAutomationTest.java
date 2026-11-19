@@ -489,8 +489,8 @@ public class KeepADBAutomationTest {
             if (receiver.contains("android:exported=\"true\"")) exported.add(receiver);
             if (receiver.contains("android:name=\".KeepADBAutomationReceiver\"")) automation = receiver;
         }
-        // #999 adds the plugin fire receiver; KeepADBTaskerPluginTest checks that one.
-        assertEquals("exactly two exported receivers", 2, exported.size());
+        // #999 adds the plugin fire and condition receivers; KeepADBTaskerPluginTest checks them.
+        assertEquals("exactly three exported receivers", 3, exported.size());
         assertNotNull(automation);
         assertTrue(exported.contains(automation));
         assertFalse("no permission would make it unreachable for Tasker",

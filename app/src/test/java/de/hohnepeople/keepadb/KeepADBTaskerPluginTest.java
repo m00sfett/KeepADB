@@ -62,6 +62,7 @@ public class KeepADBTaskerPluginTest {
         KeepADBAutomation.setClockForTesting(clock::get);
         KeepADBAutomation.resetFloodStateForTesting();
         KeepADBDiagnosticJournal.resetForTesting();
+        KeepADBTaskerPlugin.resetQueryStateForTesting();
     }
 
     @After
@@ -407,7 +408,7 @@ public class KeepADBTaskerPluginTest {
                 KeepADBTaskerPlugin.Request.KEEP_ALIVE_OFF, token)).get();
         RadioGroup group = activity.findViewById(R.id.plugin_requests);
         RadioButton checked = group.findViewById(group.getCheckedRadioButtonId());
-        assertEquals(KeepADBTaskerPlugin.Request.KEEP_ALIVE_OFF, checked.getTag());
+        assertEquals(KeepADBTaskerPlugin.Request.KEEP_ALIVE_OFF.id(), checked.getTag());
     }
 
     @Test
@@ -425,8 +426,242 @@ public class KeepADBTaskerPluginTest {
         RadioGroup group = activity.findViewById(R.id.plugin_requests);
         for (int i = 0; i < group.getChildCount(); i++) {
             RadioButton button = (RadioButton) group.getChildAt(i);
-            if (button.getTag() == request) button.performClick();
+            if (request.id().equals(button.getTag())) button.performClick();
         }
+    }
+
+    // ---- Condition plugin -------------------------------------------------------------------
+
+    private static Bundle condition(KeepADBTaskerPlugin.Condition c, String token) {
+        return KeepADBTaskerPlugin.buildConditionBundle(c, token);
+    }
+
+    @Test
+    public void conditionBundleRoundTripsAndRejectsGarbage() {
+        for (KeepADBTaskerPlugin.Condition c : KeepADBTaskerPlugin.Condition.values()) {
+            KeepADBTaskerPlugin.ConditionConfig config =
+                    KeepADBTaskerPlugin.parseConditionBundle(condition(c, "tok"));
+            assertEquals(c, config.condition);
+            assertEquals("tok", config.token);
+        }
+        assertNull(KeepADBTaskerPlugin.parseConditionBundle(null));
+        assertNull("an action bundle is no condition",
+                KeepADBTaskerPlugin.parseConditionBundle(valid()));
+        assertNull("a condition bundle is no action", KeepADBTaskerPlugin.parseBundle(
+                condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, "tok")));
+        Bundle unknown = condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, null);
+        unknown.putString(KeepADBTaskerPlugin.BUNDLE_KEY_CONDITION, "PHONE_IS_ROOTED");
+        assertNull(KeepADBTaskerPlugin.parseConditionBundle(unknown));
+        Bundle badToken = condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, null);
+        badToken.putLong(KeepADBTaskerPlugin.BUNDLE_KEY_TOKEN, 1L);
+        assertNull(KeepADBTaskerPlugin.parseConditionBundle(badToken));
+    }
+
+    @Test
+    public void conditionIsUnknownWhileTheInterfaceIsOffOrTheBundleIsInvalid() {
+        String token = enable();
+        fake.wifiOn = true;
+        KeepADBAutomation.disable(context);
+        KeepADBTaskerPlugin.Outcome off = KeepADBTaskerPlugin.query(context,
+                condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, token));
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, off.resultCode);
+        assertNull("nothing about the state while off", off.variables);
+
+        enable();
+        KeepADBTaskerPlugin.Outcome invalid = KeepADBTaskerPlugin.query(context, new Bundle());
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNKNOWN, invalid.resultCode);
+        assertTrue(fake.calls.isEmpty());
+    }
+
+    @Test
+    public void wifiAdbOnConditionFollowsTheStateWithoutAToken() {
+        enable();
+        Bundle bundle = condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, null);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNSATISFIED,
+                KeepADBTaskerPlugin.query(context, bundle).resultCode);
+        fake.wifiOn = true;
+        KeepADBTaskerPlugin.Outcome on = KeepADBTaskerPlugin.query(context, bundle);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_SATISFIED, on.resultCode);
+        assertEquals("on", on.variables.getString(KeepADBTaskerPlugin.VAR_STATE));
+        assertNull("no endpoint without a token", on.variables.getString(KeepADBTaskerPlugin.VAR_IP));
+        assertTrue("a query switches nothing", fake.calls.isEmpty());
+    }
+
+    @Test
+    public void endpointKnownNeedsWifiAdbOnAndAnEndpointButNoToken() {
+        enable();
+        Bundle bundle = condition(KeepADBTaskerPlugin.Condition.ENDPOINT_KNOWN, null);
+        fake.wifiOn = false;
+        assertEquals("an old endpoint while off does not count",
+                KeepADBTaskerPlugin.RESULT_CONDITION_UNSATISFIED,
+                KeepADBTaskerPlugin.query(context, bundle).resultCode);
+        fake.wifiOn = true;
+        fake.endpoint = null;
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_UNSATISFIED,
+                KeepADBTaskerPlugin.query(context, bundle).resultCode);
+        fake.endpoint = new KeepADBEndpointCoordinator.Snapshot("192.168.1.20", 37000, 1L);
+        KeepADBTaskerPlugin.Outcome known = KeepADBTaskerPlugin.query(context, bundle);
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_SATISFIED, known.resultCode);
+        assertNull("the yes/no is no endpoint", known.variables.getString(KeepADBTaskerPlugin.VAR_IP));
+    }
+
+    @Test
+    public void validTokenAddsTheEndpointVariables() {
+        String token = enable();
+        fake.wifiOn = true;
+        KeepADBTaskerPlugin.Outcome outcome = KeepADBTaskerPlugin.query(context,
+                condition(KeepADBTaskerPlugin.Condition.ENDPOINT_KNOWN, token));
+        assertEquals(KeepADBTaskerPlugin.RESULT_CONDITION_SATISFIED, outcome.resultCode);
+        assertEquals("192.168.1.20", outcome.variables.getString(KeepADBTaskerPlugin.VAR_IP));
+        assertEquals("37000", outcome.variables.getString(KeepADBTaskerPlugin.VAR_PORT));
+    }
+
+    @Test
+    public void staleTokenStillAnswersButDropsTheEndpointAndIsCounted() {
+        String old = enable();
+        fake.wifiOn = true;
+        Bundle saved = condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, old);
+        KeepADBAutomation.regenerateToken(context);
+        KeepADBTaskerPlugin.Outcome outcome = KeepADBTaskerPlugin.query(context, saved);
+        assertEquals("the condition needs no token", KeepADBTaskerPlugin.RESULT_CONDITION_SATISFIED,
+                outcome.resultCode);
+        assertNull(outcome.variables.getString(KeepADBTaskerPlugin.VAR_IP));
+        assertEquals("rejected_token", outcome.variables.getString(KeepADBTaskerPlugin.VAR_RESULT));
+        KeepADBAutomation.flushRejections(context);
+        assertEquals(1, KeepADBPreferences.getAutomationRejectedCount(context));
+    }
+
+    @Test
+    public void pollingWithAValidTokenWritesOneJournalLinePerWindow() {
+        String token = enable();
+        Bundle bundle = condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, token);
+        for (int i = 0; i < 50; i++) KeepADBTaskerPlugin.query(context, bundle);
+        String journal = KeepADBDiagnostics.export(context);
+        assertEquals(1, occurrences(journal, "request=STATUS endpoint=true"));
+        // A B1a status request with the token is still never throttled.
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_STATUS, token);
+        KeepADBAutomation.process(context, KeepADBAutomation.ACTION_STATUS, token);
+        assertEquals(3, occurrences(KeepADBDiagnostics.export(context),
+                "request=STATUS endpoint=true"));
+    }
+
+    private static int occurrences(String text, String needle) {
+        int count = 0;
+        for (int i = text.indexOf(needle); i >= 0; i = text.indexOf(needle, i + 1)) count++;
+        return count;
+    }
+
+    @Test
+    public void orderedQueryBroadcastReturnsTheConditionResult() {
+        enable();
+        fake.wifiOn = true;
+        Intent query = new Intent(KeepADBTaskerPlugin.ACTION_QUERY_CONDITION)
+                .setComponent(new ComponentName(context, KeepADBPluginConditionReceiver.class))
+                .putExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE,
+                        condition(KeepADBTaskerPlugin.Condition.WIFI_ADB_ON, null));
+        AtomicReference<Integer> code = new AtomicReference<>();
+        AtomicReference<Bundle> extras = new AtomicReference<>();
+        context.sendOrderedBroadcast(query, null, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                code.set(getResultCode());
+                extras.set(getResultExtras(false));
+            }
+        }, null, Activity.RESULT_CANCELED, null, null);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(Integer.valueOf(KeepADBTaskerPlugin.RESULT_CONDITION_SATISFIED), code.get());
+        assertEquals("on", extras.get().getBundle(KeepADBTaskerPlugin.EXTRA_VARIABLES)
+                .getString(KeepADBTaskerPlugin.VAR_STATE));
+    }
+
+    // ---- REQUEST_QUERY ----------------------------------------------------------------------
+
+    private List<Intent> requestQueries() {
+        List<Intent> found = new ArrayList<>();
+        for (Intent i : shadowOf((android.app.Application) context).getBroadcastIntents()) {
+            if (KeepADBTaskerPlugin.ACTION_REQUEST_QUERY.equals(i.getAction())) found.add(i);
+        }
+        return found;
+    }
+
+    @Test
+    public void requestQueryIsSentOnlyWhenEnabledAndOnlyOnAChange() {
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
+        assertTrue("nothing while the interface is off", requestQueries().isEmpty());
+
+        enable();
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
+        assertEquals("the first refresh announces the state", 1, requestQueries().size());
+        Intent sent = requestQueries().get(0);
+        assertNull("no package: every host that registered may hear it", sent.getPackage());
+        assertEquals(1, sent.getExtras().size());
+
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
+        assertEquals("same state, no second broadcast", 1, requestQueries().size());
+
+        fake.wifiOn = true;
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
+        assertEquals(2, requestQueries().size());
+
+        fake.endpoint = null;
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
+        assertEquals("losing the endpoint is a change", 3, requestQueries().size());
+    }
+
+    @Test
+    public void everySurfaceRefreshChecksForAConditionChange() {
+        enable();
+        KeepADBWidget.refreshAllState(context);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(1, requestQueries().size());
+    }
+
+    // ---- Condition edit screen --------------------------------------------------------------
+
+    private ActivityController<KeepADBPluginConditionEditActivity> conditionScreen(String caller) {
+        Intent intent = new Intent(context, KeepADBPluginConditionEditActivity.class)
+                .setAction(KeepADBTaskerPlugin.ACTION_EDIT_CONDITION);
+        ActivityController<KeepADBPluginConditionEditActivity> controller =
+                Robolectric.buildActivity(KeepADBPluginConditionEditActivity.class, intent);
+        shadowOf(controller.get()).setCallingPackage(caller);
+        return controller.setup();
+    }
+
+    @Test
+    public void conditionScreenOffersTheConditionsAndSavesOne() {
+        String token = enable();
+        KeepADBPluginConditionEditActivity activity = conditionScreen(TASKER).get();
+        assertEquals(context.getString(R.string.plugin_condition_label),
+                ((android.widget.TextView) activity.findViewById(R.id.plugin_title)).getText()
+                        .toString());
+        RadioGroup group = activity.findViewById(R.id.plugin_requests);
+        assertEquals(KeepADBTaskerPlugin.Condition.values().length, group.getChildCount());
+        ((RadioButton) group.getChildAt(1)).performClick();
+        activity.findViewById(R.id.plugin_save).performClick();
+
+        assertEquals(Activity.RESULT_OK, shadowOf(activity).getResultCode());
+        Intent result = shadowOf(activity).getResultIntent();
+        KeepADBTaskerPlugin.ConditionConfig saved = KeepADBTaskerPlugin.parseConditionBundle(
+                result.getBundleExtra(KeepADBTaskerPlugin.EXTRA_BUNDLE));
+        assertEquals(KeepADBTaskerPlugin.Condition.ENDPOINT_KNOWN, saved.condition);
+        assertEquals(token, saved.token);
+        assertEquals(context.getString(R.string.plugin_condition_endpoint_known),
+                result.getStringExtra(KeepADBTaskerPlugin.EXTRA_BLURB));
+    }
+
+    @Test
+    public void conditionScreenKeepsTheCallerChecks() {
+        enable();
+        KeepADBPluginConditionEditActivity none = conditionScreen(null).get();
+        assertFalse(none.findViewById(R.id.plugin_save).isEnabled());
+        assertEquals(context.getString(R.string.plugin_condition_caller_none),
+                ((android.widget.TextView) none.findViewById(R.id.plugin_caller)).getText()
+                        .toString());
+
+        KeepADBPluginConditionEditActivity unknown = conditionScreen("com.example.unknown").get();
+        unknown.findViewById(R.id.plugin_save).performClick();
+        assertNotNull(unknown.getActiveDialog());
+        assertEquals(Activity.RESULT_CANCELED, shadowOf(unknown).getResultCode());
     }
 
     // ---- Manifest contract ------------------------------------------------------------------
@@ -458,8 +693,22 @@ public class KeepADBTaskerPluginTest {
             exportedReceivers.add(name.group(1));
         }
         exportedReceivers.sort(null);
-        assertEquals(List.of(".KeepADBAutomationReceiver", ".KeepADBPluginFireReceiver"),
-                exportedReceivers);
+        assertEquals(List.of(".KeepADBAutomationReceiver", ".KeepADBPluginConditionReceiver",
+                ".KeepADBPluginFireReceiver"), exportedReceivers);
+
+        String conditionReceiver = element(manifest, "receiver", ".KeepADBPluginConditionReceiver");
+        assertFalse(conditionReceiver.contains("android:permission"));
+        assertArrayEquals(new String[] {KeepADBTaskerPlugin.ACTION_QUERY_CONDITION},
+                actions(conditionReceiver).toArray(new String[0]));
+        String conditionActivity =
+                element(manifest, "activity", ".KeepADBPluginConditionEditActivity");
+        assertTrue(conditionActivity.contains("android:exported=\"true\""));
+        assertArrayEquals(new String[] {KeepADBTaskerPlugin.ACTION_EDIT_CONDITION},
+                actions(conditionActivity).toArray(new String[0]));
+        assertTrue("REQUEST_QUERY must name the condition's edit activity",
+                KeepADBTaskerPlugin.requestQueryIntent()
+                        .getStringExtra(KeepADBTaskerPlugin.EXTRA_ACTIVITY)
+                        .endsWith(".KeepADBPluginConditionEditActivity"));
     }
 
     private static String element(String manifest, String tag, String name) {
@@ -520,9 +769,12 @@ public class KeepADBTaskerPluginTest {
             calls.add("keepalive:" + on);
         }
 
+        KeepADBEndpointCoordinator.Snapshot endpoint =
+                new KeepADBEndpointCoordinator.Snapshot("192.168.1.20", 37000, 1L);
+
         @Override
         public KeepADBEndpointCoordinator.Snapshot endpoint() {
-            return new KeepADBEndpointCoordinator.Snapshot("192.168.1.20", 37000, 1L);
+            return endpoint;
         }
 
         @Override

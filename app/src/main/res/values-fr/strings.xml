@@ -748,6 +748,13 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="plugin_var_ip">Adresse Wifi-ADB</string>
     <string name="plugin_var_port">Port Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Uniquement avec le jeton d\'accès, tant que Wifi-ADB est activé et que son adresse est connue</string>
+    <string name="plugin_condition_label">État de KeepADB</string>
+    <string name="plugin_condition_title">Quand la condition est-elle remplie ?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB est activé</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB est activé et son adresse est connue</string>
+    <string name="plugin_condition_token_warning">Le jeton d\'accès est enregistré dans la configuration de l\'appli d\'automatisation, afin que la condition puisse aussi renvoyer l\'adresse et le port. Toute personne qui obtient une sauvegarde, un export ou une copie partagée de ce profil peut l\'utiliser. Après un nouveau jeton, ouvrez la condition enregistrée une fois et enregistrez-la à nouveau.</string>
+    <string name="plugin_condition_disabled">L\'automatisation est désactivée dans KeepADB. Activez d\'abord « Autoriser les applis d\'automatisation » dans les paramètres Automatisation ; d\'ici là, cette condition reste inconnue.</string>
+    <string name="plugin_condition_caller_none">Aucune appli d\'automatisation n\'a ouvert cet écran, rien ne peut donc être enregistré. Ajoutez la condition depuis la liste des plugins de Tasker, MacroDroid ou d\'une autre appli d\'automatisation.</string>
     <string name="settings_backup_title">Sauvegarde des réglages</string>
     <string name="settings_backup_subtext">Enregistre vos réglages dans un fichier et les restaure après une réinstallation : niveau de protection, réseaux approuvés et bloqués, règles réseau, options de confidentialité, de notification et Webhook. L’autorisation système n’en fait pas partie, et une importation n’active jamais Wifi-ADB ni Keep-Alive.</string>
     <string name="settings_backup_export">Exporter les réglages</string>

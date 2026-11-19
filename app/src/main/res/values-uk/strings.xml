@@ -749,6 +749,13 @@
     <string name="plugin_var_ip">Адреса Wifi-ADB</string>
     <string name="plugin_var_port">Порт Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Лише з токеном доступу, поки Wifi-ADB увімкнено і його адреса відома</string>
+    <string name="plugin_condition_label">Стан KeepADB</string>
+    <string name="plugin_condition_title">Коли умова виконується?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB увімкнено</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB увімкнено і його адреса відома</string>
+    <string name="plugin_condition_token_warning">Токен доступу зберігається в конфігурації застосунку автоматизації, щоб умова могла повертати також адресу й порт. Будь-хто, хто отримає резервну копію, експорт або спільну копію цього профілю, зможе ним скористатися. Після нового токена відкрийте збережену умову один раз і збережіть її знову.</string>
+    <string name="plugin_condition_disabled">Автоматизацію в KeepADB вимкнено. Спочатку увімкніть «Дозволити застосунки автоматизації» в налаштуваннях автоматизації; доти ця умова залишається невідомою.</string>
+    <string name="plugin_condition_caller_none">Цей екран відкрив не застосунок автоматизації, тому нічого не можна зберегти. Додайте умову зі списку плагінів Tasker, MacroDroid або іншого застосунку автоматизації.</string>
     <string name="settings_backup_title">Резервна копія налаштувань</string>
     <string name="settings_backup_subtext">Зберігає налаштування у файл і відновлює їх після перевстановлення: рівень захисту, довірені й заблоковані мережі, мережеві правила, параметри приватності, сповіщень і Webhook. Системний дозвіл не входить до копії, а імпорт ніколи не вмикає Wifi-ADB чи Keep-Alive.</string>
     <string name="settings_backup_export">Експортувати налаштування</string>

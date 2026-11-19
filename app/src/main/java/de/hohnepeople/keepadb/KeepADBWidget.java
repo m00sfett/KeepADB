@@ -203,6 +203,9 @@ public class KeepADBWidget extends AppWidgetProvider {
         }
         // #913: the overview widgets draw from the same projection on the same signals.
         KeepADBOverviewWidget.refreshAllState(context);
+        // #999: every state or endpoint change passes here; the plugin condition hosts are asked
+        // to query again only when what the conditions answer changed.
+        KeepADBTaskerPlugin.requestQueryIfChanged(context);
     }
 
     /** Re-renders one instance, for example after its configuration was saved. */

@@ -26,6 +26,16 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
+    <!-- #999: the automation apps that host the plugin, visible so the condition's
+         REQUEST_QUERY reaches them and the edit screen can show the caller's name (Android 11+
+         package visibility). Nothing else is queried. -->
+    <queries>
+        <package android:name="net.dinglisch.android.taskerm" />
+        <package android:name="com.arlosoft.macrodroid" />
+        <package android:name="com.llamalab.automate" />
+        <package android:name="com.twofortyfouram.locale" />
+    </queries>
+
     <application
         android:name=".KeepADBApplication"
         android:allowBackup="false"
@@ -253,6 +263,27 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
+        <!-- #999: the condition plugin ("Wifi-ADB is on", "endpoint known"). Same edit screen
+             checks as the action; the query receiver reads the state through KeepADBAutomation
+             like a #998 STATUS request and answers satisfied, unsatisfied or unknown. -->
+        <activity
+            android:name=".KeepADBPluginConditionEditActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/plugin_condition_label">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_CONDITION" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".KeepADBPluginConditionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.QUERY_CONDITION" />
             </intent-filter>
         </receiver>
     </application>

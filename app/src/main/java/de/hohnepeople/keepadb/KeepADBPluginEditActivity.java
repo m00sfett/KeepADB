@@ -13,6 +13,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * #999: the edit screen of the Tasker/Locale action plugin. The host (Tasker, MacroDroid, ...)
  * opens it for result; the user picks one request and KeepADB puts the current access token into
@@ -27,8 +30,14 @@ import android.widget.TextView;
 public class KeepADBPluginEditActivity extends Activity {
     private static final String STATE_REQUEST = "request";
 
-    private KeepADBTaskerPlugin.Request selected = KeepADBTaskerPlugin.Request.WIFI_ADB_ON;
+    /** The id of the chosen request, or of the chosen condition in condition mode. */
+    private String selected;
     private AlertDialog activeDialog;
+
+    /** {@code true} in {@link KeepADBPluginConditionEditActivity}: offers the conditions. */
+    boolean conditionMode() {
+        return false;
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -45,13 +54,18 @@ public class KeepADBPluginEditActivity extends Activity {
                 findViewById(R.id.plugin_body));
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        KeepADBTaskerPlugin.Config previous = KeepADBTaskerPlugin.parseBundle(
-                safeBundleExtra(getIntent()));
-        if (previous != null) selected = previous.request;
-        if (savedInstanceState != null) {
-            KeepADBTaskerPlugin.Request restored =
-                    KeepADBTaskerPlugin.Request.fromId(savedInstanceState.getString(STATE_REQUEST));
-            if (restored != null) selected = restored;
+        if (conditionMode()) {
+            ((TextView) findViewById(R.id.plugin_title)).setText(R.string.plugin_condition_label);
+            ((TextView) findViewById(R.id.plugin_request_title))
+                    .setText(R.string.plugin_condition_title);
+            ((TextView) findViewById(R.id.plugin_token_warning))
+                    .setText(R.string.plugin_condition_token_warning);
+            ((TextView) findViewById(R.id.plugin_disabled))
+                    .setText(R.string.plugin_condition_disabled);
+        }
+        selected = previousId(safeBundleExtra(getIntent()));
+        if (savedInstanceState != null && isChoice(savedInstanceState.getString(STATE_REQUEST))) {
+            selected = savedInstanceState.getString(STATE_REQUEST);
         }
         buildChoices();
         findViewById(R.id.plugin_open_settings).setOnClickListener(v -> startActivity(
@@ -70,7 +84,7 @@ public class KeepADBPluginEditActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(STATE_REQUEST, selected.id());
+        outState.putString(STATE_REQUEST, selected);
     }
 
     @Override
@@ -84,22 +98,56 @@ public class KeepADBPluginEditActivity extends Activity {
         return activeDialog;
     }
 
+    /** The choices of this mode as {id, label resource} pairs, in screen order. */
+    private List<Object[]> choices() {
+        List<Object[]> choices = new ArrayList<>();
+        if (conditionMode()) {
+            for (KeepADBTaskerPlugin.Condition c : KeepADBTaskerPlugin.Condition.values()) {
+                choices.add(new Object[] {c.id, c.label});
+            }
+        } else {
+            for (KeepADBTaskerPlugin.Request r : KeepADBTaskerPlugin.Request.values()) {
+                choices.add(new Object[] {r.id(), r.label});
+            }
+        }
+        return choices;
+    }
+
+    private boolean isChoice(String id) {
+        if (id == null) return false;
+        for (Object[] choice : choices()) if (choice[0].equals(id)) return true;
+        return false;
+    }
+
+    /** The id saved in the host's existing configuration, else the first choice. */
+    private String previousId(Bundle bundle) {
+        if (conditionMode()) {
+            KeepADBTaskerPlugin.ConditionConfig previous =
+                    KeepADBTaskerPlugin.parseConditionBundle(bundle);
+            if (previous != null) return previous.condition.id;
+        } else {
+            KeepADBTaskerPlugin.Config previous = KeepADBTaskerPlugin.parseBundle(bundle);
+            if (previous != null) return previous.request.id();
+        }
+        return (String) choices().get(0)[0];
+    }
+
     private void buildChoices() {
         RadioGroup group = findViewById(R.id.plugin_requests);
-        for (KeepADBTaskerPlugin.Request request : KeepADBTaskerPlugin.Request.values()) {
+        for (Object[] choice : choices()) {
             RadioButton button = new RadioButton(this);
             button.setId(View.generateViewId());
-            button.setText(request.label);
+            button.setText((Integer) choice[1]);
             button.setTextColor(getColor(R.color.text_yellow));
             button.setTextSize(16);
             button.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-            button.setTag(request);
+            button.setTag(choice[0]);
             group.addView(button);
-            if (request == selected) button.setChecked(true);
+            if (choice[0].equals(selected)) button.setChecked(true);
         }
         group.setOnCheckedChangeListener((g, id) -> {
             View checked = g.findViewById(id);
-            if (checked != null) selected = (KeepADBTaskerPlugin.Request) checked.getTag();
+            if (checked != null) selected = (String) checked.getTag();
         });
     }
 
@@ -111,7 +159,8 @@ public class KeepADBPluginEditActivity extends Activity {
         findViewById(R.id.plugin_config).setVisibility(enabled ? View.VISIBLE : View.GONE);
         TextView callerText = findViewById(R.id.plugin_caller);
         callerText.setText(caller == null
-                ? getString(R.string.plugin_caller_none)
+                ? getString(conditionMode() ? R.string.plugin_condition_caller_none
+                        : R.string.plugin_caller_none)
                 : getString(R.string.plugin_caller, callerLabel(caller)));
         Button save = findViewById(R.id.plugin_save);
         save.setEnabled(enabled && caller != null);
@@ -159,8 +208,19 @@ public class KeepADBPluginEditActivity extends Activity {
             render();
             return;
         }
-        KeepADBAutomation.journal(this, "plugin_saved", "request=" + selected.id(), false);
-        setResult(RESULT_OK, KeepADBTaskerPlugin.resultIntent(this, selected, token));
+        Intent result;
+        if (conditionMode()) {
+            KeepADBTaskerPlugin.Condition condition = KeepADBTaskerPlugin.Condition.fromId(selected);
+            if (condition == null) return;
+            result = KeepADBTaskerPlugin.conditionResultIntent(this, condition, token);
+        } else {
+            KeepADBTaskerPlugin.Request request = KeepADBTaskerPlugin.Request.fromId(selected);
+            if (request == null) return;
+            result = KeepADBTaskerPlugin.resultIntent(this, request, token);
+        }
+        KeepADBAutomation.journal(this, "plugin_saved",
+                (conditionMode() ? "condition=" : "request=") + selected, false);
+        setResult(RESULT_OK, result);
         finish();
     }
 

@@ -111,6 +111,28 @@ Tasker runs the action synchronously and then sets these local variables:
 Any result other than `ok` makes the action fail, with the result as error text (`%errmsg`). Use
 Tasker's *Continue Task After Error* to react to it.
 
+### Condition
+
+KeepADB is also a **plugin condition** for profiles (Tasker: *Add state → Plugin → KeepADB state*):
+
+| Condition | True while |
+|---|---|
+| Wifi-ADB is on | Wifi-ADB is switched on |
+| Wifi-ADB is on and its address is known | Wifi-ADB is on and KeepADB knows the address and port |
+
+- **No token needed** for the answer itself, like `STATUS`. The token is still saved with the
+  condition, so it can also return `%kadb_ip` and `%kadb_port`; the same storage warning applies.
+  After a new token the condition keeps working but returns no address and port (and each query
+  counts as a rejected request) until you open and save it again.
+- **While the interface is off** the condition is *unknown*: Tasker keeps its last state.
+- **KeepADB tells the automation app when to check again.** Whenever Wifi-ADB is switched or the
+  address appears or goes away, KeepADB sends the Locale `REQUEST_QUERY` broadcast, so profiles
+  react at once instead of waiting for the next poll. It carries no data and is sent only while the
+  interface is on. To reach the automation app on Android 11 and later, KeepADB declares Tasker,
+  MacroDroid, Automate and Locale as visible packages; it queries no other apps.
+- A query is a status read: it switches nothing, and repeated queries write at most one journal
+  line every 10 seconds.
+
 The address and port follow the rule of the broadcast reply: only with the token. The privacy
 switches under Settings → Privacy mask what KeepADB shows on its own screens, notifications and
 widgets; they do not apply to the plugin, which only answers the app the user configured.
@@ -169,7 +191,6 @@ device you control, and use **New token** in Settings afterwards.
 
 ## Not yet included
 
-- Plugin conditions ("Wifi-ADB is on", "endpoint known") (#999, second part).
 - A timer action ("on for N minutes").
 
 Whether each automation app receives a broadcast sent to its package depends on the app. Only the
@@ -177,8 +198,8 @@ Automate example has been checked on a device so far (see above); the Tasker and
 examples have not.
 
 The plugin follows the public Locale plugin API with the Tasker extensions for variables and
-synchronous execution. Checked so far: unit tests (bundle validation, token handling, an ordered
-fire broadcast with variables, the edit screen) and an Android 16 emulator, where the system lists
+synchronous execution. Checked so far: unit tests (bundle validation, token handling, ordered fire
+and query broadcasts with variables, `REQUEST_QUERY` on changes, both edit screens) and an Android 16 emulator, where the system lists
 the edit screen and the fire receiver for the Locale actions, the fire receiver returns an ordered
 result, and the edit screen shows its states. Tests with Tasker, MacroDroid and Automate on a device
 are still open; MacroDroid (*Third-party plugin* action) and Automate (*Plug-in action* block) are

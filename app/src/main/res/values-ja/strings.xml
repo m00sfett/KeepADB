@@ -746,6 +746,13 @@
     <string name="plugin_var_ip">Wifi-ADB のアドレス</string>
     <string name="plugin_var_port">Wifi-ADB のポート</string>
     <string name="plugin_var_endpoint_description">アクセストークンがある場合のみ。Wifi-ADB がオンでアドレスが判明しているとき</string>
+    <string name="plugin_condition_label">KeepADB の状態</string>
+    <string name="plugin_condition_title">条件が成立するとき</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB がオン</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB がオンでアドレスが判明している</string>
+    <string name="plugin_condition_token_warning">条件がアドレスとポートも返せるように、アクセストークンが自動化アプリの設定に保存されます。このプロファイルのバックアップ、エクスポート、共有コピーを入手した人は誰でもそれを使えます。新しいトークンを作成したら、保存済みの条件を一度開いて保存し直してください。</string>
+    <string name="plugin_condition_disabled">KeepADB の自動化はオフです。先に自動化の設定で「自動化アプリを許可」をオンにしてください。それまでこの条件は不明のままです。</string>
+    <string name="plugin_condition_caller_none">この画面は自動化アプリから開かれていないため、何も保存できません。Tasker、MacroDroid などの自動化アプリのプラグイン一覧から条件を追加してください。</string>
     <string name="settings_backup_title">設定のバックアップ</string>
     <string name="settings_backup_subtext">設定をファイルに保存し、再インストール後に復元します：保護レベル、信頼済み・ブロック済みのネットワーク、ネットワークのルール、プライバシー、通知、Webhook のオプション。システム権限は含まれず、インポートで Wifi-ADB や Keep-Alive がオンになることはありません。</string>
     <string name="settings_backup_export">設定をエクスポート</string>

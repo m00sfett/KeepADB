@@ -749,6 +749,13 @@
     <string name="plugin_var_ip">Адрес Wifi-ADB</string>
     <string name="plugin_var_port">Порт Wifi-ADB</string>
     <string name="plugin_var_endpoint_description">Только с токеном доступа, пока Wifi-ADB включён и его адрес известен</string>
+    <string name="plugin_condition_label">Состояние KeepADB</string>
+    <string name="plugin_condition_title">Когда условие выполняется?</string>
+    <string name="plugin_condition_wifi_adb_on">Wifi-ADB включён</string>
+    <string name="plugin_condition_endpoint_known">Wifi-ADB включён и его адрес известен</string>
+    <string name="plugin_condition_token_warning">Токен доступа сохраняется в конфигурации приложения автоматизации, чтобы условие могло возвращать и адрес с портом. Любой, кто получит резервную копию, экспорт или общую копию этого профиля, сможет его использовать. После создания нового токена откройте сохранённое условие один раз и сохраните его снова.</string>
+    <string name="plugin_condition_disabled">Автоматизация в KeepADB выключена. Сначала включите «Разрешить приложения автоматизации» в настройках автоматизации; до этого условие остаётся неизвестным.</string>
+    <string name="plugin_condition_caller_none">Этот экран открыло не приложение автоматизации, поэтому сохранить ничего нельзя. Добавьте условие из списка плагинов Tasker, MacroDroid или другого приложения автоматизации.</string>
     <string name="settings_backup_title">Резервная копия настроек</string>
     <string name="settings_backup_subtext">Сохраняет настройки в файл и восстанавливает их после переустановки: уровень защиты, доверенные и заблокированные сети, сетевые правила, параметры конфиденциальности, уведомлений и Webhook. Системное разрешение в копию не входит, а импорт никогда не включает Wifi-ADB или Keep-Alive.</string>
     <string name="settings_backup_export">Экспортировать настройки</string>
