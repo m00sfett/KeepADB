@@ -19,9 +19,10 @@ import java.util.function.BooleanSupplier;
  * Fallback for finding {@code adbd}'s TLS port when mDNS does not report it (#962). Observed on
  * Android 11: a connect service that was already announced before the discovery started is
  * never delivered. The scan only ever touches the loopback interface: it looks for listening
- * ports and keeps those that answer an ADB connect with a TLS upgrade request.
+ * ports and keeps those that answer an ADB connect with a TLS upgrade request. Endpoint
+ * discovery reuses it when adbd stops announcing its port (#1030).
  */
-final class LoopbackAdbScan {
+public final class LoopbackAdbScan {
     private static final int EPHEMERAL_FIRST_PORT = 30000;
     private static final int LAST_PORT = 65535;
     private static final int LOW_FIRST_PORT = 1024;
@@ -55,6 +56,15 @@ final class LoopbackAdbScan {
             return found;
         }
         return scanRange(LOW_FIRST_PORT, EPHEMERAL_FIRST_PORT - 1, isCancelled);
+    }
+
+    /**
+     * Scans only adbd's ephemeral range (30000-65535), for endpoint discovery (#1030): the low
+     * range is a self-pairing last resort and too costly for a background fallback.
+     */
+    public static List<Integer> findEphemeral(BooleanSupplier isCancelled)
+            throws InterruptedException {
+        return scanRange(EPHEMERAL_FIRST_PORT, LAST_PORT, isCancelled);
     }
 
     static List<Integer> scanRange(int firstPort, int lastPort) throws InterruptedException {
@@ -163,7 +173,7 @@ final class LoopbackAdbScan {
     }
 
     /** Sends ADB's connect message and checks that the reply is the TLS upgrade request. */
-    static boolean offersAdbOverTls(int port) {
+    public static boolean offersAdbOverTls(int port) {
         return offersAdbOverTls(InetAddress.getLoopbackAddress(), port);
     }
 
@@ -184,12 +194,19 @@ final class LoopbackAdbScan {
             OutputStream out = socket.getOutputStream();
             out.write(hello.array());
             out.flush();
-            ByteBuffer reply = ByteBuffer.wrap(Bytes.readFully(socket.getInputStream(), 24))
-                    .order(ByteOrder.LITTLE_ENDIAN);
-            int command = reply.getInt(0);
-            return command == A_STLS && reply.getInt(20) == ~command;
+            return isStlsReply(Bytes.readFully(socket.getInputStream(), 24));
         } catch (IOException e) {
             return false;
         }
+    }
+
+    /** Whether a 24-byte ADB message header is adbd's TLS upgrade request ({@code STLS}). */
+    static boolean isStlsReply(byte[] header) {
+        if (header == null || header.length < 24) {
+            return false;
+        }
+        ByteBuffer reply = ByteBuffer.wrap(header, 0, 24).order(ByteOrder.LITTLE_ENDIAN);
+        int command = reply.getInt(0);
+        return command == A_STLS && reply.getInt(20) == ~command;
     }
 }

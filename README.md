@@ -14,7 +14,7 @@ recently saved intent.
 - No runtime dependencies in the shipped app
 - Application ID: `de.hohnepeople.keepadb`
 
-KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Regular endpoint discovery uses Android mDNS (`_adb-tls-connect._tcp`) without scanning arbitrary network hosts; only the optional on-device self-pairing setup checks local loopback ports for an already-running `adbd` if mDNS misses it. Android still requires its own TLS pairing before a new ADB client can connect.
+KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Regular endpoint discovery uses Android mDNS (`_adb-tls-connect._tcp`) without scanning arbitrary network hosts. When mDNS finds nothing while Wifi-ADB is on (some devices stop announcing the port after a while), KeepADB first checks the port it last saw in this boot and, if that fails, checks local loopback ports for `adbd` at most once a minute; the optional on-device self-pairing setup uses the same loopback check. A port counts only when it answers ADB's connect message with adbd's TLS upgrade request. Android still requires its own TLS pairing before a new ADB client can connect.
 
 ## Highlights
 

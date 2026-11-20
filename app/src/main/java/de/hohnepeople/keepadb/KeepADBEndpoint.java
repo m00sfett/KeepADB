@@ -16,7 +16,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Discovers the active secure wireless-debugging endpoint advertised by adbd.
- * mDNS (NsdManager) is the sole discovery path: the local loopback port-range "quick probe"
+ * mDNS (NsdManager) is the primary path. #1030 adds {@link KeepADBPortFallback} for adbd that
+ * stopped announcing its port: it starts {@link #FALLBACK_DELAY_MS} after mDNS found nothing and
+ * holds back the recovery pulse and the overall timeout while it runs, because the pulse would
+ * restart adbd on a new port. It identifies adbd by the ADB handshake ({@code CNXN} answered by
+ * {@code STLS}), not by the TLS sniff described next.
+ * Before #1030 mDNS was the sole discovery path: the local loopback port-range "quick probe"
  * that used to run alongside it as a best-effort shortcut was removed in #424 after #404 showed
  * on real devices that its TLS-sniff confirmation (formerly {@code probeAdbTlsPort}, removed in
  * #435 once #394's cached-endpoint re-verification -- its last caller -- fell back to the plain
@@ -57,6 +62,10 @@ final class KeepADBEndpoint {
     // onUnavailable() retries with backoff, so a too-short timeout just costs an extra cycle
     // in the slow-path case, not the endpoint.
     private static final long OVERALL_TIMEOUT_MS = 8_000;
+    // #1030: long enough for a still-announced service to resolve first, short enough that the
+    // fallback (remembered port in milliseconds, loopback scan in about 3 s) ends before the
+    // recovery pulse at RECOVERY_PULSE_DELAY_MS would restart adbd on a new port.
+    static final long FALLBACK_DELAY_MS = 1_500;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -79,9 +88,16 @@ final class KeepADBEndpoint {
     private Runnable recoveryPulseRunnable;
     private boolean recoveryPulseEnabled;
     private Runnable overallTimeoutRunnable;
+    // #1030: the mDNS-free fallback. Off for the test constructors, so discovery tests never scan
+    // the build machine's loopback; on for production and for tests that opt in.
+    private final boolean portFallbackEnabled;
+    private Runnable fallbackRunnable;
+    private long fallbackGeneration = -1;
+    private boolean pulseDeferred;
+    private boolean giveUpDeferred;
 
     KeepADBEndpoint(Context context) {
-        this(context, defaultNsdProbe(context), new KeepADBAndroidScheduler());
+        this(context, defaultNsdProbe(context), new KeepADBAndroidScheduler(), null, true);
     }
 
     /** Package-visible so tests can substitute a fake probe/scheduler (#249). */
@@ -92,6 +108,13 @@ final class KeepADBEndpoint {
     /** Package-visible so tests can additionally substitute a fake multicast lock (#359). */
     KeepADBEndpoint(Context context, KeepADBNsdProbe nsdProbe, KeepADBScheduler scheduler,
             KeepADBMulticastLock multicastLockOverride) {
+        this(context, nsdProbe, scheduler, multicastLockOverride, false);
+    }
+
+    /** Package-visible so tests can opt into the mDNS-free fallback (#1030). */
+    KeepADBEndpoint(Context context, KeepADBNsdProbe nsdProbe, KeepADBScheduler scheduler,
+            KeepADBMulticastLock multicastLockOverride, boolean portFallbackEnabled) {
+        this.portFallbackEnabled = portFallbackEnabled;
         appContext = context.getApplicationContext();
         this.nsdProbe = nsdProbe;
         this.scheduler = scheduler;
@@ -214,6 +237,10 @@ final class KeepADBEndpoint {
                 recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
                 scheduler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
             }
+            if (portFallbackEnabled) {
+                fallbackRunnable = () -> startFallback(generation);
+                scheduler.postDelayed(fallbackRunnable, FALLBACK_DELAY_MS);
+            }
             overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
             scheduler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
             timeoutArmed = true;
@@ -248,6 +275,11 @@ final class KeepADBEndpoint {
     void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
+            // #1030: the pulse restarts adbd on a new port; wait for the fallback to finish first.
+            if (fallbackGeneration == generation) {
+                pulseDeferred = true;
+                return;
+            }
             // #580: this runs as a delayed Handler callback on the main looper (see the
             // postDelayed call above); an uncaught SecurityException from an OEM read
             // restriction here would crash the app instead of just skipping the pulse. A failed
@@ -306,12 +338,86 @@ final class KeepADBEndpoint {
         Listener targetListener;
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
+            if (fallbackGeneration == generation) {
+                giveUpDeferred = true;
+                return;
+            }
             Log.w(TAG, "gen=" + generation + " timed out after " + OVERALL_TIMEOUT_MS + "ms without an endpoint");
             targetListener = currentListener;
             stop();
         }
         if (targetListener != null) {
             targetListener.onUnavailable();
+        }
+    }
+
+    private void startFallback(long generation) {
+        synchronized (this) {
+            fallbackRunnable = null;
+            if (!isCurrent(generation) || endpointDelivered.get()
+                    || fallbackGeneration == generation) {
+                return;
+            }
+            fallbackGeneration = generation;
+        }
+        try {
+            scheduler.runAsync(() -> runFallback(generation));
+        } catch (RuntimeException | OutOfMemoryError e) {
+            Log.w(TAG, "gen=" + generation + " could not start the port fallback", e);
+            finishFallback(generation, null);
+        }
+    }
+
+    private void runFallback(long generation) {
+        KeepADBPortFallback.Result result = null;
+        try {
+            Boolean enabled = KeepADB.isEnabledOrNull(appContext, "endpoint");
+            if (enabled != null && enabled && KeepADBService.isWifiConnected(appContext)) {
+                result = KeepADBPortFallback.find(appContext,
+                        () -> !isCurrent(generation) || endpointDelivered.get());
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "gen=" + generation + " port fallback failed", e);
+        }
+        finishFallback(generation, result);
+    }
+
+    private void finishFallback(long generation, KeepADBPortFallback.Result result) {
+        Listener targetListener = null;
+        synchronized (this) {
+            if (fallbackGeneration == generation) fallbackGeneration = -1;
+            if (!isCurrent(generation) || endpointDelivered.get()) return;
+            if (result != null && endpointDelivered.compareAndSet(false, true)) {
+                resolveQueue.clear();
+                targetListener = currentListener;
+                stop();
+            } else {
+                boolean runPulse = pulseDeferred;
+                boolean giveUp = giveUpDeferred;
+                pulseDeferred = false;
+                giveUpDeferred = false;
+                if (giveUp) {
+                    // After a deferred pulse, mDNS still needs its window to see the new port.
+                    long delay = runPulse ? OVERALL_TIMEOUT_MS - RECOVERY_PULSE_DELAY_MS : 0;
+                    if (overallTimeoutRunnable != null) {
+                        scheduler.removeCallbacks(overallTimeoutRunnable);
+                    }
+                    overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
+                    scheduler.postDelayed(overallTimeoutRunnable, delay);
+                }
+                if (runPulse) {
+                    // Back on the scheduler's thread, where the pulse always runs; stop() cancels it.
+                    if (recoveryPulseRunnable != null) {
+                        scheduler.removeCallbacks(recoveryPulseRunnable);
+                    }
+                    recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
+                    scheduler.postDelayed(recoveryPulseRunnable, 0);
+                }
+            }
+        }
+        if (targetListener != null) {
+            Log.i(TAG, "gen=" + generation + " found the endpoint without mDNS");
+            targetListener.onEndpoint(result.host, result.port);
         }
     }
 
@@ -417,6 +523,7 @@ final class KeepADBEndpoint {
                                 }
                             }
                             if (targetListener != null) {
+                                KeepADBPortFallback.remember(appContext, port);
                                 targetListener.onEndpoint(host, port);
                             }
                         });
@@ -443,6 +550,12 @@ final class KeepADBEndpoint {
             recoveryPulseRunnable = null;
         }
         recoveryPulseEnabled = false;
+        if (fallbackRunnable != null) {
+            scheduler.removeCallbacks(fallbackRunnable);
+            fallbackRunnable = null;
+        }
+        pulseDeferred = false;
+        giveUpDeferred = false;
         if (overallTimeoutRunnable != null) {
             scheduler.removeCallbacks(overallTimeoutRunnable);
             overallTimeoutRunnable = null;
