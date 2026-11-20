@@ -23,6 +23,13 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.15] - Unreleased
+
+### Documentation
+- Release preparation for versionCode 296: the store note `changelogs/296.txt` summarizes all user-visible changes since 1.14.1. It replaces the note for 295, which belonged to the unreleased 1.15.14 candidate and is removed.
+- `full_description.txt` is back under F-Droid's 4000-character limit (3688 characters). It now names the automation interface, the settings backup and "Turn off on open Wi-Fi".
+- Documentation check before a stable release (CONTRIBUTING.md): store texts, this changelog, the links in README and `docs/` and the Settings paths quoted there were checked against this commit.
+
 ## [1.15.14] - Unreleased
 
 ### Fixed
