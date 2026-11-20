@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.14] - Unreleased
+
+### Fixed
+- **Endpoint found again when adbd stops announcing it (#1030):** on the CUBOT P60 and the S20, adbd stops announcing `_adb-tls-connect._tcp` over mDNS after a while although its port stays open, so KeepADB showed "Address not found" until Wifi-ADB was restarted (#1027). `KeepADBPortFallback` now starts 1.5 s after mDNS found nothing: it first sends ADB's `CNXN` to the port remembered in this boot (`last_adb_port`, stored with the boot counter whenever an endpoint is found) and otherwise scans loopback ports 30000-65535 with the self-pairing scanner (`LoopbackAdbScan`, #962), at most once a minute and never twice at the same time. A port counts only when it answers with `STLS`, only when exactly one port does, and only when it is also reachable on the device's own Wi-Fi address, which is what gets reported. While the fallback runs, the recovery pulse and the overall discovery timeout wait, because the pulse would restart adbd on a new port; a fallback without result lets both run as before. Test constructors keep the fallback off so discovery tests never scan the build machine. Codex review: a deferred pulse keeps its three-second window before the timeout even when the fallback ends between pulse and timeout, and only the winning delivery remembers a port. A local app that fakes the `STLS` answer can make KeepADB report a wrong port, and a computer that connects there could talk to that app (the adb host does not verify the server certificate; second Codex review); the same trust level as a faked mDNS announcement; documented in `SECURITY.md` as the maintainer's decision.
+
 ## [1.15.13] - Unreleased
 
 ### Fixed

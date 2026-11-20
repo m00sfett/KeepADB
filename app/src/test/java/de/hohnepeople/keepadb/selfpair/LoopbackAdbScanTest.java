@@ -45,6 +45,21 @@ public class LoopbackAdbScanTest {
     }
 
     @Test
+    public void stlsParserAcceptsOnlyAWellFormedTlsUpgradeRequest() {
+        assertTrue(LoopbackAdbScan.isStlsReply(header(A_STLS, ~A_STLS)));
+        assertFalse("wrong magic", LoopbackAdbScan.isStlsReply(header(A_STLS, A_STLS)));
+        int cnxn = 0x4e584e43;
+        assertFalse("plain ADB connect reply", LoopbackAdbScan.isStlsReply(header(cnxn, ~cnxn)));
+        assertFalse("too short", LoopbackAdbScan.isStlsReply(new byte[23]));
+        assertFalse(LoopbackAdbScan.isStlsReply(null));
+    }
+
+    private static byte[] header(int command, int magic) {
+        return ByteBuffer.allocate(24).order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(command).putInt(0).putInt(0).putInt(0).putInt(0).putInt(magic).array();
+    }
+
+    @Test
     public void scanRangeHandlesEmptyInvertedBounds() throws Exception {
         assertEquals(List.of(), LoopbackAdbScan.scanRange(5000, 4999));
     }

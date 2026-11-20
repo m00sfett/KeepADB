@@ -33,6 +33,10 @@ final class KeepADBPreferences {
     private static final String KEY_RESTART_ON_PENDING_AT = "restart_on_pending_at";
     /** #1027: the boot counter at {@link #KEY_RESTART_ON_PENDING_AT}; written in the same commit. */
     private static final String KEY_RESTART_ON_PENDING_BOOT = "restart_on_pending_boot";
+    /** #1030: the last Wifi-ADB port adbd announced or answered on; absent when none. */
+    private static final String KEY_LAST_ADB_PORT = "last_adb_port";
+    /** #1030: the boot counter at {@link #KEY_LAST_ADB_PORT}; a port never outlives its boot. */
+    private static final String KEY_LAST_ADB_PORT_BOOT = "last_adb_port_boot";
     /** #997: on for new installations, off for existing ones; see migrateOpenNetworkShutdown. */
     static final String KEY_OPEN_NETWORK_SHUTDOWN = "open_network_shutdown_enabled";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
@@ -679,6 +683,30 @@ final class KeepADBPreferences {
     static void clearRestartOnPending(Context context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
                 .remove(KEY_RESTART_ON_PENDING_AT).remove(KEY_RESTART_ON_PENDING_BOOT).commit();
+    }
+
+    /** #1030: the remembered Wifi-ADB port, or -1. */
+    static int getLastAdbPort(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getInt(KEY_LAST_ADB_PORT, -1);
+    }
+
+    /** #1030: the boot counter stored with the remembered port, or -1. */
+    static int getLastAdbPortBoot(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getInt(KEY_LAST_ADB_PORT_BOOT, -1);
+    }
+
+    /** #1030: port and boot counter in one edit, so neither is ever read without the other. */
+    static void setLastAdbPort(Context context, int port, int bootCount) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .putInt(KEY_LAST_ADB_PORT, port)
+                .putInt(KEY_LAST_ADB_PORT_BOOT, bootCount).apply();
+    }
+
+    static void clearLastAdbPort(Context context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+                .remove(KEY_LAST_ADB_PORT).remove(KEY_LAST_ADB_PORT_BOOT).apply();
     }
 
     /** Clears the manual exemption. */
