@@ -109,11 +109,13 @@ variables) from two sources, and neither proves that `adbd` is behind the port:
   message with `STLS` and is also reachable on the Wi-Fi address. An app with network access can
   listen on a free port and send those 24 bytes.
 
-A malicious app on the device can therefore make KeepADB show and report a wrong port, so that a
-computer fails to connect. It cannot gain access: `adb` only talks to a device whose TLS key it
-paired with, and pairing still needs Android's own confirmation. Real authentication would need a
-completed ADB TLS handshake with a paired key, which KeepADB does not hold. The fallback keeps the
-trust level of the mDNS path; this is a documented decision of the maintainer (2026-11-20, #1030).
+A malicious app on the device can therefore make KeepADB show and report a wrong port. A computer
+that connects there may fail, or, if the app implements ADB over TLS, talk to that app instead of
+`adbd`: the AOSP `adb` host does not verify the server certificate, so it could send the app its
+commands and accept the app's answers (for example files from `adb pull`). This gives the app no
+access to the device itself; pairing still protects genuine `adbd`. KeepADB has no way to
+authenticate `adbd`. The fallback keeps the trust level of the mDNS path; accepting this boundary
+is a documented decision of the maintainer (2026-11-20, #1030).
 
 ## Security-relevant interaction rules
 
