@@ -83,7 +83,7 @@ public class KeepADBPortFallbackTest {
         assertNotNull(result);
         assertEquals(45678, result.port);
         assertFalse("the old boot's port must never be probed", prober.probed.contains(41234));
-        assertEquals("the scan result is remembered for this boot", 45678,
+        assertEquals("find() alone never remembers; only a winning delivery does", -1,
                 KeepADBPortFallback.rememberedPort(context));
     }
 
@@ -181,6 +181,8 @@ public class KeepADBPortFallbackTest {
         scheduler.advanceTo(KeepADBEndpoint.FALLBACK_DELAY_MS);
 
         assertEquals(List.of(HOST + ":45678"), listener.events);
+        assertEquals("the delivered port is remembered", 45678,
+                KeepADBPortFallback.rememberedPort(context));
         scheduler.advanceTo(20_000);
         ShadowLooper.idleMainLooper();
         assertEquals("no pulse and no timeout after the fallback found the port",
@@ -219,6 +221,34 @@ public class KeepADBPortFallbackTest {
     }
 
     @Test
+    public void fallbackEndingBetweenPulseAndTimeoutKeepsThePulseWindow() {
+        KeepADBFakeSettingsGateway gateway = enableWifiAdb();
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADB.setSchedulerForTesting(scheduler);
+        scheduler.setDeferAsync(true);
+        RecordingListener listener = new RecordingListener();
+        KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(),
+                scheduler, null, true);
+
+        endpoint.discover(listener, true);
+        scheduler.advanceTo(KeepADBEndpoint.FALLBACK_DELAY_MS);
+        scheduler.advanceTo(7_800);
+        scheduler.setDeferAsync(false);
+        scheduler.runDeferredAsync();
+        scheduler.advanceBy(0);
+        ShadowLooper.idleMainLooper();
+        assertEquals(Arrays.asList(false, true), gateway.writes);
+
+        scheduler.advanceTo(10_700);
+        ShadowLooper.idleMainLooper();
+        assertTrue("the original 8 s timeout must not cut the pulse's window",
+                listener.events.isEmpty());
+        scheduler.advanceTo(11_800);
+        ShadowLooper.idleMainLooper();
+        assertEquals(List.of("unavailable"), listener.events);
+    }
+
+    @Test
     public void stoppedDiscoveryIgnoresALateFallbackResult() {
         enableWifiAdb();
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
@@ -236,6 +266,8 @@ public class KeepADBPortFallbackTest {
 
         assertTrue(listener.events.isEmpty());
         assertEquals("a cancelled fallback never scans", 0, prober.scans);
+        assertEquals("a superseded fallback remembers nothing", -1,
+                KeepADBPortFallback.rememberedPort(context));
     }
 
     @Test

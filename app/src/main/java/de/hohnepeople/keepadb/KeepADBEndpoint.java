@@ -396,8 +396,10 @@ final class KeepADBEndpoint {
                 boolean giveUp = giveUpDeferred;
                 pulseDeferred = false;
                 giveUpDeferred = false;
-                if (giveUp) {
-                    // After a deferred pulse, mDNS still needs its window to see the new port.
+                if (giveUp || runPulse) {
+                    // After a deferred pulse, mDNS keeps the pulse-to-timeout window it always had
+                    // (also when the original timeout is still pending); without a pulse an
+                    // already expired timeout fires now.
                     long delay = runPulse ? OVERALL_TIMEOUT_MS - RECOVERY_PULSE_DELAY_MS : 0;
                     if (overallTimeoutRunnable != null) {
                         scheduler.removeCallbacks(overallTimeoutRunnable);
@@ -417,6 +419,7 @@ final class KeepADBEndpoint {
         }
         if (targetListener != null) {
             Log.i(TAG, "gen=" + generation + " found the endpoint without mDNS");
+            KeepADBPortFallback.remember(appContext, result.port);
             targetListener.onEndpoint(result.host, result.port);
         }
     }

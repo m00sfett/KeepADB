@@ -96,6 +96,25 @@ locked display: the dialog appears only after unlocking and checks the screen lo
 Dismissing the notice does not make a decision; the same network is not prompted again for at
 least 24 hours.
 
+### Endpoint discovery trust boundary
+
+KeepADB reports the Wifi-ADB endpoint (home screen, notification, widget, webhook, automation
+variables) from two sources, and neither proves that `adbd` is behind the port:
+
+- **mDNS:** an `_adb-tls-connect._tcp` announcement on the device's own Wi-Fi address whose port
+  accepts a TCP connection. Any app with network access can register such a service through
+  `NsdManager`.
+- **Fallback without mDNS (#1030):** when mDNS finds nothing while Wifi-ADB is on, the port
+  remembered in this boot, or the only loopback port in 30000-65535, that answers ADB's `CNXN`
+  message with `STLS` and is also reachable on the Wi-Fi address. An app with network access can
+  listen on a free port and send those 24 bytes.
+
+A malicious app on the device can therefore make KeepADB show and report a wrong port, so that a
+computer fails to connect. It cannot gain access: `adb` only talks to a device whose TLS key it
+paired with, and pairing still needs Android's own confirmation. Real authentication would need a
+completed ADB TLS handshake with a paired key, which KeepADB does not hold. The fallback keeps the
+trust level of the mDNS path; this is a documented decision of the maintainer (2026-11-20, #1030).
+
 ## Security-relevant interaction rules
 
 KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission. Users can grant it directly on

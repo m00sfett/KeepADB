@@ -178,7 +178,7 @@ final class KeepADBPortFallback {
         }
         KeepADBDiagnostics.event(app, "endpoint_fallback", "loopback_scan", "found",
                 "port=" + port);
-        remember(app, port);
+        // Remembered only by the caller's winning delivery, never by a superseded search.
         return new Result(host, port);
     }
 
