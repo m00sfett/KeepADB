@@ -41,6 +41,8 @@ final class KeepADBWebhookForm {
     private final Switch toggle;
     /** #1034: opens the collapsed Settings card when an enable is refused; null elsewhere. */
     private final Runnable onRefused;
+    /** #1034 review: true for the Settings header switch, which enables only the saved URL. */
+    private final boolean enablesSavedUrlOnly;
     private final EditText urlInput;
     /** #904: stands in for {@link #urlInput} while the app privacy switch masks the URL. */
     private final TextView urlMasked;
@@ -104,6 +106,7 @@ final class KeepADBWebhookForm {
         this.activity = activity;
         this.onChange = onChange;
         this.onRefused = onRefused;
+        this.enablesSavedUrlOnly = headerToggle != null;
 
         Switch toggle = root.findViewById(R.id.settings_webhook_toggle);
         if (headerToggle != null) {
@@ -304,7 +307,12 @@ final class KeepADBWebhookForm {
     private void onToggleClicked() {
         boolean wantEnabled = toggle.isChecked();
         if (wantEnabled) {
-            String inputUrl = readAndNormalizeInput();
+            // #1034 review: the Settings header switch changes only the enabled state. It turns
+            // on the saved URL and leaves an unsaved draft in the field alone; "Save URL" is the
+            // way to store a new one. The assistant's own switch keeps enabling what is typed.
+            String inputUrl = enablesSavedUrlOnly
+                    ? KeepADBPreferences.getRegisterWebhookUrl(activity)
+                    : readAndNormalizeInput();
             if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
                 toggle.setChecked(false);
                 if (onRefused != null) onRefused.run();

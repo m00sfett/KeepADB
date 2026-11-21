@@ -233,6 +233,8 @@ public class SettingsActivity extends Activity {
                 new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
+        // #1034 review: a report finishing in the background updates the header's status line.
+        KeepADBRegisterClient.setRegisterStateListener(webhookStateListener);
         refresh();
 
         // #959: the three extras of the former Network card lead to the Protection page. Current
@@ -296,6 +298,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        KeepADBRegisterClient.clearRegisterStateListener(webhookStateListener);
         // #998: the revealed token is hidden again once the screen is left.
         automationSection.onPause();
     }
@@ -499,6 +502,16 @@ public class SettingsActivity extends Activity {
         return diagnosticsController.getActiveIssueReportDialog();
     }
 
+    private final KeepADBRegisterClient.RegisterStateListener webhookStateListener =
+            this::refreshWebhookStatusLine;
+
+    /** #1034: the one line under the webhook section title. */
+    private void refreshWebhookStatusLine() {
+        if (isFinishing() || isDestroyed()) return;
+        ((TextView) findViewById(R.id.settings_webhook_status))
+                .setText(KeepADBWebhookStatusText.headerStatus(this));
+    }
+
     void refresh() {
         KeepADBWarningState.observe(this);
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
@@ -511,8 +524,7 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();
-        ((TextView) findViewById(R.id.settings_webhook_status))
-                .setText(KeepADBWebhookStatusText.headerStatus(this));
+        refreshWebhookStatusLine();
         automationSection.refresh();
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);

@@ -94,6 +94,39 @@ public class MainActivityWebhookCopyTest {
                 clipboard().getPrimaryClip().getItemAt(0).getText().toString());
     }
 
+    /** #1036 review: a tap copies what the row shows, even if the stored value moved on. */
+    @Test
+    public void theCopyIsBoundToTheRenderedRow() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        MainActivity activity = start();
+
+        // A background report replaces the endpoint before the screen is redrawn.
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.178.99:40000");
+        activity.findViewById(R.id.webhook_endpoint_copy).performClick();
+
+        assertEquals("192.168.178.24:45149",
+                clipboard().getPrimaryClip().getItemAt(0).getText().toString());
+    }
+
+    /** #1036 review: "deregistered" shows no endpoint and no copy, even with a leftover value. */
+    @Test
+    public void aDeregisteredStateOffersNoEndpointCopy() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
+                KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
+        MainActivity activity = start();
+
+        assertEquals(View.GONE, activity.findViewById(R.id.webhook_endpoint_copy).getVisibility());
+        String row = ((TextView) activity.findViewById(R.id.webhook_endpoint_value)).getText().toString();
+        assertTrue(row, row.endsWith(context.getString(R.string.webhook_status_deregistered)));
+    }
+
     @Test
     public void anIpv6EndpointIsCopiedBracketed() {
         assertEquals("[fe80::1]:5555", KeepADBWebhookStatusText.copyableEndpoint(

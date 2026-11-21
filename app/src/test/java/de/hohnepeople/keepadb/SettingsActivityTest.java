@@ -445,15 +445,18 @@ public class SettingsActivityTest {
         ShadowLooper.idleMainLooper();
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
 
-        // Test toggle button sanitization
-        input.setText("http://admin:pass@100.111.111.21:50829/register/s20");
+        // #1034 review: the header switch turns the saved URL back on and leaves an unsaved
+        // draft alone (the assistant's form switch still sanitizes what is typed, see
+        // KeepADBWebhookFormTest).
+        input.setText("http://admin:pass@100.111.111.22:50829/register/other");
         toggle.performClick();
         ShadowLooper.idleMainLooper();
 
-        assertEquals("http://100.111.111.21:50829/register/s20", input.getText().toString());
-        assertEquals("http://100.111.111.21:50829/register/s20",
-                KeepADBPreferences.getRegisterWebhookUrl(activity));
         assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals("only the enabled state changes", "http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertEquals("the draft stays in the field",
+                "http://admin:pass@100.111.111.22:50829/register/other", input.getText().toString());
     }
 
     @Test
@@ -680,12 +683,45 @@ public class SettingsActivityTest {
         EditText input = activity.findViewById(R.id.settings_webhook_url);
         Switch toggle = activity.findViewById(R.id.settings_webhook_header_toggle);
         input.setText("https://100.111.111.21:50829/register/s20");
+        // #1034 review: a typed but unsaved URL is not enough for the header switch ...
         toggle.performClick();
         ShadowLooper.idleMainLooper();
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertFalse(toggle.isChecked());
 
+        // ... "Save URL" stores it and turns sync on (#733), and the switch follows.
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+        ShadowLooper.idleMainLooper();
         assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertTrue(toggle.isChecked());
         assertEquals("https://100.111.111.21:50829/register/s20",
                 KeepADBPreferences.getRegisterWebhookUrl(activity));
+    }
+
+    /** #1034 review: a report finishing while Settings is open updates the status line. */
+    @Test
+    public void theHeaderStatusFollowsABackgroundReport() {
+        KeepADBPreferences.setRegisterWebhookUrl(RuntimeEnvironment.getApplication(),
+                "https://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(RuntimeEnvironment.getApplication(), true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        TextView status = activity.findViewById(R.id.settings_webhook_status);
+        assertEquals("On · last reported: never", status.getText().toString());
+
+        KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        KeepADBRegisterClient.notifyRegisterStateChangedForTesting(activity);
+        ShadowLooper.idleMainLooper();
+        assertEquals("On · last reported: failed", status.getText().toString());
+
+        controller.pause();
+        KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_NEVER);
+        KeepADBRegisterClient.notifyRegisterStateChangedForTesting(activity);
+        ShadowLooper.idleMainLooper();
+        assertEquals("no listener once paused", "On · last reported: failed",
+                status.getText().toString());
+        controller.stop().destroy();
     }
 
     @Test
