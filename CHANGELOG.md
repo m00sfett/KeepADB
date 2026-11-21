@@ -32,6 +32,9 @@ are retrospective issue-version records and were never published as separate rel
 ### Security
 - **Self-pairing: stricter TLS Certificate parser (#1040):** `Tls13Channel.parseCertificate()` used to skip each certificate entry's extension block as opaque bytes, so a block too short for an extension header was accepted. The client offers no extension a server may answer per certificate entry, so every non-empty block is now rejected with `IOException`. No authentication bypass existed: the bytes were part of the signed transcript (audit F-03, 2026-11-21).
 
+### Documentation
+- Store note `changelogs/297.txt` summarizes the user-visible changes since 1.14.1, now including the self-pairing fixes; it replaces the note for 296, which belonged to the unreleased 1.15.15 candidate (published only as `v1.15.15-beta.1`) and is removed.
+
 ### Testing
 - **Negative tests for the self-pairing TLS 1.3 client and the pairing header (#1041):** `ScriptedTls13Server` runs a real TLS 1.3 handshake with the app's own key schedule and record cipher and breaks exactly one thing per test: a duplicate, missing or reordered handshake message, a corrupt CertificateVerify signature, a signature over the client's context string, a scheme that was not offered, a bad Finished MAC, a key share off the curve or in compressed form, a plaintext record after the handshake keys, an encrypted ChangeCipherSpec, and a protected record without content type. A test without fault pins the harness itself. Each test asserts the exact guard that fires. `AdbPairingClientTest` adds wrong version and type, empty, negative, oversized and truncated packets, plus the largest allowed length as the other side of the bound. Every guard was removed once on its own, and each removal turned its test red.
 
