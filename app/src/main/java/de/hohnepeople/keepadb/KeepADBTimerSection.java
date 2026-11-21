@@ -20,7 +20,7 @@ import android.widget.Toast;
  *   <li>No timer, Wifi-ADB on: "Off in 1 h" and the chevron: sets an end, Wifi-ADB stays on.</li>
  *   <li>Timer running: "Off at 14:35 · 42 min left" (or "Timer running · no Wi-Fi · 42 min left",
  *       with the other reasons of {@link #waitingReason}, while Keep-Alive cannot hold; #1012),
- *       "+1 h" below the cap and "No limit".</li>
+ *       "+1 h" below the cap and "Timer off".</li>
  * </ul>
  * Everything is read from the pure timer state, so the row is right at the deadline even before
  * the end has been performed; a tick redraws the time left while the screen is in front.

@@ -809,7 +809,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="timer_status_running">Wyłączenie o %1$s · zostało %2$s</string>
     <string name="timer_status_waiting_reason">Minutnik działa · %1$s · zostało %2$s</string>
     <string name="timer_waiting_reason_switching">włączanie</string>
-    <string name="timer_action_no_limit">Bez limitu</string>
+    <string name="timer_action_no_limit">Wyłącz minutnik</string>
     <string name="timer_started_toast">Wifi-ADB włączone na %1$s</string>
     <string name="settings_timer_default_title">Domyślny czas minutnika</string>
     <string name="timer_remaining_minutes">%1$d min</string>

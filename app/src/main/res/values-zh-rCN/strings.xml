@@ -806,7 +806,7 @@
     <string name="timer_status_running">%1$s 关闭 · 剩余 %2$s</string>
     <string name="timer_status_waiting_reason">定时器运行中 · %1$s · 剩余 %2$s</string>
     <string name="timer_waiting_reason_switching">正在开启</string>
-    <string name="timer_action_no_limit">无限制</string>
+    <string name="timer_action_no_limit">关闭定时器</string>
     <string name="timer_started_toast">Wifi-ADB 已开启 %1$s</string>
     <string name="settings_timer_default_title">定时器默认时长</string>
     <string name="timer_remaining_minutes">%1$d 分钟</string>

@@ -807,7 +807,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="timer_status_running">Kapanış: %1$s · %2$s kaldı</string>
     <string name="timer_status_waiting_reason">Zamanlayıcı çalışıyor · %1$s · %2$s kaldı</string>
     <string name="timer_waiting_reason_switching">açılıyor</string>
-    <string name="timer_action_no_limit">Sınırsız</string>
+    <string name="timer_action_no_limit">Zamanlayıcıyı kapat</string>
     <string name="timer_started_toast">Wifi-ADB %1$s boyunca açık</string>
     <string name="settings_timer_default_title">Varsayılan zamanlayıcı süresi</string>
     <string name="timer_remaining_minutes">%1$d dk</string>

@@ -825,7 +825,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="timer_status_running">Off at %1$s · %2$s left</string>
     <string name="timer_status_waiting_reason">Timer running · %1$s · %2$s left</string>
     <string name="timer_waiting_reason_switching">switching on</string>
-    <string name="timer_action_no_limit">No limit</string>
+    <string name="timer_action_no_limit">Timer off</string>
     <string name="timer_started_toast">Wifi-ADB on for %1$s</string>
     <string name="settings_timer_default_title">Timer default duration</string>
     <string name="timer_remaining_minutes">%1$d min</string>

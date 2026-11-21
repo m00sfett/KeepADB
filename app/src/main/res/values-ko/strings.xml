@@ -806,7 +806,7 @@
     <string name="timer_status_running">%1$s에 꺼짐 · %2$s 남음</string>
     <string name="timer_status_waiting_reason">타이머 실행 중 · %1$s · %2$s 남음</string>
     <string name="timer_waiting_reason_switching">켜는 중</string>
-    <string name="timer_action_no_limit">제한 없음</string>
+    <string name="timer_action_no_limit">타이머 끄기</string>
     <string name="timer_started_toast">Wifi-ADB가 %1$s 동안 켜짐</string>
     <string name="settings_timer_default_title">타이머 기본 시간</string>
     <string name="timer_remaining_minutes">%1$d분</string>

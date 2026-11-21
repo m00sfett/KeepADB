@@ -809,7 +809,7 @@
     <string name="timer_status_running">Вимкнення о %1$s · лишилося %2$s</string>
     <string name="timer_status_waiting_reason">Таймер працює · %1$s · лишилося %2$s</string>
     <string name="timer_waiting_reason_switching">вмикається</string>
-    <string name="timer_action_no_limit">Без обмеження</string>
+    <string name="timer_action_no_limit">Вимкнути таймер</string>
     <string name="timer_started_toast">Wifi-ADB увімкнено на %1$s</string>
     <string name="settings_timer_default_title">Тривалість таймера за замовчуванням</string>
     <string name="timer_remaining_minutes">%1$d хв</string>

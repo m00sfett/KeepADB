@@ -807,7 +807,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="timer_status_running">Aus um %1$s · noch %2$s</string>
     <string name="timer_status_waiting_reason">Timer läuft · %1$s · noch %2$s</string>
     <string name="timer_waiting_reason_switching">wird eingeschaltet</string>
-    <string name="timer_action_no_limit">Ohne Limit</string>
+    <string name="timer_action_no_limit">Timer aus</string>
     <string name="timer_started_toast">Wifi-ADB an für %1$s</string>
     <string name="settings_timer_default_title">Standarddauer des Timers</string>
     <string name="timer_remaining_minutes">%1$d Min.</string>

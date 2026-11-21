@@ -361,8 +361,9 @@ final class KeepADBTimer {
     }
 
     /**
-     * "No limit" on the home screen: the running timer ends, Wifi-ADB stays as it is, and from now
-     * on only the stored Keep-Alive setting decides. Nothing is written to Wifi-ADB.
+     * "Timer off" on the home screen (#1033, formerly "No limit"): the running timer ends,
+     * Wifi-ADB stays as it is, and from now on only the stored Keep-Alive setting decides.
+     * Nothing is written to Wifi-ADB.
      *
      * @return true if a running timer was removed.
      */

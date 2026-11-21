@@ -808,7 +808,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="timer_status_running">Se apaga a las %1$s · quedan %2$s</string>
     <string name="timer_status_waiting_reason">Temporizador activo · %1$s · quedan %2$s</string>
     <string name="timer_waiting_reason_switching">activándose</string>
-    <string name="timer_action_no_limit">Sin límite</string>
+    <string name="timer_action_no_limit">Quitar temporizador</string>
     <string name="timer_started_toast">Wifi-ADB activado durante %1$s</string>
     <string name="settings_timer_default_title">Duración predeterminada del temporizador</string>
     <string name="timer_remaining_minutes">%1$d min</string>

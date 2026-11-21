@@ -806,7 +806,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="timer_status_running">Tắt lúc %1$s · còn %2$s</string>
     <string name="timer_status_waiting_reason">Hẹn giờ đang chạy · %1$s · còn %2$s</string>
     <string name="timer_waiting_reason_switching">đang bật</string>
-    <string name="timer_action_no_limit">Không giới hạn</string>
+    <string name="timer_action_no_limit">Tắt hẹn giờ</string>
     <string name="timer_started_toast">Wifi-ADB bật trong %1$s</string>
     <string name="settings_timer_default_title">Thời lượng hẹn giờ mặc định</string>
     <string name="timer_remaining_minutes">%1$d phút</string>

@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.17] - Unreleased
+
+### Changed
+- **Running timer: "No limit" is now "Timer off" (#1033):** the button next to "+1 h" (`timer_action_no_limit`) is renamed in all 19 languages, in README and in `docs/timed-wifi-adb.md`. Its behavior is unchanged: the timer ends and Wifi-ADB stays on with no end time.
+
 ## [1.15.16] - Unreleased
 
 ### Fixed

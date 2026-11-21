@@ -399,13 +399,16 @@ public class KeepADBTimerSurfacesTest {
         activity.findViewById(R.id.timer_extend).performClick();
         assertEquals(2 * HOUR, KeepADBTimer.status(context).remainingMs);
 
+        // #1033: the button reads "Timer off" and only ends the timer.
+        assertEquals("Timer off",
+                ((TextView) activity.findViewById(R.id.timer_no_limit)).getText().toString());
         shadowOf((Application) context).clearStartedServices();
         activity.findViewById(R.id.timer_no_limit).performClick();
         ShadowLooper.idleMainLooper();
         Intent stopped = shadowOf((Application) context).getNextStoppedService();
         assertNotNull("Codex review: without the overlay the service stops", stopped);
         assertFalse(KeepADBTimer.isActive(context));
-        assertTrue("No limit leaves Wifi-ADB on", gateway.isEnabled(context));
+        assertTrue("Timer off leaves Wifi-ADB on", gateway.isEnabled(context));
         assertEquals("Off in 1 h", start.getText().toString());
     }
 
