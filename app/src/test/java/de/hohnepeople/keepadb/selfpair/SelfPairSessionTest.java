@@ -136,6 +136,23 @@ public class SelfPairSessionTest {
                 }, () -> false));
     }
 
+    /**
+     * Codex review of #1039: once the encrypted PeerInfo went out, the peer can check the code;
+     * a lost answer may hide a rejection, so the next candidate would be a second guess.
+     */
+    @Test
+    public void aFailureAfterTheConfirmationWasSentEndsTheAttempt() {
+        List<Integer> tried = new ArrayList<>();
+        SelfPairSession.Failure failure = SelfPairSession.pairFirst(Arrays.asList(1, 2, 3),
+                port -> {
+                    tried.add(port);
+                    throw new AdbPairingClient.ConfirmationSentException(
+                            new java.io.EOFException("answer lost"));
+                }, () -> false);
+        assertEquals(SelfPairSession.Failure.PAIRING_FAILED, failure);
+        assertEquals(Arrays.asList(1), tried);
+    }
+
     @Test
     public void triesAtMostTheCandidateBudget() {
         List<Integer> candidates = new ArrayList<>();

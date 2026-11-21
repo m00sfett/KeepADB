@@ -60,8 +60,8 @@ final class AdbGrantClient {
     }
 
     /**
-     * As {@link #grant(int, AdbIdentity, String)}; a cancel closes the connection, and once it
-     * has happened the command is never sent (#1038).
+     * As {@link #grant(int, AdbIdentity, String)}; a cancel closes the connection, and a cancel
+     * before the command is started keeps it from ever being sent (#1038).
      */
     String grant(int port, AdbIdentity identity, String packageName, Cancellation cancellation)
             throws IOException, GeneralSecurityException {
@@ -97,10 +97,9 @@ final class AdbGrantClient {
         if (read(in).command != A_CNXN) {
             throw new IOException("adbd did not accept the connection");
         }
-        // Check and write under the cancel's lock: a cancel either comes after the command
-        // went out or keeps it from ever going out.
-        cancellation.runUnlessCancelled(
-                () -> write(out, A_OPEN, LOCAL_ID, 0, nulTerminated("shell:" + command)));
+        // The last point where a cancel keeps the command from going out at all.
+        cancellation.startCommand();
+        write(out, A_OPEN, LOCAL_ID, 0, nulTerminated("shell:" + command));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         int packets = 0;
         Message message = read(in);

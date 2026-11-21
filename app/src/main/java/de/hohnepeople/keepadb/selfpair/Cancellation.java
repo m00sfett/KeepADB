@@ -7,8 +7,11 @@ import java.net.Socket;
  * Cancellation of one self-pairing attempt (#1038). A flag alone is not enough: the pairing and
  * grant clients spend most of their time blocked in a connect or a read, where they never look
  * at it. So {@link #cancel} also closes the socket that is currently in use, and the one step
- * that must not happen after a cancel, sending the grant command, runs under the same lock as
- * the cancel itself.
+ * that must not begin after a cancel, sending the grant command, is decided under the same lock
+ * as the cancel itself.
+ *
+ * <p>The lock is only ever held for a decision, never across I/O, so a cancel from the main
+ * thread returns at once even while a write is stuck (Codex review of #1038).
  */
 final class Cancellation {
     /** Thrown where an operation stops because the attempt was cancelled. */
@@ -18,21 +21,18 @@ final class Cancellation {
         }
     }
 
-    /** An action that must either run completely before a cancel or not at all. */
-    interface Step {
-        void run() throws IOException;
-    }
-
     private boolean cancelled;
+    private boolean commandStarted;
     private Socket active;
 
-    /** Cancels; closes the socket in use, if any. Safe to call more than once. */
+    /** Cancels; closes the socket in use, if any. Safe to call more than once; never blocks. */
     void cancel() {
         Socket socket;
         synchronized (this) {
             cancelled = true;
             socket = active;
             active = null;
+            notifyAll();
         }
         if (socket != null) {
             try {
@@ -62,13 +62,32 @@ final class Cancellation {
     }
 
     /**
-     * Runs {@code step} unless the attempt is cancelled. A cancel waits for a running step, so
-     * either the step completed before the cancel or it never starts.
+     * Marks the grant command as started, unless the attempt is cancelled. Called right before
+     * the command is written: a cancel either comes first, and the command is never written, or
+     * comes after, and the command may have reached the peer (a cancel during the write closes
+     * the socket, which cuts it off at some point).
      */
-    synchronized void runUnlessCancelled(Step step) throws IOException {
+    synchronized void startCommand() throws CancelledException {
         if (cancelled) {
             throw new CancelledException();
         }
-        step.run();
+        commandStarted = true;
+    }
+
+    /** Whether the grant command may have reached the peer. */
+    synchronized boolean commandStarted() {
+        return commandStarted;
+    }
+
+    /** Waits up to {@code millis}; returns early on a cancel. */
+    synchronized void pause(long millis) throws InterruptedException {
+        long deadline = System.nanoTime() + millis * 1_000_000L;
+        while (!cancelled) {
+            long left = (deadline - System.nanoTime()) / 1_000_000L;
+            if (left <= 0) {
+                return;
+            }
+            wait(left);
+        }
     }
 }

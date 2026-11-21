@@ -14,56 +14,46 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /** #1038: what a cancel of a self-pairing attempt guarantees. */
 public class CancellationTest {
     @Test
-    public void aStepNeverRunsAfterTheCancel() throws Exception {
+    public void theCommandCannotStartAfterTheCancel() throws Exception {
         Cancellation cancellation = new Cancellation();
         cancellation.cancel();
-        boolean[] ran = {false};
         try {
-            cancellation.runUnlessCancelled(() -> ran[0] = true);
-            fail("a cancelled attempt must refuse the step");
+            cancellation.startCommand();
+            fail("a cancelled attempt must not start the command");
         } catch (Cancellation.CancelledException expected) {
-            assertFalse(ran[0]);
+            assertFalse(cancellation.commandStarted());
         }
     }
 
-    /** The other half of the race: a cancel cannot slip in while the step is running. */
-    @Test(timeout = 10_000)
-    public void aCancelWaitsForARunningStep() throws Exception {
+    @Test
+    public void aStartedCommandIsRemembered() throws Exception {
         Cancellation cancellation = new Cancellation();
-        CountDownLatch stepStarted = new CountDownLatch(1);
-        CountDownLatch releaseStep = new CountDownLatch(1);
-        CompletableFuture<Void> step = CompletableFuture.runAsync(() -> {
+        cancellation.startCommand();
+        cancellation.cancel();
+        assertTrue(cancellation.commandStarted());
+        assertTrue(cancellation.isCancelled());
+    }
+
+    /** The retry pause ends with the cancel, not after its full length. */
+    @Test(timeout = 10_000)
+    public void aPauseEndsEarlyOnCancel() throws Exception {
+        Cancellation cancellation = new Cancellation();
+        CompletableFuture<Long> paused = CompletableFuture.supplyAsync(() -> {
+            long start = System.nanoTime();
             try {
-                cancellation.runUnlessCancelled(() -> {
-                    stepStarted.countDown();
-                    try {
-                        releaseStep.await();
-                    } catch (InterruptedException e) {
-                        throw new IOException(e);
-                    }
-                });
-            } catch (IOException e) {
+                cancellation.pause(5_000);
+            } catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
+            return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
         }, TestThreads.EXECUTOR);
-        assertTrue(stepStarted.await(5, TimeUnit.SECONDS));
-        CompletableFuture<Void> cancel =
-                CompletableFuture.runAsync(cancellation::cancel, TestThreads.EXECUTOR);
-        try {
-            cancel.get(300, TimeUnit.MILLISECONDS);
-            fail("the cancel overtook a running step");
-        } catch (TimeoutException expected) {
-            // still waiting for the step
-        }
-        releaseStep.countDown();
-        step.get(5, TimeUnit.SECONDS);
-        cancel.get(5, TimeUnit.SECONDS);
-        assertTrue(cancellation.isCancelled());
+        Thread.sleep(100);
+        cancellation.cancel();
+        assertTrue(paused.get(3, TimeUnit.SECONDS) < 3_000);
     }
 
     @Test

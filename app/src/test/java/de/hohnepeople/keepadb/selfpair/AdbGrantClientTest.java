@@ -181,6 +181,97 @@ public class AdbGrantClientTest {
         }
     }
 
+    /**
+     * Codex review of #1038: a cancel from the main thread must not wait for a write that is
+     * stuck, and it must close the connection so the write fails.
+     */
+    @Test(timeout = 30_000)
+    public void aCancelDoesNotWaitForAStuckCommandWrite() throws Exception {
+        Cancellation cancellation = new Cancellation();
+        CountDownLatch writing = new CountDownLatch(1);
+        TlsChannel.Factory stuckOnOpen = (socket, identity) -> new TlsChannel() {
+            @Override
+            public InputStream input() {
+                return passThroughInput(socket);
+            }
+
+            @Override
+            public OutputStream output() {
+                return new OutputStream() {
+                    @Override
+                    public void write(int b) throws IOException {
+                        write(new byte[] {(byte) b}, 0, 1);
+                    }
+
+                    @Override
+                    public void write(byte[] b, int off, int len) throws IOException {
+                        // Stands for a write that blocks until the socket is closed.
+                        writing.countDown();
+                        long until = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+                        while (!socket.isClosed() && System.nanoTime() < until) {
+                            Thread.yield();
+                        }
+                        throw new java.net.SocketException("socket closed");
+                    }
+                };
+            }
+
+            @Override
+            public byte[] exportKeyingMaterial(String label, int length) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void close() {
+            }
+        };
+        try (ServerSocket server = new ServerSocket(0)) {
+            CompletableFuture.runAsync(() -> {
+                try (Socket peer = server.accept()) {
+                    InputStream in = peer.getInputStream();
+                    OutputStream out = peer.getOutputStream();
+                    read(in);
+                    write(out, A_STLS, 0x01000000, 0, new byte[0]);
+                    read(in);
+                    write(out, A_CNXN, 0x01000001, 1 << 20, new byte[0]);
+                    while (in.read() >= 0) {
+                        // until the client hangs up
+                    }
+                } catch (IOException e) {
+                    // the client hung up
+                }
+            }, TestThreads.EXECUTOR);
+            CompletableFuture<String> grant = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new AdbGrantClient(stuckOnOpen)
+                            .grant(server.getLocalPort(), null, "a.b", cancellation);
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }, TestThreads.EXECUTOR);
+            assertTrue(writing.await(10, TimeUnit.SECONDS));
+            long start = System.nanoTime();
+            cancellation.cancel();
+            assertTrue("cancel waited for the stuck write",
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < 1_000);
+            assertTrue(cancellation.commandStarted());
+            try {
+                grant.get(5, TimeUnit.SECONDS);
+                fail("the stuck write must fail once the socket is closed");
+            } catch (ExecutionException expected) {
+                assertTrue(expected.getCause().getCause() instanceof IOException);
+            }
+        }
+    }
+
+    private static InputStream passThroughInput(Socket socket) {
+        try {
+            return socket.getInputStream();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     @Test
     public void deadlineClosesTheSocket() throws Exception {
         try (ServerSocket server = new ServerSocket(0);

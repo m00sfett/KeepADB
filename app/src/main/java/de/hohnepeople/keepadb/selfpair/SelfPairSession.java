@@ -38,8 +38,8 @@ public final class SelfPairSession {
         /** The command ran and printed an error. */
         GRANT_REFUSED,
         /**
-         * Cancelled. A cancel never lets the grant command go out after it, but one that was
-         * already sent may still take effect, so the caller checks the permission as always.
+         * Cancelled before the grant command was started; a cancel after that point ends the
+         * attempt as {@link #GRANT_UNCONFIRMED}. The caller checks the permission as always.
          */
         CANCELLED
     }
@@ -111,8 +111,9 @@ public final class SelfPairSession {
     }
 
     /**
-     * Cancels an ongoing attempt and closes its connection (#1038). A grant command that has
-     * not been sent yet will not be sent; one already sent may still take effect.
+     * Cancels an ongoing attempt and closes its connection (#1038); returns at once. A grant
+     * command that has not been started will not be sent; one already started may still take
+     * effect.
      */
     public void cancel() {
         cancellation.cancel();
@@ -185,10 +186,11 @@ public final class SelfPairSession {
     /**
      * Tries the candidates in order until one pairs (#1039). mDNS may still list a dialog that
      * was closed, and any local app can announce a pairing service of its own, so a candidate
-     * that refuses the connection or fails before the code is confirmed (TLS or protocol
-     * error) only means try the next one; each try is a fresh TLS and SPAKE2 exchange. A wrong
-     * code ends the attempt at once: every further try would be one more online guess against
-     * the dialog. Package-private for tests.
+     * that refuses the connection or fails before the code-derived confirmation is sent (TLS
+     * or protocol error) only means try the next one; each try is a fresh TLS and SPAKE2
+     * exchange. A wrong code ends the attempt at once, and so does any failure after the
+     * encrypted PeerInfo went out: from then on the peer can check the code, so every further
+     * try could be one more online guess against the dialog. Package-private for tests.
      */
     static Failure pairFirst(List<Integer> candidates, PairAttempt attempt,
             BooleanSupplier isCancelled) {
@@ -209,6 +211,11 @@ public final class SelfPairSession {
                 // A closed dialog; keeps an earlier PAIRING_FAILED.
             } catch (AdbPairingClient.WrongCodeException e) {
                 return Failure.WRONG_CODE;
+            } catch (AdbPairingClient.ConfirmationSentException e) {
+                // The peer has what it needs to check the code; a lost answer may hide a
+                // rejection, so another candidate would be another guess (Codex review).
+                Log.w(TAG, "pairing failed after the code was submitted: " + e.getCause());
+                return isCancelled.getAsBoolean() ? Failure.CANCELLED : Failure.PAIRING_FAILED;
             } catch (IOException | GeneralSecurityException e) {
                 Log.w(TAG, "pairing failed on a candidate: " + e);
                 failure = Failure.PAIRING_FAILED;
@@ -233,7 +240,7 @@ public final class SelfPairSession {
         for (int port : candidates) {
             for (int attempt = 1; attempt <= GRANT_ATTEMPTS; attempt++) {
                 if (cancellation.isCancelled()) {
-                    return Failure.CANCELLED;
+                    return cancelledGrant();
                 }
                 try {
                     String output = new AdbGrantClient(Tls13Channel.FACTORY)
@@ -246,7 +253,7 @@ public final class SelfPairSession {
                     return Failure.GRANT_REFUSED;
                 } catch (IOException | GeneralSecurityException e) {
                     if (cancellation.isCancelled()) {
-                        return Failure.CANCELLED;
+                        return cancelledGrant();
                     }
                     if (e instanceof ConnectException) {
                         Log.w(TAG, "grant connect refused on port " + port);
@@ -256,11 +263,16 @@ public final class SelfPairSession {
                     // and it may drop this one after the command already ran.
                     Log.w(TAG, "grant attempt " + attempt + " failed: " + e);
                     failure = Failure.GRANT_UNCONFIRMED;
-                    Thread.sleep(GRANT_RETRY_PAUSE_MS);
+                    cancellation.pause(GRANT_RETRY_PAUSE_MS);
                 }
             }
         }
-        return failure;
+        return cancellation.isCancelled() ? cancelledGrant() : failure;
+    }
+
+    /** A cancel during the grant: once the command may have gone out, its outcome is open. */
+    private Failure cancelledGrant() {
+        return cancellation.commandStarted() ? Failure.GRANT_UNCONFIRMED : Failure.CANCELLED;
     }
 
     private List<Integer> awaitConnectPorts() throws InterruptedException {
