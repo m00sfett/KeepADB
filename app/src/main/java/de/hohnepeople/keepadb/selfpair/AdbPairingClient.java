@@ -24,6 +24,16 @@ final class AdbPairingClient {
         }
     }
 
+    /**
+     * The exchange failed after the encrypted PeerInfo, which proves knowledge of the code, was
+     * (at least partly) sent. The peer may have checked the code; the answer is lost.
+     */
+    static final class ConfirmationSentException extends IOException {
+        ConfirmationSentException(Exception cause) {
+            super("pairing failed after the code-derived confirmation was sent", cause);
+        }
+    }
+
     private static final byte[] CLIENT_NAME = Bytes.concat(Bytes.ascii("adb pair client"),
             new byte[1]);
     private static final byte[] SERVER_NAME = Bytes.concat(Bytes.ascii("adb pair server"),
@@ -48,8 +58,15 @@ final class AdbPairingClient {
 
     void pair(int port, String code, AdbIdentity identity, String name)
             throws IOException, GeneralSecurityException {
+        pair(port, code, identity, name, new Cancellation());
+    }
+
+    /** As {@link #pair(int, String, AdbIdentity, String)}; a cancel closes the connection. */
+    void pair(int port, String code, AdbIdentity identity, String name,
+            Cancellation cancellation) throws IOException, GeneralSecurityException {
         Socket socket = new Socket();
         try {
+            cancellation.attach(socket);
             socket.connect(new InetSocketAddress(InetAddress.getLoopbackAddress(), port),
                     TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
@@ -59,6 +76,7 @@ final class AdbPairingClient {
                 exchange(channel, code, identity.adbPublicKey(name));
             }
         } finally {
+            cancellation.detach(socket);
             socket.close();
         }
     }
@@ -103,23 +121,29 @@ final class AdbPairingClient {
             throw new IllegalArgumentException("public key too long");
         }
         System.arraycopy(adbPublicKey, 0, peerInfo, 1, adbPublicKey.length);
-        writePacket(out, TYPE_PEER_INFO, cipher.encrypt(peerInfo));
-
-        byte[] sealed = readPacket(in, TYPE_PEER_INFO);
-        byte[] theirInfo;
+        byte[] sealedOurs = cipher.encrypt(peerInfo);
         try {
-            theirInfo = cipher.decrypt(sealed);
-        } catch (AEADBadTagException e) {
-            throw new WrongCodeException();
-        }
-        if (theirInfo.length != PEER_INFO_SIZE) {
-            throw new IOException("unexpected peer info size " + theirInfo.length);
-        }
-        // Both directions use the same key and start their counters at zero, so a peer that
-        // knows nothing could send our own packet back and it would decrypt. adbd answers
-        // with its device GUID; our own packet carries a public key.
-        if (theirInfo[0] != PEER_INFO_DEVICE_GUID || Arrays.equals(theirInfo, peerInfo)) {
-            throw new IOException("peer did not answer as a pairing server");
+            writePacket(out, TYPE_PEER_INFO, sealedOurs);
+            byte[] sealed = readPacket(in, TYPE_PEER_INFO);
+            byte[] theirInfo;
+            try {
+                theirInfo = cipher.decrypt(sealed);
+            } catch (AEADBadTagException e) {
+                throw new WrongCodeException();
+            }
+            if (theirInfo.length != PEER_INFO_SIZE) {
+                throw new IOException("unexpected peer info size " + theirInfo.length);
+            }
+            // Both directions use the same key and start their counters at zero, so a peer that
+            // knows nothing could send our own packet back and it would decrypt. adbd answers
+            // with its device GUID; our own packet carries a public key.
+            if (theirInfo[0] != PEER_INFO_DEVICE_GUID || Arrays.equals(theirInfo, peerInfo)) {
+                throw new IOException("peer did not answer as a pairing server");
+            }
+        } catch (WrongCodeException e) {
+            throw e;
+        } catch (IOException | GeneralSecurityException e) {
+            throw new ConfirmationSentException(e);
         }
     }
 

@@ -733,8 +733,8 @@ public final class KeepADBSelfPairService extends Service {
             runner.cancel();
             runner.stop();
         }
-        // Interrupts waits; a running connection ends at its own deadline, and the attempt's
-        // finally block still settles the cleanup and reports back.
+        // Interrupts waits; the cancel above closes a running connection (#1038), and the
+        // attempt's finally block still settles the cleanup and reports back.
         List<Runnable> neverStarted = worker.shutdownNow();
         if (working && !neverStarted.isEmpty()) {
             // The accepted attempt was still queued and will never run: end it here.

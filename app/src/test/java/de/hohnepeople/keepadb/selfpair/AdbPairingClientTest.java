@@ -6,6 +6,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +30,7 @@ public class AdbPairingClientTest {
     private static final byte[] EXPORTED = new byte[64];
     private static final byte[] KEY = Bytes.ascii("QUJD KeepADB\0");
 
-    private enum Mode { HONEST, REFLECT, ANSWER_WITH_PUBLIC_KEY }
+    private enum Mode { HONEST, REFLECT, ANSWER_WITH_PUBLIC_KEY, DROP_AFTER_PEER_INFO }
 
     @Test
     public void pairsWithAnHonestServer() throws Exception {
@@ -52,8 +55,39 @@ public class AdbPairingClientTest {
             fail("a reflected packet must not count as pairing");
         } catch (AdbPairingClient.WrongCodeException e) {
             fail("reflection is not a wrong code");
-        } catch (IOException expected) {
-            assertTrue(expected.getMessage().contains("pairing server"));
+        } catch (AdbPairingClient.ConfirmationSentException expected) {
+            assertEquals("peer did not answer as a pairing server",
+                    expected.getCause().getMessage());
+        }
+    }
+
+    /**
+     * Codex review of #1039: the peer receives our encrypted PeerInfo and hangs up without an
+     * answer. That is not a wrong code, but the peer could have checked the code, so it must be
+     * told apart from failures before that point.
+     */
+    @Test(timeout = 10_000)
+    public void aLostAnswerAfterOurPeerInfoIsReportedAsConfirmationSent() throws Exception {
+        try {
+            run("123456", "654321", Mode.DROP_AFTER_PEER_INFO);
+            fail("a missing answer must fail");
+        } catch (AdbPairingClient.WrongCodeException e) {
+            fail("without an answer nothing proves a wrong code");
+        } catch (AdbPairingClient.ConfirmationSentException expected) {
+            assertTrue(expected.getCause() instanceof EOFException);
+        }
+    }
+
+    /** The other side: a failure before our PeerInfo is an ordinary IOException. */
+    @Test(timeout = 10_000)
+    public void aFailureBeforeOurPeerInfoIsNotConfirmationSent() throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header(1, 0, 32), new byte[5]));
+            fail("a truncated packet must fail");
+        } catch (AdbPairingClient.ConfirmationSentException e) {
+            fail("nothing code-derived beyond SPAKE2 was sent yet");
+        } catch (EOFException expected) {
+            // fine
         }
     }
 
@@ -99,6 +133,107 @@ public class AdbPairingClientTest {
         } catch (Exception expected) {
             assertTrue(expected instanceof IOException);
         }
+    }
+
+    // ------------------------------------------------- pairing header (#1041)
+
+    @Test(timeout = 10_000)
+    public void rejectsAPacketWithTheWrongVersion() throws Exception {
+        assertHeaderRejected(header(2, 0, 32), new byte[32], "version 2, type 0, length 32");
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsAPacketOfTheWrongType() throws Exception {
+        // PeerInfo where the SPAKE2 message belongs.
+        assertHeaderRejected(header(1, 1, 32), new byte[32], "version 1, type 1, length 32");
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsAnEmptyPacket() throws Exception {
+        assertHeaderRejected(header(1, 0, 0), new byte[0], "version 1, type 0, length 0");
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsANegativeLength() throws Exception {
+        assertHeaderRejected(header(1, 0, -1), new byte[32], "version 1, type 0, length -1");
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsALengthAboveTheLimit() throws Exception {
+        assertHeaderRejected(header(1, 0, 2 * 8192 + 1), new byte[0],
+                "version 1, type 0, length 16385");
+    }
+
+    /** The other side of the bound: the largest allowed length passes the header check. */
+    @Test(timeout = 10_000)
+    public void acceptsTheLargestAllowedLengthInTheHeader() throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header(1, 0, 2 * 8192), new byte[2 * 8192]));
+            fail("16 KiB of zeros are no SPAKE2 message");
+        } catch (IOException e) {
+            assertEquals("peer sent an invalid SPAKE2 message", e.getMessage());
+        }
+    }
+
+    @Test(timeout = 10_000)
+    public void failsOnATruncatedPacket() throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header(1, 0, 32), new byte[5]));
+            fail("a truncated packet must fail");
+        } catch (EOFException expected) {
+            // the peer hung up mid-packet
+        }
+    }
+
+    @Test(timeout = 10_000)
+    public void failsOnATruncatedHeader() throws Exception {
+        try {
+            exchangeAgainst(new byte[] {1, 0, 0});
+            fail("a truncated header must fail");
+        } catch (EOFException expected) {
+            // the peer hung up mid-header
+        }
+    }
+
+    private static void assertHeaderRejected(byte[] header, byte[] payload, String parsed)
+            throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header, payload));
+            fail("the header must be rejected");
+        } catch (IOException e) {
+            assertEquals("unexpected pairing packet: " + parsed, e.getMessage());
+        }
+    }
+
+    private static byte[] header(int version, int type, int length) {
+        return ByteBuffer.allocate(6).put((byte) version).put((byte) type).putInt(length)
+                .array();
+    }
+
+    /** Runs the exchange against a peer whose whole answer is {@code reply}. */
+    private static void exchangeAgainst(byte[] reply) throws Exception {
+        InputStream in = new ByteArrayInputStream(reply);
+        OutputStream out = new ByteArrayOutputStream();
+        AdbPairingClient.exchange(new TlsChannel() {
+            @Override
+            public InputStream input() {
+                return in;
+            }
+
+            @Override
+            public OutputStream output() {
+                return out;
+            }
+
+            @Override
+            public byte[] exportKeyingMaterial(String label, int length) {
+                return EXPORTED.clone();
+            }
+
+            @Override
+            public void close() {
+            }
+        }, "123456", KEY);
     }
 
     /** Runs the client against a server thread; returns the key text the server received. */
@@ -183,6 +318,9 @@ public class AdbPairingClientTest {
         PairingCipher cipher = new PairingCipher(sha.digest());
 
         byte[] sealed = readPacket(in, 1);
+        if (mode == Mode.DROP_AFTER_PEER_INFO) {
+            return "dropped";
+        }
         if (mode == Mode.REFLECT) {
             writePacket(out, 1, sealed);
             return "reflected";
