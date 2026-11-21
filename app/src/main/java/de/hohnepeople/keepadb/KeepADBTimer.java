@@ -101,7 +101,9 @@ final class KeepADBTimer {
         HOUR_1("1h", HOUR_MS),
         HOURS_2("2h", 2L * HOUR_MS),
         HOURS_4("4h", 4L * HOUR_MS),
-        HOURS_8("8h", 8L * HOUR_MS);
+        HOURS_8("8h", 8L * HOUR_MS),
+        /** #1032: starts at {@link #MAX_REMAINING_MS}, so "+1 h" stays hidden. */
+        HOURS_24("24h", 24L * HOUR_MS);
 
         static final Duration DEFAULT = HOUR_1;
 

@@ -799,17 +799,15 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="timer_expired_text">Der Timer ist abgelaufen, Wifi-ADB ist aus. Schalte es wieder ein, wenn du es brauchst.</string>
     <string name="timer_expired_text_while_off">Der Timer ist abgelaufen, während das Handy aus war. Wifi-ADB bleibt aus.</string>
     <string name="timer_expired_text_safety">Der Timer wurde vorzeitig beendet, weil der Uhr des Handys nicht zu trauen war. Wifi-ADB ist aus.</string>
-    <string name="timer_start_default">An für %1$s</string>
-    <string name="timer_limit_default">Aus in %1$s</string>
-    <string name="timer_choose_duration">Dauer wählen</string>
     <string name="timer_dialog_title_start">Wifi-ADB einschalten für</string>
     <string name="timer_dialog_title_limit">Wifi-ADB ausschalten in</string>
     <string name="timer_status_running">Aus um %1$s · noch %2$s</string>
     <string name="timer_status_waiting_reason">Timer läuft · %1$s · noch %2$s</string>
     <string name="timer_waiting_reason_switching">wird eingeschaltet</string>
     <string name="timer_action_no_limit">Timer aus</string>
+    <string name="timer_action_open">Timer</string>
     <string name="timer_started_toast">Wifi-ADB an für %1$s</string>
-    <string name="settings_timer_default_title">Standarddauer des Timers</string>
+    <string name="settings_timer_default_title">Dauer der Timer-Verknüpfung</string>
     <string name="timer_remaining_minutes">%1$d Min.</string>
     <string name="timer_remaining_hours_minutes">%1$d Std. %2$d Min.</string>
     <string name="timer_duration_15m">15 Min.</string>
@@ -818,6 +816,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="timer_duration_2h">2 Std.</string>
     <string name="timer_duration_4h">4 Std.</string>
     <string name="timer_duration_8h">8 Std.</string>
+    <string name="timer_duration_24h">24 Std.</string>
     <string name="shortcut_timer_short">Timer</string>
     <string name="shortcut_timer_long">Wifi-ADB mit Timer</string>
 </resources>

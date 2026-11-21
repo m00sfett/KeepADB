@@ -504,7 +504,8 @@
                     android:layout_marginBottom="16dp"
                     android:background="@color/border_red" />
 
-                <!-- #1000: the preselected Wifi-ADB timer duration; a tap opens the choice. -->
+                <!-- #1000: the duration of the launcher shortcut "Wifi-ADB with timer" (#1032: the home row
+                     always asks); a tap opens the choice. -->
                 <LinearLayout
                     android:id="@+id/settings_timer_default_row"
                     android:layout_width="match_parent"

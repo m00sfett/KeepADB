@@ -798,17 +798,15 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="timer_expired_text">Timer telah berakhir dan Wifi-ADB nonaktif. Aktifkan lagi saat Anda membutuhkannya.</string>
     <string name="timer_expired_text_while_off">Timer berakhir saat ponsel mati. Wifi-ADB tetap nonaktif.</string>
     <string name="timer_expired_text_safety">Timer berakhir lebih awal karena jam ponsel tidak dapat dipercaya. Wifi-ADB nonaktif.</string>
-    <string name="timer_start_default">Aktif selama %1$s</string>
-    <string name="timer_limit_default">Mati dalam %1$s</string>
-    <string name="timer_choose_duration">Pilih durasi</string>
     <string name="timer_dialog_title_start">Aktifkan Wifi-ADB selama</string>
     <string name="timer_dialog_title_limit">Matikan Wifi-ADB dalam</string>
     <string name="timer_status_running">Mati pukul %1$s · sisa %2$s</string>
     <string name="timer_status_waiting_reason">Timer berjalan · %1$s · sisa %2$s</string>
     <string name="timer_waiting_reason_switching">sedang dinyalakan</string>
     <string name="timer_action_no_limit">Timer mati</string>
+    <string name="timer_action_open">Timer</string>
     <string name="timer_started_toast">Wifi-ADB aktif selama %1$s</string>
-    <string name="settings_timer_default_title">Durasi default timer</string>
+    <string name="settings_timer_default_title">Durasi pintasan timer</string>
     <string name="timer_remaining_minutes">%1$d mnt</string>
     <string name="timer_remaining_hours_minutes">%1$d jam %2$d mnt</string>
     <string name="timer_duration_15m">15 mnt</string>
@@ -817,6 +815,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="timer_duration_2h">2 jam</string>
     <string name="timer_duration_4h">4 jam</string>
     <string name="timer_duration_8h">8 jam</string>
+    <string name="timer_duration_24h">24 jam</string>
     <string name="shortcut_timer_short">Timer</string>
     <string name="shortcut_timer_long">Wifi-ADB dengan timer</string>
 </resources>

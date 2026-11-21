@@ -26,6 +26,7 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.15.17] - Unreleased
 
 ### Changed
+- **Timer: one "Timer" button, and 24 h (#1032):** the home card's timer row had "On for 1 h" / "Off in 1 h" (a one-tap start with the default duration) and a chevron for the list. Both are replaced by one "Timer" button (`timer_action_open`, with the timer icon and a chevron) that always opens the duration list; the one-tap start is gone. The list gains **24 h** (`KeepADBTimer.Duration.HOURS_24`, `timer_duration_24h` in all languages), which starts at the 24 h cap, so "+1 h" stays hidden. The Settings picker, the launcher shortcut and the settings backup accept 24 h too. The setting "Timer default duration" stays, renamed "Timer shortcut duration": it is what the launcher shortcut "Wifi-ADB with timer" starts. Removed strings: `timer_start_default`, `timer_limit_default`, `timer_choose_duration`. README, `docs/timed-wifi-adb.md`, `docs/defaults.md` and the F-Droid description are updated.
 - **Running timer: "No limit" is now "Timer off" (#1033):** the button next to "+1 h" (`timer_action_no_limit`) is renamed in all 19 languages, in README and in `docs/timed-wifi-adb.md`. Its behavior is unchanged: the timer ends and Wifi-ADB stays on with no end time.
 
 ## [1.15.16] - Unreleased

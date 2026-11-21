@@ -800,17 +800,15 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="timer_expired_text">El temporizador ha terminado y Wifi-ADB está desactivado. Actívalo de nuevo cuando lo necesites.</string>
     <string name="timer_expired_text_while_off">El temporizador terminó mientras el teléfono estaba apagado. Wifi-ADB sigue desactivado.</string>
     <string name="timer_expired_text_safety">El temporizador terminó antes porque el reloj del teléfono no era fiable. Wifi-ADB está desactivado.</string>
-    <string name="timer_start_default">Activar durante %1$s</string>
-    <string name="timer_limit_default">Apagar en %1$s</string>
-    <string name="timer_choose_duration">Elegir duración</string>
     <string name="timer_dialog_title_start">Activar Wifi-ADB durante</string>
     <string name="timer_dialog_title_limit">Desactivar Wifi-ADB en</string>
     <string name="timer_status_running">Se apaga a las %1$s · quedan %2$s</string>
     <string name="timer_status_waiting_reason">Temporizador activo · %1$s · quedan %2$s</string>
     <string name="timer_waiting_reason_switching">activándose</string>
     <string name="timer_action_no_limit">Quitar temporizador</string>
+    <string name="timer_action_open">Temporizador</string>
     <string name="timer_started_toast">Wifi-ADB activado durante %1$s</string>
-    <string name="settings_timer_default_title">Duración predeterminada del temporizador</string>
+    <string name="settings_timer_default_title">Duración del acceso directo del temporizador</string>
     <string name="timer_remaining_minutes">%1$d min</string>
     <string name="timer_remaining_hours_minutes">%1$d h %2$d min</string>
     <string name="timer_duration_15m">15 min</string>
@@ -819,6 +817,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="timer_duration_2h">2 h</string>
     <string name="timer_duration_4h">4 h</string>
     <string name="timer_duration_8h">8 h</string>
+    <string name="timer_duration_24h">24 h</string>
     <string name="shortcut_timer_short">Temporizador</string>
     <string name="shortcut_timer_long">Wifi-ADB con temporizador</string>
 </resources>

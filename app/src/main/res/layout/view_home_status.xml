@@ -72,9 +72,10 @@
         tools:text="Decide…"
         tools:visibility="visible" />
 
-    <!-- #1000: the Wifi-ADB timer, below the action so a reason and its button stay together. Off: "On for 1 h" plus a chevron for other durations. On without
-         a timer: "Off in 1 h". Running: the end and the time left (in the live region's sibling,
-         announced politely on change), then "+1 h" and "Timer off". KeepADBTimerSection renders it. -->
+    <!-- #1000: the Wifi-ADB timer, below the action so a reason and its button stay together.
+         No timer: one "Timer" button that opens the duration list (#1032). Running: the end and
+         the time left (in the live region's sibling, announced politely on change), then "+1 h"
+         and "Timer off". KeepADBTimerSection renders it. -->
     <LinearLayout
         android:id="@+id/timer_panel"
         android:layout_width="match_parent"
@@ -118,16 +119,8 @@
                 android:paddingEnd="4dp"
                 android:textAllCaps="false"
                 android:textColor="@color/text_yellow"
-                android:textSize="15sp"
-                tools:text="On for 1 h" />
-
-            <ImageButton
-                android:id="@+id/timer_pick"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/timer_choose_duration"
-                android:src="@drawable/ic_expand_more" />
+                android:text="@string/timer_action_open"
+                android:textSize="15sp" />
 
             <Button
                 android:id="@+id/timer_extend"

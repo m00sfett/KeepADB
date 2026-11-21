@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,9 +14,8 @@ import android.widget.Toast;
  * #1000: the timer row of the home screen's Wifi-ADB card (view_home_status.xml).
  *
  * <ul>
- *   <li>No timer, Wifi-ADB off: "On for 1 h" (the default duration) and a chevron for the
- *       others.</li>
- *   <li>No timer, Wifi-ADB on: "Off in 1 h" and the chevron: sets an end, Wifi-ADB stays on.</li>
+ *   <li>No timer: one "Timer" button that opens the duration list (#1032). With Wifi-ADB off
+ *       the choice switches it on for that long; with Wifi-ADB on it only sets an end.</li>
  *   <li>Timer running: "Off at 14:35 · 42 min left" (or "Timer running · no Wi-Fi · 42 min left",
  *       with the other reasons of {@link #waitingReason}, while Keep-Alive cannot hold; #1012),
  *       "+1 h" below the cap and "Timer off".</li>
@@ -33,7 +31,6 @@ final class KeepADBTimerSection {
     private final View panel;
     private final TextView status;
     private final Button start;
-    private final ImageButton pick;
     private final Button extend;
     private final Button noLimit;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -53,11 +50,9 @@ final class KeepADBTimerSection {
         this.panel = activity.findViewById(R.id.timer_panel);
         this.status = activity.findViewById(R.id.timer_status);
         this.start = activity.findViewById(R.id.timer_start);
-        this.pick = activity.findViewById(R.id.timer_pick);
         this.extend = activity.findViewById(R.id.timer_extend);
         this.noLimit = activity.findViewById(R.id.timer_no_limit);
-        start.setOnClickListener(v -> startTimer(KeepADBPreferences.getTimerDefaultDuration(activity)));
-        pick.setOnClickListener(v -> showChoice());
+        start.setOnClickListener(v -> showChoice());
         extend.setOnClickListener(v -> {
             KeepADBTimer.extend(activity, KeepADB.SOURCE_APP);
             onChanged.run();
@@ -125,7 +120,6 @@ final class KeepADBTimerSection {
             if (!TextUtils.equals(status.getText(), text)) status.setText(text);
             status.setVisibility(View.VISIBLE);
             start.setVisibility(View.GONE);
-            pick.setVisibility(View.GONE);
             extend.setVisibility(timer.canExtend() ? View.VISIBLE : View.GONE);
             noLimit.setVisibility(View.VISIBLE);
             return;
@@ -133,14 +127,10 @@ final class KeepADBTimerSection {
         status.setVisibility(View.GONE);
         extend.setVisibility(View.GONE);
         noLimit.setVisibility(View.GONE);
-        String duration = KeepADBTimerText.duration(activity,
-                KeepADBPreferences.getTimerDefaultDuration(activity));
-        String label = activity.getString(on ? R.string.timer_limit_default : R.string.timer_start_default,
-                duration);
-        if (!TextUtils.equals(start.getText(), label)) start.setText(label);
-        start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_timer, 0, 0, 0);
+        // The chevron says that a list follows; the dialog title says what the choice does.
+        start.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_timer, 0,
+                R.drawable.ic_expand_more, 0);
         start.setVisibility(View.VISIBLE);
-        pick.setVisibility(View.VISIBLE);
     }
 
     private void showChoice() {

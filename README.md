@@ -85,7 +85,7 @@ background and guides you through all three options in the setup assistant while
 - **Widget:** toggle the state from the home screen.
 - **Quick Settings:** add the KeepADB tile to the active tiles and toggle from the Quick Settings
   panel.
-- **Wifi-ADB timer:** "On for 1 h" below the home switch (or the chevron for 15 min to 8 h, or the
+- **Wifi-ADB timer:** the "Timer" button below the home switch (15 min to 24 h, or the
   "Wifi-ADB with timer" launcher shortcut) turns Wifi-ADB on and off again when the time is up.
   While it runs, the notification counts down and offers "Off now" and "+1 h"; on the home screen
   "+1 h" and "Timer off". The timer keeps Wifi-ADB alive like Keep-Alive within the network rules,

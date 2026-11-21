@@ -799,17 +799,15 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="timer_expired_text">Zamanlayıcı bitti ve Wifi-ADB kapalı. İhtiyacınız olduğunda yeniden açın.</string>
     <string name="timer_expired_text_while_off">Zamanlayıcı, telefon kapalıyken bitti. Wifi-ADB kapalı kalıyor.</string>
     <string name="timer_expired_text_safety">Telefonun saatine güvenilemediği için zamanlayıcı erken bitti. Wifi-ADB kapalı.</string>
-    <string name="timer_start_default">%1$s boyunca aç</string>
-    <string name="timer_limit_default">%1$s sonra kapat</string>
-    <string name="timer_choose_duration">Süre seçin</string>
     <string name="timer_dialog_title_start">Wifi-ADB\'yi şu süreyle aç</string>
     <string name="timer_dialog_title_limit">Wifi-ADB\'yi şu süre sonra kapat</string>
     <string name="timer_status_running">Kapanış: %1$s · %2$s kaldı</string>
     <string name="timer_status_waiting_reason">Zamanlayıcı çalışıyor · %1$s · %2$s kaldı</string>
     <string name="timer_waiting_reason_switching">açılıyor</string>
     <string name="timer_action_no_limit">Zamanlayıcıyı kapat</string>
+    <string name="timer_action_open">Zamanlayıcı</string>
     <string name="timer_started_toast">Wifi-ADB %1$s boyunca açık</string>
-    <string name="settings_timer_default_title">Varsayılan zamanlayıcı süresi</string>
+    <string name="settings_timer_default_title">Zamanlayıcı kısayolu süresi</string>
     <string name="timer_remaining_minutes">%1$d dk</string>
     <string name="timer_remaining_hours_minutes">%1$d sa %2$d dk</string>
     <string name="timer_duration_15m">15 dk</string>
@@ -818,6 +816,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="timer_duration_2h">2 sa</string>
     <string name="timer_duration_4h">4 sa</string>
     <string name="timer_duration_8h">8 sa</string>
+    <string name="timer_duration_24h">24 sa</string>
     <string name="shortcut_timer_short">Zamanlayıcı</string>
     <string name="shortcut_timer_long">Zamanlayıcılı Wifi-ADB</string>
 </resources>

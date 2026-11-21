@@ -801,17 +801,15 @@
     <string name="timer_expired_text">Таймер истёк, Wifi-ADB выключен. Включите его снова, когда понадобится.</string>
     <string name="timer_expired_text_while_off">Таймер истёк, пока телефон был выключен. Wifi-ADB остаётся выключенным.</string>
     <string name="timer_expired_text_safety">Таймер остановлен досрочно: часам телефона нельзя было доверять. Wifi-ADB выключен.</string>
-    <string name="timer_start_default">Включить на %1$s</string>
-    <string name="timer_limit_default">Выключить через %1$s</string>
-    <string name="timer_choose_duration">Выбрать длительность</string>
     <string name="timer_dialog_title_start">Включить Wifi-ADB на</string>
     <string name="timer_dialog_title_limit">Выключить Wifi-ADB через</string>
     <string name="timer_status_running">Выключение в %1$s · осталось %2$s</string>
     <string name="timer_status_waiting_reason">Таймер идёт · %1$s · осталось %2$s</string>
     <string name="timer_waiting_reason_switching">включается</string>
     <string name="timer_action_no_limit">Выключить таймер</string>
+    <string name="timer_action_open">Таймер</string>
     <string name="timer_started_toast">Wifi-ADB включён на %1$s</string>
-    <string name="settings_timer_default_title">Длительность таймера по умолчанию</string>
+    <string name="settings_timer_default_title">Длительность ярлыка таймера</string>
     <string name="timer_remaining_minutes">%1$d мин</string>
     <string name="timer_remaining_hours_minutes">%1$d ч %2$d мин</string>
     <string name="timer_duration_15m">15 мин</string>
@@ -820,6 +818,7 @@
     <string name="timer_duration_2h">2 ч</string>
     <string name="timer_duration_4h">4 ч</string>
     <string name="timer_duration_8h">8 ч</string>
+    <string name="timer_duration_24h">24 ч</string>
     <string name="shortcut_timer_short">Таймер</string>
     <string name="shortcut_timer_long">Wifi-ADB с таймером</string>
 </resources>
