@@ -228,6 +228,103 @@ public class Tls13ChannelTest {
         }
     }
 
+    /** The harness itself: without a fault the handshake completes (#1041). */
+    @Test(timeout = 20_000)
+    public void theScriptedServerCompletesAHandshakeWithoutFault() throws Exception {
+        try (ScriptedTls13Server peer =
+                        new ScriptedTls13Server(server, ScriptedTls13Server.Fault.NONE);
+                Socket socket = peer.connect();
+                TlsChannel channel = Tls13Channel.FACTORY.handshake(socket, client)) {
+            assertEquals(server.certificate, ((Tls13Channel) channel).peerCertificate());
+        }
+    }
+
+    /** #1041. Handshake order: a duplicate ServerHello where EncryptedExtensions belongs. */
+    @Test(timeout = 20_000)
+    public void aSecondServerHelloIsRejected() throws Exception {
+        assertEquals("unexpected handshake message 2, wanted 8", failureOf(ScriptedTls13Server.Fault.SECOND_SERVER_HELLO));
+    }
+
+    /** #1041. Handshake order: CertificateVerify without a Certificate before it. */
+    @Test(timeout = 20_000)
+    public void aMissingCertificateIsRejected() throws Exception {
+        assertEquals("unexpected handshake message 15, wanted 11", failureOf(ScriptedTls13Server.Fault.OMIT_CERTIFICATE));
+    }
+
+    /** #1041. Handshake order: Finished overtakes CertificateVerify. */
+    @Test(timeout = 20_000)
+    public void finishedBeforeCertificateVerifyIsRejected() throws Exception {
+        assertEquals("unexpected handshake message 20, wanted 15", failureOf(ScriptedTls13Server.Fault.FINISHED_BEFORE_CERTIFICATE_VERIFY));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aCorruptCertificateVerifySignatureIsRejected() throws Exception {
+        assertEquals("server CertificateVerify does not verify", failureOf(ScriptedTls13Server.Fault.CORRUPT_SIGNATURE));
+    }
+
+    /** #1041. The signature is valid, but over the client's context string. */
+    @Test(timeout = 20_000)
+    public void aSignatureOverTheClientContextIsRejected() throws Exception {
+        assertEquals("server CertificateVerify does not verify", failureOf(ScriptedTls13Server.Fault.WRONG_SIGNATURE_CONTEXT));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aSignatureSchemeThatWasNotOfferedIsRejected() throws Exception {
+        assertEquals("server used a signature scheme that was not offered", failureOf(ScriptedTls13Server.Fault.UNOFFERED_SIGNATURE_SCHEME));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aBadServerFinishedMacIsRejected() throws Exception {
+        assertEquals("server Finished does not verify", failureOf(ScriptedTls13Server.Fault.CORRUPT_FINISHED));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aKeyShareOffTheCurveIsRejected() throws Exception {
+        assertEquals("key share is not a point on the curve", failureOf(ScriptedTls13Server.Fault.KEY_SHARE_OFF_CURVE));
+    }
+
+    /** #1041. Wrong format byte and wrong length. */
+    @Test(timeout = 20_000)
+    public void aCompressedKeyShareIsRejected() throws Exception {
+        assertEquals("malformed key share", failureOf(ScriptedTls13Server.Fault.KEY_SHARE_COMPRESSED));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aPlaintextRecordAfterTheHandshakeKeysIsRejected() throws Exception {
+        assertEquals("unprotected TLS record after the handshake keys", failureOf(ScriptedTls13Server.Fault.PLAINTEXT_AFTER_KEYS));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void anEncryptedChangeCipherSpecIsRejected() throws Exception {
+        assertEquals("unexpected TLS record type 20", failureOf(ScriptedTls13Server.Fault.ENCRYPTED_CHANGE_CIPHER_SPEC));
+    }
+
+    /** #1041. */
+    @Test(timeout = 20_000)
+    public void aProtectedRecordWithoutContentTypeIsRejected() throws Exception {
+        assertEquals("TLS record without content type", failureOf(ScriptedTls13Server.Fault.NO_INNER_CONTENT_TYPE));
+    }
+
+    /** The message of the IOException the handshake fails with; the exact guard matters. */
+    private static String failureOf(ScriptedTls13Server.Fault fault) throws Exception {
+        try (ScriptedTls13Server peer = new ScriptedTls13Server(server, fault);
+                Socket socket = peer.connect()) {
+            try {
+                Tls13Channel.FACTORY.handshake(socket, client).close();
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        }
+        fail("the handshake must fail with " + fault);
+        return null;
+    }
+
     /** #1040: the parser accepts an entry only with an empty extension block. */
     @Test
     public void acceptsACertificateEntryWithoutExtensions() throws Exception {

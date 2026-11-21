@@ -6,6 +6,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,6 +102,105 @@ public class AdbPairingClientTest {
         } catch (Exception expected) {
             assertTrue(expected instanceof IOException);
         }
+    }
+
+    // ------------------------------------------------- pairing header (#1041)
+
+    @Test(timeout = 10_000)
+    public void rejectsAPacketWithTheWrongVersion() throws Exception {
+        assertHeaderRejected(header(2, 0, 32), new byte[32]);
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsAPacketOfTheWrongType() throws Exception {
+        // PeerInfo where the SPAKE2 message belongs.
+        assertHeaderRejected(header(1, 1, 32), new byte[32]);
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsAnEmptyPacket() throws Exception {
+        assertHeaderRejected(header(1, 0, 0), new byte[0]);
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsANegativeLength() throws Exception {
+        assertHeaderRejected(header(1, 0, -1), new byte[32]);
+    }
+
+    @Test(timeout = 10_000)
+    public void rejectsALengthAboveTheLimit() throws Exception {
+        assertHeaderRejected(header(1, 0, 2 * 8192 + 1), new byte[0]);
+    }
+
+    /** The other side of the bound: the largest allowed length passes the header check. */
+    @Test(timeout = 10_000)
+    public void acceptsTheLargestAllowedLengthInTheHeader() throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header(1, 0, 2 * 8192), new byte[2 * 8192]));
+            fail("16 KiB of zeros are no SPAKE2 message");
+        } catch (IOException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("invalid SPAKE2 message"));
+        }
+    }
+
+    @Test(timeout = 10_000)
+    public void failsOnATruncatedPacket() throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header(1, 0, 32), new byte[5]));
+            fail("a truncated packet must fail");
+        } catch (EOFException expected) {
+            // the peer hung up mid-packet
+        }
+    }
+
+    @Test(timeout = 10_000)
+    public void failsOnATruncatedHeader() throws Exception {
+        try {
+            exchangeAgainst(new byte[] {1, 0, 0});
+            fail("a truncated header must fail");
+        } catch (EOFException expected) {
+            // the peer hung up mid-header
+        }
+    }
+
+    private static void assertHeaderRejected(byte[] header, byte[] payload) throws Exception {
+        try {
+            exchangeAgainst(Bytes.concat(header, payload));
+            fail("the header must be rejected");
+        } catch (IOException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("unexpected pairing packet"));
+        }
+    }
+
+    private static byte[] header(int version, int type, int length) {
+        return ByteBuffer.allocate(6).put((byte) version).put((byte) type).putInt(length)
+                .array();
+    }
+
+    /** Runs the exchange against a peer whose whole answer is {@code reply}. */
+    private static void exchangeAgainst(byte[] reply) throws Exception {
+        InputStream in = new ByteArrayInputStream(reply);
+        OutputStream out = new ByteArrayOutputStream();
+        AdbPairingClient.exchange(new TlsChannel() {
+            @Override
+            public InputStream input() {
+                return in;
+            }
+
+            @Override
+            public OutputStream output() {
+                return out;
+            }
+
+            @Override
+            public byte[] exportKeyingMaterial(String label, int length) {
+                return EXPORTED.clone();
+            }
+
+            @Override
+            public void close() {
+            }
+        }, "123456", KEY);
     }
 
     /** Runs the client against a server thread; returns the key text the server received. */
