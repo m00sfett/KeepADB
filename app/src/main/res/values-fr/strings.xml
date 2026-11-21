@@ -800,17 +800,15 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="timer_expired_text">Le minuteur est terminé et Wifi-ADB est désactivé. Réactivez-le quand vous en avez besoin.</string>
     <string name="timer_expired_text_while_off">Le minuteur s\'est terminé pendant que le téléphone était éteint. Wifi-ADB reste désactivé.</string>
     <string name="timer_expired_text_safety">Le minuteur s\'est arrêté plus tôt car l\'horloge du téléphone n\'était pas fiable. Wifi-ADB est désactivé.</string>
-    <string name="timer_start_default">Activer pour %1$s</string>
-    <string name="timer_limit_default">Arrêt dans %1$s</string>
-    <string name="timer_choose_duration">Choisir la durée</string>
     <string name="timer_dialog_title_start">Activer Wifi-ADB pendant</string>
     <string name="timer_dialog_title_limit">Désactiver Wifi-ADB dans</string>
     <string name="timer_status_running">Arrêt à %1$s · encore %2$s</string>
     <string name="timer_status_waiting_reason">Minuteur actif · %1$s · encore %2$s</string>
     <string name="timer_waiting_reason_switching">activation en cours</string>
-    <string name="timer_action_no_limit">Sans limite</string>
+    <string name="timer_action_no_limit">Arrêter le minuteur</string>
+    <string name="timer_action_open">Minuteur</string>
     <string name="timer_started_toast">Wifi-ADB activé pour %1$s</string>
-    <string name="settings_timer_default_title">Durée par défaut du minuteur</string>
+    <string name="settings_timer_default_title">Durée du raccourci minuteur</string>
     <string name="timer_remaining_minutes">%1$d min</string>
     <string name="timer_remaining_hours_minutes">%1$d h %2$d min</string>
     <string name="timer_duration_15m">15 min</string>
@@ -819,6 +817,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="timer_duration_2h">2 h</string>
     <string name="timer_duration_4h">4 h</string>
     <string name="timer_duration_8h">8 h</string>
+    <string name="timer_duration_24h">24 h</string>
     <string name="shortcut_timer_short">Minuteur</string>
     <string name="shortcut_timer_long">Wifi-ADB avec minuteur</string>
 </resources>

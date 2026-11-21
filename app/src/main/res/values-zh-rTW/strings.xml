@@ -798,17 +798,15 @@
     <string name="timer_expired_text">計時器已結束，Wifi-ADB 已關閉。需要時請重新開啟。</string>
     <string name="timer_expired_text_while_off">計時器在手機關機期間結束。Wifi-ADB 保持關閉。</string>
     <string name="timer_expired_text_safety">由於手機時鐘不可信，計時器提前結束。Wifi-ADB 已關閉。</string>
-    <string name="timer_start_default">開啟 %1$s</string>
-    <string name="timer_limit_default">%1$s後關閉</string>
-    <string name="timer_choose_duration">選擇時長</string>
     <string name="timer_dialog_title_start">Wifi-ADB 開啟時長</string>
     <string name="timer_dialog_title_limit">Wifi-ADB 關閉倒數</string>
     <string name="timer_status_running">%1$s 關閉 · 剩餘 %2$s</string>
     <string name="timer_status_waiting_reason">計時器執行中 · %1$s · 剩餘 %2$s</string>
     <string name="timer_waiting_reason_switching">正在開啟</string>
-    <string name="timer_action_no_limit">無限制</string>
+    <string name="timer_action_no_limit">關閉計時器</string>
+    <string name="timer_action_open">計時器</string>
     <string name="timer_started_toast">Wifi-ADB 已開啟 %1$s</string>
-    <string name="settings_timer_default_title">計時器預設時長</string>
+    <string name="settings_timer_default_title">計時器捷徑時長</string>
     <string name="timer_remaining_minutes">%1$d 分鐘</string>
     <string name="timer_remaining_hours_minutes">%1$d 小時 %2$d 分鐘</string>
     <string name="timer_duration_15m">15 分鐘</string>
@@ -817,6 +815,7 @@
     <string name="timer_duration_2h">2 小時</string>
     <string name="timer_duration_4h">4 小時</string>
     <string name="timer_duration_8h">8 小時</string>
+    <string name="timer_duration_24h">24 小時</string>
     <string name="shortcut_timer_short">計時器</string>
     <string name="shortcut_timer_long">附計時器的 Wifi-ADB</string>
 </resources>

@@ -798,17 +798,15 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="timer_expired_text">Hẹn giờ đã kết thúc và Wifi-ADB đã tắt. Hãy bật lại khi bạn cần.</string>
     <string name="timer_expired_text_while_off">Hẹn giờ đã kết thúc khi điện thoại tắt. Wifi-ADB vẫn tắt.</string>
     <string name="timer_expired_text_safety">Hẹn giờ kết thúc sớm vì không thể tin cậy đồng hồ của điện thoại. Wifi-ADB đã tắt.</string>
-    <string name="timer_start_default">Bật trong %1$s</string>
-    <string name="timer_limit_default">Tắt sau %1$s</string>
-    <string name="timer_choose_duration">Chọn thời lượng</string>
     <string name="timer_dialog_title_start">Bật Wifi-ADB trong</string>
     <string name="timer_dialog_title_limit">Tắt Wifi-ADB sau</string>
     <string name="timer_status_running">Tắt lúc %1$s · còn %2$s</string>
     <string name="timer_status_waiting_reason">Hẹn giờ đang chạy · %1$s · còn %2$s</string>
     <string name="timer_waiting_reason_switching">đang bật</string>
-    <string name="timer_action_no_limit">Không giới hạn</string>
+    <string name="timer_action_no_limit">Tắt hẹn giờ</string>
+    <string name="timer_action_open">Hẹn giờ</string>
     <string name="timer_started_toast">Wifi-ADB bật trong %1$s</string>
-    <string name="settings_timer_default_title">Thời lượng hẹn giờ mặc định</string>
+    <string name="settings_timer_default_title">Thời lượng lối tắt hẹn giờ</string>
     <string name="timer_remaining_minutes">%1$d phút</string>
     <string name="timer_remaining_hours_minutes">%1$d giờ %2$d phút</string>
     <string name="timer_duration_15m">15 phút</string>
@@ -817,6 +815,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="timer_duration_2h">2 giờ</string>
     <string name="timer_duration_4h">4 giờ</string>
     <string name="timer_duration_8h">8 giờ</string>
+    <string name="timer_duration_24h">24 giờ</string>
     <string name="shortcut_timer_short">Hẹn giờ</string>
     <string name="shortcut_timer_long">Wifi-ADB có hẹn giờ</string>
 </resources>

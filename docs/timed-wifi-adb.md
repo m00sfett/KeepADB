@@ -7,15 +7,16 @@ occasional "I need ADB for this one tool" case without leaving Wifi-ADB on for g
 
 | Where | What |
 |---|---|
-| Home screen, below the Wifi-ADB switch | "On for 1 h" starts the default duration; the chevron offers 15 min, 30 min, 1 h, 2 h, 4 h and 8 h. While Wifi-ADB is already on without a timer, the row reads "Off in 1 h" and sets an end. |
-| Launcher shortcut "Wifi-ADB with timer" | Starts the default duration; a toast names it. On a device locked behind a secure lock it waits for the unlock, like the toggle shortcut. |
-| Settings → Other → "Timer default duration" | The duration preselected above (default 1 h). It is part of the settings backup; a running timer is not. |
+| Home screen, below the Wifi-ADB switch | "Timer" opens the list: 15 min, 30 min, 1 h, 2 h, 4 h, 8 h and 24 h. With Wifi-ADB off the choice switches it on for that long; while Wifi-ADB is already on without a timer, it only sets an end. |
+| Launcher shortcut "Wifi-ADB with timer" | Starts the duration set in Settings; a toast names it. On a device locked behind a secure lock it waits for the unlock, like the toggle shortcut. |
+| Settings → Other → "Timer shortcut duration" | The duration of the launcher shortcut (default 1 h; #1032). It is part of the settings backup; a running timer is not. |
 | Notification while the timer runs | Countdown to the end, "Off now" and "+1 h". |
-| Home screen while the timer runs | "Off at 14:35 · 42 min left", "+1 h" and "No limit". |
+| Home screen while the timer runs | "Off at 14:35 · 42 min left", "+1 h" and "Timer off". |
 
 - **"+1 h"** adds one hour to the time that is left, per tap. No timer ever has more than 24 hours
-  left; at the cap the button disappears. On the notification it needs an unlocked device.
-- **"No limit"** removes the timer and leaves Wifi-ADB as it is; from then on only the Keep-Alive
+  left, so the button is offered only while a whole hour still fits (up to 23 hours left); a
+  24 h timer starts without it. On the notification it needs an unlocked device.
+- **"Timer off"** removes the timer and leaves Wifi-ADB as it is; from then on only the Keep-Alive
   setting decides.
 - **A manual on or off** on any surface (app, tile, widget, notification, shortcut, an automation
   request, #998) ends a running timer. Not ending it: "Allow" on the trust prompt (it answers a question about the network, the

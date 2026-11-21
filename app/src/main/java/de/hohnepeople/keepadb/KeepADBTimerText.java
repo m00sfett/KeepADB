@@ -18,6 +18,8 @@ final class KeepADBTimerText {
                 return context.getString(R.string.timer_duration_4h);
             case HOURS_8:
                 return context.getString(R.string.timer_duration_8h);
+            case HOURS_24:
+                return context.getString(R.string.timer_duration_24h);
             case HOUR_1:
             default:
                 return context.getString(R.string.timer_duration_1h);

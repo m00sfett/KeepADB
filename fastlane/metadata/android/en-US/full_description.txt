@@ -4,7 +4,7 @@ Toggle Wifi-ADB from the main screen, a Quick Settings tile, or a home-screen wi
 
 Features:
 * Quick Settings tile, main app controls, and launcher shortcuts (Toggle Wifi-ADB, Wifi-ADB with timer, Wi-Fi networks, Settings)
-* Wifi-ADB timer: on for 15 min to 8 h, then off again; countdown, “Off now” and “+1 h” in the notification
+* Wifi-ADB timer: on for 15 min to 24 h, then off again; countdown, “Off now” and “+1 h” in the notification
 * Tap the endpoint to copy the adb connect command; “Connect a computer…” and the setup assistant explain how to pair a new computer
 * Two home-screen widgets: KeepADB controls grows with its size; KeepADB overview shows the endpoint, Wi-Fi, Keep-Alive and webhook delivery at a glance
 * Optional Keep-Alive service across restarts and network changes

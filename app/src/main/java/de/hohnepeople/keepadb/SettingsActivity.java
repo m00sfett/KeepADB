@@ -559,7 +559,10 @@ public class SettingsActivity extends Activity {
                 KeepADBTimerText.duration(this, KeepADBPreferences.getTimerDefaultDuration(this)));
     }
 
-    /** #1000: the same durations as on the home screen; here the choice becomes the default. */
+    /**
+     * #1000: the same durations as on the home screen; the choice is what the launcher shortcut
+     * starts (#1032: the home row always asks).
+     */
     private void showTimerDefaultChoice() {
         KeepADBTimer.Duration current = KeepADBPreferences.getTimerDefaultDuration(this);
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)

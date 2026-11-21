@@ -92,8 +92,10 @@ ALLOWLIST = {
     "timer_duration_2h": {"es", "fr", "it", "pt"},                # "2 h"
     "timer_duration_4h": {"es", "fr", "it", "pt"},                # "4 h"
     "timer_duration_8h": {"es", "fr", "it", "pt"},                # "8 h"
+    "timer_duration_24h": {"es", "fr", "it", "pt"},               # "24 h" (#1032)
     # "Timer" is the native word in German, Indonesian, Italian and Dutch.
     "shortcut_timer_short": {"de", "in", "it", "nl"},
+    "timer_action_open": {"de", "in", "it", "nl"},  # #1032: the home row's "Timer" button
     # Product terms (#965): "Wifi-ADB" names KeepADB's own switch and "Keep-Alive" the automatic
     # re-enabling, spelled exactly the same in every language (maintainer decision 2026-11-15).
     # Android's own "Wireless debugging" setting keeps its localized Android name and is not one

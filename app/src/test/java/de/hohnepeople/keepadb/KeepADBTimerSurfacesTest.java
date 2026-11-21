@@ -34,6 +34,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlarmManager;
+import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowToast;
 
@@ -117,6 +118,24 @@ public class KeepADBTimerSurfacesTest {
                 shadowOf(card.actions[1].actionIntent).getSavedIntent().getAction());
         assertTrue(card.actions[1].isAuthenticationRequired());
         assertNull(posted(context, KeepADBNotification.TIMER_NOTIFICATION_ID));
+    }
+
+    /**
+     * #1032 Codex review: a minute into a 24 h timer neither the card nor the home row offers
+     * "+1 h" (only a part of the hour would fit).
+     */
+    @Test
+    public void aMinuteIntoATwentyFourHourTimerNoSurfaceOffersAnExtension() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_24, "test");
+        clock.advance(MINUTE);
+
+        Notification card = card();
+        assertEquals(1, card.actions.length);
+        assertEquals("Off now", card.actions[0].title.toString());
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.timer_no_limit).getVisibility());
+        assertEquals(View.GONE, activity.findViewById(R.id.timer_extend).getVisibility());
     }
 
     @Test
@@ -382,9 +401,21 @@ public class KeepADBTimerSurfacesTest {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         Button start = activity.findViewById(R.id.timer_start);
         assertEquals(View.VISIBLE, activity.findViewById(R.id.timer_panel).getVisibility());
-        assertEquals("On for 1 h", start.getText().toString());
+        // #1032: one "Timer" button; it opens the list instead of starting a default.
+        assertEquals("Timer", start.getText().toString());
 
         start.performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse("A tap alone starts nothing", KeepADBTimer.isActive(context));
+        android.app.AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull(dialog);
+        ShadowAlertDialog choice = shadowOf(dialog);
+        assertEquals("Turn on Wifi-ADB for", choice.getTitle().toString());
+        java.util.List<String> items = new java.util.ArrayList<>();
+        for (CharSequence item : choice.getItems()) items.add(item.toString());
+        assertEquals(java.util.Arrays.asList("15 min", "30 min", "1 h", "2 h", "4 h", "8 h", "24 h"),
+                items);
+        choice.clickOnItem(2);
         ShadowLooper.idleMainLooper();
 
         assertTrue(KeepADBTimer.isActive(context));
@@ -399,14 +430,18 @@ public class KeepADBTimerSurfacesTest {
         activity.findViewById(R.id.timer_extend).performClick();
         assertEquals(2 * HOUR, KeepADBTimer.status(context).remainingMs);
 
+        // #1033: the button reads "Timer off" and only ends the timer.
+        assertEquals("Timer off",
+                ((TextView) activity.findViewById(R.id.timer_no_limit)).getText().toString());
         shadowOf((Application) context).clearStartedServices();
         activity.findViewById(R.id.timer_no_limit).performClick();
         ShadowLooper.idleMainLooper();
         Intent stopped = shadowOf((Application) context).getNextStoppedService();
         assertNotNull("Codex review: without the overlay the service stops", stopped);
         assertFalse(KeepADBTimer.isActive(context));
-        assertTrue("No limit leaves Wifi-ADB on", gateway.isEnabled(context));
-        assertEquals("Off in 1 h", start.getText().toString());
+        assertTrue("Timer off leaves Wifi-ADB on", gateway.isEnabled(context));
+        assertEquals("Timer", start.getText().toString());
+        assertEquals(View.VISIBLE, start.getVisibility());
     }
 
     @Test

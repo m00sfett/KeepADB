@@ -204,6 +204,62 @@ public class KeepADBTimerTest {
         assertEquals(KeepADBTimer.MAX_REMAINING_MS, KeepADBTimer.status(context).remainingMs);
     }
 
+    /** #1032: 24 h is the seventh duration and starts right at the cap. */
+    @Test
+    public void twentyFourHoursStartsAtTheCapWithoutExtension() {
+        assertEquals("24h", KeepADBTimer.Duration.HOURS_24.token);
+        assertEquals(24 * HOUR, KeepADBTimer.Duration.HOURS_24.millis);
+        assertEquals(KeepADBTimer.MAX_REMAINING_MS, KeepADBTimer.Duration.HOURS_24.millis);
+        assertEquals(KeepADBTimer.Duration.HOURS_24, KeepADBTimer.Duration.fromToken("24h"));
+        assertEquals(7, KeepADBTimer.Duration.values().length);
+        assertEquals(KeepADBTimer.Duration.HOURS_24,
+                KeepADBTimer.Duration.values()[KeepADBTimer.Duration.values().length - 1]);
+
+        KeepADB.ToggleResult result = KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_24, "test");
+
+        assertTrue(result.isSuccess());
+        assertTrue(gateway.isEnabled(context));
+        KeepADBTimer.Status status = KeepADBTimer.status(context);
+        assertEquals(KeepADBTimer.MAX_REMAINING_MS, status.remainingMs);
+        assertFalse("A 24 h timer is already at the cap", status.canExtend());
+        clock.advance(24 * HOUR - MINUTE);
+        assertTrue(KeepADBTimer.isActive(context));
+        clock.advance(2 * MINUTE);
+        KeepADBTimer.finishIfExpired(context);
+        assertFalse("It ends like every other duration", KeepADBTimer.isActive(context));
+    }
+
+    /**
+     * #1032 Codex review: with the clock running, a fresh 24 h timer must not offer "+1 h" a
+     * moment later, and a tap must not add the few seconds that passed.
+     */
+    @Test
+    public void aRunningTwentyFourHourTimerDoesNotOfferAPartialExtension() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_24, "test");
+        clock.advance(MINUTE);
+
+        KeepADBTimer.Status status = KeepADBTimer.status(context);
+        assertEquals(24 * HOUR - MINUTE, status.remainingMs);
+        assertFalse(status.canExtend());
+        assertFalse(KeepADBTimer.extend(context, "test"));
+        assertEquals(24 * HOUR - MINUTE, KeepADBTimer.status(context).remainingMs);
+
+        // The other side of the boundary: from 23 h left a whole hour fits again.
+        clock.advance(HOUR - MINUTE);
+        assertTrue(KeepADBTimer.status(context).canExtend());
+        assertTrue(KeepADBTimer.extend(context, "test"));
+        assertEquals(KeepADBTimer.MAX_REMAINING_MS, KeepADBTimer.status(context).remainingMs);
+    }
+
+    @Test
+    public void extendableNeedsRoomForAWholeHour() {
+        assertTrue(KeepADBTimer.extendable(23 * HOUR));
+        assertFalse(KeepADBTimer.extendable(23 * HOUR + 1));
+        assertFalse(KeepADBTimer.extendable(KeepADBTimer.MAX_REMAINING_MS));
+        assertFalse(KeepADBTimer.extendable(0));
+        assertTrue(KeepADBTimer.extendable(1));
+    }
+
     @Test
     public void extendBelowTheCapStillOffersMore() {
         KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_8, "test");

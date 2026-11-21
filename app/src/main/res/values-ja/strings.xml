@@ -798,17 +798,15 @@
     <string name="timer_expired_text">タイマーが終了し、Wifi-ADB はオフになりました。必要なときに再びオンにしてください。</string>
     <string name="timer_expired_text_while_off">電話の電源が切れている間にタイマーが終了しました。Wifi-ADB はオフのままです。</string>
     <string name="timer_expired_text_safety">電話の時計が信頼できなかったため、タイマーは早めに終了しました。Wifi-ADB はオフです。</string>
-    <string name="timer_start_default">%1$sオン</string>
-    <string name="timer_limit_default">%1$s後にオフ</string>
-    <string name="timer_choose_duration">時間を選択</string>
     <string name="timer_dialog_title_start">Wifi-ADB をオンにする時間</string>
     <string name="timer_dialog_title_limit">Wifi-ADB をオフにするまでの時間</string>
     <string name="timer_status_running">%1$sにオフ · 残り%2$s</string>
     <string name="timer_status_waiting_reason">タイマー実行中 · %1$s · 残り%2$s</string>
     <string name="timer_waiting_reason_switching">オンにしています</string>
-    <string name="timer_action_no_limit">制限なし</string>
+    <string name="timer_action_no_limit">タイマーオフ</string>
+    <string name="timer_action_open">タイマー</string>
     <string name="timer_started_toast">Wifi-ADB を%1$sオンにしました</string>
-    <string name="settings_timer_default_title">タイマーの既定の時間</string>
+    <string name="settings_timer_default_title">タイマーショートカットの時間</string>
     <string name="timer_remaining_minutes">%1$d分</string>
     <string name="timer_remaining_hours_minutes">%1$d時間%2$d分</string>
     <string name="timer_duration_15m">15分</string>
@@ -817,6 +815,7 @@
     <string name="timer_duration_2h">2時間</string>
     <string name="timer_duration_4h">4時間</string>
     <string name="timer_duration_8h">8時間</string>
+    <string name="timer_duration_24h">24時間</string>
     <string name="shortcut_timer_short">タイマー</string>
     <string name="shortcut_timer_long">タイマー付き Wifi-ADB</string>
 </resources>
