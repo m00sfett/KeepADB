@@ -196,7 +196,13 @@ public class SettingsActivity extends Activity {
         backupController = new KeepADBSettingsBackupController(this, this::refresh,
                 () -> webhookForm.reloadFromPreferences());
 
-        webhookForm = new KeepADBWebhookForm(this, this::refresh);
+        // #1034: one switch, in the section header; a refused enable opens the card so the
+        // error and the URL field are visible.
+        webhookForm = new KeepADBWebhookForm(this, this::refresh,
+                findViewById(R.id.settings_webhook_header_toggle),
+                () -> setCardExpanded(this, findViewById(R.id.settings_webhook_header),
+                        findViewById(R.id.settings_webhook_body),
+                        findViewById(R.id.settings_webhook_arrow), true));
         automationSection = new KeepADBAutomationSection(this, this::openWebLink); // #998
         webhookForm.restoreDraft(savedInstanceState);
         findViewById(R.id.settings_webhook_history).setOnClickListener(
@@ -505,6 +511,8 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();
+        ((TextView) findViewById(R.id.settings_webhook_status))
+                .setText(KeepADBWebhookStatusText.headerStatus(this));
         automationSection.refresh();
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);

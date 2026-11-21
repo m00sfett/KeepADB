@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Sincronizzazione Webhook ed endpoint</string>
     <string name="settings_webhook_toggle">Abilita sincronizzazione Webhook</string>
+    <string name="settings_webhook_header_status_on">Attivo · ultimo aggiornamento: %1$s</string>
     <string name="settings_webhook_subtext">Invia l\'endpoint attivo tramite HTTP POST quando abilitato e tenta di inviare DELETE alla disattivazione (ritentato in seguito in caso di errore).</string>
     <string name="settings_webhook_url_hint">http://host:porta/register/device</string>
     <string name="settings_webhook_url_label">URL del Webhook</string>

@@ -276,6 +276,30 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- #1034: the state and its switch stay visible while the card is collapsed (design
+                 review in #1034): a one-line status, then the Keep-Alive style switch row. Only
+                 the title row above expands the card, so a tap meant to expand cannot flip the
+                 switch. KeepADBWebhookForm drives this switch; the form's own row is hidden here. -->
+            <TextView
+                android:id="@+id/settings_webhook_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="28dp"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+
+            <Switch
+                android:id="@+id/settings_webhook_header_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:minHeight="48dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_webhook_toggle"
+                android:textColor="@color/text_yellow"
+                android:textSize="17sp" />
+
             <LinearLayout
                 android:id="@+id/settings_webhook_body"
                 android:layout_width="match_parent"

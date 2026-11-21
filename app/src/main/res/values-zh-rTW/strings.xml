@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook 與端點同步</string>
     <string name="settings_webhook_toggle">啟用 Webhook 同步</string>
+    <string name="settings_webhook_header_status_on">已開啟 · 最後回報時間: %1$s</string>
     <string name="settings_webhook_subtext">啟用後透過 HTTP POST 傳送作用中的 Wifi-ADB 端點，關閉時嘗試傳送 DELETE（失敗時稍後重試）。</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook 網址</string>

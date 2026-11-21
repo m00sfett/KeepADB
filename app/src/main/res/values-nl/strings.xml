@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook- &amp; eindpuntsynchronisatie</string>
     <string name="settings_webhook_toggle">Webhook-synchronisatie inschakelen</string>
+    <string name="settings_webhook_header_status_on">Aan · laatst gemeld: %1$s</string>
     <string name="settings_webhook_subtext">Verzendt het actieve eindpunt via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>
     <string name="settings_webhook_url_hint">http://host:poort/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>

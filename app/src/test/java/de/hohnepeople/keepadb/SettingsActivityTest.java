@@ -424,7 +424,7 @@ public class SettingsActivityTest {
 
         EditText input = activity.findViewById(R.id.settings_webhook_url);
         Button saveButton = activity.findViewById(R.id.settings_webhook_save);
-        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_header_toggle);
         assertNotNull(input);
         assertNotNull(saveButton);
         assertNotNull(toggle);
@@ -597,6 +597,75 @@ public class SettingsActivityTest {
         controller.pause().stop().destroy();
     }
 
+    /** #1034: one switch, in the header, with the state above it, visible while collapsed. */
+    @Test
+    public void theWebhookSwitchAndStatusSitInTheCollapsedHeader() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        Switch header = activity.findViewById(R.id.settings_webhook_header_toggle);
+        TextView status = activity.findViewById(R.id.settings_webhook_status);
+
+        assertEquals(View.GONE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
+        assertTrue("the switch is usable without expanding", header.isShown());
+        assertFalse(header.isChecked());
+        assertEquals(View.GONE, activity.findViewById(R.id.settings_webhook_toggle).getVisibility());
+        assertEquals(activity.getString(R.string.webhook_status_unconfigured),
+                status.getText().toString());
+
+        controller.pause().stop().destroy();
+
+        // A saved URL, sync off: the form loads the URL on start.
+        KeepADBPreferences.setRegisterWebhookUrl(activity, "https://100.111.111.21:50829/register/s20");
+        controller = Robolectric.buildActivity(SettingsActivity.class).setup();
+        activity = controller.get();
+        header = activity.findViewById(R.id.settings_webhook_header_toggle);
+        status = activity.findViewById(R.id.settings_webhook_status);
+        assertEquals(activity.getString(R.string.webhook_status_disabled),
+                status.getText().toString());
+
+        header.performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertTrue(header.isChecked());
+        assertEquals("On · last reported: never", status.getText().toString());
+        assertEquals("Switching does not open the card",
+                View.GONE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
+
+        header.performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals("Only the enabled state changes",
+                "https://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        controller.pause().stop().destroy();
+    }
+
+    /**
+     * #1034 design review: an enable without a valid URL is refused; the collapsed card opens so
+     * the message and the field are visible.
+     */
+    @Test
+    public void aRefusedEnableOpensTheCardAndShowsTheError() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        Switch header = activity.findViewById(R.id.settings_webhook_header_toggle);
+
+        header.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertFalse(header.isChecked());
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        assertTrue(error.isShown());
+        assertEquals(activity.getString(R.string.settings_webhook_error_missing_url),
+                error.getText().toString());
+        assertTrue(activity.findViewById(R.id.settings_webhook_url).hasFocus());
+        controller.pause().stop().destroy();
+    }
+
     @Test
     public void expandingTheWebhookCardKeepsItsControlsFullyFunctional() {
         ActivityController<SettingsActivity> controller =
@@ -606,10 +675,10 @@ public class SettingsActivityTest {
         activity.findViewById(R.id.settings_webhook_header).performClick();
         assertTrue("Expanded card contents must actually be shown, not merely VISIBLE while a "
                         + "collapsed ancestor still clips them",
-                activity.findViewById(R.id.settings_webhook_toggle).isShown());
+                activity.findViewById(R.id.settings_webhook_url).isShown());
 
         EditText input = activity.findViewById(R.id.settings_webhook_url);
-        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_header_toggle);
         input.setText("https://100.111.111.21:50829/register/s20");
         toggle.performClick();
         ShadowLooper.idleMainLooper();

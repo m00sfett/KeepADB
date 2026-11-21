@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">مزامنة Webhook ونقطة النهاية</string>
     <string name="settings_webhook_toggle">تفعيل مزامنة Webhook</string>
+    <string name="settings_webhook_header_status_on">مفعّل · آخر إبلاغ: %1$s</string>
     <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">رابط Webhook</string>

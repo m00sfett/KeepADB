@@ -39,6 +39,8 @@ final class KeepADBWebhookForm {
     private final Runnable onChange;
 
     private final Switch toggle;
+    /** #1034: opens the collapsed Settings card when an enable is refused; null elsewhere. */
+    private final Runnable onRefused;
     private final EditText urlInput;
     /** #904: stands in for {@link #urlInput} while the app privacy switch masks the URL. */
     private final TextView urlMasked;
@@ -78,14 +80,36 @@ final class KeepADBWebhookForm {
     }
 
     /**
+     * The Settings form (#1034): the enable switch sits in the section header ({@code
+     * headerToggle}) and the form's own switch row is hidden, so there is one switch. A refused
+     * enable runs {@code onRefused} before the error is shown, so the collapsed card can open.
+     *
+     * @param onChange invoked after every action that used to end its click listener in refresh().
+     */
+    KeepADBWebhookForm(Activity activity, Runnable onChange, Switch headerToggle,
+            Runnable onRefused) {
+        this(activity, activity.getWindow().getDecorView(), onChange, headerToggle, onRefused);
+    }
+
+    /**
      * The form inside {@code root}: the Settings and the setup assistant (#768) both inflate
      * {@code view_webhook_form} and get the same validated save, enable and clear paths.
      */
     KeepADBWebhookForm(Activity activity, View root, Runnable onChange) {
+        this(activity, root, onChange, null, null);
+    }
+
+    private KeepADBWebhookForm(Activity activity, View root, Runnable onChange,
+            Switch headerToggle, Runnable onRefused) {
         this.activity = activity;
         this.onChange = onChange;
+        this.onRefused = onRefused;
 
         Switch toggle = root.findViewById(R.id.settings_webhook_toggle);
+        if (headerToggle != null) {
+            toggle.setVisibility(View.GONE);
+            toggle = headerToggle;
+        }
         EditText urlInput = root.findViewById(R.id.settings_webhook_url);
         TextView error = root.findViewById(R.id.settings_webhook_error);
         TextView cleartextWarning = root.findViewById(R.id.settings_webhook_cleartext_warning);
@@ -283,6 +307,7 @@ final class KeepADBWebhookForm {
             String inputUrl = readAndNormalizeInput();
             if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
                 toggle.setChecked(false);
+                if (onRefused != null) onRefused.run();
                 error.setText(R.string.settings_webhook_error_missing_url);
                 error.setVisibility(View.VISIBLE);
                 urlInput.requestFocus();

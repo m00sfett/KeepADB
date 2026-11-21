@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">웹훅 및 엔드포인트 동기화</string>
     <string name="settings_webhook_toggle">웹훅 동기화 활성화</string>
+    <string name="settings_webhook_header_status_on">켜짐 · 마지막 보고: %1$s</string>
     <string name="settings_webhook_subtext">활성화 시 활성 엔드포인트를 HTTP POST로 전송하고, 비활성화 시 DELETE 전송을 시도합니다(실패하면 나중에 재시도).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">웹훅 URL</string>

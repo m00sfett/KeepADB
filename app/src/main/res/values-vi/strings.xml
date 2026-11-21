@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Đồng bộ hóa Webhook &amp; Điểm cuối</string>
     <string name="settings_webhook_toggle">Bật đồng bộ hóa Webhook</string>
+    <string name="settings_webhook_header_status_on">Bật · báo cáo gần nhất: %1$s</string>
     <string name="settings_webhook_subtext">Gửi điểm cuối đang hoạt động qua HTTP POST khi bật và cố gắng gửi DELETE khi tắt (thử lại sau nếu thất bại).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL Webhook</string>

@@ -694,6 +694,8 @@ public class KeepADBResourceContractTest {
         result.put("force_ended_toast", new Object[] {stringWitness});
         result.put("force_notification_until", new Object[] {stringWitness});
         // #1000: the Wifi-ADB timer
+        // #1034: the Settings webhook header line
+        result.put("settings_webhook_header_status_on", new Object[] {stringWitness});
         result.put("timer_notification_title_on", new Object[] {stringWitness});
         result.put("timer_notification_subtext", new Object[] {stringWitness});
         result.put("timer_notification_companion_title", new Object[] {stringWitness});

@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Uç Nokta Senkronizasyonu</string>
     <string name="settings_webhook_toggle">Webhook Senkronizasyonunu Etkinleştir</string>
+    <string name="settings_webhook_header_status_on">Açık · son bildirim: %1$s</string>
     <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL’si</string>

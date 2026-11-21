@@ -106,6 +106,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Endpoint Sync</string>
     <string name="settings_webhook_toggle">Enable Webhook Sync</string>
+    <string name="settings_webhook_header_status_on">On · last reported: %1$s</string>
     <string name="settings_webhook_subtext">Sends the active Wifi-ADB endpoint via HTTP POST when enabled, and attempts a DELETE on shutoff (retried later if it fails).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL</string>

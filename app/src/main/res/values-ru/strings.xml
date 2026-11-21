@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Синхронизация Webhook и конечной точки</string>
     <string name="settings_webhook_toggle">Включить синхронизацию Webhook</string>
+    <string name="settings_webhook_header_status_on">Включено · последнее сообщение: %1$s</string>
     <string name="settings_webhook_subtext">Отправляет активную конечную точку через HTTP POST при включении и пытается отправить DELETE при выключении (повторяется позже в случае сбоя).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL-адрес Webhook</string>

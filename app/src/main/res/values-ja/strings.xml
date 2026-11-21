@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; エンドポイント同期</string>
     <string name="settings_webhook_toggle">Webhook 同期を有効にする</string>
+    <string name="settings_webhook_header_status_on">オン · 最終報告: %1$s</string>
     <string name="settings_webhook_subtext">有効時はアクティブなエンドポイントを HTTP POST で送信し、停止時は DELETE の送信を試みます（失敗した場合は後で再試行）。</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL</string>

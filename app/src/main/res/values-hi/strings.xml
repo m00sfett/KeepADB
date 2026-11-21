@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">वेबहुक और एंडपॉइंट सिंक</string>
     <string name="settings_webhook_toggle">वेबहुक सिंक सक्षम करें</string>
+    <string name="settings_webhook_header_status_on">चालू · अंतिम रिपोर्ट: %1$s</string>
     <string name="settings_webhook_subtext">सक्षम होने पर सक्रिय एंडपॉइंट HTTP POST के माध्यम से भेजता है, और बंद होने पर DELETE भेजने का प्रयास करता है (विफल होने पर बाद में पुनः प्रयास किया जाता है)।</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">वेबहुक URL</string>
