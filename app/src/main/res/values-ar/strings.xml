@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">مزامنة Webhook ونقطة النهاية</string>
     <string name="settings_webhook_toggle">تفعيل مزامنة Webhook</string>
+    <string name="settings_webhook_header_status_on">مفعّل · آخر إبلاغ: %1$s</string>
     <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">رابط Webhook</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">تم تفعيل مزامنة Webhook</string>
     <string name="settings_webhook_disabled_toast">تم تعطيل مزامنة Webhook</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nآخر نقطة نهاية تم الإبلاغ عنها: %2$s\nآخر إبلاغ: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">آخر نقطة نهاية تم الإبلاغ عنها: %1$s</string>
+    <string name="webhook_status_last">آخر إبلاغ: %1$s</string>
+    <string name="webhook_copy_url_action">نسخ عنوان URL للـ Webhook</string>
+    <string name="webhook_copy_endpoint_action">نسخ آخر نقطة نهاية تم الإبلاغ عنها</string>
+    <string name="webhook_copy_done">تم النسخ</string>
     <string name="webhook_status_never">أبدًا</string>
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
     <string name="webhook_status_deregistered">تم إلغاء التسجيل</string>
@@ -678,10 +684,10 @@
     <string name="settings_webhook_periodic_subtext">يعيد إرسال نقطة نهاية Wifi-ADB النشطة وفق جدول زمني ما دام Keep-Alive ومزامنة Webhook قيد التشغيل. مفيد للوجهات التي تنتهي صلاحية رسائلها بعد بضع ساعات.</string>
     <string name="settings_webhook_periodic_interval_15m">كل 15 دقيقة</string>
     <string name="settings_webhook_periodic_interval_30m">كل 30 دقيقة</string>
-    <string name="settings_webhook_periodic_interval_1h">كل 59 دقيقة</string>
-    <string name="settings_webhook_periodic_interval_4h">كل 3 ساعات و59 دقيقة (افتراضي)</string>
-    <string name="settings_webhook_periodic_interval_12h">كل 11 ساعة و59 دقيقة</string>
-    <string name="settings_webhook_periodic_interval_24h">كل 23 ساعة و59 دقيقة</string>
+    <string name="settings_webhook_periodic_interval_1h">كل ساعة</string>
+    <string name="settings_webhook_periodic_interval_4h">كل 4 ساعات (افتراضي)</string>
+    <string name="settings_webhook_periodic_interval_12h">كل 12 ساعة</string>
+    <string name="settings_webhook_periodic_interval_24h">كل 24 ساعة</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">يمكن لـ KeepADB منح نفسه هذا الإذن مباشرةً على هذا الهاتف: يقترن مرة واحدة مع Wifi-ADB الخاص بهذا الهاتف. لا حاجة إلى حاسوب.</string>
     <string name="selfpair_start_button">المنح على هذا الهاتف</string>

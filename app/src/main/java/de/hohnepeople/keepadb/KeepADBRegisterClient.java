@@ -56,6 +56,21 @@ final class KeepADBRegisterClient {
         registerStateListener = null;
     }
 
+    /**
+     * #1036 review: clears only {@code listener}, so a screen that pauses after another one took
+     * over the slot (Settings over the home screen) does not remove the newer listener.
+     */
+    static synchronized void clearRegisterStateListener(RegisterStateListener listener) {
+        if (registerStateListener == listener) {
+            registerStateListener = null;
+        }
+    }
+
+    /** Test hook: what a settled report does to the listener and the notification. */
+    static void notifyRegisterStateChangedForTesting(Context context) {
+        notifyRegisterStateListener(context);
+    }
+
     private static void notifyRegisterStateListener(Context context) {
         RegisterStateListener listener = registerStateListener;
         if (listener != null) {

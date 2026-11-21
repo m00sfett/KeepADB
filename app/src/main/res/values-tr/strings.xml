@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Uç Nokta Senkronizasyonu</string>
     <string name="settings_webhook_toggle">Webhook Senkronizasyonunu Etkinleştir</string>
+    <string name="settings_webhook_header_status_on">Açık · son bildirim: %1$s</string>
     <string name="settings_webhook_subtext">Etkinleştirildiğinde aktif uç noktayı HTTP POST ile gönderir ve kapatıldığında DELETE göndermeyi dener (başarısız olursa daha sonra yeniden dener).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook URL’si</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook senkronizasyonu etkinleştirildi</string>
     <string name="settings_webhook_disabled_toast">Webhook senkronizasyonu devre dışı bırakıldı</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nSon bildirilen uç nokta: %2$s\nSon bildirim: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Son bildirilen uç nokta: %1$s</string>
+    <string name="webhook_status_last">Son bildirim: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook URL’sini kopyala</string>
+    <string name="webhook_copy_endpoint_action">Son bildirilen uç noktayı kopyala</string>
+    <string name="webhook_copy_done">Kopyalandı</string>
     <string name="webhook_status_never">hiçbir zaman</string>
     <string name="webhook_status_no_endpoint">henüz yok</string>
     <string name="webhook_status_deregistered">kaydı silindi</string>
@@ -674,10 +680,10 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_webhook_periodic_subtext">Keep-Alive ve Webhook eşitlemesi açıkken etkin Wifi-ADB uç noktasını zamanlamaya göre yeniden gönderir. İletileri birkaç saat sonra silinen hedefler için kullanışlıdır.</string>
     <string name="settings_webhook_periodic_interval_15m">Her 15 dakikada bir</string>
     <string name="settings_webhook_periodic_interval_30m">Her 30 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_1h">Her 59 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_4h">Her 3 saat 59 dakikada bir (varsayılan)</string>
-    <string name="settings_webhook_periodic_interval_12h">Her 11 saat 59 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_24h">Her 23 saat 59 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_1h">Her saat</string>
+    <string name="settings_webhook_periodic_interval_4h">Her 4 saatte bir (varsayılan)</string>
+    <string name="settings_webhook_periodic_interval_12h">Her 12 saatte bir</string>
+    <string name="settings_webhook_periodic_interval_24h">Her 24 saatte bir</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB bu izni doğrudan bu telefonda kendisi verebilir: Bu telefonun kendi Wifi-ADB özelliğiyle bir kez eşleşir. Bilgisayar gerekmez.</string>
     <string name="selfpair_start_button">Bu telefonda ver</string>

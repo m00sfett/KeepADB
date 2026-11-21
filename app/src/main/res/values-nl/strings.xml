@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook- &amp; eindpuntsynchronisatie</string>
     <string name="settings_webhook_toggle">Webhook-synchronisatie inschakelen</string>
+    <string name="settings_webhook_header_status_on">Aan · laatst gemeld: %1$s</string>
     <string name="settings_webhook_subtext">Verzendt het actieve eindpunt via HTTP POST bij activering en probeert DELETE te verzenden bij uitschakeling (wordt later opnieuw geprobeerd bij mislukking).</string>
     <string name="settings_webhook_url_hint">http://host:poort/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook-synchronisatie ingeschakeld</string>
     <string name="settings_webhook_disabled_toast">Webhook-synchronisatie uitgeschakeld</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nLaatst gemelde eindpunt: %2$s\nLaatst gemeld: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Laatst gemelde eindpunt: %1$s</string>
+    <string name="webhook_status_last">Laatst gemeld: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook-URL kopiëren</string>
+    <string name="webhook_copy_endpoint_action">Laatst gemelde eindpunt kopiëren</string>
+    <string name="webhook_copy_done">Gekopieerd</string>
     <string name="webhook_status_never">nooit</string>
     <string name="webhook_status_no_endpoint">nog geen</string>
     <string name="webhook_status_deregistered">afgemeld</string>
@@ -674,10 +680,10 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_webhook_periodic_subtext">Verstuurt het actieve Wifi-ADB-eindpunt volgens een schema opnieuw zolang Keep-Alive en Webhook-synchronisatie aan staan. Handig voor doelen waar berichten na enkele uren verlopen.</string>
     <string name="settings_webhook_periodic_interval_15m">Elke 15 minuten</string>
     <string name="settings_webhook_periodic_interval_30m">Elke 30 minuten</string>
-    <string name="settings_webhook_periodic_interval_1h">Elke 59 minuten</string>
-    <string name="settings_webhook_periodic_interval_4h">Elke 3 uur en 59 minuten (standaard)</string>
-    <string name="settings_webhook_periodic_interval_12h">Elke 11 uur en 59 minuten</string>
-    <string name="settings_webhook_periodic_interval_24h">Elke 23 uur en 59 minuten</string>
+    <string name="settings_webhook_periodic_interval_1h">Elk uur</string>
+    <string name="settings_webhook_periodic_interval_4h">Elke 4 uur (standaard)</string>
+    <string name="settings_webhook_periodic_interval_12h">Elke 12 uur</string>
+    <string name="settings_webhook_periodic_interval_24h">Elke 24 uur</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB kan zichzelf deze toestemming geven, rechtstreeks op deze telefoon: de app koppelt één keer met de Wifi-ADB van deze telefoon. Geen computer nodig.</string>
     <string name="selfpair_start_button">Toestemming geven op deze telefoon</string>

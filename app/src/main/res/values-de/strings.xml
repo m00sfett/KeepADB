@@ -102,6 +102,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
     <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
+    <string name="settings_webhook_header_status_on">An · zuletzt gemeldet: %1$s</string>
     <string name="settings_webhook_subtext">Sendet den aktiven Wifi-ADB-Endpunkt per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>
@@ -148,7 +149,12 @@
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>
     <string name="settings_webhook_disabled_toast">Webhook-Synchronisierung deaktiviert</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nZuletzt gemeldeter Endpunkt: %2$s\nZuletzt gemeldet: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Zuletzt gemeldeter Endpunkt: %1$s</string>
+    <string name="webhook_status_last">Zuletzt gemeldet: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook-URL kopieren</string>
+    <string name="webhook_copy_endpoint_action">Zuletzt gemeldeten Endpunkt kopieren</string>
+    <string name="webhook_copy_done">Kopiert</string>
     <string name="webhook_status_never">noch nie</string>
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>
@@ -674,10 +680,10 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="settings_webhook_periodic_subtext">Sendet den aktiven Wifi-ADB-Endpunkt nach Zeitplan erneut, solange Keep-Alive und Webhook-Sync aktiv sind. Praktisch für Ziele, deren Meldungen nach einigen Stunden verfallen.</string>
     <string name="settings_webhook_periodic_interval_15m">Alle 15 Minuten</string>
     <string name="settings_webhook_periodic_interval_30m">Alle 30 Minuten</string>
-    <string name="settings_webhook_periodic_interval_1h">Alle 59 Minuten</string>
-    <string name="settings_webhook_periodic_interval_4h">Alle 3 Stunden 59 Minuten (Standard)</string>
-    <string name="settings_webhook_periodic_interval_12h">Alle 11 Stunden 59 Minuten</string>
-    <string name="settings_webhook_periodic_interval_24h">Alle 23 Stunden 59 Minuten</string>
+    <string name="settings_webhook_periodic_interval_1h">Jede Stunde</string>
+    <string name="settings_webhook_periodic_interval_4h">Alle 4 Stunden (Standard)</string>
+    <string name="settings_webhook_periodic_interval_12h">Alle 12 Stunden</string>
+    <string name="settings_webhook_periodic_interval_24h">Alle 24 Stunden</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB kann sich diese Berechtigung selbst erteilen, direkt auf diesem Telefon: Es koppelt sich einmalig mit dem Wifi-ADB dieses Telefons. Kein Computer nötig.</string>
     <string name="selfpair_start_button">Auf diesem Telefon erteilen</string>

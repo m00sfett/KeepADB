@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">웹훅 및 엔드포인트 동기화</string>
     <string name="settings_webhook_toggle">웹훅 동기화 활성화</string>
+    <string name="settings_webhook_header_status_on">켜짐 · 마지막 보고: %1$s</string>
     <string name="settings_webhook_subtext">활성화 시 활성 엔드포인트를 HTTP POST로 전송하고, 비활성화 시 DELETE 전송을 시도합니다(실패하면 나중에 재시도).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">웹훅 URL</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>
     <string name="settings_webhook_disabled_toast">웹훅 동기화가 비활성화되었습니다</string>
     <string name="webhook_status_title">웹훅</string>
-    <string name="webhook_status_hint">URL: %1$s\n마지막으로 보고된 엔드포인트: %2$s\n마지막 보고: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">마지막으로 보고된 엔드포인트: %1$s</string>
+    <string name="webhook_status_last">마지막 보고: %1$s</string>
+    <string name="webhook_copy_url_action">웹훅 URL 복사</string>
+    <string name="webhook_copy_endpoint_action">마지막으로 보고된 엔드포인트 복사</string>
+    <string name="webhook_copy_done">복사됨</string>
     <string name="webhook_status_never">없음</string>
     <string name="webhook_status_no_endpoint">아직 없음</string>
     <string name="webhook_status_deregistered">등록 해제됨</string>
@@ -673,10 +679,10 @@
     <string name="settings_webhook_periodic_subtext">Keep-Alive와 웹훅 동기화가 켜져 있는 동안 예약된 간격으로 활성 Wifi-ADB 엔드포인트를 다시 전송합니다. 몇 시간 뒤 메시지가 만료되는 대상에 유용합니다.</string>
     <string name="settings_webhook_periodic_interval_15m">15분마다</string>
     <string name="settings_webhook_periodic_interval_30m">30분마다</string>
-    <string name="settings_webhook_periodic_interval_1h">59분마다</string>
-    <string name="settings_webhook_periodic_interval_4h">3시간 59분마다(기본값)</string>
-    <string name="settings_webhook_periodic_interval_12h">11시간 59분마다</string>
-    <string name="settings_webhook_periodic_interval_24h">23시간 59분마다</string>
+    <string name="settings_webhook_periodic_interval_1h">1시간마다</string>
+    <string name="settings_webhook_periodic_interval_4h">4시간마다(기본값)</string>
+    <string name="settings_webhook_periodic_interval_12h">12시간마다</string>
+    <string name="settings_webhook_periodic_interval_24h">24시간마다</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB는 이 휴대전화에서 직접 이 권한을 스스로 부여할 수 있습니다. 이 휴대전화 자체의 Wifi-ADB와 한 번만 페어링합니다. 컴퓨터는 필요 없습니다.</string>
     <string name="selfpair_start_button">이 휴대전화에서 부여</string>

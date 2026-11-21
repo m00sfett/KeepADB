@@ -269,7 +269,80 @@
                         android:fontFamily="sans-serif"
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
-                        tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
+                        tools:text="@string/webhook_status_unconfigured" />
+
+                    <!-- #1036: while Webhook Sync is on, one row per fact; URL and endpoint each get a
+                         copy button when there is something to copy (design review in #1034). -->
+                    <LinearLayout
+                        android:id="@+id/webhook_status_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityLiveRegion="polite"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <LinearLayout
+                            android:id="@+id/webhook_url_row"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/webhook_url_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:textColor="@color/night_muted"
+                                android:textSize="13sp"
+                                tools:text="URL: http://example.com/register/s20" />
+
+                            <ImageButton
+                                android:id="@+id/webhook_url_copy"
+                                style="?android:attr/borderlessButtonStyle"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:contentDescription="@string/webhook_copy_url_action"
+                                android:src="@drawable/ic_copy" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/webhook_endpoint_row"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/webhook_endpoint_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:textColor="@color/night_muted"
+                                android:textSize="13sp"
+                                tools:text="Last reported endpoint: 192.168.178.24:45149" />
+
+                            <ImageButton
+                                android:id="@+id/webhook_endpoint_copy"
+                                style="?android:attr/borderlessButtonStyle"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:contentDescription="@string/webhook_copy_endpoint_action"
+                                android:src="@drawable/ic_copy" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/webhook_last_reported"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/night_muted"
+                            android:textSize="13sp"
+                            tools:text="Last reported: never" />
+                    </LinearLayout>
 
                     <!-- #981: shown while Webhook Sync is not set up or off; opens its settings card. -->
                     <Button

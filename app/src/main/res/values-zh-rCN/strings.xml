@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Webhook 与端点同步</string>
     <string name="settings_webhook_toggle">启用 Webhook 同步</string>
+    <string name="settings_webhook_header_status_on">已开启 · 最后报告时间: %1$s</string>
     <string name="settings_webhook_subtext">启用后通过 HTTP POST 发送活动的 Wifi-ADB 端点，关闭时尝试发送 DELETE（失败后稍后重试）。</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook 网址</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook 同步已启用</string>
     <string name="settings_webhook_disabled_toast">Webhook 同步已禁用</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\n最后报告的端点: %2$s\n最后报告时间: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">最后报告的端点: %1$s</string>
+    <string name="webhook_status_last">最后报告时间: %1$s</string>
+    <string name="webhook_copy_url_action">复制 Webhook URL</string>
+    <string name="webhook_copy_endpoint_action">复制最后报告的端点</string>
+    <string name="webhook_copy_done">已复制</string>
     <string name="webhook_status_never">从未</string>
     <string name="webhook_status_no_endpoint">尚无</string>
     <string name="webhook_status_deregistered">已取消注册</string>
@@ -673,10 +679,10 @@
     <string name="settings_webhook_periodic_subtext">在 Keep-Alive 和 Webhook 同步开启期间按计划重新发送活动的 Wifi-ADB 端点。适用于消息会在数小时后过期的接收端。</string>
     <string name="settings_webhook_periodic_interval_15m">每 15 分钟</string>
     <string name="settings_webhook_periodic_interval_30m">每 30 分钟</string>
-    <string name="settings_webhook_periodic_interval_1h">每 59 分钟</string>
-    <string name="settings_webhook_periodic_interval_4h">每 3 小时 59 分钟（默认）</string>
-    <string name="settings_webhook_periodic_interval_12h">每 11 小时 59 分钟</string>
-    <string name="settings_webhook_periodic_interval_24h">每 23 小时 59 分钟</string>
+    <string name="settings_webhook_periodic_interval_1h">每小时</string>
+    <string name="settings_webhook_periodic_interval_4h">每 4 小时（默认）</string>
+    <string name="settings_webhook_periodic_interval_12h">每 12 小时</string>
+    <string name="settings_webhook_periodic_interval_24h">每 24 小时</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB 可以直接在这部手机上为自己授予此权限：它会与这部手机自身的 Wifi-ADB 配对一次。无需电脑。</string>
     <string name="selfpair_start_button">在这部手机上授予</string>

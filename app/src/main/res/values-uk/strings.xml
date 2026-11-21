@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Синхронізація Webhook та кінцевої точки</string>
     <string name="settings_webhook_toggle">Увімкнути синхронізацію Webhook</string>
+    <string name="settings_webhook_header_status_on">Увімкнено · останнє повідомлення: %1$s</string>
     <string name="settings_webhook_subtext">Надсилає активну кінцеву точку через HTTP POST при увімкненні та намагається надіслати DELETE при вимкненні (повторюється пізніше в разі невдачі).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL-адреса Webhook</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Синхронізацію Webhook увімкнено</string>
     <string name="settings_webhook_disabled_toast">Синхронізацію Webhook вимкнено</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nОстання заявлена кінцева точка: %2$s\nОстаннє повідомлення: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Остання заявлена кінцева точка: %1$s</string>
+    <string name="webhook_status_last">Останнє повідомлення: %1$s</string>
+    <string name="webhook_copy_url_action">Скопіювати URL вебхука</string>
+    <string name="webhook_copy_endpoint_action">Скопіювати останню заявлену кінцеву точку</string>
+    <string name="webhook_copy_done">Скопійовано</string>
     <string name="webhook_status_never">ніколи</string>
     <string name="webhook_status_no_endpoint">поки що немає</string>
     <string name="webhook_status_deregistered">реєстрацію скасовано</string>
@@ -676,10 +682,10 @@
     <string name="settings_webhook_periodic_subtext">Повторно надсилає активну кінцеву точку Wifi-ADB за розкладом, доки ввімкнені Keep-Alive і синхронізація Webhook. Корисно для отримувачів, чиї повідомлення втрачають чинність за кілька годин.</string>
     <string name="settings_webhook_periodic_interval_15m">Кожні 15 хвилин</string>
     <string name="settings_webhook_periodic_interval_30m">Кожні 30 хвилин</string>
-    <string name="settings_webhook_periodic_interval_1h">Кожні 59 хвилин</string>
-    <string name="settings_webhook_periodic_interval_4h">Кожні 3 години 59 хвилин (типово)</string>
-    <string name="settings_webhook_periodic_interval_12h">Кожні 11 годин 59 хвилин</string>
-    <string name="settings_webhook_periodic_interval_24h">Кожні 23 години 59 хвилин</string>
+    <string name="settings_webhook_periodic_interval_1h">Щогодини</string>
+    <string name="settings_webhook_periodic_interval_4h">Кожні 4 години (типово)</string>
+    <string name="settings_webhook_periodic_interval_12h">Кожні 12 годин</string>
+    <string name="settings_webhook_periodic_interval_24h">Кожні 24 години</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB може сам надати собі цей дозвіл прямо на цьому телефоні: він один раз виконує підключення до Wifi-ADB цього телефона. Комп’ютер не потрібен.</string>
     <string name="selfpair_start_button">Надати на цьому телефоні</string>

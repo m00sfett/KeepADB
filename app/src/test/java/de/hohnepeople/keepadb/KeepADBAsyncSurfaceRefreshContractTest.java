@@ -152,13 +152,16 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
 
         int endpointListener = resumeBody.indexOf("KeepADBEndpointCoordinator.setEndpointListener(");
         int registerListener = resumeBody.indexOf(
-                "KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);");
+                "KeepADBRegisterClient.setRegisterStateListener(webhookStateListener);");
         int notificationRefresh = resumeBody.indexOf("KeepADBEndpointCoordinator.refresh(this);");
 
         assertTrue(endpointListener >= 0);
         assertTrue(registerListener > endpointListener);
         assertTrue(notificationRefresh > registerListener);
-        assertTrue(pauseBody.contains("KeepADBRegisterClient.clearRegisterStateListener();"));
+        // #1036 review: the activity clears only its own listener (owner check).
+        assertTrue(pauseBody.contains(
+                "KeepADBRegisterClient.clearRegisterStateListener(webhookStateListener);"));
+        assertTrue(activity.contains("webhookStateListener =\n            this::refreshWebhookStatus;"));
     }
 
     private static String read(String relativePath) throws IOException {

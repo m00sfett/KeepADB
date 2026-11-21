@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">वेबहुक और एंडपॉइंट सिंक</string>
     <string name="settings_webhook_toggle">वेबहुक सिंक सक्षम करें</string>
+    <string name="settings_webhook_header_status_on">चालू · अंतिम रिपोर्ट: %1$s</string>
     <string name="settings_webhook_subtext">सक्षम होने पर सक्रिय एंडपॉइंट HTTP POST के माध्यम से भेजता है, और बंद होने पर DELETE भेजने का प्रयास करता है (विफल होने पर बाद में पुनः प्रयास किया जाता है)।</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">वेबहुक URL</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
     <string name="settings_webhook_disabled_toast">वेबहुक सिंक अक्षम किया गया</string>
     <string name="webhook_status_title">वेबहुक</string>
-    <string name="webhook_status_hint">URL: %1$s\nअंतिम रिपोर्ट किया गया एंडपॉइंट: %2$s\nअंतिम रिपोर्ट: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">अंतिम रिपोर्ट किया गया एंडपॉइंट: %1$s</string>
+    <string name="webhook_status_last">अंतिम रिपोर्ट: %1$s</string>
+    <string name="webhook_copy_url_action">वेबहुक URL कॉपी करें</string>
+    <string name="webhook_copy_endpoint_action">अंतिम रिपोर्ट किया गया एंडपॉइंट कॉपी करें</string>
+    <string name="webhook_copy_done">कॉपी किया गया</string>
     <string name="webhook_status_never">कभी नहीं</string>
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
     <string name="webhook_status_deregistered">पंजीकरण रद्द</string>
@@ -674,10 +680,10 @@
     <string name="settings_webhook_periodic_subtext">Keep-Alive और Webhook सिंक चालू रहने तक तय समय पर सक्रिय Wifi-ADB एंडपॉइंट को फिर से भेजता है। उन गंतव्यों के लिए उपयोगी जहाँ संदेश कुछ घंटों में समाप्त हो जाते हैं।</string>
     <string name="settings_webhook_periodic_interval_15m">हर 15 मिनट में</string>
     <string name="settings_webhook_periodic_interval_30m">हर 30 मिनट में</string>
-    <string name="settings_webhook_periodic_interval_1h">हर 59 मिनट में</string>
-    <string name="settings_webhook_periodic_interval_4h">हर 3 घंटे 59 मिनट में (डिफ़ॉल्ट)</string>
-    <string name="settings_webhook_periodic_interval_12h">हर 11 घंटे 59 मिनट में</string>
-    <string name="settings_webhook_periodic_interval_24h">हर 23 घंटे 59 मिनट में</string>
+    <string name="settings_webhook_periodic_interval_1h">हर घंटे</string>
+    <string name="settings_webhook_periodic_interval_4h">हर 4 घंटे में (डिफ़ॉल्ट)</string>
+    <string name="settings_webhook_periodic_interval_12h">हर 12 घंटे में</string>
+    <string name="settings_webhook_periodic_interval_24h">हर 24 घंटे में</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB यह अनुमति सीधे इसी फ़ोन पर खुद को दे सकता है: यह इसी फ़ोन के अपने Wifi-ADB से एक बार पेयर होता है। कंप्यूटर की ज़रूरत नहीं है।</string>
     <string name="selfpair_start_button">इसी फ़ोन पर अनुमति दें</string>

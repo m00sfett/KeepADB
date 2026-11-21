@@ -78,6 +78,7 @@
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_webhook_title">Sinkronisasi Webhook &amp; Endpoint</string>
     <string name="settings_webhook_toggle">Aktifkan Sinkronisasi Webhook</string>
+    <string name="settings_webhook_header_status_on">Aktif · terakhir dilaporkan: %1$s</string>
     <string name="settings_webhook_subtext">Mengirim endpoint aktif melalui HTTP POST saat diaktifkan, dan mencoba mengirim DELETE saat dimatikan (dicoba lagi nanti jika gagal).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL Webhook</string>
@@ -124,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Sinkronisasi Webhook diaktifkan</string>
     <string name="settings_webhook_disabled_toast">Sinkronisasi Webhook dinonaktifkan</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nEndpoint terakhir yang dilaporkan: %2$s\nTerakhir dilaporkan: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Endpoint terakhir yang dilaporkan: %1$s</string>
+    <string name="webhook_status_last">Terakhir dilaporkan: %1$s</string>
+    <string name="webhook_copy_url_action">Salin URL webhook</string>
+    <string name="webhook_copy_endpoint_action">Salin endpoint terakhir yang dilaporkan</string>
+    <string name="webhook_copy_done">Disalin</string>
     <string name="webhook_status_never">belum pernah</string>
     <string name="webhook_status_no_endpoint">belum ada</string>
     <string name="webhook_status_deregistered">tidak terdaftar lagi</string>
@@ -673,10 +679,10 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_webhook_periodic_subtext">Mengirim ulang endpoint Wifi-ADB yang aktif sesuai jadwal selama Keep-Alive dan Sinkronisasi Webhook aktif. Berguna untuk tujuan yang pesanannya kedaluwarsa setelah beberapa jam.</string>
     <string name="settings_webhook_periodic_interval_15m">Setiap 15 menit</string>
     <string name="settings_webhook_periodic_interval_30m">Setiap 30 menit</string>
-    <string name="settings_webhook_periodic_interval_1h">Setiap 59 menit</string>
-    <string name="settings_webhook_periodic_interval_4h">Setiap 3 jam 59 menit (bawaan)</string>
-    <string name="settings_webhook_periodic_interval_12h">Setiap 11 jam 59 menit</string>
-    <string name="settings_webhook_periodic_interval_24h">Setiap 23 jam 59 menit</string>
+    <string name="settings_webhook_periodic_interval_1h">Setiap jam</string>
+    <string name="settings_webhook_periodic_interval_4h">Setiap 4 jam (bawaan)</string>
+    <string name="settings_webhook_periodic_interval_12h">Setiap 12 jam</string>
+    <string name="settings_webhook_periodic_interval_24h">Setiap 24 jam</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB dapat memberi izin ini kepada dirinya sendiri, langsung di ponsel ini: aplikasi menyambungkan diri sekali dengan Wifi-ADB milik ponsel ini. Tidak perlu komputer.</string>
     <string name="selfpair_start_button">Berikan di ponsel ini</string>
