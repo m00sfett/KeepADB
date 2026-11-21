@@ -228,6 +228,39 @@ public class Tls13ChannelTest {
         }
     }
 
+    /** #1040: the parser accepts an entry only with an empty extension block. */
+    @Test
+    public void acceptsACertificateEntryWithoutExtensions() throws Exception {
+        assertEquals(server.certificate,
+                Tls13Channel.parseCertificate(certificateBody(new byte[0])));
+    }
+
+    /** #1040: a vector too short to hold even one extension header (audit F-03). */
+    @Test(expected = IOException.class)
+    public void rejectsATruncatedCertificateEntryExtensionBlock() throws Exception {
+        Tls13Channel.parseCertificate(certificateBody(new byte[] {0}));
+    }
+
+    /** #1040: a well-formed extension the client never offered is just as unacceptable. */
+    @Test(expected = IOException.class)
+    public void rejectsAWellFormedButUnofferedCertificateEntryExtension() throws Exception {
+        // status_request (5) with empty data.
+        Tls13Channel.parseCertificate(certificateBody(new byte[] {0, 5, 0, 0}));
+    }
+
+    /** Certificate message body: empty context, one entry with the given extension block. */
+    private static byte[] certificateBody(byte[] extensions) throws Exception {
+        byte[] der = server.certificate.getEncoded();
+        byte[] entry = Bytes.concat(length24(der.length), der,
+                new byte[] {(byte) (extensions.length >> 8), (byte) extensions.length},
+                extensions);
+        return Bytes.concat(new byte[] {0}, length24(entry.length), entry);
+    }
+
+    private static byte[] length24(int length) {
+        return new byte[] {(byte) (length >> 16), (byte) (length >> 8), (byte) length};
+    }
+
     private static SSLServerSocket jdkServer() throws Exception {
         return jdkServer(new AcceptingTrustManager());
     }

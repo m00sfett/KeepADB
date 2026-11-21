@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.16] - Unreleased
+
+### Security
+- **Self-pairing: stricter TLS Certificate parser (#1040):** `Tls13Channel.parseCertificate()` used to skip each certificate entry's extension block as opaque bytes, so a block too short for an extension header was accepted. The client offers no extension a server may answer per certificate entry, so every non-empty block is now rejected with `IOException`. No authentication bypass existed: the bytes were part of the signed transcript (audit F-03, 2026-11-21).
+
 ## [1.15.15] - Unreleased
 
 ### Documentation

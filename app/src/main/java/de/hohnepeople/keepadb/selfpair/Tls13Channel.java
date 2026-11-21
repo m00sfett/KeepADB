@@ -318,7 +318,8 @@ final class Tls13Channel implements TlsChannel {
         return context;
     }
 
-    private static X509Certificate parseCertificate(byte[] body)
+    /** Package-private for tests only. */
+    static X509Certificate parseCertificate(byte[] body)
             throws IOException, GeneralSecurityException {
         Reader reader = new Reader(body);
         if (reader.u8() != 0) {
@@ -329,7 +330,12 @@ final class Tls13Channel implements TlsChannel {
         byte[] first = null;
         while (!list.atEnd()) {
             byte[] certificate = list.bytes(list.u24());
-            list.bytes(list.u16());
+            // The ClientHello offers no extension that a server may answer per certificate
+            // entry (status_request, signed_certificate_timestamp; RFC 8446 section 4.4.2), so
+            // the only valid extension block is an empty one.
+            if (list.u16() != 0) {
+                throw new IOException("unexpected certificate entry extensions");
+            }
             if (certificate.length == 0) {
                 throw new IOException("empty certificate entry");
             }
