@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Синхронизация Webhook включена</string>
     <string name="settings_webhook_disabled_toast">Синхронизация Webhook отключена</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nПоследняя сообщённая конечная точка: %2$s\nПоследнее сообщение: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Последняя сообщённая конечная точка: %1$s</string>
+    <string name="webhook_status_last">Последнее сообщение: %1$s</string>
+    <string name="webhook_copy_url_action">Скопировать URL вебхука</string>
+    <string name="webhook_copy_endpoint_action">Скопировать последнюю сообщённую конечную точку</string>
+    <string name="webhook_copy_done">Скопировано</string>
     <string name="webhook_status_never">никогда</string>
     <string name="webhook_status_no_endpoint">пока нет</string>
     <string name="webhook_status_deregistered">регистрация отменена</string>

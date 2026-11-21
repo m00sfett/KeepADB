@@ -675,8 +675,9 @@ public class KeepADBResourceContractTest {
         result.put("plugin_unknown_message", new Object[] {stringWitness});
         result.put("network_bssid_with_band", new Object[] {stringWitness, stringWitness});
         result.put("wifi_aps_show_more_button", new Object[] {integerWitness});
-        result.put("webhook_status_hint", new Object[] {
-                stringWitness, stringWitness, stringWitness});
+        result.put("webhook_status_url", new Object[] {stringWitness});
+        result.put("webhook_status_endpoint", new Object[] {stringWitness});
+        result.put("webhook_status_last", new Object[] {stringWitness});
         result.put("settings_language_accessibility", new Object[] {stringWitness});
         result.put("settings_version_value", new Object[] {stringWitness});
         result.put("settings_version_code_value", new Object[] {longWitness});

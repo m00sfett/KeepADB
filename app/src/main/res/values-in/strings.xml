@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Sinkronisasi Webhook diaktifkan</string>
     <string name="settings_webhook_disabled_toast">Sinkronisasi Webhook dinonaktifkan</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nEndpoint terakhir yang dilaporkan: %2$s\nTerakhir dilaporkan: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Endpoint terakhir yang dilaporkan: %1$s</string>
+    <string name="webhook_status_last">Terakhir dilaporkan: %1$s</string>
+    <string name="webhook_copy_url_action">Salin URL webhook</string>
+    <string name="webhook_copy_endpoint_action">Salin endpoint terakhir yang dilaporkan</string>
+    <string name="webhook_copy_done">Disalin</string>
     <string name="webhook_status_never">belum pernah</string>
     <string name="webhook_status_no_endpoint">belum ada</string>
     <string name="webhook_status_deregistered">tidak terdaftar lagi</string>

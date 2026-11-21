@@ -49,6 +49,12 @@ public class MainActivity extends Activity {
     private TextView webhookStatus;
     private View webhookStatusPanel;
     private Button webhookStatusAction;
+    private View webhookStatusDetails;
+    private TextView webhookUrlValue;
+    private TextView webhookEndpointValue;
+    private TextView webhookLastReported;
+    private View webhookUrlCopy;
+    private View webhookEndpointCopy;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
     private KeepADBWarningState.Snapshot warningSnapshot;
     private KeepADBWarningState.Snapshot dismissedSnapshot;
@@ -127,6 +133,21 @@ public class MainActivity extends Activity {
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         webhookStatusAction = findViewById(R.id.webhook_status_action);
+        webhookStatusDetails = findViewById(R.id.webhook_status_details);
+        webhookUrlValue = findViewById(R.id.webhook_url_value);
+        webhookEndpointValue = findViewById(R.id.webhook_endpoint_value);
+        webhookLastReported = findViewById(R.id.webhook_last_reported);
+        webhookUrlCopy = findViewById(R.id.webhook_url_copy);
+        webhookEndpointCopy = findViewById(R.id.webhook_endpoint_copy);
+        webhookUrlCopy.setOnClickListener(v -> KeepADBWebhookStatusText.copy(this,
+                KeepADBWebhookStatusText.URL_CLIP_LABEL,
+                KeepADBWebhookStatusText.copyableUrl(
+                        KeepADBPreferences.getRegisterWebhookUrl(this)), "webhook_url"));
+        webhookEndpointCopy.setOnClickListener(v -> KeepADBWebhookStatusText.copy(this,
+                KeepADBWebhookStatusText.ENDPOINT_CLIP_LABEL,
+                KeepADBWebhookStatusText.copyableEndpoint(
+                        KeepADBPreferences.getWebhookLastReportedEndpoint(this)),
+                "webhook_endpoint"));
         webhookStatusAction.setOnClickListener(v -> openWebhookSettings());
         warningSystem = findViewById(R.id.warning_system);
         warningLessSecure = findViewById(R.id.warning_less_secure);
@@ -1045,22 +1066,11 @@ public class MainActivity extends Activity {
         }
         webhookStatusAction.setVisibility(View.GONE);
         String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
-        long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
-        String lastReported;
-        if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)) {
-            lastReported = getString(R.string.webhook_status_failed);
-        } else if (lastReportedAt <= 0) {
-            lastReported = getString(R.string.webhook_status_never);
-        } else {
-            java.util.Date date = new java.util.Date(lastReportedAt);
-            java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
-                    java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
-                    getResources().getConfiguration().getLocales().get(0));
-            lastReported = dateTimeFormat.format(date);
-        }
+        String lastReported = KeepADBWebhookStatusText.lastReported(this,
+                java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM);
         // #483: display only -- the stored endpoint stays as reported.
-        String lastEndpoint = KeepADBPreferences.maskEndpointForDisplay(
-                this, KeepADBPreferences.getWebhookLastReportedEndpoint(this));
+        String storedEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
+        String lastEndpoint = KeepADBPreferences.maskEndpointForDisplay(this, storedEndpoint);
         if (lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
             // Distinguish "never reported anything yet" from "was reported, then successfully
             // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
@@ -1068,13 +1078,26 @@ public class MainActivity extends Activity {
             lastEndpoint = KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(reportStatus)
                     ? getString(R.string.webhook_status_deregistered)
                     : getString(R.string.webhook_status_no_endpoint);
+            storedEndpoint = null;
         }
-        webhookStatus.setText(getString(R.string.webhook_status_hint,
-                KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
+        // #1036: one row per fact; the copy buttons copy the real values (read when tapped).
+        webhookStatus.setVisibility(View.GONE);
+        webhookUrlValue.setText(getString(R.string.webhook_status_url,
+                KeepADBPreferences.maskWebhookUrlForDisplay(this, url)));
+        webhookEndpointValue.setText(getString(R.string.webhook_status_endpoint, lastEndpoint));
+        webhookLastReported.setText(getString(R.string.webhook_status_last, lastReported));
+        webhookUrlCopy.setVisibility(
+                KeepADBWebhookStatusText.copyableUrl(url) != null ? View.VISIBLE : View.GONE);
+        webhookEndpointCopy.setVisibility(
+                KeepADBWebhookStatusText.copyableEndpoint(storedEndpoint) != null
+                        ? View.VISIBLE : View.GONE);
+        webhookStatusDetails.setVisibility(View.VISIBLE);
         webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 
     private void showWebhookSetupHint(int textRes, int actionRes) {
+        webhookStatusDetails.setVisibility(View.GONE);
+        webhookStatus.setVisibility(View.VISIBLE);
         webhookStatus.setText(textRes);
         webhookStatusAction.setText(actionRes);
         webhookStatusAction.setVisibility(View.VISIBLE);

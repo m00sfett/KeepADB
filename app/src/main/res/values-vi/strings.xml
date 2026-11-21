@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Đã bật đồng bộ hóa Webhook</string>
     <string name="settings_webhook_disabled_toast">Đã tắt đồng bộ hóa Webhook</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nĐiểm cuối được báo cáo gần nhất: %2$s\nBáo cáo gần nhất: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Điểm cuối được báo cáo gần nhất: %1$s</string>
+    <string name="webhook_status_last">Báo cáo gần nhất: %1$s</string>
+    <string name="webhook_copy_url_action">Sao chép URL webhook</string>
+    <string name="webhook_copy_endpoint_action">Sao chép điểm cuối được báo cáo gần nhất</string>
+    <string name="webhook_copy_done">Đã sao chép</string>
     <string name="webhook_status_never">chưa bao giờ</string>
     <string name="webhook_status_no_endpoint">chưa có</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>

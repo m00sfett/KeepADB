@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook 同步已启用</string>
     <string name="settings_webhook_disabled_toast">Webhook 同步已禁用</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\n最后报告的端点: %2$s\n最后报告时间: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">最后报告的端点: %1$s</string>
+    <string name="webhook_status_last">最后报告时间: %1$s</string>
+    <string name="webhook_copy_url_action">复制 Webhook URL</string>
+    <string name="webhook_copy_endpoint_action">复制最后报告的端点</string>
+    <string name="webhook_copy_done">已复制</string>
     <string name="webhook_status_never">从未</string>
     <string name="webhook_status_no_endpoint">尚无</string>
     <string name="webhook_status_deregistered">已取消注册</string>

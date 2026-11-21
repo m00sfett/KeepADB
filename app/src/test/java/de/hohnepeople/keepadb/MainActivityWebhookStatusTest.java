@@ -68,9 +68,7 @@ public class MainActivityWebhookStatusTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        TextView webhookStatus = activity.findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(activity);
 
         assertTrue("Expected the full URL in status text with privacy mode off: " + text,
                 text.contains("http://100.111.111.21:50829/register/s20"));
@@ -88,9 +86,7 @@ public class MainActivityWebhookStatusTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        TextView webhookStatus = activity.findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(activity);
 
         assertTrue("Expected masked URL in status text with privacy mode on: " + text,
                 text.contains("http://100.*.*.*:50829/register/s20"));
@@ -117,9 +113,7 @@ public class MainActivityWebhookStatusTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        TextView webhookStatus = activity.findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(activity);
 
         assertFalse("Username must not be exposed: " + text, text.contains("user"));
         assertFalse("Password must not be exposed: " + text, text.contains("secret123"));
@@ -144,9 +138,7 @@ public class MainActivityWebhookStatusTest {
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(controller.get());
 
         assertTrue("Expected the failed-report text: " + text,
                 text.contains(context.getString(R.string.webhook_status_failed)));
@@ -165,9 +157,7 @@ public class MainActivityWebhookStatusTest {
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(controller.get());
 
         assertTrue("Expected the deregistered-endpoint text (distinct from 'never reported'): " + text,
                 text.contains(context.getString(R.string.webhook_status_deregistered)));
@@ -184,9 +174,7 @@ public class MainActivityWebhookStatusTest {
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
-        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(controller.get());
 
         assertTrue("Expected the no-endpoint-yet text: " + text,
                 text.contains(context.getString(R.string.webhook_status_no_endpoint)));
@@ -220,9 +208,7 @@ public class MainActivityWebhookStatusTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         KeepADBRegisterClient.awaitIdleForTesting(2000);
         org.robolectric.shadows.ShadowLooper.idleMainLooper();
-        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
-        assertNotNull(webhookStatus);
-        String text = webhookStatus.getText().toString();
+        String text = statusText(controller.get());
 
         assertTrue("Expected the failed-report text: " + text,
                 text.contains(context.getString(R.string.webhook_status_failed)));
@@ -245,5 +231,14 @@ public class MainActivityWebhookStatusTest {
             }
         }
         assertTrue("KeepADBRegisterClientResetRule must be a public @Rule field", applied);
+    }
+
+    /** #1036: the status rows (URL, last reported endpoint, last reported), one line each. */
+    private static String statusText(MainActivity activity) {
+        assertEquals(android.view.View.VISIBLE,
+                activity.findViewById(R.id.webhook_status_details).getVisibility());
+        return ((TextView) activity.findViewById(R.id.webhook_url_value)).getText() + "\n"
+                + ((TextView) activity.findViewById(R.id.webhook_endpoint_value)).getText() + "\n"
+                + ((TextView) activity.findViewById(R.id.webhook_last_reported)).getText();
     }
 }

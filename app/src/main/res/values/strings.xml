@@ -155,7 +155,12 @@
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
     <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nLast reported endpoint: %2$s\nLast reported: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Last reported endpoint: %1$s</string>
+    <string name="webhook_status_last">Last reported: %1$s</string>
+    <string name="webhook_copy_url_action">Copy webhook URL</string>
+    <string name="webhook_copy_endpoint_action">Copy last reported endpoint</string>
+    <string name="webhook_copy_done">Copied</string>
     <string name="webhook_status_never">never</string>
     <string name="webhook_status_no_endpoint">none yet</string>
     <string name="webhook_status_deregistered">deregistered</string>

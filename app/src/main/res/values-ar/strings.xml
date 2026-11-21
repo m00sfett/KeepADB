@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">تم تفعيل مزامنة Webhook</string>
     <string name="settings_webhook_disabled_toast">تم تعطيل مزامنة Webhook</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nآخر نقطة نهاية تم الإبلاغ عنها: %2$s\nآخر إبلاغ: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">آخر نقطة نهاية تم الإبلاغ عنها: %1$s</string>
+    <string name="webhook_status_last">آخر إبلاغ: %1$s</string>
+    <string name="webhook_copy_url_action">نسخ عنوان URL للـ Webhook</string>
+    <string name="webhook_copy_endpoint_action">نسخ آخر نقطة نهاية تم الإبلاغ عنها</string>
+    <string name="webhook_copy_done">تم النسخ</string>
     <string name="webhook_status_never">أبدًا</string>
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
     <string name="webhook_status_deregistered">تم إلغاء التسجيل</string>

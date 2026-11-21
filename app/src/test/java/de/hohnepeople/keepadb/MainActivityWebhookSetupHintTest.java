@@ -140,9 +140,11 @@ public class MainActivityWebhookSetupHintTest {
 
         MainActivity activity = launch();
 
-        TextView status = activity.findViewById(R.id.webhook_status);
+        // #1036: while on, the facts are rows; the hint text gives way.
+        TextView url = activity.findViewById(R.id.webhook_url_value);
         assertEquals(View.VISIBLE, activity.findViewById(R.id.webhook_status_panel).getVisibility());
-        assertTrue(status.getText().toString().contains(URL));
+        assertEquals(View.GONE, activity.findViewById(R.id.webhook_status).getVisibility());
+        assertTrue(url.getText().toString().contains(URL));
         assertEquals(View.GONE, activity.findViewById(R.id.webhook_status_action).getVisibility());
     }
 

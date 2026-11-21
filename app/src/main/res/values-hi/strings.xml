@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
     <string name="settings_webhook_disabled_toast">वेबहुक सिंक अक्षम किया गया</string>
     <string name="webhook_status_title">वेबहुक</string>
-    <string name="webhook_status_hint">URL: %1$s\nअंतिम रिपोर्ट किया गया एंडपॉइंट: %2$s\nअंतिम रिपोर्ट: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">अंतिम रिपोर्ट किया गया एंडपॉइंट: %1$s</string>
+    <string name="webhook_status_last">अंतिम रिपोर्ट: %1$s</string>
+    <string name="webhook_copy_url_action">वेबहुक URL कॉपी करें</string>
+    <string name="webhook_copy_endpoint_action">अंतिम रिपोर्ट किया गया एंडपॉइंट कॉपी करें</string>
+    <string name="webhook_copy_done">कॉपी किया गया</string>
     <string name="webhook_status_never">कभी नहीं</string>
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
     <string name="webhook_status_deregistered">पंजीकरण रद्द</string>

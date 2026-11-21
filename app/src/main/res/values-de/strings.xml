@@ -149,7 +149,12 @@
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>
     <string name="settings_webhook_disabled_toast">Webhook-Synchronisierung deaktiviert</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nZuletzt gemeldeter Endpunkt: %2$s\nZuletzt gemeldet: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Zuletzt gemeldeter Endpunkt: %1$s</string>
+    <string name="webhook_status_last">Zuletzt gemeldet: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook-URL kopieren</string>
+    <string name="webhook_copy_endpoint_action">Zuletzt gemeldeten Endpunkt kopieren</string>
+    <string name="webhook_copy_done">Kopiert</string>
     <string name="webhook_status_never">noch nie</string>
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>

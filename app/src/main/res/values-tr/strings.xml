@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook senkronizasyonu etkinleştirildi</string>
     <string name="settings_webhook_disabled_toast">Webhook senkronizasyonu devre dışı bırakıldı</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\nSon bildirilen uç nokta: %2$s\nSon bildirim: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">Son bildirilen uç nokta: %1$s</string>
+    <string name="webhook_status_last">Son bildirim: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook URL’sini kopyala</string>
+    <string name="webhook_copy_endpoint_action">Son bildirilen uç noktayı kopyala</string>
+    <string name="webhook_copy_done">Kopyalandı</string>
     <string name="webhook_status_never">hiçbir zaman</string>
     <string name="webhook_status_no_endpoint">henüz yok</string>
     <string name="webhook_status_deregistered">kaydı silindi</string>

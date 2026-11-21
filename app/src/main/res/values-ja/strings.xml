@@ -125,7 +125,12 @@
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>
     <string name="settings_webhook_disabled_toast">Webhook 同期を無効にしました</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_status_hint">URL: %1$s\n最後に報告されたエンドポイント: %2$s\n最終報告: %3$s</string>
+    <string name="webhook_status_url">URL: %1$s</string>
+    <string name="webhook_status_endpoint">最後に報告されたエンドポイント: %1$s</string>
+    <string name="webhook_status_last">最終報告: %1$s</string>
+    <string name="webhook_copy_url_action">Webhook の URL をコピー</string>
+    <string name="webhook_copy_endpoint_action">最後に報告されたエンドポイントをコピー</string>
+    <string name="webhook_copy_done">コピーしました</string>
     <string name="webhook_status_never">なし</string>
     <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="webhook_status_deregistered">登録解除済み</string>
