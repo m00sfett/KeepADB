@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">Wyczyść</string>
     <string name="settings_webhook_error_invalid_url">Nieprawidłowy adres URL. Musi zaczynać się od http:// lub https:// z prawidłowym hostem.</string>
     <string name="settings_webhook_error_missing_url">Wprowadź prawidłowy adres URL HTTP/HTTPS przed włączeniem synchronizacji.</string>
+    <string name="settings_webhook_error_save_first">Stuknij „Zapisz URL”, aby zapisać ten URL i włączyć synchronizację.</string>
     <string name="settings_webhook_cleartext_warning">Ten adres URL używa niezaszyfrowanego HTTP — dane są wysyłane jawnym tekstem. Używaj go tylko w zaufanej sieci LAN lub VPN.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: bieżąca sieć jest nieczytelna. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle. Trwale pomaga ustawienie lokalizacji na „Zezwalaj zawsze”.</string>
     <string name="settings_trusted_network_add_failed_toast">Nie można określić bieżącej sieci. Sprawdź połączenie Wi-Fi i uprawnienie lokalizacji.</string>

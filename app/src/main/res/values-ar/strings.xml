@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">مسح</string>
     <string name="settings_webhook_error_invalid_url">رابط غير صالح. يجب أن يبدأ بـ http:// أو https:// مع اسم مضيف صالح.</string>
     <string name="settings_webhook_error_missing_url">يرجى إدخال رابط HTTP/HTTPS صالح قبل تفعيل المزامنة.</string>
+    <string name="settings_webhook_error_save_first">اضغط على «حفظ الرابط» لحفظ هذا الرابط وتفعيل المزامنة.</string>
     <string name="settings_webhook_cleartext_warning">يستخدم هذا الرابط بروتوكول HTTP غير المشفر — يتم إرسال البيانات كنص عادي. استخدمه فقط في شبكة محلية أو VPN موثوقة.</string>
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: الشبكة الحالية غير قابلة للقراءة. تحقق من إذن/خدمة الموقع، أو أعد فتح التطبيق إذا بدأ Keep-Alive في الخلفية، أو اضبط الموقع على «السماح طوال الوقت» لحل ذلك نهائيًا.</string>
     <string name="settings_trusted_network_add_failed_toast">تعذر تحديد الشبكة الحالية. تحقق من اتصال Wi-Fi وإذن الموقع.</string>

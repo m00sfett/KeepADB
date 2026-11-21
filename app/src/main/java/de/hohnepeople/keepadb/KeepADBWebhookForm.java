@@ -316,7 +316,11 @@ final class KeepADBWebhookForm {
             if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
                 toggle.setChecked(false);
                 if (onRefused != null) onRefused.run();
-                error.setText(R.string.settings_webhook_error_missing_url);
+                // #1045: a valid URL in the field that is not saved yet is not "invalid"; point
+                // to "Save URL" instead. The draft is only read here, never rewritten.
+                error.setText(enablesSavedUrlOnly && hasValidUnsavedDraft()
+                        ? R.string.settings_webhook_error_save_first
+                        : R.string.settings_webhook_error_missing_url);
                 error.setVisibility(View.VISIBLE);
                 urlInput.requestFocus();
                 return;
@@ -328,6 +332,14 @@ final class KeepADBWebhookForm {
             Toast.makeText(activity, R.string.settings_webhook_disabled_toast, Toast.LENGTH_SHORT).show();
         }
         onChange.run();
+    }
+
+    /** #1045: whether the field holds a valid URL that differs from the saved one. */
+    private boolean hasValidUnsavedDraft() {
+        String draft = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
+        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(draft);
+        return sanitized != null && KeepADBPreferences.isValidWebhookUrl(sanitized)
+                && !sanitized.equals(KeepADBPreferences.getRegisterWebhookUrl(activity));
     }
 
     private void onPeriodicToggleClicked() {

@@ -114,6 +114,7 @@
     <string name="settings_webhook_btn_clear">Clear</string>
     <string name="settings_webhook_error_invalid_url">Invalid URL. Must start with http:// or https:// with a valid host.</string>
     <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
+    <string name="settings_webhook_error_save_first">Tap “Save URL” to save this URL and turn on sync.</string>
     <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
     <!-- Pure punctuation marker for the red warning badge; the spoken label is the separate
          *_warning_accessibility string next to it. -->

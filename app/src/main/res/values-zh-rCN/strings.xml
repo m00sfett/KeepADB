@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">清除</string>
     <string name="settings_webhook_error_invalid_url">无效的 URL。必须以 http:// 或 https:// 开头并包含有效的主机名。</string>
     <string name="settings_webhook_error_missing_url">启用同步前请输入有效的 HTTP/HTTPS URL。</string>
+    <string name="settings_webhook_error_save_first">点按“保存 URL”以保存此 URL 并开启同步。</string>
     <string name="settings_webhook_cleartext_warning">此 URL 使用未加密的 HTTP — 数据以明文形式发送。仅在已信任的局域网或 VPN 中使用。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:当前网络无法读取。请检查定位权限/服务，如果 Keep-Alive 是在后台启动的，请重新打开应用；也可将位置信息权限设为“始终允许”以永久解决。</string>
     <string name="settings_trusted_network_add_failed_toast">无法确定当前网络。请检查 Wi-Fi 连接和位置权限。</string>

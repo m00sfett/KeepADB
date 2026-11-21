@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.19] - Unreleased
+
+### Fixed
+- **Settings webhook header: "save the URL first" instead of "enter a valid URL" (#1045):** since #1034 the header switch enables only the saved URL. With nothing saved but a valid URL typed into the field, the refusal said "Please enter a valid HTTP/HTTPS URL", which suggested the typed URL was wrong. It now says to tap "Save URL" (new `settings_webhook_error_save_first`, all 19 languages); an empty or invalid field keeps the old message, and the draft is never rewritten. Found by Codex review round 2 of #1044 (P3).
+
+### Documentation
+- Store note `changelogs/300.txt` carries the unchanged summary since 1.14.1 (it replaces 299; this fix is too small for the 500-character note).
+
 ## [1.15.18] - Unreleased
 
 ### Documentation

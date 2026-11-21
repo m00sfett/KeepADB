@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">Effacer</string>
     <string name="settings_webhook_error_invalid_url">URL non valide. Doit commencer par http:// ou https:// avec un hôte valide.</string>
     <string name="settings_webhook_error_missing_url">Veuillez saisir une URL HTTP/HTTPS valide avant d’activer la synchronisation.</string>
+    <string name="settings_webhook_error_save_first">Touchez « Enregistrer l’URL » pour enregistrer cette URL et activer la synchronisation.</string>
     <string name="settings_webhook_cleartext_warning">Cette URL utilise HTTP non chiffré : les données sont envoyées en texte clair. À utiliser uniquement sur un réseau local ou VPN de confiance.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Réactivation automatique en pause : le réseau actuel est illisible. Vérifiez l\'autorisation/le service de localisation, ou rouvrez l\'application si Keep-Alive a démarré en arrière-plan. Pour un correctif durable, réglez la localisation sur « Toujours autoriser ».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossible de déterminer le réseau actuel. Vérifiez la connexion Wi-Fi et l\'autorisation de localisation.</string>
