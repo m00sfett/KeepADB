@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">Hapus</string>
     <string name="settings_webhook_error_invalid_url">URL tidak valid. Harus dimulai dengan http:// atau https:// dengan host yang valid.</string>
     <string name="settings_webhook_error_missing_url">Harap masukkan URL HTTP/HTTPS yang valid sebelum mengaktifkan sinkronisasi.</string>
+    <string name="settings_webhook_error_save_first">Ketuk “Simpan URL” untuk menyimpan URL ini dan mengaktifkan sinkronisasi.</string>
     <string name="settings_webhook_cleartext_warning">URL ini menggunakan HTTP tanpa enkripsi — data dikirim dalam teks biasa. Hanya gunakan di LAN atau VPN yang dipercaya.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: jaringan saat ini tidak terbaca. Periksa izin/layanan lokasi, atau buka kembali aplikasi jika Keep-Alive dimulai di latar belakang. Untuk solusi permanen, atur Lokasi ke “Izinkan sepanjang waktu”.</string>
     <string name="settings_trusted_network_add_failed_toast">Tidak dapat menentukan jaringan saat ini. Periksa koneksi Wi-Fi dan izin lokasi.</string>

@@ -86,6 +86,7 @@
     <string name="settings_webhook_btn_clear">Temizle</string>
     <string name="settings_webhook_error_invalid_url">Geçersiz URL. Geçerli bir ana bilgisayarla http:// veya https:// ile başlamalıdır.</string>
     <string name="settings_webhook_error_missing_url">Senkronizasyonu etkinleştirmeden önce lütfen geçerli bir HTTP/HTTPS URL’si girin.</string>
+    <string name="settings_webhook_error_save_first">Bu URL’yi kaydedip senkronizasyonu açmak için “URL’yi Kaydet”e dokunun.</string>
     <string name="settings_webhook_cleartext_warning">Bu URL şifrelenmemiş HTTP kullanıyor — veriler düz metin olarak gönderilir. Yalnızca güvenilir bir LAN veya VPN üzerinde kullanın.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Otomatik yeniden etkinleştirme duraklatıldı: mevcut ağ okunamıyor. Konum izni/hizmetini kontrol edin veya Keep-Alive arka planda başladıysa uygulamayı yeniden açın. Kalıcı çözüm için konumu “Her zaman izin ver” olarak ayarlayın.</string>
     <string name="settings_trusted_network_add_failed_toast">Mevcut ağ belirlenemedi. Wi-Fi bağlantısını ve konum iznini kontrol edin.</string>

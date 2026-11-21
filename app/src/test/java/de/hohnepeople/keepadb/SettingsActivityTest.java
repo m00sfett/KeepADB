@@ -698,6 +698,34 @@ public class SettingsActivityTest {
                 KeepADBPreferences.getRegisterWebhookUrl(activity));
     }
 
+    /** #1045: a refused header switch with a valid but unsaved URL points to "Save URL". */
+    @Test
+    public void aRefusalWithAValidUnsavedDraftPointsToSaveUrl() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_header_toggle);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+
+        input.setText("https://100.111.111.21:50829/register/s20");
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertTrue(error.isShown());
+        assertEquals("Tap “Save URL” to save this URL and turn on sync.", error.getText().toString());
+        assertEquals("the draft stays", "https://100.111.111.21:50829/register/s20",
+                input.getText().toString());
+
+        // The other side: an invalid entry keeps the existing message.
+        input.setText("not a url");
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(activity.getString(R.string.settings_webhook_error_missing_url),
+                error.getText().toString());
+        controller.pause().stop().destroy();
+    }
+
     /** #1034 review: a report finishing while Settings is open updates the status line. */
     @Test
     public void theHeaderStatusFollowsABackgroundReport() {
