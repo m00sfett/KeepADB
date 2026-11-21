@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 /**
  * One attempt to let the app grant itself {@code WRITE_SECURE_SETTINGS} through the device's own
@@ -73,6 +74,8 @@ public final class SelfPairSession {
     private static final long CONNECT_PORT_WAIT_MS = 3_000;
     private static final int GRANT_ATTEMPTS = 3;
     private static final long GRANT_RETRY_PAUSE_MS = 500;
+    /** Pairing services tried in one attempt at most; each try may take up to 20 s. */
+    static final int MAX_PAIR_CANDIDATES = 4;
 
     private final String packageName;
     private final LocalAdbDiscovery pairing;
@@ -161,23 +164,51 @@ public final class SelfPairSession {
         return new Result(grant(identity), fingerprint);
     }
 
-    /** mDNS may still list a dialog that was closed; a refused connection means try the next. */
     private Failure pair(List<Integer> candidates, String code, AdbIdentity identity) {
+        return pairFirst(candidates,
+                port -> new AdbPairingClient(Tls13Channel.FACTORY)
+                        .pair(port, code, identity, KEY_NAME),
+                () -> cancelled);
+    }
+
+    /** One pairing exchange with the service on {@code port}. */
+    interface PairAttempt {
+        void pair(int port) throws IOException, GeneralSecurityException;
+    }
+
+    /**
+     * Tries the candidates in order until one pairs (#1039). mDNS may still list a dialog that
+     * was closed, and any local app can announce a pairing service of its own, so a candidate
+     * that refuses the connection or fails before the code is confirmed (TLS or protocol
+     * error) only means try the next one; each try is a fresh TLS and SPAKE2 exchange. A wrong
+     * code ends the attempt at once: every further try would be one more online guess against
+     * the dialog. Package-private for tests.
+     */
+    static Failure pairFirst(List<Integer> candidates, PairAttempt attempt,
+            BooleanSupplier isCancelled) {
         Failure failure = Failure.NO_PAIRING_DIALOG;
+        int tried = 0;
         for (int port : candidates) {
+            if (isCancelled.getAsBoolean()) {
+                return Failure.CANCELLED;
+            }
+            if (tried++ == MAX_PAIR_CANDIDATES) {
+                Log.w(TAG, "pairing candidate budget used up");
+                break;
+            }
             try {
-                new AdbPairingClient(Tls13Channel.FACTORY).pair(port, code, identity, KEY_NAME);
+                attempt.pair(port);
                 return null;
             } catch (ConnectException e) {
-                failure = Failure.NO_PAIRING_DIALOG;
+                // A closed dialog; keeps an earlier PAIRING_FAILED.
             } catch (AdbPairingClient.WrongCodeException e) {
                 return Failure.WRONG_CODE;
             } catch (IOException | GeneralSecurityException e) {
-                Log.w(TAG, "pairing failed: " + e);
-                return Failure.PAIRING_FAILED;
+                Log.w(TAG, "pairing failed on a candidate: " + e);
+                failure = Failure.PAIRING_FAILED;
             }
         }
-        return failure;
+        return isCancelled.getAsBoolean() ? Failure.CANCELLED : failure;
     }
 
     private Failure grant(AdbIdentity identity) throws InterruptedException {

@@ -25,6 +25,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.15.16] - Unreleased
 
+### Fixed
+- **Self-pairing: a failing extra pairing listener no longer ends the attempt (#1039):** KeepADB tries the most recently announced pairing service first. Only a refused connection used to move on to the next candidate; any TLS or protocol error ended the attempt with "pairing failed", so a stale or broken listener, or a local app announcing its own, could hide the real dialog. `SelfPairSession.pairFirst()` now moves on after every failure before the code is confirmed, each try with a fresh TLS and SPAKE2 exchange, at most `MAX_PAIR_CANDIDATES` (4) services per attempt and honoring a cancel between tries. A wrong code still ends the attempt at once, so there are no extra online guesses against the dialog (audit F-02, 2026-11-21).
+
 ### Security
 - **Self-pairing: stricter TLS Certificate parser (#1040):** `Tls13Channel.parseCertificate()` used to skip each certificate entry's extension block as opaque bytes, so a block too short for an extension header was accepted. The client offers no extension a server may answer per certificate entry, so every non-empty block is now rejected with `IOException`. No authentication bypass existed: the bytes were part of the signed transcript (audit F-03, 2026-11-21).
 
