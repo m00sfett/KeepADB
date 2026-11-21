@@ -673,10 +673,10 @@
     <string name="settings_webhook_periodic_subtext">Keep-Alive와 웹훅 동기화가 켜져 있는 동안 예약된 간격으로 활성 Wifi-ADB 엔드포인트를 다시 전송합니다. 몇 시간 뒤 메시지가 만료되는 대상에 유용합니다.</string>
     <string name="settings_webhook_periodic_interval_15m">15분마다</string>
     <string name="settings_webhook_periodic_interval_30m">30분마다</string>
-    <string name="settings_webhook_periodic_interval_1h">59분마다</string>
-    <string name="settings_webhook_periodic_interval_4h">3시간 59분마다(기본값)</string>
-    <string name="settings_webhook_periodic_interval_12h">11시간 59분마다</string>
-    <string name="settings_webhook_periodic_interval_24h">23시간 59분마다</string>
+    <string name="settings_webhook_periodic_interval_1h">1시간마다</string>
+    <string name="settings_webhook_periodic_interval_4h">4시간마다(기본값)</string>
+    <string name="settings_webhook_periodic_interval_12h">12시간마다</string>
+    <string name="settings_webhook_periodic_interval_24h">24시간마다</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB는 이 휴대전화에서 직접 이 권한을 스스로 부여할 수 있습니다. 이 휴대전화 자체의 Wifi-ADB와 한 번만 페어링합니다. 컴퓨터는 필요 없습니다.</string>
     <string name="selfpair_start_button">이 휴대전화에서 부여</string>

@@ -63,8 +63,11 @@ process restarts during it (#884). Without a failure episode, a healthy webhook 
 until the endpoint changes unless the opt-in **Periodic refresh** switch (#976, based on work by
 `@inaciopestana`) is turned on. When Periodic refresh is enabled alongside Keep-Alive and Webhook
 Sync, `AlarmManager.setAndAllowWhileIdle` re-sends the active Wifi-ADB endpoint on the chosen
-schedule (`15 min`, `30 min`, `59 min`, `3 h 59 min` default, `11 h 59 min`, or `23 h 59 min`),
-joining any in-flight POST instead of duplicating requests.
+schedule, joining any in-flight POST instead of duplicating requests. The app labels the choices
+15 min, 30 min, 1 hour, 4 hours (the default), 12 hours and 24 hours. The hour-based choices
+actually repeat one minute before the full hour (`59 min`, `3 h 59 min`, `11 h 59 min`,
+`23 h 59 min`), so a refresh lands before a receiver's expiry window of the same length runs out
+(#976); the labels leave that minute out (#1035).
 
 The HTTP client does not follow redirects. An HTTP status from 200 through 299 counts locally as a
 successful request. This does not prove that a receiver accepted the data semantically, stored it

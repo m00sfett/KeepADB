@@ -30,7 +30,15 @@ import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowPendingIntent;
 import org.robolectric.shadows.ShadowSystemClock;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -135,6 +143,42 @@ public class KeepADBPeriodicReportTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPeriodicReport.ensureArmed(context);
         assertTrue(KeepADBPeriodicReport.isArmed(context));
+    }
+
+    /**
+     * #1035: the hour-based intervals keep their minute offset (pinned above) but are labelled in
+     * whole hours in every language; no label may mention the 59 minutes any more.
+     */
+    @Test
+    public void hourIntervalLabelsShowWholeHoursInEveryLanguage() throws IOException {
+        Path res = Paths.get("").toAbsolutePath();
+        while (res != null && !Files.exists(res.resolve("settings.gradle"))) res = res.getParent();
+        assertNotNull("project root", res);
+        res = res.resolve("app/src/main/res");
+        Pattern label = Pattern.compile(
+                "<string name=\"settings_webhook_periodic_interval_(1h|4h|12h|24h)\">([^<]*)<");
+        int files = 0;
+        try (DirectoryStream<Path> dirs = Files.newDirectoryStream(res, "values*")) {
+            for (Path dir : dirs) {
+                Path strings = dir.resolve("strings.xml");
+                if (!Files.exists(strings)) continue;
+                String xml = new String(Files.readAllBytes(strings), StandardCharsets.UTF_8);
+                Matcher m = label.matcher(xml);
+                int found = 0;
+                while (m.find()) {
+                    found++;
+                    assertFalse(dir.getFileName() + " " + m.group(1) + ": " + m.group(2),
+                            m.group(2).contains("59"));
+                }
+                if (found > 0) {
+                    assertEquals(dir.getFileName() + " has all four labels", 4, found);
+                    files++;
+                }
+            }
+        }
+        assertEquals("English plus 18 translations", 19, files);
+        assertEquals("Every 4 hours (default)",
+                context.getString(R.string.settings_webhook_periodic_interval_4h));
     }
 
     @Test

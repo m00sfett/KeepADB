@@ -22,7 +22,7 @@ KeepADB controls Android's global `Settings.Global.adb_wifi_enabled` setting. Re
 - **Browser WebUSB & classic USB `adb` fallbacks:** If self-pairing cannot be used, open [`https://keepadb.roteson.de/setup`](https://keepadb.roteson.de/setup) in Chrome or Edge to grant the permission over USB right from your browser (nothing leaves the browser), or use the proven manual `adb` command (with a one-tap **Share command** action in the setup assistant).
 - **Control from anywhere:** Main screen switch, Quick Settings tile, **launcher shortcuts** (long-press the app icon for Toggle Wifi-ADB, Wi-Fi networks, and Settings), and two adaptive home-screen widgets (**KeepADB controls** and **KeepADB overview**).
 - **Network Protection & Force mode:** Keep-Alive recovers Wifi-ADB only where your protection level permits (**Maximum security** by BSSID or **Balanced** by Wi-Fi name), optionally turns off on untrusted Wi-Fi, turns off on open Wi-Fi and behind captive portals (on by default for new installations), checks for security-tier downgrades on Android 12+, and offers timed or unlimited **Force mode**.
-- **Webhook Sync with opt-in periodic refresh:** Send verified endpoints via HTTP(S) and optionally re-send active endpoints on a configurable schedule (`15 min` to `23 h 59 min`, based on work by `@inaciopestana`) so external registers that expire idle entries stay current.
+- **Webhook Sync with opt-in periodic refresh:** Send verified endpoints via HTTP(S) and optionally re-send active endpoints on a configurable schedule (15 min to 24 hours, based on work by `@inaciopestana`) so external registers that expire idle entries stay current.
 - **Zero bloat & four privacy switches:** No runtime dependencies, no ads, no analytics, and independent switches to mask names and addresses in the app, notifications, lock screen, and widgets/tile.
 
 ## Why KeepADB?
@@ -169,7 +169,7 @@ HTTP only for an endpoint you operate on a trusted LAN or VPN, and heed the warn
 The home screen shows the webhook status; while Webhook Sync is not set up or is off, it shows a
 short hint with a button that opens **Settings → Webhook & Endpoint Sync**.
 
-Under **Settings → Webhook & Endpoint Sync**, you can also turn on **Periodic refresh** (off by default, based on work by `@inaciopestana`): while Keep-Alive and Webhook Sync are active, KeepADB periodically re-sends the active endpoint (`15 min`, `30 min`, `59 min`, `3 h 59 min` default on enable, `11 h 59 min`, or `23 h 59 min`) so external receivers with expiring entries stay updated.
+Under **Settings → Webhook & Endpoint Sync**, you can also turn on **Periodic refresh** (off by default, based on work by `@inaciopestana`): while Keep-Alive and Webhook Sync are active, KeepADB periodically re-sends the active endpoint (15 min, 30 min, 1 hour, 4 hours default on enable, 12 hours, or 24 hours) so external receivers with expiring entries stay updated. The hour-based intervals repeat one minute before the full hour (for example every 3 h 59 min for "4 hours"), so a refresh lands before an expiry window of the same length runs out.
 
 The [webhook contract](docs/webhook-register.md) describes the exact message, deletion requests,
 local opt-in rule, and the boundary between the app sender and an external receiver.

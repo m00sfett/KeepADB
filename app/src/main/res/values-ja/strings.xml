@@ -673,10 +673,10 @@
     <string name="settings_webhook_periodic_subtext">Keep-Alive と Webhook 同期が有効な間、設定した間隔で有効な Wifi-ADB エンドポイントを再送信します。数時間でメッセージが期限切れになる送信先に便利です。</string>
     <string name="settings_webhook_periodic_interval_15m">15 分ごと</string>
     <string name="settings_webhook_periodic_interval_30m">30 分ごと</string>
-    <string name="settings_webhook_periodic_interval_1h">59 分ごと</string>
-    <string name="settings_webhook_periodic_interval_4h">3 時間 59 分ごと（デフォルト）</string>
-    <string name="settings_webhook_periodic_interval_12h">11 時間 59 分ごと</string>
-    <string name="settings_webhook_periodic_interval_24h">23 時間 59 分ごと</string>
+    <string name="settings_webhook_periodic_interval_1h">1 時間ごと</string>
+    <string name="settings_webhook_periodic_interval_4h">4 時間ごと（デフォルト）</string>
+    <string name="settings_webhook_periodic_interval_12h">12 時間ごと</string>
+    <string name="settings_webhook_periodic_interval_24h">24 時間ごと</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB は、この端末上でこの権限を自分自身に付与できます。端末自身の Wifi-ADB と一度だけペア設定します。パソコンは不要です。</string>
     <string name="selfpair_start_button">この端末で付与</string>

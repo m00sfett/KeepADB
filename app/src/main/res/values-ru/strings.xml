@@ -676,10 +676,10 @@
     <string name="settings_webhook_periodic_subtext">Повторно отправляет активную конечную точку Wifi-ADB по расписанию, пока включены Keep-Alive и синхронизация Webhook. Полезно для получателей, у которых сообщения истекают через несколько часов.</string>
     <string name="settings_webhook_periodic_interval_15m">Каждые 15 минут</string>
     <string name="settings_webhook_periodic_interval_30m">Каждые 30 минут</string>
-    <string name="settings_webhook_periodic_interval_1h">Каждые 59 минут</string>
-    <string name="settings_webhook_periodic_interval_4h">Каждые 3 часа 59 минут (по умолчанию)</string>
-    <string name="settings_webhook_periodic_interval_12h">Каждые 11 часов 59 минут</string>
-    <string name="settings_webhook_periodic_interval_24h">Каждые 23 часа 59 минут</string>
+    <string name="settings_webhook_periodic_interval_1h">Каждый час</string>
+    <string name="settings_webhook_periodic_interval_4h">Каждые 4 часа (по умолчанию)</string>
+    <string name="settings_webhook_periodic_interval_12h">Каждые 12 часов</string>
+    <string name="settings_webhook_periodic_interval_24h">Каждые 24 часа</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB может сам выдать себе это разрешение прямо на этом телефоне: он один раз выполняет сопряжение с Wifi-ADB этого телефона. Компьютер не нужен.</string>
     <string name="selfpair_start_button">Выдать на этом телефоне</string>

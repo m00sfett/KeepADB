@@ -673,10 +673,10 @@
     <string name="settings_webhook_periodic_subtext">在 Keep-Alive 與 Webhook 同步開啟期間，依排程重新傳送作用中的 Wifi-ADB 端點。適用於訊息會在數小時後過期的目標。</string>
     <string name="settings_webhook_periodic_interval_15m">每 15 分鐘</string>
     <string name="settings_webhook_periodic_interval_30m">每 30 分鐘</string>
-    <string name="settings_webhook_periodic_interval_1h">每 59 分鐘</string>
-    <string name="settings_webhook_periodic_interval_4h">每 3 小時 59 分鐘（預設）</string>
-    <string name="settings_webhook_periodic_interval_12h">每 11 小時 59 分鐘</string>
-    <string name="settings_webhook_periodic_interval_24h">每 23 小時 59 分鐘</string>
+    <string name="settings_webhook_periodic_interval_1h">每小時</string>
+    <string name="settings_webhook_periodic_interval_4h">每 4 小時（預設）</string>
+    <string name="settings_webhook_periodic_interval_12h">每 12 小時</string>
+    <string name="settings_webhook_periodic_interval_24h">每 24 小時</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB 可以直接在這支手機上為自己授予此權限：它會與這支手機本身的 Wifi-ADB 配對一次。不需要電腦。</string>
     <string name="selfpair_start_button">在這支手機上授予</string>

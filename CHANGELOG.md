@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.18] - Unreleased
+
+### Changed
+- **Periodic refresh: whole hours in the interval labels (#1035):** the hour-based choices read "Every hour", "Every 4 hours (default)", "Every 12 hours" and "Every 24 hours" in all 19 languages instead of "Every 59 minutes", "Every 3 hours 59 minutes" and so on. The timing is unchanged (59 min, 3 h 59 min, 11 h 59 min, 23 h 59 min, still pinned by `KeepADBPeriodicReportTest`), as are the stored ids and the backup format. README, `docs/webhook-register.md` and `docs/defaults.md` now explain the one-minute offset: a refresh lands before a receiver's expiry window of the same length runs out (#976). A new test fails if any language mentions the 59 minutes again.
+
 ## [1.15.17] - Unreleased
 
 ### Documentation

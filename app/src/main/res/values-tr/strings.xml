@@ -674,10 +674,10 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="settings_webhook_periodic_subtext">Keep-Alive ve Webhook eşitlemesi açıkken etkin Wifi-ADB uç noktasını zamanlamaya göre yeniden gönderir. İletileri birkaç saat sonra silinen hedefler için kullanışlıdır.</string>
     <string name="settings_webhook_periodic_interval_15m">Her 15 dakikada bir</string>
     <string name="settings_webhook_periodic_interval_30m">Her 30 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_1h">Her 59 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_4h">Her 3 saat 59 dakikada bir (varsayılan)</string>
-    <string name="settings_webhook_periodic_interval_12h">Her 11 saat 59 dakikada bir</string>
-    <string name="settings_webhook_periodic_interval_24h">Her 23 saat 59 dakikada bir</string>
+    <string name="settings_webhook_periodic_interval_1h">Her saat</string>
+    <string name="settings_webhook_periodic_interval_4h">Her 4 saatte bir (varsayılan)</string>
+    <string name="settings_webhook_periodic_interval_12h">Her 12 saatte bir</string>
+    <string name="settings_webhook_periodic_interval_24h">Her 24 saatte bir</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB bu izni doğrudan bu telefonda kendisi verebilir: Bu telefonun kendi Wifi-ADB özelliğiyle bir kez eşleşir. Bilgisayar gerekmez.</string>
     <string name="selfpair_start_button">Bu telefonda ver</string>

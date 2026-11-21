@@ -675,10 +675,10 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_webhook_periodic_subtext">Reinvia l\'endpoint attivo di Wifi-ADB a intervalli regolari mentre Keep-Alive e la sincronizzazione Webhook sono attivi. Utile per destinazioni i cui messaggi scadono dopo alcune ore.</string>
     <string name="settings_webhook_periodic_interval_15m">Ogni 15 minuti</string>
     <string name="settings_webhook_periodic_interval_30m">Ogni 30 minuti</string>
-    <string name="settings_webhook_periodic_interval_1h">Ogni 59 minuti</string>
-    <string name="settings_webhook_periodic_interval_4h">Ogni 3 ore e 59 minuti (predefinito)</string>
-    <string name="settings_webhook_periodic_interval_12h">Ogni 11 ore e 59 minuti</string>
-    <string name="settings_webhook_periodic_interval_24h">Ogni 23 ore e 59 minuti</string>
+    <string name="settings_webhook_periodic_interval_1h">Ogni ora</string>
+    <string name="settings_webhook_periodic_interval_4h">Ogni 4 ore (predefinito)</string>
+    <string name="settings_webhook_periodic_interval_12h">Ogni 12 ore</string>
+    <string name="settings_webhook_periodic_interval_24h">Ogni 24 ore</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB può concedersi da solo questa autorizzazione, direttamente su questo telefono: si accoppia una sola volta con il Wifi-ADB di questo telefono. Non serve alcun computer.</string>
     <string name="selfpair_start_button">Concedi su questo telefono</string>

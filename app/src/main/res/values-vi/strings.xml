@@ -673,10 +673,10 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_webhook_periodic_subtext">Gửi lại điểm cuối Wifi-ADB đang hoạt động theo lịch khi Keep-Alive và đồng bộ Webhook đang bật. Hữu ích cho các đích có thông báo hết hạn sau vài giờ.</string>
     <string name="settings_webhook_periodic_interval_15m">Mỗi 15 phút</string>
     <string name="settings_webhook_periodic_interval_30m">Mỗi 30 phút</string>
-    <string name="settings_webhook_periodic_interval_1h">Mỗi 59 phút</string>
-    <string name="settings_webhook_periodic_interval_4h">Mỗi 3 giờ 59 phút (mặc định)</string>
-    <string name="settings_webhook_periodic_interval_12h">Mỗi 11 giờ 59 phút</string>
-    <string name="settings_webhook_periodic_interval_24h">Mỗi 23 giờ 59 phút</string>
+    <string name="settings_webhook_periodic_interval_1h">Mỗi giờ</string>
+    <string name="settings_webhook_periodic_interval_4h">Mỗi 4 giờ (mặc định)</string>
+    <string name="settings_webhook_periodic_interval_12h">Mỗi 12 giờ</string>
+    <string name="settings_webhook_periodic_interval_24h">Mỗi 24 giờ</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB có thể tự cấp quyền này ngay trên điện thoại này: ứng dụng ghép nối một lần với Wifi-ADB của chính điện thoại này. Không cần máy tính.</string>
     <string name="selfpair_start_button">Cấp quyền trên điện thoại này</string>

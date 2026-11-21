@@ -676,10 +676,10 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_webhook_periodic_subtext">Ponownie wysyła aktywny punkt końcowy Wifi-ADB według harmonogramu, gdy działają Keep-Alive i synchronizacja Webhook. Przydatne dla odbiorców, których wiadomości wygasają po kilku godzinach.</string>
     <string name="settings_webhook_periodic_interval_15m">Co 15 minut</string>
     <string name="settings_webhook_periodic_interval_30m">Co 30 minut</string>
-    <string name="settings_webhook_periodic_interval_1h">Co 59 minut</string>
-    <string name="settings_webhook_periodic_interval_4h">Co 3 godziny 59 minut (domyślnie)</string>
-    <string name="settings_webhook_periodic_interval_12h">Co 11 godzin 59 minut</string>
-    <string name="settings_webhook_periodic_interval_24h">Co 23 godziny 59 minut</string>
+    <string name="settings_webhook_periodic_interval_1h">Co godzinę</string>
+    <string name="settings_webhook_periodic_interval_4h">Co 4 godziny (domyślnie)</string>
+    <string name="settings_webhook_periodic_interval_12h">Co 12 godzin</string>
+    <string name="settings_webhook_periodic_interval_24h">Co 24 godziny</string>
     <!-- #962: granting the system permission on the phone itself -->
     <string name="selfpair_intro">KeepADB może samodzielnie nadać sobie to uprawnienie, bezpośrednio na tym telefonie: jednorazowo paruje się z Wifi-ADB tego telefonu. Komputer nie jest potrzebny.</string>
     <string name="selfpair_start_button">Nadaj na tym telefonie</string>
