@@ -14,7 +14,8 @@ occasional "I need ADB for this one tool" case without leaving Wifi-ADB on for g
 | Home screen while the timer runs | "Off at 14:35 · 42 min left", "+1 h" and "Timer off". |
 
 - **"+1 h"** adds one hour to the time that is left, per tap. No timer ever has more than 24 hours
-  left; at the cap the button disappears. On the notification it needs an unlocked device.
+  left, so the button is offered only while a whole hour still fits (up to 23 hours left); a
+  24 h timer starts without it. On the notification it needs an unlocked device.
 - **"Timer off"** removes the timer and leaves Wifi-ADB as it is; from then on only the Keep-Alive
   setting decides.
 - **A manual on or off** on any surface (app, tile, widget, notification, shortcut, an automation

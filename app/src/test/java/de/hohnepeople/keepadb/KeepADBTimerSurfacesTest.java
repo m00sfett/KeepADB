@@ -120,6 +120,24 @@ public class KeepADBTimerSurfacesTest {
         assertNull(posted(context, KeepADBNotification.TIMER_NOTIFICATION_ID));
     }
 
+    /**
+     * #1032 Codex review: a minute into a 24 h timer neither the card nor the home row offers
+     * "+1 h" (only a part of the hour would fit).
+     */
+    @Test
+    public void aMinuteIntoATwentyFourHourTimerNoSurfaceOffersAnExtension() {
+        KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_24, "test");
+        clock.advance(MINUTE);
+
+        Notification card = card();
+        assertEquals(1, card.actions.length);
+        assertEquals("Off now", card.actions[0].title.toString());
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.timer_no_limit).getVisibility());
+        assertEquals(View.GONE, activity.findViewById(R.id.timer_extend).getVisibility());
+    }
+
     @Test
     public void atTheCapTheCardOffersNoExtension() {
         KeepADBTimer.start(context, KeepADBTimer.Duration.HOURS_8, "test");

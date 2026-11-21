@@ -145,10 +145,20 @@ final class KeepADBTimer {
             this.endsAtWallMs = endsAtWallMs;
         }
 
-        /** Whether "+1 h" can still add anything. */
+        /** Whether "+1 h" is offered: only while a full hour still fits under the cap. */
         boolean canExtend() {
-            return remainingMs < MAX_REMAINING_MS;
+            return extendable(remainingMs);
         }
+    }
+
+    /**
+     * #1032 Codex review: "+1 h" is offered only while the whole hour fits under
+     * {@link #MAX_REMAINING_MS}. Otherwise a 24 h timer would offer it a moment after the start,
+     * and a tap would add only the seconds that had passed. Home row, notification and
+     * {@link #extend} share this rule.
+     */
+    static boolean extendable(long remainingMs) {
+        return remainingMs > 0 && remainingMs <= MAX_REMAINING_MS - EXTENSION_MS;
     }
 
     private static final Object LOCK = new Object();
@@ -324,7 +334,8 @@ final class KeepADBTimer {
     }
 
     /**
-     * Adds {@link #EXTENSION_MS} to the remaining time, capped at {@link #MAX_REMAINING_MS}. The
+     * Adds {@link #EXTENSION_MS} to the remaining time while it fits under {@link
+     * #MAX_REMAINING_MS} ({@link #extendable}). The
      * result becomes a new base now, so the budget can only ever be what the user saw plus one
      * hour.
      *
@@ -343,7 +354,7 @@ final class KeepADBTimer {
                 long elapsed = now.elapsedMs();
                 int boot = now.bootCount(app);
                 long remaining = KeepADBDeadline.remainingMs(state.base, wall, elapsed, boot);
-                if (remaining > 0 && remaining < MAX_REMAINING_MS) {
+                if (extendable(remaining)) {
                     newBudget = Math.min(remaining + EXTENSION_MS, MAX_REMAINING_MS);
                     extended = store(app, new State(new KeepADBDeadline.Base(newBudget, wall,
                             elapsed, boot)), false);
