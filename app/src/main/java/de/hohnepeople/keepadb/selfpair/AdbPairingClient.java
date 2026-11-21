@@ -48,8 +48,15 @@ final class AdbPairingClient {
 
     void pair(int port, String code, AdbIdentity identity, String name)
             throws IOException, GeneralSecurityException {
+        pair(port, code, identity, name, new Cancellation());
+    }
+
+    /** As {@link #pair(int, String, AdbIdentity, String)}; a cancel closes the connection. */
+    void pair(int port, String code, AdbIdentity identity, String name,
+            Cancellation cancellation) throws IOException, GeneralSecurityException {
         Socket socket = new Socket();
         try {
+            cancellation.attach(socket);
             socket.connect(new InetSocketAddress(InetAddress.getLoopbackAddress(), port),
                     TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
@@ -59,6 +66,7 @@ final class AdbPairingClient {
                 exchange(channel, code, identity.adbPublicKey(name));
             }
         } finally {
+            cancellation.detach(socket);
             socket.close();
         }
     }

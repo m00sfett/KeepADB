@@ -1,6 +1,9 @@
 package de.hohnepeople.keepadb.selfpair;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -13,6 +16,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class AdbGrantClientTest {
     private static final int A_CNXN = 0x4e584e43;
@@ -121,6 +127,57 @@ public class AdbGrantClientTest {
                 }
             }, TestThreads.EXECUTOR);
             new AdbGrantClient(PASS_THROUGH).grant(server.getLocalPort(), null, "a.b");
+        }
+    }
+
+    /**
+     * #1038: the peer completes the transport setup and holds back its CNXN; the user cancels;
+     * then the CNXN arrives. The grant command must never reach the peer.
+     */
+    @Test(timeout = 30_000)
+    public void aCancelBeforeCnxnKeepsTheCommandFromGoingOut() throws Exception {
+        Cancellation cancellation = new Cancellation();
+        CountDownLatch transportReady = new CountDownLatch(1);
+        CountDownLatch cancelled = new CountDownLatch(1);
+        try (ServerSocket server = new ServerSocket(0)) {
+            CompletableFuture<Boolean> sawOpen = CompletableFuture.supplyAsync(() -> {
+                try (Socket peer = server.accept()) {
+                    InputStream in = peer.getInputStream();
+                    OutputStream out = peer.getOutputStream();
+                    read(in);
+                    write(out, A_STLS, 0x01000000, 0, new byte[0]);
+                    read(in);
+                    transportReady.countDown();
+                    cancelled.await(10, TimeUnit.SECONDS);
+                    try {
+                        write(out, A_CNXN, 0x01000001, 1 << 20, new byte[0]);
+                        return read(in).command == A_OPEN;
+                    } catch (IOException e) {
+                        return false; // the client hung up
+                    }
+                } catch (IOException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, TestThreads.EXECUTOR);
+            CompletableFuture<String> grant = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new AdbGrantClient(PASS_THROUGH)
+                            .grant(server.getLocalPort(), null, "a.b", cancellation);
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }, TestThreads.EXECUTOR);
+            assertTrue(transportReady.await(10, TimeUnit.SECONDS));
+            cancellation.cancel();
+            cancelled.countDown();
+            assertFalse("the grant command went out after the cancel",
+                    sawOpen.get(10, TimeUnit.SECONDS));
+            try {
+                grant.get(10, TimeUnit.SECONDS);
+                fail("a cancelled grant must not complete");
+            } catch (ExecutionException expected) {
+                assertTrue(expected.getCause().getCause() instanceof IOException);
+            }
         }
     }
 

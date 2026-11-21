@@ -26,6 +26,7 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.15.16] - Unreleased
 
 ### Fixed
+- **Self-pairing: cancel now stops a grant that is still connecting (#1038):** "Cancel" only set a flag, which the pairing and grant connections never read while they were connecting, negotiating TLS or waiting for adbd's `CNXN`; a cancelled attempt could still send `pm grant`. The new `Cancellation` closes the socket in use, and the grant client writes its `OPEN` packet under the cancel's lock, so the command either went out before the cancel or never goes out. Service destruction cancels the same way instead of waiting for the 20 s connection deadline. A command that was already sent may still take effect; the permission check after every attempt is unchanged (audit F-01, 2026-11-21).
 - **Self-pairing: a failing extra pairing listener no longer ends the attempt (#1039):** KeepADB tries the most recently announced pairing service first. Only a refused connection used to move on to the next candidate; any TLS or protocol error ended the attempt with "pairing failed", so a stale or broken listener, or a local app announcing its own, could hide the real dialog. `SelfPairSession.pairFirst()` now moves on after every failure before the code is confirmed, each try with a fresh TLS and SPAKE2 exchange, at most `MAX_PAIR_CANDIDATES` (4) services per attempt and honoring a cancel between tries. A wrong code still ends the attempt at once, so there are no extra online guesses against the dialog (audit F-02, 2026-11-21).
 
 ### Security

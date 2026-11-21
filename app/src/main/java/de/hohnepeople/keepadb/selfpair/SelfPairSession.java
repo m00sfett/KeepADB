@@ -37,7 +37,10 @@ public final class SelfPairSession {
         GRANT_UNCONFIRMED,
         /** The command ran and printed an error. */
         GRANT_REFUSED,
-        /** Cancelled before the grant ran. */
+        /**
+         * Cancelled. A cancel never lets the grant command go out after it, but one that was
+         * already sent may still take effect, so the caller checks the permission as always.
+         */
         CANCELLED
     }
 
@@ -81,7 +84,7 @@ public final class SelfPairSession {
     private final LocalAdbDiscovery pairing;
     private final LocalAdbDiscovery connect;
     private final Object connectChanged = new Object();
-    private volatile boolean cancelled;
+    private final Cancellation cancellation = new Cancellation();
     private volatile String pairedFingerprint;
 
     public SelfPairSession(NsdManager nsd, String packageName, Listener listener) {
@@ -107,9 +110,12 @@ public final class SelfPairSession {
         connect.stop();
     }
 
-    /** Cancels an ongoing attempt. */
+    /**
+     * Cancels an ongoing attempt and closes its connection (#1038). A grant command that has
+     * not been sent yet will not be sent; one already sent may still take effect.
+     */
     public void cancel() {
-        cancelled = true;
+        cancellation.cancel();
         synchronized (connectChanged) {
             connectChanged.notifyAll();
         }
@@ -158,7 +164,7 @@ public final class SelfPairSession {
         if (onPaired != null && !onPaired.onPaired(fingerprint)) {
             return new Result(Failure.CANCELLED, fingerprint);
         }
-        if (cancelled) {
+        if (cancellation.isCancelled()) {
             return new Result(Failure.CANCELLED, fingerprint);
         }
         return new Result(grant(identity), fingerprint);
@@ -167,8 +173,8 @@ public final class SelfPairSession {
     private Failure pair(List<Integer> candidates, String code, AdbIdentity identity) {
         return pairFirst(candidates,
                 port -> new AdbPairingClient(Tls13Channel.FACTORY)
-                        .pair(port, code, identity, KEY_NAME),
-                () -> cancelled);
+                        .pair(port, code, identity, KEY_NAME, cancellation),
+                cancellation::isCancelled);
     }
 
     /** One pairing exchange with the service on {@code port}. */
@@ -212,11 +218,11 @@ public final class SelfPairSession {
     }
 
     private Failure grant(AdbIdentity identity) throws InterruptedException {
-        if (cancelled) {
+        if (cancellation.isCancelled()) {
             return Failure.CANCELLED;
         }
         List<Integer> candidates = awaitConnectPorts();
-        if (cancelled) {
+        if (cancellation.isCancelled()) {
             return Failure.CANCELLED;
         }
         if (candidates.isEmpty()) {
@@ -226,22 +232,26 @@ public final class SelfPairSession {
         Failure failure = Failure.NO_ADB_SERVICE;
         for (int port : candidates) {
             for (int attempt = 1; attempt <= GRANT_ATTEMPTS; attempt++) {
-                if (cancelled) {
+                if (cancellation.isCancelled()) {
                     return Failure.CANCELLED;
                 }
                 try {
                     String output = new AdbGrantClient(Tls13Channel.FACTORY)
-                            .grant(port, identity, packageName);
+                            .grant(port, identity, packageName, cancellation);
                     if (output.isEmpty()) {
                         return null;
                     }
                     // Peer text stays out of the log's detail; its length says enough.
                     Log.w(TAG, "grant printed " + output.length() + " characters");
                     return Failure.GRANT_REFUSED;
-                } catch (ConnectException e) {
-                    Log.w(TAG, "grant connect refused on port " + port);
-                    break;
                 } catch (IOException | GeneralSecurityException e) {
+                    if (cancellation.isCancelled()) {
+                        return Failure.CANCELLED;
+                    }
+                    if (e instanceof ConnectException) {
+                        Log.w(TAG, "grant connect refused on port " + port);
+                        break;
+                    }
                     // adbd drops a new connection while it still tears down the previous one,
                     // and it may drop this one after the command already ran.
                     Log.w(TAG, "grant attempt " + attempt + " failed: " + e);
@@ -256,7 +266,7 @@ public final class SelfPairSession {
     private List<Integer> awaitConnectPorts() throws InterruptedException {
         long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(CONNECT_PORT_WAIT_MS);
         synchronized (connectChanged) {
-            while (connect.candidatePorts().isEmpty() && !cancelled) {
+            while (connect.candidatePorts().isEmpty() && !cancellation.isCancelled()) {
                 long left = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
                 if (left <= 0) {
                     break;
@@ -264,12 +274,12 @@ public final class SelfPairSession {
                 connectChanged.wait(left);
             }
         }
-        if (cancelled) {
+        if (cancellation.isCancelled()) {
             return Collections.emptyList();
         }
         List<Integer> found = connect.candidatePorts();
         // Android 11 never reports a connect service that was announced before the discovery
         // started; then look for adbd on loopback directly.
-        return found.isEmpty() ? LoopbackAdbScan.find(() -> cancelled) : found;
+        return found.isEmpty() ? LoopbackAdbScan.find(cancellation::isCancelled) : found;
     }
 }

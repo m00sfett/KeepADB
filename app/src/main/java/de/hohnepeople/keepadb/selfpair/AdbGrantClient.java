@@ -56,9 +56,19 @@ final class AdbGrantClient {
      */
     String grant(int port, AdbIdentity identity, String packageName)
             throws IOException, GeneralSecurityException {
+        return grant(port, identity, packageName, new Cancellation());
+    }
+
+    /**
+     * As {@link #grant(int, AdbIdentity, String)}; a cancel closes the connection, and once it
+     * has happened the command is never sent (#1038).
+     */
+    String grant(int port, AdbIdentity identity, String packageName, Cancellation cancellation)
+            throws IOException, GeneralSecurityException {
         String command = command(packageName);
         Socket socket = new Socket();
         try {
+            cancellation.attach(socket);
             socket.connect(new InetSocketAddress(InetAddress.getLoopbackAddress(), port),
                     TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
@@ -72,20 +82,25 @@ final class AdbGrantClient {
                 }
                 write(socket.getOutputStream(), A_STLS, A_STLS_VERSION, 0, new byte[0]);
                 try (TlsChannel channel = tls.handshake(socket, identity)) {
-                    return runCommand(channel.input(), channel.output(), command);
+                    return runCommand(channel.input(), channel.output(), command,
+                            cancellation);
                 }
             }
         } finally {
+            cancellation.detach(socket);
             socket.close();
         }
     }
 
-    private static String runCommand(InputStream in, OutputStream out, String command)
-            throws IOException {
+    private static String runCommand(InputStream in, OutputStream out, String command,
+            Cancellation cancellation) throws IOException {
         if (read(in).command != A_CNXN) {
             throw new IOException("adbd did not accept the connection");
         }
-        write(out, A_OPEN, LOCAL_ID, 0, nulTerminated("shell:" + command));
+        // Check and write under the cancel's lock: a cancel either comes after the command
+        // went out or keeps it from ever going out.
+        cancellation.runUnlessCancelled(
+                () -> write(out, A_OPEN, LOCAL_ID, 0, nulTerminated("shell:" + command)));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         int packets = 0;
         Message message = read(in);
