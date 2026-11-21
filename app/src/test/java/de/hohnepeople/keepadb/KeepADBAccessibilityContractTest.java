@@ -123,7 +123,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_privacy_header, R.id.privacy_switch_app,
                 R.id.privacy_switch_notifications, R.id.privacy_switch_lockscreen,
                 R.id.privacy_switch_widgets,
-                R.id.settings_webhook_header, R.id.settings_webhook_toggle,
+                R.id.settings_webhook_header, R.id.settings_webhook_header_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_protection_row,
                 R.id.settings_misc_header,
@@ -225,7 +225,7 @@ public class KeepADBAccessibilityContractTest {
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
                 R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.btn_settings_language,
-                R.id.settings_webhook_toggle,
+                R.id.settings_webhook_header_toggle, // #1034: the one switch in Settings
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_protection_row,
                 R.id.settings_hide_notification_toggle,
