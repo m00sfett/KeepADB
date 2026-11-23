@@ -87,6 +87,8 @@ public class SettingsActivity extends Activity {
     private AlertDialog activeResetAppDialog;
     /** #672: the language selection dialog, if showing. */
     private AlertDialog activeLanguageSelectionDialog;
+    /** #1047: the default-duration choice, dismissed with the activity so it cannot leak. */
+    private AlertDialog activeTimerDefaultDialog;
 
     static final String WEBSITE_URL = "https://keepadb.roteson.de";
 
@@ -187,6 +189,9 @@ public class SettingsActivity extends Activity {
 
         // #959: the Protection page holds the former Network card; the level is chosen there.
         protectionSummary = findViewById(R.id.settings_protection_summary);
+        // #1047: registered once here, not on every onResume().
+        findViewById(R.id.settings_muted_warnings).setOnClickListener(v -> startActivity(
+                new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         findViewById(R.id.settings_protection_row).setOnClickListener(v ->
                 startActivity(ProtectionActivity.intent(this)));
 
@@ -229,8 +234,6 @@ public class SettingsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         renderTimerDefault();
-        findViewById(R.id.settings_muted_warnings).setOnClickListener(v -> startActivity(
-                new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
         // #1034 review: a report finishing in the background updates the header's status line.
@@ -345,6 +348,13 @@ public class SettingsActivity extends Activity {
                 activeLanguageSelectionDialog.dismiss();
             }
             activeLanguageSelectionDialog = null;
+        }
+
+        if (activeTimerDefaultDialog != null) {
+            if (activeTimerDefaultDialog.isShowing()) {
+                activeTimerDefaultDialog.dismiss();
+            }
+            activeTimerDefaultDialog = null;
         }
 
         super.onDestroy();
@@ -561,16 +571,7 @@ public class SettingsActivity extends Activity {
             versionNameText.setText(R.string.settings_version_unavailable);
             versionCodeText.setText(R.string.settings_version_unavailable);
         }
-        versionDebugBadge.setVisibility(isDebugBuild() ? View.VISIBLE : View.GONE);
-    }
-
-    /**
-     * The debug build type appends the {@code .debug} applicationIdSuffix (see app/build.gradle),
-     * so the running package name is a reliable, dependency-free debug signal without needing
-     * BuildConfig.DEBUG (which would require enabling the buildConfig build feature).
-     */
-    private boolean isDebugBuild() {
-        return getPackageName().endsWith(".debug");
+        versionDebugBadge.setVisibility(KeepADBBuildFlags.isDebugBuild(this) ? View.VISIBLE : View.GONE);
     }
 
     /** #1000: the stored default duration as the row's value. */
@@ -585,7 +586,8 @@ public class SettingsActivity extends Activity {
      */
     private void showTimerDefaultChoice() {
         KeepADBTimer.Duration current = KeepADBPreferences.getTimerDefaultDuration(this);
-        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+        if (isShowing(activeTimerDefaultDialog)) activeTimerDefaultDialog.dismiss();
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_timer_default_title)
                 .setSingleChoiceItems(KeepADBTimerText.durations(this), current.ordinal(), (d, which) -> {
                     d.dismiss();
@@ -595,6 +597,15 @@ public class SettingsActivity extends Activity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
         dialog.setOwnerActivity(this);
+        activeTimerDefaultDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeTimerDefaultDialog == d) activeTimerDefaultDialog = null;
+        });
         dialog.show();
+    }
+
+    /** Test hook (#1047): the default-duration choice while it is open, or null. */
+    AlertDialog getActiveTimerDefaultDialog() {
+        return activeTimerDefaultDialog;
     }
 }

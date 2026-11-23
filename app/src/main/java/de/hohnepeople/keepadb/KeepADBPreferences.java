@@ -136,26 +136,26 @@ final class KeepADBPreferences {
      */
     static boolean getLastDesiredOn(Context context) {
         if (context == null) return true;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_LAST_DESIRED_ON, true);
     }
 
     /** #1000: the preselected timer duration; {@link KeepADBTimer.Duration#DEFAULT} if unset. */
     static KeepADBTimer.Duration getTimerDefaultDuration(Context context) {
         if (context == null) return KeepADBTimer.Duration.DEFAULT;
-        return KeepADBTimer.Duration.fromToken(context.getSharedPreferences(PREFS_NAME,
-                Context.MODE_PRIVATE).getString(KEY_TIMER_DEFAULT_DURATION, null));
+        return KeepADBTimer.Duration.fromToken(
+                prefs(context).getString(KEY_TIMER_DEFAULT_DURATION, null));
     }
 
     static void setTimerDefaultDuration(Context context, KeepADBTimer.Duration duration) {
         if (context == null || duration == null) return;
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        prefs(context).edit()
                 .putString(KEY_TIMER_DEFAULT_DURATION, duration.token).apply();
     }
 
     static void setLastDesiredOn(Context context, boolean on) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_LAST_DESIRED_ON, on).apply();
     }
 
@@ -168,14 +168,14 @@ final class KeepADBPreferences {
      */
     static boolean isNotificationPrivacyEnabled(Context context) {
         if (context == null) return false;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         ensurePrivacySplit(prefs);
         return prefs.getBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, false);
     }
 
     static void setNotificationPrivacyEnabled(Context context, boolean enabled) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         ensurePrivacySplit(prefs);
         prefs.edit().putBoolean(KEY_NOTIFICATION_PRIVACY_ENABLED, enabled).apply();
     }
@@ -188,13 +188,13 @@ final class KeepADBPreferences {
      */
     static boolean isLockScreenPrivacyEnabled(Context context) {
         if (context == null) return false;
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs(context)
                 .getBoolean(KEY_LOCKSCREEN_PRIVACY_ENABLED, false);
     }
 
     static void setLockScreenPrivacyEnabled(Context context, boolean enabled) {
         if (context == null) return;
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        prefs(context).edit()
                 .putBoolean(KEY_LOCKSCREEN_PRIVACY_ENABLED, enabled).apply();
     }
 
@@ -204,14 +204,14 @@ final class KeepADBPreferences {
      */
     static boolean isWidgetPrivacyEnabled(Context context) {
         if (context == null) return false;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         ensurePrivacySplit(prefs);
         return prefs.getBoolean(KEY_WIDGET_PRIVACY_ENABLED, false);
     }
 
     static void setWidgetPrivacyEnabled(Context context, boolean enabled) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         ensurePrivacySplit(prefs);
         prefs.edit().putBoolean(KEY_WIDGET_PRIVACY_ENABLED, enabled).apply();
     }
@@ -236,7 +236,7 @@ final class KeepADBPreferences {
      */
     static void migratePrivacySplit(Context context) {
         if (context == null) return;
-        ensurePrivacySplit(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
+        ensurePrivacySplit(prefs(context));
     }
 
     private static void ensurePrivacySplit(SharedPreferences prefs) {
@@ -256,28 +256,33 @@ final class KeepADBPreferences {
     }
 
     static boolean isNotificationHidden(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_HIDE_NOTIFICATION, false);
     }
 
     static void setNotificationHidden(Context context, boolean hidden) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_HIDE_NOTIFICATION, hidden).apply();
     }
 
     /** #224: keeps the display on only while MainActivity is in the foreground. Default OFF. */
     static boolean isKeepDisplayOnEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_KEEP_DISPLAY_ON, false);
     }
 
     static void setKeepDisplayOnEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_KEEP_DISPLAY_ON, enabled).apply();
     }
 
     static boolean isKeepAliveEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_KEEP_ALIVE, false);
     }
 
@@ -304,19 +309,21 @@ final class KeepADBPreferences {
         if (context == null) return;
         // #962: a decision about Keep-Alive voids a pending self-pairing cleanup.
         KeepADBSelfPairCleanup.supersede(context);
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
         KeepADBWarningState.observe(context);
         refreshWidgetState(context);
     }
 
     static boolean isRegisterWebhookEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_WEBHOOK_ENABLED, false);
     }
 
     static void setRegisterWebhookEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_WEBHOOK_ENABLED, enabled).apply();
         KeepADBWarningState.observe(context);
         refreshWidgetState(context);
@@ -382,20 +389,20 @@ final class KeepADBPreferences {
     /** #976: opt-in periodic webhook refresh while Keep-Alive and Webhook Sync are active; default off. */
     static boolean isPeriodicWebhookReportEnabled(Context context) {
         if (context == null) return false;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_WEBHOOK_PERIODIC_ENABLED, false);
     }
 
     static void setPeriodicWebhookReportEnabled(Context context, boolean enabled) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_WEBHOOK_PERIODIC_ENABLED, enabled).apply();
     }
 
     /** #976: chosen schedule preset for periodic webhook refreshes; defaults to 4 h (3 h 59 m). */
     static KeepADBPeriodicReport.Interval getPeriodicWebhookInterval(Context context) {
         if (context == null) return KeepADBPeriodicReport.Interval.DEFAULT;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         return KeepADBPeriodicReport.Interval.fromId(
                 prefs.getString(KEY_WEBHOOK_PERIODIC_INTERVAL,
                         KeepADBPeriodicReport.Interval.DEFAULT.id));
@@ -406,19 +413,19 @@ final class KeepADBPreferences {
         if (context == null) return;
         KeepADBPeriodicReport.Interval chosen = interval != null
                 ? interval : KeepADBPeriodicReport.Interval.DEFAULT;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putString(KEY_WEBHOOK_PERIODIC_INTERVAL, chosen.id).apply();
     }
 
     static String getRegisterWebhookUrl(Context context) {
         if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         return sanitizeWebhookUrl(prefs.getString(KEY_REGISTER_URL, null));
     }
 
     static void setRegisterWebhookUrl(Context context, String url) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         String sanitized = sanitizeWebhookUrl(url);
         if (sanitized == null || sanitized.trim().isEmpty()) {
             prefs.edit().remove(KEY_REGISTER_URL).apply();
@@ -439,7 +446,8 @@ final class KeepADBPreferences {
     }
 
     static long getWebhookLastReportedAt(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return 0L;
+        SharedPreferences prefs = prefs(context);
         return prefs.getLong(KEY_WEBHOOK_LAST_REPORTED, 0L);
     }
 
@@ -450,14 +458,17 @@ final class KeepADBPreferences {
      * endpoint is still stored, which is exactly the "last report was a success" state.
      */
     static long getWebhookLastSuccessAt(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return 0L;
+        SharedPreferences prefs = prefs(context);
         // #893 (Codex review): a success belongs to the URL that accepted it, so a replaced
         // destination, a late answer from the previous one or an older version's leftover does
         // not show up as a success for the current URL. Older records name their URL only in the
         // last report snapshot; a time whose URL is not known at all is not claimed either.
         String owner = prefs.getString(KEY_WEBHOOK_LAST_SUCCESS_URL,
                 prefs.getString(KEY_WEBHOOK_LAST_URL, null));
-        if (owner == null || !owner.trim().equals(prefs.getString(KEY_REGISTER_URL, ""))) {
+        // #1047: compared with the saved URL as every reader sees it (sanitized), not the raw value.
+        String saved = getRegisterWebhookUrl(context);
+        if (owner == null || saved == null || !owner.trim().equals(saved)) {
             return 0L;
         }
         if (prefs.contains(KEY_WEBHOOK_LAST_SUCCESS_AT)) {
@@ -471,17 +482,20 @@ final class KeepADBPreferences {
     }
 
     static void setWebhookLastReportedAtNow(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putLong(KEY_WEBHOOK_LAST_REPORTED, System.currentTimeMillis()).apply();
     }
 
     static String getWebhookLastReportedEndpoint(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return null;
+        SharedPreferences prefs = prefs(context);
         return prefs.getString(KEY_WEBHOOK_LAST_ENDPOINT, null);
     }
 
     static void setWebhookLastReportedEndpoint(Context context, String endpoint) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         if (endpoint == null || endpoint.trim().isEmpty()) {
             prefs.edit().remove(KEY_WEBHOOK_LAST_ENDPOINT).apply();
         } else {
@@ -494,12 +508,14 @@ final class KeepADBPreferences {
      * cleanup request or written to a log. Production cleanup uses HTTP DELETE at the stored URL.
      */
     static String getWebhookLastReportedUrl(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return null;
+        SharedPreferences prefs = prefs(context);
         return sanitizeWebhookUrl(prefs.getString(KEY_WEBHOOK_LAST_URL, null));
     }
 
     static void setWebhookLastReportedUrl(Context context, String url) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         String sanitized = sanitizeWebhookUrl(url);
         if (sanitized == null) {
             prefs.edit().remove(KEY_WEBHOOK_LAST_URL).apply();
@@ -513,7 +529,8 @@ final class KeepADBPreferences {
      * so existing installations keep their previous success/deregistration meaning.
      */
     static String getWebhookLastReportStatus(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return WEBHOOK_STATUS_NEVER;
+        SharedPreferences prefs = prefs(context);
         String stored = prefs.getString(KEY_WEBHOOK_LAST_STATUS, null);
         if (isWebhookReportStatus(stored)) {
             return stored;
@@ -527,7 +544,8 @@ final class KeepADBPreferences {
     }
 
     static void setWebhookLastReportStatus(Context context, String status) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         if (isWebhookReportStatus(status)) {
             prefs.edit().putString(KEY_WEBHOOK_LAST_STATUS, status).apply();
         } else {
@@ -556,7 +574,7 @@ final class KeepADBPreferences {
     static void setWebhookReportSnapshot(Context context, String url, String endpoint, String status,
             boolean touchTimestamp) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         SharedPreferences.Editor editor = prefs.edit();
         // #923: every snapshot is written by a settled register transaction, which also settles
         // the dispatch marker; in the same editor transaction, so no crash can split the two.
@@ -611,12 +629,14 @@ final class KeepADBPreferences {
 
     /** #864: whether Wireless Debugging is turned off on an untrusted Wi-Fi; off by default. */
     static boolean isUntrustedShutdownEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_UNTRUSTED_SHUTDOWN, false);
     }
 
     static void setUntrustedShutdownEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_UNTRUSTED_SHUTDOWN, enabled).apply();
     }
 
@@ -626,12 +646,14 @@ final class KeepADBPreferences {
      * default comes from {@link #migrateOpenNetworkShutdown}.
      */
     static boolean isOpenNetworkShutdownEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_OPEN_NETWORK_SHUTDOWN, false);
     }
 
     static void setOpenNetworkShutdownEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_OPEN_NETWORK_SHUTDOWN, enabled).apply();
     }
 
@@ -644,7 +666,7 @@ final class KeepADBPreferences {
      */
     static void migrateOpenNetworkShutdown(Context context) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         if (prefs.contains(KEY_OPEN_NETWORK_SHUTDOWN)) return;
         prefs.edit().putBoolean(KEY_OPEN_NETWORK_SHUTDOWN, prefs.getAll().isEmpty()).apply();
     }
@@ -654,19 +676,22 @@ final class KeepADBPreferences {
      * recorded.
      */
     static String getUntrustedShutdownManualBssid(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return null;
+        SharedPreferences prefs = prefs(context);
         return prefs.getString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, null);
     }
 
     /** #1027: elapsed realtime of a pending restart "on", or -1 when none is owed. */
     static long getRestartOnPendingAt(Context context) {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (context == null) return -1L;
+        return prefs(context)
                 .getLong(KEY_RESTART_ON_PENDING_AT, -1L);
     }
 
     /** #1027: the boot counter stored with the pending restart "on", or -1. */
     static int getRestartOnPendingBoot(Context context) {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (context == null) return -1;
+        return prefs(context)
                 .getInt(KEY_RESTART_ON_PENDING_BOOT, -1);
     }
 
@@ -675,74 +700,86 @@ final class KeepADBPreferences {
      * "off" still finds both, and a later boot can never adopt the record.
      */
     static void setRestartOnPending(Context context, long atElapsedMs, int bootCount) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        if (context == null) return;
+        prefs(context).edit()
                 .putLong(KEY_RESTART_ON_PENDING_AT, atElapsedMs)
                 .putInt(KEY_RESTART_ON_PENDING_BOOT, bootCount).commit();
     }
 
     static void clearRestartOnPending(Context context) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        if (context == null) return;
+        prefs(context).edit()
                 .remove(KEY_RESTART_ON_PENDING_AT).remove(KEY_RESTART_ON_PENDING_BOOT).commit();
     }
 
     /** #1030: the remembered Wifi-ADB port, or -1. */
     static int getLastAdbPort(Context context) {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (context == null) return -1;
+        return prefs(context)
                 .getInt(KEY_LAST_ADB_PORT, -1);
     }
 
     /** #1030: the boot counter stored with the remembered port, or -1. */
     static int getLastAdbPortBoot(Context context) {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (context == null) return -1;
+        return prefs(context)
                 .getInt(KEY_LAST_ADB_PORT_BOOT, -1);
     }
 
     /** #1030: port and boot counter in one edit, so neither is ever read without the other. */
     static void setLastAdbPort(Context context, int port, int bootCount) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        if (context == null) return;
+        prefs(context).edit()
                 .putInt(KEY_LAST_ADB_PORT, port)
                 .putInt(KEY_LAST_ADB_PORT_BOOT, bootCount).apply();
     }
 
     static void clearLastAdbPort(Context context) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        if (context == null) return;
+        prefs(context).edit()
                 .remove(KEY_LAST_ADB_PORT).remove(KEY_LAST_ADB_PORT_BOOT).apply();
     }
 
     /** Clears the manual exemption. */
     static void clearUntrustedShutdownManualBssid(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID)
                 .remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT).apply();
     }
 
     /** Records the manual exemption for {@code bssid} at elapsed-realtime {@code atElapsedMs}. */
     static void setUntrustedShutdownManualBssid(Context context, String bssid, long atElapsedMs) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, bssid)
                 .putLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, atElapsedMs).apply();
     }
 
     /** Elapsed-realtime millis of the recorded manual exemption, or -1 without one. */
     static long getUntrustedShutdownManualAt(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return -1L;
+        SharedPreferences prefs = prefs(context);
         return prefs.getLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, -1L);
     }
 
     /** Epoch-millis of the first failed report of the current failure episode, or 0 without one. */
     static long getWebhookFailureSince(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return 0L;
+        SharedPreferences prefs = prefs(context);
         return prefs.getLong(KEY_WEBHOOK_FAILURE_SINCE, 0L);
     }
 
     static int getWebhookAlertsShown(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return 0;
+        SharedPreferences prefs = prefs(context);
         return prefs.getInt(KEY_WEBHOOK_ALERTS_SHOWN, 0);
     }
 
     /** One editor transaction, so an episode start is never stored without its alert count. */
     static void setWebhookFailureEpisode(Context context, long failureSince, int alertsShown) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         SharedPreferences.Editor editor = prefs.edit();
         if (failureSince <= 0L) {
             editor.remove(KEY_WEBHOOK_FAILURE_SINCE).remove(KEY_WEBHOOK_ALERTS_SHOWN);
@@ -797,15 +834,17 @@ final class KeepADBPreferences {
      * cleanups, the raw URL is kept (the DELETE needs it) and sanitized only where it is used.
      */
     static String getWebhookDispatchedUrl(Context context) {
-        String url = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (context == null) return null;
+        String url = prefs(context)
                 .getString(KEY_WEBHOOK_DISPATCHED_URL, null);
         return url == null || url.trim().isEmpty() ? null : url;
     }
 
     /** Writes or clears the #923 dispatch marker with {@code commit()}: it must land before the POST. */
     static void setWebhookDispatchedUrl(Context context, String url) {
+        if (context == null) return;
         SharedPreferences.Editor editor =
-                context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+                prefs(context).edit();
         if (url == null || url.trim().isEmpty()) {
             editor.remove(KEY_WEBHOOK_DISPATCHED_URL);
         } else {
@@ -832,7 +871,7 @@ final class KeepADBPreferences {
      */
     private static java.util.LinkedHashSet<String> getPendingCleanups(Context context, String key) {
         if (context == null) return new java.util.LinkedHashSet<>();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         String orderKey = orderKeyFor(key);
         String joined = prefs.getString(orderKey, null);
         if (joined != null) {
@@ -855,7 +894,8 @@ final class KeepADBPreferences {
 
     /** Persists both the legacy {@code StringSet} key (compat) and the new ordered shadow key. */
     private static void persistPendingCleanups(Context context, String key, java.util.LinkedHashSet<String> pending) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         String orderKey = orderKeyFor(key);
         if (pending.isEmpty()) {
             prefs.edit().remove(key).remove(orderKey).apply();
@@ -1003,22 +1043,26 @@ final class KeepADBPreferences {
 
     /** Marks the moment the foreground service was known alive; used to log restart gaps. */
     static long getServiceLastHeartbeat(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return 0L;
+        SharedPreferences prefs = prefs(context);
         return prefs.getLong(KEY_SERVICE_LAST_HEARTBEAT, 0L);
     }
 
     static void setServiceLastHeartbeatNow(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putLong(KEY_SERVICE_LAST_HEARTBEAT, System.currentTimeMillis()).apply();
     }
 
     static String getAppLanguage(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return "";
+        SharedPreferences prefs = prefs(context);
         return prefs.getString(KEY_APP_LANGUAGE, "");
     }
 
     static void setAppLanguage(Context context, String languageTag) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         if (languageTag == null || languageTag.trim().isEmpty()) {
             prefs.edit().remove(KEY_APP_LANGUAGE).apply();
         } else {
@@ -1029,13 +1073,13 @@ final class KeepADBPreferences {
     /** #761: version of the setup assistant the user last closed; 0 when it never was. */
     static int getOnboardingCompletedVersion(Context context) {
         if (context == null) return 0;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         return prefs.getInt(KEY_ONBOARDING_COMPLETED_VERSION, 0);
     }
 
     static void setOnboardingCompletedVersion(Context context, int version) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putInt(KEY_ONBOARDING_COMPLETED_VERSION, version).apply();
     }
 
@@ -1046,7 +1090,7 @@ final class KeepADBPreferences {
      */
     static void removeObsoleteHomeCardKeys(Context context) {
         KeepADBOnboarding.isExistingInstall(context);
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         SharedPreferences.Editor editor = null;
         for (String key : OBSOLETE_HOME_CARD_KEYS) {
             if (!prefs.contains(key)) continue;
@@ -1091,7 +1135,7 @@ final class KeepADBPreferences {
     private static void removeStoredKeys(Context context,
             java.util.function.Predicate<String> obsolete) {
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = prefs(context);
         java.util.List<String> found = new java.util.ArrayList<>();
         for (String key : prefs.getAll().keySet()) {
             if (obsolete.test(key)) found.add(key);
@@ -1112,12 +1156,14 @@ final class KeepADBPreferences {
      * touches {@code adb_wifi_enabled} or any other persisted original value.
      */
     static boolean isAppPrivacyEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return false;
+        SharedPreferences prefs = prefs(context);
         return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false);
     }
 
     static void setAppPrivacyEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (context == null) return;
+        SharedPreferences prefs = prefs(context);
         prefs.edit().putBoolean(KEY_PRIVACY_MODE_ENABLED, enabled).apply();
     }
 }
