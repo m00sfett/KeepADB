@@ -30,6 +30,9 @@ import org.junit.Test;
 public class KeepADBHttpTransportContractTest {
     private static final String SOURCE_DIRECTORY = "app/src/main/java/de/hohnepeople/keepadb/";
     private static final String CLIENT = "KeepADBRegisterClient.java";
+    /** #1049: the seam and the send paths moved out of the client into this class. */
+    private static final String SEAM = "RegisterTransport.java";
+    private static final String RESULT = "TransportResult.java";
     private static final String ADAPTER = "KeepADBHttpTransport.java";
 
     @Test
@@ -37,7 +40,7 @@ public class KeepADBHttpTransportContractTest {
         Class<?> type = KeepADBHttpTransport.class;
         assertTrue(Modifier.isFinal(type.getModifiers()));
         assertFalse("package-private, not public API", Modifier.isPublic(type.getModifiers()));
-        assertTrue(KeepADBRegisterClient.HttpTransport.class.isAssignableFrom(type));
+        assertTrue(RegisterTransport.HttpTransport.class.isAssignableFrom(type));
         assertEquals("no nested type that could carry state", 0, type.getDeclaredClasses().length);
 
         Set<String> fields = new HashSet<>();
@@ -87,21 +90,28 @@ public class KeepADBHttpTransportContractTest {
         assertEquals("redirects are never enabled", 0, count(code, "FollowRedirects(true"));
         assertEquals(2, count(code, "conn.setConnectTimeout(TIMEOUT_MS);"));
         assertEquals(2, count(code, "conn.setReadTimeout(TIMEOUT_MS);"));
-        assertEquals("only 2xx is success for POST and DELETE", 2,
-                count(code, "return code >= 200 && code < 300;"));
+        assertEquals("every HTTP answer of POST and DELETE is judged by TransportResult.http", 2,
+                count(code, "return TransportResult.http(code);"));
+        // #1049: the 2xx rule lives in the result type, once.
+        String result = withoutComments(read(SOURCE_DIRECTORY + RESULT));
+        assertEquals("only 2xx is success", 1,
+                count(result, "new TransportResult(code >= 200 && code < 300, \"http=\" + code)"));
+        assertEquals("no other result is ever successful", 1, count(result, "new TransportResult(false, "));
+        assertEquals(2, count(result, "new TransportResult("));
         assertEquals("no other way to report success", 0, count(code, "return true"));
         assertEquals(1, count(code, "payload.getBytes(StandardCharsets.UTF_8)"));
         assertEquals(1, count(code, "conn.setFixedLengthStreamingMode(bytes.length);"));
         assertEquals(1, count(code,
                 "conn.setRequestProperty(\"Content-Type\", \"application/json; charset=utf-8\");"));
 
-        for (String signature : new String[] {"public boolean postJson(", "public boolean delete("}) {
+        for (String signature : new String[] {"public TransportResult postJson(", "public TransportResult delete("}) {
             String body = bodyOf(code, signature);
             assertTrue(signature + " must release the connection in a finally block",
                     Pattern.compile("finally\\s*\\{\\s*if\\s*\\(\\s*conn\\s*!=\\s*null\\s*\\)\\s*\\{\\s*"
                             + "conn\\.disconnect\\(\\);\\s*\\}\\s*\\}").matcher(body).find());
             assertTrue(signature + " must fail closed on an IOException",
-                    Pattern.compile("catch\\s*\\(IOException e\\)\\s*\\{[^}]*return false;").matcher(body).find());
+                    Pattern.compile("catch\\s*\\(IOException e\\)\\s*\\{[^}]*return TransportResult\\.error\\(e\\);")
+                            .matcher(body).find());
         }
     }
 
@@ -131,19 +141,31 @@ public class KeepADBHttpTransportContractTest {
     @Test
     public void theClientKeepsTheSeamButNoHttpConfigurationOfItsOwn() throws IOException {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
+        String seam = withoutComments(read(SOURCE_DIRECTORY + SEAM));
 
         for (String moved : new String[] {"HttpURLConnection", "java.net.URL", "TIMEOUT_MS",
                 "setConnectTimeout", "setReadTimeout", "setInstanceFollowRedirects",
                 "setFixedLengthStreamingMode", "DefaultHttpTransport", "openConnection"}) {
             assertFalse("the client must not hold '" + moved + "' any more (#700)",
                     client.contains(moved));
+            assertFalse("the seam must not hold '" + moved + "' either (#1049)",
+                    seam.contains(moved));
         }
-        assertTrue(client.contains(
+        assertTrue(seam.contains(
                 "private static final HttpTransport DEFAULT_TRANSPORT = new KeepADBHttpTransport();"));
-        assertTrue(client.contains("boolean postJson(String targetUrl, String payload, String logLabel);"));
-        assertTrue(client.contains("boolean delete(String targetUrl);"));
-        assertEquals("one send path per request kind", 1, count(client, "httpTransport.postJson("));
-        assertEquals(1, count(client, "httpTransport.delete("));
+        assertTrue(seam.contains(
+                "TransportResult postJson(String targetUrl, String payload, String logLabel);"));
+        assertTrue(seam.contains("TransportResult delete(String targetUrl);"));
+        assertEquals("one send path per request kind", 1, count(seam, "httpTransport.postJson("));
+        assertEquals(1, count(seam, "httpTransport.delete("));
+        assertFalse("only the seam reaches the selected transport (#1049)",
+                client.contains("httpTransport"));
+        // #1049: the outcome is returned, never noted on a shared field.
+        for (String sideChannel : new String[] {"lastTransportOutcome", "noteTransportOutcome"}) {
+            assertFalse(client.contains(sideChannel));
+            assertFalse(seam.contains(sideChannel));
+            assertFalse(withoutComments(read(SOURCE_DIRECTORY + ADAPTER)).contains(sideChannel));
+        }
         assertTrue("the adapter and the client log under the same tag",
                 Pattern.compile("TAG = \"KeepADBRegisterClient\"")
                         .matcher(read(SOURCE_DIRECTORY + ADAPTER)).find());
@@ -151,7 +173,7 @@ public class KeepADBHttpTransportContractTest {
 
     @Test
     public void theDefaultTransportIsTheAdapterAndResetRestoresIt() throws Exception {
-        Field field = KeepADBRegisterClient.class.getDeclaredField("httpTransport");
+        Field field = RegisterTransport.class.getDeclaredField("httpTransport");
         field.setAccessible(true);
         try {
             KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());

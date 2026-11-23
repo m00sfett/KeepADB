@@ -57,7 +57,7 @@ public class KeepADBNotificationWebhookStatusTest {
 
     @After
     public void tearDown() throws Exception {
-        KeepADBRegisterClient.clearRegisterStateListener();
+        RegisterStateNotifier.clearListener();
         KeepADBEndpointCoordinator.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);

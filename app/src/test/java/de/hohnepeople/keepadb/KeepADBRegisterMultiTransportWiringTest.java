@@ -50,16 +50,16 @@ public class KeepADBRegisterMultiTransportWiringTest {
         KeepADBRegisterClient.resetForTesting();
         KeepADB.resetForTesting();
         sentPayloads.clear();
-        KeepADBRegisterClient.setHttpTransport(new KeepADBRegisterClient.HttpTransport() {
+        KeepADBRegisterClient.setHttpTransport(new RegisterTransport.HttpTransport() {
             @Override
-            public boolean postJson(String targetUrl, String payload, String logLabel) {
+            public TransportResult postJson(String targetUrl, String payload, String logLabel) {
                 sentPayloads.add(payload);
-                return true;
+                return TransportResult.http(200);
             }
 
             @Override
-            public boolean delete(String targetUrl) {
-                return true;
+            public TransportResult delete(String targetUrl) {
+                return TransportResult.http(200);
             }
         });
     }
@@ -134,7 +134,7 @@ public class KeepADBRegisterMultiTransportWiringTest {
                 new KeepADBRegisterPayload.VerifiedTransport(
                         KeepADBRegisterPayload.Type.VPN, "100.101.2.3", 41234, 1_700_000_000_000L));
 
-        assertTrue(KeepADBRegisterClient.postTransports(URL, vpnOnly));
+        assertTrue(RegisterTransport.postTransports(URL, vpnOnly));
         assertTrue("vpn-adb is not in SERVER_SUPPORTED_METHODS, so nothing may be sent",
                 sentPayloads.isEmpty());
 
@@ -143,7 +143,7 @@ public class KeepADBRegisterMultiTransportWiringTest {
                         KeepADBRegisterPayload.Type.WLAN_LAN, "192.168.1.50", 41234,
                         1_700_000_000_000L));
 
-        assertTrue(KeepADBRegisterClient.postTransports(URL, wlanOnly));
+        assertTrue(RegisterTransport.postTransports(URL, wlanOnly));
         assertEquals("A supported method must actually be sent", 1, sentPayloads.size());
         assertTrue(sentPayloads.get(0).contains("\"method\":\"wlan-adb\""));
     }

@@ -234,7 +234,7 @@ public class SettingsActivity extends Activity {
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
         // #1034 review: a report finishing in the background updates the header's status line.
-        KeepADBRegisterClient.setRegisterStateListener(webhookStateListener);
+        RegisterStateNotifier.setListener(webhookStateListener);
         refresh();
 
         // #959: the three extras of the former Network card lead to the Protection page. Current
@@ -298,7 +298,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        KeepADBRegisterClient.clearRegisterStateListener(webhookStateListener);
+        RegisterStateNotifier.clearListener(webhookStateListener);
         // #998: the revealed token is hidden again once the screen is left.
         automationSection.onPause();
     }
@@ -502,7 +502,7 @@ public class SettingsActivity extends Activity {
         return diagnosticsController.getActiveIssueReportDialog();
     }
 
-    private final KeepADBRegisterClient.RegisterStateListener webhookStateListener =
+    private final RegisterStateNotifier.Listener webhookStateListener =
             this::refreshWebhookStatusLine;
 
     /** #1034: the one line under the webhook section title. */

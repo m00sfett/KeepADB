@@ -739,13 +739,13 @@ public class SettingsActivityTest {
         assertEquals("On · last reported: never", status.getText().toString());
 
         KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-        KeepADBRegisterClient.notifyRegisterStateChangedForTesting(activity);
+        RegisterStateNotifier.notifyChanged(activity);
         ShadowLooper.idleMainLooper();
         assertEquals("On · last reported: failed", status.getText().toString());
 
         controller.pause();
         KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_NEVER);
-        KeepADBRegisterClient.notifyRegisterStateChangedForTesting(activity);
+        RegisterStateNotifier.notifyChanged(activity);
         ShadowLooper.idleMainLooper();
         assertEquals("no listener once paused", "On · last reported: failed",
                 status.getText().toString());

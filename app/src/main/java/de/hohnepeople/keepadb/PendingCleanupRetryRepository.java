@@ -191,7 +191,8 @@ final class PendingCleanupRetryRepository {
         return Math.min(backoff, MAX_BACKOFF_MS);
     }
 
-    private static long saturatingAdd(long left, long right) {
+    /** {@code left + right}, clamped at {@link Long#MAX_VALUE}; shared with the #562 gate (#1049). */
+    static long saturatingAdd(long left, long right) {
         if (right > 0L && left > Long.MAX_VALUE - right) return Long.MAX_VALUE;
         return left + right;
     }

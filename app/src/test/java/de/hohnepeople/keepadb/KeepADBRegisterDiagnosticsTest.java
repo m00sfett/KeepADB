@@ -133,12 +133,12 @@ public class KeepADBRegisterDiagnosticsTest {
     /** The real transport, against a closed local port: the class is recorded, not the message. */
     @Test
     public void realTransportReportsOnlyTheExceptionClass() {
-        KeepADBRegisterClient.noteTransportOutcome("unknown");
+        TransportResult result =
+                new KeepADBHttpTransport().postJson("http://127.0.0.1:1/register/dev1", "{}", "x");
 
-        boolean ok = new KeepADBHttpTransport().postJson("http://127.0.0.1:1/register/dev1", "{}", "x");
-
-        assertFalse(ok);
-        String outcome = KeepADBRegisterClient.lastTransportOutcomeForTesting();
+        assertFalse(result.ok);
+        assertFalse("no HTTP answer", result.isHttpAnswer());
+        String outcome = result.outcome;
         assertTrue(outcome, outcome.matches("error=[A-Za-z]+Exception"));
         assertFalse(outcome, outcome.contains("127.0.0.1"));
     }
