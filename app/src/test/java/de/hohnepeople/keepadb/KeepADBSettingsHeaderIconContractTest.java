@@ -37,7 +37,7 @@ public class KeepADBSettingsHeaderIconContractTest {
 
     @Test
     public void everySectionHeaderCarriesItsOwnIcon() throws Exception {
-        Document layout = layout();
+        java.util.List<Document> layout = layout();
         for (String[] header : HEADERS) {
             Element icon = iconOf(headerOf(layout, header[0]));
             assertNotNull("Header " + header[0] + " needs an ImageView icon", icon);
@@ -48,7 +48,7 @@ public class KeepADBSettingsHeaderIconContractTest {
 
     @Test
     public void headerIconsAreDecorativeAndTitlesStayIntact() throws Exception {
-        Document layout = layout();
+        java.util.List<Document> layout = layout();
         for (String[] header : HEADERS) {
             Element headerView = headerOf(layout, header[0]);
             Element icon = iconOf(headerView);
@@ -72,7 +72,7 @@ public class KeepADBSettingsHeaderIconContractTest {
     @Test
     public void localizedTitlesKeepTheirLayoutDirectionAlignment() throws Exception {
         // #742: titles with a localized string must keep their (absent) alignment untouched.
-        Document layout = layout();
+        java.util.List<Document> layout = layout();
         for (String[] header : HEADERS) {
             Element other = titleOf(headerOf(layout, header[0]), "@string/" + header[1]);
             assertFalse(header[0] + " title alignment must stay unchanged",
@@ -91,12 +91,14 @@ public class KeepADBSettingsHeaderIconContractTest {
         throw new AssertionError("Title not found: " + stringRef);
     }
 
-    private static Element headerOf(Document layout, String id) {
-        NodeList all = layout.getElementsByTagName("*");
-        for (int i = 0; i < all.getLength(); i++) {
-            Element element = (Element) all.item(i);
-            if (("@+id/" + id).equals(element.getAttributeNS(ANDROID_NS, "id"))) {
-                return element;
+    private static Element headerOf(java.util.List<Document> layouts, String id) {
+        for (Document layout : layouts) {
+            NodeList all = layout.getElementsByTagName("*");
+            for (int i = 0; i < all.getLength(); i++) {
+                Element element = (Element) all.item(i);
+                if (("@+id/" + id).equals(element.getAttributeNS(ANDROID_NS, "id"))) {
+                    return element;
+                }
             }
         }
         throw new AssertionError("Header not found: " + id);
@@ -121,11 +123,25 @@ public class KeepADBSettingsHeaderIconContractTest {
         return false;
     }
 
-    private static Document layout() throws Exception {
+    /**
+     * {@code activity_settings.xml} and (#1052) the card layouts it includes, in that order; only
+     * {@code <include>}s of the Settings' own {@code view_settings_*} cards are followed.
+     */
+    private static java.util.List<Document> layout() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
-        return factory.newDocumentBuilder()
+        java.util.List<Document> layouts = new java.util.ArrayList<>();
+        Document settings = factory.newDocumentBuilder()
                 .parse(root().resolve("app/src/main/res/layout/activity_settings.xml").toFile());
+        layouts.add(settings);
+        NodeList includes = settings.getElementsByTagName("include");
+        for (int i = 0; i < includes.getLength(); i++) {
+            String ref = ((Element) includes.item(i)).getAttribute("layout");
+            if (!ref.startsWith("@layout/view_settings_")) continue;
+            layouts.add(factory.newDocumentBuilder().parse(root().resolve(
+                    "app/src/main/res/layout/" + ref.substring("@layout/".length()) + ".xml").toFile()));
+        }
+        return layouts;
     }
 
     private static File drawable(String name) throws Exception {

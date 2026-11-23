@@ -61,25 +61,48 @@ final class KeepADB {
         surfaces = testSurfaces;
     }
 
-    private static Runnable pendingToggleRunnable;
-    // #776: the last-intent value that was actually in force before the pending (debounced)
-    // intent chain started, and the token of the newest intent in that chain. A newer setEnabled()
-    // that supersedes a still-pending predecessor must roll back to this value, not to the
-    // predecessor's own never-applied intent that setEnabled() has already persisted.
-    private static boolean pendingToggleBaselineLastDesiredOn;
-    private static long pendingToggleBaselineToken;
-    // #780: whether the pending runnable carries a direct user action (always a re-enable tap in
-    // the MANUAL_REENABLE_GAP_MS window; a manual disable is never pending). Set together with
-    // the runnable and the baseline token, read only under the same lock.
-    private static boolean pendingToggleManual;
-    // #1013: the direction of the pending runnable, set and read together with it.
-    private static boolean pendingToggleOn;
+    /**
+     * #1052: the debounced toggle waiting for its window, or null. Its fields always move
+     * together, so they live in one immutable value; set, replaced and cleared under the class
+     * lock only.
+     */
+    private static final class PendingToggle {
+        /** The scheduled {@code applyNow} call. */
+        final Runnable runnable;
+        /**
+         * #776: the last-intent value that was actually in force before the pending (debounced)
+         * intent chain started. A newer setEnabled() that supersedes a still-pending predecessor
+         * must roll back to this value, not to the predecessor's own never-applied intent that
+         * setEnabled() has already persisted.
+         */
+        final boolean baselineLastDesiredOn;
+        /** #776: the token of the newest intent in that chain. */
+        final long baselineToken;
+        /**
+         * #780: whether it carries a direct user action (always a re-enable tap in the
+         * MANUAL_REENABLE_GAP_MS window; a manual disable is never pending).
+         */
+        final boolean manual;
+        /** #1013: its direction. */
+        final boolean on;
+
+        PendingToggle(Runnable runnable, boolean baselineLastDesiredOn, long baselineToken,
+                boolean manual, boolean on) {
+            this.runnable = runnable;
+            this.baselineLastDesiredOn = baselineLastDesiredOn;
+            this.baselineToken = baselineToken;
+            this.manual = manual;
+            this.on = on;
+        }
+    }
+
+    private static PendingToggle pendingToggle;
     // #1022: counts the explicit user decisions setEnabled() accepted (manual sources except the
     // self-pairing cleanup, so a Keep-Alive pulse, a timer expiry or that cleanup does not count). An unlock continuation captures it at
     // its tap and acts only while it is unchanged. Read and written under the class lock.
     private static long explicitIntentGeneration;
     // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
-    // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
+    // path. Deliberately separate from pendingToggle, which drives the debounce window and
     // the surfaces' "switching…" indicator; this one changes no state a surface renders.
     private static Runnable pendingBackoffConfirmationRunnable;
 
@@ -349,9 +372,9 @@ final class KeepADB {
         if (ctx == null) return;
         Context appContext = ctx.getApplicationContext();
         if (!KeepADBManualToggle.isTimerOffOwed(appContext)) return;
-        if (pendingToggleRunnable != null && !pendingToggleManual && pendingToggleOn) {
-            scheduler.removeCallbacks(pendingToggleRunnable);
-            pendingToggleRunnable = null;
+        if (pendingToggle != null && !pendingToggle.manual && pendingToggle.on) {
+            scheduler.removeCallbacks(pendingToggle.runnable);
+            pendingToggle = null;
             long token = state.supersedeIntents();
             KeepADBDiagnostics.event(appContext, "toggle_attempt", SOURCE_TIMER_EXPIRY, "superseded",
                     "intentId=" + token + " reason=timer_off_owed");
@@ -429,7 +452,7 @@ final class KeepADB {
 
     /** #1019: a direct user "on" is waiting in its re-enable gap and is still the newest intent. */
     static synchronized boolean isManualEnablePending() {
-        return isManualIntentPending() && pendingToggleOn;
+        return isManualIntentPending() && pendingToggle.on;
     }
 
     /**
@@ -439,7 +462,7 @@ final class KeepADB {
      * flight.
      */
     static synchronized boolean isTogglePending() {
-        return pendingToggleRunnable != null;
+        return pendingToggle != null;
     }
 
     /**
@@ -450,8 +473,8 @@ final class KeepADB {
      * reported to callers as {@link ToggleResult#MANUAL_INTENT_PENDING} (#795).
      */
     static synchronized boolean isManualIntentPending() {
-        return pendingToggleRunnable != null && pendingToggleManual
-                && state.isCurrentIntent(pendingToggleBaselineToken);
+        return pendingToggle != null && pendingToggle.manual
+                && state.isCurrentIntent(pendingToggle.baselineToken);
     }
 
     static boolean hasPermission(Context ctx) {
@@ -581,9 +604,9 @@ final class KeepADB {
             // #776: with a pending predecessor still the newest intent, the persisted/in-memory
             // last intent is that predecessor's (never applied) value -- inherit the baseline it
             // captured instead. A predecessor already superseded by a pulse is not a chain.
-            previousLastDesiredOn = pendingToggleRunnable != null
-                    && state.isCurrentIntent(pendingToggleBaselineToken)
-                    ? pendingToggleBaselineLastDesiredOn
+            previousLastDesiredOn = pendingToggle != null
+                    && state.isCurrentIntent(pendingToggle.baselineToken)
+                    ? pendingToggle.baselineLastDesiredOn
                     : !wasLastExplicitIntentOff(appContext);
             KeepADBToggleState.ToggleDecision decision = state.requestToggle(
                     on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
@@ -593,19 +616,16 @@ final class KeepADB {
             // Persist the requested intent while it is pending; applyNow() rolls it back if the
             // actual Settings.Global write is rejected.
             KeepADBPreferences.setLastDesiredOn(appContext, on);
-            if (pendingToggleRunnable != null) {
-                scheduler.removeCallbacks(pendingToggleRunnable);
-                pendingToggleRunnable = null;
+            if (pendingToggle != null) {
+                scheduler.removeCallbacks(pendingToggle.runnable);
+                pendingToggle = null;
             }
             if (!decision.isImmediate()) {
-                pendingToggleBaselineLastDesiredOn = previousLastDesiredOn;
-                pendingToggleBaselineToken = token;
-                pendingToggleManual = isManualSource(source);
-                pendingToggleOn = on;
-                pendingToggleRunnable =
-                        () -> applyNow(appContext, on, source, token, networkGeneration, guard,
-                                previousLastDesiredOn);
-                scheduler.postDelayed(pendingToggleRunnable, delayMs);
+                Runnable apply = () -> applyNow(appContext, on, source, token, networkGeneration,
+                        guard, previousLastDesiredOn);
+                pendingToggle = new PendingToggle(apply, previousLastDesiredOn, token,
+                        isManualSource(source), on);
+                scheduler.postDelayed(apply, delayMs);
             }
         }
         KeepADBDiagnostics.event(appContext, eventName, source,
@@ -635,13 +655,13 @@ final class KeepADB {
             // or isTogglePending() stays true and the surfaces keep showing "switching..." for
             // good. A runnable registered by a newer setEnabled() carries that intent's own
             // token and must stay: it is still waiting for its window.
-            if (pendingToggleRunnable != null && pendingToggleBaselineToken == token) {
-                pendingToggleRunnable = null;
+            if (pendingToggle != null && pendingToggle.baselineToken == token) {
+                pendingToggle = null;
                 surfaces.refreshAll(appContext);
             }
             return ToggleResult.SUPERSEDED; // Superseded by a newer toggle intent
         }
-        pendingToggleRunnable = null;
+        pendingToggle = null;
         if (SOURCE_TIMER_EXPIRY.equals(source) && !KeepADBManualToggle.isTimerOffOwed(appContext)) {
             // #1000 (review): a debounced timer off whose obligation a manual "on" or a readback
             // settled while it waited is dropped, with the intent it replaced. #1014: rolling back
@@ -776,10 +796,10 @@ final class KeepADB {
                     "reason=permission_missing");
             return ToggleResult.PERMISSION_MISSING;
         }
-        if (pendingToggleRunnable != null) {
+        if (pendingToggle != null) {
             KeepADBDiagnostics.event(appContext, "policy_off", source, "skipped",
                     "reason=toggle_pending");
-            return pendingToggleManual ? ToggleResult.MANUAL_INTENT_PENDING : ToggleResult.SUPERSEDED;
+            return pendingToggle.manual ? ToggleResult.MANUAL_INTENT_PENDING : ToggleResult.SUPERSEDED;
         }
         if (guard != null && !guard.stillApplies(appContext)) {
             KeepADBDiagnostics.event(appContext, "policy_off", source, "cancelled",
@@ -888,6 +908,63 @@ final class KeepADB {
      * Runs a recovery pulse (OFF -> PAUSE -> ON) in a controlled manner.
      * Aborts if the user manually turns it off during the pulse.
      */
+    /** #1052: what one locked stage of the recovery pulse did. */
+    private static final class PulseStage {
+        static final PulseStage CANCELLED = new PulseStage(true, false, false, false);
+
+        /** A newer user intent or a changed precondition stopped the stage before its write. */
+        final boolean cancelled;
+        /** The write or its readback threw: the grant is lost (STATE-03, #572). */
+        final boolean securityException;
+        /** The write was not accepted (also true after a security exception). */
+        final boolean rejected;
+        /** The value read back right after the write. */
+        final boolean actual;
+
+        private PulseStage(boolean cancelled, boolean securityException, boolean rejected,
+                boolean actual) {
+            this.cancelled = cancelled;
+            this.securityException = securityException;
+            this.rejected = rejected;
+            this.actual = actual;
+        }
+    }
+
+    /**
+     * #1052: one stage of the recovery pulse, writing {@code on}. #309: the guards are re-checked
+     * <em>inside</em> the same lock that covers the write they authorize. Checking outside (or, as
+     * once, not at all for the disable stage) leaves a window in which a manual toggle lands
+     * between the decision and the write, so a superseded pulse would overwrite a newer explicit
+     * user intent. A cancellation is logged here; the caller handles every other outcome.
+     */
+    private static PulseStage runPulseStage(Context appContext, long pulseToken, EnableGuard guard,
+            boolean on) {
+        String stage = on ? "enable" : "disable";
+        synchronized (KeepADB.class) {
+            if (pulseSuperseded(appContext, pulseToken)) {
+                logPulseCancelled(appContext, pulseToken, stage, "newer_user_intent");
+                return PulseStage.CANCELLED;
+            }
+            if (!guardStillApplies(guard, appContext)) {
+                logPulseCancelled(appContext, pulseToken, stage, "preconditions_changed");
+                return PulseStage.CANCELLED;
+            }
+            try {
+                boolean rejected = !gateway.write(appContext, on);
+                state.recordAppliedTime(scheduler.elapsedRealtimeMs());
+                // #582: deliberately the bare isEnabled() -- unlike the two reads before the pulse
+                // starts, this one sits inside the write's own SecurityException catch right
+                // below, so a read restriction here cannot crash; it lands on securityException,
+                // which shows the permission-missing hint (STATE-03/#572), matching the "readback
+                // unknown" fallback without touching the write path.
+                boolean actual = isEnabled(appContext);
+                return new PulseStage(false, false, rejected, actual);
+            } catch (SecurityException e) {
+                return new PulseStage(false, true, true, false);
+            }
+        }
+    }
+
     static void performRecoveryPulse(Context ctx) {
         performRecoveryPulse(ctx, null);
     }
@@ -923,38 +1000,13 @@ final class KeepADB {
                 "intentId=" + pulseToken + " observed=" + observed);
 
         scheduler.runAsync(() -> {
-            // #309: both pulse stages re-check the guards *inside* the same lock that covers the
-            // write they authorize. Checking outside (or, as before, not at all for the disable
-            // stage) leaves a window in which a manual toggle lands between the decision and the
-            // write, so a superseded pulse would overwrite a newer explicit user intent.
-            boolean disableRejected;
-            boolean disableSecurityException = false;
-            boolean disableActual = false;
-            synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken)) {
-                    logPulseCancelled(appContext, pulseToken, "disable", "newer_user_intent");
-                    return;
-                }
-                if (!guardStillApplies(guard, appContext)) {
-                    logPulseCancelled(appContext, pulseToken, "disable", "preconditions_changed");
-                    return;
-                }
-                try {
-                    disableRejected = !gateway.write(appContext, false);
-                    state.recordAppliedTime(scheduler.elapsedRealtimeMs());
-                    // #582: deliberately left as the bare isEnabled() -- unlike the two reads
-                    // fixed above, this one already sits inside the write's own SecurityException
-                    // catch right below, so a read restriction here cannot crash; it lands on
-                    // disableSecurityException, which already shows the permission-missing hint
-                    // (STATE-03/#572), matching this issue's "readback unknown" fallback without
-                    // touching the write path (out of scope for #582).
-                    disableActual = isEnabled(appContext);
-                } catch (SecurityException e) {
-                    disableRejected = true;
-                    disableSecurityException = true;
-                }
+            PulseStage disable = runPulseStage(appContext, pulseToken, guard, false);
+            if (disable.cancelled) {
+                return;
             }
-            if (disableSecurityException) {
+            boolean disableRejected = disable.rejected;
+            boolean disableActual = disable.actual;
+            if (disable.securityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=disable reason=security_exception");
                 // STATE-03 (#572): a lost WRITE_SECURE_SETTINGS grant must surface the same
@@ -983,31 +1035,14 @@ final class KeepADB {
                 return;
             }
 
-            boolean enableRejected;
-            boolean enableSecurityException = false;
-            boolean enableActual = false;
-            synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken)) {
-                    logPulseCancelled(appContext, pulseToken, "enable", "newer_user_intent");
-                    surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
-                    return;
-                }
-                if (!guardStillApplies(guard, appContext)) {
-                    logPulseCancelled(appContext, pulseToken, "enable", "preconditions_changed");
-                    surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
-                    return;
-                }
-                try {
-                    enableRejected = !gateway.write(appContext, true);
-                    state.recordAppliedTime(scheduler.elapsedRealtimeMs());
-                    // #582: see the matching comment on the disable stage's readback above.
-                    enableActual = isEnabled(appContext);
-                } catch (SecurityException e) {
-                    enableRejected = true;
-                    enableSecurityException = true;
-                }
+            PulseStage enable = runPulseStage(appContext, pulseToken, guard, true);
+            if (enable.cancelled) {
+                surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
+                return;
             }
-            if (enableSecurityException) {
+            boolean enableRejected = enable.rejected;
+            boolean enableActual = enable.actual;
+            if (enable.securityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=enable reason=security_exception");
                 // STATE-01/STATE-03 (#572): AUS is already written at this point, so the surfaces
@@ -1054,12 +1089,10 @@ final class KeepADB {
     /** Reset state for unit tests. Also restores the production gateway/scheduler/surface
      * refresher; a test that wants fakes must call the corresponding setter afterward. */
     static synchronized void resetForTesting() {
-        if (pendingToggleRunnable != null) {
-            scheduler.removeCallbacks(pendingToggleRunnable);
-            pendingToggleRunnable = null;
+        if (pendingToggle != null) {
+            scheduler.removeCallbacks(pendingToggle.runnable);
+            pendingToggle = null;
         }
-        pendingToggleManual = false;
-        pendingToggleOn = false;
         explicitIntentGeneration = 0;
         if (pendingBackoffConfirmationRunnable != null) {
             scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);

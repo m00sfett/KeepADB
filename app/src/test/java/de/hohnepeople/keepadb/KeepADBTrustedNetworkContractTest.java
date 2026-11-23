@@ -28,7 +28,14 @@ public class KeepADBTrustedNetworkContractTest {
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
 
         assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)"));
-        assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)"));
+        // #1052: both automatic re-enable paths (content observer and keep-alive heartbeat) ask the
+        // shared decision, which checks trust before anything else.
+        assertTrue(service.contains("autoEnableBlock(KeepADBService.this)"));
+        assertTrue(service.contains("AutoEnableBlock block = autoEnableBlock(this);"));
+        String block = service.substring(service.indexOf("static AutoEnableBlock autoEnableBlock(Context context) {"));
+        block = block.substring(0, block.indexOf("\n    }\n") + 6);
+        assertTrue(block, block.indexOf("KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)")
+                < block.indexOf("KeepADB.isAutomaticEnableBackoffBlocked()"));
         assertTrue(endpoint.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)"));
     }
 
