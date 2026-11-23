@@ -365,7 +365,7 @@ final class OnboardingActionSteps {
         }
 
         private void startSelfPair() {
-            selfPairNeedsWifi = !wifiConnected();
+            selfPairNeedsWifi = !KeepADBService.isWifiConnected(host);
             if (selfPairNeedsWifi) {
                 selfPairPending = false;
                 render();
@@ -393,22 +393,6 @@ final class OnboardingActionSteps {
             selfPairPending = false;
             selfPairNeedsNotifications = false;
             KeepADBSelfPairService.start(host);
-        }
-
-        /** Wireless debugging exists only on Wi-Fi; a VPN on top of it still counts. */
-        private boolean wifiConnected() {
-            android.net.ConnectivityManager manager =
-                    host.getSystemService(android.net.ConnectivityManager.class);
-            if (manager == null) return true;
-            for (android.net.Network network : manager.getAllNetworks()) {
-                android.net.NetworkCapabilities capabilities =
-                        manager.getNetworkCapabilities(network);
-                if (capabilities != null && capabilities.hasTransport(
-                        android.net.NetworkCapabilities.TRANSPORT_WIFI)) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private void openDeveloperOptions() {

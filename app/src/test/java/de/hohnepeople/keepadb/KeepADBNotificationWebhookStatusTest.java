@@ -118,6 +118,36 @@ public class KeepADBNotificationWebhookStatusTest {
                 R.string.notification_text_webhook_synced, format(legacyAt))));
     }
 
+    /**
+     * #1047: the owner of a success is compared with the saved URL as every reader sees it
+     * (sanitized), so a legacy raw value with surrounding blanks still matches its own success.
+     */
+    @Test
+    public void successOfALegacyUnsanitizedSavedUrlIsStillClaimed() {
+        enableWebhook();
+        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putString("register_webhook_url", "  " + URL + "  ").commit();
+
+        assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue(KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+    }
+
+    /** #1047: every accessor tolerates a null context and answers its default. */
+    @Test
+    public void accessorsAnswerTheirDefaultsForANullContext() {
+        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(null));
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_NEVER,
+                KeepADBPreferences.getWebhookLastReportStatus(null));
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(null));
+        assertFalse(KeepADBPreferences.isKeepAliveEnabled(null));
+        assertEquals(-1, KeepADBPreferences.getLastAdbPort(null));
+        assertEquals("", KeepADBPreferences.getAppLanguage(null));
+        KeepADBPreferences.setRegisterWebhookEnabled(null, true);
+        KeepADBPreferences.setWebhookDispatchedUrl(null, URL);
+    }
+
     /** #893 (Codex review): a stored success time whose URL cannot be identified is not claimed. */
     @Test
     public void successTimeWithoutAnyKnownUrlIsNotClaimed() {

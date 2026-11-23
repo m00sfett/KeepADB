@@ -300,6 +300,24 @@ public class MainActivityWarningInteractionTest {
         assertEquals(inset, content.getPaddingLeft());
         assertEquals(inset, content.getPaddingRight());
     }
+    /** #1047: the mute choice is tracked and dismissed with the activity (no WindowLeaked). */
+    @Test public void muteDialogIsDismissedWhenTheActivityIsDestroyed() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        ActivityController<MainActivity> controller = open();
+        MainActivity activity = controller.get();
+        close(activity, R.id.warning_less_secure);
+        activity.findViewById(R.id.warning_mute).performClick();
+        android.app.AlertDialog dialog = activity.getActiveWarningMuteDialog();
+        assertNotNull("two reasons open the tracked choice dialog", dialog);
+        assertTrue(dialog.isShowing());
+
+        controller.pause().stop().destroy();
+
+        assertFalse("destroying the activity dismisses the dialog", dialog.isShowing());
+        assertNull(activity.getActiveWarningMuteDialog());
+    }
     @Test public void headerCountAndListContainEverySecurityReasonDespiteCardLimit() {
         shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);

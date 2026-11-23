@@ -258,6 +258,37 @@ public class SettingsActivityTest {
      * lifecycle end-to-end and observing their absence is equivalent proof without depending on
      * those specific method names.
      */
+    /** #1047: the default-duration choice is tracked and dismissed with the activity. */
+    @Test
+    public void timerDefaultChoiceIsDismissedWhenTheActivityIsDestroyed() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        activity.findViewById(R.id.settings_timer_default_row).performClick();
+        android.app.AlertDialog dialog = activity.getActiveTimerDefaultDialog();
+        assertNotNull(dialog);
+        assertTrue(dialog.isShowing());
+
+        controller.pause().stop().destroy();
+
+        assertFalse("destroying the activity dismisses the dialog", dialog.isShowing());
+        assertNull(activity.getActiveTimerDefaultDialog());
+    }
+
+    /** #1047: the muted-warnings row works right after onCreate, without waiting for onResume. */
+    @Test
+    public void mutedWarningsRowIsWiredInOnCreate() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).create();
+        SettingsActivity activity = controller.get();
+        activity.findViewById(R.id.settings_muted_warnings).performClick();
+        android.content.Intent started = org.robolectric.Shadows.shadowOf(activity).getNextStartedActivity();
+        assertNotNull(started);
+        assertEquals(WarningsActivity.class.getName(), started.getComponent().getClassName());
+        assertTrue(started.getBooleanExtra(WarningsActivity.EXTRA_MUTES, false));
+        controller.destroy();
+    }
+
     @Test
     public void unsavedWebhookDraftSurvivesActivityRecreation() {
         String savedUrl = "https://saved.example/register/device";

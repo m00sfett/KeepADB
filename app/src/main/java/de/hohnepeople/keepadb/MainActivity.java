@@ -36,6 +36,8 @@ public class MainActivity extends Activity {
     /** #1000: the timer row below the state. */
     private KeepADBTimerSection timerSection;
     private AlertDialog activeStatusDetailsDialog;
+    /** #1047: the mute choice, dismissed with the activity so it cannot leak its window. */
+    private AlertDialog activeWarningMuteDialog;
     private View endpointRow;
     private View endpointCopyIcon;
     private TextView endpoint;
@@ -336,6 +338,8 @@ public class MainActivity extends Activity {
         activeStatusDetailsDialog = null;
         if (activeConnectHelpDialog != null) activeConnectHelpDialog.dismiss();
         activeConnectHelpDialog = null;
+        if (activeWarningMuteDialog != null) activeWarningMuteDialog.dismiss();
+        activeWarningMuteDialog = null;
         super.onDestroy();
     }
 
@@ -970,7 +974,17 @@ public class MainActivity extends Activity {
             renderWarnings();
             focusWarningView(findViewById(R.id.warning_feedback_text));
         });
+        if (activeWarningMuteDialog != null) activeWarningMuteDialog.dismiss();
+        activeWarningMuteDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeWarningMuteDialog == d) activeWarningMuteDialog = null;
+        });
         dialog.show();
+    }
+
+    /** Test hook (#1047): the mute choice while it is open, or null. */
+    AlertDialog getActiveWarningMuteDialog() {
+        return activeWarningMuteDialog;
     }
 
     private void muteClosedReason(KeepADBWarningState.Reason reason) {

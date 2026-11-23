@@ -76,6 +76,9 @@ public class OnboardingActivityPermissionsTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         // Nothing is granted unless a test says so.
         shadowOf((Application) context).denyPermissions(RUNTIME_PERMISSIONS);
+        // #1047: the step asks the app's canonical Wi-Fi check (KeepADBService.isWifiConnected),
+        // which reads the tracked networks; the phone is on Wi-Fi unless a test says otherwise.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
     }
 
     @After
@@ -200,6 +203,7 @@ public class OnboardingActivityPermissionsTest {
     public void withoutWifiTheStepSaysToConnectFirstAndStartsNothing() {
         shadowOf(context.getSystemService(android.net.ConnectivityManager.class))
                 .clearAllNetworks();
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
         OnboardingActivity assistant = open(permissionsStepIntent());
         button(assistant, context.getString(R.string.selfpair_start_button)).performClick();
 

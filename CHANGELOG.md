@@ -23,6 +23,18 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.21] - Unreleased
+
+### Fixed
+- **No leaked dialog windows (#1047):** the multi-reason mute choice on the home screen and the default-duration choice in Settings are tracked and dismissed in `onDestroy()`, like the other dialogs, so rotation or `finish()` while they are open no longer leaks their window.
+- **Last webhook success matched against the sanitized URL (#1047):** `getWebhookLastSuccessAt` compared the owner of the success with the raw stored URL; a legacy value with blanks (or other parts the sanitizer drops) hid its own success. It now compares with `getRegisterWebhookUrl`, as every other reader does.
+
+### Changed
+- **Code hygiene (#1047):** Settings uses `KeepADBBuildFlags.isDebugBuild` instead of its own copy; the onboarding self-pair step uses `KeepADBService.isWifiConnected` instead of the deprecated `ConnectivityManager.getAllNetworks()`; the muted-warnings row is wired once in `onCreate()` instead of on every `onResume()`. `KeepADBPreferences` reads through its `prefs(Context)` helper everywhere and every direct accessor answers its default for a null context (`getWebhookLastReportStatus` then answers "never"). No preference key, default or user-facing text changes.
+
+### Documentation
+- English source policy: the German class Javadoc of `KeepADB` and the "Sonstiges" layout comments are translated. Store note `changelogs/302.txt` carries the unchanged summary since 1.14.1 (it replaces 301).
+
 ## [1.15.20] - Unreleased
 
 ### Changed

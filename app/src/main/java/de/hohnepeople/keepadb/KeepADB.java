@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled).
+ * Reads and writes Android's "Wireless debugging" switch (Settings.Global.adb_wifi_enabled).
  *
  * <p>#248: this class is now purely the Android-facing orchestrator. Every decision about
  * <em>what</em> should happen -- user intent, generation tokens, debounce timing -- lives in the
