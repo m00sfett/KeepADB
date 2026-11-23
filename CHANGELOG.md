@@ -23,6 +23,16 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.22] - Unreleased
+
+### Changed
+- **Settings layout split into card layouts (#1052):** `activity_settings.xml` (1,092 lines) includes `view_settings_webhook`, `view_settings_privacy`, `view_settings_misc`, `view_settings_automation`, `view_settings_backup` and `view_settings_diagnostics` (now 336 lines). With the includes expanded, the view hierarchy, every id and every attribute are identical to before; only comments moved. The webhook and privacy cards are split as well, beyond the four the issue names, to reach its size target.
+- **One automatic re-enable decision in the service (#1052):** the content observer and the keep-alive heartbeat share `autoEnableBlock()` (trust first, then the #496/#536 readback backoff) and `handleAutoEnableResult()` (permission hint on a missing grant, #795 log otherwise). Their logs, diagnostics events, sources and refreshes are unchanged.
+- **Recovery pulse stage helper and `PendingToggle` (#1052):** both locked pulse stages run through `runPulseStage()`, which re-checks the pulse token and the guard inside the write lock (#309) and keeps the #582 readback inside the write's `SecurityException` catch; the five pending-toggle fields that always moved together are one immutable `PendingToggle`. Lock scopes, `Settings.Global` writes and readbacks, and diagnostics are unchanged.
+
+### Documentation
+- Store note `changelogs/303.txt` carries the unchanged summary since 1.14.1 (it replaces 302).
+
 ## [1.15.21] - Unreleased
 
 ### Fixed
