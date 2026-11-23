@@ -29,26 +29,43 @@ public class KeepADBRecoveryPulseContractTest {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
         String body = methodBody(source,
                 "static void performRecoveryPulse(Context ctx, EnableGuard guard)");
+        // #1052: both stages run through one helper; the pulse itself never writes.
+        String stage = methodBody(source, "private static PulseStage runPulseStage(");
 
-        assertEquals("performRecoveryPulse must write exactly twice (off, then on)",
-                2, count(body, "gateway.write("));
+        assertEquals("the pulse writes only through its stage helper", 0,
+                count(body, "gateway.write("));
+        assertEquals("performRecoveryPulse must run exactly two stages", 2,
+                count(body, "runPulseStage("));
+        assertTrue("first off, then on",
+                body.indexOf("runPulseStage(appContext, pulseToken, guard, false)")
+                        < body.indexOf("runPulseStage(appContext, pulseToken, guard, true)"));
+        assertTrue(body.indexOf("runPulseStage(appContext, pulseToken, guard, false)") >= 0);
+        assertEquals("a stage writes exactly once", 1, count(stage, "gateway.write("));
 
         int guarded = 0;
         int searchFrom = 0;
         while (true) {
-            int lockStart = body.indexOf("synchronized (KeepADB.class) {", searchFrom);
+            int lockStart = stage.indexOf("synchronized (KeepADB.class) {", searchFrom);
             if (lockStart < 0) break;
-            String lockBody = body.substring(lockStart,
-                    findMatchingBraceEnd(body, body.indexOf('{', lockStart)));
+            String lockBody = stage.substring(lockStart,
+                    findMatchingBraceEnd(stage, stage.indexOf('{', lockStart)));
             searchFrom = lockStart + 1;
             if (!lockBody.contains("gateway.write(")) continue;
             assertTrue("a locked write must re-check the pulse token first: " + lockBody,
                     lockBody.indexOf("pulseSuperseded(appContext, pulseToken)")
                             < lockBody.indexOf("gateway.write("));
+            assertTrue("and the guard: " + lockBody,
+                    lockBody.indexOf("guardStillApplies(guard, appContext)")
+                            < lockBody.indexOf("gateway.write("));
             guarded += count(lockBody, "gateway.write(");
         }
-        assertEquals("both pulse writes must sit inside a synchronized (KeepADB.class) block",
-                2, guarded);
+        assertEquals("the stage write must sit inside a synchronized (KeepADB.class) block",
+                1, guarded);
+        // #1052 review: the STATE-01 refresh of a cancelled enable stage stays inside the lock.
+        String lock = stage.substring(stage.indexOf("synchronized (KeepADB.class) {"));
+        assertEquals("both cancellation branches of the enable stage refresh under the lock", 2,
+                count(lock.substring(0, lock.indexOf("gateway.write(")),
+                        "if (on) surfaces.refreshAll(appContext);"));
     }
 
     @Test

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Webhook Section -->
+<!-- #1052: included by activity_settings.xml; the panel id and attributes are unchanged. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_webhook_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:background="@drawable/bg_panel"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/settings_webhook_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <!-- #736: decorative card icon, kept out of the accessibility tree since
+             the adjacent title text already names the section. -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_settings_sync" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_webhook_title"
+            android:textColor="@color/title_yellow"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/settings_webhook_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:fontFamily="sans-serif-condensed"
+            android:text="+"
+            android:textColor="@color/title_yellow"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- #1034: the state and its switch stay visible while the card is collapsed (design
+         review in #1034): a one-line status, then the Keep-Alive style switch row. Only
+         the title row above expands the card, so a tap meant to expand cannot flip the
+         switch. KeepADBWebhookForm drives this switch; the form's own row is hidden here. -->
+    <TextView
+        android:id="@+id/settings_webhook_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+    <Switch
+        android:id="@+id/settings_webhook_header_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:minHeight="48dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/settings_webhook_toggle"
+        android:textColor="@color/text_yellow"
+        android:textSize="17sp" />
+
+    <LinearLayout
+        android:id="@+id/settings_webhook_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <include layout="@layout/view_webhook_form" />
+
+        <!-- #892: the local report history; Settings only, not the assistant. -->
+        <LinearLayout
+            android:id="@+id/settings_webhook_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card_clickable"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="48dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_webhook_history_button"
+                android:textColor="@color/text_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_webhook_history_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- #866/#960: the retry series is fixed (5, 15, 30, 60 s); Settings only, not the
+             assistant. One explanatory line, no selectors. -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/settings_webhook_retry_subtext"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>

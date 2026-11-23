@@ -161,6 +161,53 @@ public class KeepADBService extends Service {
      * KeepADBNetwork#isWifiTrackingAuthoritative()}, registered <em>and</em> observed) but applied
      * it only to the endpoint-address path; this call site now uses it too.
      */
+    /** #1052: why an automatic re-enable may not run right now, shared by both callers. */
+    enum AutoEnableBlock {
+        /** Nothing blocks it: an attempt is due. */
+        NONE,
+        /** The current Wi-Fi network is not trusted (#446 prompt is the caller's to show). */
+        UNTRUSTED_NETWORK,
+        /** #496/#536: the previous automatic write was accepted but never read back as on. */
+        RECOVERY_BACKOFF
+    }
+
+    /**
+     * #1052: the decision the content observer and the keep-alive heartbeat both make before an
+     * automatic re-enable, in the same order: trust first, then the readback backoff. The callers
+     * keep their own logs, diagnostics and refreshes.
+     */
+    static AutoEnableBlock autoEnableBlock(Context context) {
+        if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)) {
+            return AutoEnableBlock.UNTRUSTED_NETWORK;
+        }
+        if (KeepADB.isAutomaticEnableBackoffBlocked()) {
+            return AutoEnableBlock.RECOVERY_BACKOFF;
+        }
+        return AutoEnableBlock.NONE;
+    }
+
+    /**
+     * #1052: what both callers do with the result of their automatic re-enable (each calls
+     * {@code KeepADB.setEnabled} with its own literal source and {@link
+     * #isAutoEnableStillPermitted} as the write-time guard). A missing {@code WRITE_SECURE_SETTINGS}
+     * grant shows the permission hint; #795: every other failure (manual intent pending #780, guard
+     * abort, rejected write, superseded) is no permission problem and is only logged.
+     *
+     * @return whether the attempt failed for lack of the permission; the caller then stops, so
+     *         nothing it would do next replaces the hint
+     */
+    static boolean handleAutoEnableResult(Context context, KeepADB.ToggleResult result) {
+        if (result.isPermissionFailure()) {
+            Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+            KeepADBNotification.showPermissionMissing(context);
+            return true;
+        }
+        if (!result.isSuccess()) {
+            Log.i(TAG, "Automatic re-enable not applied: " + result);
+        }
+        return false;
+    }
+
     static boolean isWifiConnected(Context context) {
         if (KeepADBNetwork.get(context).isWifiConnected()) {
             return true;
@@ -439,37 +486,37 @@ public class KeepADBService extends Service {
                                 KeepADBEndpointCoordinator.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
-                            } else if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
-                                Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
-                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
-                                        "blocked", "untrusted_network");
-                                // #446: the block used to be silent. Ask once per access point
-                                // instead; the prompt itself never trusts anything.
-                                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(KeepADBService.this);
-                            } else if (KeepADB.isAutomaticEnableBackoffBlocked()) {
-                                // #496: the previous automatic attempt's write was accepted but
-                                // its readback never flipped on -- wait for one of the recognized
-                                // reset triggers instead of retrying on every ContentObserver
-                                // callback, which is exactly the fast loop this bounds (a write
-                                // the OS accepts and then reverts re-fires this very callback).
-                                Log.i(TAG, "Automatic re-enable paused after a readback mismatch"
-                                        + " (#496); waiting for a reset trigger");
-                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
-                                        "blocked", "reason=recovery_backoff_active");
                             } else {
-                                Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
-                                KeepADB.ToggleResult result = KeepADB.setEnabled(
-                                        KeepADBService.this, true, "content_observer",
-                                        KeepADBService::isAutoEnableStillPermitted);
-                                if (result.isPermissionFailure()) {
-                                    Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                                    KeepADBNotification.showPermissionMissing(KeepADBService.this);
-                                    return;
-                                }
-                                // #795: every other failure (manual intent pending #780, guard
-                                // abort, rejected write, superseded) is no permission problem.
-                                if (!result.isSuccess()) {
-                                    Log.i(TAG, "Automatic re-enable not applied: " + result);
+                                switch (autoEnableBlock(KeepADBService.this)) {
+                                    case UNTRUSTED_NETWORK:
+                                        Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
+                                        KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                                "blocked", "untrusted_network");
+                                        // #446: the block used to be silent. Ask once per access
+                                        // point instead; the prompt itself never trusts anything.
+                                        KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(KeepADBService.this);
+                                        break;
+                                    case RECOVERY_BACKOFF:
+                                        // #496: the previous automatic attempt's write was accepted
+                                        // but its readback never flipped on -- wait for one of the
+                                        // recognized reset triggers instead of retrying on every
+                                        // ContentObserver callback, which is exactly the fast loop
+                                        // this bounds (a write the OS accepts and then reverts
+                                        // re-fires this very callback).
+                                        Log.i(TAG, "Automatic re-enable paused after a readback mismatch"
+                                                + " (#496); waiting for a reset trigger");
+                                        KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                                "blocked", "reason=recovery_backoff_active");
+                                        break;
+                                    case NONE:
+                                    default:
+                                        Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
+                                        if (handleAutoEnableResult(KeepADBService.this, KeepADB.setEnabled(
+                                                KeepADBService.this, true, "content_observer",
+                                                KeepADBService::isAutoEnableStillPermitted))) {
+                                            return;
+                                        }
+                                        break;
                                 }
                             }
                         } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
@@ -719,7 +766,8 @@ public class KeepADBService extends Service {
         if (KeepADBPreferences.isKeepAliveEffective(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
                 if (Boolean.FALSE.equals(adbEnabledOrNull)) {
-                    if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
+                    AutoEnableBlock block = autoEnableBlock(this);
+                    if (block == AutoEnableBlock.UNTRUSTED_NETWORK) {
                         Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
                         KeepADBDiagnostics.heartbeatEvent(this, "recheck_result", "keep_alive_check", "service", "blocked", "untrusted_network");
                         // #446: same prompt as the content-observer path above. It is throttled
@@ -729,7 +777,7 @@ public class KeepADBService extends Service {
                         KeepADBWidget.refreshAll(this);
                         return;
                     }
-                    if (KeepADB.isAutomaticEnableBackoffBlocked()) {
+                    if (block == AutoEnableBlock.RECOVERY_BACKOFF) {
                         // #496/#536: the previous automatic attempt's write was accepted but its
                         // readback never flipped on (e.g. Android's own Wireless Debugging
                         // pairing dialog was never confirmed). Deferred, not abandoned: this same
@@ -750,17 +798,9 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.heartbeatEvent(this, "recheck_result", "keep_alive_check", "service", "due",
                             "reason=recheck_due");
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
-                    KeepADB.ToggleResult result = KeepADB.setEnabled(this, true, "keep_alive_check",
-                            KeepADBService::isAutoEnableStillPermitted);
-                    if (result.isPermissionFailure()) {
-                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                        KeepADBNotification.showPermissionMissing(this);
+                    if (handleAutoEnableResult(this, KeepADB.setEnabled(this, true, "keep_alive_check",
+                            KeepADBService::isAutoEnableStillPermitted))) {
                         return;
-                    }
-                    // #795: every other failure (manual intent pending #780, guard abort,
-                    // rejected write, superseded) is no permission problem.
-                    if (!result.isSuccess()) {
-                        Log.i(TAG, "Automatic re-enable not applied: " + result);
                     }
                 }
             } else {

@@ -82,8 +82,9 @@ public class KeepADBIsEnabledSingleReadApiContractTest {
     /**
      * KeepADB.java is skipped above, but it holds the most sensitive reads (getState, setEnabled,
      * the readbacks), so pin its raw reads by count instead: the isEnabled() declaration, its
-     * gateway.isEnabled() body, the one call inside isEnabledOrNull(), and the two
-     * write-guarded recovery-pulse readbacks. Any new raw read in KeepADB.java turns this red.
+     * gateway.isEnabled() body, the one call inside isEnabledOrNull(), and the one write-guarded
+     * readback in the recovery pulse's stage helper (#1052: both stages share it). Any new raw
+     * read in KeepADB.java turns this red.
      */
     @Test
     public void keepADBItselfHoldsOnlyTheDocumentedRawReads() throws IOException {
@@ -96,7 +97,7 @@ public class KeepADBIsEnabledSingleReadApiContractTest {
             count++;
         }
         assertEquals("KeepADB.java must not gain a raw isEnabled( read beyond the documented"
-                + " five occurrences -- use isEnabledOrNull(ctx, source) (#582)", 5, count);
+                + " four occurrences -- use isEnabledOrNull(ctx, source) (#582)", 4, count);
     }
 
     private static boolean containsMatch(Pattern pattern, String source) {

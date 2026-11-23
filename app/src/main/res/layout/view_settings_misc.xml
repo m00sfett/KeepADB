@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #521: "Other" (settings_section_misc) is now itself a collapsible outer card (previously #510's plain,
+     permanently visible group heading), same pattern as the "Network (Beta)" (#519) card. Collapsed, only the title is visible; expanding it reveals
+     the four notice/display-preference sections (persistent notification, keep-display-
+     on, security/network advice banner, battery-optimization advice) directly, one below
+     another, separated by 1dp horizontal divider lines; none is independently collapsible here. Each section keeps its own preference key,
+     switch, subtext and defaults untouched; only the surrounding structure changed. -->
+<!-- #1052: included by activity_settings.xml; the panel id and attributes are unchanged. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_misc_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:background="@drawable/bg_panel"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/settings_misc_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <!-- #514: decorative card icon, kept out of the accessibility tree since
+             the adjacent title text already names the section. -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_more_horiz" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_section_misc"
+            android:textColor="@color/title_yellow"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/settings_misc_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:fontFamily="sans-serif-condensed"
+            android:text="+"
+            android:textColor="@color/title_yellow"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/settings_misc_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/settings_muted_warnings"
+            style="@style/Widget.KeepADB.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/warnings_muted" />
+        <!-- Notification Section (#470/#510: grouped under "Other"; #521: directly
+             visible inside the outer body, no longer its own collapsible sub-card) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_section_notification"
+            android:textColor="@color/title_yellow"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/settings_hide_notification_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_hide_notification_toggle"
+            android:textColor="@color/text_yellow"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/settings_hide_notification_subtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/settings_hide_notification_subtext"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <!-- #1000: the duration of the launcher shortcut "Wifi-ADB with timer" (#1032: the home row
+             always asks); a tap opens the choice. -->
+        <LinearLayout
+            android:id="@+id/settings_timer_default_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_timer_default_title"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/settings_timer_default_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <!-- Display Section (#510: grouped under "Other"; #521: directly visible) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_section_display"
+            android:textColor="@color/title_yellow"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/settings_keep_display_on_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/settings_keep_display_on_toggle"
+            android:textColor="@color/text_yellow"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/settings_keep_display_on_subtext"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+</LinearLayout>
