@@ -84,12 +84,12 @@ final class KeepADBHomeStatus {
      * @param waiting why {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING} applies; only read in that
      *        state (may be null otherwise)
      * @param network the current Wi-Fi where it is the reason: for
-     *        {@link MainActivity.KeepAliveWaitingDetail#BLOCKED_UNTRUSTED_NETWORK} and, while it is
+     *        {@link HomeStatusController.KeepAliveWaitingDetail#BLOCKED_UNTRUSTED_NETWORK} and, while it is
      *        on, when Keep-Alive would not switch it back on at this Wi-Fi (#949); otherwise
      *        {@link Network#NONE}
      */
     static Model of(KeepADB.State appState, boolean togglePending,
-                    MainActivity.KeepAliveWaitingDetail waiting, Network network) {
+                    HomeStatusController.KeepAliveWaitingDetail waiting, Network network) {
         return of(appState, togglePending, waiting, network, false);
     }
 
@@ -99,7 +99,7 @@ final class KeepADBHomeStatus {
      *        not announce the port"
      */
     static Model of(KeepADB.State appState, boolean togglePending,
-                    MainActivity.KeepAliveWaitingDetail waiting, Network network,
+                    HomeStatusController.KeepAliveWaitingDetail waiting, Network network,
                     boolean wifiConnected) {
         if (appState == KeepADB.State.PERMISSION_MISSING) {
             return new Model(R.string.home_state_setup, R.string.home_reason_permission, 0,
@@ -134,8 +134,8 @@ final class KeepADBHomeStatus {
                 connected ? 0 : R.string.home_reason_no_wifi, 0, Action.NONE);
     }
 
-    private static Model waitingModel(MainActivity.KeepAliveWaitingDetail waiting, Network network) {
-        if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
+    private static Model waitingModel(HomeStatusController.KeepAliveWaitingDetail waiting, Network network) {
+        if (waiting == HomeStatusController.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
             // #790: a network the user blocked is not "not trusted yet": say so, and lead to the
             // list where the block can be lifted instead of to a question with no answer.
             return network == Network.BLOCKED
@@ -144,16 +144,16 @@ final class KeepADBHomeStatus {
                     : new Model(R.string.home_state_off, R.string.home_reason_untrusted,
                             R.string.status_off_keep_alive_blocked_untrusted, Action.DECIDE);
         }
-        if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK) {
+        if (waiting == HomeStatusController.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK) {
             // #997: neither trust nor a block can change this; only another Wi-Fi or Force mode.
             return new Model(R.string.home_state_off, R.string.home_reason_open_network,
                     R.string.status_off_keep_alive_blocked_open_network, Action.NONE);
         }
-        if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
+        if (waiting == HomeStatusController.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
             return new Model(R.string.home_state_off, R.string.home_reason_identity,
                     R.string.status_off_keep_alive_blocked_identity_unavailable, Action.FIX);
         }
-        if (waiting == MainActivity.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF) {
+        if (waiting == HomeStatusController.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF) {
             // #496: an automatic enable's write was accepted but its readback never flipped on,
             // most commonly because Android's own dialog was never confirmed. Automatic retries
             // are paused; the switch itself is the sanctioned manual retry (KeepADB#setEnabled).

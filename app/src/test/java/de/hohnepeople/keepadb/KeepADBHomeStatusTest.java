@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import de.hohnepeople.keepadb.KeepADBHomeStatus.Action;
 import de.hohnepeople.keepadb.KeepADBHomeStatus.Model;
 import de.hohnepeople.keepadb.KeepADBHomeStatus.Network;
-import de.hohnepeople.keepadb.MainActivity.KeepAliveWaitingDetail;
+import de.hohnepeople.keepadb.HomeStatusController.KeepAliveWaitingDetail;
 import org.junit.Test;
 
 /**

@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config;
  * Regression tests for #458: {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING} used to render one
  * message no matter why Keep-Alive hadn't re-enabled yet, which made a genuinely connected but
  * untrusted (or unreadable) network look exactly like no Wi-Fi at all. {@link
- * MainActivity#resolveKeepAliveWaitingDetail(Context)} is the shared resolution the status card
+ * HomeStatusController#resolveKeepAliveWaitingDetail(Context)} is the shared resolution the status card
  * renders from; these tests pin its three outcomes directly, independent of the view layer.
  */
 @RunWith(RobolectricTestRunner.class)
@@ -53,8 +53,8 @@ public class KeepADBKeepAliveWaitingDetailTest {
     public void noWifiAtAllIsReportedAsWifiDisconnected() {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
 
-        assertEquals(MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
     }
 
     @Test
@@ -65,8 +65,8 @@ public class KeepADBKeepAliveWaitingDetailTest {
         // rejects -- no extra shadow setup needed to exercise this branch.
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
 
-        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
     }
 
     @Test
@@ -76,8 +76,8 @@ public class KeepADBKeepAliveWaitingDetailTest {
         setConnectedBssid("aa:bb:cc:dd:ee:ff");
         // The allowlist stays empty, so this readable BSSID is known but not trusted.
 
-        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
     }
 
     @Test
@@ -90,8 +90,8 @@ public class KeepADBKeepAliveWaitingDetailTest {
         // Trusted networks don't stay in OFF_KEEP_ALIVE_WAITING in practice (Keep-Alive would
         // already be re-enabling), but the resolver must still degrade to the generic waiting
         // text rather than mislabel this transient window as a block.
-        assertEquals(MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
     }
 
     /**
@@ -117,8 +117,8 @@ public class KeepADBKeepAliveWaitingDetailTest {
         shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
-        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
     }
 
     private void setConnectedBssid(String bssid) {

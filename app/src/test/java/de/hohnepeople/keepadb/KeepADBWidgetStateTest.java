@@ -279,20 +279,20 @@ public class KeepADBWidgetStateTest {
         KeepADB.recordExplicitIntent(context, true);
 
         wifi(false);
-        assertEquals(MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
         assertEquals(KeepADBWidgetState.Reason.NO_WIFI, project().keepAliveReason);
 
         wifi(true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
         assertEquals(KeepADBWidgetState.Reason.NETWORK_IDENTITY_UNAVAILABLE,
                 project().keepAliveReason);
 
         connectedTo(SSID, BSSID);
-        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK,
-                MainActivity.resolveKeepAliveWaitingDetail(context));
+        assertEquals(HomeStatusController.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK,
+                HomeStatusController.resolveKeepAliveWaitingDetail(context));
         assertEquals(KeepADBWidgetState.Reason.UNTRUSTED_NETWORK, project().keepAliveReason);
     }
 
