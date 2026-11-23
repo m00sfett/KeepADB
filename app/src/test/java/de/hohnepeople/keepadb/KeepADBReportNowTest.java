@@ -405,4 +405,71 @@ public class KeepADBReportNowTest {
             assertFalse(entry.outcome, entry.outcome.contains("register.example"));
         }
     }
+
+    // ---- #1049: the decision and the dispatch happen under one acquisition of the monitor ------
+
+    /**
+     * #1049: a report that starts between the tap's reads and its decision is joined, and the
+     * result says so. Before, the tap read "nothing running" under the monitor, released it and
+     * dispatched later, so it answered STARTED although the request it caused was another one.
+     */
+    @Test
+    public void aReportStartedBeforeTheDecisionIsJoinedAndNotSentTwice() throws Exception {
+        syncOn();
+        CountDownLatch release = new CountDownLatch(1);
+        transport.setRequestCallback(request -> {
+            try {
+                release.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        // The coordinator moves to a new port right before the tap takes the monitor.
+        KeepADBRegisterClient.setBeforeResyncDispatchForTesting(
+                () -> KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT + 1));
+
+        KeepADBRegisterClient.ReportNowResult result = KeepADBRegisterClient.reportNow(context, null);
+
+        assertEquals(KeepADBRegisterClient.ReportNowResult.JOINED, result);
+        release.countDown();
+        settle();
+        assertEquals("the tap added no request of its own", 1, posts());
+    }
+
+    /**
+     * #1049 (Codex review round 1): a report that started and already finished between the tap's
+     * reads and its decision is joined as well; it is not mistaken for an endpoint loss.
+     */
+    @Test
+    public void aReportFinishedBeforeTheDecisionIsJoinedAndNotSentTwice() {
+        syncOn();
+        KeepADBRegisterClient.setBeforeResyncDispatchForTesting(() -> {
+            KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT + 1);
+            KeepADBRegisterClientResetRule.awaitIdle();
+        });
+
+        KeepADBRegisterClient.ReportNowResult result = KeepADBRegisterClient.reportNow(context, null);
+
+        assertEquals(KeepADBRegisterClient.ReportNowResult.JOINED, result);
+        settle();
+        assertEquals("the tap added no request of its own", 1, posts());
+    }
+
+    /**
+     * #1049: an endpoint loss between the tap's reads and its decision supersedes the endpoint it
+     * read. Nothing is sent for the stale address, and the result does not claim a start.
+     */
+    @Test
+    public void anEndpointLossBeforeTheDecisionSendsNothingAndClaimsNoStart() {
+        syncOn();
+        KeepADBRegisterClient.setWlanStateForTesting(URL, ENDPOINT);
+        KeepADBRegisterClient.setBeforeResyncDispatchForTesting(
+                () -> KeepADBRegisterClient.markUnavailableAsync(context));
+
+        KeepADBRegisterClient.ReportNowResult result = KeepADBRegisterClient.reportNow(context, null);
+
+        assertEquals(KeepADBRegisterClient.ReportNowResult.NO_ENDPOINT, result);
+        settle();
+        assertEquals("no POST of the stale endpoint", 0, posts());
+    }
 }

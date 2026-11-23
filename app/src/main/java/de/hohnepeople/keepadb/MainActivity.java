@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
     /** #1036 review: the real values behind the rows as rendered; a tap copies exactly these. */
     private String webhookUrlCopyValue;
     private String webhookEndpointCopyValue;
-    private final KeepADBRegisterClient.RegisterStateListener webhookStateListener =
+    private final RegisterStateNotifier.Listener webhookStateListener =
             this::refreshWebhookStatus;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
     private KeepADBWarningState.Snapshot warningSnapshot;
@@ -386,7 +386,7 @@ public class MainActivity extends Activity {
         });
         // Register before refreshing the notification: a cached endpoint can trigger a webhook
         // report during refresh(), and the completed background report must reach this screen.
-        KeepADBRegisterClient.setRegisterStateListener(webhookStateListener);
+        RegisterStateNotifier.setListener(webhookStateListener);
         // #870: a webhook alert that could not be posted (no notification permission yet) is shown
         // once the app is back in front, e.g. after the permission was granted.
         KeepADBWebhookAlert.onAppResumed(this);
@@ -432,7 +432,7 @@ public class MainActivity extends Activity {
         // endpointListenerGeneration guard above).
         transportOverviewGeneration++;
         KeepADBEndpointCoordinator.clearEndpointListener();
-        KeepADBRegisterClient.clearRegisterStateListener(webhookStateListener);
+        RegisterStateNotifier.clearListener(webhookStateListener);
         if (adbContentObserver != null) {
             try {
                 getContentResolver().unregisterContentObserver(adbContentObserver);

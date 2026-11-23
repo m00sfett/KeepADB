@@ -330,7 +330,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
         CountDownLatch listenerNotified = new CountDownLatch(1);
-        KeepADBRegisterClient.setRegisterStateListener(listenerNotified::countDown);
+        RegisterStateNotifier.setListener(listenerNotified::countDown);
 
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);

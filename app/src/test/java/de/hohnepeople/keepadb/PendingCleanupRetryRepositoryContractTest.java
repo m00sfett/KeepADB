@@ -39,6 +39,10 @@ public class PendingCleanupRetryRepositoryContractTest {
     private static final String CLIENT = "KeepADBRegisterClient.java";
     private static final String REPOSITORY = "PendingCleanupRetryRepository.java";
     private static final String HTTP_ADAPTER = "KeepADBHttpTransport.java";
+    /** #1049: the deferred withdrawals and the #562 gate moved out of the client. */
+    private static final String COORDINATOR = "PendingCleanupCoordinator.java";
+    private static final String BACKOFF = "UnavailableDeleteBackoff.java";
+    private static final String SEAM = "RegisterTransport.java";
 
     /**
      * No instance and no mutable static field means no queue, cache, lock, timer or generation can
@@ -137,7 +141,9 @@ public class PendingCleanupRetryRepositoryContractTest {
             String name = file.getFileName().toString();
             String code = withoutComments(
                     new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
-            if (!name.equals(REPOSITORY) && code.contains("PendingCleanupRetryRepository")) {
+            // #1049: the #562 gate shares only the saturating addition, not the record.
+            String recordUse = code.replace("PendingCleanupRetryRepository.saturatingAdd(", "");
+            if (!name.equals(REPOSITORY) && recordUse.contains("PendingCleanupRetryRepository")) {
                 users.add(name);
             }
             if (Pattern.compile("\\bvolatile\\s+long\\s+currentOpGeneration\\b").matcher(code).find()) {
@@ -148,8 +154,8 @@ public class PendingCleanupRetryRepositoryContractTest {
             }
             if (code.contains("HttpURLConnection")) connections.add(name);
         }
-        assertEquals("Only the client may use the repository: " + users,
-                List.of(CLIENT), users);
+        assertEquals("Only the cleanup coordinator may use the repository (#1049): " + users,
+                List.of(COORDINATOR), users);
         assertEquals("The client is the only owner of currentOpGeneration: " + generationOwners,
                 List.of(CLIENT), generationOwners);
         assertEquals("The client is the only owner of the register executor: " + executors,
@@ -167,6 +173,8 @@ public class PendingCleanupRetryRepositoryContractTest {
     @Test
     public void theClientHoldsNoCopyOfTheRecordButKeepsTheDecisionAndBothClocks() throws IOException {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
+        String coordinator = withoutComments(read(SOURCE_DIRECTORY + COORDINATOR));
+        String backoff = withoutComments(read(SOURCE_DIRECTORY + BACKOFF));
 
         for (String moved : new String[] {"register_webhook_pending_cleanup_retry_state",
                 "getSharedPreferences", "SharedPreferences", "PREFS_NAME", "PendingCleanupRetryState",
@@ -175,38 +183,42 @@ public class PendingCleanupRetryRepositoryContractTest {
                 "pendingCleanupRetryStateKey", "MAX_PENDING_CLEANUP_ATTEMPTS",
                 "PENDING_CLEANUP_EXPIRY_MS", "PENDING_CLEANUP_INITIAL_BACKOFF_MS",
                 "PENDING_CLEANUP_MAX_BACKOFF_MS"}) {
-            assertFalse("the client must not hold its own copy of '" + moved + "' (#701)",
-                    client.contains(moved));
+            for (String code : new String[] {client, coordinator, backoff}) {
+                assertFalse("no copy of '" + moved + "' outside the repository (#701)",
+                        code.contains(moved));
+            }
         }
-        assertEquals("the client reads a record in exactly one place", 1,
-                count(client, "PendingCleanupRetryRepository.read("));
-        assertEquals("the client books a failure in exactly one place", 1,
-                count(client, "PendingCleanupRetryRepository.recordFailure("));
-        assertEquals("the client removes a record when it discards or drops an entry, and (#707) "
-                + "for the entry a full backlog evicted: in the commit block and (#923) where a "
-                + "possible registration is queued", 4,
-                count(client, "PendingCleanupRetryRepository.remove("));
-        assertEquals("the client sweeps the records of dead entries in exactly one place (#707)", 1,
-                count(client, "PendingCleanupRetryRepository.removeOrphans("));
+        assertFalse("#1049: the client leaves the record to the coordinator",
+                client.contains("PendingCleanupRetryRepository"));
+        assertEquals("the coordinator reads a record in exactly one place", 1,
+                count(coordinator, "PendingCleanupRetryRepository.read("));
+        assertEquals("the coordinator books a failure in exactly one place", 1,
+                count(coordinator, "PendingCleanupRetryRepository.recordFailure("));
+        assertEquals("the coordinator removes a record when it discards or drops an entry, and "
+                + "(#707) for the entry a full backlog evicted when it queues one", 3,
+                count(coordinator, "PendingCleanupRetryRepository.remove("));
+        assertEquals("the coordinator sweeps the records of dead entries in exactly one place (#707)",
+                1, count(coordinator, "PendingCleanupRetryRepository.removeOrphans("));
 
-        String persistedClock = bodyOf(client, "private static long pendingCleanupNow()");
+        String persistedClock = bodyOf(coordinator, "static long now()");
         assertTrue(persistedClock.contains("System.currentTimeMillis()"));
         assertFalse("the persisted record must stay on the wall clock, a monotonic one restarts "
-                + "near zero on every reboot", persistedClock.contains("SystemClock"));
-        String gateClock = bodyOf(client, "private static long markUnavailableNow()");
+                + "near zero on every reboot", coordinator.contains("SystemClock"));
+        String gateClock = bodyOf(backoff, "long now()");
         assertTrue(gateClock.contains("SystemClock.elapsedRealtime()"));
         assertFalse("the in-memory #562 gate must stay on the monotonic clock",
-                gateClock.contains("currentTimeMillis"));
+                backoff.contains("currentTimeMillis"));
         assertTrue("the persisted record is handed the wall clock and nothing else",
-                bodyOf(client, "private static PendingCleanupRetryRepository.RetryState duePendingCleanup(")
-                        .contains("pendingCleanupNow()"));
-        assertTrue(bodyOf(client, "private static void recordPendingCleanupFailure(")
-                .contains("pendingCleanupNow()"));
-        assertFalse("the persisted record must not use the #562 gate's clock",
-                bodyOf(client, "private static PendingCleanupRetryRepository.RetryState duePendingCleanup(")
-                        .contains("markUnavailableNow()"));
-        assertFalse(bodyOf(client, "private static void recordPendingCleanupFailure(")
-                .contains("markUnavailableNow()"));
+                bodyOf(coordinator, "private static PendingCleanupRetryRepository.RetryState due(")
+                        .contains("now()"));
+        assertTrue(bodyOf(coordinator, "private static void recordFailure(").contains("now()"));
+        for (String gate : new String[] {"UnavailableDeleteBackoff", "UNAVAILABLE",
+                "elapsedRealtime"}) {
+            assertFalse("the persisted record must not use the #562 gate's clock: " + gate,
+                    coordinator.contains(gate));
+        }
+        assertFalse("and the client keeps no clock of either kind for them",
+                client.contains("currentTimeMillis"));
     }
 
     /**
@@ -248,13 +260,19 @@ public class PendingCleanupRetryRepositoryContractTest {
         }
         assertTrue("the scan must see the commit blocks and synchronized methods: " + guarded.size(),
                 guarded.size() >= 15);
+        // #1049: the coordinator and the seam run outside the monitor and take no lock of their own.
+        for (String outside : new String[] {COORDINATOR, SEAM}) {
+            String code = withoutComments(read(SOURCE_DIRECTORY + outside));
+            assertFalse(outside + " must not synchronize", code.contains("synchronized"));
+        }
 
         for (String body : guarded) {
-            for (String transport : new String[] {"deleteEndpoint(", "postEndpoint(",
-                    "postTransports(", "sendJsonPost(", "httpTransport", ".postJson(", ".delete(",
-                    "reportAdditionalVerifiedTransports(", "flushPendingCleanups(",
-                    "PendingCleanupRetryRepository.read(", "PendingCleanupRetryRepository.recordFailure(",
-                    "PendingCleanupRetryRepository.removeOrphans("}) {
+            for (String transport : new String[] {"RegisterTransport.", "deleteEndpoint(",
+                    "postEndpoint(", "postTransports(", "sendJsonPost(", "httpTransport",
+                    ".postJson(", ".delete(", "reportAdditionalVerifiedTransports(",
+                    "PendingCleanupCoordinator.flush(",
+                    "PendingCleanupCoordinator.recordFailuresLeftToTransaction(",
+                    "PendingCleanupRetryRepository."}) {
                 assertFalse("no request or retry decision may run inside the class monitor: '"
                         + transport + "' in {" + body.replaceAll("\\s+", " ").trim() + "}",
                         body.contains(transport));
@@ -274,22 +292,25 @@ public class PendingCleanupRetryRepositoryContractTest {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
         String update = bodyOf(client, "private static void performUpdateTransaction(");
 
-        int post = update.indexOf("postEndpoint(targetUrl, targetEndpoint)");
+        int post = update.indexOf("RegisterTransport.postEndpoint(targetUrl, targetEndpoint)");
         assertTrue(post > 0);
         int recheck = update.indexOf("if (opGen != currentOpGeneration) {", post);
-        int secondary = update.indexOf("reportAdditionalVerifiedTransports(context, targetUrl);");
+        int secondary = update.indexOf(
+                "RegisterTransport.reportAdditionalVerifiedTransports(context, targetUrl);");
         assertTrue("the operation is checked after the POST", recheck > post);
         assertTrue("and before any secondary transport is reported", secondary > recheck);
         // #923: a superseded POST may still have registered; its withdrawal is queued before the
         // transaction gives up.
         String stale = update.substring(recheck, secondary);
-        int remembered = stale.indexOf("rememberPossibleRegistration(context, targetUrl, false);");
+        int remembered = stale.indexOf(
+                "PendingCleanupCoordinator.rememberPossibleRegistration(context, targetUrl, false);");
         assertTrue(stale, remembered >= 0 && remembered < stale.indexOf("return;"));
 
         int commit = update.indexOf("synchronized (KeepADBRegisterClient.class)", secondary);
-        int remember = update.indexOf("KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember)",
+        int remember = update.indexOf("PendingCleanupCoordinator.queue(context, cleanupToRemember)",
                 commit);
-        int drop = update.indexOf("removePendingCleanupsForResource(context, targetUrl)", commit);
+        int drop = update.indexOf("PendingCleanupCoordinator.removeForResource(context, targetUrl)",
+                commit);
         int stateMove = update.indexOf("lastRegisteredUrl = targetUrl;", commit);
         int snapshot = update.indexOf("KeepADBPreferences.setWebhookReportSnapshot(", commit);
         assertTrue("the cleanup to remember is persisted in the commit block", remember > commit);
@@ -297,23 +318,17 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertTrue("before the in-memory report state moves on", stateMove > remember);
         assertTrue("and before the stored report snapshot moves on", snapshot > remember);
 
-        // #707: the retry record of the entry that remembering evicted goes in the same commit
-        // block, right behind the write that evicted it and before anything else moves on.
-        int evictedRecord = update.indexOf(
-                "PendingCleanupRetryRepository.remove(context, evictedCleanup)", commit);
-        assertTrue("the record of the evicted entry is removed in the commit block, after the "
-                + "eviction", evictedRecord > remember);
-        assertTrue("before the obsolete cleanups of the new URL are dropped", evictedRecord < drop);
-        assertTrue("before the in-memory report state moves on", evictedRecord < stateMove);
-        assertTrue("and before the stored report snapshot moves on", evictedRecord < snapshot);
-        assertTrue("the entry to forget is the one the eviction reported, nothing else",
-                Pattern.compile("String\\s+evictedCleanup\\s*=\\s*"
-                        + "KeepADBPreferences\\.addPendingWebhookCleanupUrl\\(context, cleanupToRemember\\);")
-                        .matcher(update).find());
-        assertTrue("and only when there was one",
-                Pattern.compile("if\\s*\\(\\s*evictedCleanup\\s*!=\\s*null\\s*\\)\\s*\\{\\s*"
-                        + "PendingCleanupRetryRepository\\.remove\\(context, evictedCleanup\\);")
-                        .matcher(update).find());
+        // #707: queuing removes the retry record of the entry that the add evicted, right behind
+        // the write that evicted it, and only that one (#1049: in the coordinator's queue).
+        String queue = bodyOf(withoutComments(read(SOURCE_DIRECTORY + COORDINATOR)),
+                "static void queue(");
+        assertTrue("the entry to forget is the one the eviction reported, nothing else, and only "
+                + "when there was one",
+                Pattern.compile("\\{\\s*String\\s+evicted\\s*=\\s*"
+                        + "KeepADBPreferences\\.addPendingWebhookCleanupUrl\\(context, url\\);\\s*"
+                        + "if\\s*\\(\\s*evicted\\s*!=\\s*null\\s*\\)\\s*"
+                        + "PendingCleanupRetryRepository\\.remove\\(context, evicted\\);\\s*\\}")
+                        .matcher(queue).find());
     }
 
     /**
@@ -328,8 +343,9 @@ public class PendingCleanupRetryRepositoryContractTest {
     public void theOrphanSweepHasOneCallSiteInTheFlushThatOnlyTheExecutorTransactionsRun()
             throws IOException {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
+        String coordinator = withoutComments(read(SOURCE_DIRECTORY + COORDINATOR));
 
-        String flush = bodyOf(client, "private static void flushPendingCleanups(");
+        String flush = bodyOf(coordinator, "static List<String> flush(");
         assertEquals(1, count(flush, "PendingCleanupRetryRepository.removeOrphans("));
         assertTrue("the sweep is the first thing the flush does, before it decides about any entry",
                 flush.indexOf("PendingCleanupRetryRepository.removeOrphans(")
@@ -341,13 +357,16 @@ public class PendingCleanupRetryRepositoryContractTest {
                         .matcher(flush).find());
 
         // The flush is reached from the two transactions and the test hook only.
-        assertEquals("declaration, update transaction, delete transaction and the test hook", 4,
-                count(client, "flushPendingCleanups("));
+        assertEquals("update transaction, delete transaction and the test hook", 3,
+                count(client, "PendingCleanupCoordinator.flush("));
+        assertEquals("the coordinator never flushes from anywhere else", 1,
+                count(coordinator, "flush("));
         for (String transaction : new String[] {"private static void performUpdateTransaction(",
                 "private static void performDeleteTransaction("}) {
             String body = bodyOf(client, transaction);
-            Matcher flushCall = Pattern.compile(
-                    "flushPendingCleanups\\(context, targetUrl, (true|false)\\);").matcher(body);
+            Matcher flushCall = Pattern.compile("(?:List<String>\\s+\\w+\\s*=\\s*)?"
+                    + "PendingCleanupCoordinator\\.flush\\(context, targetUrl, (true|false)\\);")
+                    .matcher(body);
             int call = flushCall.find() ? flushCall.start() : -1;
             assertTrue("the transaction flushes first: " + transaction,
                     call > 0 && body.substring(1, call).trim().isEmpty());

@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * In-memory {@link KeepADBRegisterClient.HttpTransport} fake for testing failure injection,
+ * In-memory {@link RegisterTransport.HttpTransport} fake for testing failure injection,
  * latency, and recording network calls deterministically without a real network socket (#326).
  */
-final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransport {
+final class KeepADBFakeHttpTransport implements RegisterTransport.HttpTransport {
 
     static final class Request {
         final String method;
@@ -118,7 +118,7 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
     }
 
     @Override
-    public boolean postJson(String targetUrl, String payload, String logLabel) {
+    public TransportResult postJson(String targetUrl, String payload, String logLabel) {
         Request req = new Request("POST", targetUrl, payload, logLabel);
         recordedRequests.add(req);
 
@@ -137,19 +137,17 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
         if (!postSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
             // #923: a configured non-2xx code is an HTTP answer, everything else an I/O error.
             boolean httpAnswer = postResponseCode < 200 || postResponseCode >= 300;
-            KeepADBRegisterClient.noteTransportOutcome(httpAnswer
-                    ? "http=" + postResponseCode : "error=FakeIOException");
             if (failureCallback != null) {
                 failureCallback.run();
             }
-            return false;
+            return httpAnswer ? TransportResult.http(postResponseCode)
+                    : TransportResult.failure("FakeIOException");
         }
-        KeepADBRegisterClient.noteTransportOutcome("http=200");
-        return true;
+        return TransportResult.http(200);
     }
 
     @Override
-    public boolean delete(String targetUrl) {
+    public TransportResult delete(String targetUrl) {
         Request req = new Request("DELETE", targetUrl, null, null);
         recordedRequests.add(req);
 
@@ -166,13 +164,11 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
         }
 
         if (!deleteSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
-            KeepADBRegisterClient.noteTransportOutcome("error=FakeIOException");
             if (failureCallback != null) {
                 failureCallback.run();
             }
-            return false;
+            return TransportResult.failure("FakeIOException");
         }
-        KeepADBRegisterClient.noteTransportOutcome("http=200");
-        return true;
+        return TransportResult.http(200);
     }
 }

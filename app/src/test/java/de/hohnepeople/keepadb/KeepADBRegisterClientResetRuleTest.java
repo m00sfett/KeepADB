@@ -32,7 +32,7 @@ public class KeepADBRegisterClientResetRuleTest {
 
     @Test
     public void everyTestStartsWithTheOfflineTransport() throws Exception {
-        Field field = KeepADBRegisterClient.class.getDeclaredField("httpTransport");
+        Field field = RegisterTransport.class.getDeclaredField("httpTransport");
         field.setAccessible(true);
         assertSame(KeepADBRegisterClientResetRule.OFFLINE_TRANSPORT, field.get(null));
     }
@@ -53,8 +53,8 @@ public class KeepADBRegisterClientResetRuleTest {
 
         assertTrue("the register executor must drain",
                 KeepADBRegisterClient.awaitIdleForTesting(5000));
-        assertEquals("error=OfflineTestTransport",
-                KeepADBRegisterClient.lastTransportOutcomeForTesting());
+        assertTrue("the failed report names the offline transport as its outcome",
+                KeepADBDiagnostics.export(context).contains("error=OfflineTestTransport"));
     }
 
     @Test
@@ -62,21 +62,21 @@ public class KeepADBRegisterClientResetRuleTest {
         Context context = RuntimeEnvironment.getApplication();
         CountDownLatch inFlight = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
-        KeepADBRegisterClient.setHttpTransport(new KeepADBRegisterClient.HttpTransport() {
+        KeepADBRegisterClient.setHttpTransport(new RegisterTransport.HttpTransport() {
             @Override
-            public boolean postJson(String targetUrl, String payload, String logLabel) {
+            public TransportResult postJson(String targetUrl, String payload, String logLabel) {
                 inFlight.countDown();
                 try {
                     release.await(10, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                return true;
+                return TransportResult.http(200);
             }
 
             @Override
-            public boolean delete(String targetUrl) {
-                return true;
+            public TransportResult delete(String targetUrl) {
+                return TransportResult.http(200);
             }
         });
         try {

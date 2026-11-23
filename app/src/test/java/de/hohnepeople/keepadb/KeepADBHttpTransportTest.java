@@ -153,8 +153,8 @@ public class KeepADBHttpTransportTest {
 
         for (int code : codes) {
             boolean expected = code >= 200 && code < 300;
-            assertEquals("POST " + code, expected, transport.postJson(url("/c" + code), "{}", "x"));
-            assertEquals("DELETE " + code, expected, transport.delete(url("/c" + code)));
+            assertEquals("POST " + code, expected, transport.postJson(url("/c" + code), "{}", "x").ok);
+            assertEquals("DELETE " + code, expected, transport.delete(url("/c" + code)).ok);
         }
     }
 
@@ -164,8 +164,8 @@ public class KeepADBHttpTransportTest {
         locationByPath.put("/moved", url("/target"));
         statusByPath.put("/target", 200);
 
-        assertFalse(transport.postJson(url("/moved"), "{}", "x"));
-        assertFalse(transport.delete(url("/moved")));
+        assertFalse(transport.postJson(url("/moved"), "{}", "x").ok);
+        assertFalse(transport.delete(url("/moved")).ok);
         for (Req req : requests) {
             assertEquals("a redirect target must never be contacted", "/moved", req.path);
         }
@@ -175,7 +175,7 @@ public class KeepADBHttpTransportTest {
     @Test
     public void postSendsAFixedLengthUtf8JsonBody() {
         String payload = "{\"name\":\"K\u00e4se \u20ac\"}";
-        assertTrue(transport.postJson(url("/p"), payload, "x"));
+        assertTrue(transport.postJson(url("/p"), payload, "x").ok);
 
         byte[] expected = payload.getBytes(StandardCharsets.UTF_8);
         assertTrue("the payload must contain multi-byte characters", expected.length > payload.length());
@@ -190,7 +190,7 @@ public class KeepADBHttpTransportTest {
 
     @Test
     public void deleteSendsADeleteRequestWithoutABody() {
-        assertTrue(transport.delete(url("/d")));
+        assertTrue(transport.delete(url("/d")).ok);
         Req req = requests.get(0);
         assertEquals("DELETE", req.method);
         assertEquals(0, req.body.length);
@@ -205,8 +205,8 @@ public class KeepADBHttpTransportTest {
             for (String kind : new String[] {"POST", "DELETE"}) {
                 long start = System.nanoTime();
                 boolean ok = kind.equals("POST")
-                        ? transport.postJson(url("/slow"), "{}", "x")
-                        : transport.delete(url("/slow"));
+                        ? transport.postJson(url("/slow"), "{}", "x").ok
+                        : transport.delete(url("/slow")).ok;
                 long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
                 assertFalse(kind, ok);
                 assertTrue(kind + " gave up too early: " + elapsedMs, elapsedMs >= 1800);
@@ -225,8 +225,8 @@ public class KeepADBHttpTransportTest {
         }
         String secretUrl = "http://user:hunter2@127.0.0.1:" + closedPort + "/hook?token=s3cr3t";
 
-        assertFalse(transport.postJson(secretUrl, "{}", "127.0.0.1:" + closedPort));
-        assertFalse(transport.delete(secretUrl));
+        assertFalse(transport.postJson(secretUrl, "{}", "127.0.0.1:" + closedPort).ok);
+        assertFalse(transport.delete(secretUrl).ok);
 
         String logged = logs();
         assertTrue("the failures must be logged", logged.contains("Could not update register at ")
@@ -239,7 +239,7 @@ public class KeepADBHttpTransportTest {
 
     @Test
     public void aSuccessfulPostLogsTheMaskedEndpointLabelOnly() {
-        assertTrue(transport.postJson(url("/ok"), "{}", "192.168.7.42:5555"));
+        assertTrue(transport.postJson(url("/ok"), "{}", "192.168.7.42:5555").ok);
 
         String logged = logs();
         assertTrue(logged.contains("Register update for " + KeepADBAddressMask.maskEndpointForDisplay("192.168.7.42:5555")
@@ -286,8 +286,8 @@ public class KeepADBHttpTransportTest {
 
                     String target = "http://127.0.0.1:" + raw.getLocalPort() + "/x";
                     boolean ok = kind.equals("POST")
-                            ? transport.postJson(target, "{}", "x")
-                            : transport.delete(target);
+                            ? transport.postJson(target, "{}", "x").ok
+                            : transport.delete(target).ok;
                     assertEquals(kind + " broken=" + broken, !broken, ok);
                     assertTrue(finished.await(6, TimeUnit.SECONDS));
                     assertEquals("the client must close the socket (" + kind + ", broken=" + broken + ")",

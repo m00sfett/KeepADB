@@ -168,7 +168,7 @@ public class KeepADBWebhookSyncTest {
     public void everyResultRefreshesTheApp() {
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT, 1L);
         AtomicInteger refreshed = new AtomicInteger();
-        KeepADBRegisterClient.setRegisterStateListener(refreshed::incrementAndGet);
+        RegisterStateNotifier.setListener(refreshed::incrementAndGet);
 
         int before = refreshed.get();
         assertEquals(KeepADBWebhookSync.Result.NEEDS_SETUP,

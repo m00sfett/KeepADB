@@ -5,26 +5,34 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Sends optional background reachability updates to a custom register or webhook endpoint. */
+/**
+ * Sends optional background reachability updates to a custom register or webhook endpoint.
+ *
+ * <p>#1049: the transaction orchestrator and facade. It owns the operation generation, the single
+ * register executor, the class monitor and the local report snapshot; the retry series ({@link
+ * RegisterRetrySeries}), the endpoint-loss DELETE gate ({@link UnavailableDeleteBackoff}) and the
+ * deferred withdrawals ({@link PendingCleanupCoordinator}) are separate components. The first two
+ * are only touched under this class's monitor; the coordinator sends its requests only from the
+ * executor, outside it (its pure preference bookkeeping may run under it). Lock order: {@code KeepADBEndpointCoordinator} may call into this class while holding its
+ * own monitor, never the reverse.
+ */
 final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
-    /**
-     * #562: coordinated retry staffage for {@link #markUnavailableAsync}. Repeated notification-
-     * /service refreshes and network callbacks used to re-issue an immediate DELETE on every call
-     * (observed as 51 failed DELETEs, mostly ~60s apart, in a single P60 run). The first attempt is
-     * still immediate; each subsequent attempt after a failure waits at least the matching entry
-     * here, then settles into {@link #MARK_UNAVAILABLE_MAX_BACKOFF_MS} once the table is exhausted.
-     * User-approved staffing from issue #562: 5s, 10s, 15s, 30s, 1min, 3min, then <=5min forever.
-     */
-    static final long[] MARK_UNAVAILABLE_RETRY_BACKOFFS_MS = {
-            5_000L, 10_000L, 15_000L, 30_000L, 60_000L, 180_000L
-    };
-    static final long MARK_UNAVAILABLE_MAX_BACKOFF_MS = 5L * 60L * 1000L;
-    private static volatile Long pendingCleanupNowForTesting;
-    private static volatile Long markUnavailableNowForTesting;
+    static final long[] MARK_UNAVAILABLE_RETRY_BACKOFFS_MS = UnavailableDeleteBackoff.RETRY_BACKOFFS_MS;
+    static final long MARK_UNAVAILABLE_MAX_BACKOFF_MS = UnavailableDeleteBackoff.MAX_BACKOFF_MS;
+    static final long EPISODE_REATTEMPT_INTERVAL_MS = RegisterRetrySeries.EPISODE_REATTEMPT_INTERVAL_MS;
+    /** #867: quiet period that coalesces a burst of network callbacks into one report. */
+    static final long RESYNC_DEBOUNCE_MS = 2_000L;
+
+    /** Guarded by the class monitor. */
+    private static final RegisterRetrySeries SERIES = new RegisterRetrySeries();
+    /** Guarded by the class monitor. */
+    private static final UnavailableDeleteBackoff UNAVAILABLE = new UnavailableDeleteBackoff();
+
     private static volatile String coordinatorEndpointForTesting;
     private static volatile Runnable beforeResyncDispatchForTesting;
     private static Handler mainHandler;
@@ -42,78 +50,25 @@ final class KeepADBRegisterClient {
         return t;
     });
 
-    interface RegisterStateListener {
-        void onRegisterStateChanged();
-    }
+    private static volatile String lastRegisteredUrl = null;
+    private static volatile String lastRegisteredEndpoint = null;
+    private static volatile boolean stateInitialized = false;
+    private static volatile long currentOpGeneration = 0;
+    private static volatile boolean wlanUpdateInFlight = false;
+    /** #1049 review: the generation of the last report series started, to tell it from a DELETE. */
+    private static volatile long lastReportOpGeneration = 0;
 
-    private static volatile RegisterStateListener registerStateListener;
-
-    static void setRegisterStateListener(RegisterStateListener listener) {
-        registerStateListener = listener;
-    }
-
-    static void clearRegisterStateListener() {
-        registerStateListener = null;
-    }
+    private KeepADBRegisterClient() {}
 
     /**
-     * #1036 review: clears only {@code listener}, so a screen that pauses after another one took
-     * over the slot (Settings over the home screen) does not remove the newer listener.
-     */
-    static synchronized void clearRegisterStateListener(RegisterStateListener listener) {
-        if (registerStateListener == listener) {
-            registerStateListener = null;
-        }
-    }
-
-    /** Test hook: what a settled report does to the listener and the notification. */
-    static void notifyRegisterStateChangedForTesting(Context context) {
-        notifyRegisterStateListener(context);
-    }
-
-    private static void notifyRegisterStateListener(Context context) {
-        RegisterStateListener listener = registerStateListener;
-        if (listener != null) {
-            mainHandler().post(listener::onRegisterStateChanged);
-        }
-        // #734: the listener only exists while MainActivity is visible; the persistent
-        // notification must follow the result regardless. Posted to the main handler so it runs
-        // outside the class monitor this is called under (the notification path takes the
-        // coordinator monitor, which already calls into this class).
-        if (context != null) {
-            final Context appContext = context.getApplicationContext();
-            mainHandler().post(() -> {
-                KeepADBNotification.refreshIfActive(appContext);
-                // #910: the widgets show the delivery state, so they follow every result as well.
-                // State only: re-rendering reads, it never reports or starts a discovery.
-                KeepADBWidget.refreshAllState(appContext);
-            });
-        }
-    }
-
-    /**
-     * #911: something other than a report result changed what the surfaces show (the widgets
-     * switched automatic synchronization). Tells the visible app screen, the persistent
-     * notification and every widget to re-render. A pure refresh: nothing is sent.
+     * Settled reports refresh the surfaces through {@link RegisterStateNotifier} (#734, #910,
+     * #1036). #911: something other than a report result changed what they show. Nothing is sent.
      */
     static void notifyStateChanged(Context context) {
-        notifyRegisterStateListener(context);
+        RegisterStateNotifier.notifyChanged(context);
     }
 
-    /**
-     * #910: a report was just queued. The widgets re-render so "sending" shows at once instead of
-     * after the answer. Posted to the main handler, outside the class monitor, and read-only.
-     */
-    private static void notifyWidgetsReportQueued(Context context) {
-        if (context == null) return;
-        final Context appContext = context.getApplicationContext();
-        mainHandler().post(() -> KeepADBWidget.refreshAllState(appContext));
-    }
-
-    /**
-     * #910: what the report client is doing right now, for the widgets. A pure read of the series
-     * state under the class monitor; it starts nothing and sends nothing.
-     */
+    /** #910: what the report client is doing right now, for the widgets. */
     enum Activity {
         /** No POST is running and none is waiting for its retry. */
         IDLE,
@@ -123,72 +78,14 @@ final class KeepADBRegisterClient {
         RETRY_WAITING
     }
 
+    /** #910: a pure read of the series state; it starts nothing and sends nothing. */
     static synchronized Activity activity() {
         if (wlanUpdateInFlight) return Activity.SENDING;
-        if (pendingPostRetry != null) return Activity.RETRY_WAITING;
+        if (SERIES.pendingRetry() != null) return Activity.RETRY_WAITING;
         return Activity.IDLE;
     }
 
-    private static volatile String lastRegisteredUrl = null;
-    private static volatile String lastRegisteredEndpoint = null;
-    private static volatile boolean stateInitialized = false;
-    private static volatile long currentOpGeneration = 0;
-    private static volatile boolean wlanUpdateInFlight = false;
-    /** #562: consecutive markUnavailableAsync DELETE failures, and when the next retry may run. */
-    private static volatile int markUnavailableRetryAttempts = 0;
-    private static volatile long markUnavailableNextAttemptAt = 0L;
-    /**
-     * #576 part C: the opGen of the markUnavailableAsync-dispatched DELETE that is currently
-     * queued or running, or {@code 0} when none is. Repeated calls (toggle path, lifecycle
-     * observer, service_sync all reacting to the same disconnect within milliseconds) coalesce
-     * into the one already outstanding instead of each dispatching their own transaction --
-     * device log in the issue showed two successful DELETEs 13-14ms apart for a single manual
-     * toggle.
-     *
-     * <p>Deliberately an opGen, not a plain flag: coalescing must only apply while nothing newer
-     * has been dispatched since this DELETE was queued. A newer registration
-     * ({@link #updateEndpointAsync}) or a genuinely new disconnect bumps
-     * {@link #currentOpGeneration}, which breaks the equality check in
-     * {@link #markUnavailableAsync} even though this field has not changed yet -- so that later
-     * call is never swallowed just because an older, now-superseded DELETE for a different state
-     * happens to still be queued or running.
-     *
-     * <p>Cleared in a {@code finally} around the dispatched task itself (see
-     * {@link #markUnavailableAsync}), and only if it still points at that task's own opGen -- a
-     * newer markUnavailableAsync call may already have overwritten it with its own opGen by the
-     * time this task's finally runs, and that newer task's own finally is then responsible for
-     * clearing it. Not touched by {@link #performDeleteTransaction} directly -- that method is
-     * shared with {@link #unregisterAndDisableAsync}, which never sets this field and must not be
-     * affected by it.
-     */
-    private static volatile long markUnavailableInFlightOpGen = 0L;
-    /**
-     * #866: the current POST series -- the URL/endpoint pair whose report is queued, running,
-     * waiting for its next retry or, once {@link #seriesExhausted}, given up on. A repeated call for
-     * the same pair joins the series instead of dispatching a parallel POST or postponing the
-     * scheduled retry. Only a different pair, a network event (#867), an explicit user action
-     * (#869) or a configuration change starts a new series.
-     */
-    private static String seriesUrl = null;
-    private static String seriesEndpoint = null;
-    private static boolean seriesExhausted = false;
-    /** #881: the current series is an episode re-attempt: one request, never a retry. */
-    private static boolean singleShotSeries = false;
-    /**
-     * #960: the retries of a series are fixed ({@link KeepADBPreferences#WEBHOOK_MAX_RETRIES}).
-     * Tests that want a series without retries (or a shorter one) set a lower budget here;
-     * negative means the fixed series. Reset by {@link #resetForTesting()}.
-     */
-    private static volatile int retryBudgetForTesting = -1;
-    /** #881: elapsed realtime when the series was given up on, or of the last episode re-attempt. */
-    private static long lastGiveUpOrReattemptAt = 0L;
-    /** #881: the sparse re-attempt while a failure episode lasts and nothing else reports. */
-    static final long EPISODE_REATTEMPT_INTERVAL_MS = 15L * 60L * 1000L;
-    /** #866: retries already scheduled in the current series; 0 before its first failure. */
-    private static int postRetryNumber = 0;
-    /** #866: the one scheduled retry of the current series on the main handler, or null. */
-    private static Runnable pendingPostRetry = null;
-    private KeepADBRegisterClient() {}
+    // ---- Entry points ----
 
     static synchronized void ensureStateInitializedLocked(Context context) {
         if (stateInitialized) return;
@@ -199,6 +96,11 @@ final class KeepADBRegisterClient {
             lastRegisteredUrl = (url != null && !url.trim().isEmpty()) ? url.trim() : null;
         }
         stateInitialized = true;
+    }
+
+    /** The URL of the last successful report, read under the monitor (for the coordinator). */
+    static synchronized String registeredUrl() {
+        return lastRegisteredUrl;
     }
 
     static void updateEndpointAsync(Context context, String host, int port) {
@@ -221,8 +123,7 @@ final class KeepADBRegisterClient {
             // #866: the same report is already queued, running, waiting for its retry or was given
             // up on. Coordinator refreshes repeat this call for an unchanged endpoint; they must
             // neither send a parallel POST nor restart (and so postpone) the retry series.
-            if (targetUrl.equals(seriesUrl) && endpoint.equals(seriesEndpoint)
-                    && (wlanUpdateInFlight || pendingPostRetry != null || seriesExhausted)) {
+            if (SERIES.joins(targetUrl, endpoint, wlanUpdateInFlight)) {
                 return;
             }
             opGen = startSeriesLocked(targetUrl, endpoint);
@@ -230,11 +131,6 @@ final class KeepADBRegisterClient {
 
         dispatchUpdate(appContext, targetUrl, endpoint, opGen);
     }
-
-    /** #867: quiet period that coalesces a burst of network callbacks into one report. */
-    static final long RESYNC_DEBOUNCE_MS = 2_000L;
-    /** #867: the one debounced resync waiting on the main handler, or null. */
-    private static Runnable pendingResync = null;
 
     /**
      * #867: reports the current endpoint again after an Android network change, even when it is
@@ -250,17 +146,13 @@ final class KeepADBRegisterClient {
         final Context appContext = context.getApplicationContext();
         if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
         synchronized (KeepADBRegisterClient.class) {
-            if (pendingResync != null) {
-                mainHandler().removeCallbacks(pendingResync);
-            }
             Runnable resync = new Runnable() {
                 @Override
                 public void run() {
                     runResync(appContext, this);
                 }
             };
-            pendingResync = resync;
-            mainHandler().postDelayed(resync, RESYNC_DEBOUNCE_MS);
+            SERIES.replaceResync(mainHandler(), resync, RESYNC_DEBOUNCE_MS);
         }
     }
 
@@ -275,8 +167,7 @@ final class KeepADBRegisterClient {
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            if (pendingResync != self) return;
-            pendingResync = null;
+            if (!SERIES.takeResync(self)) return;
             opGen = startResyncSeriesLocked(appContext, enabled, targetUrl, endpoint, generationBefore);
             if (opGen == 0L) return;
         }
@@ -313,49 +204,11 @@ final class KeepADBRegisterClient {
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            if (pendingResync != null) {
-                mainHandler().removeCallbacks(pendingResync);
-                pendingResync = null;
-            }
+            SERIES.dropResync(mainHandler());
             opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
             if (opGen == 0L) return;
         }
         dispatchUpdate(appContext, targetUrl, endpoint, opGen);
-    }
-
-    /**
-     * #893 (Codex review): "Report now" on the webhook alert. A retry that is only waiting for its
-     * timer is sent at once instead of being joined, so the tap always causes an attempt; a POST
-     * that is already running is joined (it is the attempt), and a debounced resync still waiting
-     * is dropped so one tap never sends two requests. Otherwise like {@link #requestResyncNow}.
-     *
-     * @param onDone runs on the register executor once the attempt this tap caused or joined has
-     *         finished, so the receiver can keep the process alive until then ({@code goAsync}).
-     */
-    static void reportNowFromAlert(Context context, Runnable onDone) {
-        if (context == null) {
-            if (onDone != null) onDone.run();
-            return;
-        }
-        boolean firedRetry = false;
-        synchronized (KeepADBRegisterClient.class) {
-            Runnable retry = pendingPostRetry;
-            if (retry != null && !wlanUpdateInFlight) {
-                if (pendingResync != null) {
-                    mainHandler().removeCallbacks(pendingResync);
-                    pendingResync = null;
-                }
-                mainHandler().removeCallbacks(retry);
-                mainHandler().post(retry);
-                firedRetry = true;
-            }
-        }
-        if (!firedRetry) requestResyncNow(context);
-        if (onDone != null) {
-            // Queued behind the retry on the main thread, then behind its transaction on the
-            // single register executor.
-            mainHandler().post(() -> EXECUTOR.execute(onDone));
-        }
     }
 
     /** What a manual "Report now" did with the tap; decided before anything is sent. */
@@ -386,10 +239,12 @@ final class KeepADBRegisterClient {
      *       and the cause is returned and logged ({@code register_report skipped reason=...},
      *       never the URL or the endpoint). Wireless Debugging is never switched on and a cached
      *       address is not reused without Wi-Fi.
-     *   <li>Otherwise it is {@link #reportNowFromAlert}: a retry that is only waiting for its
-     *       timer is sent at once, a POST that is already running is joined and a debounced
-     *       resync that is still waiting is dropped, so one tap never sends two requests, and the
-     *       network being untrusted does not matter (the report path has no trust gate).
+     *   <li>#893 (Codex review): a retry that is only waiting for its timer is sent at once, a POST
+     *       that is already running is joined and a debounced resync that is still waiting is
+     *       dropped, so one tap never sends two requests, and the network being untrusted does not
+     *       matter (the report path has no trust gate).
+     *   <li>#1049: what the tap does and the result it returns are decided under one acquisition of
+     *       the class monitor, so the result always describes what was dispatched.
      * </ul>
      *
      * @param onDone runs on the register executor once the attempt this tap caused or joined has
@@ -411,12 +266,48 @@ final class KeepADBRegisterClient {
         if (verifiedWifiEndpoint(appContext) == null) {
             return refuseReportNow(appContext, ReportNowResult.NO_ENDPOINT, "no_endpoint", onDone);
         }
-        boolean running;
+        // Read outside the monitor (lock order); a newer operation in between bumps the generation
+        // and makes startResyncSeriesLocked refuse the stale endpoint.
+        long generationBefore = currentOpGeneration;
+        String endpoint = currentCoordinatorEndpoint();
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        Runnable hook = beforeResyncDispatchForTesting;
+        if (hook != null) hook.run();
+        ReportNowResult result;
+        long opGen = 0L;
         synchronized (KeepADBRegisterClient.class) {
-            running = wlanUpdateInFlight;
+            SERIES.dropResync(mainHandler());
+            Runnable retry = SERIES.pendingRetry();
+            if (wlanUpdateInFlight) {
+                result = ReportNowResult.JOINED;
+            } else if (retry != null) {
+                mainHandler().removeCallbacks(retry);
+                mainHandler().post(retry);
+                result = ReportNowResult.STARTED;
+            } else {
+                opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint,
+                        generationBefore);
+                if (opGen != 0L) {
+                    result = ReportNowResult.STARTED;
+                } else if (currentOpGeneration != generationBefore
+                        && currentOpGeneration == lastReportOpGeneration) {
+                    // #918 / review: a report started since the read, and already finished, is the
+                    // attempt this tap asked for; it is joined, not repeated.
+                    result = ReportNowResult.JOINED;
+                } else {
+                    // A newer withdrawal (an endpoint loss) took over between the read and the
+                    // monitor, so there is no verified endpoint to report.
+                    result = ReportNowResult.NO_ENDPOINT;
+                }
+            }
         }
-        reportNowFromAlert(appContext, onDone);
-        return running ? ReportNowResult.JOINED : ReportNowResult.STARTED;
+        if (opGen != 0L) dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+        if (onDone != null) {
+            // Queued behind the retry on the main thread, then behind its transaction on the
+            // single register executor.
+            mainHandler().post(() -> EXECUTOR.execute(onDone));
+        }
+        return result;
     }
 
     private static ReportNowResult refuseReportNow(Context appContext, ReportNowResult result,
@@ -458,15 +349,13 @@ final class KeepADBRegisterClient {
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            if ((!seriesExhausted && seriesUrl != null) || pendingResync != null) return;
             long now = SystemClock.elapsedRealtime();
-            if (now - lastGiveUpOrReattemptAt < EPISODE_REATTEMPT_INTERVAL_MS) return;
+            if (!SERIES.reattemptDue(now)) return;
             opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
             if (opGen == 0L) return;
-            lastGiveUpOrReattemptAt = now;
             // One attempt only, independent of the fixed retry budget of a normal series: a
             // failure ends this series at once.
-            singleShotSeries = true;
+            SERIES.markReattempt(now);
         }
         dispatchUpdate(appContext, targetUrl, endpoint, opGen, true);
     }
@@ -509,7 +398,7 @@ final class KeepADBRegisterClient {
             return 0L;
         }
         ensureStateInitializedLocked(appContext);
-        if (wlanUpdateInFlight || pendingPostRetry != null
+        if (wlanUpdateInFlight || SERIES.pendingRetry() != null
                 || currentOpGeneration != generationBefore) {
             return 0L;
         }
@@ -518,11 +407,10 @@ final class KeepADBRegisterClient {
 
     /** #866: caller must hold the class monitor. Starts a new POST series and returns its opGen. */
     private static long startSeriesLocked(String targetUrl, String endpoint) {
-        cancelPostRetryLocked();
-        seriesUrl = targetUrl;
-        seriesEndpoint = endpoint;
+        SERIES.start(mainHandler(), targetUrl, endpoint);
         wlanUpdateInFlight = true;
-        return ++currentOpGeneration;
+        lastReportOpGeneration = ++currentOpGeneration;
+        return lastReportOpGeneration;
     }
 
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint, long opGen) {
@@ -537,14 +425,14 @@ final class KeepADBRegisterClient {
      */
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint,
             long opGen, boolean probeFirst) {
-        notifyWidgetsReportQueued(appContext);
+        RegisterStateNotifier.notifyReportQueued(appContext);
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
             if (probeFirst && !endpointProbe.isReachable(endpoint)) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentOpGeneration) {
                         wlanUpdateInFlight = false;
-                        seriesExhausted = true;
+                        SERIES.giveUp();
                     }
                 }
                 KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
@@ -555,54 +443,16 @@ final class KeepADBRegisterClient {
         });
     }
 
-    private static int retryBudget() {
-        int override = retryBudgetForTesting;
-        return override >= 0 ? Math.min(override, KeepADBPreferences.WEBHOOK_MAX_RETRIES)
-                : KeepADBPreferences.WEBHOOK_MAX_RETRIES;
-    }
-
-    static void setRetryBudgetForTesting(int retries) {
-        retryBudgetForTesting = retries;
-    }
-
-    /** #866: caller must hold the class monitor. Drops the scheduled retry and the series state. */
-    private static void cancelPostRetryLocked() {
-        if (pendingPostRetry != null) {
-            mainHandler().removeCallbacks(pendingPostRetry);
-            pendingPostRetry = null;
-        }
-        postRetryNumber = 0;
-        singleShotSeries = false;
-        seriesUrl = null;
-        seriesEndpoint = null;
-        seriesExhausted = false;
-    }
-
-    /**
-     * #866: caller must hold the class monitor. Schedules the next retry of a failed POST once that
-     * attempt has completed, or marks the series exhausted after the fixed number of retries (#960).
-     *
-     * <p>#870: deliberately a main-thread timer on uptime, unlike the alert's alarm. The series is
-     * short and bounded, and a retry that waits through deep sleep loses nothing: the network event
-     * on wake-up (#867) starts a fresh report anyway.
-     */
+    /** #866: caller must hold the class monitor. Schedules the next retry or gives the series up. */
     private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
             long opGen) {
-        if (singleShotSeries || postRetryNumber >= retryBudget()) {
-            seriesExhausted = true;
-            lastGiveUpOrReattemptAt = SystemClock.elapsedRealtime();
-            return;
-        }
-        postRetryNumber++;
-        long delayMs = KeepADBPreferences.webhookRetryDelayMs(postRetryNumber);
         Runnable retry = new Runnable() {
             @Override
             public void run() {
                 runPostRetry(context, targetUrl, endpoint, opGen, this);
             }
         };
-        pendingPostRetry = retry;
-        mainHandler().postDelayed(retry, delayMs);
+        SERIES.scheduleRetry(mainHandler(), retry, SystemClock.elapsedRealtime());
     }
 
     /**
@@ -616,11 +466,10 @@ final class KeepADBRegisterClient {
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(context);
         String currentUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
         synchronized (KeepADBRegisterClient.class) {
-            if (pendingPostRetry != self) return;
-            pendingPostRetry = null;
+            if (!SERIES.takeRetry(self)) return;
             if (opGen != currentOpGeneration || !enabled || !targetUrl.equals(currentUrl)
                     || !endpoint.equals(currentEndpoint)) {
-                cancelPostRetryLocked();
+                SERIES.cancel(mainHandler());
                 // #868: without sync or an endpoint there is nothing left to report, so the failure
                 // episode must not go on to warn about it.
                 if (!enabled || currentEndpoint == null) {
@@ -659,17 +508,11 @@ final class KeepADBRegisterClient {
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
             // #866: the endpoint is gone, so a scheduled POST retry for it is obsolete.
-            cancelPostRetryLocked();
+            SERIES.cancel(mainHandler());
             // #868: without an endpoint there is nothing to report, so no failure episode either.
             KeepADBWebhookAlert.endEpisode(appContext);
-            // #576 part C: a DELETE for this exact registered state is already queued or running
-            // -- coalesce instead of dispatching another one. Comparing against
-            // currentOpGeneration (not a plain flag) means a newer registration or disconnect
-            // dispatched in the meantime breaks the equality, so that call is never swallowed.
-            // See the field doc on markUnavailableInFlightOpGen for why the flag lives here
-            // rather than in performDeleteTransaction.
-            if (markUnavailableInFlightOpGen != 0L
-                    && markUnavailableInFlightOpGen == currentOpGeneration) {
+            // #576 part C: a DELETE for this exact registered state is already queued or running.
+            if (UNAVAILABLE.coalesces(currentOpGeneration)) {
                 return;
             }
             boolean wasInFlight = wlanUpdateInFlight;
@@ -680,24 +523,18 @@ final class KeepADBRegisterClient {
             boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
                     || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty())
                     || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null
-                    || hasDuePendingCleanup(appContext);
+                    || PendingCleanupCoordinator.hasDue(appContext);
             if (!wasInFlight && !hadPrior) {
                 return;
             }
-            // #562: only gate repeat calls once a previous attempt actually failed -- the very
-            // first request for a given unavailability is always immediate, matching the
-            // approved staffing ("sofortiger Erstversuch"). This keeps rapid-fire refreshes and
-            // network callbacks from re-issuing the DELETE on every call.
-            // #576 part B: monotonic clock -- this gate is in-memory only (never persisted), so a
-            // wall-clock jump (NTP correction, manual change) must not stall it indefinitely. See
-            // markUnavailableNow() for why this is a different clock than pendingCleanupNow().
-            long now = markUnavailableNow();
-            if (markUnavailableRetryAttempts > 0 && now < markUnavailableNextAttemptAt) {
+            // #562: rapid-fire refreshes and network callbacks must not re-issue the DELETE on
+            // every call once an attempt failed.
+            if (UNAVAILABLE.isWaiting()) {
                 return;
             }
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
-            markUnavailableInFlightOpGen = opGen;
+            UNAVAILABLE.dispatched(opGen);
         }
 
         EXECUTOR.execute(() -> {
@@ -705,14 +542,8 @@ final class KeepADBRegisterClient {
                 if (opGen != currentOpGeneration) return;
                 performDeleteTransaction(appContext, targetUrl, opGen, true);
             } finally {
-                // #576 part C: only release the coalescing gate if it still points at this exact
-                // dispatch -- a newer markUnavailableAsync call may already have overwritten it
-                // with its own opGen (see the field doc), and that call's own finally is then
-                // responsible for clearing it instead.
                 synchronized (KeepADBRegisterClient.class) {
-                    if (markUnavailableInFlightOpGen == opGen) {
-                        markUnavailableInFlightOpGen = 0L;
-                    }
+                    UNAVAILABLE.finished(opGen);
                 }
             }
         });
@@ -737,7 +568,7 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
-            cancelPostRetryLocked();
+            SERIES.cancel(mainHandler());
             KeepADBWebhookAlert.endEpisode(appContext);
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
@@ -769,247 +600,14 @@ final class KeepADBRegisterClient {
         String recorded = KeepADBPreferences.getWebhookLastReportedUrl(app);
         String saved = KeepADBPreferences.getRegisterWebhookUrl(app);
         if (recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved)) return true;
-        return KeepADBPreferences.getWebhookDispatchedUrl(app) != null || hasDuePendingCleanup(app);
+        return KeepADBPreferences.getWebhookDispatchedUrl(app) != null
+                || PendingCleanupCoordinator.hasDue(app);
     }
 
-    /**
-     * #934 (review): the due entries the last flush left to the transaction that runs next (it
-     * deletes or posts their resource itself). Confined to the register executor.
-     */
-    private static final java.util.List<String> entriesLeftToTransaction = new java.util.ArrayList<>();
-
-    /**
-     * #317: retries cleanups that a previous URL change could not deliver. Runs on the register
-     * executor before the transaction that triggered it, so a lost cleanup is retried at the next
-     * register activity (endpoint change, deregistration) rather than being forgotten.
-     * The backlog is capped by {@link KeepADBPreferences#MAX_PENDING_CLEANUPS}.
-     *
-     * <p>#707: first sweeps the retry records whose entry is no longer pending (left behind by an
-     * eviction of an earlier build, or by a crash between removing an entry and its record). That is
-     * local bookkeeping on the preferences file: it runs here, on the register executor and outside
-     * the class monitor, sends nothing and changes no entry.
-     */
-    private static void flushPendingCleanups(Context context, String targetUrl, boolean deleting) {
-        entriesLeftToTransaction.clear();
-        if (context == null) return;
-        PendingCleanupRetryRepository.removeOrphans(context,
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
-        // #923: a dispatch marker left here is a POST whose process died before its outcome was
-        // settled (every POST that returns settles its own marker on this executor first).
-        String interrupted = KeepADBPreferences.getWebhookDispatchedUrl(context);
-        // A withdrawing transaction always queues it; an update keeps it while it is the target.
-        if (interrupted != null) rememberPossibleRegistration(context, interrupted, deleting);
-        // #923: the resource the transaction that runs next sends its own DELETE or POST to.
-        String inUseUrl = deleting ? plannedDeleteUrl(targetUrl) : targetUrl;
-        for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            // #710: an earlier iteration may already have removed this snapshot entry (another
-            // spelling of the same resource); skip it so no redundant DELETE or orphan record.
-            if (!KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(url)) {
-                continue;
-            }
-            String sanitizedUrl = sanitizePendingCleanupUrl(url);
-            if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
-                removePendingCleanupsForResource(context, sanitizedUrl);
-                continue;
-            }
-            // #934: decide first, so an expired or spent entry is discarded even when it is in use.
-            PendingCleanupRetryRepository.RetryState due = duePendingCleanup(context, url);
-            if (due == null) {
-                continue;
-            }
-            // #923: the transaction that runs next sends its own DELETE or POST to this resource
-            // and settles the entry with it (#934: a failed DELETE is booked on the entry); a
-            // second request from here would only duplicate it.
-            if (inUseUrl != null && sameRegistrationResource(sanitizedUrl, inUseUrl)) {
-                entriesLeftToTransaction.add(url);
-                continue;
-            }
-            boolean deleted = false;
-            if (sanitizedUrl != null) {
-                // The first DELETE ran with the URL change; every deferred attempt is a retry.
-                int retry = due.attempts + 1;
-                lastTransportOutcome = "unknown";
-                deleted = deleteEndpoint(sanitizedUrl);
-                // #892 (Codex review): a deferred cleanup is an unregister attempt as well; its
-                // endpoint is no longer known, and the URL is never recorded.
-                KeepADBReportHistory.unregister(context, "", deleted, lastTransportOutcome, retry,
-                        PendingCleanupRetryRepository.MAX_ATTEMPTS);
-            }
-            if (deleted) {
-                removePendingCleanupsForResource(context, sanitizedUrl);
-            } else {
-                recordPendingCleanupFailure(context, url);
-            }
-        }
-    }
-
-    /**
-     * #923: {@code url} may hold a registration that the local report snapshot does not record --
-     * a POST that succeeded after its transaction went stale, one whose answer was lost, or one
-     * interrupted by process death. If the snapshot names that resource, the next withdrawal
-     * targets it anyway and the dispatch marker is cleared. If it is still the saved URL with
-     * synchronization on and nothing is being withdrawn, the marker is kept as durable evidence
-     * (its next successful report clears it, any later withdrawal queues it). Otherwise it is
-     * queued as a pending cleanup (#317: persisted, retried with backoff, withdrawn at the next
-     * register activity) and the marker is cleared.
-     *
-     * @param withdrawing the caller is a DELETE transaction (opt-out, endpoint loss)
-     */
-    private static void rememberPossibleRegistration(Context context, String url,
-            boolean withdrawing) {
-        boolean recorded;
-        synchronized (KeepADBRegisterClient.class) {
-            recorded = lastRegisteredUrl != null && sameRegistrationResource(url, lastRegisteredUrl);
-        }
-        if (recorded) {
-            KeepADBPreferences.setWebhookDispatchedUrl(context, null);
-            return;
-        }
-        boolean stillTheTarget = KeepADBPreferences.isRegisterWebhookEnabled(context)
-                && sameRegistrationResource(url, KeepADBPreferences.getRegisterWebhookUrl(context));
-        if (stillTheTarget && !withdrawing) {
-            // Queuing it now would also evict an older cleanup from a full backlog.
-            KeepADBPreferences.setWebhookDispatchedUrl(context, url);
-            return;
-        }
-        String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
-        // #707: an evicted entry's retry record goes with it.
-        if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
-        KeepADBPreferences.setWebhookDispatchedUrl(context, null);
-    }
-
-    /**
-     * A pending cleanup is deliberately bounded independently of the four-entry FIFO cap in
-     * {@link KeepADBPreferences}. Each entry gets a persisted expiry, attempt budget and
-     * exponential backoff, so an unreachable host cannot block every later register transaction.
-     * The retry record and its numbers live in {@link PendingCleanupRetryRepository} (#701); this
-     * client keeps the decision when an entry is attempted or discarded, and the clock.
-     */
-    private static PendingCleanupRetryRepository.RetryState duePendingCleanup(Context context,
-            String entry) {
-        long now = pendingCleanupNow();
-        PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
-        if (state.isExpired(now)) {
-            discardPendingCleanup(context, entry, "expired");
-            return null;
-        }
-        if (state.isExhausted()) {
-            discardPendingCleanup(context, entry, "attempt_limit");
-            return null;
-        }
-        return state.isDue(now) ? state : null;
-    }
-
-    /** The one place the client reads a retry record (#701). */
-    private static PendingCleanupRetryRepository.RetryState readPendingCleanup(Context context,
-            String entry, long now) {
-        return PendingCleanupRetryRepository.read(context, entry, now);
-    }
-
-    /**
-     * #923 (review R3): whether a queued withdrawal would be attempted now -- the decision of
-     * {@link #duePendingCleanup} without its side effects (an expired or spent entry is discarded
-     * there, by the flush, not here).
-     */
-    private static boolean hasDuePendingCleanup(Context context) {
-        long now = pendingCleanupNow();
-        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            PendingCleanupRetryRepository.RetryState state = readPendingCleanup(context, entry, now);
-            if (!state.isExpired(now) && !state.isExhausted() && state.isDue(now)) return true;
-        }
-        return false;
-    }
-
-    /** #934: books a failed attempt on every due entry the flush left to this transaction. */
-    private static void recordPendingCleanupFailuresLeftToTransaction(Context context) {
-        if (context == null) return;
-        java.util.Set<String> pending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
-        for (String entry : new java.util.ArrayList<>(entriesLeftToTransaction)) {
-            if (pending.contains(entry)) recordPendingCleanupFailure(context, entry);
-        }
-        entriesLeftToTransaction.clear();
-    }
-
-    private static void recordPendingCleanupFailure(Context context, String entry) {
-        if (PendingCleanupRetryRepository.recordFailure(context, entry, pendingCleanupNow())) {
-            discardPendingCleanup(context, entry, "attempt_limit");
-        }
-    }
-
-    private static void discardPendingCleanup(Context context, String entry, String reason) {
-        if (entry == null) return;
-        KeepADBPreferences.removePendingWebhookCleanupUrl(context, entry);
-        PendingCleanupRetryRepository.remove(context, entry);
-        Log.w(TAG, "Dropping pending register cleanup (" + reason + "): " + sanitizeUrl(entry));
-    }
-
-    /**
-     * Drops queued cleanup requests for the same canonical URL after a later request succeeds.
-     * Legacy stored URLs may contain userinfo or fragments, so compare sanitized resource keys
-     * while removing the exact stored entry.
-     */
-    private static void removePendingCleanupsForResource(Context context, String targetUrl) {
-        if (context == null || targetUrl == null) return;
-        String targetKey = registrationResourceKey(targetUrl);
-        if (targetKey == null) return;
-
-        for (String rawUrl : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            if (targetKey.equals(registrationResourceKey(rawUrl))) {
-                KeepADBPreferences.removePendingWebhookCleanupUrl(context, rawUrl);
-                PendingCleanupRetryRepository.remove(context, rawUrl);
-            }
-        }
-    }
-
-    /**
-     * #576 (NET-02 / part B): wall-clock time for the *persisted* pending-cleanup queue (#317).
-     * Deliberately kept on {@link System#currentTimeMillis()} rather than switched to a monotonic
-     * clock: {@code nextAttemptAt}/{@code expiresAt} are written to SharedPreferences and must
-     * survive an app or device restart, but {@link SystemClock#elapsedRealtime()} resets to
-     * (near) zero on every reboot. Switching this gate to elapsedRealtime would make a stored 24h
-     * expiry (or backoff) effectively unreachable after a reboot until uptime climbs back up to
-     * the old absolute value -- a far worse regression than the wall-clock-jump risk this gate
-     * already accepts. See {@link #markUnavailableNow()} for the in-memory-only #562 gate, which
-     * has no such persistence and does get the monotonic clock. The persisted record itself lives
-     * in {@link PendingCleanupRetryRepository} (#701), which reads no clock and only receives
-     * this value.
-     */
-    private static long pendingCleanupNow() {
-        Long testNow = pendingCleanupNowForTesting;
-        return testNow != null ? testNow : System.currentTimeMillis();
-    }
-
-    /**
-     * #576 (NET-02 / part B): monotonic clock for the *in-memory-only* #562 retry gate
-     * ({@link #markUnavailableNextAttemptAt}). This state is never persisted -- it resets to zero
-     * whenever the process restarts anyway (see {@link #resetForTesting()} and the field's
-     * default) -- so {@link SystemClock#elapsedRealtime()} resetting on reboot is harmless here,
-     * while it protects the gate from a wall-clock jump (NTP correction, manual change) that could
-     * otherwise lock it for an arbitrary duration, exactly as #309 already argued for
-     * {@code KeepADBEndpoint}'s cooldown.
-     */
-    private static long markUnavailableNow() {
-        Long testNow = markUnavailableNowForTesting;
-        return testNow != null ? testNow : SystemClock.elapsedRealtime();
-    }
-
-    private static long saturatingAdd(long left, long right) {
-        if (right > 0L && left > Long.MAX_VALUE - right) return Long.MAX_VALUE;
-        return left + right;
-    }
-
-    /**
-     * #377: legacy pending entries may contain userinfo even though new entries are sanitised on
-     * write. Keep the stored entry unchanged so exact set removal still works, and only use the
-     * sanitised URL for the outgoing cleanup request.
-     */
-    private static String sanitizePendingCleanupUrl(String rawUrl) {
-        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(rawUrl);
-        return sanitized == null || sanitized.trim().isEmpty() ? null : sanitized;
-    }
+    // ---- Transactions (register executor only) ----
 
     private static void performUpdateTransaction(Context context, String targetUrl, String targetEndpoint, long opGen) {
-        flushPendingCleanups(context, targetUrl, false);
+        PendingCleanupCoordinator.flush(context, targetUrl, false);
 
         String oldUrl;
         String oldEndpoint;
@@ -1021,11 +619,10 @@ final class KeepADBRegisterClient {
         // If URL changed and a prior local report exists, try DELETE at the old URL first
         String unfinishedCleanupUrl = null;
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
-            lastTransportOutcome = "unknown";
-            boolean oldDeleted = deleteEndpoint(oldUrl);
+            TransportResult oldDelete = RegisterTransport.deleteEndpoint(oldUrl);
             // #892 (Codex review): the DELETE at the previous URL belongs in the history too.
-            KeepADBReportHistory.unregister(context, oldEndpoint, oldDeleted, lastTransportOutcome, 0);
-            if (oldDeleted) {
+            KeepADBReportHistory.unregister(context, oldEndpoint, oldDelete.ok, oldDelete.outcome, 0);
+            if (oldDelete.ok) {
                 // Clear the matching local report snapshot after the DELETE request reports
                 // success. The single-threaded executor prevents a later transaction from
                 // overlapping this update.
@@ -1053,25 +650,24 @@ final class KeepADBRegisterClient {
         int retry;
         synchronized (KeepADBRegisterClient.class) {
             // Codex review: a new series may reset the counter while this request is in flight.
-            retry = postRetryNumber;
+            retry = SERIES.retryNumber();
         }
         // Codex review: the budget in effect when the request is sent, not after its answer.
-        int maxRetries = retryBudget();
-        lastTransportOutcome = "unknown";
+        int maxRetries = SERIES.retryBudget();
         // #923: persisted before the request, settled after it (below), so a registration made by
         // a POST whose transaction went stale, or whose process died, is still withdrawn later.
         String markerBefore = KeepADBPreferences.getWebhookDispatchedUrl(context);
         KeepADBPreferences.setWebhookDispatchedUrl(context, targetUrl);
-        boolean posted = postEndpoint(targetUrl, targetEndpoint);
+        TransportResult post = RegisterTransport.postEndpoint(targetUrl, targetEndpoint);
         // #923 (review): only an HTTP answer proves this request registered nothing; an I/O error
         // can come after the body was delivered, so the marker stays as evidence then. A definite
         // rejection restores the marker this POST found (an earlier, unsettled one stays).
-        if (!posted && lastTransportOutcome != null && lastTransportOutcome.startsWith("http=")) {
+        if (!post.ok && post.isHttpAnswer()) {
             KeepADBPreferences.setWebhookDispatchedUrl(context, markerBefore);
         }
-        recordReportOutcome(context, "post", targetEndpoint, posted, failingBefore, opGen, retry,
+        recordReportOutcome(context, "post", targetEndpoint, post, failingBefore, opGen, retry,
                 maxRetries);
-        if (posted) {
+        if (post.ok) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
             // is sent, so a stale snapshot never goes out for an outdated target. Same outcome as
@@ -1079,38 +675,32 @@ final class KeepADBRegisterClient {
             // side effects (the newer operation owns those) -- except #923: the receiver may now
             // hold a registration at targetUrl that no state accounts for; queue its withdrawal.
             if (opGen != currentOpGeneration) {
-                rememberPossibleRegistration(context, targetUrl, false);
+                PendingCleanupCoordinator.rememberPossibleRegistration(context, targetUrl, false);
                 return;
             }
             // Consider other verified transport candidates only after the WLAN POST. The local
             // sender allowlist currently holds these candidates back; WLAN success accounting and
             // the stored report snapshot remain owned by this transaction.
-            reportAdditionalVerifiedTransports(context, targetUrl);
+            RegisterTransport.reportAdditionalVerifiedTransports(context, targetUrl);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     // Persist pending cleanup before changing the local report snapshot, so a
                     // crash cannot forget the old URL. If the replacement POST failed, the local
-                    // snapshot stays with the old target for a later retry.
+                    // snapshot stays with the old target for a later retry. (#707: queuing also
+                    // removes the record of an entry a full backlog evicted for it.)
                     if (cleanupToRemember != null) {
-                        String evictedCleanup =
-                                KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
-                        // #707: a full backlog evicted its oldest entry for this one. That entry
-                        // is gone for good, so its retry record goes with it; left behind, it
-                        // would leak and be inherited if the same entry is queued again.
-                        if (evictedCleanup != null) {
-                            PendingCleanupRetryRepository.remove(context, evictedCleanup);
-                        }
+                        PendingCleanupCoordinator.queue(context, cleanupToRemember);
                     }
                     // A cleanup queued before this successful POST is stale local work. Drop it
                     // so it cannot issue an outdated DELETE after the newer registration attempt.
-                    removePendingCleanupsForResource(context, targetUrl);
+                    PendingCleanupCoordinator.removeForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
                     // #866: success ends the retry series, #868 the failure episode.
-                    cancelPostRetryLocked();
+                    SERIES.cancel(mainHandler());
                     KeepADBWebhookAlert.endEpisode(context);
                     // A successful WLAN report supersedes any pending unavailable retry for the
                     // previous local report.
-                    resetMarkUnavailableRetryLocked();
+                    UNAVAILABLE.reset();
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
                     // #317: one editor transaction; four separate apply() calls could be torn apart
@@ -1119,12 +709,12 @@ final class KeepADBRegisterClient {
                             KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
                     // #923: the snapshot (which also clears the dispatch marker) now accounts
                     // for this registration.
-                    notifyRegisterStateListener(context);
+                    RegisterStateNotifier.notifyChanged(context);
                     return;
                 }
             }
             // #923: superseded during the secondary transports.
-            rememberPossibleRegistration(context, targetUrl, false);
+            PendingCleanupCoordinator.rememberPossibleRegistration(context, targetUrl, false);
         } else {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
@@ -1133,7 +723,7 @@ final class KeepADBRegisterClient {
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     schedulePostRetryLocked(context, targetUrl, targetEndpoint, opGen);
                     KeepADBWebhookAlert.onReportFailed(context);
-                    notifyRegisterStateListener(context);
+                    RegisterStateNotifier.notifyChanged(context);
                 }
             }
         }
@@ -1145,7 +735,7 @@ final class KeepADBRegisterClient {
      */
     private static void performDeleteTransaction(Context context, String targetUrl, long opGen,
             boolean endpointLoss) {
-        flushPendingCleanups(context, targetUrl, true);
+        List<String> cleanupsLeftHere = PendingCleanupCoordinator.flush(context, targetUrl, true);
 
         String urlToDelete;
         synchronized (KeepADBRegisterClient.class) {
@@ -1154,9 +744,9 @@ final class KeepADBRegisterClient {
                 wlanUpdateInFlight = false;
                 lastRegisteredUrl = null;
                 lastRegisteredEndpoint = null;
-                resetMarkUnavailableRetryLocked();
+                UNAVAILABLE.reset();
                 KeepADBPreferences.setWebhookReportSnapshot(context, null, null, null, false);
-                notifyRegisterStateListener(context);
+                RegisterStateNotifier.notifyChanged(context);
                 return;
             }
         }
@@ -1168,13 +758,12 @@ final class KeepADBRegisterClient {
             endpointToDelete = lastRegisteredEndpoint;
             // Codex review: captured before the request, and only for the endpoint-loss series;
             // its counter outlives the series, and an explicit unregister is none of its retries.
-            retry = endpointLoss ? markUnavailableRetryAttempts : 0;
+            retry = endpointLoss ? UNAVAILABLE.attempts() : 0;
         }
-        lastTransportOutcome = "unknown";
-        boolean cleanupCompleted = deleteEndpoint(urlToDelete);
-        recordReportOutcome(context, "delete", endpointToDelete, cleanupCompleted, failingBefore,
+        TransportResult delete = RegisterTransport.deleteEndpoint(urlToDelete);
+        recordReportOutcome(context, "delete", endpointToDelete, delete, failingBefore,
                 opGen, retry, KeepADBReportHistory.NO_MAX);
-        if (cleanupCompleted) {
+        if (delete.ok) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
             synchronized (KeepADBRegisterClient.class) {
@@ -1183,144 +772,110 @@ final class KeepADBRegisterClient {
                     lastRegisteredEndpoint = null;
                 }
             }
-            removePendingCleanupsForResource(context, urlToDelete);
+            PendingCleanupCoordinator.removeForResource(context, urlToDelete);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
-                    resetMarkUnavailableRetryLocked();
+                    UNAVAILABLE.reset();
                     KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
                             KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
-                    notifyRegisterStateListener(context);
+                    RegisterStateNotifier.notifyChanged(context);
                 }
             }
         } else {
             // #934: a due queued withdrawal of this resource that the flush left to this DELETE
             // has its failure booked, so its budget, backoff and expiry apply; an entry that was
             // not due is not charged for the transaction's own (#562-paced) attempt.
-            recordPendingCleanupFailuresLeftToTransaction(context);
+            PendingCleanupCoordinator.recordFailuresLeftToTransaction(context, cleanupsLeftHere);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
-                    recordMarkUnavailableRetryFailureLocked();
+                    UNAVAILABLE.recordFailure();
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-                    notifyRegisterStateListener(context);
+                    RegisterStateNotifier.notifyChanged(context);
                 }
             }
         }
     }
 
-    /** #562: caller must hold the class monitor. */
-    private static void resetMarkUnavailableRetryLocked() {
-        markUnavailableRetryAttempts = 0;
-        markUnavailableNextAttemptAt = 0L;
-    }
-
-    /** #562: caller must hold the class monitor. */
-    private static void recordMarkUnavailableRetryFailureLocked() {
-        markUnavailableRetryAttempts++;
-        markUnavailableNextAttemptAt = saturatingAdd(markUnavailableNow(),
-                markUnavailableBackoffMs(markUnavailableRetryAttempts));
+    private static boolean isReportFailing(Context context) {
+        return KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context));
     }
 
     /**
-     * #562: user-approved staffing -- 5s, 10s, 15s, 30s, 1min, 3min after the first through sixth
-     * consecutive failure, then a flat 5min ceiling for every failure after that. No age-based
-     * cutoff: retries continue until DELETE returns a successful status or a newer report supersedes it.
+     * #881: a diagnostics event for every failed primary report and for the success that ends a
+     * failure episode, so an episode can be explained afterwards (timeout, refused, unknown host,
+     * HTTP status). Routine successes add no diagnostics event, and the event carries no URL and
+     * no endpoint. #892: every attempt also goes into the separate, app-private report history,
+     * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
      */
-    private static long markUnavailableBackoffMs(int consecutiveFailures) {
-        if (consecutiveFailures <= 0) return 0L;
-        if (consecutiveFailures <= MARK_UNAVAILABLE_RETRY_BACKOFFS_MS.length) {
-            return MARK_UNAVAILABLE_RETRY_BACKOFFS_MS[consecutiveFailures - 1];
+    private static void recordReportOutcome(Context context, String method, String endpoint,
+            TransportResult result, boolean failingBefore, long opGen, int retry, int maxRetries) {
+        boolean superseded;
+        synchronized (KeepADBRegisterClient.class) {
+            superseded = opGen != currentOpGeneration;
         }
-        return MARK_UNAVAILABLE_MAX_BACKOFF_MS;
-    }
-
-    /** #923: the URL {@link #performDeleteTransaction} deletes, computed the same way. */
-    private static synchronized String plannedDeleteUrl(String targetUrl) {
-        return (lastRegisteredUrl != null) ? lastRegisteredUrl : targetUrl;
-    }
-
-    private static synchronized boolean hasLiveRegistrationAtUrl(String cleanupUrl) {
-        if (cleanupUrl == null || cleanupUrl.trim().isEmpty()) {
-            return false;
+        boolean ok = result.ok;
+        if ("delete".equals(method)) {
+            KeepADBReportHistory.unregister(context, endpoint, ok, result.outcome, retry);
+        } else {
+            KeepADBReportHistory.report(context, endpoint, ok, result.outcome, retry, maxRetries);
         }
-        return sameRegistrationResource(cleanupUrl, lastRegisteredUrl);
+        if (ok && !failingBefore) return;
+        // A success of a superseded transaction ends nothing: the newer operation owns the
+        // report status (Codex review).
+        if (ok && superseded) return;
+        KeepADBDiagnostics.event(context, "register_report", "webhook", ok ? "success" : "failed",
+                "method=" + method + " " + result.outcome + " retry=" + retry);
     }
 
-    private static boolean sameRegistrationResource(String leftUrl, String rightUrl) {
-        String leftKey = registrationResourceKey(leftUrl);
-        String rightKey = registrationResourceKey(rightUrl);
-        return leftKey != null && leftKey.equals(rightKey);
+    // ---- Transport (see RegisterTransport) ----
+
+    static void setHttpTransport(RegisterTransport.HttpTransport transport) {
+        RegisterTransport.set(transport);
     }
 
-    private static String registrationResourceKey(String rawUrl) {
-        String sanitizedUrl = sanitizePendingCleanupUrl(rawUrl);
-        if (sanitizedUrl == null) return null;
-        try {
-            java.net.URI uri = new java.net.URI(sanitizedUrl);
-            String scheme = uri.getScheme();
-            String host = uri.getHost();
-            if (scheme == null || host == null) return sanitizedUrl;
-            scheme = scheme.toLowerCase(java.util.Locale.ROOT);
-            host = host.toLowerCase(java.util.Locale.ROOT);
-            if (host.indexOf(':') >= 0) {
-                host = "[" + host + "]";
-            }
-            int port = uri.getPort();
-            if (port < 0) {
-                port = "https".equals(scheme) ? 443 : 80;
-            }
-            String path = uri.getRawPath();
-            if (path == null || path.isEmpty()) path = "/";
-            while (path.length() > 1 && path.endsWith("/")) {
-                path = path.substring(0, path.length() - 1);
-            }
-            return scheme + "://" + host + ":" + port + path;
-        } catch (Exception ignored) {
-            return sanitizedUrl;
-        }
+    static void resetHttpTransport() {
+        RegisterTransport.reset();
     }
+
+    /**
+     * #350: log-facing redaction. Delegates to {@link KeepADBUrlRedaction} so logs and UI apply the
+     * same rule for userinfo, host, port and fragment; the log variant additionally drops the path.
+     */
+    static String sanitizeUrl(String rawUrl) {
+        if (rawUrl == null) return "null";
+        String redacted = KeepADBUrlRedaction.forLog(rawUrl);
+        return redacted.isEmpty() ? KeepADBUrlRedaction.UNPARSEABLE : redacted;
+    }
+
+    // ---- Test-only accessors: keep WLAN state verifiable. ----
 
     static synchronized void resetForTesting() {
-        retryBudgetForTesting = -1;
-        entriesLeftToTransaction.clear();
-        lastGiveUpOrReattemptAt = 0L;
+        SERIES.resetForTesting(mainHandler());
+        UNAVAILABLE.resetForTesting();
         endpointProbe = KeepADBRegisterClient::probeEndpoint;
         lastRegisteredUrl = null;
         lastRegisteredEndpoint = null;
         stateInitialized = false;
         currentOpGeneration = 0;
+        lastReportOpGeneration = 0;
         wlanUpdateInFlight = false;
-        markUnavailableRetryAttempts = 0;
-        markUnavailableNextAttemptAt = 0L;
-        markUnavailableInFlightOpGen = 0L;
-        cancelPostRetryLocked();
-        if (pendingResync != null) {
-            mainHandler().removeCallbacks(pendingResync);
-            pendingResync = null;
-        }
         coordinatorEndpointForTesting = null;
         beforeResyncDispatchForTesting = null;
         KeepADBWebhookAlert.resetForTesting();
-        registerStateListener = null;
-        pendingCleanupNowForTesting = null;
-        markUnavailableNowForTesting = null;
+        RegisterStateNotifier.resetForTesting();
+        PendingCleanupCoordinator.setNowForTesting(null);
         resetHttpTransport();
         mainHandler = null;
     }
 
-    // ---- Test-only accessors: keep WLAN state verifiable. ----
-
     /**
-     * Blocks until the register executor has drained. Register work is dispatched to a single
-     * background thread, so a test that only waits for its own observable outcome can end while a
-     * trailing request of that same transaction is still in flight; because the transport is a
-     * static field, that request would then be recorded against the *next* test's fake and make
-     * its request count non-deterministic. Submitting a barrier onto the same single-threaded
-     * executor is exact rather than timing-based: it can only run once every task queued before it
-     * has finished. Deliberately not {@code synchronized} -- the queued tasks take the class
-     * monitor themselves, so holding it here would deadlock.
+     * Blocks until the register executor has drained, exactly rather than timing-based: a barrier
+     * on the single-threaded executor only runs once every task queued before it has finished.
+     * Deliberately not {@code synchronized} -- the queued tasks take the class monitor themselves.
      */
     static boolean awaitIdleForTesting(long timeoutMs) {
         java.util.concurrent.CountDownLatch drained = new java.util.concurrent.CountDownLatch(1);
@@ -1335,26 +890,23 @@ final class KeepADBRegisterClient {
 
     /**
      * #576: bumps {@link #currentOpGeneration} without dispatching any transaction, so a test can
-     * model "some other, already-confirmed operation superseded this one" at an exact point (e.g.
-     * from inside a fake transport callback while a delete/post is in flight) without that other
-     * operation's own executor task running and overwriting the state the test wants to observe --
-     * the single-threaded EXECUTOR would otherwise never let a second real transaction complete
-     * before the first one returns.
+     * model "another operation superseded this one" at an exact point (e.g. inside a fake
+     * transport callback while a request is in flight).
      */
     static synchronized void bumpOpGenerationForTesting() {
         ++currentOpGeneration;
     }
 
     static void flushPendingCleanupsForTesting(Context context) {
-        flushPendingCleanups(context, null, false);
+        PendingCleanupCoordinator.flush(context, null, false);
     }
 
     static void setPendingCleanupNowForTesting(long now) {
-        pendingCleanupNowForTesting = now;
+        PendingCleanupCoordinator.setNowForTesting(now);
     }
 
-    static void setMarkUnavailableNowForTesting(long now) {
-        markUnavailableNowForTesting = now;
+    static synchronized void setMarkUnavailableNowForTesting(long now) {
+        UNAVAILABLE.setNowForTesting(now);
     }
 
     static void setWlanStateForTesting(String url, String endpoint) {
@@ -1375,172 +927,41 @@ final class KeepADBRegisterClient {
         return wlanUpdateInFlight;
     }
 
-    /**
-     * #866: the endpoint a retry compares against, instead of the coordinator's; an empty string
-     * stands for "no endpoint". Null restores the coordinator.
-     */
+    /** #866: the endpoint a retry compares against; "" stands for none, null restores the coordinator. */
     static void setCoordinatorEndpointForTesting(String endpoint) {
         coordinatorEndpointForTesting = endpoint;
     }
 
-    /** #867: runs after the resync read its endpoint and before it takes the monitor. */
+    /** #867/#1049: runs after a resync or Report now read the endpoint, before the monitor. */
     static void setBeforeResyncDispatchForTesting(Runnable hook) {
         beforeResyncDispatchForTesting = hook;
     }
 
+    static void setRetryBudgetForTesting(int retries) {
+        SERIES.setRetryBudgetForTesting(retries);
+    }
+
     static synchronized int getPostRetryNumberForTesting() {
-        return postRetryNumber;
+        return SERIES.retryNumber();
     }
 
     static synchronized boolean hasPendingPostRetryForTesting() {
-        return pendingPostRetry != null;
+        return SERIES.pendingRetry() != null;
     }
 
     static synchronized boolean hasPendingResyncForTesting() {
-        return pendingResync != null;
+        return SERIES.hasPendingResync();
     }
 
     static synchronized boolean isSeriesExhaustedForTesting() {
-        return seriesExhausted;
+        return SERIES.isExhausted();
     }
 
-    static int getMarkUnavailableRetryAttemptsForTesting() {
-        return markUnavailableRetryAttempts;
+    static synchronized int getMarkUnavailableRetryAttemptsForTesting() {
+        return UNAVAILABLE.attempts();
     }
 
-    static long getMarkUnavailableNextAttemptAtForTesting() {
-        return markUnavailableNextAttemptAt;
-    }
-
-    /**
-     * #350: log-facing redaction. Delegates to {@link KeepADBUrlRedaction} so logs and UI apply the
-     * same rule for userinfo, host, port and fragment; the log variant additionally drops the path.
-     * The previous {@link java.net.URI}-based version left IPv4 hosts unmasked and threw on an
-     * un-encoded IPv6 zone id, degrading the very inputs that most needed redacting.
-     */
-    static String sanitizeUrl(String rawUrl) {
-        if (rawUrl == null) return "null";
-        String redacted = KeepADBUrlRedaction.forLog(rawUrl);
-        return redacted.isEmpty() ? KeepADBUrlRedaction.UNPARSEABLE : redacted;
-    }
-
-    interface HttpTransport {
-        boolean postJson(String targetUrl, String payload, String logLabel);
-        boolean delete(String targetUrl);
-    }
-
-    /**
-     * #881: how the last request ended, for diagnostics only: {@code http=<code>} or {@code
-     * error=<exception class>}, reported by the transport, which itself stays stateless (#700).
-     * Never a URL or an endpoint. Written and read on the single register executor.
-     */
-    private static volatile String lastTransportOutcome = "unknown";
-
-    static void noteTransportOutcome(String outcome) {
-        lastTransportOutcome = outcome;
-    }
-
-    static String lastTransportOutcomeForTesting() {
-        return lastTransportOutcome;
-    }
-
-    private static final HttpTransport DEFAULT_TRANSPORT = new KeepADBHttpTransport();
-    private static volatile HttpTransport httpTransport = DEFAULT_TRANSPORT;
-
-    static void setHttpTransport(HttpTransport transport) {
-        httpTransport = (transport != null) ? transport : DEFAULT_TRANSPORT;
-    }
-
-    static void resetHttpTransport() {
-        httpTransport = DEFAULT_TRANSPORT;
-    }
-
-    /**
-     * Sends the locally generated WLAN event as a JSON POST. A successful return reports only the
-     * HTTP response class; processing and storage by an external receiver are not observed here.
-     */
-    static boolean postEndpoint(String targetUrl, String endpoint) {
-        KeepADBRegisterPayload.Event event =
-                KeepADBRegisterPayload.wlanEvent(endpoint, System.currentTimeMillis());
-        return sendJsonPost(targetUrl, event.json, endpoint);
-    }
-
-    /**
-     * Attempts locally enabled events and skips candidates excluded by the sender allowlist.
-     * An empty list is a no-op. HTTP success reports request status only; receiver-side
-     * persistence and reachability semantics are outside this client.
-     */
-    static boolean postTransports(String targetUrl,
-            java.util.List<KeepADBRegisterPayload.VerifiedTransport> verified) {
-        boolean allSent = true;
-        for (KeepADBRegisterPayload.Event event : KeepADBRegisterPayload.buildEvents(verified)) {
-            if (!event.serverSupported) {
-                Log.i(TAG, "Holding back register event for unsupported method " + event.method);
-                continue;
-            }
-            if (!sendJsonPost(targetUrl, event.json, event.method)) {
-                allSent = false;
-            }
-        }
-        return allSent;
-    }
-
-    /**
-     * Collects other verified transports after the WLAN update, using the same explicit webhook
-     * opt-in and user-entered URL. The local sender filter currently holds these candidates back.
-     * WLAN reporting remains owned by the surrounding transaction.
-     */
-    private static void reportAdditionalVerifiedTransports(Context context, String targetUrl) {
-        if (context == null || targetUrl == null || targetUrl.trim().isEmpty()) return;
-        java.util.List<KeepADBRegisterPayload.VerifiedTransport> additional = new java.util.ArrayList<>();
-        for (KeepADBRegisterPayload.VerifiedTransport transport
-                : KeepADBRegisterPayload.fromSnapshot(KeepADBTransportOverview.current(context))) {
-            if (transport.type == KeepADBRegisterPayload.Type.WLAN_LAN) continue;
-            additional.add(transport);
-        }
-        if (additional.isEmpty()) return;
-        postTransports(targetUrl, additional);
-    }
-
-    private static boolean isReportFailing(Context context) {
-        return KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-    }
-
-    /**
-     * #881: a diagnostics event for every failed primary report and for the success that ends a
-     * failure episode, so an episode can be explained afterwards (timeout, refused, unknown host,
-     * HTTP status). Routine successes add no diagnostics event, and the event carries no URL and
-     * no endpoint. #892: every attempt also goes into the separate, app-private report history,
-     * which does keep the endpoint (never the URL); the #317 report snapshot stays one write.
-     */
-    private static void recordReportOutcome(Context context, String method, String endpoint,
-            boolean ok, boolean failingBefore, long opGen, int retry, int maxRetries) {
-        boolean superseded;
-        synchronized (KeepADBRegisterClient.class) {
-            superseded = opGen != currentOpGeneration;
-        }
-        // #892: every attempt goes into the local history, routine successes included; the
-        // endpoint is kept for that local view, the URL never.
-        String outcome = lastTransportOutcome;
-        if ("delete".equals(method)) {
-            KeepADBReportHistory.unregister(context, endpoint, ok, outcome, retry);
-        } else {
-            KeepADBReportHistory.report(context, endpoint, ok, outcome, retry, maxRetries);
-        }
-        if (ok && !failingBefore) return;
-        // A success of a superseded transaction ends nothing: the newer operation owns the
-        // report status (Codex review).
-        if (ok && superseded) return;
-        KeepADBDiagnostics.event(context, "register_report", "webhook", ok ? "success" : "failed",
-                "method=" + method + " " + lastTransportOutcome + " retry=" + retry);
-    }
-
-    private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {
-        return httpTransport.postJson(targetUrl, payload, logLabel);
-    }
-
-    static boolean deleteEndpoint(String targetUrl) {
-        return httpTransport.delete(targetUrl);
+    static synchronized long getMarkUnavailableNextAttemptAtForTesting() {
+        return UNAVAILABLE.nextAttemptAt();
     }
 }

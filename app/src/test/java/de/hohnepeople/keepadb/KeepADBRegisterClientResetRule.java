@@ -29,18 +29,16 @@ final class KeepADBRegisterClientResetRule extends ExternalResource {
     private static final long DRAIN_TIMEOUT_MS = 2000;
 
     /** #1020: refuses every request without touching the network, as an unreachable server would. */
-    static final KeepADBRegisterClient.HttpTransport OFFLINE_TRANSPORT =
-            new KeepADBRegisterClient.HttpTransport() {
+    static final RegisterTransport.HttpTransport OFFLINE_TRANSPORT =
+            new RegisterTransport.HttpTransport() {
                 @Override
-                public boolean postJson(String targetUrl, String payload, String logLabel) {
-                    KeepADBRegisterClient.noteTransportOutcome("error=OfflineTestTransport");
-                    return false;
+                public TransportResult postJson(String targetUrl, String payload, String logLabel) {
+                    return TransportResult.failure("OfflineTestTransport");
                 }
 
                 @Override
-                public boolean delete(String targetUrl) {
-                    KeepADBRegisterClient.noteTransportOutcome("error=OfflineTestTransport");
-                    return false;
+                public TransportResult delete(String targetUrl) {
+                    return TransportResult.failure("OfflineTestTransport");
                 }
             };
 

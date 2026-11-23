@@ -62,16 +62,16 @@ public class KeepADBRegisterWireFormatContractTest {
         KeepADBRegisterClient.resetForTesting();
         KeepADB.resetForTesting();
         sentPayloads.clear();
-        KeepADBRegisterClient.setHttpTransport(new KeepADBRegisterClient.HttpTransport() {
+        KeepADBRegisterClient.setHttpTransport(new RegisterTransport.HttpTransport() {
             @Override
-            public boolean postJson(String targetUrl, String payload, String logLabel) {
+            public TransportResult postJson(String targetUrl, String payload, String logLabel) {
                 sentPayloads.add(payload);
-                return true;
+                return TransportResult.http(200);
             }
 
             @Override
-            public boolean delete(String targetUrl) {
-                return true;
+            public TransportResult delete(String targetUrl) {
+                return TransportResult.http(200);
             }
         });
     }

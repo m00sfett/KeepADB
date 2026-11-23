@@ -119,7 +119,7 @@ public class KeepADBRegisterClientTest {
     @Test
     public void testPostEndpointSuccess() {
         String url = "http://127.0.0.1:" + testServerPort + "/register";
-        boolean success = KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234");
+        boolean success = RegisterTransport.postEndpoint(url, "192.168.1.50:41234").ok;
         assertTrue(success);
         assertFalse(recordedRequests.isEmpty());
         assertTrue(recordedRequests.get(0).startsWith("POST"));
@@ -130,7 +130,7 @@ public class KeepADBRegisterClientTest {
     public void testPostEndpointDoesNotLogEndpointInCleartext() {
         ShadowLog.clear();
         String url = "http://127.0.0.1:" + testServerPort + "/register";
-        assertTrue(KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234"));
+        assertTrue(RegisterTransport.postEndpoint(url, "192.168.1.50:41234").ok);
         StringBuilder logged = new StringBuilder();
         for (ShadowLog.LogItem item : ShadowLog.getLogs()) logged.append(item.msg).append('\n');
         assertTrue(logged.toString().contains("returned HTTP 200"));
@@ -140,7 +140,7 @@ public class KeepADBRegisterClientTest {
     @Test
     public void testDeleteEndpointSuccess() {
         String url = "http://127.0.0.1:" + testServerPort + "/register";
-        boolean success = KeepADBRegisterClient.deleteEndpoint(url);
+        boolean success = RegisterTransport.deleteEndpoint(url).ok;
         assertTrue(success);
         assertFalse(recordedRequests.isEmpty());
         assertTrue(recordedRequests.get(0).startsWith("DELETE"));
@@ -150,7 +150,7 @@ public class KeepADBRegisterClientTest {
     public void testPostEndpointFailureOn500() {
         responseCode.set(500);
         String url = "http://127.0.0.1:" + testServerPort + "/register";
-        boolean success = KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234");
+        boolean success = RegisterTransport.postEndpoint(url, "192.168.1.50:41234").ok;
         assertFalse(success);
     }
 
@@ -257,8 +257,8 @@ public class KeepADBRegisterClientTest {
     @Test
     public void testFakeHttpTransportConfigurationAndRecording() {
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
-        assertTrue(transport.postJson("http://test.url/post", "{\"key\":\"value\"}", "label"));
-        assertTrue(transport.delete("http://test.url/delete"));
+        assertTrue(transport.postJson("http://test.url/post", "{\"key\":\"value\"}", "label").ok);
+        assertTrue(transport.delete("http://test.url/delete").ok);
 
         assertEquals(2, transport.getRequestCount());
         assertEquals("POST", transport.recordedRequests.get(0).method);
@@ -272,19 +272,19 @@ public class KeepADBRegisterClientTest {
 
         // Test failure injection for POST
         transport.setPostSuccess(false);
-        assertFalse(transport.postJson("http://test.url/post2", "{}", "label2"));
+        assertFalse(transport.postJson("http://test.url/post2", "{}", "label2").ok);
 
         // Test response codes
         transport.setPostResponseCode(500);
         assertEquals(500, transport.getPostResponseCode());
-        assertFalse(transport.postJson("http://test.url/post3", "{}", "label3"));
+        assertFalse(transport.postJson("http://test.url/post3", "{}", "label3").ok);
 
         transport.setPostResponseCode(200);
-        assertTrue(transport.postJson("http://test.url/post4", "{}", "label4"));
+        assertTrue(transport.postJson("http://test.url/post4", "{}", "label4").ok);
 
         // Test failure injection for DELETE
         transport.setDeleteResponseCode(404);
-        assertFalse(transport.delete("http://test.url/delete2"));
+        assertFalse(transport.delete("http://test.url/delete2").ok);
 
         // Test callbacks
         AtomicBoolean failureCallbackRan = new AtomicBoolean(false);
@@ -318,7 +318,7 @@ public class KeepADBRegisterClientTest {
         transport.setPostSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
 
-        boolean success = KeepADBRegisterClient.postEndpoint("http://test.url/register", "192.168.1.50:41234");
+        boolean success = RegisterTransport.postEndpoint("http://test.url/register", "192.168.1.50:41234").ok;
         assertFalse(success);
         assertEquals(1, transport.getRequestCount());
         assertEquals("POST", transport.getLastRequest().method);
@@ -330,7 +330,7 @@ public class KeepADBRegisterClientTest {
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
 
-        boolean success = KeepADBRegisterClient.deleteEndpoint("http://test.url/register");
+        boolean success = RegisterTransport.deleteEndpoint("http://test.url/register").ok;
         assertFalse(success);
         assertEquals(1, transport.getRequestCount());
         assertEquals("DELETE", transport.getLastRequest().method);
@@ -347,7 +347,7 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
 
         AtomicBoolean listenerNotified = new AtomicBoolean(false);
-        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+        RegisterStateNotifier.setListener(() -> listenerNotified.set(true));
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
 
@@ -432,7 +432,7 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
 
         AtomicBoolean listenerNotified = new AtomicBoolean(false);
-        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+        RegisterStateNotifier.setListener(() -> listenerNotified.set(true));
 
         KeepADBRegisterClient.markUnavailableAsync(context);
 
@@ -670,7 +670,7 @@ public class KeepADBRegisterClientTest {
         CountDownLatch deleteRequestStarted = new CountDownLatch(1);
         CountDownLatch deregistrationNotified = new CountDownLatch(1);
 
-        KeepADBRegisterClient.setRegisterStateListener(() -> {
+        RegisterStateNotifier.setListener(() -> {
             if (KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
                     KeepADBPreferences.getWebhookLastReportStatus(context))) {
                 deregistrationNotified.countDown();
@@ -747,7 +747,7 @@ public class KeepADBRegisterClientTest {
         } finally {
             // Do not leave the blocked worker or a test listener behind when an assertion fails.
             canFinishFirstRequest.countDown();
-            KeepADBRegisterClient.clearRegisterStateListener();
+            RegisterStateNotifier.clearListener();
         }
     }
 
@@ -794,7 +794,7 @@ public class KeepADBRegisterClientTest {
     @Test
     public void testDefaultHttpTransportPostFailureOnUnreachableHost() {
         String url = "http://127.0.0.1:1/register";
-        boolean success = KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234");
+        boolean success = RegisterTransport.postEndpoint(url, "192.168.1.50:41234").ok;
         assertFalse(success);
     }
 
@@ -802,7 +802,7 @@ public class KeepADBRegisterClientTest {
     public void testDefaultHttpTransportDeleteFailureOn500() {
         responseCode.set(500);
         String url = "http://127.0.0.1:" + testServerPort + "/register";
-        boolean success = KeepADBRegisterClient.deleteEndpoint(url);
+        boolean success = RegisterTransport.deleteEndpoint(url).ok;
         assertFalse(success);
     }
 
@@ -1340,7 +1340,7 @@ public class KeepADBRegisterClientTest {
         transport.setRequestCallback(req -> KeepADBRegisterClient.bumpOpGenerationForTesting());
         KeepADBRegisterClient.setHttpTransport(transport);
         AtomicBoolean listenerNotified = new AtomicBoolean(false);
-        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+        RegisterStateNotifier.setListener(() -> listenerNotified.set(true));
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
