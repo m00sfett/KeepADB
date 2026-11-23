@@ -194,7 +194,7 @@ public class SettingsCleanupMigrationTest {
      */
     private void resetPrefs() {
         prefs().edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
     }
 
     private SharedPreferences prefs() {

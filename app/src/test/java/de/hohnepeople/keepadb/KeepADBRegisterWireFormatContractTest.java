@@ -139,7 +139,7 @@ public class KeepADBRegisterWireFormatContractTest {
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
         waitUntil(() -> "192.168.1.50:41234".equals(
-                KeepADBPreferences.getWebhookLastReportedEndpoint(context)), 5_000L);
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(context)), 5_000L);
         Thread.sleep(100L);
 
         assertEquals("exactly one request leaves the app", 1, sentPayloads.size());

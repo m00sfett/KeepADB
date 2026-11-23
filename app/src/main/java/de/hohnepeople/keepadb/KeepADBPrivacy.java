@@ -248,4 +248,28 @@ final class KeepADBPrivacy {
         }
         return null;
     }
+
+    /**
+     * #483 (#1050: moved here from KeepADBPreferences): the webhook URL as display text, with the stricter host rule applied while the privacy mode is on.
+     * Reads the toggle itself so all three render sites cannot drift apart.
+     *
+     * <p>Never feed the result into a request — it is display text, not a URL.
+     */
+    static String maskWebhookUrlForDisplay(Context context, String rawUrl) {
+        return KeepADBUrlRedaction.forDisplay(rawUrl, isAppMasked(context));
+    }
+
+    /**
+     * #483: masks a {@code host:port} endpoint for display while the privacy mode is on; returns
+     * the value unchanged while it is off.
+     */
+    static String maskEndpointForDisplay(Context context, String endpoint) {
+        return isAppMasked(context)
+                ? KeepADBAddressMask.maskEndpointForDisplay(endpoint) : endpoint;
+    }
+
+    /** #483: masks a bare host for display while the privacy mode is on. */
+    static String maskHostForDisplay(Context context, String host) {
+        return isAppMasked(context) ? KeepADBAddressMask.maskHost(host) : host;
+    }
 }

@@ -49,7 +49,7 @@ public class PendingCleanupRetryRepositoryTest {
         assertEquals(30_000L, PendingCleanupRetryRepository.INITIAL_BACKOFF_MS);
         assertEquals(300_000L, PendingCleanupRetryRepository.MAX_BACKOFF_MS);
         // The FIFO of stored entries is a separate bound, owned by KeepADBPreferences.
-        assertEquals(4, KeepADBPreferences.MAX_PENDING_CLEANUPS);
+        assertEquals(4, PendingWebhookCleanupStore.MAX_PENDING_CLEANUPS);
     }
 
     @Test
@@ -110,8 +110,8 @@ public class PendingCleanupRetryRepositoryTest {
     @Test
     public void removeDeletesOnlyTheRecordOfThatEntryAndNoStoredEntry() {
         String other = "http://other.example/register";
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, ENTRY);
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, other);
+        PendingWebhookCleanupStore.add(context, ENTRY);
+        PendingWebhookCleanupStore.add(context, other);
         PendingCleanupRetryRepository.recordFailure(context, ENTRY, 1_000L);
         PendingCleanupRetryRepository.recordFailure(context, other, 1_000L);
 
@@ -120,13 +120,13 @@ public class PendingCleanupRetryRepositoryTest {
         assertNull(prefs.getString(RECORD_KEY_PREFIX + ENTRY, null));
         assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + other, null));
         assertTrue("the stored entries are owned by KeepADBPreferences, not by this record",
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(ENTRY));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(other));
+                PendingWebhookCleanupStore.get(context).contains(ENTRY));
+        assertTrue(PendingWebhookCleanupStore.get(context).contains(other));
     }
 
     @Test
     public void recordingAFailureLeavesTheStoredEntriesUntouched() {
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, ENTRY);
+        PendingWebhookCleanupStore.add(context, ENTRY);
         String entriesBefore = prefs.getString("register_webhook_pending_cleanup_order", null);
 
         PendingCleanupRetryRepository.recordFailure(context, ENTRY, 1_000L);
@@ -134,7 +134,7 @@ public class PendingCleanupRetryRepositoryTest {
         PendingCleanupRetryRepository.recordFailure(context, ENTRY, 91_000L);
 
         assertEquals(entriesBefore, prefs.getString("register_webhook_pending_cleanup_order", null));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(ENTRY));
+        assertTrue(PendingWebhookCleanupStore.get(context).contains(ENTRY));
     }
 
     // ---- Reading. ----
@@ -236,7 +236,7 @@ public class PendingCleanupRetryRepositoryTest {
         PendingCleanupRetryRepository.recordFailure(context, active, 1_000L);
         // The FIFO of stored entries and its shadow key sit next to the record keys, and others
         // start with the same words: none of them is a record, none may be touched.
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, active);
+        PendingWebhookCleanupStore.add(context, active);
         String[] foreignKeys = {"register_webhook_pending_cleanup",
                 "register_webhook_pending_cleanup_order",
                 "register_webhook_pending_cleanup_retry_state",
@@ -256,7 +256,7 @@ public class PendingCleanupRetryRepositoryTest {
         expected.remove(RECORD_KEY_PREFIX + active);
         assertEquals("only the one record key is gone", expected,
                 new java.util.TreeMap<>(prefs.getAll()));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(active));
+        assertTrue(PendingWebhookCleanupStore.get(context).contains(active));
     }
 
     @Test

@@ -64,7 +64,7 @@ public class SettingsActivityTest {
                 .clear()
                 .commit();
         // A new installation as the application leaves it (#904): only the privacy marker.
-        KeepADBPreferences.migratePrivacySplit(RuntimeEnvironment.getApplication());
+        KeepADBPreferencesMigrations.migratePrivacySplit(RuntimeEnvironment.getApplication());
     }
 
     @After
@@ -769,13 +769,13 @@ public class SettingsActivityTest {
         TextView status = activity.findViewById(R.id.settings_webhook_status);
         assertEquals("On · last reported: never", status.getText().toString());
 
-        KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(activity, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
         RegisterStateNotifier.notifyChanged(activity);
         ShadowLooper.idleMainLooper();
         assertEquals("On · last reported: failed", status.getText().toString());
 
         controller.pause();
-        KeepADBPreferences.setWebhookLastReportStatus(activity, KeepADBPreferences.WEBHOOK_STATUS_NEVER);
+        WebhookReportPrefs.setWebhookLastReportStatus(activity, WebhookReportPrefs.WEBHOOK_STATUS_NEVER);
         RegisterStateNotifier.notifyChanged(activity);
         ShadowLooper.idleMainLooper();
         assertEquals("no listener once paused", "On · last reported: failed",

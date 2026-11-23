@@ -16,7 +16,7 @@ import android.os.Looper;
  * <p>The "on" follows after {@link #PAUSE_MS} and is dropped when any newer explicit decision was
  * accepted meanwhile ({@link KeepADB#explicitIntentGeneration()}), so a tap elsewhere wins.
  *
- * <p>The owed "on" is also stored ({@link KeepADBPreferences#getRestartOnPendingAt}, Codex review
+ * <p>The owed "on" is also stored ({@link KeepADBRuntimeMarkers#getRestartOnPendingAt}, Codex review
  * of #1029): if the process dies during the pause, the next process start finishes the restart
  * ({@link #resumeAfterProcessStart}). Every manual decision clears the record, in any process
  * ({@link #onManualDecision}, called for every manual toggle), so a newer decision always wins. A
@@ -49,11 +49,11 @@ final class KeepADBRestart {
         }
         // After the off: its own manual-decision hook must not clear the record it precedes.
         long at = clock.elapsedMs();
-        KeepADBPreferences.setRestartOnPending(app, at, clock.bootCount(app));
+        KeepADBRuntimeMarkers.setRestartOnPending(app, at, clock.bootCount(app));
         final long generation = KeepADB.explicitIntentGeneration();
         MAIN.postDelayed(() -> {
             if (KeepADB.explicitIntentGeneration() != generation
-                    || KeepADBPreferences.getRestartOnPendingAt(app) != at) {
+                    || KeepADBRuntimeMarkers.getRestartOnPendingAt(app) != at) {
                 KeepADBDiagnostics.event(app, "user_action", "app", "restart",
                         "stage=on skipped reason=newer_decision");
                 return;
@@ -65,39 +65,39 @@ final class KeepADBRestart {
 
     /** Called for every manual toggle: a newer decision voids an owed restart "on". */
     static void onManualDecision(Context appContext) {
-        if (KeepADBPreferences.getRestartOnPendingAt(appContext) >= 0) {
-            KeepADBPreferences.clearRestartOnPending(appContext);
+        if (KeepADBRuntimeMarkers.getRestartOnPendingAt(appContext) >= 0) {
+            KeepADBRuntimeMarkers.clearRestartOnPending(appContext);
         }
     }
 
     /** Finishes a restart a process death interrupted; called once per process start. */
     static void resumeAfterProcessStart(Context context) {
         Context app = context.getApplicationContext();
-        long at = KeepADBPreferences.getRestartOnPendingAt(app);
+        long at = KeepADBRuntimeMarkers.getRestartOnPendingAt(app);
         if (at < 0) return;
         long now = clock.elapsedMs();
         int boot = clock.bootCount(app);
-        int storedBoot = KeepADBPreferences.getRestartOnPendingBoot(app);
+        int storedBoot = KeepADBRuntimeMarkers.getRestartOnPendingBoot(app);
         String drop = null;
         if (boot < 0 || storedBoot < 0) drop = "boot_unreadable";
         else if (boot != storedBoot || now < at) drop = "rebooted";
         else if (now - at > RESUME_WINDOW_MS) drop = "expired";
         if (drop != null) {
-            KeepADBPreferences.clearRestartOnPending(app);
+            KeepADBRuntimeMarkers.clearRestartOnPending(app);
             KeepADBDiagnostics.event(app, "user_action", "app", "restart",
                     "stage=on skipped reason=" + drop);
             return;
         }
         long delay = Math.max(0L, at + PAUSE_MS - now);
         MAIN.postDelayed(() -> {
-            if (KeepADBPreferences.getRestartOnPendingAt(app) != at) return; // decided meanwhile
+            if (KeepADBRuntimeMarkers.getRestartOnPendingAt(app) != at) return; // decided meanwhile
             switchOn(app, "resumed");
         }, delay);
     }
 
     private static void switchOn(Context app, String how) {
         // Cleared first: the "on" below is itself a manual decision and must not be repeated.
-        KeepADBPreferences.clearRestartOnPending(app);
+        KeepADBRuntimeMarkers.clearRestartOnPending(app);
         KeepADB.ToggleResult on = KeepADB.setEnabled(app, true, "app");
         KeepADBDiagnostics.event(app, "user_action", "app", "restart",
                 "stage=on " + how + " result=" + on);

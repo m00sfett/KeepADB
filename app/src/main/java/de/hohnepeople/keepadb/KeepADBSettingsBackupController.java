@@ -87,7 +87,7 @@ final class KeepADBSettingsBackupController {
 
     private void showExportDialog() {
         boolean hasWebhookUrl =
-                KeepADBPreferences.isValidWebhookUrl(KeepADBPreferences.getRegisterWebhookUrl(activity));
+                WebhookUrlCodec.isValid(KeepADBPreferences.getRegisterWebhookUrl(activity));
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTitle(R.string.settings_backup_export)
                 .setNegativeButton(android.R.string.cancel, null);

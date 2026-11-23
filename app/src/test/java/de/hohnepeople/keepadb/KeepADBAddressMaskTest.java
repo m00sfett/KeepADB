@@ -124,7 +124,7 @@ public class KeepADBAddressMaskTest {
     @Test
     public void oneArgumentForDisplayKeepsTheOldDefaultMaskingRegardlessOfPrivacyToggle() {
         // The single-argument overload backs the legacy maskWebhookUrl() helper and is not on the
-        // webhook display path (see KeepADBPreferences#maskWebhookUrlForDisplay). #550 only changes
+        // webhook display path (see KeepADBPrivacy#maskWebhookUrlForDisplay). #550 only changes
         // forDisplay(String, boolean) for privacyMode == false; this overload's byte-identical
         // #350 behaviour must survive unchanged.
         assertEquals("http://100.111.***.**:50829/register/s20",
@@ -176,7 +176,7 @@ public class KeepADBAddressMaskTest {
     // MainActivity's privacy-mode-toggle OnClickListener already calls refreshWebhookStatus()
     // synchronously right after flipping the preference (see MainActivity#onCreate, the
     // btn_toggle_privacy_mode click listener), and refreshWebhookStatus() is the sole call site of
-    // KeepADBPreferences#maskWebhookUrlForDisplay -- the method this class's forDisplay(String,
+    // KeepADBPrivacy#maskWebhookUrlForDisplay -- the method this class's forDisplay(String,
     // boolean) tests stand in for. So the toggle-to-redisplay wiring was already correct before this
     // issue; only the redaction rule itself (this file's tests above) was wrong for privacyMode ==
     // false. Actually exercising that OnClickListener needs a live MainActivity (Robolectric or an

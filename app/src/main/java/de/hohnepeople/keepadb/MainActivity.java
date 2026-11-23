@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
         KeepADBBssidHistory.discardLegacyOnce(this);
         // #764: the dismiss flags of the removed home cards are of no use any more. Only after the
         // hand-over check above (it freezes the existing/new decision these keys would feed).
-        KeepADBPreferences.removeObsoleteHomeCardKeys(this);
+        KeepADBPreferencesMigrations.removeObsoleteHomeCardKeys(this);
         setContentView(R.layout.activity_main);
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
@@ -1069,7 +1069,7 @@ public class MainActivity extends Activity {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         // #981: unconfigured or off stays visible as a short hint with a way to the settings.
-        if (!KeepADBPreferences.isValidWebhookUrl(url)) {
+        if (!WebhookUrlCodec.isValid(url)) {
             showWebhookSetupHint(R.string.webhook_status_unconfigured,
                     R.string.webhook_status_action_setup);
             return;
@@ -1080,13 +1080,13 @@ public class MainActivity extends Activity {
             return;
         }
         webhookStatusAction.setVisibility(View.GONE);
-        String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
+        String reportStatus = WebhookReportPrefs.getWebhookLastReportStatus(this);
         String lastReported = KeepADBWebhookStatusText.lastReported(this,
                 java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM);
         // #483: display only -- the stored endpoint stays as reported.
-        String storedEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
-        String lastEndpoint = KeepADBPreferences.maskEndpointForDisplay(this, storedEndpoint);
-        boolean deregistered = KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(reportStatus);
+        String storedEndpoint = WebhookReportPrefs.getWebhookLastReportedEndpoint(this);
+        String lastEndpoint = KeepADBPrivacy.maskEndpointForDisplay(this, storedEndpoint);
+        boolean deregistered = WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED.equals(reportStatus);
         if (deregistered || lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
             // Distinguish "never reported anything yet" from "was reported, then successfully
             // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
@@ -1100,7 +1100,7 @@ public class MainActivity extends Activity {
         // #1036: one row per fact; the copy buttons copy the real values (read when tapped).
         webhookStatus.setVisibility(View.GONE);
         webhookUrlValue.setText(getString(R.string.webhook_status_url,
-                KeepADBPreferences.maskWebhookUrlForDisplay(this, url)));
+                KeepADBPrivacy.maskWebhookUrlForDisplay(this, url)));
         webhookEndpointValue.setText(getString(R.string.webhook_status_endpoint, lastEndpoint));
         webhookLastReported.setText(getString(R.string.webhook_status_last, lastReported));
         webhookUrlCopyValue = KeepADBWebhookStatusText.copyableUrl(url);
@@ -1172,7 +1172,7 @@ public class MainActivity extends Activity {
             return;
         }
         endpoint.setText(KeepADBEndpointText.display(MainActivity.this,
-                KeepADBPreferences.maskHostForDisplay(MainActivity.this, lastEndpointHost),
+                KeepADBPrivacy.maskHostForDisplay(MainActivity.this, lastEndpointHost),
                 lastEndpointPort));
         // #957: the address is what people came for: primary color and larger.
         endpoint.setTextColor(getColor(R.color.night_text));
@@ -1300,7 +1300,7 @@ public class MainActivity extends Activity {
     private TextView buildTransportRow(KeepADBTransportEndpoint transport) {
         String label = getString(R.string.transport_vpn_label);
         String value = KeepADBEndpointText.display(this,
-                KeepADBPreferences.maskHostForDisplay(this, transport.host), transport.port);
+                KeepADBPrivacy.maskHostForDisplay(this, transport.host), transport.port);
         java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
                 java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
                 getResources().getConfiguration().getLocales().get(0));

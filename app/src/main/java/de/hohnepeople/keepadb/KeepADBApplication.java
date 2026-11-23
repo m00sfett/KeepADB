@@ -7,10 +7,10 @@ import android.content.res.Configuration;
  * The application object. It exists for these reasons and holds nothing else:
  * <ul>
  *   <li>It stores the default of the open-network rule once ({@link
- *       KeepADBPreferences#migrateOpenNetworkShutdown}, #997): on for a new installation, off for
+ *       KeepADBPreferencesMigrations#migrateOpenNetworkShutdown}, #997): on for a new installation, off for
  *       an existing one.</li>
  *   <li>It derives the three privacy switches once ({@link
- *       KeepADBPreferences#migratePrivacySplit}) before any component of this process writes a
+ *       KeepADBPreferencesMigrations#migratePrivacySplit}) before any component of this process writes a
  *       preference, which is the only moment "nothing stored yet" identifies a new installation.</li>
  *   <li>It deletes what the removed USB-ADB area left behind (#956: stored settings and host
  *       profiles, the notification channel and a notification still showing), directly after
@@ -40,11 +40,11 @@ public class KeepADBApplication extends Application {
         super.onCreate();
         remember(getResources().getConfiguration());
         // #997 before the privacy split: both need "nothing stored yet" to see a new installation.
-        KeepADBPreferences.migrateOpenNetworkShutdown(this);
-        KeepADBPreferences.migratePrivacySplit(this);
-        KeepADBPreferences.removeObsoleteUsbKeys(this);
-        KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);
-        KeepADBPreferences.removeObsoleteAdviceBannerKey(this);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(this);
+        KeepADBPreferencesMigrations.migratePrivacySplit(this);
+        KeepADBPreferencesMigrations.removeObsoleteUsbKeys(this);
+        KeepADBPreferencesMigrations.removeObsoleteWebhookRetryKeys(this);
+        KeepADBPreferencesMigrations.removeObsoleteAdviceBannerKey(this);
         KeepADBNotification.removeObsoleteUsbNotification(this);
         // #1000: the timer posts its end notice through this sink (a seam for tests).
         KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);

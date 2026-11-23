@@ -32,7 +32,7 @@ final class PendingCleanupCoordinator {
      * #317: retries cleanups that a previous URL change could not deliver. Runs on the register
      * executor before the transaction that triggered it, so a lost cleanup is retried at the next
      * register activity (endpoint change, deregistration) rather than being forgotten. The backlog
-     * is capped by {@link KeepADBPreferences#MAX_PENDING_CLEANUPS}.
+     * is capped by {@link PendingWebhookCleanupStore#MAX_PENDING_CLEANUPS}.
      *
      * <p>#707: first sweeps the retry records whose entry is no longer pending (left behind by an
      * eviction of an earlier build, or by a crash between removing an entry and its record). That
@@ -47,10 +47,10 @@ final class PendingCleanupCoordinator {
         List<String> leftToTransaction = new ArrayList<>();
         if (context == null) return leftToTransaction;
         PendingCleanupRetryRepository.removeOrphans(context,
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
+                PendingWebhookCleanupStore.get(context).toArray(new String[0]));
         // #923: a dispatch marker left here is a POST whose process died before its outcome was
         // settled (every POST that returns settles its own marker on this executor first).
-        String interrupted = KeepADBPreferences.getWebhookDispatchedUrl(context);
+        String interrupted = WebhookReportPrefs.getWebhookDispatchedUrl(context);
         // A withdrawing transaction always queues it; an update keeps it while it is the target.
         if (interrupted != null) rememberPossibleRegistration(context, interrupted, deleting);
         // #923: the resource the transaction that runs next sends its own DELETE or POST to; a
@@ -60,10 +60,10 @@ final class PendingCleanupCoordinator {
             String registered = KeepADBRegisterClient.registeredUrl();
             if (registered != null) inUseUrl = registered;
         }
-        for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+        for (String url : PendingWebhookCleanupStore.get(context)) {
             // #710: an earlier iteration may already have removed this snapshot entry (another
             // spelling of the same resource); skip it so no redundant DELETE or orphan record.
-            if (!KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(url)) {
+            if (!PendingWebhookCleanupStore.get(context).contains(url)) {
                 continue;
             }
             String sanitizedUrl = sanitize(url);
@@ -118,18 +118,18 @@ final class PendingCleanupCoordinator {
     static void rememberPossibleRegistration(Context context, String url, boolean withdrawing) {
         String registered = KeepADBRegisterClient.registeredUrl();
         if (registered != null && sameRegistrationResource(url, registered)) {
-            KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+            WebhookReportPrefs.setWebhookDispatchedUrl(context, null);
             return;
         }
         boolean stillTheTarget = KeepADBPreferences.isRegisterWebhookEnabled(context)
                 && sameRegistrationResource(url, KeepADBPreferences.getRegisterWebhookUrl(context));
         if (stillTheTarget && !withdrawing) {
             // Queuing it now would also evict an older cleanup from a full backlog.
-            KeepADBPreferences.setWebhookDispatchedUrl(context, url);
+            WebhookReportPrefs.setWebhookDispatchedUrl(context, url);
             return;
         }
         queue(context, url);
-        KeepADBPreferences.setWebhookDispatchedUrl(context, null);
+        WebhookReportPrefs.setWebhookDispatchedUrl(context, null);
     }
 
     /**
@@ -138,7 +138,7 @@ final class PendingCleanupCoordinator {
      * and be inherited if the same entry is queued again.
      */
     static void queue(Context context, String url) {
-        String evicted = KeepADBPreferences.addPendingWebhookCleanupUrl(context, url);
+        String evicted = PendingWebhookCleanupStore.add(context, url);
         if (evicted != null) PendingCleanupRetryRepository.remove(context, evicted);
     }
 
@@ -149,7 +149,7 @@ final class PendingCleanupCoordinator {
      */
     static boolean hasDue(Context context) {
         long now = now();
-        for (String entry : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+        for (String entry : PendingWebhookCleanupStore.get(context)) {
             PendingCleanupRetryRepository.RetryState state = read(context, entry, now);
             if (!state.isExpired(now) && !state.isExhausted() && state.isDue(now)) return true;
         }
@@ -159,7 +159,7 @@ final class PendingCleanupCoordinator {
     /** #934: books a failed attempt on every due entry the flush left to the transaction. */
     static void recordFailuresLeftToTransaction(Context context, List<String> leftToTransaction) {
         if (context == null || leftToTransaction == null) return;
-        Set<String> pending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        Set<String> pending = PendingWebhookCleanupStore.get(context);
         for (String entry : leftToTransaction) {
             if (pending.contains(entry)) recordFailure(context, entry);
         }
@@ -175,9 +175,9 @@ final class PendingCleanupCoordinator {
         String targetKey = registrationResourceKey(targetUrl);
         if (targetKey == null) return;
 
-        for (String rawUrl : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+        for (String rawUrl : PendingWebhookCleanupStore.get(context)) {
             if (targetKey.equals(registrationResourceKey(rawUrl))) {
-                KeepADBPreferences.removePendingWebhookCleanupUrl(context, rawUrl);
+                PendingWebhookCleanupStore.remove(context, rawUrl);
                 PendingCleanupRetryRepository.remove(context, rawUrl);
             }
         }
@@ -275,7 +275,7 @@ final class PendingCleanupCoordinator {
 
     private static void discard(Context context, String entry, String reason) {
         if (entry == null) return;
-        KeepADBPreferences.removePendingWebhookCleanupUrl(context, entry);
+        PendingWebhookCleanupStore.remove(context, entry);
         PendingCleanupRetryRepository.remove(context, entry);
         Log.w(TAG, "Dropping pending register cleanup (" + reason + "): "
                 + KeepADBRegisterClient.sanitizeUrl(entry));
@@ -294,7 +294,7 @@ final class PendingCleanupCoordinator {
      * sanitised URL for the outgoing cleanup request.
      */
     private static String sanitize(String rawUrl) {
-        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(rawUrl);
+        String sanitized = WebhookUrlCodec.sanitize(rawUrl);
         return sanitized == null || sanitized.trim().isEmpty() ? null : sanitized;
     }
 }

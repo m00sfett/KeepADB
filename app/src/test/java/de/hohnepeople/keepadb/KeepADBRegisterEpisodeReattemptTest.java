@@ -90,7 +90,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         advance(0);
         assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
-        assertTrue(KeepADBPreferences.getWebhookFailureSince(context) > 0L);
+        assertTrue(WebhookReportPrefs.getWebhookFailureSince(context) > 0L);
         assertEquals(1, posts());
     }
 
@@ -131,7 +131,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         advance(INTERVAL);
         heartbeat();
         assertEquals(2, posts());
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
 
         advance(INTERVAL);
         heartbeat();
@@ -170,7 +170,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         KeepADBRegisterClient.requestResyncNow(context);
         advance(0);
         assertEquals(2, posts());
-        assertTrue(KeepADBPreferences.getWebhookFailureSince(context) > 0L);
+        assertTrue(WebhookReportPrefs.getWebhookFailureSince(context) > 0L);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         advance(INTERVAL);
         heartbeat();
@@ -187,7 +187,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         KeepADBRegisterClient.requestResyncNow(context);
         advance(0);
         assertEquals(2, posts());
-        assertTrue(KeepADBPreferences.getWebhookFailureSince(context) > 0L);
+        assertTrue(WebhookReportPrefs.getWebhookFailureSince(context) > 0L);
 
         // Restart: in-memory state is gone, the preferences (episode, last report) remain.
         KeepADBRegisterClient.resetForTesting();
@@ -202,6 +202,6 @@ public class KeepADBRegisterEpisodeReattemptTest {
         advance(INTERVAL);
         heartbeat();
         assertEquals("the heartbeat re-attempts after the restart", 3, posts());
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
     }
 }

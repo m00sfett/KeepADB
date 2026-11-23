@@ -277,13 +277,13 @@ final class KeepADBWebhookForm {
     }
 
     /**
-     * Trims the field, runs {@link KeepADBPreferences#sanitizeWebhookUrl}, and writes the
+     * Trims the field, runs {@link WebhookUrlCodec#sanitize}, and writes the
      * sanitized value back into the field when it differs -- the one normalization step the enable
      * and save actions used to duplicate.
      */
     private String readAndNormalizeInput() {
         String inputUrl = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
-        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(inputUrl);
+        String sanitized = WebhookUrlCodec.sanitize(inputUrl);
         if (sanitized != null && !sanitized.equals(inputUrl)) {
             setFieldText(sanitized);
             inputUrl = sanitized;
@@ -313,7 +313,7 @@ final class KeepADBWebhookForm {
             String inputUrl = enablesSavedUrlOnly
                     ? KeepADBPreferences.getRegisterWebhookUrl(activity)
                     : readAndNormalizeInput();
-            if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
+            if (!WebhookUrlCodec.isValid(inputUrl)) {
                 toggle.setChecked(false);
                 if (onRefused != null) onRefused.run();
                 // #1045: a valid URL in the field that is not saved yet is not "invalid"; point
@@ -337,8 +337,8 @@ final class KeepADBWebhookForm {
     /** #1045: whether the field holds a valid URL that differs from the saved one. */
     private boolean hasValidUnsavedDraft() {
         String draft = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
-        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(draft);
-        return sanitized != null && KeepADBPreferences.isValidWebhookUrl(sanitized)
+        String sanitized = WebhookUrlCodec.sanitize(draft);
+        return sanitized != null && WebhookUrlCodec.isValid(sanitized)
                 && !sanitized.equals(KeepADBPreferences.getRegisterWebhookUrl(activity));
     }
 
@@ -386,7 +386,7 @@ final class KeepADBWebhookForm {
     boolean applyTypedUrl() {
         String typed = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
         if (typed.isEmpty()) return true;
-        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(typed);
+        String sanitized = WebhookUrlCodec.sanitize(typed);
         if (sanitized != null && sanitized.equals(KeepADBPreferences.getRegisterWebhookUrl(activity))) {
             return true;
         }
@@ -412,7 +412,7 @@ final class KeepADBWebhookForm {
             onChange.run();
             return true;
         }
-        if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
+        if (!WebhookUrlCodec.isValid(inputUrl)) {
             error.setText(R.string.settings_webhook_error_invalid_url);
             error.setVisibility(View.VISIBLE);
             urlInput.requestFocus();

@@ -47,11 +47,11 @@ final class KeepADBWebhookStatusText {
 
     /** When the endpoint was last reported: a date and time, "failed" or "never". */
     static String lastReported(Context context, int dateStyle, int timeStyle) {
-        String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(context);
-        if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)) {
+        String reportStatus = WebhookReportPrefs.getWebhookLastReportStatus(context);
+        if (WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(reportStatus)) {
             return context.getString(R.string.webhook_status_failed);
         }
-        long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(context);
+        long lastReportedAt = WebhookReportPrefs.getWebhookLastReportedAt(context);
         if (lastReportedAt <= 0) {
             return context.getString(R.string.webhook_status_never);
         }
@@ -65,7 +65,7 @@ final class KeepADBWebhookStatusText {
      * time of the last report.
      */
     static String headerStatus(Context context) {
-        if (!KeepADBPreferences.isValidWebhookUrl(KeepADBPreferences.getRegisterWebhookUrl(context))) {
+        if (!WebhookUrlCodec.isValid(KeepADBPreferences.getRegisterWebhookUrl(context))) {
             return context.getString(R.string.webhook_status_unconfigured);
         }
         if (!KeepADBPreferences.isRegisterWebhookEnabled(context)) {

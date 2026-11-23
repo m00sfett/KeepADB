@@ -156,12 +156,12 @@ public class KeepADBRegisterClientTest {
 
     @Test
     public void testWebhookUrlValidation() {
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("http://192.168.1.1:8080/hook"));
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("https://example.com/api/register"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("ftp://example.com"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("invalid-url"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl(null));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl(""));
+        assertTrue(WebhookUrlCodec.isValid("http://192.168.1.1:8080/hook"));
+        assertTrue(WebhookUrlCodec.isValid("https://example.com/api/register"));
+        assertFalse(WebhookUrlCodec.isValid("ftp://example.com"));
+        assertFalse(WebhookUrlCodec.isValid("invalid-url"));
+        assertFalse(WebhookUrlCodec.isValid(null));
+        assertFalse(WebhookUrlCodec.isValid(""));
     }
 
     @Test
@@ -351,16 +351,16 @@ public class KeepADBRegisterClientTest {
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
 
-        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
-                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        waitUntil(() -> WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(
+                WebhookReportPrefs.getWebhookLastReportStatus(context)), 3000);
 
         waitUntil(() -> {
             ShadowLooper.idleMainLooper();
             return listenerNotified.get();
         }, 3000);
 
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertTrue(listenerNotified.get());
         assertEquals(1, transport.getRequestCount());
     }
@@ -423,9 +423,9 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS);
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
@@ -436,16 +436,16 @@ public class KeepADBRegisterClientTest {
 
         KeepADBRegisterClient.markUnavailableAsync(context);
 
-        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
-                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        waitUntil(() -> WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(
+                WebhookReportPrefs.getWebhookLastReportStatus(context)), 3000);
 
         waitUntil(() -> {
             ShadowLooper.idleMainLooper();
             return listenerNotified.get();
         }, 3000);
 
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertTrue(listenerNotified.get());
         assertEquals(1, transport.getRequestCount());
     }
@@ -462,8 +462,8 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
@@ -537,8 +537,8 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
@@ -563,8 +563,8 @@ public class KeepADBRegisterClientTest {
 
         // A brand-new registration/unavailability cycle afterwards is not throttled by the
         // resolved, unrelated earlier sequence.
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.60:9000");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.60:9000");
         KeepADBRegisterClient.setWlanStateForTesting("http://fake.url/register", "192.168.1.60:9000");
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.markUnavailableAsync(context);
@@ -582,8 +582,8 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
@@ -602,8 +602,8 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.awaitIdleForTesting(3000);
 
         assertEquals("192.168.1.50:55555", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         // The stale retry state for the old resource must be cleared by the confirmed
         // registration, not left to fire a delayed DELETE against the now-live endpoint.
         assertEquals(0, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
@@ -644,13 +644,13 @@ public class KeepADBRegisterClientTest {
 
         // Wait until second update completes
         waitUntil(() -> "192.168.1.50:41235".equals(
-                KeepADBPreferences.getWebhookLastReportedEndpoint(context)), 3000);
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(context)), 3000);
 
         ShadowLooper.idleMainLooper();
 
         // Verify the final registered endpoint is the newer one (41235), not the stale one (41234)
         assertEquals("192.168.1.50:41235", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
-        assertEquals("192.168.1.50:41235", KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals("192.168.1.50:41235", WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
     }
 
 
@@ -671,8 +671,8 @@ public class KeepADBRegisterClientTest {
         CountDownLatch deregistrationNotified = new CountDownLatch(1);
 
         RegisterStateNotifier.setListener(() -> {
-            if (KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
-                    KeepADBPreferences.getWebhookLastReportStatus(context))) {
+            if (WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED.equals(
+                    WebhookReportPrefs.getWebhookLastReportStatus(context))) {
                 deregistrationNotified.countDown();
             }
         });
@@ -709,9 +709,9 @@ public class KeepADBRegisterClientTest {
 
             // Verify the in-flight update did not revive the endpoint after disconnect
             assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
-            assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+            assertNull(WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
             assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-            assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+            assertNull(WebhookReportPrefs.getWebhookLastReportedUrl(context));
             List<KeepADBFakeHttpTransport.Request> requests;
             synchronized (transport.recordedRequests) {
                 requests = new ArrayList<>(transport.recordedRequests);
@@ -741,8 +741,8 @@ public class KeepADBRegisterClientTest {
             assertNotNull(disconnectRequest);
             assertEquals(targetUrl, disconnectRequest.url);
             assertNull(disconnectRequest.payload);
-            assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                    KeepADBPreferences.getWebhookLastReportStatus(context));
+            assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED,
+                    WebhookReportPrefs.getWebhookLastReportStatus(context));
             assertFalse(KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
         } finally {
             // Do not leave the blocked worker or a test listener behind when an assertion fails.
@@ -778,9 +778,9 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
-        KeepADBPreferences.setWebhookLastReportedAtNow(context);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "");
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED);
+        WebhookReportPrefs.setWebhookLastReportedAtNow(context);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         KeepADBRegisterClient.setHttpTransport(transport);
@@ -1005,7 +1005,7 @@ public class KeepADBRegisterClientTest {
         String stale = "http://stale.example/register";
         KeepADBPreferences.setRegisterWebhookUrl(context, url1);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, stale);
+        PendingWebhookCleanupStore.add(context, stale);
         KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
                 new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "vpn-adb")));
         List<String> requests = Collections.synchronizedList(new ArrayList<>());
@@ -1067,7 +1067,7 @@ public class KeepADBRegisterClientTest {
     public void testDroppedLegacyCredentialCleanupIsLoggedWithoutItsCredentials() {
         Context context = ApplicationProvider.getApplicationContext();
         String legacy = "http://admin:secret@legacy.example/register?token=abc";
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacy);
+        PendingWebhookCleanupStore.add(context, legacy);
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
@@ -1089,7 +1089,7 @@ public class KeepADBRegisterClientTest {
             }
         }
         assertTrue("the drop must be logged", droppedLineSeen);
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     // ---- #701: an older operation never overwrites or outlives a newer registration. ----
@@ -1265,8 +1265,8 @@ public class KeepADBRegisterClientTest {
                     transport.getRequestCount());
             assertNull("a superseded update must not commit its registration",
                     KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-            assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
-            assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+            assertNull(WebhookReportPrefs.getWebhookLastReportedUrl(context));
+            assertNull(WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
         } finally {
             setSecondaryTransportVerifiedForTesting(context, false);
             KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
@@ -1287,7 +1287,7 @@ public class KeepADBRegisterClientTest {
                 "http://e2.example/register", "http://e3.example/register"};
         String recordKeyPrefix = "register_webhook_pending_cleanup_retry_state:";
         for (String entry : backlog) {
-            KeepADBPreferences.addPendingWebhookCleanupUrl(context, entry);
+            PendingWebhookCleanupStore.add(context, entry);
             context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
                     .putString(recordKeyPrefix + entry, "2,91000,86401000").commit();
         }
@@ -1314,10 +1314,10 @@ public class KeepADBRegisterClientTest {
             assertEquals("the old URL's DELETE, the WLAN POST and the VPN POST were sent while the "
                     + "operation was current", 3, transport.getRequestCount());
             assertNull("a superseded update must not commit its registration",
-                    KeepADBPreferences.getWebhookLastReportedUrl(context));
+                    WebhookReportPrefs.getWebhookLastReportedUrl(context));
             assertEquals("and must not queue its cleanup, which would evict the oldest entry",
                     java.util.Arrays.asList(backlog),
-                    new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+                    new ArrayList<>(PendingWebhookCleanupStore.get(context)));
             for (String entry : backlog) {
                 assertEquals("nor drop a retry record: " + entry, "2,91000,86401000",
                         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
@@ -1334,7 +1334,7 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        String statusBefore = KeepADBPreferences.getWebhookLastReportStatus(context);
+        String statusBefore = WebhookReportPrefs.getWebhookLastReportStatus(context);
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setPostSuccess(false);
         transport.setRequestCallback(req -> KeepADBRegisterClient.bumpOpGenerationForTesting());
@@ -1348,7 +1348,7 @@ public class KeepADBRegisterClientTest {
 
         assertEquals(1, transport.getRequestCount());
         assertEquals("the newer operation owns the status", statusBefore,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertTrue("and the in-flight flag it set", KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
         assertFalse(listenerNotified.get());
     }
@@ -1367,8 +1367,8 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         transport.setRequestCallback(req -> {
             if ("DELETE".equals(req.method) && URL1.equals(req.url)) {
                 KeepADBRegisterClient.bumpOpGenerationForTesting();
@@ -1381,9 +1381,9 @@ public class KeepADBRegisterClientTest {
 
         assertEquals("a confirmed DELETE must not clear a different, newer registration",
                 newerUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-        assertEquals("nor report the endpoint as deregistered", KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        assertEquals(URL1, KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertEquals("nor report the endpoint as deregistered", WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
+        assertEquals(URL1, WebhookReportPrefs.getWebhookLastReportedUrl(context));
     }
 
     @Test
@@ -1407,8 +1407,8 @@ public class KeepADBRegisterClientTest {
 
         assertEquals("a superseded DELETE must not start the #562 retry gate", 0,
                 KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
     }
 
     /** A VPN next to the WLAN endpoint that answers on the ADB port: the one secondary transport
@@ -1435,8 +1435,8 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
@@ -1477,8 +1477,8 @@ public class KeepADBRegisterClientTest {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
@@ -1508,8 +1508,8 @@ public class KeepADBRegisterClientTest {
         String url = "http://register.example/register/dev1";
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, url);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
         KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
@@ -1560,8 +1560,8 @@ public class KeepADBRegisterClientTest {
         String url = "http://register.example/register/dev1";
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, url);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
         KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
@@ -1613,8 +1613,8 @@ public class KeepADBRegisterClientTest {
         String url = "http://register.example/register/dev1";
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, url);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
         KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();

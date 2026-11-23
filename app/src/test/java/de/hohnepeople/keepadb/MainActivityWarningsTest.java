@@ -622,11 +622,11 @@ public class MainActivityWarningsTest {
         action(activity).performClick();
         assertEquals(java.util.Arrays.asList(false), gateway.writes);
         assertTrue("the owed on is stored during the pause",
-                KeepADBPreferences.getRestartOnPendingAt(context) >= 0);
+                KeepADBRuntimeMarkers.getRestartOnPendingAt(context) >= 0);
         shadowOf(android.os.Looper.getMainLooper()).idleFor(
                 java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
         assertEquals(java.util.Arrays.asList(false, true), gateway.writes);
-        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        assertEquals(-1L, KeepADBRuntimeMarkers.getRestartOnPendingAt(context));
         assertTrue(gateway.isEnabled(context));
         assertFalse(KeepADB.wasLastExplicitIntentOff(context));
     }
@@ -668,12 +668,12 @@ public class MainActivityWarningsTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
         withRestartClock(clock, () -> {
-            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
+            KeepADBRuntimeMarkers.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
             KeepADBRestart.resumeAfterProcessStart(context);
             idle(java.time.Duration.ofMillis(KeepADBRestart.PAUSE_MS));
         });
         assertEquals(java.util.Arrays.asList(true), gateway.writes);
-        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        assertEquals(-1L, KeepADBRuntimeMarkers.getRestartOnPendingAt(context));
     }
 
     @Test
@@ -682,13 +682,13 @@ public class MainActivityWarningsTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
         withRestartClock(clock, () -> {
-            KeepADBPreferences.setRestartOnPending(context,
+            KeepADBRuntimeMarkers.setRestartOnPending(context,
                     clock.elapsed - KeepADBRestart.RESUME_WINDOW_MS - 1, clock.boot);
             KeepADBRestart.resumeAfterProcessStart(context);
             idle(java.time.Duration.ofSeconds(5));
         });
         assertTrue(gateway.writes.isEmpty());
-        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        assertEquals(-1L, KeepADBRuntimeMarkers.getRestartOnPendingAt(context));
     }
 
     /** #1027 (second Codex review): a new boot with a higher uptime than the record. */
@@ -698,12 +698,12 @@ public class MainActivityWarningsTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
         withRestartClock(clock, () -> {
-            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 30_000L, clock.boot - 1);
+            KeepADBRuntimeMarkers.setRestartOnPending(context, clock.elapsed - 30_000L, clock.boot - 1);
             KeepADBRestart.resumeAfterProcessStart(context);
             idle(java.time.Duration.ofSeconds(5));
         });
         assertTrue(gateway.writes.isEmpty());
-        assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+        assertEquals(-1L, KeepADBRuntimeMarkers.getRestartOnPendingAt(context));
     }
 
     @Test
@@ -712,7 +712,7 @@ public class MainActivityWarningsTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
         withRestartClock(clock, () -> {
-            KeepADBPreferences.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
+            KeepADBRuntimeMarkers.setRestartOnPending(context, clock.elapsed - 300, clock.boot);
             clock.bootCountReadable = false;
             KeepADBRestart.resumeAfterProcessStart(context);
             idle(java.time.Duration.ofSeconds(5));
@@ -726,9 +726,9 @@ public class MainActivityWarningsTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBForceTestSupport.TestClock clock = new KeepADBForceTestSupport.TestClock();
         withRestartClock(clock, () -> {
-            KeepADBPreferences.setRestartOnPending(context, clock.elapsed, clock.boot);
+            KeepADBRuntimeMarkers.setRestartOnPending(context, clock.elapsed, clock.boot);
             assertTrue(KeepADB.setEnabled(context, false, "tile").isSuccess());
-            assertEquals(-1L, KeepADBPreferences.getRestartOnPendingAt(context));
+            assertEquals(-1L, KeepADBRuntimeMarkers.getRestartOnPendingAt(context));
             KeepADBRestart.resumeAfterProcessStart(context);
             idle(java.time.Duration.ofSeconds(5));
         });

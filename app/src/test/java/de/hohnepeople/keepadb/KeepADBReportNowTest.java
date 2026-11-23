@@ -58,7 +58,7 @@ public class KeepADBReportNowTest {
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -156,8 +156,8 @@ public class KeepADBReportNowTest {
         assertFalse("the tap never switches synchronization on", syncEnabled());
         assertEquals("the caller is released at once", 1, done.get());
         assertTrue("Wireless Debugging is never switched", gateway.writes.isEmpty());
-        assertEquals("nothing is remembered as reported", KeepADBPreferences.WEBHOOK_STATUS_NEVER,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals("nothing is remembered as reported", WebhookReportPrefs.WEBHOOK_STATUS_NEVER,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertEquals(KeepADBWidgetState.Activity.IDLE, webhook().activity);
         assertEquals(KeepADBWidgetState.Outcome.NONE, webhook().latestOutcome);
         assertTrue(KeepADBDiagnostics.export(context),
@@ -217,8 +217,8 @@ public class KeepADBReportNowTest {
         assertTrue(transport.getLastRequest().payload, transport.getLastRequest().payload.contains(ENDPOINT));
         assertEquals(1, done.get());
         assertTrue("the switch stays on", syncEnabled());
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertTrue("Wireless Debugging is never switched", gateway.writes.isEmpty());
     }
 
@@ -323,12 +323,12 @@ public class KeepADBReportNowTest {
         KeepADBRegisterClient.reportNow(context, null);
         settle();
 
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertTrue("the normal retry series follows the manual push",
                 KeepADBRegisterClient.hasPendingPostRetryForTesting());
         assertTrue("and so does the normal failure episode",
-                KeepADBPreferences.getWebhookFailureSince(context) > 0L);
+                WebhookReportPrefs.getWebhookFailureSince(context) > 0L);
         assertTrue(syncEnabled());
     }
 

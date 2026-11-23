@@ -221,8 +221,8 @@ public class KeepADBDefaultsAuditTest {
     /** Nothing stored but what the application writes at the first start, in its order. */
     private void freshInstallation() {
         prefs().edit().clear().commit();
-        KeepADBPreferences.migrateOpenNetworkShutdown(app);
-        KeepADBPreferences.migratePrivacySplit(app);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(app);
+        KeepADBPreferencesMigrations.migratePrivacySplit(app);
     }
 
     @After

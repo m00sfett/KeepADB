@@ -349,8 +349,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
 
             awaitMainLooperSignal(listenerNotified, 3000);
 
-            assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                    KeepADBPreferences.getWebhookLastReportStatus(context));
+            assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                    WebhookReportPrefs.getWebhookLastReportStatus(context));
             assertTrue("Network loss cleanup failure must reach the register listener",
                     listenerNotified.getCount() == 0);
             assertEquals("DELETE", transport.getLastRequest().method);

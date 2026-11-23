@@ -58,7 +58,7 @@ public class KeepADBWidgetConfigActivityTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADBWidgetConfig.clearAll(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
         KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());

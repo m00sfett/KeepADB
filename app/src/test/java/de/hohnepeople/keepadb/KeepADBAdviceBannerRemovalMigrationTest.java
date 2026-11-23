@@ -98,8 +98,8 @@ public class KeepADBAdviceBannerRemovalMigrationTest {
         // Same as for the other cleanups: a new installation keeps exactly the privacy marker, and
         // the assistant's existing/new decision stays open for the first real question.
         prefs().edit().clear().commit();
-        KeepADBPreferences.migrateOpenNetworkShutdown(app);
-        KeepADBPreferences.migratePrivacySplit(app);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(app);
+        KeepADBPreferencesMigrations.migratePrivacySplit(app);
         Map<String, ?> before = prefs().getAll();
 
         nextProcessStart();

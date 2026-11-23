@@ -59,8 +59,8 @@ final class KeepADBWebhookAlert {
     static void onReportFailed(Context context) {
         final Context app = context.getApplicationContext();
         main().post(() -> {
-            if (KeepADBPreferences.getWebhookFailureSince(app) <= 0L) {
-                KeepADBPreferences.setWebhookFailureEpisode(app, now(), 0);
+            if (WebhookReportPrefs.getWebhookFailureSince(app) <= 0L) {
+                WebhookReportPrefs.setWebhookFailureEpisode(app, now(), 0);
             }
             evaluate(app);
         });
@@ -83,8 +83,8 @@ final class KeepADBWebhookAlert {
 
     private static void endEpisodeNow(Context app) {
         cancelCheck(app);
-        if (KeepADBPreferences.getWebhookFailureSince(app) > 0L) {
-            KeepADBPreferences.setWebhookFailureEpisode(app, 0L, 0);
+        if (WebhookReportPrefs.getWebhookFailureSince(app) > 0L) {
+            WebhookReportPrefs.setWebhookFailureEpisode(app, 0L, 0);
         }
         NotificationManager manager = app.getSystemService(NotificationManager.class);
         if (manager != null) manager.cancel(NOTIFICATION_ID);
@@ -97,21 +97,21 @@ final class KeepADBWebhookAlert {
             endEpisodeNow(app);
             return;
         }
-        long since = KeepADBPreferences.getWebhookFailureSince(app);
+        long since = WebhookReportPrefs.getWebhookFailureSince(app);
         if (since <= 0L) return;
         long elapsed = now() - since;
         if (elapsed < 0L) {
             // Wall clock moved back: restart the episode from now instead of never alerting.
             since = now();
             elapsed = 0L;
-            KeepADBPreferences.setWebhookFailureEpisode(app, since,
-                    KeepADBPreferences.getWebhookAlertsShown(app));
+            WebhookReportPrefs.setWebhookFailureEpisode(app, since,
+                    WebhookReportPrefs.getWebhookAlertsShown(app));
         }
-        int shown = KeepADBPreferences.getWebhookAlertsShown(app);
+        int shown = WebhookReportPrefs.getWebhookAlertsShown(app);
         int due = elapsed >= REMINDER_AFTER_MS ? 2 : elapsed >= FIRST_ALERT_AFTER_MS ? 1 : 0;
         if (due > shown && shown < MAX_ALERTS_PER_EPISODE && show(app)) {
             shown = due;
-            KeepADBPreferences.setWebhookFailureEpisode(app, since, shown);
+            WebhookReportPrefs.setWebhookFailureEpisode(app, since, shown);
         }
         // The next alert level after both what was shown and what is already due: an alert that
         // could not be posted is retried by the next evaluation, never by an immediate timer.
@@ -156,9 +156,9 @@ final class KeepADBWebhookAlert {
 
     /** "Disrupted since … · last reported …", or the variant without a successful report. */
     static String statusLine(Context context) {
-        long since = KeepADBPreferences.getWebhookFailureSince(context);
+        long since = WebhookReportPrefs.getWebhookFailureSince(context);
         String sinceText = formatTime(context, since > 0L ? since : now());
-        long successAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
+        long successAt = WebhookReportPrefs.getWebhookLastSuccessAt(context);
         return successAt > 0L
                 ? context.getString(R.string.webhook_alert_status_since, sinceText,
                         formatTime(context, successAt))

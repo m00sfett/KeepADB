@@ -81,12 +81,12 @@ public class MainActivityWebhookCopyTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         MainActivity activity = start();
 
         View copy = activity.findViewById(R.id.webhook_endpoint_copy);
-        assertEquals("stored: " + KeepADBPreferences.getWebhookLastReportedEndpoint(context),
+        assertEquals("stored: " + WebhookReportPrefs.getWebhookLastReportedEndpoint(context),
                 View.VISIBLE, copy.getVisibility());
         copy.performClick();
 
@@ -100,12 +100,12 @@ public class MainActivityWebhookCopyTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         MainActivity activity = start();
 
         // A background report replaces the endpoint before the screen is redrawn.
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.178.99:40000");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.178.99:40000");
         activity.findViewById(R.id.webhook_endpoint_copy).performClick();
 
         assertEquals("192.168.178.24:45149",
@@ -118,8 +118,8 @@ public class MainActivityWebhookCopyTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
-                KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.178.24:45149",
+                WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED, true);
         MainActivity activity = start();
 
         assertEquals(View.GONE, activity.findViewById(R.id.webhook_endpoint_copy).getVisibility());

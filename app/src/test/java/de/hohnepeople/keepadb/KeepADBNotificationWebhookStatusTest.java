@@ -71,12 +71,12 @@ public class KeepADBNotificationWebhookStatusTest {
     @Test
     public void successShowsExactTimeToTheSecond() {
         enableWebhook();
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
 
         String text = bigText(postCard());
 
-        long at = KeepADBPreferences.getWebhookLastSuccessAt(context);
+        long at = WebhookReportPrefs.getWebhookLastSuccessAt(context);
         assertTrue(text, text.contains(context.getString(R.string.notification_text_webhook_synced, format(at))));
         assertTrue("time must carry seconds: " + text, CLOCK_WITH_SECONDS.matcher(text).find());
     }
@@ -84,10 +84,10 @@ public class KeepADBNotificationWebhookStatusTest {
     @Test
     public void failureAfterSuccessShowsErrorAndOnlyLastSuccessfulSeparately() {
         enableWebhook();
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
-        long okAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
+        long okAt = WebhookReportPrefs.getWebhookLastSuccessAt(context);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
 
         String text = bigText(postCard());
 
@@ -109,10 +109,10 @@ public class KeepADBNotificationWebhookStatusTest {
                 .putString("register_webhook_last_url", URL).commit();
         assertFalse(context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .contains("register_webhook_last_success_at"));
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, HOST + ":" + PORT);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, HOST + ":" + PORT);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS);
 
-        assertEquals(legacyAt, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertEquals(legacyAt, WebhookReportPrefs.getWebhookLastSuccessAt(context));
         String text = bigText(postCard());
         assertTrue(text, text.contains(context.getString(
                 R.string.notification_text_webhook_synced, format(legacyAt))));
@@ -125,27 +125,27 @@ public class KeepADBNotificationWebhookStatusTest {
     @Test
     public void successOfALegacyUnsanitizedSavedUrlIsStillClaimed() {
         enableWebhook();
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
                 .putString("register_webhook_url", "  " + URL + "  ").commit();
 
         assertEquals(URL, KeepADBPreferences.getRegisterWebhookUrl(context));
-        assertTrue(KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+        assertTrue(WebhookReportPrefs.getWebhookLastSuccessAt(context) > 0L);
     }
 
     /** #1047: every accessor tolerates a null context and answers its default. */
     @Test
     public void accessorsAnswerTheirDefaultsForANullContext() {
-        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(null));
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_NEVER,
-                KeepADBPreferences.getWebhookLastReportStatus(null));
+        assertEquals(0L, WebhookReportPrefs.getWebhookLastSuccessAt(null));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_NEVER,
+                WebhookReportPrefs.getWebhookLastReportStatus(null));
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(null));
         assertFalse(KeepADBPreferences.isKeepAliveEnabled(null));
-        assertEquals(-1, KeepADBPreferences.getLastAdbPort(null));
+        assertEquals(-1, KeepADBRuntimeMarkers.getLastAdbPort(null));
         assertEquals("", KeepADBPreferences.getAppLanguage(null));
         KeepADBPreferences.setRegisterWebhookEnabled(null, true);
-        KeepADBPreferences.setWebhookDispatchedUrl(null, URL);
+        WebhookReportPrefs.setWebhookDispatchedUrl(null, URL);
     }
 
     /** #893 (Codex review): a stored success time whose URL cannot be identified is not claimed. */
@@ -154,13 +154,13 @@ public class KeepADBNotificationWebhookStatusTest {
         enableWebhook();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
                 .putLong("register_webhook_last_success_at", 1_700_000_000_000L).commit();
-        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookLastSuccessAt(context));
     }
 
     @Test
     public void failureWithoutAnySuccessClaimsNoSuccessAndNoTime() {
         enableWebhook();
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
 
         String text = bigText(postCard());
 
@@ -174,9 +174,9 @@ public class KeepADBNotificationWebhookStatusTest {
     public void deregistrationTimeIsNeverPresentedAsLastSuccess() {
         enableWebhook();
         // Only a deregistration stamped the shared timestamp; a later failure must not reuse it.
-        KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
-                KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, null, null,
+                WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED, true);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
 
         String text = bigText(postCard());
 
@@ -198,8 +198,8 @@ public class KeepADBNotificationWebhookStatusTest {
     public void disabledWebhookShowsNoWebhookLineEvenWithStoredResults() {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
 
         String text = bigText(postCard());
 
@@ -270,8 +270,8 @@ public class KeepADBNotificationWebhookStatusTest {
     @Test
     public void notificationPrivacyHidesPortAndIpAndPublicVersionCarriesNoWebhookOrEndpoint() {
         enableWebhook();
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, HOST + ":" + PORT,
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
 
         Notification notification = postCard();

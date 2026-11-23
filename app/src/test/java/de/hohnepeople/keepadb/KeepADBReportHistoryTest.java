@@ -203,7 +203,7 @@ public class KeepADBReportHistoryTest {
     /** Codex review: deferred cleanup DELETEs carry their retry number and the attempt budget. */
     @Test
     public void deferredCleanupRetriesAreNumbered() {
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://old.example/register/s20");
+        PendingWebhookCleanupStore.add(context, "http://old.example/register/s20");
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);

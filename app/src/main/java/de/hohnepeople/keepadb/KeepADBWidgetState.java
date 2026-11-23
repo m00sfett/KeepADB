@@ -301,10 +301,10 @@ final class KeepADBWidgetState {
         Sync sync = !configured ? Sync.UNCONFIGURED
                 : KeepADBPreferences.isRegisterWebhookEnabled(app) ? Sync.ON : Sync.OFF;
 
-        Outcome outcome = outcomeOf(KeepADBPreferences.getWebhookLastReportStatus(app));
+        Outcome outcome = outcomeOf(WebhookReportPrefs.getWebhookLastReportStatus(app));
         Delivery delivery = deliveryOf(currentEndpoint, configured ? url.trim() : null, outcome,
-                KeepADBPreferences.getWebhookLastReportedUrl(app),
-                KeepADBPreferences.getWebhookLastReportedEndpoint(app));
+                WebhookReportPrefs.getWebhookLastReportedUrl(app),
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(app));
 
         KeepADBRegisterClient.Activity clientActivity = KeepADBRegisterClient.activity();
         Activity activity = clientActivity == KeepADBRegisterClient.Activity.SENDING
@@ -312,14 +312,14 @@ final class KeepADBWidgetState {
                 : clientActivity == KeepADBRegisterClient.Activity.RETRY_WAITING
                         ? Activity.RETRY_WAITING : Activity.IDLE;
         return new Webhook(sync, activity, outcome,
-                KeepADBPreferences.getWebhookLastSuccessAt(app),
+                WebhookReportPrefs.getWebhookLastSuccessAt(app),
                 KeepADBReportHistory.latestFailureAtMs(app), delivery);
     }
 
     private static Outcome outcomeOf(String status) {
-        if (KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(status)) return Outcome.SUCCESS;
-        if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(status)) return Outcome.FAILED;
-        if (KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(status)) return Outcome.DEREGISTERED;
+        if (WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS.equals(status)) return Outcome.SUCCESS;
+        if (WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(status)) return Outcome.FAILED;
+        if (WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED.equals(status)) return Outcome.DEREGISTERED;
         return Outcome.NONE;
     }
 

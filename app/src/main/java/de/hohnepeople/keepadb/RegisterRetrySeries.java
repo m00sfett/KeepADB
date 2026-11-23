@@ -36,7 +36,7 @@ final class RegisterRetrySeries {
     /** #881: elapsed realtime when the series was given up on, or of the last episode re-attempt. */
     private long lastGiveUpOrReattemptAt;
     /**
-     * #960: the retries of a series are fixed ({@link KeepADBPreferences#WEBHOOK_MAX_RETRIES}).
+     * #960: the retries of a series are fixed ({@link WebhookReportPrefs#WEBHOOK_MAX_RETRIES}).
      * Tests that want a shorter series set a lower budget; negative means the fixed series. Read
      * outside the monitor when a request records the budget it was sent with, hence volatile.
      */
@@ -87,7 +87,7 @@ final class RegisterRetrySeries {
         }
         retryNumber++;
         pendingRetry = retry;
-        handler.postDelayed(retry, KeepADBPreferences.webhookRetryDelayMs(retryNumber));
+        handler.postDelayed(retry, WebhookReportPrefs.webhookRetryDelayMs(retryNumber));
         return true;
     }
 
@@ -158,8 +158,8 @@ final class RegisterRetrySeries {
 
     int retryBudget() {
         int override = retryBudgetForTesting;
-        return override >= 0 ? Math.min(override, KeepADBPreferences.WEBHOOK_MAX_RETRIES)
-                : KeepADBPreferences.WEBHOOK_MAX_RETRIES;
+        return override >= 0 ? Math.min(override, WebhookReportPrefs.WEBHOOK_MAX_RETRIES)
+                : WebhookReportPrefs.WEBHOOK_MAX_RETRIES;
     }
 
     void setRetryBudgetForTesting(int retries) {

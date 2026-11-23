@@ -346,7 +346,7 @@ public class KeepADBOpenNetworkTest {
     public void aNewInstallationGetsTheRuleOn() {
         prefs().edit().clear().commit();
 
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
 
         assertTrue(KeepADBPreferences.isOpenNetworkShutdownEnabled(context));
     }
@@ -355,7 +355,7 @@ public class KeepADBOpenNetworkTest {
     public void anExistingInstallationKeepsTheRuleOff() {
         prefs().edit().clear().putBoolean("keep_alive_enabled", true).commit();
 
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
 
         assertFalse(KeepADBPreferences.isOpenNetworkShutdownEnabled(context));
         assertTrue("the decision is stored, so it never flips later", prefs().contains(KEY));
@@ -364,11 +364,11 @@ public class KeepADBOpenNetworkTest {
     @Test
     public void theMigrationKeepsAStoredChoice() {
         prefs().edit().clear().putBoolean(KEY, false).commit();
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
         assertFalse(KeepADBPreferences.isOpenNetworkShutdownEnabled(context));
 
         prefs().edit().clear().putBoolean("keep_alive_enabled", true).putBoolean(KEY, true).commit();
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
         assertTrue(KeepADBPreferences.isOpenNetworkShutdownEnabled(context));
     }
 
@@ -376,8 +376,8 @@ public class KeepADBOpenNetworkTest {
     public void thePrivacySplitStillSeesANewInstallationAfterTheDefault() {
         prefs().edit().clear().commit();
 
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse("a new installation keeps all privacy switches off",
                 KeepADBPreferences.isNotificationPrivacyEnabled(context));
@@ -390,8 +390,8 @@ public class KeepADBOpenNetworkTest {
     public void theAssistantStillSeesANewInstallationAfterTheDefault() {
         prefs().edit().clear().commit();
 
-        KeepADBPreferences.migrateOpenNetworkShutdown(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse("the stored default is no sign of an existing installation",
                 KeepADBOnboarding.isExistingInstall(context));

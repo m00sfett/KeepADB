@@ -78,7 +78,7 @@ public class KeepADBWidgetLifecycleTest {
                 android.Manifest.permission.POST_NOTIFICATIONS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADBWidgetConfig.clearAll(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);

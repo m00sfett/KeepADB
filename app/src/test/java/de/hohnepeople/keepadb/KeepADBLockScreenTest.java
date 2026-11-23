@@ -79,7 +79,7 @@ public class KeepADBLockScreenTest {
         prefs().edit().clear().commit();
         prefs().edit().putBoolean("privacy_mode_enabled", true)
                 .putBoolean("keep_alive_enabled", true).commit();
-        KeepADBPreferences.migratePrivacySplit(app);
+        KeepADBPreferencesMigrations.migratePrivacySplit(app);
         assertTrue("the split ran: details hidden, as the old default",
                 KeepADBPreferences.isNotificationPrivacyEnabled(app));
         assertTrue(KeepADBPreferences.isWidgetPrivacyEnabled(app));

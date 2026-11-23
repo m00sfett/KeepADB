@@ -126,7 +126,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     : "invalid_url";
             KeepADBDiagnostics.event(app, "webhook_periodic", "alarm", "skipped", reason);
             safeFinish.run();
-            return !KeepADBPreferences.isValidWebhookUrl(
+            return !WebhookUrlCodec.isValid(
                     KeepADBPreferences.getRegisterWebhookUrl(app))
                     ? KeepADBRegisterClient.ReportNowResult.NEEDS_SETUP
                     : KeepADBRegisterClient.ReportNowResult.SYNC_OFF;
@@ -151,7 +151,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * FLAG_RECEIVER_FOREGROUND), whose window is 60 s; the hold stays well below it.
      */
     static final long REPORT_NOW_MAX_HOLD_MS =
-            (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * 2L * KeepADBHttpTransport.TIMEOUT_MS
+            (PendingWebhookCleanupStore.MAX_PENDING_CLEANUPS + 2) * 2L * KeepADBHttpTransport.TIMEOUT_MS
                     + 4_000L;
 
     /**

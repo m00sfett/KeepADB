@@ -190,7 +190,7 @@ public class KeepADBSettingsBackupTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, old);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         // The last report went to the stored URL and was never withdrawn.
-        KeepADBPreferences.setWebhookLastReportedUrl(context, old);
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, old);
         KeepADBSettingsBackup.ApplyResult result =
                 KeepADBSettingsBackup.apply(context, KeepADBSettingsBackup.parse(file));
         assertTrue(result.webhookUrlKept);

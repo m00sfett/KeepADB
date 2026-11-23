@@ -53,7 +53,7 @@ public class KeepADBMultiStateContractTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         // A new installation as the application leaves it (#904): only the privacy marker.
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBNetwork.resetForTesting();
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -262,7 +262,7 @@ public class KeepADBMultiStateContractTest {
             assertEquals(only + ": app area", "app".equals(only),
                     KeepADBNetworkDisplay.hidden(screen));
             assertEquals(only + ": app area text", "app".equals(only) ? "127.*.*.*" : "127.0.0.1",
-                    KeepADBPreferences.maskHostForDisplay(screen, "127.0.0.1"));
+                    KeepADBPrivacy.maskHostForDisplay(screen, "127.0.0.1"));
 
             // Notifications: the persistent notification.
             KeepADBEndpointCoordinator.refresh(context);

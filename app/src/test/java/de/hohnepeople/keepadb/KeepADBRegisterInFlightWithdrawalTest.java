@@ -68,8 +68,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
     private void registeredAtAWithBSaved() {
         KeepADBPreferences.setRegisterWebhookUrl(context, URL_B);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, URL_A);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, OLD_ENDPOINT);
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, URL_A);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, OLD_ENDPOINT);
         KeepADBRegisterClient.setWlanStateForTesting(URL_A, OLD_ENDPOINT);
     }
 
@@ -122,8 +122,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
                 lastIndexOf(sent, "DELETE " + URL_B) > post);
         assertTrue("A must be withdrawn after the opt-out: " + sent,
                 lastIndexOf(sent, "DELETE " + URL_A) > post);
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
         assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
     }
 
@@ -142,8 +142,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
         drain();
         assertTrue("B stays queued for withdrawal: "
-                        + KeepADBPreferences.getPendingWebhookCleanupUrls(context),
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+                        + PendingWebhookCleanupStore.get(context),
+                PendingWebhookCleanupStore.get(context).contains(URL_B));
 
         // Process death: the in-memory client state is gone, the preferences remain.
         KeepADBRegisterClient.resetForTesting();
@@ -157,14 +157,14 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
 
         assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
     public void aPostInterruptedByProcessDeathIsWithdrawnAtTheOptOut() {
         // The process died while the POST to B was in flight: only the dispatch marker remains.
         registeredAtAWithBSaved();
-        KeepADBPreferences.setWebhookDispatchedUrl(context, URL_B);
+        WebhookReportPrefs.setWebhookDispatchedUrl(context, URL_B);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
 
         KeepADBRegisterClient.unregisterAndDisableAsync(context);
@@ -173,8 +173,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         List<String> sent = requests();
         assertTrue(sent.toString(), sent.contains("DELETE " + URL_B));
         assertTrue(sent.toString(), sent.contains("DELETE " + URL_A));
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -192,8 +192,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertTrue(sent.toString(), sent.contains("POST " + URL_C));
         assertTrue("the abandoned B must be withdrawn: " + sent, sent.contains("DELETE " + URL_B));
         assertEquals(URL_C, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
     }
 
     @Test
@@ -216,8 +216,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertTrue("no DELETE at B after its last POST: " + sent,
                 lastIndexOf(sent, "DELETE " + URL_B) < lastPost);
         assertEquals(URL_B, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
     }
 
     @Test
@@ -230,8 +230,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         drain();
 
         assertFalse(requests().isEmpty());
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -256,8 +256,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertTrue("B may hold the registration and must be withdrawn: " + sent,
                 lastIndexOf(sent, "DELETE " + URL_B) > post);
         assertTrue(sent.toString(), lastIndexOf(sent, "DELETE " + URL_A) > post);
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -276,7 +276,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertTrue(sent.toString(), post >= 0);
         assertTrue("the endpoint loss withdraws B as well: " + sent,
                 lastIndexOf(sent, "DELETE " + URL_B) > post);
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
     }
 
     @Test
@@ -289,9 +289,9 @@ public class KeepADBRegisterInFlightWithdrawalTest {
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
         drain();
-        assertEquals("the marker keeps B", URL_B, KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertEquals("the marker keeps B", URL_B, WebhookReportPrefs.getWebhookDispatchedUrl(context));
         assertTrue("and nothing is evicted from the backlog",
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+                PendingWebhookCleanupStore.get(context).isEmpty());
 
         // Process death, then the opt-out.
         KeepADBRegisterClient.resetForTesting();
@@ -306,7 +306,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         List<String> sent = requests();
         assertTrue(sent.toString(), sent.contains("DELETE " + URL_B));
         assertTrue(sent.toString(), sent.contains("DELETE " + URL_A));
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
     }
 
     @Test
@@ -318,7 +318,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         transport.setPostSuccess(false); // the POST ends with an I/O error (answer lost)
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
         drain();
-        assertEquals(URL_B, KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertEquals(URL_B, WebhookReportPrefs.getWebhookDispatchedUrl(context));
 
         transport.setPostSuccess(true);
         transport.clearRequests();
@@ -326,8 +326,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         drain();
 
         assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -346,9 +346,9 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.markUnavailableAsync(context);
         drain();
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
         assertTrue("B stays queued after the failed DELETE",
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+                PendingWebhookCleanupStore.get(context).contains(URL_B));
 
         // Within the backoff a repeated endpoint loss sends nothing ...
         transport.clearRequests();
@@ -364,7 +364,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         KeepADBRegisterClient.markUnavailableAsync(context);
         drain();
         assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -394,8 +394,8 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         assertEquals("the attempt budget bounds the DELETEs: " + requests(),
                 PendingCleanupRetryRepository.MAX_ATTEMPTS, deletes);
         assertTrue("the spent entry is discarded",
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
-        assertNull(KeepADBPreferences.getWebhookDispatchedUrl(context));
+                PendingWebhookCleanupStore.get(context).isEmpty());
+        assertNull(WebhookReportPrefs.getWebhookDispatchedUrl(context));
     }
 
     @Test
@@ -411,7 +411,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         });
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.6", 41000);
         drain();
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+        assertTrue(PendingWebhookCleanupStore.get(context).contains(URL_B));
 
         transport.setRequestCallback(null);
         transport.setDeleteSuccess(true);
@@ -423,7 +423,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         drain();
 
         assertTrue(requests().toString(), requests().contains("DELETE " + URL_B));
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue(PendingWebhookCleanupStore.get(context).isEmpty());
     }
 
     @Test
@@ -451,7 +451,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.markUnavailableAsync(context); // queues B, one failed attempt booked
         drain();
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(URL_B));
+        assertTrue(PendingWebhookCleanupStore.get(context).contains(URL_B));
 
         // A day later the entry has expired; the opt-out deletes B itself and fails again.
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L
@@ -461,7 +461,7 @@ public class KeepADBRegisterInFlightWithdrawalTest {
         drain();
 
         assertTrue("the expired entry is gone, not kept alive by the transaction's attempt: "
-                        + KeepADBPreferences.getPendingWebhookCleanupUrls(context),
-                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+                        + PendingWebhookCleanupStore.get(context),
+                PendingWebhookCleanupStore.get(context).isEmpty());
     }
 }
