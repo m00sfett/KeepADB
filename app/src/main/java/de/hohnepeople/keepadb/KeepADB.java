@@ -936,6 +936,9 @@ final class KeepADB {
      * once, not at all for the disable stage) leaves a window in which a manual toggle lands
      * between the decision and the write, so a superseded pulse would overwrite a newer explicit
      * user intent. A cancellation is logged here; the caller handles every other outcome.
+     *
+     * <p>STATE-01 (#572): a cancelled enable stage comes after the disable stage already wrote
+     * off, so the surfaces drop the stale on state -- still inside the lock, as before #1052.
      */
     private static PulseStage runPulseStage(Context appContext, long pulseToken, EnableGuard guard,
             boolean on) {
@@ -943,10 +946,12 @@ final class KeepADB {
         synchronized (KeepADB.class) {
             if (pulseSuperseded(appContext, pulseToken)) {
                 logPulseCancelled(appContext, pulseToken, stage, "newer_user_intent");
+                if (on) surfaces.refreshAll(appContext);
                 return PulseStage.CANCELLED;
             }
             if (!guardStillApplies(guard, appContext)) {
                 logPulseCancelled(appContext, pulseToken, stage, "preconditions_changed");
+                if (on) surfaces.refreshAll(appContext);
                 return PulseStage.CANCELLED;
             }
             try {
@@ -1037,7 +1042,6 @@ final class KeepADB {
 
             PulseStage enable = runPulseStage(appContext, pulseToken, guard, true);
             if (enable.cancelled) {
-                surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
                 return;
             }
             boolean enableRejected = enable.rejected;

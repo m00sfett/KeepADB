@@ -61,6 +61,11 @@ public class KeepADBRecoveryPulseContractTest {
         }
         assertEquals("the stage write must sit inside a synchronized (KeepADB.class) block",
                 1, guarded);
+        // #1052 review: the STATE-01 refresh of a cancelled enable stage stays inside the lock.
+        String lock = stage.substring(stage.indexOf("synchronized (KeepADB.class) {"));
+        assertEquals("both cancellation branches of the enable stage refresh under the lock", 2,
+                count(lock.substring(0, lock.indexOf("gateway.write(")),
+                        "if (on) surfaces.refreshAll(appContext);"));
     }
 
     @Test
