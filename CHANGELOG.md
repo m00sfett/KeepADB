@@ -23,6 +23,16 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.24] - Unreleased
+
+### Changed
+- **Shared programmatic UI kit (#1051):** `KeepADBUiKit` holds the panel, status badge, responsive title line (stacked at font scale ≥ 1.3 or below 360 dp), primary/secondary/plain buttons, fold toggle and one rounded `dp()`. The network list and the setup assistant build with it; the nine private `dp()` copies delegate to it. Truncating and ceiling copies now round, so a few spacings move by at most one pixel on fractional densities; nothing else in layout, styling, TalkBack or masking changes.
+- **Network list split (#1051):** `NetworkListRenderer` (1,083 → 673 lines) keeps the list composition; `NetworkListDialogs` holds the access-point and Wi-Fi-name dialogs, the lift-name-block confirmation and the outcome toasts; `NetworkListViews` the status texts, badges, spoken lines and view wrappers. The band of an address is still only computed in the renderer (`bssidLine`). The assistant-mode flag stays: it carries real differences (no single-line badge, no title ellipsis in the assistant).
+- **Setup assistant steps split (#1051):** `OnboardingPermissionsStep` and `OnboardingNetworkStep` are top-level classes; `OnboardingSystemPermissionHelp` holds the three ways to the system permission (on-device self-pairing with progress and result, WebUSB browser guide, USB command line) with their fold and self-pairing state, saved and restored with the step. `OnboardingActionSteps` keeps the shared row builders and the status word.
+
+### Documentation
+- Store note `changelogs/305.txt` carries the unchanged summary since 1.14.1 (it replaces 304).
+
 ## [1.15.23] - Unreleased
 
 ### Changed
