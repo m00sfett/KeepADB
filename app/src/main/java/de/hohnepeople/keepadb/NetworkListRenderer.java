@@ -2,7 +2,6 @@ package de.hohnepeople.keepadb;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -15,9 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,8 +48,6 @@ final class NetworkListRenderer {
     static final int COLLAPSE_ABOVE = 5;
     static final int COLLAPSED_ROWS = 3;
 
-    private enum Badge { OK, OK_DASHED, DANGER, NEUTRAL, WARN }
-
     private final Activity activity;
     private final LinearLayout root;
     private final Runnable onChanged;
@@ -62,7 +57,8 @@ final class NetworkListRenderer {
     /** #904: the reveal scope of the part this renderer draws (the list screen or the assistant page). */
     private String scope = KeepADBPrivacy.SCOPE_NETWORK_LIST;
     private boolean glossaryOpen;
-    private AlertDialog dialog;
+    private final NetworkListDialogs dialogs;
+    private final NetworkListViews views;
 
     private Map<String, Integer> frequencies;
     /** #799: the access point to highlight once, and the view drawn for it by the last render. */
@@ -74,18 +70,17 @@ final class NetworkListRenderer {
         this.activity = activity;
         this.root = root;
         this.onChanged = onChanged;
+        this.views = new NetworkListViews(activity, this);
+        this.dialogs = new NetworkListDialogs(activity, this, onChanged);
     }
 
-    private Context shown() {
+    Context shown() {
         return KeepADBPrivacy.scoped(activity, scope);
     }
 
     /** Dismisses the open dialog, if any; derived from live data and never restored. */
     void dismissDialog() {
-        if (dialog != null) {
-            if (dialog.isShowing()) dialog.dismiss();
-            dialog = null;
-        }
+        dialogs.dismiss();
     }
 
     /**
@@ -125,7 +120,7 @@ final class NetworkListRenderer {
             addSaved(snapshot);
             markHighlight(snapshot);
         }
-        root.addView(sectionHeading(R.string.protection_title, 24));
+        root.addView(views.sectionHeading(R.string.protection_title, 24));
         addProtection();
         addForceNote();
         addGlossary();
@@ -173,10 +168,10 @@ final class NetworkListRenderer {
     // --- Glossary, protection, force ---------------------------------------------------------
 
     private void addGlossary() {
-        TextView toggle = text(activity.getString(R.string.networks_glossary_toggle)
+        TextView toggle = views.text(activity.getString(R.string.networks_glossary_toggle)
                 + (glossaryOpen ? "  ▴" : "  ▾"), 13, R.color.text_yellow);
         toggle.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        toggle.setMinHeight(dp(48));
+        toggle.setMinHeight(views.dp(48));
         toggle.setGravity(Gravity.CENTER_VERTICAL);
         toggle.setClickable(true);
         toggle.setFocusable(true);
@@ -189,11 +184,11 @@ final class NetworkListRenderer {
         });
         root.addView(toggle);
         if (glossaryOpen) {
-            root.addView(text(activity.getString(R.string.networks_glossary_ssid), 13,
+            root.addView(views.text(activity.getString(R.string.networks_glossary_ssid), 13,
                     R.color.night_text));
-            TextView bssid = text(activity.getString(R.string.networks_glossary_bssid), 13,
+            TextView bssid = views.text(activity.getString(R.string.networks_glossary_bssid), 13,
                     R.color.night_text);
-            bssid.setPadding(0, dp(8), 0, 0);
+            bssid.setPadding(0, views.dp(8), 0, 0);
             root.addView(bssid);
         }
     }
@@ -204,48 +199,48 @@ final class NetworkListRenderer {
      * tap leads there, to the level choice.
      */
     private void addProtection() {
-        TextView row = text(activity.getString(R.string.networks_level,
+        TextView row = views.text(activity.getString(R.string.networks_level,
                 KeepADBForceNotice.levelLabel(activity)), 15, R.color.night_text);
         row.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
         row.setBackgroundResource(R.drawable.bg_card_clickable);
-        row.setMinHeight(dp(48));
+        row.setMinHeight(views.dp(48));
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(16), dp(8), dp(12), dp(8));
+        row.setPadding(views.dp(16), views.dp(8), views.dp(12), views.dp(8));
         row.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_chevron_right, 0);
         row.setClickable(true);
         row.setFocusable(true);
         row.setOnClickListener(v -> activity.startActivity(ProtectionActivity.levelIntent(activity)));
-        setTopMargin(row, 8);
+        views.setTopMargin(row, 8);
         root.addView(row);
     }
 
     private void addForceNote() {
         String line = KeepADBForceNotice.activeLine(activity);
         if (line == null) return;
-        LinearLayout card = panel(R.drawable.bg_panel_advice);
-        setTopMargin(card, 8);
-        TextView title = condensed(line, 15, R.color.title_yellow);
+        LinearLayout card = views.panel(R.drawable.bg_panel_advice);
+        views.setTopMargin(card, 8);
+        TextView title = views.condensed(line, 15, R.color.title_yellow);
         title.setAccessibilityHeading(true);
         card.addView(title);
-        card.addView(text(activity.getString(R.string.networks_force_note), 13, R.color.night_text));
+        card.addView(views.text(activity.getString(R.string.networks_force_note), 13, R.color.night_text));
         root.addView(card);
     }
 
     private void addHiddenPlaceholder() {
-        LinearLayout card = panel(R.drawable.bg_panel);
-        setTopMargin(card, 16);
+        LinearLayout card = views.panel(R.drawable.bg_panel);
+        views.setTopMargin(card, 16);
         card.setGravity(Gravity.CENTER_HORIZONTAL);
         ImageView icon = new ImageView(activity);
         icon.setImageResource(R.drawable.ic_privacy_eye_off);
         icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        card.addView(icon, new LinearLayout.LayoutParams(dp(32), dp(32)));
-        TextView title = condensed(activity.getString(R.string.networks_hidden_title), 16,
+        card.addView(icon, new LinearLayout.LayoutParams(views.dp(32), views.dp(32)));
+        TextView title = views.condensed(activity.getString(R.string.networks_hidden_title), 16,
                 R.color.night_text);
         title.setAccessibilityHeading(true);
-        title.setPadding(0, dp(8), 0, 0);
+        title.setPadding(0, views.dp(8), 0, 0);
         card.addView(title);
-        card.addView(text(activity.getString(R.string.networks_hidden_text), 13, R.color.night_muted));
-        Button show = stackedButton(activity.getString(R.string.networks_hidden_show), false,
+        card.addView(views.text(activity.getString(R.string.networks_hidden_text), 13, R.color.night_muted));
+        Button show = views.stackedButton(activity.getString(R.string.networks_hidden_show), false,
                 v -> {
                     // #904: "Show" reveals this screen until it is left; the switch stays on.
                     KeepADBPrivacy.reveal(activity, scope);
@@ -258,9 +253,9 @@ final class NetworkListRenderer {
     // --- Current network ---------------------------------------------------------------------
 
     private void addCurrent(KeepADBNetworkList.Current current, KeepADBNetworkIdentity identity) {
-        if (!assistantMode) root.addView(sectionHeading(R.string.networks_section_current, 16));
-        LinearLayout card = panel(R.drawable.bg_panel);
-        setTopMargin(card, 8);
+        if (!assistantMode) root.addView(views.sectionHeading(R.string.networks_section_current, 16));
+        LinearLayout card = views.panel(R.drawable.bg_panel);
+        views.setTopMargin(card, 8);
 
         switch (current.status) {
             case NO_WIFI:
@@ -278,18 +273,18 @@ final class NetworkListRenderer {
     }
 
     private void addNoWifi(LinearLayout card) {
-        TextView title = condensed(activity.getString(R.string.network_status_no_wifi), 16,
+        TextView title = views.condensed(activity.getString(R.string.network_status_no_wifi), 16,
                 R.color.night_text);
         card.addView(title);
-        card.addView(text(activity.getString(R.string.network_cause_no_wifi), 13, R.color.night_muted));
-        card.addView(stackedButton(activity.getString(R.string.network_action_wifi_settings), false,
+        card.addView(views.text(activity.getString(R.string.network_cause_no_wifi), 13, R.color.night_muted));
+        card.addView(views.stackedButton(activity.getString(R.string.network_action_wifi_settings), false,
                 v -> KeepADBNetworkActions.openWifiSettings(activity)));
         if (assistantMode) addRecheck(card);
     }
 
     /** #767: the state changes outside this screen, so the assistant offers to read it again. */
     private void addRecheck(LinearLayout card) {
-        card.addView(stackedButton(activity.getString(R.string.onboarding_recheck), false,
+        card.addView(views.stackedButton(activity.getString(R.string.onboarding_recheck), false,
                 v -> onChanged.run()));
     }
 
@@ -301,17 +296,17 @@ final class NetworkListRenderer {
         KeepADBNetworkCardState.Snapshot state = KeepADBNetworkCardState.derive(
                 KeepADBNetworkCardState.read(activity, identity, true, fine, locationOn,
                         KeepADBBackgroundLocation.isGranted(activity)));
-        card.addView(titleLine(activity.getString(R.string.network_status_unreadable), false,
-                badge(Badge.WARN, activity.getString(R.string.network_status_unreadable)), 16));
-        card.addView(text(activity.getString(KeepADBNetworkCardText.cause(state.cause)), 13,
+        card.addView(views.titleLine(activity.getString(R.string.network_status_unreadable), false,
+                views.badge(NetworkListViews.Badge.WARN, activity.getString(R.string.network_status_unreadable)), 16));
+        card.addView(views.text(activity.getString(KeepADBNetworkCardText.cause(state.cause)), 13,
                 R.color.night_text));
         switch (state.action) {
             case GRANT_LOCATION:
-                card.addView(stackedButton(activity.getString(
+                card.addView(views.stackedButton(activity.getString(
                         KeepADBNetworkCardText.action(state.action)), true, v -> requestLocation()));
                 break;
             case OPEN_LOCATION_SETTINGS:
-                card.addView(stackedButton(activity.getString(
+                card.addView(views.stackedButton(activity.getString(
                         KeepADBNetworkCardText.action(state.action)), true,
                         v -> KeepADBNetworkActions.openLocationSettings(activity)));
                 break;
@@ -319,7 +314,7 @@ final class NetworkListRenderer {
                 if (assistantMode) {
                     // The identity is masked although everything is allowed: the lasting fix is
                     // the background grant, which only the app's system page can give.
-                    card.addView(stackedButton(activity.getString(
+                    card.addView(views.stackedButton(activity.getString(
                             KeepADBNetworkCardText.action(state.action)), true,
                             v -> KeepADBBackgroundLocation.openSettings(activity)));
                 }
@@ -338,15 +333,15 @@ final class NetworkListRenderer {
         int band = KeepADBAccessPointBand.bandOf(frequencies, current.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), current.bssid, band);
 
-        card.addView(titleLine(name, false, statusBadge(current.status), 18));
-        card.addView(monoLine(bssidLine));
+        card.addView(views.titleLine(name, false, views.statusBadge(current.status), 18));
+        card.addView(views.monoLine(bssidLine));
 
         boolean decide = current.status == KeepADBNetworkList.Status.UNKNOWN
                 || current.status == KeepADBNetworkList.Status.TRUSTED_BY_NAME
                 || current.legacyOnly;
         if (KeepADBNetworkDisplay.hidden(shown()) && !decide) {
             // A decision view brings its own "Show"; a card without one needs this.
-            card.addView(stackedButton(activity.getString(R.string.networks_hidden_show), false,
+            card.addView(views.stackedButton(activity.getString(R.string.networks_hidden_show), false,
                     v -> {
                         KeepADBPrivacy.reveal(activity, scope);
                         onChanged.run();
@@ -354,15 +349,15 @@ final class NetworkListRenderer {
         }
         switch (current.status) {
             case BLOCKED:
-                card.addView(text(reasonText(current.reason, current.ssid, row != null
+                card.addView(views.text(views.reasonText(current.reason, current.ssid, row != null
                         && row.entry != null), 13, R.color.night_text));
                 break;
             case TRUSTED_BY_NAME:
-                card.addView(text(activity.getString(R.string.networks_current_trusted_name), 13,
+                card.addView(views.text(activity.getString(R.string.networks_current_trusted_name), 13,
                         R.color.night_text));
                 break;
             case TRUSTED:
-                card.addView(text(activity.getString(current.legacyOnly
+                card.addView(views.text(activity.getString(current.legacyOnly
                         ? R.string.networks_current_legacy : R.string.networks_current_trusted),
                         13, R.color.night_text));
                 break;
@@ -395,33 +390,33 @@ final class NetworkListRenderer {
                     });
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.topMargin = dp(12);
+            params.topMargin = views.dp(12);
             card.addView(decision, params);
         } else if (assistantMode) {
             if (current.status == KeepADBNetworkList.Status.BLOCKED) {
-                card.addView(stackedButton(activity.getString(R.string.onboarding_network_open_list),
+                card.addView(views.stackedButton(activity.getString(R.string.onboarding_network_open_list),
                         false, v -> activity.startActivity(NetworkListActivity.intent(activity))));
             }
         } else if (row != null || (current.status == KeepADBNetworkList.Status.BLOCKED
                 && current.ssid != null)) {
-            card.addView(text(activity.getString(R.string.networks_tap_to_change), 12,
+            card.addView(views.text(activity.getString(R.string.networks_tap_to_change), 12,
                     R.color.night_muted));
             // The clickable background has no padding of its own (the panel's 16 dp are lost when
             // it replaces the panel background), so give the content the same inset back (#791).
             card.setBackgroundResource(R.drawable.bg_card_clickable);
-            card.setPadding(dp(16), dp(16), dp(16), dp(16));
+            card.setPadding(views.dp(16), views.dp(16), views.dp(16), views.dp(16));
             card.setClickable(true);
             card.setFocusable(true);
             card.setOnClickListener(v -> {
                 if (row != null) {
-                    showAccessPointDialog(row);
+                    dialogs.showAccessPointDialog(row);
                 } else {
-                    showNameDialog(current.ssid, null);
+                    dialogs.showNameDialog(current.ssid, null);
                 }
             });
-            card.setContentDescription(describe(name, current.ssid, bssidLine,
-                    statusLabel(current.status), current.status == KeepADBNetworkList.Status.BLOCKED
-                            ? reasonText(current.reason, current.ssid, row != null && row.entry != null)
+            card.setContentDescription(views.describe(name, current.ssid, bssidLine,
+                    views.statusLabel(current.status), current.status == KeepADBNetworkList.Status.BLOCKED
+                            ? views.reasonText(current.reason, current.ssid, row != null && row.entry != null)
                             : null));
         }
     }
@@ -439,10 +434,10 @@ final class NetworkListRenderer {
         List<KeepADBBlockedNetworkHistory.Entry> entries =
                 KeepADBNetworkDecision.recentUndecided(activity, currentBssid);
         if (entries.isEmpty()) return;
-        root.addView(sectionHeading(R.string.networks_section_recent, 24));
-        TextView hint = text(activity.getString(R.string.networks_recent_hint), 12,
+        root.addView(views.sectionHeading(R.string.networks_section_recent, 24));
+        TextView hint = views.text(activity.getString(R.string.networks_recent_hint), 12,
                 R.color.night_muted);
-        hint.setPadding(0, dp(4), 0, 0);
+        hint.setPadding(0, views.dp(4), 0, 0);
         root.addView(hint);
         for (KeepADBBlockedNetworkHistory.Entry entry : entries) {
             View row = recentRow(entry);
@@ -457,16 +452,16 @@ final class NetworkListRenderer {
     }
 
     private View recentRow(KeepADBBlockedNetworkHistory.Entry entry) {
-        LinearLayout card = panel(R.drawable.bg_panel);
-        card.setPadding(dp(12), dp(12), dp(12), dp(12));
-        setTopMargin(card, 8);
+        LinearLayout card = views.panel(R.drawable.bg_panel);
+        card.setPadding(views.dp(12), views.dp(12), views.dp(12), views.dp(12));
+        views.setTopMargin(card, 8);
 
         boolean named = entry.ssid != null && !entry.ssid.isEmpty();
         int band = KeepADBAccessPointBand.bandOf(frequencies, entry.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), entry.bssid, band);
         String title = named ? KeepADBNetworkDisplay.ssid(shown(), entry.ssid, null) : bssidLine;
-        card.addView(titleLine(title, !named, statusBadge(KeepADBNetworkList.Status.UNKNOWN), 15));
-        if (named) card.addView(monoLine(bssidLine));
+        card.addView(views.titleLine(title, !named, views.statusBadge(KeepADBNetworkList.Status.UNKNOWN), 15));
+        if (named) card.addView(views.monoLine(bssidLine));
         // An absolute date and time: a relative span ("Vor 9 Stunden") starts upper case in some
         // languages and reads wrong in the middle of a sentence (seen on the s20).
         String asked = activity.getString(R.string.networks_recent_asked,
@@ -474,15 +469,15 @@ final class NetworkListRenderer {
                         android.text.format.DateUtils.FORMAT_SHOW_DATE
                                 | android.text.format.DateUtils.FORMAT_SHOW_TIME
                                 | android.text.format.DateUtils.FORMAT_ABBREV_MONTH));
-        card.addView(text(asked, 12, R.color.night_muted));
+        card.addView(views.text(asked, 12, R.color.night_muted));
 
-        Button decide = stackedButton(activity.getString(R.string.networks_recent_decide), true,
+        Button decide = views.stackedButton(activity.getString(R.string.networks_recent_decide), true,
                 v -> activity.startActivity(
                         KeepADBNetworkTrustPrompt.decisionIntent(activity, entry.bssid)));
         // Several access points can share a name: the spoken target carries the address too.
         String target = named ? title + ", " + bssidLine : bssidLine;
         decide.setContentDescription(activity.getString(R.string.networks_recent_decide_a11y, target));
-        Button remove = plainButton(activity.getString(R.string.networks_recent_remove), v -> {
+        Button remove = views.plainButton(activity.getString(R.string.networks_recent_remove), v -> {
             KeepADBBlockedNetworkHistory.remove(activity, entry.bssid);
             KeepADBDiagnostics.event(activity, "user_action", "network_list", "removed",
                     "recent_prompt");
@@ -498,12 +493,12 @@ final class NetworkListRenderer {
         if (!stacked) {
             LinearLayout.LayoutParams half = new LinearLayout.LayoutParams(
                     0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            half.topMargin = dp(8);
+            half.topMargin = views.dp(8);
             decide.setLayoutParams(half);
             LinearLayout.LayoutParams other = new LinearLayout.LayoutParams(
                     0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            other.topMargin = dp(8);
-            other.setMarginStart(dp(8));
+            other.topMargin = views.dp(8);
+            other.setMarginStart(views.dp(8));
             remove.setLayoutParams(other);
         }
         actions.addView(decide);
@@ -515,20 +510,20 @@ final class NetworkListRenderer {
     // --- Saved networks ----------------------------------------------------------------------
 
     private void addSaved(KeepADBNetworkList.Snapshot snapshot) {
-        root.addView(sectionHeading(R.string.networks_section_saved, 24));
+        root.addView(views.sectionHeading(R.string.networks_section_saved, 24));
         if (snapshot.isEmpty()) {
-            LinearLayout empty = panel(R.drawable.bg_panel);
-            setTopMargin(empty, 8);
+            LinearLayout empty = views.panel(R.drawable.bg_panel);
+            views.setTopMargin(empty, 8);
             empty.setGravity(Gravity.CENTER_HORIZONTAL);
             ImageView icon = new ImageView(activity);
             icon.setImageResource(R.drawable.ic_wifi);
             icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-            empty.addView(icon, new LinearLayout.LayoutParams(dp(32), dp(32)));
-            TextView title = condensed(activity.getString(R.string.networks_empty_title), 16,
+            empty.addView(icon, new LinearLayout.LayoutParams(views.dp(32), views.dp(32)));
+            TextView title = views.condensed(activity.getString(R.string.networks_empty_title), 16,
                     R.color.night_text);
-            title.setPadding(0, dp(8), 0, 0);
+            title.setPadding(0, views.dp(8), 0, 0);
             empty.addView(title);
-            empty.addView(text(activity.getString(R.string.networks_empty_text), 13,
+            empty.addView(views.text(activity.getString(R.string.networks_empty_text), 13,
                     R.color.night_muted));
             root.addView(empty);
             return;
@@ -541,9 +536,9 @@ final class NetworkListRenderer {
     private void addGroup(KeepADBNetworkList.Group group) {
         root.addView(groupHeader(group));
         if (group.rows.isEmpty() && group.nameBlocked) {
-            TextView note = text(activity.getString(R.string.networks_group_all_blocked), 12,
+            TextView note = views.text(activity.getString(R.string.networks_group_all_blocked), 12,
                     R.color.night_muted);
-            note.setPadding(dp(4), 0, 0, dp(4));
+            note.setPadding(views.dp(4), 0, 0, views.dp(4));
             root.addView(note);
         }
         String key = group.ssid == null ? "" : group.ssid;
@@ -562,13 +557,13 @@ final class NetworkListRenderer {
             root.addView(rowView);
         }
         if (collapsible) {
-            TextView toggle = text(showAll
+            TextView toggle = views.text(showAll
                     ? activity.getString(R.string.wifi_aps_show_less_button)
                     : activity.getString(R.string.wifi_aps_show_more_button,
                             group.rows.size() - COLLAPSED_ROWS), 13, R.color.text_yellow);
             toggle.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
             toggle.setGravity(Gravity.CENTER);
-            toggle.setMinHeight(dp(48));
+            toggle.setMinHeight(views.dp(48));
             toggle.setClickable(true);
             toggle.setFocusable(true);
             toggle.setBackgroundResource(android.R.drawable.list_selector_background);
@@ -584,25 +579,25 @@ final class NetworkListRenderer {
         LinearLayout header = new LinearLayout(activity);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setMinimumHeight(dp(48));
+        header.setMinimumHeight(views.dp(48));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(8);
+        params.topMargin = views.dp(8);
         header.setLayoutParams(params);
 
         String title = group.ssid == null
                 ? activity.getString(R.string.networks_group_unnamed) : group.ssid;
-        TextView name = condensed(title, 15, R.color.night_text);
+        TextView name = views.condensed(title, 15, R.color.night_text);
         name.setMaxLines(2);
         name.setEllipsize(TextUtils.TruncateAt.END);
         name.setAccessibilityHeading(true);
         header.addView(name, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         if (group.nameBlocked) {
-            TextView badge = badge(Badge.DANGER, activity.getString(R.string.networks_badge_name_blocked));
+            TextView badge = views.badge(NetworkListViews.Badge.DANGER, activity.getString(R.string.networks_badge_name_blocked));
             LinearLayout.LayoutParams badgeParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            badgeParams.setMarginStart(dp(8));
+            badgeParams.setMarginStart(views.dp(8));
             header.addView(badge, badgeParams);
         }
         if (group.ssid != null) {
@@ -610,239 +605,63 @@ final class NetworkListRenderer {
             more.setImageResource(R.drawable.ic_more_horiz);
             more.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             more.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            more.setPadding(dp(12), dp(12), dp(12), dp(12));
-            header.addView(more, new LinearLayout.LayoutParams(dp(48), dp(48)));
+            more.setPadding(views.dp(12), views.dp(12), views.dp(12), views.dp(12));
+            header.addView(more, new LinearLayout.LayoutParams(views.dp(48), views.dp(48)));
             header.setClickable(true);
             header.setFocusable(true);
             header.setBackgroundResource(android.R.drawable.list_selector_background);
-            header.setContentDescription(describe(activity.getString(
+            header.setContentDescription(views.describe(activity.getString(
                     R.string.networks_a11y_group_options, group.ssid), null, null,
                     group.nameBlocked ? activity.getString(R.string.networks_badge_name_blocked)
                             : null, null));
-            header.setOnClickListener(v -> showNameDialog(group.ssid, group));
+            header.setOnClickListener(v -> dialogs.showNameDialog(group.ssid, group));
         }
         return header;
     }
 
     private View rowView(KeepADBNetworkList.Row row) {
-        LinearLayout view = panel(R.drawable.bg_card_clickable);
-        view.setPadding(dp(12), dp(12), dp(12), dp(12));
-        view.setMinimumHeight(dp(48));
-        setTopMargin(view, 8);
+        LinearLayout view = views.panel(R.drawable.bg_card_clickable);
+        view.setPadding(views.dp(12), views.dp(12), views.dp(12), views.dp(12));
+        view.setMinimumHeight(views.dp(48));
+        views.setTopMargin(view, 8);
 
         String custom = row.customName == null ? null
                 : KeepADBNetworkDisplay.customName(shown(), row.customName);
         int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), row.bssid, band);
         String title = custom != null ? custom : bssidLine;
-        view.addView(titleLine(title, custom == null, statusBadge(row.status), 15));
-        if (custom != null) view.addView(monoLine(bssidLine));
+        view.addView(views.titleLine(title, custom == null, views.statusBadge(row.status), 15));
+        if (custom != null) view.addView(views.monoLine(bssidLine));
 
         String reason = null;
         if (row.status == KeepADBNetworkList.Status.BLOCKED) {
-            reason = reasonText(row.reason, row.ssid, row.entry != null);
-            view.addView(text(reason, 12, R.color.night_muted));
+            reason = views.reasonText(row.reason, row.ssid, row.entry != null);
+            view.addView(views.text(reason, 12, R.color.night_muted));
         }
         if (row.current) {
-            view.addView(text(activity.getString(R.string.networks_connected), 12, R.color.night_muted));
+            view.addView(views.text(activity.getString(R.string.networks_connected), 12, R.color.night_muted));
         }
         view.setClickable(true);
         view.setFocusable(true);
-        view.setContentDescription(describe(custom != null ? custom : bssidLine, row.ssid,
-                custom != null ? bssidLine : null, statusLabel(row.status), reason));
-        view.setOnClickListener(v -> showAccessPointDialog(row));
+        view.setContentDescription(views.describe(custom != null ? custom : bssidLine, row.ssid,
+                custom != null ? bssidLine : null, views.statusLabel(row.status), reason));
+        view.setOnClickListener(v -> dialogs.showAccessPointDialog(row));
         return view;
     }
 
-    // --- Dialogs -----------------------------------------------------------------------------
-
-    /** What a tap on a saved access point offers: only what changes something in its state. */
-    private void showAccessPointDialog(KeepADBNetworkList.Row row) {
-        LinearLayout content = dialogContent();
-        int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
-        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(shown(), row.bssid, band);
-        String custom = row.customName == null ? null
-                : KeepADBNetworkDisplay.customName(shown(), row.customName);
-
-        TextView title = condensed(custom != null ? custom : bssidLine, 18, R.color.title_yellow);
-        title.setAccessibilityHeading(true);
-        content.addView(title);
-        if (row.ssid != null) {
-            content.addView(text(row.ssid, 15, R.color.night_text));
-        }
-        if (custom != null) content.addView(monoLine(bssidLine));
-        LinearLayout status = new LinearLayout(activity);
-        status.setOrientation(LinearLayout.VERTICAL);
-        status.setPadding(0, dp(8), 0, 0);
-        status.addView(statusBadge(row.status));
-        content.addView(status);
-        if (row.status == KeepADBNetworkList.Status.BLOCKED) {
-            content.addView(text(reasonText(row.reason, row.ssid, row.entry != null), 13,
-                    R.color.night_text));
-        }
-
-        String ssid = row.ssid;
-        boolean nameUsable = KeepADBNetworkBlocklist.isUsableSsid(ssid);
-        boolean nameBlocked = nameUsable && KeepADBNetworkBlocklist.isSsidBlocked(activity, ssid);
-        boolean addressBlocked = KeepADBNetworkBlocklist.isBssidBlocked(activity, row.bssid);
-
-        if (addressBlocked) {
-            if (!nameBlocked) {
-                addDialogButton(content, activity.getString(R.string.network_decision_trust), true,
-                        () -> answer(KeepADBNetworkListActions.trustBlockedAccessPoint(
-                                activity, row.bssid, row.labelSsid()), ssid));
-            }
-            addDialogButton(content, activity.getString(R.string.networks_action_unblock), nameBlocked,
-                    () -> answer(
-                            KeepADBNetworkListActions.liftAccessPointBlock(activity, row.bssid), ssid));
-        }
-        if (nameBlocked) {
-            addDialogButton(content, activity.getString(R.string.networks_action_unblock_name), false,
-                    () -> confirmLiftNameBlock(ssid));
-        }
-        if (!addressBlocked && !nameBlocked) {
-            addDialogButton(content, activity.getString(R.string.networks_action_block), false,
-                    () -> answer(KeepADBNetworkListActions.blockAccessPoint(
-                            activity, row.bssid, ssid), ssid));
-            if (row.entry != null) {
-                addDialogButton(content, activity.getString(R.string.networks_action_untrust), false,
-                        () -> answer(KeepADBNetworkListActions.stopTrusting(activity, row.bssid), ssid));
-            }
-            if (nameUsable) {
-                addDialogButton(content, activity.getString(R.string.network_decision_block_name, ssid),
-                        false, () -> answer(KeepADBNetworkListActions.blockName(activity, ssid), ssid));
-            }
-        }
-        if (row.entry != null) {
-            addDialogButton(content, activity.getString(R.string.networks_action_rename), false,
-                    () -> {
-                        AlertDialog rename = KeepADBNetworkActions.editAccessPointName(activity,
-                                row.entry, onChanged);
-                        showDialog(rename);
-                    });
-        } else if (addressBlocked) {
-            // #802: a blocked access point without a trusted entry keeps its own name with the block.
-            addDialogButton(content, activity.getString(R.string.networks_action_rename), false,
-                    () -> {
-                        AlertDialog rename = KeepADBNetworkActions.editBlockedAccessPointName(
-                                activity, row.bssid, row.customName, onChanged);
-                        showDialog(rename);
-                    });
-        }
-        addDialogButton(content, activity.getString(android.R.string.cancel), null, null);
-        showContent(content);
+    /** The address of {@code bssid} with its band, as the list shows it (#1051: also for the dialog). */
+    String bssidLine(String bssid) {
+        int band = KeepADBAccessPointBand.bandOf(frequencies, bssid);
+        return KeepADBNetworkDisplay.bssidWithBand(shown(), bssid, band);
     }
 
-    /** What a tap on the Wi-Fi name of a group offers. */
-    private void showNameDialog(String ssid, KeepADBNetworkList.Group group) {
-        LinearLayout content = dialogContent();
-        TextView title = condensed(activity.getString(R.string.networks_group_dialog_head, ssid), 18,
-                R.color.title_yellow);
-        title.setAccessibilityHeading(true);
-        content.addView(title);
-        if (group != null && !group.rows.isEmpty()) {
-            content.addView(text(activity.getString(R.string.networks_group_saved, group.rows.size()),
-                    13, R.color.night_muted));
-        }
-        boolean blocked = KeepADBNetworkBlocklist.isSsidBlocked(activity, ssid);
-        if (!blocked && KeepADBTrustedNetwork.isTrustByNameEnabled(activity)) {
-            TextView note = text(activity.getString(R.string.networks_group_comfort), 13,
-                    R.color.text_yellow);
-            note.setPadding(0, dp(8), 0, 0);
-            content.addView(note);
-        }
-        if (blocked) {
-            addDialogButton(content, activity.getString(R.string.networks_action_unblock_name), true,
-                    () -> confirmLiftNameBlock(ssid));
-        } else {
-            addDialogButton(content, activity.getString(R.string.network_decision_block_name, ssid),
-                    false, () -> answer(KeepADBNetworkListActions.blockName(activity, ssid), ssid));
-        }
-        addDialogButton(content, activity.getString(android.R.string.cancel), null, null);
-        showContent(content);
+    /** #767: whether this renderer draws the assistant's current-network card. */
+    boolean isAssistantMode() {
+        return assistantMode;
     }
 
-    private void confirmLiftNameBlock(String ssid) {
-        AlertDialog confirm = new AlertDialog.Builder(activity)
-                .setTitle(activity.getString(R.string.networks_unblock_name_title, ssid))
-                .setMessage(R.string.networks_unblock_name_text)
-                .setPositiveButton(R.string.networks_unblock_name_confirm, (d, which) ->
-                        answer(KeepADBNetworkListActions.liftNameBlock(activity, ssid), ssid))
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        showDialog(confirm);
-    }
-
-    /** Tells the user what an answer did, then redraws. */
-    private void answer(KeepADBNetworkListActions.Outcome outcome, String ssid) {
-        String quoted = ssid == null ? "" : KeepADBNetworkDisplay.toastLabel(shown(), ssid, null);
-        switch (outcome) {
-            case TRUSTED:
-                toast(activity.getString(R.string.network_ap_allowed_toast,
-                        ssid == null ? "" : quoted), Toast.LENGTH_SHORT);
-                break;
-            case TRUST_REFUSED_NAME_BLOCKED:
-                toast(activity.getString(R.string.network_decision_trust_refused_toast),
-                        Toast.LENGTH_LONG);
-                break;
-            case STOPPED_TRUSTING:
-            case ACCESS_POINT_BLOCK_LIFTED:
-                toast(activity.getString(R.string.networks_untrusted_toast), Toast.LENGTH_SHORT);
-                break;
-            case BLOCKED_ACCESS_POINT:
-                toast(activity.getString(R.string.network_decision_blocked_toast), Toast.LENGTH_SHORT);
-                break;
-            case BLOCKED_NAME:
-                toast(activity.getString(R.string.networks_name_blocked_toast, quoted),
-                        Toast.LENGTH_SHORT);
-                break;
-            case NAME_BLOCK_LIFTED:
-                toast(activity.getString(R.string.networks_name_unblocked_toast, quoted),
-                        Toast.LENGTH_SHORT);
-                break;
-            case FAILED:
-            default:
-                toast(activity.getString(R.string.network_decision_failed_toast), Toast.LENGTH_LONG);
-                break;
-        }
-        onChanged.run();
-    }
-
-    private LinearLayout dialogContent() {
-        LinearLayout content = new LinearLayout(activity);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(20), dp(16), dp(20), dp(8));
-        return content;
-    }
-
-    /**
-     * Adds a full-width button; {@code primary} null makes it a plain text button (cancel). Every
-     * button closes the dialog first, then runs its action.
-     */
-    private void addDialogButton(LinearLayout content, String label, Boolean primary,
-                                 Runnable action) {
-        View.OnClickListener listener = v -> {
-            dismissDialog();
-            if (action != null) action.run();
-        };
-        Button button = primary == null
-                ? plainButton(label, listener) : stackedButton(label, primary, listener);
-        content.addView(button);
-    }
-
-    private void showContent(LinearLayout content) {
-        ScrollView scroll = new ScrollView(activity);
-        scroll.addView(content);
-        showDialog(new AlertDialog.Builder(activity).setView(scroll).create());
-    }
-
-    private void showDialog(AlertDialog next) {
-        if (dialog != null && dialog.isShowing()) dialog.dismiss();
-        dialog = next;
-        next.setOnDismissListener(d -> {
-            if (dialog == d) dialog = null;
-        });
-        next.show();
+    NetworkListViews views() {
+        return views;
     }
 
     // --- Location ----------------------------------------------------------------------------
@@ -851,233 +670,4 @@ final class NetworkListRenderer {
         OnboardingPermissions.requestLocation(activity, REQUEST_LOCATION);
     }
 
-    // --- Texts and badges --------------------------------------------------------------------
-
-    private String reasonText(KeepADBNetworkList.Reason reason, String ssid, boolean trustedStored) {
-        if (reason == KeepADBNetworkList.Reason.NAME && ssid != null) {
-            return activity.getString(trustedStored ? R.string.networks_reason_name_trusted
-                    : R.string.networks_reason_name, KeepADBNetworkDisplay.quoted(shown(), ssid));
-        }
-        return activity.getString(R.string.networks_reason_access_point);
-    }
-
-    private TextView statusBadge(KeepADBNetworkList.Status status) {
-        return badge(statusBadgeKind(status), activity.getString(statusLabelRes(status)));
-    }
-
-    private static Badge statusBadgeKind(KeepADBNetworkList.Status status) {
-        switch (status) {
-            case TRUSTED:
-                return Badge.OK;
-            case TRUSTED_BY_NAME:
-                return Badge.OK_DASHED;
-            case BLOCKED:
-                return Badge.DANGER;
-            case UNREADABLE:
-                return Badge.WARN;
-            case UNKNOWN:
-            case NO_WIFI:
-            default:
-                return Badge.NEUTRAL;
-        }
-    }
-
-    private static int statusLabelRes(KeepADBNetworkList.Status status) {
-        switch (status) {
-            case TRUSTED:
-                return R.string.networks_badge_trusted;
-            case TRUSTED_BY_NAME:
-                return R.string.networks_badge_trusted_name;
-            case BLOCKED:
-                return R.string.network_badge_blocked;
-            case UNREADABLE:
-                return R.string.network_status_unreadable;
-            case NO_WIFI:
-                return R.string.network_status_no_wifi;
-            case UNKNOWN:
-            default:
-                return R.string.networks_badge_unknown;
-        }
-    }
-
-    private String statusLabel(KeepADBNetworkList.Status status) {
-        return activity.getString(statusLabelRes(status));
-    }
-
-    /** Title, Wi-Fi name, address, status, reason -- in this order, as one spoken line. */
-    private String describe(String title, String ssid, String bssid, String status, String reason) {
-        List<String> parts = new ArrayList<>();
-        parts.add(title);
-        if (ssid != null && !ssid.equals(title)) {
-            parts.add(activity.getString(R.string.networks_a11y_wifi, ssid));
-        }
-        if (bssid != null) parts.add(bssid);
-        if (status != null) parts.add(status);
-        if (reason != null) parts.add(reason);
-        return TextUtils.join(", ", parts);
-    }
-
-    private TextView badge(Badge kind, String label) {
-        TextView view = new TextView(activity);
-        view.setText(label);
-        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        view.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        view.setPadding(dp(6), dp(2), dp(6), dp(2));
-        // The assistant must not cut a word at a large font size (#761, #767).
-        if (!assistantMode) view.setSingleLine(true);
-        int background;
-        int color;
-        switch (kind) {
-            case OK:
-                background = R.drawable.bg_badge_ok;
-                color = R.color.status_ok_green;
-                break;
-            case OK_DASHED:
-                background = R.drawable.bg_badge_ok_dashed;
-                color = R.color.status_ok_green;
-                break;
-            case DANGER:
-                background = R.drawable.bg_badge_danger;
-                color = R.color.link_red;
-                break;
-            case WARN:
-                background = R.drawable.bg_badge_warn;
-                color = R.color.text_yellow;
-                break;
-            case NEUTRAL:
-            default:
-                background = R.drawable.bg_badge_neutral;
-                color = R.color.night_muted;
-                break;
-        }
-        view.setBackgroundResource(background);
-        view.setTextColor(activity.getColor(color));
-        // The word is part of the row's spoken line; a badge is no focus target of its own.
-        view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        return view;
-    }
-
-    // --- View helpers ------------------------------------------------------------------------
-
-    /** Title and badge: side by side, or the badge below the title on a narrow or large display. */
-    private View titleLine(String title, boolean mono, TextView badge, int sp) {
-        TextView titleView = mono ? monoLine(title) : condensed(title, sp, R.color.night_text);
-        if (mono) {
-            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-            titleView.setTextColor(activity.getColor(R.color.night_text));
-        }
-        if (!assistantMode) {
-            titleView.setMaxLines(2);
-            titleView.setEllipsize(TextUtils.TruncateAt.END);
-        }
-        Configuration config = activity.getResources().getConfiguration();
-        boolean stacked = config.fontScale >= 1.3f || config.screenWidthDp < 360;
-        LinearLayout line = new LinearLayout(activity);
-        if (stacked) {
-            line.setOrientation(LinearLayout.VERTICAL);
-            line.addView(titleView);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.topMargin = dp(4);
-            line.addView(badge, params);
-        } else {
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            line.setGravity(Gravity.CENTER_VERTICAL);
-            line.addView(titleView, new LinearLayout.LayoutParams(
-                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMarginStart(dp(8));
-            line.addView(badge, params);
-        }
-        return line;
-    }
-
-    private TextView monoLine(String value) {
-        TextView view = text(value, 13, R.color.night_muted);
-        view.setTypeface(Typeface.MONOSPACE);
-        return view;
-    }
-
-    private TextView sectionHeading(int textRes, int topMarginDp) {
-        TextView heading = condensed(activity.getString(textRes), 12, R.color.night_muted);
-        heading.setAllCaps(true);
-        heading.setAccessibilityHeading(true);
-        setTopMargin(heading, topMarginDp);
-        return heading;
-    }
-
-    private LinearLayout panel(int background) {
-        LinearLayout panel = new LinearLayout(activity);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackgroundResource(background);
-        panel.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        return panel;
-    }
-
-    private void setTopMargin(View view, int topDp) {
-        LinearLayout.LayoutParams params = view.getLayoutParams() instanceof LinearLayout.LayoutParams
-                ? (LinearLayout.LayoutParams) view.getLayoutParams()
-                : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(topDp);
-        view.setLayoutParams(params);
-    }
-
-    private Button stackedButton(String label, boolean primary, View.OnClickListener listener) {
-        Button button = new Button(activity);
-        button.setBackgroundResource(primary ? R.drawable.bg_btn_primary : R.drawable.bg_btn_secondary);
-        button.setMinHeight(dp(48));
-        button.setPadding(dp(16), dp(8), dp(16), dp(8));
-        button.setTextColor(activity.getColor(primary ? R.color.title_yellow : R.color.text_yellow));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        button.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        button.setAllCaps(false);
-        button.setText(label);
-        button.setOnClickListener(listener);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(8);
-        button.setLayoutParams(params);
-        return button;
-    }
-
-    private Button plainButton(String label, View.OnClickListener listener) {
-        Button button = new Button(activity, null, android.R.attr.borderlessButtonStyle);
-        button.setMinHeight(dp(48));
-        button.setTextColor(activity.getColor(R.color.night_muted));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        button.setTypeface(Typeface.create("sans-serif-condensed", Typeface.NORMAL));
-        button.setAllCaps(false);
-        button.setText(label);
-        button.setOnClickListener(listener);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(8);
-        button.setLayoutParams(params);
-        return button;
-    }
-
-    private TextView text(String value, int sp, int colorRes) {
-        TextView view = new TextView(activity);
-        view.setText(value);
-        view.setTextColor(activity.getColor(colorRes));
-        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
-        return view;
-    }
-
-    private TextView condensed(String value, int sp, int colorRes) {
-        TextView view = text(value, sp, colorRes);
-        view.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        return view;
-    }
-
-    private void toast(String message, int duration) {
-        Toast.makeText(activity, message, duration).show();
-    }
-
-    private int dp(int value) {
-        return (int) (value * activity.getResources().getDisplayMetrics().density);
-    }
 }

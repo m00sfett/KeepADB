@@ -141,6 +141,6 @@ final class OnboardingPrivacyRow {
     }
 
     private static int dp(Activity activity, int value) {
-        return (int) (value * activity.getResources().getDisplayMetrics().density + 0.5f);
+        return KeepADBUiKit.dp(activity, value);
     }
 }

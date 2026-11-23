@@ -193,7 +193,7 @@ public class MainActivityWarningsTest {
         assertEquals(context.getString(R.string.home_warning_system_text),
                 text(activity, R.id.warning_system).getText().toString());
         assertLeadsToStep(activity, R.id.warning_system, KeepADBOnboarding.Step.PERMISSIONS,
-                OnboardingActionSteps.Permissions.ITEM_SYSTEM);
+                OnboardingPermissionsStep.ITEM_SYSTEM);
 
         // The opposite: with the permission back, the card is gone on the next draw.
         shadowOf((Application) context).grantPermissions(
@@ -326,7 +326,7 @@ public class MainActivityWarningsTest {
                         + context.getString(R.string.onboarding_perm_battery_title),
                 text(activity, R.id.warning_limited).getText().toString());
         assertLeadsToStep(activity, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
-                OnboardingActionSteps.Permissions.ITEM_BATTERY);
+                OnboardingPermissionsStep.ITEM_BATTERY);
 
         // All three missing: counted together, and the notification row comes first.
         shadowOf((Application) context).denyPermissions(
@@ -336,7 +336,7 @@ public class MainActivityWarningsTest {
         assertTrue(text(all, R.id.warning_limited).getText().toString()
                 .contains(context.getString(R.string.notification_permission_panel_title)));
         assertLeadsToStep(all, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
-                OnboardingActionSteps.Permissions.ITEM_NOTIFICATIONS);
+                OnboardingPermissionsStep.ITEM_NOTIFICATIONS);
     }
 
     @Test

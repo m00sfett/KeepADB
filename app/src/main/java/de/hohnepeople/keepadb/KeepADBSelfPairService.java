@@ -645,7 +645,7 @@ public final class KeepADBSelfPairService extends Service {
         PendingIntent open = PendingIntent.getActivity(context, 0,
                 OnboardingActivity.notificationIntent(context,
                         KeepADBOnboarding.Step.PERMISSIONS,
-                        OnboardingActionSteps.Permissions.ITEM_SYSTEM),
+                        OnboardingPermissionsStep.ITEM_SYSTEM),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)

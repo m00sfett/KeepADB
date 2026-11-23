@@ -57,7 +57,7 @@ public final class WarningsActivity extends Activity {
         out.putBoolean("warning_reviewing", reviewing);
     }
     private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
+        return KeepADBUiKit.dp(this, value);
     }
     /** Body copy in the card text style; {@code muted} for secondary notes. */
     private TextView label(String text, boolean muted) {

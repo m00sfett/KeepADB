@@ -655,19 +655,19 @@ public class OnboardingActivityPermissionsTest {
     @Test
     public void onlyARowThatChangedItsStatusWordIsAnnounced() {
         Map<String, String> before = new HashMap<>();
-        before.put(OnboardingActionSteps.Permissions.ITEM_SYSTEM, "Missing");
-        before.put(OnboardingActionSteps.Permissions.ITEM_LOCATION, "Missing");
+        before.put(OnboardingPermissionsStep.ITEM_SYSTEM, "Missing");
+        before.put(OnboardingPermissionsStep.ITEM_LOCATION, "Missing");
         Map<String, String> after = new HashMap<>();
-        after.put(OnboardingActionSteps.Permissions.ITEM_SYSTEM, "Done");
-        after.put(OnboardingActionSteps.Permissions.ITEM_LOCATION, "Missing");
-        after.put(OnboardingActionSteps.Permissions.ITEM_BATTERY, "Done");
+        after.put(OnboardingPermissionsStep.ITEM_SYSTEM, "Done");
+        after.put(OnboardingPermissionsStep.ITEM_LOCATION, "Missing");
+        after.put(OnboardingPermissionsStep.ITEM_BATTERY, "Done");
 
         assertEquals(List.of(context.getString(R.string.onboarding_perm_system_title) + ": Done"),
-                OnboardingActionSteps.Permissions.changedRows(before, after, context));
+                OnboardingPermissionsStep.changedRows(before, after, context));
         assertTrue("the first read announces nothing",
-                OnboardingActionSteps.Permissions.changedRows(new HashMap<>(), after, context)
+                OnboardingPermissionsStep.changedRows(new HashMap<>(), after, context)
                         .isEmpty());
-        assertTrue(OnboardingActionSteps.Permissions.changedRows(after, after, context).isEmpty());
+        assertTrue(OnboardingPermissionsStep.changedRows(after, after, context).isEmpty());
     }
 
     // ---- Skip, Next, focus ---------------------------------------------------------------------------
@@ -711,7 +711,7 @@ public class OnboardingActivityPermissionsTest {
     public void aDeepLinkBringsTheNamedRowIntoFocusAndAnUnknownItemChangesNothing() {
         OnboardingActivity assistant = open(OnboardingActivity.notificationIntent(context,
                 KeepADBOnboarding.Step.PERMISSIONS,
-                OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION));
+                OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION));
         View focused = focusOf(assistant);
         assertNotNull("the named row has the focus", focused);
         assertTrue(allText(focused).contains(
@@ -802,9 +802,9 @@ public class OnboardingActivityPermissionsTest {
                 shadowOf(manager).getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         assertNotNull(missing);
         assertNotNull(unreadable);
-        assertEquals(OnboardingActionSteps.Permissions.ITEM_SYSTEM, shadowOf(missing.contentIntent)
+        assertEquals(OnboardingPermissionsStep.ITEM_SYSTEM, shadowOf(missing.contentIntent)
                 .getSavedIntent().getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
-        assertEquals(OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION,
+        assertEquals(OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION,
                 shadowOf(unreadable.contentIntent).getSavedIntent()
                         .getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
         assertTrue("each card needs a request code of its own",

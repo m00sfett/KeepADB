@@ -111,6 +111,6 @@ final class KeepADBConnectHelp {
     }
 
     private static int dp(Context context, int value) {
-        return (int) (value * context.getResources().getDisplayMetrics().density + 0.5f);
+        return KeepADBUiKit.dp(context, value);
     }
 }

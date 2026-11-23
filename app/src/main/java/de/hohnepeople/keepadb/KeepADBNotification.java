@@ -92,7 +92,7 @@ final class KeepADBNotification {
                     appContext.getString(R.string.notification_permission_missing_text),
                     OnboardingActivity.notificationIntent(appContext,
                             KeepADBOnboarding.Step.PERMISSIONS,
-                            OnboardingActionSteps.Permissions.ITEM_SYSTEM),
+                            OnboardingPermissionsStep.ITEM_SYSTEM),
                     REQUEST_CODE_PERMISSION_STEP);
         }
     }

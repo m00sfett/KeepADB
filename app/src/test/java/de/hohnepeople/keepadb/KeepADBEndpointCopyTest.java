@@ -254,7 +254,7 @@ public class KeepADBEndpointCopyTest {
     /** One copy routine, shared by the assistant's command and the endpoint (no second copy). */
     @Test
     public void onlyTheSharedHelperTalksToTheClipboardManagerForCommands() throws Exception {
-        for (String file : new String[] {"OnboardingActionSteps", "MainActivity", "KeepADBReceiver",
+        for (String file : new String[] {"OnboardingActionSteps", "OnboardingPermissionsStep", "OnboardingSystemPermissionHelp", "MainActivity", "KeepADBReceiver",
                 "KeepADBNotification", "KeepADBEndpointText"}) {
             String source = new String(java.nio.file.Files.readAllBytes(projectFile(
                     "app/src/main/java/de/hohnepeople/keepadb/" + file + ".java")),

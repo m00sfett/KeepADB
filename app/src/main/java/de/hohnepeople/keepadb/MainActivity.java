@@ -1225,7 +1225,7 @@ public class MainActivity extends Activity {
     }
 
     private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density);
+        return KeepADBUiKit.dp(this, value);
     }
 
     private boolean isEndpointSurfaceActive(long listenerGeneration) {

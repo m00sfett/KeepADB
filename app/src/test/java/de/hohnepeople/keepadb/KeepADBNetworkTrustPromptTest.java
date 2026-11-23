@@ -634,7 +634,7 @@ public class KeepADBNetworkTrustPromptTest {
                 OnboardingActivity.class.getName(), target.getComponent().getClassName());
         assertEquals(KeepADBOnboarding.Step.PERMISSIONS.id,
                 target.getStringExtra(OnboardingActivity.EXTRA_STEP));
-        assertEquals(OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION,
+        assertEquals(OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION,
                 target.getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
     }
 
