@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.23] - Unreleased
+
+### Changed
+- **`KeepADBPreferences` split into focused classes (#1050):** 1,169 → 475 lines. `WebhookUrlCodec` holds the webhook URL validation and authority stripping (pure functions); `PendingWebhookCleanupStore` the #317/#368 FIFO of pending cleanups with its legacy `StringSet` migration; `KeepADBPreferencesMigrations` the #904 privacy split, the #997 open-network default and the removal of obsolete keys (#764, #956, #958, #960); `WebhookReportPrefs` the report snapshot, the #893 last success, the #923 dispatch marker, the #868 failure episode and the fixed #866/#960 retry series; `KeepADBRuntimeMarkers` the per-boot restart-on (#1027) and last-port (#1030) markers. The display masks (`maskWebhookUrlForDisplay`, `maskEndpointForDisplay`, `maskHostForDisplay`) moved to `KeepADBPrivacy`, which owns `isAppMasked`; the plain `maskWebhookUrl` callers use `KeepADBUrlRedaction.forDisplay` directly. The preferences file, every key, default, stored format and the migration order in `KeepADBApplication` are unchanged. The side-effecting setters (`setKeepAliveEnabled`, `setRegisterWebhookEnabled`, `setRegisterWebhookUrl`) stay where they are: moving them would only spread the same side effects over their many callers.
+
+### Documentation
+- Store note `changelogs/304.txt` carries the unchanged summary since 1.14.1 (it replaces 303).
+
 ## [1.15.22] - Unreleased
 
 ### Changed
