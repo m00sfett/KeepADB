@@ -103,7 +103,7 @@ final class KeepADBWebhookSync {
             }
         } else if (wanted) {
             String url = KeepADBPreferences.getRegisterWebhookUrl(app);
-            if (KeepADBPreferences.isValidWebhookUrl(url)) {
+            if (WebhookUrlCodec.isValid(url)) {
                 enable(app, url);
                 result = Result.ENABLED;
                 if (onDone != null) KeepADBRegisterClient.afterQueuedWork(onDone);

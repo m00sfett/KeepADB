@@ -45,7 +45,7 @@ public class KeepADBAppPrivacySurfacesTest {
     @Before
     public void setUp() {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBPreferences.setAppLanguage(context, "en");
     }
 

@@ -312,7 +312,7 @@ public class PendingCleanupRetryRepositoryContractTest {
         int drop = update.indexOf("PendingCleanupCoordinator.removeForResource(context, targetUrl)",
                 commit);
         int stateMove = update.indexOf("lastRegisteredUrl = targetUrl;", commit);
-        int snapshot = update.indexOf("KeepADBPreferences.setWebhookReportSnapshot(", commit);
+        int snapshot = update.indexOf("WebhookReportPrefs.setWebhookReportSnapshot(", commit);
         assertTrue("the cleanup to remember is persisted in the commit block", remember > commit);
         assertTrue("before the obsolete cleanups of the new URL are dropped", drop > remember);
         assertTrue("before the in-memory report state moves on", stateMove > remember);
@@ -325,7 +325,7 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertTrue("the entry to forget is the one the eviction reported, nothing else, and only "
                 + "when there was one",
                 Pattern.compile("\\{\\s*String\\s+evicted\\s*=\\s*"
-                        + "KeepADBPreferences\\.addPendingWebhookCleanupUrl\\(context, url\\);\\s*"
+                        + "PendingWebhookCleanupStore\\.add\\(context, url\\);\\s*"
                         + "if\\s*\\(\\s*evicted\\s*!=\\s*null\\s*\\)\\s*"
                         + "PendingCleanupRetryRepository\\.remove\\(context, evicted\\);\\s*\\}")
                         .matcher(queue).find());
@@ -352,8 +352,8 @@ public class PendingCleanupRetryRepositoryContractTest {
                         < flush.indexOf("for (String url :"));
         assertTrue("it is handed the entries the backlog holds now, read through the preferences "
                 + "(which also migrates a legacy set), and nothing else",
-                Pattern.compile("removeOrphans\\(context,\\s*KeepADBPreferences"
-                        + "\\.getPendingWebhookCleanupUrls\\(context\\)\\.toArray\\(new String\\[0\\]\\)\\);")
+                Pattern.compile("removeOrphans\\(context,\\s*PendingWebhookCleanupStore"
+                        + "\\.get\\(context\\)\\.toArray\\(new String\\[0\\]\\)\\);")
                         .matcher(flush).find());
 
         // The flush is reached from the two transactions and the test hook only.
@@ -411,13 +411,17 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertEquals("Only the repository may know the record key: " + spellers,
                 List.of(REPOSITORY), spellers);
 
-        String preferences = withoutComments(read(SOURCE_DIRECTORY + "KeepADBPreferences.java"));
+        // #1050: the entries live in PendingWebhookCleanupStore, split out of KeepADBPreferences.
+        String store = withoutComments(read(SOURCE_DIRECTORY + "PendingWebhookCleanupStore.java"));
         assertTrue("the entries it keeps are still there",
-                preferences.contains("register_webhook_pending_cleanup\""));
-        for (String foreign : new String[] {"retry_state", "RetryState", "PendingCleanupRetry",
-                "removeOrphans"}) {
-            assertFalse("KeepADBPreferences must not know the retry record: '" + foreign + "'",
-                    preferences.contains(foreign));
+                store.contains("register_webhook_pending_cleanup\""));
+        for (String file : new String[] {"KeepADBPreferences.java", "PendingWebhookCleanupStore.java"}) {
+            String code = withoutComments(read(SOURCE_DIRECTORY + file));
+            for (String foreign : new String[] {"retry_state", "RetryState", "PendingCleanupRetry",
+                    "removeOrphans"}) {
+                assertFalse(file + " must not know the retry record: '" + foreign + "'",
+                        code.contains(foreign));
+            }
         }
     }
 

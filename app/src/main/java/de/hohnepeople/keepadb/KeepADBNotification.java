@@ -468,9 +468,9 @@ final class KeepADBNotification {
         if (!KeepADBPreferences.isRegisterWebhookEnabled(context) || url == null || url.trim().isEmpty()) {
             return lines;
         }
-        String status = KeepADBPreferences.getWebhookLastReportStatus(context);
-        long successAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
-        boolean failed = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(status);
+        String status = WebhookReportPrefs.getWebhookLastReportStatus(context);
+        long successAt = WebhookReportPrefs.getWebhookLastSuccessAt(context);
+        boolean failed = WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(status);
         if (failed) {
             lines.add(context.getString(R.string.notification_text_webhook_failed));
         }
@@ -478,7 +478,7 @@ final class KeepADBNotification {
             if (!failed) {
                 lines.add(context.getString(R.string.notification_text_webhook_none_yet));
             }
-        } else if (KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(status)) {
+        } else if (WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS.equals(status)) {
             lines.add(context.getString(R.string.notification_text_webhook_synced, formatSeconds(context, successAt)));
         } else {
             lines.add(context.getString(R.string.notification_text_webhook_last_success,

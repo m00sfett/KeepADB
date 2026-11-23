@@ -131,7 +131,7 @@ public class KeepADBWebhookAlertTest {
     }
 
     private int alertsShown() {
-        return KeepADBPreferences.getWebhookAlertsShown(context);
+        return WebhookReportPrefs.getWebhookAlertsShown(context);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class KeepADBWebhookAlertTest {
 
         succeedReport();
         assertNull("success removes the warning", alert());
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
 
         failReport();
         advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
@@ -200,14 +200,14 @@ public class KeepADBWebhookAlertTest {
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
         assertNull(alert());
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
     }
 
     /** #893: the text explains state, timing and next step without claiming an outage. */
     @Test
     public void textNamesTheDisruptionTheLastSuccessAndTheNextStep() {
         Context english = KeepADBLocaleHelper.wrapContext(context);
-        KeepADBPreferences.setWebhookFailureEpisode(context, START, 0);
+        WebhookReportPrefs.setWebhookFailureEpisode(context, START, 0);
 
         String never = KeepADBWebhookAlert.text(english);
         assertTrue(never.startsWith(english.getString(R.string.webhook_alert_text_intro)));
@@ -215,8 +215,8 @@ public class KeepADBWebhookAlertTest {
         assertTrue(never.contains(english.getString(R.string.webhook_alert_text_recovery)));
         assertTrue(never.endsWith(english.getString(R.string.webhook_alert_text_vpn)));
 
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         String since = KeepADBWebhookAlert.text(english);
         assertTrue(since, since.contains("Disrupted since ") && since.contains(" · last reported "));
 
@@ -232,16 +232,16 @@ public class KeepADBWebhookAlertTest {
     @Test
     public void aUrlChangeDropsTheLastSuccessOfThePreviousDestination() {
         Context english = KeepADBLocaleHelper.wrapContext(context);
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         assertTrue("the same URL keeps its success",
-                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+                WebhookReportPrefs.getWebhookLastSuccessAt(context) > 0L);
 
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
-        KeepADBPreferences.setWebhookFailureEpisode(context, START, 0);
+        WebhookReportPrefs.setWebhookFailureEpisode(context, START, 0);
 
-        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookLastSuccessAt(context));
         assertTrue(KeepADBWebhookAlert.text(english).contains("no successful report yet"));
     }
 
@@ -249,13 +249,13 @@ public class KeepADBWebhookAlertTest {
     @Test
     public void aLateSuccessFromThePreviousUrlIsNotClaimedForTheNewOne() {
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://other.example/register/dev1");
-        KeepADBPreferences.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
-                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
-        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        WebhookReportPrefs.setWebhookReportSnapshot(context, URL, "192.168.1.10:41000",
+                WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
+        assertEquals(0L, WebhookReportPrefs.getWebhookLastSuccessAt(context));
 
         KeepADBPreferences.setRegisterWebhookUrl(context, URL);
         assertTrue("back at the URL that accepted it, the success counts again",
-                KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+                WebhookReportPrefs.getWebhookLastSuccessAt(context) > 0L);
     }
 
     /** Codex review: the retry number is the one sent, even if a new series starts meanwhile. */
@@ -316,7 +316,7 @@ public class KeepADBWebhookAlertTest {
     @Test
     public void reportNowHoldCoversTheRequestsBeforeThePostWithinTheBroadcastWindow() {
         long perRequest = 2L * KeepADBHttpTransport.TIMEOUT_MS;
-        long beforeAndIncludingPost = (KeepADBPreferences.MAX_PENDING_CLEANUPS + 2) * perRequest;
+        long beforeAndIncludingPost = (PendingWebhookCleanupStore.MAX_PENDING_CLEANUPS + 2) * perRequest;
         assertTrue("the POST is dispatched before the broadcast is released",
                 KeepADBReceiver.REPORT_NOW_MAX_HOLD_MS > beforeAndIncludingPost);
         assertTrue("and the hold stays well inside the background window",
@@ -414,7 +414,7 @@ public class KeepADBWebhookAlertTest {
         KeepADBRegisterClient.markUnavailableAsync(context);
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         ShadowLooper.idleMainLooper();
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
         advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
         assertNull(alert());
     }
@@ -426,7 +426,7 @@ public class KeepADBWebhookAlertTest {
         assertTrue(KeepADBRegisterClient.hasPendingPostRetryForTesting());
         KeepADBRegisterClient.setCoordinatorEndpointForTesting("");
         advance(5_000L);
-        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookFailureSince(context));
         advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
         assertNull(alert());
     }
@@ -437,7 +437,7 @@ public class KeepADBWebhookAlertTest {
         now -= 10L * 60L * 1000L;
         KeepADBWebhookAlert.setNowForTesting(now);
         failReport();
-        assertEquals(now, KeepADBPreferences.getWebhookFailureSince(context));
+        assertEquals(now, WebhookReportPrefs.getWebhookFailureSince(context));
         advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
         assertNotNull(alert());
     }

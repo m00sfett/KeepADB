@@ -59,7 +59,7 @@ public class OnboardingPrivacySwitchesTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         prefs().edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADB.resetForTesting();
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
@@ -112,7 +112,7 @@ public class OnboardingPrivacySwitchesTest {
         // An update from before #904: no details key (they were hidden), the old privacy mode on.
         prefs().edit().clear().putBoolean("keep_alive_enabled", true)
                 .putBoolean("privacy_mode_enabled", true).commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         OnboardingActivity assistant = open(OnboardingActivity.autoStartIntent(context));
 

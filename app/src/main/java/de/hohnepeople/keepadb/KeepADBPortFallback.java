@@ -108,24 +108,24 @@ final class KeepADBPortFallback {
         Context app = context.getApplicationContext();
         int boot = currentClock().bootCount(app);
         if (boot < 0) {
-            KeepADBPreferences.clearLastAdbPort(app);
+            KeepADBRuntimeMarkers.clearLastAdbPort(app);
             return;
         }
-        if (KeepADBPreferences.getLastAdbPort(app) == port
-                && KeepADBPreferences.getLastAdbPortBoot(app) == boot) {
+        if (KeepADBRuntimeMarkers.getLastAdbPort(app) == port
+                && KeepADBRuntimeMarkers.getLastAdbPortBoot(app) == boot) {
             return;
         }
-        KeepADBPreferences.setLastAdbPort(app, port, boot);
+        KeepADBRuntimeMarkers.setLastAdbPort(app, port, boot);
     }
 
     /** The port remembered in this boot, or -1 (a different or unreadable boot counter drops it). */
     static int rememberedPort(Context context) {
         Context app = context.getApplicationContext();
-        int port = KeepADBPreferences.getLastAdbPort(app);
+        int port = KeepADBRuntimeMarkers.getLastAdbPort(app);
         if (port <= 0) return -1;
         int boot = currentClock().bootCount(app);
-        if (boot < 0 || boot != KeepADBPreferences.getLastAdbPortBoot(app)) {
-            KeepADBPreferences.clearLastAdbPort(app);
+        if (boot < 0 || boot != KeepADBRuntimeMarkers.getLastAdbPortBoot(app)) {
+            KeepADBRuntimeMarkers.clearLastAdbPort(app);
             return -1;
         }
         return port;

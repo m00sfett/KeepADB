@@ -67,7 +67,7 @@ final class KeepADBPeriodicReport {
         return KeepADBService.shouldRun(app)
                 && KeepADBPreferences.isRegisterWebhookEnabled(app)
                 && KeepADBPreferences.isPeriodicWebhookReportEnabled(app)
-                && KeepADBPreferences.isValidWebhookUrl(
+                && WebhookUrlCodec.isValid(
                         KeepADBPreferences.getRegisterWebhookUrl(app));
     }
 

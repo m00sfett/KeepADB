@@ -112,7 +112,7 @@ public class RegisterComponentsTest {
             assertTrue(series.scheduleRetry(handler, retry, 0L));
             assertSame(retry, series.pendingRetry());
             assertEquals(i, series.retryNumber());
-            ShadowLooper.idleMainLooper(KeepADBPreferences.webhookRetryDelayMs(i),
+            ShadowLooper.idleMainLooper(WebhookReportPrefs.webhookRetryDelayMs(i),
                     java.util.concurrent.TimeUnit.MILLISECONDS);
             assertTrue(series.takeRetry(retry));
         }

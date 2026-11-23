@@ -63,7 +63,7 @@ public class KeepADBWebhookWithdrawalTest {
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -113,7 +113,7 @@ public class KeepADBWebhookWithdrawalTest {
         KeepADBWebhookSync.setAutomaticSync(context, true);
         settle();
         assertEquals(1, count("POST"));
-        assertEquals(ENDPOINT, KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals(ENDPOINT, WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
         transport.clearRequests();
     }
 
@@ -179,17 +179,17 @@ public class KeepADBWebhookWithdrawalTest {
         assertFalse("the DELETE is on the wire: the process must be kept alive", tap.isFinished());
         assertFalse("the preference already says off", syncEnabled());
         assertEquals("and the registration is still on record, which is what survives a death",
-                URL, KeepADBPreferences.getWebhookLastReportedUrl(context));
+                URL, WebhookReportPrefs.getWebhookLastReportedUrl(context));
 
         gate.release.countDown();
         settle();
 
         assertTrue("released once the withdrawal has been attempted", tap.isFinished());
         assertEquals(1, count("DELETE"));
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         assertNull("the record is gone with the withdrawal",
-                KeepADBPreferences.getWebhookLastReportedUrl(context));
+                WebhookReportPrefs.getWebhookLastReportedUrl(context));
     }
 
     @Test
@@ -277,9 +277,9 @@ public class KeepADBWebhookWithdrawalTest {
         assertEquals(1, count("DELETE"));
         assertFalse(syncEnabled());
         assertEquals("the failed withdrawal is still on record", URL,
-                KeepADBPreferences.getWebhookLastReportedUrl(context));
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+                WebhookReportPrefs.getWebhookLastReportedUrl(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
 
         // A new process, the network back, hours and every trigger of the sender: still nothing.
         KeepADBRegisterClientResetRule.reset();
@@ -296,7 +296,7 @@ public class KeepADBWebhookWithdrawalTest {
 
         assertEquals("the app never sends a withdrawal on its own", 0, transport.getRequestCount());
         assertEquals("and the record is still there for the user's retry", URL,
-                KeepADBPreferences.getWebhookLastReportedUrl(context));
+                WebhookReportPrefs.getWebhookLastReportedUrl(context));
         assertFalse(syncEnabled());
     }
 
@@ -312,7 +312,7 @@ public class KeepADBWebhookWithdrawalTest {
         settle();
 
         assertEquals(0, transport.getRequestCount());
-        assertEquals(URL, KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertEquals(URL, WebhookReportPrefs.getWebhookLastReportedUrl(context));
     }
 
     /** Switching off again is the user's retry; a later tap is not swallowed as "unchanged". */
@@ -332,7 +332,7 @@ public class KeepADBWebhookWithdrawalTest {
 
         assertEquals("the second tap withdraws it", 1, count("DELETE"));
         assertEquals(URL, transport.getLastRequest().url);
-        assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertNull(WebhookReportPrefs.getWebhookLastReportedUrl(context));
 
         assertEquals("and with nothing left it is a no-op again",
                 KeepADBWebhookSync.Result.UNCHANGED,

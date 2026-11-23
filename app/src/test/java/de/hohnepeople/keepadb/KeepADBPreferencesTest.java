@@ -17,28 +17,28 @@ public class KeepADBPreferencesTest {
 
     @Test
     public void testValidHttpUrl() {
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("http://100.111.111.21:50829/register/s20"));
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("http://localhost:8080/hook"));
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("http://example.com/api"));
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("  http://192.168.1.100:5000/register  "));
+        assertTrue(WebhookUrlCodec.isValid("http://100.111.111.21:50829/register/s20"));
+        assertTrue(WebhookUrlCodec.isValid("http://localhost:8080/hook"));
+        assertTrue(WebhookUrlCodec.isValid("http://example.com/api"));
+        assertTrue(WebhookUrlCodec.isValid("  http://192.168.1.100:5000/register  "));
     }
 
     @Test
     public void testValidHttpsUrl() {
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("https://example.com/webhook"));
-        assertTrue(KeepADBPreferences.isValidWebhookUrl("https://my-server.tailscale.net:8443/endpoint"));
+        assertTrue(WebhookUrlCodec.isValid("https://example.com/webhook"));
+        assertTrue(WebhookUrlCodec.isValid("https://my-server.tailscale.net:8443/endpoint"));
     }
 
     @Test
     public void testInvalidUrls() {
-        assertFalse(KeepADBPreferences.isValidWebhookUrl(null));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl(""));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("   "));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("ftp://example.com"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("not-a-url"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("http://"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("https://"));
-        assertFalse(KeepADBPreferences.isValidWebhookUrl("://example.com"));
+        assertFalse(WebhookUrlCodec.isValid(null));
+        assertFalse(WebhookUrlCodec.isValid(""));
+        assertFalse(WebhookUrlCodec.isValid("   "));
+        assertFalse(WebhookUrlCodec.isValid("ftp://example.com"));
+        assertFalse(WebhookUrlCodec.isValid("not-a-url"));
+        assertFalse(WebhookUrlCodec.isValid("http://"));
+        assertFalse(WebhookUrlCodec.isValid("https://"));
+        assertFalse(WebhookUrlCodec.isValid("://example.com"));
     }
 
 
@@ -78,84 +78,84 @@ public class KeepADBPreferencesTest {
     public void testWebhookReportStatusRoundTripAndLegacyInference() {
         FakeContext context = new FakeContext();
 
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_NEVER,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_NEVER,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
 
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS);
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
 
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
 
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED);
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
 
         // Existing installations have no status key; infer the old success/deregistration state.
-        KeepADBPreferences.setWebhookLastReportStatus(context, null);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.0.2.10:40000");
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
-        KeepADBPreferences.setWebhookLastReportedAtNow(context);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        WebhookReportPrefs.setWebhookLastReportStatus(context, null);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.0.2.10:40000");
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, null);
+        WebhookReportPrefs.setWebhookLastReportedAtNow(context);
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
     }
 
     @Test
     public void testSanitizeWebhookUrlStripsUserinfoAndFragment() {
         assertEquals("http://100.111.111.21:50829/register/s20?foo=bar",
-                KeepADBPreferences.sanitizeWebhookUrl(
+                WebhookUrlCodec.sanitize(
                         "http://user:pass@100.111.111.21:50829/register/s20?foo=bar#section"));
         assertEquals("http://example.com/test",
-                KeepADBPreferences.sanitizeWebhookUrl("HTTP://user:pass@example.com/test#fragment"));
+                WebhookUrlCodec.sanitize("HTTP://user:pass@example.com/test#fragment"));
         assertEquals("http://example.com:8080/path",
-                KeepADBPreferences.sanitizeWebhookUrl("http://user@example.com:8080/path"));
+                WebhookUrlCodec.sanitize("http://user@example.com:8080/path"));
         assertEquals("http://example.com:8080/path",
-                KeepADBPreferences.sanitizeWebhookUrl("http://:pass@example.com:8080/path"));
+                WebhookUrlCodec.sanitize("http://:pass@example.com:8080/path"));
         assertEquals("https://example.com/api",
-                KeepADBPreferences.sanitizeWebhookUrl("https://example.com/api#section"));
+                WebhookUrlCodec.sanitize("https://example.com/api#section"));
         assertEquals("http://example.com",
-                KeepADBPreferences.sanitizeWebhookUrl("http://example.com"));
-        assertNull(KeepADBPreferences.sanitizeWebhookUrl(null));
-        assertEquals("", KeepADBPreferences.sanitizeWebhookUrl(""));
-        assertEquals("", KeepADBPreferences.sanitizeWebhookUrl("   "));
-        assertEquals("not-a-url", KeepADBPreferences.sanitizeWebhookUrl("not-a-url"));
-        assertEquals("http://", KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@"));
+                WebhookUrlCodec.sanitize("http://example.com"));
+        assertNull(WebhookUrlCodec.sanitize(null));
+        assertEquals("", WebhookUrlCodec.sanitize(""));
+        assertEquals("", WebhookUrlCodec.sanitize("   "));
+        assertEquals("not-a-url", WebhookUrlCodec.sanitize("not-a-url"));
+        assertEquals("http://", WebhookUrlCodec.sanitize("http://user:pass@"));
         assertEquals("http://example.com/api?email=alice@example.com",
-                KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com/api?email=alice@example.com#section"));
+                WebhookUrlCodec.sanitize("http://user:pass@example.com/api?email=alice@example.com#section"));
         assertEquals("http://example.com?email=alice@example.com",
-                KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com?email=alice@example.com#section"));
+                WebhookUrlCodec.sanitize("http://user:pass@example.com?email=alice@example.com#section"));
         // A legacy URL with an embedded '@' in its password and a non-standard IPv6 zone id takes
         // the manual fallback path. The complete userinfo must still be removed.
         assertEquals("http://[fe80::1%wlan0]:8443/register",
-                KeepADBPreferences.sanitizeWebhookUrl(
+                WebhookUrlCodec.sanitize(
                         "http://user:p@ss@[fe80::1%wlan0]:8443/register"));
         assertEquals("http://[fe80::1%wlan0]:8443/register?email=x@y",
-                KeepADBPreferences.sanitizeWebhookUrl(
+                WebhookUrlCodec.sanitize(
                         "http://user:p@ss@[fe80::1%wlan0]:8443/register?email=x@y"));
-        assertNull(KeepADBPreferences.sanitizeWebhookUrl("http://legacy.example/register\nnext"));
+        assertNull(WebhookUrlCodec.sanitize("http://legacy.example/register\nnext"));
     }
 
     @Test
     public void testMaskWebhookUrlMasksIpv4AndRemovesUserinfo() {
         // #350: the query string used to be printed verbatim here ("?foo=bar").
         assertEquals("http://100.111.***.**:50829/register/s20?***",
-                KeepADBPreferences.maskWebhookUrl(
+                KeepADBUrlRedaction.forDisplay(
                         "http://user:pass@100.111.111.21:50829/register/s20?foo=bar#hash"));
         assertEquals("http://100.111.***.**:50829/register/s20",
-                KeepADBPreferences.maskWebhookUrl("http://100.111.111.21:50829/register/s20"));
+                KeepADBUrlRedaction.forDisplay("http://100.111.111.21:50829/register/s20"));
         assertEquals("http://192.168.*.***:8080/endpoint",
-                KeepADBPreferences.maskWebhookUrl("http://192.168.1.100:8080/endpoint"));
+                KeepADBUrlRedaction.forDisplay("http://192.168.1.100:8080/endpoint"));
         assertEquals("http://10.0.*.*",
-                KeepADBPreferences.maskWebhookUrl("http://10.0.0.1"));
+                KeepADBUrlRedaction.forDisplay("http://10.0.0.1"));
         assertEquals("https://example.com/webhook",
-                KeepADBPreferences.maskWebhookUrl("https://user:pass@example.com/webhook#secret"));
-        assertEquals("", KeepADBPreferences.maskWebhookUrl(null));
-        assertEquals("", KeepADBPreferences.maskWebhookUrl(""));
-        assertEquals("", KeepADBPreferences.maskWebhookUrl("   "));
+                KeepADBUrlRedaction.forDisplay("https://user:pass@example.com/webhook#secret"));
+        assertEquals("", KeepADBUrlRedaction.forDisplay(null));
+        assertEquals("", KeepADBUrlRedaction.forDisplay(""));
+        assertEquals("", KeepADBUrlRedaction.forDisplay("   "));
     }
 
     @Test
@@ -193,7 +193,7 @@ public class KeepADBPreferencesTest {
                         "http://admin:hunter2@100.111.111.21:50829/register/s20#frag")
                 .apply();
         assertEquals("http://100.111.111.21:50829/register/s20",
-                KeepADBPreferences.getWebhookLastReportedUrl(context));
+                WebhookReportPrefs.getWebhookLastReportedUrl(context));
     }
 
 
@@ -208,8 +208,8 @@ public class KeepADBPreferencesTest {
                         "http://admin:hunter2@[2001:db8::1]:50829/register/s20?token=abc#frag")
                 .apply();
         assertEquals("http://[***]:50829/register/s20?***",
-                KeepADBPreferences.maskWebhookUrl(
-                        KeepADBPreferences.getWebhookLastReportedUrl(context)));
+                KeepADBUrlRedaction.forDisplay(
+                        WebhookReportPrefs.getWebhookLastReportedUrl(context)));
     }
 
     /** #483: with the privacy toggle off, every display value stays exactly as before. */
@@ -219,13 +219,13 @@ public class KeepADBPreferencesTest {
         KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertEquals("192.168.1.100",
-                KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
+                KeepADBPrivacy.maskHostForDisplay(context, "192.168.1.100"));
         assertEquals("[fe80::1%wlan0]:50829",
-                KeepADBPreferences.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
+                KeepADBPrivacy.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
         // #550: privacy mode off is now a "show it all" state for the webhook display too --
         // it no longer keeps the #350 default two-octet host mask.
         assertEquals("http://100.111.111.21:50829/register/s20",
-                KeepADBPreferences.maskWebhookUrlForDisplay(
+                KeepADBPrivacy.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
     }
 
@@ -241,17 +241,17 @@ public class KeepADBPreferencesTest {
         FakeContext context = new FakeContext();
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertTrue(KeepADBPreferences.isAppPrivacyEnabled(context));
-        assertEquals("192.*.*.*", KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
+        assertEquals("192.*.*.*", KeepADBPrivacy.maskHostForDisplay(context, "192.168.1.100"));
         assertEquals("192.*.*.*:5555",
-                KeepADBPreferences.maskEndpointForDisplay(context, "192.168.1.100:5555"));
+                KeepADBPrivacy.maskEndpointForDisplay(context, "192.168.1.100:5555"));
         assertEquals("[fe80:***]:50829",
-                KeepADBPreferences.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
+                KeepADBPrivacy.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
         assertEquals("http://100.*.*.*:50829/register/s20",
-                KeepADBPreferences.maskWebhookUrlForDisplay(
+                KeepADBPrivacy.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
         // #904: a registered name in the webhook address is masked too; the port stays.
         assertEquals("https://***:50829/register/s20",
-                KeepADBPreferences.maskWebhookUrlForDisplay(
+                KeepADBPrivacy.maskWebhookUrlForDisplay(
                         context, "https://register.example:50829/register/s20"));
     }
 
@@ -261,14 +261,14 @@ public class KeepADBPreferencesTest {
         FakeContext context = new FakeContext();
         KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals("phone.tailnet.ts.net:41234",
-                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+                KeepADBPrivacy.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
         assertEquals("phone.tailnet.ts.net",
-                KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
+                KeepADBPrivacy.maskHostForDisplay(context, "phone.tailnet.ts.net"));
 
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
         assertEquals("***:41234",
-                KeepADBPreferences.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
-        assertEquals("***", KeepADBPreferences.maskHostForDisplay(context, "phone.tailnet.ts.net"));
+                KeepADBPrivacy.maskEndpointForDisplay(context, "phone.tailnet.ts.net:41234"));
+        assertEquals("***", KeepADBPrivacy.maskHostForDisplay(context, "phone.tailnet.ts.net"));
     }
 
     /** #483: masking is display-only — the stored originals must survive a toggle round trip. */
@@ -277,19 +277,19 @@ public class KeepADBPreferencesTest {
         FakeContext context = new FakeContext();
         String url = "http://100.111.111.21:50829/register/s20";
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.100:5555");
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "192.168.1.100:5555");
         KeepADBPreferences.setAppPrivacyEnabled(context, true);
-        KeepADBPreferences.maskWebhookUrlForDisplay(
+        KeepADBPrivacy.maskWebhookUrlForDisplay(
                 context, KeepADBPreferences.getRegisterWebhookUrl(context));
-        KeepADBPreferences.maskEndpointForDisplay(
-                context, KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        KeepADBPrivacy.maskEndpointForDisplay(
+                context, WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
         assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
         assertEquals("192.168.1.100:5555",
-                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
         KeepADBPreferences.setAppPrivacyEnabled(context, false);
         assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
         assertEquals("192.168.1.100:5555",
-                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(context));
     }
 
     private static final class FakeContext extends android.content.ContextWrapper {

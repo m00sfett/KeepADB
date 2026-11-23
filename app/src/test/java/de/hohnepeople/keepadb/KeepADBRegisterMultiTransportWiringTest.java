@@ -175,7 +175,7 @@ public class KeepADBRegisterMultiTransportWiringTest {
 
     private void awaitSuccessfulReport() throws Exception {
         waitUntil(() -> "192.168.1.50:41234".equals(
-                KeepADBPreferences.getWebhookLastReportedEndpoint(context)), 5_000L);
+                WebhookReportPrefs.getWebhookLastReportedEndpoint(context)), 5_000L);
         // The additional-transport reporting happens on the same executor right after the WLAN
         // POST; give it its turn before counting what was sent.
         waitUntil(() -> {

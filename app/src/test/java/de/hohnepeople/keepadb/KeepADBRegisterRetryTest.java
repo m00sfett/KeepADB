@@ -136,11 +136,11 @@ public class KeepADBRegisterRetryTest {
 
     @Test
     public void theDelaysOfTheSeriesAre5_15_30_60Seconds() {
-        assertEquals(4, KeepADBPreferences.WEBHOOK_MAX_RETRIES);
-        assertEquals(5_000L, KeepADBPreferences.webhookRetryDelayMs(1));
-        assertEquals(15_000L, KeepADBPreferences.webhookRetryDelayMs(2));
-        assertEquals(30_000L, KeepADBPreferences.webhookRetryDelayMs(3));
-        assertEquals(60_000L, KeepADBPreferences.webhookRetryDelayMs(4));
+        assertEquals(4, WebhookReportPrefs.WEBHOOK_MAX_RETRIES);
+        assertEquals(5_000L, WebhookReportPrefs.webhookRetryDelayMs(1));
+        assertEquals(15_000L, WebhookReportPrefs.webhookRetryDelayMs(2));
+        assertEquals(30_000L, WebhookReportPrefs.webhookRetryDelayMs(3));
+        assertEquals(60_000L, WebhookReportPrefs.webhookRetryDelayMs(4));
     }
 
     @Test
@@ -160,9 +160,9 @@ public class KeepADBRegisterRetryTest {
         assertEquals(2, posts());
         assertFalse(KeepADBRegisterClient.hasPendingPostRetryForTesting());
         assertEquals(0, KeepADBRegisterClient.getPostRetryNumberForTesting());
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        assertTrue(KeepADBPreferences.getWebhookLastSuccessAt(context) > 0L);
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
+        assertTrue(WebhookReportPrefs.getWebhookLastSuccessAt(context) > 0L);
         advance(10L * 60L * 1000L);
         assertEquals(2, posts());
     }
@@ -171,7 +171,7 @@ public class KeepADBRegisterRetryTest {
     public void failedAttemptsNeverStoreASuccessTime() {
         reportOnce();
         advance(5_000L);
-        assertEquals(0L, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        assertEquals(0L, WebhookReportPrefs.getWebhookLastSuccessAt(context));
     }
 
     @Test

@@ -240,7 +240,7 @@ final class KeepADBSettingsBackup {
             Object value = entry.getValue();
             if (!hasType(value, rule.type)) continue;
             if (KEY_WEBHOOK_URL.equals(key)
-                    && !KeepADBPreferences.isValidWebhookUrl((String) value)) {
+                    && !WebhookUrlCodec.isValid((String) value)) {
                 continue;
             }
             if (value instanceof Set) {
@@ -356,7 +356,7 @@ final class KeepADBSettingsBackup {
             case STRING:
                 if (raw instanceof String && isAcceptableString(key, rule, (String) raw)) {
                     if (KEY_WEBHOOK_URL.equals(key)) {
-                        return KeepADBPreferences.sanitizeWebhookUrl((String) raw).trim();
+                        return WebhookUrlCodec.sanitize((String) raw).trim();
                     }
                     return raw;
                 }
@@ -376,9 +376,9 @@ final class KeepADBSettingsBackup {
         if (value.length() > MAX_STRING_LENGTH) return false;
         if (rule.allowed != null) return rule.allowed.contains(value);
         if (KEY_WEBHOOK_URL.equals(key)) {
-            if (!KeepADBPreferences.isValidWebhookUrl(value)) return false;
-            String sanitized = KeepADBPreferences.sanitizeWebhookUrl(value);
-            return sanitized != null && KeepADBPreferences.isValidWebhookUrl(sanitized);
+            if (!WebhookUrlCodec.isValid(value)) return false;
+            String sanitized = WebhookUrlCodec.sanitize(value);
+            return sanitized != null && WebhookUrlCodec.isValid(sanitized);
         }
         if (KEY_TRUSTED_IDS.equals(key) || KEY_SSID_IDS.equals(key)) {
             return ID_LIST.matcher(value).matches();

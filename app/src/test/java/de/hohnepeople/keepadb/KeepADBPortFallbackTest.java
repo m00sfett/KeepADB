@@ -42,7 +42,7 @@ public class KeepADBPortFallbackTest {
     @Before
     public void setUp() {
         KeepADBPortFallback.resetForTesting();
-        KeepADBPreferences.clearLastAdbPort(context);
+        KeepADBRuntimeMarkers.clearLastAdbPort(context);
         prober = new FakeProber();
         clock = new TestClock();
         KeepADBPortFallback.setProberForTesting(prober);
@@ -52,7 +52,7 @@ public class KeepADBPortFallbackTest {
     @After
     public void tearDown() {
         KeepADBPortFallback.resetForTesting();
-        KeepADBPreferences.clearLastAdbPort(context);
+        KeepADBRuntimeMarkers.clearLastAdbPort(context);
         KeepADB.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         KeepADBNetwork.resetForTesting();
@@ -93,7 +93,7 @@ public class KeepADBPortFallbackTest {
         clock.boot = -1;
         KeepADBPortFallback.remember(context, 42000);
 
-        assertEquals(-1, KeepADBPreferences.getLastAdbPort(context));
+        assertEquals(-1, KeepADBRuntimeMarkers.getLastAdbPort(context));
         assertEquals(-1, KeepADBPortFallback.rememberedPort(context));
     }
 

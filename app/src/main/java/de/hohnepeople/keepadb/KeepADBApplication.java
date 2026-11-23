@@ -40,11 +40,11 @@ public class KeepADBApplication extends Application {
         super.onCreate();
         remember(getResources().getConfiguration());
         // #997 before the privacy split: both need "nothing stored yet" to see a new installation.
-        KeepADBPreferences.migrateOpenNetworkShutdown(this);
-        KeepADBPreferences.migratePrivacySplit(this);
-        KeepADBPreferences.removeObsoleteUsbKeys(this);
-        KeepADBPreferences.removeObsoleteWebhookRetryKeys(this);
-        KeepADBPreferences.removeObsoleteAdviceBannerKey(this);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(this);
+        KeepADBPreferencesMigrations.migratePrivacySplit(this);
+        KeepADBPreferencesMigrations.removeObsoleteUsbKeys(this);
+        KeepADBPreferencesMigrations.removeObsoleteWebhookRetryKeys(this);
+        KeepADBPreferencesMigrations.removeObsoleteAdviceBannerKey(this);
         KeepADBNotification.removeObsoleteUsbNotification(this);
         // #1000: the timer posts its end notice through this sink (a seam for tests).
         KeepADBTimer.setNoticeSink(KeepADBTimerNotice.SINK);

@@ -134,7 +134,7 @@ public class MainActivityWebhookStatusTest {
         Context context = RuntimeEnvironment.getApplication();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
@@ -151,9 +151,9 @@ public class MainActivityWebhookStatusTest {
         Context context = RuntimeEnvironment.getApplication();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
-        KeepADBPreferences.setWebhookLastReportedAtNow(context);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "");
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED);
+        WebhookReportPrefs.setWebhookLastReportedAtNow(context);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, "");
 
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
@@ -192,7 +192,7 @@ public class MainActivityWebhookStatusTest {
         Context context = RuntimeEnvironment.getApplication();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
 
         // Poison: what a previous test class may leave behind.
         KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport(true));
@@ -212,8 +212,8 @@ public class MainActivityWebhookStatusTest {
 
         assertTrue("Expected the failed-report text: " + text,
                 text.contains(context.getString(R.string.webhook_status_failed)));
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_FAILED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
         controller.pause().close();
     }
 

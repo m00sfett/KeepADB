@@ -181,8 +181,8 @@ public class KeepADBUsbRemovalMigrationTest {
         // exactly the privacy marker, and a later start adds nothing (in particular not the
         // assistant's existing/new decision, which must stay open for the first real question).
         prefs().edit().clear().commit();
-        KeepADBPreferences.migrateOpenNetworkShutdown(app);
-        KeepADBPreferences.migratePrivacySplit(app);
+        KeepADBPreferencesMigrations.migrateOpenNetworkShutdown(app);
+        KeepADBPreferencesMigrations.migratePrivacySplit(app);
         Map<String, ?> before = prefs().getAll();
 
         nextProcessStart();

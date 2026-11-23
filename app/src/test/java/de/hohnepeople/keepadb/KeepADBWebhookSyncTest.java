@@ -48,7 +48,7 @@ public class KeepADBWebhookSyncTest {
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -137,8 +137,8 @@ public class KeepADBWebhookSyncTest {
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
         assertEquals("DELETE at the registered URL", 1, requests("DELETE"));
         assertEquals(URL, transport.getLastRequest().url);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED,
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
     }
 
     /** A repeated tap asks for a target state, so it cannot undo itself and sends nothing new. */

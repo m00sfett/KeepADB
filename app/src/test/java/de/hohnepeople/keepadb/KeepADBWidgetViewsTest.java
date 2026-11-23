@@ -70,7 +70,7 @@ public class KeepADBWidgetViewsTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADBWidgetConfig.clearAll(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -488,21 +488,21 @@ public class KeepADBWidgetViewsTest {
 
     @Test
     public void aFailedReportIsVisibleAndDeliveryIsClaimedOnlyForTheCurrentEndpoint() {
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
         assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.notification_text_webhook_failed)));
 
         // A success for exactly the current endpoint and destination: current.
-        KeepADBPreferences.setWebhookLastReportedUrl(context, KeepADBPreferences.getRegisterWebhookUrl(context));
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, KeepADBEndpoint.formatEndpoint(HOST, PORT));
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, KeepADBPreferences.getRegisterWebhookUrl(context));
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, KeepADBEndpoint.formatEndpoint(HOST, PORT));
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS);
         assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_current)));
 
         // With synchronization off the line is about that, not about an earlier report.
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
         KeepADBPreferences.setRegisterWebhookEnabled(context, false);
         assertTrue(statusText(render(SizeClass.PANEL)).endsWith(name(R.string.widget_webhook_sync_off)));
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS);
 
         // An old completion must not mark a newer endpoint delivered.
         KeepADBEndpointCoordinator.seedEndpointForTesting(HOST, PORT + 1, 2L);

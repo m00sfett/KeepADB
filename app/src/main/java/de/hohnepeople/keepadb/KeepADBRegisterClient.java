@@ -90,9 +90,9 @@ final class KeepADBRegisterClient {
     static synchronized void ensureStateInitializedLocked(Context context) {
         if (stateInitialized) return;
         if (context != null) {
-            String endpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
+            String endpoint = WebhookReportPrefs.getWebhookLastReportedEndpoint(context);
             lastRegisteredEndpoint = (endpoint != null && !endpoint.trim().isEmpty()) ? endpoint.trim() : null;
-            String url = KeepADBPreferences.getWebhookLastReportedUrl(context);
+            String url = WebhookReportPrefs.getWebhookLastReportedUrl(context);
             lastRegisteredUrl = (url != null && !url.trim().isEmpty()) ? url.trim() : null;
         }
         stateInitialized = true;
@@ -257,7 +257,7 @@ final class KeepADBRegisterClient {
             return ReportNowResult.NO_ENDPOINT;
         }
         final Context appContext = context.getApplicationContext();
-        if (!KeepADBPreferences.isValidWebhookUrl(KeepADBPreferences.getRegisterWebhookUrl(appContext))) {
+        if (!WebhookUrlCodec.isValid(KeepADBPreferences.getRegisterWebhookUrl(appContext))) {
             return refuseReportNow(appContext, ReportNowResult.NEEDS_SETUP, "needs_setup", onDone);
         }
         if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) {
@@ -343,7 +343,7 @@ final class KeepADBRegisterClient {
         if (context == null) return;
         final Context appContext = context.getApplicationContext();
         if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
-        if (KeepADBPreferences.getWebhookFailureSince(appContext) <= 0L) return;
+        if (WebhookReportPrefs.getWebhookFailureSince(appContext) <= 0L) return;
         long generationBefore = currentOpGeneration;
         String endpoint = currentCoordinatorEndpoint();
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
@@ -522,7 +522,7 @@ final class KeepADBRegisterClient {
             // due one counts, so its own backoff and attempt budget still bound the traffic.
             boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
                     || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty())
-                    || KeepADBPreferences.getWebhookDispatchedUrl(appContext) != null
+                    || WebhookReportPrefs.getWebhookDispatchedUrl(appContext) != null
                     || PendingCleanupCoordinator.hasDue(appContext);
             if (!wasInFlight && !hadPrior) {
                 return;
@@ -597,10 +597,10 @@ final class KeepADBRegisterClient {
      */
     static boolean hasOutstandingWithdrawal(Context context) {
         Context app = context.getApplicationContext();
-        String recorded = KeepADBPreferences.getWebhookLastReportedUrl(app);
+        String recorded = WebhookReportPrefs.getWebhookLastReportedUrl(app);
         String saved = KeepADBPreferences.getRegisterWebhookUrl(app);
         if (recorded != null && !recorded.trim().isEmpty() && recorded.equals(saved)) return true;
-        return KeepADBPreferences.getWebhookDispatchedUrl(app) != null
+        return WebhookReportPrefs.getWebhookDispatchedUrl(app) != null
                 || PendingCleanupCoordinator.hasDue(app);
     }
 
@@ -656,14 +656,14 @@ final class KeepADBRegisterClient {
         int maxRetries = SERIES.retryBudget();
         // #923: persisted before the request, settled after it (below), so a registration made by
         // a POST whose transaction went stale, or whose process died, is still withdrawn later.
-        String markerBefore = KeepADBPreferences.getWebhookDispatchedUrl(context);
-        KeepADBPreferences.setWebhookDispatchedUrl(context, targetUrl);
+        String markerBefore = WebhookReportPrefs.getWebhookDispatchedUrl(context);
+        WebhookReportPrefs.setWebhookDispatchedUrl(context, targetUrl);
         TransportResult post = RegisterTransport.postEndpoint(targetUrl, targetEndpoint);
         // #923 (review): only an HTTP answer proves this request registered nothing; an I/O error
         // can come after the body was delivered, so the marker stays as evidence then. A definite
         // rejection restores the marker this POST found (an earlier, unsettled one stays).
         if (!post.ok && post.isHttpAnswer()) {
-            KeepADBPreferences.setWebhookDispatchedUrl(context, markerBefore);
+            WebhookReportPrefs.setWebhookDispatchedUrl(context, markerBefore);
         }
         recordReportOutcome(context, "post", targetEndpoint, post, failingBefore, opGen, retry,
                 maxRetries);
@@ -705,8 +705,8 @@ final class KeepADBRegisterClient {
                     lastRegisteredEndpoint = targetEndpoint;
                     // #317: one editor transaction; four separate apply() calls could be torn apart
                     // by a crash and leave a URL without its endpoint.
-                    KeepADBPreferences.setWebhookReportSnapshot(context, targetUrl, targetEndpoint,
-                            KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+                    WebhookReportPrefs.setWebhookReportSnapshot(context, targetUrl, targetEndpoint,
+                            WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, true);
                     // #923: the snapshot (which also clears the dispatch marker) now accounts
                     // for this registration.
                     RegisterStateNotifier.notifyChanged(context);
@@ -719,8 +719,8 @@ final class KeepADBRegisterClient {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
-                    KeepADBPreferences.setWebhookLastReportStatus(
-                            context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+                    WebhookReportPrefs.setWebhookLastReportStatus(
+                            context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
                     schedulePostRetryLocked(context, targetUrl, targetEndpoint, opGen);
                     KeepADBWebhookAlert.onReportFailed(context);
                     RegisterStateNotifier.notifyChanged(context);
@@ -745,7 +745,7 @@ final class KeepADBRegisterClient {
                 lastRegisteredUrl = null;
                 lastRegisteredEndpoint = null;
                 UNAVAILABLE.reset();
-                KeepADBPreferences.setWebhookReportSnapshot(context, null, null, null, false);
+                WebhookReportPrefs.setWebhookReportSnapshot(context, null, null, null, false);
                 RegisterStateNotifier.notifyChanged(context);
                 return;
             }
@@ -777,8 +777,8 @@ final class KeepADBRegisterClient {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
                     UNAVAILABLE.reset();
-                    KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
-                            KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
+                    WebhookReportPrefs.setWebhookReportSnapshot(context, null, null,
+                            WebhookReportPrefs.WEBHOOK_STATUS_DEREGISTERED, true);
                     RegisterStateNotifier.notifyChanged(context);
                 }
             }
@@ -791,8 +791,8 @@ final class KeepADBRegisterClient {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
                     UNAVAILABLE.recordFailure();
-                    KeepADBPreferences.setWebhookLastReportStatus(
-                            context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+                    WebhookReportPrefs.setWebhookLastReportStatus(
+                            context, WebhookReportPrefs.WEBHOOK_STATUS_FAILED);
                     RegisterStateNotifier.notifyChanged(context);
                 }
             }
@@ -800,8 +800,8 @@ final class KeepADBRegisterClient {
     }
 
     private static boolean isReportFailing(Context context) {
-        return KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
-                KeepADBPreferences.getWebhookLastReportStatus(context));
+        return WebhookReportPrefs.WEBHOOK_STATUS_FAILED.equals(
+                WebhookReportPrefs.getWebhookLastReportStatus(context));
     }
 
     /**

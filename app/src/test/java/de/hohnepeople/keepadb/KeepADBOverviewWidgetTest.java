@@ -71,7 +71,7 @@ public class KeepADBOverviewWidgetTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADBWidgetConfig.clearAll(context);
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBReportHistory.clear(context);
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
@@ -109,10 +109,10 @@ public class KeepADBOverviewWidgetTest {
 
     /** The sender's own record of the last report, as the register client stores it. */
     private void storeLastReport(String status, String endpoint) {
-        KeepADBPreferences.setWebhookLastReportStatus(context, status);
-        KeepADBPreferences.setWebhookLastReportedUrl(context, URL);
-        KeepADBPreferences.setWebhookLastReportedEndpoint(context, endpoint);
-        KeepADBPreferences.setWebhookLastReportedAtNow(context);
+        WebhookReportPrefs.setWebhookLastReportStatus(context, status);
+        WebhookReportPrefs.setWebhookLastReportedUrl(context, URL);
+        WebhookReportPrefs.setWebhookLastReportedEndpoint(context, endpoint);
+        WebhookReportPrefs.setWebhookLastReportedAtNow(context);
     }
 
     private KeepADBWidgetState projection(boolean hide) {
@@ -286,7 +286,7 @@ public class KeepADBOverviewWidgetTest {
     @Test
     public void historicalSuccessNeverMakesTheCurrentEndpointLookReported() {
         // An earlier report for another endpoint was accepted: history, not the current claim.
-        storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, "192.168.178.40:40000");
+        storeLastReport(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, "192.168.178.40:40000");
         KeepADBOverviewContent c = content(false);
         assertEquals(name(R.string.overview_delivery_not_current), c.delivery.value);
         assertEquals(name(R.string.overview_delivery_short_not_current), c.delivery.shortValue);
@@ -300,7 +300,7 @@ public class KeepADBOverviewWidgetTest {
                     shape == Shape.COMPACT ? c.delivery.shortValue : c.delivery.value));
         }
 
-        storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
+        storeLastReport(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
         assertEquals(name(R.string.overview_delivery_current), content(false).delivery.value);
 
         // Without a verified endpoint nothing is claimed, whatever the history says.
@@ -312,7 +312,7 @@ public class KeepADBOverviewWidgetTest {
 
     @Test
     public void syncOffAndFailureAreTheirOwnStates() {
-        storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_FAILED, HOST + ":" + PORT);
+        storeLastReport(WebhookReportPrefs.WEBHOOK_STATUS_FAILED, HOST + ":" + PORT);
         KeepADBOverviewContent failed = content(false);
         assertEquals(name(R.string.overview_delivery_failed), failed.delivery.value);
         assertEquals(name(R.string.overview_delivery_short_failed), failed.delivery.shortValue);
@@ -328,7 +328,7 @@ public class KeepADBOverviewWidgetTest {
     @Test
     public void theCompactShapeDrawsShortDeliveryWordsAndSpeaksTheFullSentence() {
         // #928: the full sentence only fit the compact row at the minimum text size.
-        storeLastReport(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
+        storeLastReport(WebhookReportPrefs.WEBHOOK_STATUS_SUCCESS, HOST + ":" + PORT);
         KeepADBOverviewContent c = content(false);
         assertEquals(name(R.string.overview_delivery_current), c.delivery.value);
         assertEquals(name(R.string.overview_delivery_short_current), c.delivery.shortValue);

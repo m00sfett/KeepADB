@@ -49,7 +49,7 @@ public class KeepADBPrivacySplitTest {
 
     @Test
     public void aNewInstallationHasAllThreeSwitchesOffAndStoresOnlyTheMarker() {
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(context));
@@ -60,7 +60,7 @@ public class KeepADBPrivacySplitTest {
 
     @Test
     public void theMarkerDoesNotMakeANewInstallationLookLikeAnExistingOne() {
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse(KeepADBOnboarding.isExistingInstall(context));
     }
@@ -72,7 +72,7 @@ public class KeepADBPrivacySplitTest {
         // Before #904 the details were hidden by default, so an absent key meant "hidden".
         prefs().edit().putBoolean("keep_alive_enabled", true).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(context));
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
@@ -83,7 +83,7 @@ public class KeepADBPrivacySplitTest {
     public void anExistingInstallThatHadTheDetailsSwitchedOffKeepsThemHidden() {
         prefs().edit().putBoolean(OLD_DETAILS, false).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(context));
     }
@@ -92,7 +92,7 @@ public class KeepADBPrivacySplitTest {
     public void anExistingInstallThatHadTheDetailsSwitchedOnKeepsShowingThem() {
         prefs().edit().putBoolean(OLD_DETAILS, true).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse(KeepADBPreferences.isNotificationPrivacyEnabled(context));
     }
@@ -101,7 +101,7 @@ public class KeepADBPrivacySplitTest {
     public void theOldPrivacyModeBecomesTheAppSwitchAndTurnsTheWidgetSwitchOn() {
         prefs().edit().putBoolean(APP, true).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertTrue("the app switch is the old key, unchanged", KeepADBPreferences.isAppPrivacyEnabled(context));
         assertTrue(prefs().getBoolean(APP, false));
@@ -113,7 +113,7 @@ public class KeepADBPrivacySplitTest {
     public void theOldPrivacyModeOffLeavesTheAppAndWidgetSwitchesOff() {
         prefs().edit().putBoolean(APP, false).putBoolean(OLD_DETAILS, true).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse(KeepADBPreferences.isAppPrivacyEnabled(context));
         assertFalse(KeepADBPreferences.isWidgetPrivacyEnabled(context));
@@ -128,7 +128,7 @@ public class KeepADBPrivacySplitTest {
                         .putBoolean(APP, oldPrivacy).commit();
                 if (oldDetails != null) prefs().edit().putBoolean(OLD_DETAILS, oldDetails).commit();
 
-                KeepADBPreferences.migratePrivacySplit(context);
+                KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
                 String where = "old privacy " + oldPrivacy + ", old details " + oldDetails;
                 assertEquals(where, oldPrivacy, KeepADBPreferences.isAppPrivacyEnabled(context));
@@ -144,7 +144,7 @@ public class KeepADBPrivacySplitTest {
     public void theRetiredDetailsKeyStaysStoredAndUntouched() {
         prefs().edit().putBoolean(OLD_DETAILS, true).commit();
 
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
 
         assertTrue("an older app installed again still finds it", prefs().getBoolean(OLD_DETAILS, false));
@@ -155,13 +155,13 @@ public class KeepADBPrivacySplitTest {
     @Test
     public void theDerivationRunsOnceAndNeverOverwritesALaterChoice() {
         prefs().edit().putBoolean("keep_alive_enabled", true).commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
         assertTrue(KeepADBPreferences.isNotificationPrivacyEnabled(context));
 
         KeepADBPreferences.setNotificationPrivacyEnabled(context, false);
         KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
         prefs().edit().putBoolean(OLD_DETAILS, false).commit();
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         assertFalse("the user's later choice stays", KeepADBPreferences.isNotificationPrivacyEnabled(context));
         assertTrue(KeepADBPreferences.isWidgetPrivacyEnabled(context));
@@ -180,7 +180,7 @@ public class KeepADBPrivacySplitTest {
 
     @Test
     public void aSwitchWrittenOnANewInstallationIsStoredAndRead() {
-        KeepADBPreferences.migratePrivacySplit(context);
+        KeepADBPreferencesMigrations.migratePrivacySplit(context);
 
         KeepADBPreferences.setNotificationPrivacyEnabled(context, true);
         KeepADBPreferences.setWidgetPrivacyEnabled(context, true);
