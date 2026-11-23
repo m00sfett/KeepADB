@@ -22,9 +22,9 @@ import android.widget.TextView;
 final class OnboardingActionSteps {
     private OnboardingActionSteps() {}
 
-    
 
-    
+
+
 
     // ---- Views ------------------------------------------------------------------------------------
 
