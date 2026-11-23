@@ -16,8 +16,8 @@ import java.util.concurrent.Executors;
  * register executor, the class monitor and the local report snapshot; the retry series ({@link
  * RegisterRetrySeries}), the endpoint-loss DELETE gate ({@link UnavailableDeleteBackoff}) and the
  * deferred withdrawals ({@link PendingCleanupCoordinator}) are separate components. The first two
- * are only touched under this class's monitor; the coordinator only runs on the executor, outside
- * it. Lock order: {@code KeepADBEndpointCoordinator} may call into this class while holding its
+ * are only touched under this class's monitor; the coordinator sends its requests only from the
+ * executor, outside it (its pure preference bookkeeping may run under it). Lock order: {@code KeepADBEndpointCoordinator} may call into this class while holding its
  * own monitor, never the reverse.
  */
 final class KeepADBRegisterClient {
@@ -55,6 +55,8 @@ final class KeepADBRegisterClient {
     private static volatile boolean stateInitialized = false;
     private static volatile long currentOpGeneration = 0;
     private static volatile boolean wlanUpdateInFlight = false;
+    /** #1049 review: the generation of the last report series started, to tell it from a DELETE. */
+    private static volatile long lastReportOpGeneration = 0;
 
     private KeepADBRegisterClient() {}
 
@@ -285,9 +287,18 @@ final class KeepADBRegisterClient {
             } else {
                 opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint,
                         generationBefore);
-                // Nothing runs and nothing started: a newer operation (an endpoint loss) took over
-                // between the read and the monitor, so there is no verified endpoint to report.
-                result = opGen != 0L ? ReportNowResult.STARTED : ReportNowResult.NO_ENDPOINT;
+                if (opGen != 0L) {
+                    result = ReportNowResult.STARTED;
+                } else if (currentOpGeneration != generationBefore
+                        && currentOpGeneration == lastReportOpGeneration) {
+                    // #918 / review: a report started since the read, and already finished, is the
+                    // attempt this tap asked for; it is joined, not repeated.
+                    result = ReportNowResult.JOINED;
+                } else {
+                    // A newer withdrawal (an endpoint loss) took over between the read and the
+                    // monitor, so there is no verified endpoint to report.
+                    result = ReportNowResult.NO_ENDPOINT;
+                }
             }
         }
         if (opGen != 0L) dispatchUpdate(appContext, targetUrl, endpoint, opGen);
@@ -398,7 +409,8 @@ final class KeepADBRegisterClient {
     private static long startSeriesLocked(String targetUrl, String endpoint) {
         SERIES.start(mainHandler(), targetUrl, endpoint);
         wlanUpdateInFlight = true;
-        return ++currentOpGeneration;
+        lastReportOpGeneration = ++currentOpGeneration;
+        return lastReportOpGeneration;
     }
 
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint, long opGen) {
@@ -849,6 +861,7 @@ final class KeepADBRegisterClient {
         lastRegisteredEndpoint = null;
         stateInitialized = false;
         currentOpGeneration = 0;
+        lastReportOpGeneration = 0;
         wlanUpdateInFlight = false;
         coordinatorEndpointForTesting = null;
         beforeResyncDispatchForTesting = null;

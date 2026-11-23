@@ -437,6 +437,25 @@ public class KeepADBReportNowTest {
     }
 
     /**
+     * #1049 (Codex review round 1): a report that started and already finished between the tap's
+     * reads and its decision is joined as well; it is not mistaken for an endpoint loss.
+     */
+    @Test
+    public void aReportFinishedBeforeTheDecisionIsJoinedAndNotSentTwice() {
+        syncOn();
+        KeepADBRegisterClient.setBeforeResyncDispatchForTesting(() -> {
+            KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT + 1);
+            KeepADBRegisterClientResetRule.awaitIdle();
+        });
+
+        KeepADBRegisterClient.ReportNowResult result = KeepADBRegisterClient.reportNow(context, null);
+
+        assertEquals(KeepADBRegisterClient.ReportNowResult.JOINED, result);
+        settle();
+        assertEquals("the tap added no request of its own", 1, posts());
+    }
+
+    /**
      * #1049: an endpoint loss between the tap's reads and its decision supersedes the endpoint it
      * read. Nothing is sent for the stale address, and the result does not claim a start.
      */

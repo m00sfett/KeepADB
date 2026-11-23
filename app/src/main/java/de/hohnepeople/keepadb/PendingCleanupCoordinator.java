@@ -13,10 +13,13 @@ import java.util.Set;
  * queuing of a possible registration, the due decision over the persisted retry records of
  * {@link PendingCleanupRetryRepository} and the canonical registration resource key.
  *
- * <p>Holds no state besides a test clock. It is only run on the register executor, from the
- * client's transactions, and never under the client's class monitor: it sends DELETE requests
- * through {@link RegisterTransport#deleteEndpoint} and reads the client's registered URL
- * through its synchronized accessor.
+ * <p>Holds no state besides a test clock and takes no lock of its own. Confinement per method:
+ * {@link #flush}, {@link #rememberPossibleRegistration} and {@link #recordFailuresLeftToTransaction}
+ * run only on the register executor and never under the client's class monitor, because the flush
+ * sends DELETE requests through {@link RegisterTransport#deleteEndpoint}; they read the client's
+ * registered URL through its synchronized accessor. {@link #queue}, {@link #removeForResource} and
+ * {@link #hasDue} are pure preference bookkeeping that sends nothing; the client also calls them
+ * under its monitor (the update commit block, the endpoint-loss decision).
  */
 final class PendingCleanupCoordinator {
     // Same tag as the client, so existing log filters keep matching.
