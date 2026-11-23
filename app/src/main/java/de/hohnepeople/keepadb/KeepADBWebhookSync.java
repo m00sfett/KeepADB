@@ -9,7 +9,7 @@ import android.content.Context;
  *
  * <p><b>Enabling needs a valid destination.</b> {@link #enable} takes a URL the caller has already
  * validated; the widget path ({@link #setAutomaticSync}) validates the stored URL with the form's
- * own rule ({@link KeepADBPreferences#isValidWebhookUrl}) and, without a valid one, changes nothing
+ * own rule ({@link WebhookUrlCodec#isValid}) and, without a valid one, changes nothing
  * and sends nothing: the surface then leads to the setup instead.
  *
  * <p><b>Disabling keeps the opt-out semantics.</b> {@link #disable} withdraws the registration

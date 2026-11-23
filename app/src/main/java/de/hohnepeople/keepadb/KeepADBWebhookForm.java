@@ -277,7 +277,7 @@ final class KeepADBWebhookForm {
     }
 
     /**
-     * Trims the field, runs {@link KeepADBPreferences#sanitizeWebhookUrl}, and writes the
+     * Trims the field, runs {@link WebhookUrlCodec#sanitize}, and writes the
      * sanitized value back into the field when it differs -- the one normalization step the enable
      * and save actions used to duplicate.
      */
