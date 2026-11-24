@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.26] - Unreleased
+
+### Fixed
+- **IPv6-only Wi-Fi recognized before the first network callback (#1056):** `KeepADBService.isWifiConnected` fell back to the IPv4-only `getWifiIpAddress` while network tracking was not yet authoritative, so an IPv6-only Wi-Fi read as "no Wi-Fi" in that window and the setup assistant's self-pair step refused to start. The fallback now also accepts an active network with a Wi-Fi transport; an authoritative "no Wi-Fi" from the network callback still wins.
+
+### Documentation
+- Store note `changelogs/307.txt` carries the unchanged summary since 1.14.1 (it replaces 306).
+
 ## [1.15.25] - Unreleased
 
 ### Changed
