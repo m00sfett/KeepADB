@@ -135,6 +135,49 @@ public class KeepADBStartupRaceWifiFallbackTest {
                 KeepADBService.isWifiConnected(context()));
     }
 
+    /**
+     * #1056: an IPv6-only Wi-Fi has no IPv4 address for the synchronous snapshot. Before the first
+     * callback the active network's Wi-Fi transport still counts as connected.
+     */
+    @Test
+    public void serviceIsWifiConnectedAcceptsAnActiveWifiWithoutIpv4BeforeFirstCallbackFires() {
+        KeepADBNetwork.get(context());
+        setActiveNetworkTransport(NetworkCapabilities.TRANSPORT_WIFI);
+
+        assertTrue("an active Wi-Fi without an IPv4 address is still Wi-Fi",
+                KeepADBService.isWifiConnected(context()));
+    }
+
+    /** #1056: the other side: an active network without Wi-Fi transport is no Wi-Fi. */
+    @Test
+    public void serviceIsWifiConnectedRejectsAnActiveNonWifiNetworkBeforeFirstCallbackFires() {
+        KeepADBNetwork.get(context());
+        setActiveNetworkTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+
+        assertFalse("a cellular active network without a Wi-Fi address is not Wi-Fi",
+                KeepADBService.isWifiConnected(context()));
+    }
+
+    /** #1056: once the tracking is authoritative the active network does not override it. */
+    @Test
+    public void anActiveWifiDoesNotOverrideAnAuthoritativeNoWifi() throws Exception {
+        KeepADBNetwork.get(context());
+        Network wifiNetwork = ShadowNetwork.newInstance(7003);
+        deliverWifiNetwork(wifiNetwork, WIFI_IPV4);
+        deliverToAllCallbacks(callback -> callback.onLost(wifiNetwork));
+        setActiveNetworkTransport(NetworkCapabilities.TRANSPORT_WIFI);
+
+        assertFalse(KeepADBService.isWifiConnected(context()));
+    }
+
+    private static void setActiveNetworkTransport(int transport) {
+        ConnectivityManager manager = context().getSystemService(ConnectivityManager.class);
+        Network active = manager.getActiveNetwork();
+        NetworkCapabilities capabilities = ShadowNetworkCapabilities.newInstance();
+        shadowOf(capabilities).addTransportType(transport);
+        shadowOf(manager).setNetworkCapabilities(active, capabilities);
+    }
+
     private static void deliverWifiNetwork(Network network, String ipv4) throws Exception {
         NetworkCapabilities capabilities = ShadowNetworkCapabilities.newInstance();
         shadowOf(capabilities).addTransportType(NetworkCapabilities.TRANSPORT_WIFI);

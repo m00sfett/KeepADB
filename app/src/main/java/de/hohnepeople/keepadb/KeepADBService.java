@@ -215,7 +215,28 @@ public class KeepADBService extends Service {
         if (KeepADBNetwork.get(context).isWifiTrackingAuthoritative()) {
             return false;
         }
-        return KeepADBEndpoint.getWifiIpAddress(context) != null;
+        return KeepADBEndpoint.getWifiIpAddress(context) != null || activeNetworkIsWifi(context);
+    }
+
+    /**
+     * #1056: the rest of the not-yet-authoritative fallback. {@link KeepADBEndpoint#getWifiIpAddress}
+     * only finds an IPv4 address, so an IPv6-only Wi-Fi read as "no Wi-Fi" there. The active
+     * network with a Wi-Fi transport counts as well; a VPN on top of Wi-Fi carries that transport
+     * too, as the setup assistant's own check accepted before #1047.
+     */
+    private static boolean activeNetworkIsWifi(Context context) {
+        try {
+            android.net.ConnectivityManager manager =
+                    context.getSystemService(android.net.ConnectivityManager.class);
+            if (manager == null) return false;
+            android.net.Network active = manager.getActiveNetwork();
+            android.net.NetworkCapabilities capabilities =
+                    active == null ? null : manager.getNetworkCapabilities(active);
+            return capabilities != null
+                    && capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI);
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     @Override
