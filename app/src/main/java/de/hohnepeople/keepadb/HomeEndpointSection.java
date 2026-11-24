@@ -31,6 +31,11 @@ final class HomeEndpointSection {
     // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
     private String lastHost;
     private int lastPort;
+    /**
+     * #951: a tap copies the newest endpoint (read when tapped), whatever the row showed. One
+     * instance, attached while there is something to copy and detached otherwise (#1048 review).
+     */
+    private final View.OnClickListener copyEndpoint;
     /** #1048: one click label delegate for every copy row instead of one per render. */
     private final View.AccessibilityDelegate copyClickLabel = new View.AccessibilityDelegate() {
         @Override
@@ -49,13 +54,11 @@ final class HomeEndpointSection {
         endpointCopyIcon = activity.findViewById(R.id.endpoint_copy_icon);
         endpoint = activity.findViewById(R.id.endpoint);
         transportOverviewPanel = activity.findViewById(R.id.transport_overview_panel);
-        // #951: a tap copies the newest endpoint (read when tapped), whatever the row showed.
-        endpointRow.setOnClickListener(v -> {
+        copyEndpoint = v -> {
             if (lastHost != null) {
                 KeepADBEndpointText.copyAdbConnect(activity, lastHost, lastPort, "app");
             }
-        });
-        endpointRow.setClickable(false);
+        };
     }
 
     /** The screen is in front: starts a new listener generation and returns it. */
@@ -148,6 +151,7 @@ final class HomeEndpointSection {
         endpointRow.setMinimumHeight(dp(48));
         endpointRow.setClickable(true);
         endpointRow.setFocusable(true);
+        endpointRow.setOnClickListener(copyEndpoint);
         // TalkBack announces the row as what a tap does through the click action's label.
         endpointRow.setAccessibilityDelegate(copyClickLabel);
     }
@@ -155,6 +159,7 @@ final class HomeEndpointSection {
     private void clearCopy() {
         endpointCopyIcon.setVisibility(View.GONE);
         endpointRow.setMinimumHeight(0);
+        endpointRow.setOnClickListener(null);
         endpointRow.setClickable(false);
         endpointRow.setFocusable(false);
         endpointRow.setAccessibilityDelegate(null);
