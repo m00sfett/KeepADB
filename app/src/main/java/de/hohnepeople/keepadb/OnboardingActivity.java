@@ -44,7 +44,7 @@ public class OnboardingActivity extends Activity {
     public static final String EXTRA_STEP = "onboarding_step";
     /**
      * Single-step mode, optional: the item of that step a deep link points at (a row of the
-     * permissions step, for instance {@link OnboardingActionSteps.Permissions#ITEM_BACKGROUND_LOCATION}).
+     * permissions step, for instance {@link OnboardingPermissionsStep#ITEM_BACKGROUND_LOCATION}).
      * The step brings it into view; an item the step does not know changes nothing.
      */
     public static final String EXTRA_FOCUS_ITEM = "onboarding_focus_item";
@@ -113,8 +113,8 @@ public class OnboardingActivity extends Activity {
         List<OnboardingStep> list = new ArrayList<>();
         list.add(new OnboardingSteps.KeepAlive());
         list.add(new OnboardingSteps.Protection());
-        list.add(new OnboardingActionSteps.Permissions());
-        list.add(new OnboardingActionSteps.Network());
+        list.add(new OnboardingPermissionsStep());
+        list.add(new OnboardingNetworkStep());
         list.add(new OnboardingWebhookStep());
         return list;
     }
@@ -704,6 +704,6 @@ public class OnboardingActivity extends Activity {
     }
 
     private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+        return KeepADBUiKit.dp(this, value);
     }
 }

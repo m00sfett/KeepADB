@@ -230,13 +230,13 @@ public class ButtonContrastTest {
 
         MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
 
-        // NetworkListRenderer stackedButton
+        // The network list's stacked button (#1051: NetworkListViews over KeepADBUiKit)
         NetworkListRenderer renderer = new NetworkListRenderer(main, new android.widget.LinearLayout(main), () -> {});
-        Method stackedBtnMethod = NetworkListRenderer.class.getDeclaredMethod(
+        Method stackedBtnMethod = NetworkListViews.class.getDeclaredMethod(
                 "stackedButton", String.class, boolean.class, View.OnClickListener.class);
         stackedBtnMethod.setAccessible(true);
 
-        Button primaryStacked = (Button) stackedBtnMethod.invoke(renderer, "Trust", true, null);
+        Button primaryStacked = (Button) stackedBtnMethod.invoke(renderer.views(), "Trust", true, null);
         assertNotNull(primaryStacked);
         assertEquals(titleYellow, primaryStacked.getCurrentTextColor());
         assertTrue(contrastRatio(primaryStacked.getCurrentTextColor(), context.getColor(R.color.banner_red)) >= 4.5);

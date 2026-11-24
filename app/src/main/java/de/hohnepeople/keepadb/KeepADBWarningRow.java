@@ -313,7 +313,7 @@ public class KeepADBWarningRow extends ViewGroup {
     }
 
     private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
+        return KeepADBUiKit.dp(getContext(), value);
     }
 
     @Override

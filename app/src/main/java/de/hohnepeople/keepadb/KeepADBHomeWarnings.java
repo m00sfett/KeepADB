@@ -115,20 +115,20 @@ final class KeepADBHomeWarnings {
                 if (OnboardingPermissions.hasNotificationPermission()
                         && OnboardingPermissions.isNotificationMissing(context)) {
                     limited++;
-                    limitedItem = OnboardingActionSteps.Permissions.ITEM_NOTIFICATIONS;
+                    limitedItem = OnboardingPermissionsStep.ITEM_NOTIFICATIONS;
                 }
                 // Without force: the background grant only matters where trust is decided.
                 if (!KeepADBForceMode.isActive(context)
                         && KeepADBBackgroundLocation.isSetupNeeded(context)) {
                     limited++;
                     if (limitedItem == null) {
-                        limitedItem = OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION;
+                        limitedItem = OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION;
                     }
                 }
                 if (!KeepADBBatteryOptimization.isExempt(context)) {
                     limited++;
                     if (limitedItem == null) {
-                        limitedItem = OnboardingActionSteps.Permissions.ITEM_BATTERY;
+                        limitedItem = OnboardingPermissionsStep.ITEM_BATTERY;
                     }
                 }
             }
@@ -153,7 +153,7 @@ final class KeepADBHomeWarnings {
     static Intent systemIntent(Context context) {
         return OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS)
                 .putExtra(OnboardingActivity.EXTRA_FOCUS_ITEM,
-                        OnboardingActionSteps.Permissions.ITEM_SYSTEM);
+                        OnboardingPermissionsStep.ITEM_SYSTEM);
     }
 
     /** W3: the step of the marked setting. */

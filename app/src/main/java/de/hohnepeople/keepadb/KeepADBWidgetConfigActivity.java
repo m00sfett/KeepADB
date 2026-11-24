@@ -244,6 +244,6 @@ public class KeepADBWidgetConfigActivity extends Activity {
     }
 
     private int dp(int value) {
-        return (int) Math.ceil(value * getResources().getDisplayMetrics().density);
+        return KeepADBUiKit.dp(this, value);
     }
 }

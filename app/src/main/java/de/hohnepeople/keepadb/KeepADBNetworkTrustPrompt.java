@@ -623,7 +623,7 @@ final class KeepADBNetworkTrustPrompt {
      * amount of re-checking permission or location fixes it; only promoting the service through a
      * foreground start does, and only {@link MainActivity#onResume()} (it unconditionally calls
      * {@link KeepADBService#sync}) and, since #759 phase 2, the permissions step of the setup
-     * assistant ({@link OnboardingActionSteps.Permissions#onResume}, the same call) do that.
+     * assistant ({@link OnboardingPermissionsStep#onResume}, the same call) do that.
      * {@link SettingsActivity} does not call {@code sync()} on resume, so it cannot re-promote the
      * service. So this branch opens the assistant's step instead of falling back to {@link
      * SettingsActivity}, which used to describe the state via {@code
@@ -663,7 +663,7 @@ final class KeepADBNetworkTrustPrompt {
         // MainActivity it re-promotes the service through sync() whenever it resumes (#628), and
         // the row leads to "Allow all the time" instead of a card the user has to find.
         return OnboardingActivity.notificationIntent(context, KeepADBOnboarding.Step.PERMISSIONS,
-                OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION);
+                OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION);
     }
 
     private static Notification.Action action(Context context, String title, String action,

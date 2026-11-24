@@ -311,10 +311,10 @@ final class KeepADBWarningState {
                 return KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(context);
             default:
                 String item = reason == Reason.NOTIFICATIONS_MISSING
-                        ? OnboardingActionSteps.Permissions.ITEM_NOTIFICATIONS
+                        ? OnboardingPermissionsStep.ITEM_NOTIFICATIONS
                         : reason == Reason.BACKGROUND_LOCATION_MISSING
-                        ? OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION
-                        : OnboardingActionSteps.Permissions.ITEM_BATTERY;
+                        ? OnboardingPermissionsStep.ITEM_BACKGROUND_LOCATION
+                        : OnboardingPermissionsStep.ITEM_BATTERY;
                 return OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PERMISSIONS)
                         .putExtra(OnboardingActivity.EXTRA_FOCUS_ITEM, item);
         }

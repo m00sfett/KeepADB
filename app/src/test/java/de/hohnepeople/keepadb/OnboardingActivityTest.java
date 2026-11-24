@@ -416,7 +416,7 @@ public class OnboardingActivityTest {
     @Test
     public void aNotificationTargetBeforeTheFirstCloseDoesNotHandOverAfterTheStepAndNoLoop() {
         OnboardingActivity single = start(OnboardingActivity.notificationIntent(context,
-                KeepADBOnboarding.Step.PERMISSIONS, OnboardingActionSteps.Permissions.ITEM_SYSTEM));
+                KeepADBOnboarding.Step.PERMISSIONS, OnboardingPermissionsStep.ITEM_SYSTEM));
         click(single, R.id.onboarding_next); // Done
         Intent home = shadowOf(single).getNextStartedActivity();
         assertEquals(MainActivity.class.getName(), home.getComponent().getClassName());

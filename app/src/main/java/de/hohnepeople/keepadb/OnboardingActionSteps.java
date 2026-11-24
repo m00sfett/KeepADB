@@ -2,656 +2,29 @@ package de.hohnepeople.keepadb;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * The steps of the setup assistant that act instead of choosing (#767, UX concept 1.3 steps 3 and
- * 4): the permissions Android has to give, and the Wi-Fi to trust. Their actions take effect at
- * once (a permission, a trust), so "Next" has nothing left to write and these steps may be skipped.
- * That is also what keeps the one rule of the assistant true for them: "Next" without input
- * changes no setting ({@link #commit} is empty).
+ * The views shared by the setup assistant steps that act instead of choosing (#767, UX concept 1.3
+ * steps 3 and 4): {@link OnboardingPermissionsStep} (the permissions Android has to give) and
+ * {@link OnboardingNetworkStep} (the Wi-Fi to trust). Their actions take effect at once (a
+ * permission, a trust), so "Next" has nothing left to write and these steps may be skipped; that
+ * keeps the one rule of the assistant true for them: "Next" without input changes no setting.
+ * #1051: the steps are classes of their own; this class keeps the row status word ({@link Tone})
+ * and the row builders on top of {@link KeepADBUiKit}.
  */
 final class OnboardingActionSteps {
     private OnboardingActionSteps() {}
 
-    // ---- Step 3: permissions ----------------------------------------------------------------------
 
-    /**
-     * One row per permission, each with its status word and, while open, its one action: the
-     * system permission (a command for the computer), notifications (API 33 and later), location
-     * to read the Wi-Fi, "Allow all the time" for the background, the battery exemption. The state
-     * is read from the platform on every resume, so returning from a system page shows the result
-     * without a toast.
-     *
-     * <p>Whenever this step is in front and the assistant resumes, it calls {@link
-     * KeepADBService#sync}, as the home screen does. That is what makes it the target of the
-     * "network not readable" deep link (#628, #759): only a foreground start re-promotes a Keep-Alive
-     * service that was started from the background.
-     */
-    static final class Permissions extends OnboardingStep {
-        static final String ITEM_SYSTEM = "system";
-        static final String ITEM_NOTIFICATIONS = "notifications";
-        static final String ITEM_LOCATION = "location";
-        static final String ITEM_BACKGROUND_LOCATION = "background_location";
-        static final String ITEM_BATTERY = "battery";
 
-        private Activity host;
-        private ViewGroup content;
-        private String focusItem;
-        private boolean moreOpen;
-        private boolean built;
-        /** #961/#962: the browser-based setup way, first alternative below on-device pairing. */
-        private boolean browserOpen;
-        private boolean browserAutoOpenedForFailure;
-        /** #961/#962: the manual USB command-line way, second alternative below browser setup. */
-        private boolean computerOpen;
-        /** #962: "Grant on this phone" was tapped and waits for the notification permission. */
-        private boolean selfPairPending;
-        private boolean selfPairNeedsNotifications;
-        private boolean selfPairNeedsWifi;
-        private static final String STATE_SELF_PAIR_PENDING =
-                "onboarding_perm_self_pair_pending";
-        private static final String STATE_BROWSER_OPEN =
-                "onboarding_perm_browser_open";
-        private static final String STATE_BROWSER_AUTO_OPENED =
-                "onboarding_perm_browser_auto_opened";
-        private static final String STATE_COMPUTER_OPEN =
-                "onboarding_perm_computer_open";
-        private static final String STATE_SELF_PAIR_NEEDS_NOTIFICATIONS =
-                "onboarding_perm_self_pair_needs_notifications";
-        private static final String STATE_SELF_PAIR_NEEDS_WIFI =
-                "onboarding_perm_self_pair_needs_wifi";
 
-        private final Runnable selfPairObserver = () -> {
-            if (built && host instanceof OnboardingActivity
-                    && ((OnboardingActivity) host).isShowing(this)) {
-                render();
-            }
-        };
-        /** The status word each row showed last time, to announce the ones that changed. */
-        private final Map<String, String> lastStatus = new HashMap<>();
-
-        Permissions() {
-            super(KeepADBOnboarding.Step.PERMISSIONS, R.string.onboarding_permissions_title,
-                    R.string.onboarding_permissions_question);
-        }
-
-        @Override
-        boolean hasSkip() {
-            return true;
-        }
-
-        @Override
-        void setFocusItem(String item) {
-            focusItem = item;
-        }
-
-        @Override
-        void build(Activity activity, ViewGroup container) {
-            host = activity;
-            content = container;
-            KeepADBSelfPairService.observe(selfPairObserver);
-            render();
-        }
-
-        @Override
-        void onDestroy() {
-            KeepADBSelfPairService.stopObserving(selfPairObserver);
-            built = false;
-        }
-
-        @Override
-        void saveState(Bundle out) {
-            out.putBoolean(STATE_SELF_PAIR_PENDING, selfPairPending);
-            out.putBoolean(STATE_BROWSER_OPEN, browserOpen);
-            out.putBoolean(STATE_BROWSER_AUTO_OPENED, browserAutoOpenedForFailure);
-            out.putBoolean(STATE_COMPUTER_OPEN, computerOpen);
-            out.putBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, selfPairNeedsNotifications);
-            out.putBoolean(STATE_SELF_PAIR_NEEDS_WIFI, selfPairNeedsWifi);
-        }
-
-        @Override
-        void restoreState(Bundle in) {
-            selfPairPending = in.getBoolean(STATE_SELF_PAIR_PENDING, false);
-            browserOpen = in.getBoolean(STATE_BROWSER_OPEN, false);
-            browserAutoOpenedForFailure = in.getBoolean(STATE_BROWSER_AUTO_OPENED, false);
-            computerOpen = in.getBoolean(STATE_COMPUTER_OPEN, false);
-            selfPairNeedsNotifications = in.getBoolean(STATE_SELF_PAIR_NEEDS_NOTIFICATIONS, false);
-            selfPairNeedsWifi = in.getBoolean(STATE_SELF_PAIR_NEEDS_WIFI, false);
-        }
-
-        @Override
-        void commit(Context context) {
-            // Nothing to write: every action of this step took effect when it was taken.
-        }
-
-        @Override
-        String summary(Context context) {
-            int missing = OnboardingPermissions.missingCount(context);
-            return missing == 0
-                    ? context.getString(R.string.onboarding_permissions_summary_done)
-                    : context.getString(R.string.onboarding_permissions_summary_missing, missing);
-        }
-
-        @Override
-        void onResume(Context context) {
-            // Back from the notification settings with the permission: go on where it stopped.
-            if (selfPairPending) {
-                if (KeepADBSelfPairService.notificationsUsable(host)) {
-                    startSelfPair();
-                } else {
-                    selfPairPending = false;
-                    selfPairNeedsNotifications = true;
-                    browserOpen = true;
-                }
-            }
-            if (built) render();
-            // #962: a grant that landed after its run had ended is settled when the user is back.
-            KeepADBSelfPairCleanup.reconcileAtStart(context);
-            // Like MainActivity.onResume: the service follows the preference, and a Keep-Alive
-            // service started from the background is promoted again (#628).
-            KeepADBService.sync(context);
-        }
-
-        @Override
-        void onPermissionResult(int requestCode) {
-            if (selfPairPending && requestCode == OnboardingPermissions.REQUEST_NOTIFICATIONS) {
-                if (KeepADBSelfPairService.notificationsUsable(host)) {
-                    startSelfPair();
-                } else {
-                    selfPairPending = false;
-                    selfPairNeedsNotifications = true;
-                    browserOpen = true;
-                }
-            }
-            if (built) render();
-        }
-
-        private void render() {
-            built = true;
-            content.removeAllViews();
-            Map<String, String> status = new HashMap<>();
-            boolean keepAlive = KeepADBPreferences.isKeepAliveEnabled(host);
-            boolean force = KeepADBForceMode.isActive(host);
-            Map<String, View> rows = new HashMap<>();
-
-            // System permission.
-            boolean system = OnboardingPermissions.isSystemPermissionGranted(host);
-            LinearLayout row = row(rows, status, ITEM_SYSTEM,
-                    R.string.onboarding_perm_system_title,
-                    system ? Tone.DONE : Tone.MISSING);
-            if (system) {
-                addSelfPairResult(row);
-            } else {
-                addSystemHelp(row);
-            }
-
-            // Notifications: a runtime permission from API 33 on, nothing to ask before.
-            if (OnboardingPermissions.hasNotificationPermission()) {
-                boolean granted = !OnboardingPermissions.isNotificationMissing(host);
-                row = row(rows, status, ITEM_NOTIFICATIONS,
-                        R.string.notification_permission_panel_title,
-                        granted ? Tone.DONE : Tone.MISSING);
-                if (!granted) {
-                    row.addView(body(host.getString(R.string.notification_permission_panel_body)));
-                    row.addView(button(host.getString(
-                            OnboardingPermissions.notificationAction(host)
-                                    == OnboardingPermissions.Action.OPEN_SETTINGS
-                                    ? R.string.notification_permission_settings_button
-                                    : R.string.notification_permission_request_button),
-                            true, v -> OnboardingPermissions.requestNotifications(host)));
-                }
-            }
-
-            // Location, to read the Wi-Fi name and access point.
-            boolean location = OnboardingPermissions.isLocationGranted(host);
-            row = row(rows, status, ITEM_LOCATION, R.string.onboarding_perm_location_title,
-                    location ? Tone.DONE : Tone.MISSING);
-            if (!location) {
-                row.addView(body(host.getString(R.string.onboarding_perm_location_body)));
-                row.addView(button(host.getString(
-                        OnboardingPermissions.locationAction(host)
-                                == OnboardingPermissions.Action.OPEN_SETTINGS
-                                ? R.string.location_permission_settings_button
-                                : R.string.location_permission_panel_grant_button),
-                        true, v -> OnboardingPermissions.requestLocation(host,
-                                NetworkListRenderer.REQUEST_LOCATION)));
-            }
-            if (force) row.addView(muted(host.getString(R.string.onboarding_perm_force_note)));
-
-            // Background detection: "Allow all the time".
-            boolean background = KeepADBBackgroundLocation.isGranted(host);
-            row = row(rows, status, ITEM_BACKGROUND_LOCATION,
-                    R.string.onboarding_perm_background_title,
-                    background ? Tone.DONE : keepAlive ? Tone.RECOMMENDED : Tone.OPTIONAL);
-            if (!background) {
-                if (!keepAlive) {
-                    row.addView(muted(host.getString(R.string.onboarding_perm_keep_alive_only)));
-                } else {
-                    row.addView(body(host.getString(R.string.onboarding_perm_background_body)));
-                    if (location) {
-                        row.addView(button(host.getString(
-                                R.string.location_permission_settings_button), false,
-                                v -> KeepADBBackgroundLocation.openSettings(host)));
-                    } else {
-                        row.addView(muted(host.getString(
-                                R.string.onboarding_perm_background_blocked)));
-                    }
-                }
-            }
-            if (force) row.addView(muted(host.getString(R.string.onboarding_perm_force_note)));
-
-            // Battery optimization.
-            boolean exempt = KeepADBBatteryOptimization.isExempt(host);
-            row = row(rows, status, ITEM_BATTERY, R.string.onboarding_perm_battery_title,
-                    exempt ? Tone.DONE : keepAlive ? Tone.RECOMMENDED : Tone.OPTIONAL);
-            if (!exempt) {
-                if (!keepAlive) {
-                    row.addView(muted(host.getString(R.string.onboarding_perm_keep_alive_only)));
-                } else {
-                    row.addView(body(host.getString(R.string.battery_optimization_body)));
-                    row.addView(button(host.getString(R.string.battery_optimization_button),
-                            false, v -> KeepADBBatteryOptimization.openSettings(host)));
-                }
-            }
-            // #891: the VPN app that carries the webhook needs the same exemption.
-            if (KeepADBPreferences.isRegisterWebhookEnabled(host)) {
-                row.addView(muted(host.getString(R.string.onboarding_perm_battery_vpn_note)));
-            }
-
-            announceChanges(status);
-            lastStatus.clear();
-            lastStatus.putAll(status);
-            focus(rows);
-        }
-
-        /**
-         * Three ways to the system permission (#961, #962): KeepADB grants it to itself on this
-         * phone (primary), or via the WebUSB setup page in a computer's browser, or manually over
-         * USB with the adb command line. Browser setup opens by itself when on-device pairing
-         * cannot work.
-         */
-        private void addSystemHelp(LinearLayout row) {
-            KeepADBSelfPairService.Status selfPair = KeepADBSelfPairService.status();
-            if (selfPair.phase == KeepADBSelfPairService.Phase.FAILED) {
-                if (!browserAutoOpenedForFailure) {
-                    browserOpen = true;
-                    browserAutoOpenedForFailure = true;
-                }
-            } else {
-                browserAutoOpenedForFailure = false;
-            }
-            if (selfPair.isActive()) {
-                addSelfPairProgress(row, selfPair);
-            } else {
-                row.addView(body(host.getString(R.string.selfpair_intro)));
-                addRemovableNotes(row, selfPair);
-                if (selfPairNeedsWifi) {
-                    row.addView(muted(host.getString(R.string.selfpair_need_wifi)));
-                }
-                if (selfPairNeedsNotifications) {
-                    row.addView(muted(host.getString(R.string.selfpair_need_notifications)));
-                }
-                row.addView(button(host.getString(R.string.selfpair_start_button), true,
-                        v -> startSelfPair()));
-            }
-            row.addView(foldToggle(host.getString(R.string.onboarding_perm_browser_toggle),
-                    browserOpen, v -> {
-                        browserOpen = !browserOpen;
-                        render();
-                    }));
-            if (browserOpen) addBrowserHelp(row);
-            row.addView(foldToggle(host.getString(R.string.selfpair_computer_toggle),
-                    computerOpen, v -> {
-                        computerOpen = !computerOpen;
-                        render();
-                    }));
-            if (computerOpen) addComputerHelp(row);
-        }
-
-        /** What the user does in Android's settings, and where the run stands. */
-        private void addSelfPairProgress(LinearLayout row, KeepADBSelfPairService.Status status) {
-            row.addView(body(host.getString(R.string.selfpair_step_1)));
-            row.addView(button(host.getString(R.string.selfpair_open_developer_options), true,
-                    v -> openDeveloperOptions()));
-            row.addView(muted(host.getString(R.string.selfpair_developer_options_hint)));
-            row.addView(body(host.getString(R.string.selfpair_step_2)));
-            row.addView(body(host.getString(R.string.selfpair_step_3)));
-            TextView state = label(host.getString(KeepADBSelfPairService.text(status.phase)));
-            state.setTextColor(host.getColor(R.color.text_yellow));
-            state.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
-            row.addView(state);
-            addRemovableNotes(row, status);
-            row.addView(button(host.getString(android.R.string.cancel), false,
-                    v -> KeepADBSelfPairService.cancel(host)));
-        }
-
-        /**
-         * After a grant on the phone: what is left behind. Shown for as long as this process
-         * remembers the run; the closing notification says the same and stays in the shade.
-         */
-        private void addSelfPairResult(LinearLayout row) {
-            KeepADBSelfPairService.Status status = KeepADBSelfPairService.status();
-            if (status.phase == KeepADBSelfPairService.Phase.DONE) {
-                if (status.cleanup == KeepADBSelfPairService.Cleanup.SWITCHED_OFF) {
-                    row.addView(muted(host.getString(R.string.selfpair_done_off)));
-                } else if (status.cleanup == KeepADBSelfPairService.Cleanup.STILL_ON) {
-                    row.addView(muted(host.getString(R.string.selfpair_done_still_on)));
-                }
-            }
-            addRemovableNotes(row, status);
-        }
-
-        /** One line per key this process paired: each left an entry the user may remove. */
-        private void addRemovableNotes(LinearLayout row, KeepADBSelfPairService.Status status) {
-            for (String fingerprint : status.fingerprints) {
-                row.addView(muted(host.getString(R.string.selfpair_done_removable,
-                        fingerprint)));
-            }
-        }
-
-        private void startSelfPair() {
-            selfPairNeedsWifi = !KeepADBService.isWifiConnected(host);
-            if (selfPairNeedsWifi) {
-                selfPairPending = false;
-                render();
-                return;
-            }
-            if (!KeepADBSelfPairService.notificationsUsable(host)) {
-                if (selfPairPending) {
-                    // Asked already and still missing: this way is closed.
-                    selfPairPending = false;
-                    selfPairNeedsNotifications = true;
-                    browserOpen = true;
-                    render();
-                    return;
-                }
-                // The code comes in through a notification reply; ask right before it is needed.
-                selfPairPending = true;
-                if (OnboardingPermissions.hasNotificationPermission()
-                        && OnboardingPermissions.isNotificationMissing(host)) {
-                    OnboardingPermissions.requestNotifications(host);
-                } else {
-                    OnboardingPermissions.openAppDetails(host);
-                }
-                return;
-            }
-            selfPairPending = false;
-            selfPairNeedsNotifications = false;
-            KeepADBSelfPairService.start(host);
-        }
-
-        private void openDeveloperOptions() {
-            try {
-                host.startActivity(new android.content.Intent(
-                        android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
-            } catch (android.content.ActivityNotFoundException e) {
-                // The hint below the button says how to unlock them.
-            }
-        }
-
-        private TextView foldToggle(String label, boolean open, View.OnClickListener listener) {
-            TextView toggle = body(label + (open ? "  ▴" : "  ▾"));
-            toggle.setTextColor(host.getColor(R.color.text_yellow));
-            toggle.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-            toggle.setMinHeight(dp(host, 48));
-            toggle.setGravity(Gravity.CENTER_VERTICAL);
-            toggle.setClickable(true);
-            toggle.setFocusable(true);
-            toggle.setStateDescription(host.getString(open
-                    ? R.string.card_state_expanded : R.string.card_state_collapsed));
-            toggle.setOnClickListener(listener);
-            return toggle;
-        }
-
-        /** #961: browser-based WebUSB setup page on a computer. No network call from the app. */
-        private void addBrowserHelp(LinearLayout row) {
-            row.addView(body(host.getString(R.string.onboarding_perm_browser_body)));
-            row.addView(command(host.getString(R.string.onboarding_perm_browser_url)));
-            row.addView(body(host.getString(R.string.onboarding_perm_browser_prereq)));
-            row.addView(button(host.getString(R.string.selfpair_open_developer_options), false,
-                    v -> openDeveloperOptions()));
-            row.addView(muted(host.getString(R.string.selfpair_developer_options_hint)));
-            row.addView(button(host.getString(R.string.setup_refresh), false,
-                    v -> refreshSystemPermission()));
-        }
-
-        /** The command for the computer, with the several-devices and problem help folded away. */
-        private void addComputerHelp(LinearLayout row) {
-            row.addView(body(host.getString(R.string.onboarding_perm_system_body)));
-            String grant = host.getString(R.string.setup_command, host.getPackageName());
-            row.addView(command(grant));
-            // #961: share sheet lets the user pass the command from phone to computer.
-            row.addView(button(host.getString(R.string.onboarding_share_command), false,
-                    v -> shareCommand(grant)));
-            row.addView(button(host.getString(R.string.setup_refresh), false,
-                    v -> refreshSystemPermission()));
-            row.addView(foldToggle(host.getString(R.string.onboarding_perm_system_more),
-                    moreOpen, v -> {
-                        moreOpen = !moreOpen;
-                        render();
-                    }));
-            if (!moreOpen) return;
-            row.addView(body(host.getString(R.string.setup_body)));
-            row.addView(label(host.getString(R.string.setup_multi_device_label)));
-            row.addView(command(host.getString(R.string.setup_command_multi,
-                    host.getPackageName())));
-            row.addView(muted(host.getString(R.string.setup_multi_device_hint)));
-            row.addView(label(host.getString(R.string.setup_state_offline_title)));
-            row.addView(body(host.getString(R.string.setup_state_offline_body)));
-            row.addView(label(host.getString(R.string.setup_state_unauthorized_title)));
-            row.addView(body(host.getString(R.string.setup_state_unauthorized_body)));
-        }
-
-        /** Tells the screen reader which rows changed their status word since the last read. */
-        private void announceChanges(Map<String, String> now) {
-            for (String line : changedRows(lastStatus, now, host)) {
-                content.announceForAccessibility(line);
-            }
-        }
-
-        /**
-         * The rows whose status word differs from last time, as "Title: Status". A row that was not
-         * there before (the first read) is not a change.
-         */
-        static List<String> changedRows(Map<String, String> before, Map<String, String> after,
-                                        Context context) {
-            List<String> lines = new ArrayList<>();
-            for (Map.Entry<String, String> entry : after.entrySet()) {
-                String old = before.get(entry.getKey());
-                if (old != null && !old.equals(entry.getValue())) {
-                    lines.add(rowTitle(context, entry.getKey()) + ": " + entry.getValue());
-                }
-            }
-            return lines;
-        }
-
-        private static String rowTitle(Context context, String item) {
-            switch (item) {
-                case ITEM_SYSTEM:
-                    return context.getString(R.string.onboarding_perm_system_title);
-                case ITEM_NOTIFICATIONS:
-                    return context.getString(R.string.notification_permission_panel_title);
-                case ITEM_LOCATION:
-                    return context.getString(R.string.onboarding_perm_location_title);
-                case ITEM_BACKGROUND_LOCATION:
-                    return context.getString(R.string.onboarding_perm_background_title);
-                default:
-                    return context.getString(R.string.onboarding_perm_battery_title);
-            }
-        }
-
-        /** A deep link names an item: bring it into view and give it the focus. */
-        private void focus(Map<String, View> rows) {
-            View target = focusItem == null ? null : rows.get(focusItem);
-            if (target == null) return;
-            target.setFocusable(true);
-            target.setFocusableInTouchMode(true);
-            target.requestFocus();
-            target.post(() -> target.requestRectangleOnScreen(
-                    new android.graphics.Rect(0, 0, target.getWidth(), target.getHeight())));
-        }
-
-        private LinearLayout row(Map<String, View> rows, Map<String, String> status, String item,
-                                 int titleRes, Tone tone) {
-            String statusWord = host.getString(tone.labelRes);
-            LinearLayout panel = panel(host);
-            panel.addView(titleLine(host, host.getString(titleRes), statusWord, tone));
-            content.addView(panel);
-            rows.put(item, panel);
-            status.put(item, statusWord);
-            return panel;
-        }
-
-        private TextView body(String text) {
-            return text(host, text, 14, R.color.night_text, 8);
-        }
-
-        private TextView muted(String text) {
-            return text(host, text, 13, R.color.night_muted, 8);
-        }
-
-        private TextView label(String text) {
-            TextView view = text(host, text, 13, R.color.night_text, 12);
-            view.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
-            return view;
-        }
-
-        private Button button(String label, boolean primary, View.OnClickListener listener) {
-            return actionButton(host, label, primary, listener);
-        }
-
-        private void refreshSystemPermission() {
-            render();
-            KeepADBWidget.refreshAll(host);
-            KeepADBEndpointCoordinator.refresh(host);
-        }
-
-        private void shareCommand(String command) {
-            android.content.Intent send = new android.content.Intent(
-                    android.content.Intent.ACTION_SEND)
-                    .setType("text/plain")
-                    .putExtra(android.content.Intent.EXTRA_TEXT, command);
-            android.content.Intent chooser = android.content.Intent.createChooser(send,
-                    host.getString(R.string.onboarding_share_command));
-            try {
-                host.startActivity(chooser);
-            } catch (android.content.ActivityNotFoundException ignored) {
-                // No share target installed; the command above remains selectable.
-            }
-        }
-
-        private TextView command(String text) {
-            TextView view = text(host, text, 13, R.color.text_yellow, 4);
-            view.setTypeface(Typeface.MONOSPACE);
-            view.setTextIsSelectable(true);
-            return view;
-        }
-    }
-
-    // ---- Step 4: trusted Wi-Fi --------------------------------------------------------------------
-
-    /**
-     * The Wi-Fi the device is connected to right now, and the question whether to trust it. The card
-     * is the current-network card of the Networks list ({@link
-     * NetworkListRenderer#renderCurrentForAssistant}) with the embedded decision of #766 ("Trust
-     * this network?"); the step has no dialog and no decision logic of its own.
-     *
-     * <p>The "trusted Wi-Fi name" of the balanced protection level (decision F5 of #758) is derived
-     * from the trusted access points, so there is no second list to fill here.
-     */
-    static final class Network extends OnboardingStep {
-        private Activity host;
-        private ViewGroup content;
-        private LinearLayout card;
-        private TextView privacyNote;
-        private NetworkListRenderer renderer;
-        private boolean built;
-
-        Network() {
-            super(KeepADBOnboarding.Step.NETWORK, R.string.onboarding_network_title,
-                    R.string.onboarding_network_question);
-        }
-
-        @Override
-        boolean hasSkip() {
-            return true;
-        }
-
-        @Override
-        void build(Activity activity, ViewGroup container) {
-            host = activity;
-            content = container;
-            content.removeAllViews();
-            // #904: shown while the app privacy switch masks this card; "Show" lifts it.
-            privacyNote = text(host, host.getString(R.string.onboarding_network_privacy_note),
-                    13, R.color.night_muted, 0);
-            content.addView(privacyNote);
-            if (KeepADBForceMode.isActive(host)) {
-                // Trust and blocks do not apply while force mode is on; the answer still counts.
-                content.addView(text(host, host.getString(R.string.networks_force_note), 13,
-                        R.color.text_yellow, 0));
-            }
-            card = new LinearLayout(host);
-            card.setOrientation(LinearLayout.VERTICAL);
-            // The card is replaced when the answer is given; the screen reader reads the new one.
-            card.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
-            content.addView(card, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            renderer = new NetworkListRenderer(host, card, this::refresh);
-            built = true;
-            refresh();
-        }
-
-        private void refresh() {
-            if (privacyNote != null) {
-                privacyNote.setVisibility(KeepADBNetworkDisplay.hidden(
-                        KeepADBPrivacy.scoped(host, KeepADBPrivacy.SCOPE_ASSISTANT))
-                        ? View.VISIBLE : View.GONE);
-            }
-            if (renderer != null) renderer.renderCurrentForAssistant();
-        }
-
-        @Override
-        void commit(Context context) {
-            // Nothing to write: trusting or blocking took effect when it was answered.
-        }
-
-        @Override
-        String summary(Context context) {
-            if (KeepADBNetworkDisplay.hidden(context)) {
-                return context.getString(R.string.networks_count_hidden);
-            }
-            KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
-            KeepADBNetworkList.Snapshot snapshot = KeepADBNetworkList.build(context, identity,
-                    identity.isKnown() || KeepADBService.isWifiConnected(context));
-            return context.getString(R.string.networks_count, snapshot.trusted, snapshot.blocked);
-        }
-
-        @Override
-        void onResume(Context context) {
-            if (built) refresh();
-        }
-
-        @Override
-        void onPermissionResult(int requestCode) {
-            if (built) refresh();
-        }
-    }
 
     // ---- Views ------------------------------------------------------------------------------------
 
@@ -675,14 +48,9 @@ final class OnboardingActionSteps {
         }
     }
 
-    private static LinearLayout panel(Activity host) {
-        LinearLayout panel = new LinearLayout(host);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackgroundResource(R.drawable.bg_panel);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(host, 8);
-        panel.setLayoutParams(params);
+    static LinearLayout panel(Activity host) {
+        LinearLayout panel = KeepADBUiKit.panel(host, R.drawable.bg_panel);
+        ((LinearLayout.LayoutParams) panel.getLayoutParams()).topMargin = dp(host, 8);
         return panel;
     }
 
@@ -691,46 +59,37 @@ final class OnboardingActionSteps {
      * large font, where two things in a row would cut one of them. Read as one line:
      * "Title, Status".
      */
-    private static View titleLine(Activity host, String title, String statusWord, Tone tone) {
+    static View titleLine(Activity host, String title, String statusWord, Tone tone) {
         TextView titleView = text(host, title, 16, R.color.night_text, 0);
         titleView.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
         titleView.setAccessibilityHeading(true);
         titleView.setContentDescription(title + ", " + statusWord);
 
-        TextView badge = new TextView(host);
-        badge.setText(statusWord);
-        badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        badge.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        badge.setPadding(dp(host, 6), dp(host, 2), dp(host, 6), dp(host, 2));
-        badge.setBackgroundResource(tone.background);
-        badge.setTextColor(host.getColor(tone.color));
         // The word is already part of the title's spoken line.
-        badge.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-
-        Configuration config = host.getResources().getConfiguration();
-        boolean stacked = config.fontScale >= 1.3f || config.screenWidthDp < 360;
-        LinearLayout line = new LinearLayout(host);
-        if (stacked) {
-            line.setOrientation(LinearLayout.VERTICAL);
-            line.addView(titleView);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.topMargin = dp(host, 4);
-            line.addView(badge, params);
-        } else {
-            line.setOrientation(LinearLayout.HORIZONTAL);
-            line.setGravity(Gravity.CENTER_VERTICAL);
-            line.addView(titleView, new LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.setMarginStart(dp(host, 8));
-            line.addView(badge, params);
-        }
-        return line;
+        TextView badge = KeepADBUiKit.badge(host, statusWord, tone.background, tone.color);
+        return KeepADBUiKit.titleLine(host, titleView, badge);
     }
 
-    private static TextView text(Activity host, String value, int sp, int colorRes, int topDp) {
+    static TextView body(Activity host, String text) {
+        return text(host, text, 14, R.color.night_text, 8);
+    }
+
+    static TextView muted(Activity host, String text) {
+        return text(host, text, 13, R.color.night_muted, 8);
+    }
+
+    static TextView label(Activity host, String text) {
+        TextView view = text(host, text, 13, R.color.night_text, 12);
+        view.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+        return view;
+    }
+
+    static Button button(Activity host, String label, boolean primary,
+            View.OnClickListener listener) {
+        return actionButton(host, label, primary, listener);
+    }
+
+    static TextView text(Activity host, String value, int sp, int colorRes, int topDp) {
         TextView view = new TextView(host);
         view.setText(value);
         view.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
@@ -742,26 +101,12 @@ final class OnboardingActionSteps {
         return view;
     }
 
-    private static Button actionButton(Activity host, String label, boolean primary,
+    static Button actionButton(Activity host, String label, boolean primary,
                                        View.OnClickListener listener) {
-        Button button = new Button(host);
-        button.setBackgroundResource(primary ? R.drawable.bg_btn_primary : R.drawable.bg_btn_secondary);
-        button.setMinHeight(dp(host, 48));
-        button.setPadding(dp(host, 16), dp(host, 8), dp(host, 16), dp(host, 8));
-        button.setTextColor(host.getColor(primary ? R.color.title_yellow : R.color.text_yellow));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        button.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        button.setAllCaps(false);
-        button.setText(label);
-        button.setOnClickListener(listener);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(host, 12);
-        button.setLayoutParams(params);
-        return button;
+        return KeepADBUiKit.actionButton(host, label, primary, listener, 12);
     }
 
-    private static int dp(Context context, int value) {
-        return (int) (value * context.getResources().getDisplayMetrics().density + 0.5f);
+    static int dp(Context context, int value) {
+        return KeepADBUiKit.dp(context, value);
     }
 }

@@ -368,7 +368,7 @@ public class MainActivityWarningInteractionTest {
                 .getBooleanExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, false));
         Intent system = KeepADBWarningState.reviewIntent(context, KeepADBWarningState.Reason.SYSTEM_PERMISSION);
         assertEquals(OnboardingActivity.class.getName(), system.getComponent().getClassName());
-        assertEquals(OnboardingActionSteps.Permissions.ITEM_SYSTEM,
+        assertEquals(OnboardingPermissionsStep.ITEM_SYSTEM,
                 system.getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
     }
     @Test public void settingsReviewOpensAndFocusesTheExactRow() {
