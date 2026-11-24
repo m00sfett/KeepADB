@@ -142,6 +142,7 @@ public class KeepADBHttpTransportContractTest {
     public void theClientKeepsTheSeamButNoHttpConfigurationOfItsOwn() throws IOException {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
         String seam = withoutComments(read(SOURCE_DIRECTORY + SEAM));
+        String transactions = withoutComments(read(SOURCE_DIRECTORY + "RegisterTransactions.java"));
 
         for (String moved : new String[] {"HttpURLConnection", "java.net.URL", "TIMEOUT_MS",
                 "setConnectTimeout", "setReadTimeout", "setInstanceFollowRedirects",
@@ -150,6 +151,8 @@ public class KeepADBHttpTransportContractTest {
                     client.contains(moved));
             assertFalse("the seam must not hold '" + moved + "' either (#1049)",
                     seam.contains(moved));
+            assertFalse("nor the transactions (#1054): '" + moved + "'",
+                    transactions.contains(moved));
         }
         assertTrue(seam.contains(
                 "private static final HttpTransport DEFAULT_TRANSPORT = new KeepADBHttpTransport();"));
@@ -160,6 +163,7 @@ public class KeepADBHttpTransportContractTest {
         assertEquals(1, count(seam, "httpTransport.delete("));
         assertFalse("only the seam reaches the selected transport (#1049)",
                 client.contains("httpTransport"));
+        assertFalse(transactions.contains("httpTransport"));
         // #1049: the outcome is returned, never noted on a shared field.
         for (String sideChannel : new String[] {"lastTransportOutcome", "noteTransportOutcome"}) {
             assertFalse(client.contains(sideChannel));
