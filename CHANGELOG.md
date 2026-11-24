@@ -23,6 +23,15 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.25] - Unreleased
+
+### Changed
+- **Home screen split into section controllers (#1048):** `MainActivity` (1,374 → 460 lines) keeps the lifecycle, the main and Keep-Alive switches and the coordination of its sections, following the `KeepADBTimerSection` pattern. `HomeWarningsController` holds the warning cards, the force card, the security triangle, the feedback bar with undo, mute choice, timeout and swipe, the expanded state and their saved state; `HomeStatusController` the Keep-Alive waiting detail (`KeepAliveWaitingDetail`, `resolveKeepAliveWaitingDetail`, moved from `MainActivity`), the status model, the details dialog and the status actions; `HomeEndpointSection` the endpoint row, its copy action and the listener and transport-overview generation tokens; `HomeWebhookCard` the webhook panel and its copy buttons. No text, layout, accessibility or behavior changes.
+- **Fewer allocations per refresh (#1048):** the periodic refresh no longer rebuilds the Keep-Alive line's tap target (theme lookup, accessibility delegate), the status reason's delegate while the explanation is unchanged, or the endpoint row's copy label.
+
+### Documentation
+- Store note `changelogs/306.txt` carries the unchanged summary since 1.14.1 (it replaces 305).
+
 ## [1.15.24] - Unreleased
 
 ### Changed

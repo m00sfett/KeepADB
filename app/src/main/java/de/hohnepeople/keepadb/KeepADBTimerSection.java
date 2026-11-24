@@ -65,11 +65,11 @@ final class KeepADBTimerSection {
 
     /**
      * #1012: why a running timer waits, in the words the overview widget uses, from the same
-     * resolution as the home status ({@link MainActivity#resolveKeepAliveWaitingDetail}). That
+     * resolution as the home status ({@link HomeStatusController#resolveKeepAliveWaitingDetail}). That
      * resolver also answers {@code WIFI_DISCONNECTED} for a trusted Wi-Fi with nothing to explain,
      * so the connection is passed in: connected and nothing blocking means it is switching on.
      */
-    static int waitingReason(boolean wifiConnected, MainActivity.KeepAliveWaitingDetail detail) {
+    static int waitingReason(boolean wifiConnected, HomeStatusController.KeepAliveWaitingDetail detail) {
         if (!wifiConnected) return R.string.overview_reason_no_wifi;
         switch (detail) {
             case BLOCKED_UNTRUSTED_NETWORK:
@@ -114,7 +114,7 @@ final class KeepADBTimerSection {
             String text = !on || waiting
                     ? activity.getString(R.string.timer_status_waiting_reason,
                             activity.getString(waitingReason(KeepADBService.isWifiConnected(activity),
-                                    MainActivity.resolveKeepAliveWaitingDetail(activity))), left)
+                                    HomeStatusController.resolveKeepAliveWaitingDetail(activity))), left)
                     : activity.getString(R.string.timer_status_running,
                             KeepADBForceMode.formatEnd(activity, timer.endsAtWallMs), left);
             if (!TextUtils.equals(status.getText(), text)) status.setText(text);

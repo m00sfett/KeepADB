@@ -80,10 +80,12 @@ public class MainActivityHomeStatusLayoutTest {
 
     @Test
     public void theHomeStatusIsNoClickableTextWithACardBackgroundAnyMore() throws IOException {
-        String source = read(root().resolve(
-                "app/src/main/java/de/hohnepeople/keepadb/MainActivity.java"));
-        assertFalse(source.contains("bg_card_clickable"));
-        assertFalse(source.contains("makeStatusDecisionEntry"));
+        // #1048 review: the status block now lives in its own controller; scan both.
+        for (String file : new String[] {"MainActivity.java", "HomeStatusController.java"}) {
+            String source = read(root().resolve("app/src/main/java/de/hohnepeople/keepadb/" + file));
+            assertFalse(file, source.contains("bg_card_clickable"));
+            assertFalse(file, source.contains("makeStatusDecisionEntry"));
+        }
     }
 
     @Test

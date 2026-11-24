@@ -483,18 +483,18 @@ public class KeepADBTimerSurfacesTest {
     public void theTimerWaitingReasonFollowsTheHomeStatusResolution() {
         // #1012: no longer "waiting for a trusted Wi-Fi" whatever the reason.
         assertEquals(R.string.overview_reason_no_wifi, KeepADBTimerSection.waitingReason(false,
-                MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
+                HomeStatusController.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
         assertEquals(R.string.overview_reason_untrusted, KeepADBTimerSection.waitingReason(true,
-                MainActivity.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
+                HomeStatusController.KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK));
         assertEquals(R.string.overview_reason_identity, KeepADBTimerSection.waitingReason(true,
-                MainActivity.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE));
+                HomeStatusController.KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE));
         assertEquals(R.string.overview_reason_open_network, KeepADBTimerSection.waitingReason(true,
-                MainActivity.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK));
+                HomeStatusController.KeepAliveWaitingDetail.BLOCKED_OPEN_NETWORK));
         assertEquals(R.string.overview_reason_backoff, KeepADBTimerSection.waitingReason(true,
-                MainActivity.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF));
+                HomeStatusController.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF));
         assertEquals("Connected, nothing blocks: it is switching on",
                 R.string.timer_waiting_reason_switching, KeepADBTimerSection.waitingReason(true,
-                        MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED));
+                        HomeStatusController.KeepAliveWaitingDetail.WIFI_DISCONNECTED));
     }
 
     @Test
