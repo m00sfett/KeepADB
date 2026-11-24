@@ -46,7 +46,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         transport = new KeepADBFakeHttpTransport();
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":" + PORT);
-        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> true);
+        RegisterTransactions.setEndpointProbeForTesting(endpoint -> true);
     }
 
     @After
@@ -143,14 +143,14 @@ public class KeepADBRegisterEpisodeReattemptTest {
     @Test
     public void unreachableCachedEndpointIsNotReported() {
         giveUp();
-        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> false);
+        RegisterTransactions.setEndpointProbeForTesting(endpoint -> false);
 
         advance(INTERVAL);
         heartbeat();
         assertEquals("no POST of a stale endpoint", 1, posts());
         assertTrue("the episode stays given up on", KeepADBRegisterClient.isSeriesExhaustedForTesting());
 
-        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> true);
+        RegisterTransactions.setEndpointProbeForTesting(endpoint -> true);
         advance(INTERVAL);
         heartbeat();
         assertEquals("the next interval tries again", 2, posts());
@@ -193,7 +193,7 @@ public class KeepADBRegisterEpisodeReattemptTest {
         KeepADBRegisterClient.resetForTesting();
         KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":" + PORT);
-        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> true);
+        RegisterTransactions.setEndpointProbeForTesting(endpoint -> true);
         KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
         advance(0);
         assertEquals("the unchanged endpoint starts no series", 2, posts());

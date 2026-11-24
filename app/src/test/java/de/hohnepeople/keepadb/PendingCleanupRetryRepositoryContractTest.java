@@ -43,6 +43,8 @@ public class PendingCleanupRetryRepositoryContractTest {
     private static final String COORDINATOR = "PendingCleanupCoordinator.java";
     private static final String BACKOFF = "UnavailableDeleteBackoff.java";
     private static final String SEAM = "RegisterTransport.java";
+    /** #1054: the two transactions moved out of the client; they still use its monitor. */
+    private static final String TRANSACTIONS = "RegisterTransactions.java";
 
     /**
      * No instance and no mutable static field means no queue, cache, lock, timer or generation can
@@ -175,6 +177,7 @@ public class PendingCleanupRetryRepositoryContractTest {
         String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
         String coordinator = withoutComments(read(SOURCE_DIRECTORY + COORDINATOR));
         String backoff = withoutComments(read(SOURCE_DIRECTORY + BACKOFF));
+        String transactions = withoutComments(read(SOURCE_DIRECTORY + TRANSACTIONS));
 
         for (String moved : new String[] {"register_webhook_pending_cleanup_retry_state",
                 "getSharedPreferences", "SharedPreferences", "PREFS_NAME", "PendingCleanupRetryState",
@@ -183,13 +186,15 @@ public class PendingCleanupRetryRepositoryContractTest {
                 "pendingCleanupRetryStateKey", "MAX_PENDING_CLEANUP_ATTEMPTS",
                 "PENDING_CLEANUP_EXPIRY_MS", "PENDING_CLEANUP_INITIAL_BACKOFF_MS",
                 "PENDING_CLEANUP_MAX_BACKOFF_MS"}) {
-            for (String code : new String[] {client, coordinator, backoff}) {
+            for (String code : new String[] {client, coordinator, backoff, transactions}) {
                 assertFalse("no copy of '" + moved + "' outside the repository (#701)",
                         code.contains(moved));
             }
         }
         assertFalse("#1049: the client leaves the record to the coordinator",
                 client.contains("PendingCleanupRetryRepository"));
+        assertFalse("#1054: and so do the transactions",
+                transactions.contains("PendingCleanupRetryRepository"));
         assertEquals("the coordinator reads a record in exactly one place", 1,
                 count(coordinator, "PendingCleanupRetryRepository.read("));
         assertEquals("the coordinator books a failure in exactly one place", 1,
@@ -219,6 +224,7 @@ public class PendingCleanupRetryRepositoryContractTest {
         }
         assertFalse("and the client keeps no clock of either kind for them",
                 client.contains("currentTimeMillis"));
+        assertFalse("nor do the transactions (#1054)", transactions.contains("currentTimeMillis"));
     }
 
     /**
@@ -245,21 +251,28 @@ public class PendingCleanupRetryRepositoryContractTest {
      */
     @Test
     public void noSynchronizedBlockOrMethodReachesTheTransport() throws IOException {
-        String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
-
         List<String> guarded = new ArrayList<>();
-        Matcher block = Pattern.compile("synchronized\\s*\\(\\s*KeepADBRegisterClient\\.class\\s*\\)\\s*\\{")
-                .matcher(client);
-        while (block.find()) {
-            guarded.add(matchBraces(client, block.end() - 1));
-        }
-        Matcher method = Pattern.compile("static\\s+synchronized\\s+[\\w<>\\[\\]]+\\s+\\w+\\([^)]*\\)\\s*\\{")
-                .matcher(client);
-        while (method.find()) {
-            guarded.add(matchBraces(client, method.end() - 1));
+        // #1054: the transactions take the client's monitor too; both files are scanned.
+        for (String file : new String[] {CLIENT, TRANSACTIONS}) {
+            String code = withoutComments(read(SOURCE_DIRECTORY + file));
+            int before = guarded.size();
+            Matcher block = Pattern.compile(
+                    "synchronized\\s*\\(\\s*KeepADBRegisterClient\\.class\\s*\\)\\s*\\{")
+                    .matcher(code);
+            while (block.find()) {
+                guarded.add(matchBraces(code, block.end() - 1));
+            }
+            Matcher method = Pattern.compile(
+                    "static\\s+synchronized\\s+[\\w<>\\[\\]]+\\s+\\w+\\([^)]*\\)\\s*\\{")
+                    .matcher(code);
+            while (method.find()) {
+                guarded.add(matchBraces(code, method.end() - 1));
+            }
+            assertTrue("the scan must see the monitor sections of " + file + ": "
+                    + (guarded.size() - before), guarded.size() - before >= 10);
         }
         assertTrue("the scan must see the commit blocks and synchronized methods: " + guarded.size(),
-                guarded.size() >= 15);
+                guarded.size() >= 30);
         // #1049: the coordinator and the seam run outside the monitor and take no lock of their own.
         for (String outside : new String[] {COORDINATOR, SEAM}) {
             String code = withoutComments(read(SOURCE_DIRECTORY + outside));
@@ -289,12 +302,12 @@ public class PendingCleanupRetryRepositoryContractTest {
      */
     @Test
     public void theUpdateTransactionKeepsItsCheckAndWriteAheadOrder() throws IOException {
-        String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
-        String update = bodyOf(client, "private static void performUpdateTransaction(");
+        String transactions = withoutComments(read(SOURCE_DIRECTORY + TRANSACTIONS));
+        String update = bodyOf(transactions, "private static void performUpdateTransaction(");
 
         int post = update.indexOf("RegisterTransport.postEndpoint(targetUrl, targetEndpoint)");
         assertTrue(post > 0);
-        int recheck = update.indexOf("if (opGen != currentOpGeneration) {", post);
+        int recheck = update.indexOf("if (!KeepADBRegisterClient.isCurrent(opGen)) {", post);
         int secondary = update.indexOf(
                 "RegisterTransport.reportAdditionalVerifiedTransports(context, targetUrl);");
         assertTrue("the operation is checked after the POST", recheck > post);
@@ -311,7 +324,8 @@ public class PendingCleanupRetryRepositoryContractTest {
                 commit);
         int drop = update.indexOf("PendingCleanupCoordinator.removeForResource(context, targetUrl)",
                 commit);
-        int stateMove = update.indexOf("lastRegisteredUrl = targetUrl;", commit);
+        int stateMove = update.indexOf(
+                "KeepADBRegisterClient.commitRegistrationLocked(targetUrl, targetEndpoint);", commit);
         int snapshot = update.indexOf("WebhookReportPrefs.setWebhookReportSnapshot(", commit);
         assertTrue("the cleanup to remember is persisted in the commit block", remember > commit);
         assertTrue("before the obsolete cleanups of the new URL are dropped", drop > remember);
@@ -357,13 +371,15 @@ public class PendingCleanupRetryRepositoryContractTest {
                         .matcher(flush).find());
 
         // The flush is reached from the two transactions and the test hook only.
-        assertEquals("update transaction, delete transaction and the test hook", 3,
-                count(client, "PendingCleanupCoordinator.flush("));
+        String transactions = withoutComments(read(SOURCE_DIRECTORY + TRANSACTIONS));
+        assertEquals("the test hook", 1, count(client, "PendingCleanupCoordinator.flush("));
+        assertEquals("update transaction and delete transaction (#1054)", 2,
+                count(transactions, "PendingCleanupCoordinator.flush("));
         assertEquals("the coordinator never flushes from anywhere else", 1,
                 count(coordinator, "flush("));
         for (String transaction : new String[] {"private static void performUpdateTransaction(",
                 "private static void performDeleteTransaction("}) {
-            String body = bodyOf(client, transaction);
+            String body = bodyOf(transactions, transaction);
             Matcher flushCall = Pattern.compile("(?:List<String>\\s+\\w+\\s*=\\s*)?"
                     + "PendingCleanupCoordinator\\.flush\\(context, targetUrl, (true|false)\\);")
                     .matcher(body);
@@ -379,14 +395,29 @@ public class PendingCleanupRetryRepositoryContractTest {
         Matcher task = Pattern.compile("EXECUTOR\\.execute\\(\\(\\)\\s*->\\s*\\{").matcher(client);
         while (task.find()) {
             String body = matchBraces(client, task.end() - 1);
-            inExecutorTasks += count(body, "performUpdateTransaction(")
-                    + count(body, "performDeleteTransaction(");
+            inExecutorTasks += count(body, "RegisterTransactions.update(")
+                    + count(body, "RegisterTransactions.delete(");
         }
-        int calls = count(client, "performUpdateTransaction(") - 1
-                + count(client, "performDeleteTransaction(") - 1;
+        int calls = count(client, "RegisterTransactions.update(")
+                + count(client, "RegisterTransactions.delete(");
         assertEquals("one call of the update and two of the delete transaction", 3, calls);
         assertEquals("every call of a transaction is made inside a register executor task", calls,
                 inExecutorTasks);
+        // #1054: each entry of the transactions reaches its transaction once, and nothing else in
+        // the main sources calls them, so the client's executor tasks stay the only way in.
+        assertEquals(2, count(transactions, "performUpdateTransaction("));
+        assertEquals(2, count(transactions, "performDeleteTransaction("));
+        try (Stream<Path> files = Files.list(projectPath(SOURCE_DIRECTORY))) {
+            for (Path file : (Iterable<Path>) files::iterator) {
+                String name = file.getFileName().toString();
+                if (name.equals(CLIENT) || !name.endsWith(".java")) continue;
+                String code = withoutComments(
+                        new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+                assertFalse(name + " must not start a transaction",
+                        code.contains("RegisterTransactions.update(")
+                                || code.contains("RegisterTransactions.delete("));
+            }
+        }
     }
 
     /**

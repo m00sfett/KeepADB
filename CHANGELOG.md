@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.15.27] - Unreleased
+
+### Changed
+- **Register transactions extracted (#1054):** the update and delete transactions of `KeepADBRegisterClient`, their outcome recording and the episode re-attempt's endpoint probe moved into `RegisterTransactions`. They still run only from the client's register executor tasks, take the client's class monitor for every state read and commit (through package-private `...Locked` callbacks), and send no request inside it; generation, executor and monitor stay owned by the client. `KeepADBRegisterClient` shrinks from 954 to about 760 lines (637 → about 500 code lines). The source contracts scan both files. No behavior, wire-format, timing or persisted-key change.
+
+### Documentation
+- Store note `changelogs/308.txt` carries the unchanged summary since 1.14.1 (it replaces 307).
+
 ## [1.15.26] - Unreleased
 
 ### Fixed
