@@ -257,7 +257,12 @@ final class RegisterTransactions {
      */
     private static void recordReportOutcome(Context context, String method, String endpoint,
             TransportResult result, boolean failingBefore, long opGen, int retry, int maxRetries) {
-        boolean superseded = !KeepADBRegisterClient.isCurrent(opGen);
+        boolean superseded;
+        // Under the monitor, not a bare volatile read: an operation that is about to supersede
+        // this one inside its critical section is waited for and seen (#1054 review).
+        synchronized (KeepADBRegisterClient.class) {
+            superseded = !KeepADBRegisterClient.isCurrent(opGen);
+        }
         boolean ok = result.ok;
         if ("delete".equals(method)) {
             KeepADBReportHistory.unregister(context, endpoint, ok, result.outcome, retry);

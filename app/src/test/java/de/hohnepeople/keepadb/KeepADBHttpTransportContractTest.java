@@ -168,6 +168,7 @@ public class KeepADBHttpTransportContractTest {
         for (String sideChannel : new String[] {"lastTransportOutcome", "noteTransportOutcome"}) {
             assertFalse(client.contains(sideChannel));
             assertFalse(seam.contains(sideChannel));
+            assertFalse(transactions.contains(sideChannel));
             assertFalse(withoutComments(read(SOURCE_DIRECTORY + ADAPTER)).contains(sideChannel));
         }
         assertTrue("the adapter and the client log under the same tag",
